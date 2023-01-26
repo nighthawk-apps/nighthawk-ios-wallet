@@ -1,5 +1,5 @@
-input_dir: secant/Resources/
-output_dir: secant/Resources/Generated/
+input_dir: nighthawk/Resources/
+output_dir: nighthawk/Resources/Generated/
 
 xcassets:
   inputs:

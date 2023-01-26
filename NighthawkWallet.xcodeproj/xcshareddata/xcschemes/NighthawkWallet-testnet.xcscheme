@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1320"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0D4E7A0426B364170058B01E"
+               BuildableName = "NighthawkWallet-testnet.app"
+               BlueprintName = "NighthawkWallet-testnet"
+               ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug testnet"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "0D4E7A0426B364170058B01E"
+            BuildableName = "NighthawkWallet-testnet.app"
+            BlueprintName = "NighthawkWallet-testnet"
+            ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0D4E7A1526B364180058B01E"
+               BuildableName = "NighthawkWalletTests.xctest"
+               BlueprintName = "NighthawkWalletTests"
+               ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0D4E7A2026B364180058B01E"
+               BuildableName = "NighthawkWalletUITests.xctest"
+               BlueprintName = "NighthawkWalletUITests"
+               ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug testnet"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "0D4E7A0426B364170058B01E"
+            BuildableName = "NighthawkWallet-testnet.app"
+            BlueprintName = "NighthawkWallet-testnet"
+            ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release testnet"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "0D4E7A0426B364170058B01E"
+            BuildableName = "NighthawkWallet-testnet.app"
+            BlueprintName = "NighthawkWallet-testnet"
+            ReferencedContainer = "container:NighthawkWallet.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug testnet">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release testnet"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

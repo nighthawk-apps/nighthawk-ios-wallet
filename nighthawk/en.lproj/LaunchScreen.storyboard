@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="tfP-sC-VkZ"/>
+                        <viewControllerLayoutGuide type="bottom" id="tNq-s4-5B1"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="nighthawk_symbol" translatesAutoresizingMaskIntoConstraints="NO" id="Bkz-ax-lpJ">
+                                <rect key="frame" x="104" y="220" width="167" height="167"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="167" id="rZH-Ns-97W"/>
+                                    <constraint firstAttribute="width" constant="167" id="vLz-x3-HEK"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" name="zYellow"/>
+                        <constraints>
+                            <constraint firstItem="Bkz-ax-lpJ" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="2a9-G5-SMG"/>
+                            <constraint firstItem="Bkz-ax-lpJ" firstAttribute="top" secondItem="tfP-sC-VkZ" secondAttribute="bottom" constant="220" id="NXV-5A-RjS"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="nighthawk_symbol" width="432" height="432"/>
+        <namedColor name="zYellow">
+            <color red="0.99607843137254903" green="0.46666666666666667" blue="0.3411764705882353" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

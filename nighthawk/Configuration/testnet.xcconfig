@@ -1,0 +1,16 @@
+//
+//  testnet.xcconfig
+//  NighthawkWallet
+//
+//  Created by Two Point on 1/25/23.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+APP_VERSION = 1.41
+APP_BUNDLE_ID = com.nighthawkapps.wallet.ios.testnet
+APP_BUILD = 141
+APP_NAME = Nighthawk-testnet
+APP_NETWORK = testnet
+APP_PLIST = Info-testnet.plist
