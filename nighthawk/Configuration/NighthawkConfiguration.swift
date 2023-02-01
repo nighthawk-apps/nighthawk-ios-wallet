@@ -2,7 +2,7 @@
 //  NighthawkConfiguration.swift
 //  NighthawkWallet
 //
-//  Created by Two Point on 1/26/23.
+//  Created by Matthew Watt on 1/26/23.
 //
 
 import Foundation
