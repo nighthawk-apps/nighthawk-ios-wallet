@@ -45,7 +45,9 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
             reducer: RootReducer()
         )
 
-        store.send(.phraseDisplay(.finishedPressed))
+        store.send(.phraseDisplay(.finishedPressed)) { state in
+            state.destinationState.destination = .home
+        }
     }
     
     func testRecoveryPhraseValidationFlow_SkipPuzzleStartOfTheApp() {

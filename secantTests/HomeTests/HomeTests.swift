@@ -61,7 +61,6 @@ class HomeTests: XCTestCase {
 
         // expected side effects as a result of .onAppear registration
         store.receive(.updateDestination(nil))
-        store.receive(.resolveReviewRequest)
         store.receive(.synchronizerStateChanged(.zero)) { state in
             state.synchronizerStatusSnapshot = SyncStatusSnapshot.snapshotFor(state: .unprepared)
         }
@@ -88,8 +87,6 @@ class HomeTests: XCTestCase {
         store.receive(.updateDestination(.notEnoughFreeDiskSpace)) { state in
             state.destination = .notEnoughFreeDiskSpace
         }
-
-        store.receive(.resolveReviewRequest)
 
         // long-living (cancelable) effects need to be properly canceled.
         // the .onDisappear action cancels the observer of the synchronizer status change.
