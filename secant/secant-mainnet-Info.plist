@@ -46,6 +46,8 @@
 	<string>To access sensitive wallet data which should never be shared with anyone. For example backup phrase seed that can restore the wallet and gain access to funds.</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>PulpDisplay-Medium.ttf</string>
+		<string>PulpDisplay-Regular.ttf</string>
 		<string>Zboto.otf</string>
 		<string>Rubik-Italic-VariableFont_wght.ttf</string>
 		<string>Rubik-VariableFont_wght.ttf</string>

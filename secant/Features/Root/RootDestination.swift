@@ -60,18 +60,7 @@ extension RootReducer {
                 state.destinationState.destination = .phraseDisplay
 
             case .phraseDisplay(.finishedPressed):
-                // user is still supposed to do the backup phrase validation test
-                if (state.destinationState.previousDestination == .welcome
-                || state.destinationState.previousDestination == .onboarding
-                || state.destinationState.previousDestination == .startup)
-                && state.walletConfig.isEnabled(.testBackupPhraseFlow) {
-                    state.destinationState.destination = .phraseValidation
-                }
-                // user wanted to see the backup phrase once again (at validation finished screen)
-                if state.destinationState.previousDestination == .phraseValidation
-                || !state.walletConfig.isEnabled(.testBackupPhraseFlow) {
-                    state.destinationState.destination = .home
-                }
+                state.destinationState.destination = .home
 
             case .destination(.deeplink(let url)):
                 // get the latest synchronizer state

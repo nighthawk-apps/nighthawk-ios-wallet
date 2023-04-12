@@ -19,6 +19,11 @@ internal typealias SystemFont = FontConvertible.SystemFont
 
 // swiftlint:disable identifier_name line_length type_body_length
 internal enum FontFamily {
+  internal enum PulpDisplay {
+    internal static let medium = FontConvertible(name: "PulpDisplay-Medium", family: "Pulp Display", path: "PulpDisplay-Medium.ttf")
+    internal static let regular = FontConvertible(name: "PulpDisplay-Regular", family: "Pulp Display", path: "PulpDisplay-Regular.ttf")
+    internal static let all: [FontConvertible] = [medium, regular]
+  }
   internal enum Roboto {
     internal static let black = FontConvertible(name: "Roboto-Black", family: "Roboto", path: "Roboto-Black.ttf")
     internal static let blackItalic = FontConvertible(name: "Roboto-BlackItalic", family: "Roboto", path: "Roboto-BlackItalic.ttf")
@@ -55,7 +60,7 @@ internal enum FontFamily {
     internal static let regular = FontConvertible(name: "ZbotoRegular", family: "Zboto", path: "Zboto.otf")
     internal static let all: [FontConvertible] = [regular]
   }
-  internal static let allCustomFonts: [FontConvertible] = [Roboto.all, Rubik.all, Zboto.all].flatMap { $0 }
+  internal static let allCustomFonts: [FontConvertible] = [PulpDisplay.all, Roboto.all, Rubik.all, Zboto.all].flatMap { $0 }
   internal static func registerAllCustomFonts() {
     allCustomFonts.forEach { $0.register() }
   }

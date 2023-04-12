@@ -42,7 +42,14 @@ struct SecantApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(store: appDelegate.rootStore)
-                .preferredColorScheme(.light)
+                .modify {
+                    if #available(iOS 16, *) {
+                        $0.preferredColorScheme(.dark)
+                            .toolbarColorScheme(.dark, for: .navigationBar)
+                    } else {
+                        $0.preferredColorScheme(.dark)
+                    }
+                }
         }
     }
 }

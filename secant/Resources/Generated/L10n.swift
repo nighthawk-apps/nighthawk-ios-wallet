@@ -214,6 +214,46 @@ internal enum L10n {
     /// Not enough space on disk to do synchronisation!
     internal static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
+  internal enum Nighthawk {
+    internal enum PlainOnboarding {
+      /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can try to restore your previous wallet.
+      internal static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can try to restore your previous wallet.")
+      /// Create Wallet
+      internal static let create = L10n.tr("Localizable", "nighthawk.plainOnboarding.create", fallback: "Create Wallet")
+      /// Restore From Backup
+      internal static let restore = L10n.tr("Localizable", "nighthawk.plainOnboarding.restore", fallback: "Restore From Backup")
+      /// Get started
+      internal static let subtitle = L10n.tr("Localizable", "nighthawk.plainOnboarding.subtitle", fallback: "Get started")
+      /// By using this app you accept our
+      internal static let terms1 = L10n.tr("Localizable", "nighthawk.plainOnboarding.terms1", fallback: "By using this app you accept our")
+      /// Terms and Conditions
+      internal static let terms2 = L10n.tr("Localizable", "nighthawk.plainOnboarding.terms2", fallback: "Terms and Conditions")
+    }
+    internal enum RecoveryPhraseDisplay {
+      /// Wallet birthday:
+      internal static let birthday = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.birthday", fallback: "Wallet birthday:")
+      /// I confirm I have saved my seed phrase.
+      internal static let confirmPhraseWrittenDownCheckBox = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox", fallback: "I confirm I have saved my seed phrase.")
+      /// Continue
+      internal static let `continue` = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.continue", fallback: "Continue")
+      /// Nighthawk Wallet
+      internal static let exportAppName = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAppName", fallback: "Nighthawk Wallet")
+      /// Export as PDF
+      internal static let exportAsPdf = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAsPdf", fallback: "Export as PDF")
+      /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.
+      internal static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.")
+      /// Write it down on paper and store it somewhere safe.
+      internal static let instructions2 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions2", fallback: "Write it down on paper and store it somewhere safe.")
+      /// Write down your backup seed
+      internal static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
+    }
+    internal enum WelcomeScreen {
+      /// Private money in your pocket.
+      internal static let subtitle = L10n.tr("Localizable", "nighthawk.welcomeScreen.subtitle", fallback: "Private money in your pocket.")
+      /// Nighthawk
+      internal static let title = L10n.tr("Localizable", "nighthawk.welcomeScreen.title", fallback: "Nighthawk")
+    }
+  }
   internal enum Onboarding {
     internal enum Button {
       /// Import an Existing Wallet
