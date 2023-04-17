@@ -278,7 +278,7 @@
 
 // MARK: - Plain Onboarding Flow
 "nighthawk.plainOnboarding.subtitle" = "Get started";
-"nighthawk.plainOnboarding.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can try to restore your previous wallet.";
+"nighthawk.plainOnboarding.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
 "nighthawk.plainOnboarding.terms1" = "By using this app you accept our";
 "nighthawk.plainOnboarding.terms2" = "Terms and Conditions";
 "nighthawk.plainOnboarding.create" = "Create Wallet";
