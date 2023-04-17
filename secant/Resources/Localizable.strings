@@ -293,3 +293,5 @@
 "nighthawk.recoveryPhraseDisplay.continue" = "Continue";
 "nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your Zcash in Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";

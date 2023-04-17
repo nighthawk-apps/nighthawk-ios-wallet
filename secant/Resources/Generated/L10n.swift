@@ -244,6 +244,12 @@ internal enum L10n {
       internal static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.")
       /// Write it down on paper and store it somewhere safe.
       internal static let instructions2 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions2", fallback: "Write it down on paper and store it somewhere safe.")
+      /// These are seed words used to restore your Zcash in Nighthawk Wallet:
+      internal static let pdfHeader = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfHeader", fallback: "These are seed words used to restore your Zcash in Nighthawk Wallet:")
+      /// Backup PDF generated at %@
+      internal static func pdfTimestamp(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfTimestamp", String(describing: p1), fallback: "Backup PDF generated at %@")
+      }
       /// Write down your backup seed
       internal static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
     }
