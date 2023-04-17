@@ -357,6 +357,8 @@
 		456D4C6829CC02230003A340 /* NighthawkPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */; };
 		456D4C6A29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */; };
 		456D4C6B29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */; };
+		4575B84F29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */; };
+		4575B85029ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */; };
 		45941DEA29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */; };
 		45941DEB29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */; };
 		4596E35529CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */; };
@@ -729,6 +731,7 @@
 		456D4C6329CBFCB90003A340 /* NighthawkBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkBackground.swift; sourceTree = "<group>"; };
 		456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkPrimaryButtonStyle.swift; sourceTree = "<group>"; };
 		456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkLinkButtonStyle.swift; sourceTree = "<group>"; };
 		45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHCheckBox.swift; sourceTree = "<group>"; };
 		4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHRecoveryPhraseDisplayView.swift; sourceTree = "<group>"; };
 		660558E8270C7A54009D6954 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
@@ -1353,6 +1356,7 @@
 				663FAB9B271D874D00E495F8 /* ActiveButton.swift */,
 				456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */,
 				456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */,
+				4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -2873,6 +2877,7 @@
 				0D26AF13299E8196005260EE /* RecoveryPhraseDisplayStore.swift in Sources */,
 				0D26AF14299E8196005260EE /* Deeplink.swift in Sources */,
 				9E486DF129B9EE84003E6945 /* KeyboardAdaptive.swift in Sources */,
+				4575B85029ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */,
 				0D26AF15299E8196005260EE /* RecoveryPhrase.swift in Sources */,
 				0D26AF16299E8196005260EE /* LocalAuthenticationMocks.swift in Sources */,
 				0D573CB629C106E900B97379 /* About.swift in Sources */,
@@ -3117,6 +3122,7 @@
 				9E153A602920CE2700112F41 /* MnemonicLiveKey.swift in Sources */,
 				9E6612332878338C00C75B70 /* LottieAnimation.swift in Sources */,
 				9EB863C92923C953003D0F8B /* UserPreferencesStorageMocks.swift in Sources */,
+				4575B84F29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */,
 				0D3D040A2728B3A10032ABC1 /* RecoveryPhraseDisplayStore.swift in Sources */,
 				9EAB4671285A1C77002904A0 /* Deeplink.swift in Sources */,
 				9E486DF029B9EE84003E6945 /* KeyboardAdaptive.swift in Sources */,

@@ -47,6 +47,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
 
     enum Action: Equatable {
         case back
+        case termsAndConditions
         case createNewWallet
         case importExistingWallet
         case importWallet(ImportWalletReducer.Action)
@@ -92,6 +93,11 @@ struct OnboardingFlowReducer: ReducerProtocol {
                 
             case .updateDestination(let destination):
                 state.destination = destination
+                return .none
+                
+            case .termsAndConditions:
+                guard let termsUrl = URL(string: "https://nighthawkwallet.com/termsconditions") else { return .none }
+                UIApplication.shared.open(termsUrl)
                 return .none
 
             case .createNewWallet:

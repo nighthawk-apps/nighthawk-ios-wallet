@@ -19,7 +19,9 @@ struct NHPlainOnboardingView: View {
                 Spacer()
                 mainContent()
                 Spacer()
-                terms()
+                terms {
+                    viewStore.send(.termsAndConditions)
+                }
                 Spacer()
                 actions {
                     viewStore.send(
@@ -49,14 +51,16 @@ private extension NHPlainOnboardingView {
             .padding(.horizontal, 58)
     }
     
-    func terms() -> some View {
+    func terms(
+        onTermsLinkTapped: @escaping () -> Void
+    ) -> some View {
         VStack {
             Text(L10n.Nighthawk.PlainOnboarding.terms1)
                 .caption()
                 .padding(.bottom, 4)
             
-            Text(L10n.Nighthawk.PlainOnboarding.terms2)
-                .caption(color: Asset.Colors.Nighthawk.peach.color)
+            Button(L10n.Nighthawk.PlainOnboarding.terms2, action: onTermsLinkTapped)
+            .buttonStyle(.nighthawkLink())
         }
     }
     
