@@ -94,7 +94,7 @@ class HomeTests: XCTestCase {
     }
 
     func testSynchronizerErrorBringsUpAlert() {
-        let testError = SynchronizerError.syncFailed
+        let testError = ZcashError.synchronizerNotPrepared
         let errorSnapshot = SyncStatusSnapshot.snapshotFor(
             state: .error(testError)
         )
@@ -113,6 +113,12 @@ class HomeTests: XCTestCase {
 
         store.receive(.showSynchronizerErrorAlert(errorSnapshot))
         
-        store.receive(.alert(.home(.syncFailed("Error: Synchronizer failed", "Dismiss"))))
+        store.receive(
+            .alert(
+                .home(
+                    .syncFailed("Error: The operation couldn’t be completed. (ZcashLightClientKit.ZcashError error 168.)", "Dismiss")
+                )
+            )
+        )
     }
 }
