@@ -29,6 +29,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
         var destination: Destination?
         var walletConfig: WalletConfig
         var importWalletState: ImportWalletReducer.State
+        var walletCreatedState: NHWalletCreatedReducer.State
         var index = 0
         var skippedAtindex: Int?
         var steps: IdentifiedArrayOf<Step> = Self.onboardingSteps
@@ -49,6 +50,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
         case back
         case termsAndConditions
         case createNewWallet
+        case walletCreated(NHWalletCreatedReducer.Action)
         case importExistingWallet
         case importWallet(ImportWalletReducer.Action)
         case next
@@ -60,6 +62,10 @@ struct OnboardingFlowReducer: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Scope(state: \.importWalletState, action: /Action.importWallet) {
             ImportWalletReducer()
+        }
+        
+        Scope(state: \.walletCreatedState, action: /Action.walletCreated) {
+            NHWalletCreatedReducer()
         }
         
         Reduce { state, action in
@@ -108,7 +114,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
                 state.destination = .importExistingWallet
                 return .none
                 
-            case .importWallet:
+            case .importWallet, .walletCreated:
                 return .none
             }
         }

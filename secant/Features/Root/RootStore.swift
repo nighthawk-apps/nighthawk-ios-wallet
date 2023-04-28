@@ -150,10 +150,12 @@ extension RootReducer.State {
             homeState: .placeholder,
             onboardingState: .init(
                 walletConfig: .default,
-                importWalletState: .placeholder
+                importWalletState: .placeholder,
+                walletCreatedState: .placeholder
             ),
             phraseValidationState: .placeholder,
             phraseDisplayState: RecoveryPhraseDisplayReducer.State(
+                flow: .settings,
                 phrase: .placeholder
             ),
             sandboxState: .placeholder,

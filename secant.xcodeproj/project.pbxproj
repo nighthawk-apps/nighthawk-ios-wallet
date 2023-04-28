@@ -363,6 +363,12 @@
 		45941DEB29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */; };
 		4596E35529CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */; };
 		4596E35629CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */; };
+		45B6AB6C29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB6D29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB6E29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB7029F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
+		45B6AB7129F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
+		45B6AB7229F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
 		660558E9270C7A54009D6954 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 660558E8270C7A54009D6954 /* Colors.xcassets */; };
 		660558F7270C862F009D6954 /* Fonts+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660558F5270C862F009D6954 /* Fonts+Generated.swift */; };
 		660558F8270C862F009D6954 /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660558F6270C862F009D6954 /* XCAssets+Generated.swift */; };
@@ -734,6 +740,8 @@
 		4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkLinkButtonStyle.swift; sourceTree = "<group>"; };
 		45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHCheckBox.swift; sourceTree = "<group>"; };
 		4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHRecoveryPhraseDisplayView.swift; sourceTree = "<group>"; };
+		45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWalletCreatedStore.swift; sourceTree = "<group>"; };
+		45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWalletCreatedView.swift; sourceTree = "<group>"; };
 		660558E8270C7A54009D6954 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		660558F5270C862F009D6954 /* Fonts+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Fonts+Generated.swift"; sourceTree = "<group>"; };
 		660558F6270C862F009D6954 /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
@@ -1349,6 +1357,15 @@
 			path = NHCheckBox;
 			sourceTree = "<group>";
 		};
+		45B6AB6A29F0CC7F003AE5DE /* WalletCreated */ = {
+			isa = PBXGroup;
+			children = (
+				45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */,
+				45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */,
+			);
+			path = WalletCreated;
+			sourceTree = "<group>";
+		};
 		663FAB9A271D873300E495F8 /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
@@ -1364,6 +1381,7 @@
 		6654C73B2715A3F000901167 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				45B6AB6A29F0CC7F003AE5DE /* WalletCreated */,
 				9E33ECCF29D4CC9900708DE4 /* Alerts */,
 				9E7CB61B2874140900A02233 /* AddressDetails */,
 				9E6713F2289BC51200A6796F /* BalanceBreakdown */,
@@ -2836,6 +2854,7 @@
 				0D26AEF0299E8196005260EE /* TCALoggerReducer.swift in Sources */,
 				0D26AEF1299E8196005260EE /* ConditionalModifier.swift in Sources */,
 				34C4329129B62D8D00F74045 /* L10n.swift in Sources */,
+				45B6AB7129F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				0D26AEF2299E8196005260EE /* MultipleLineTextField.swift in Sources */,
 				0D26AEF3299E8196005260EE /* NotEnoughFreeSpaceView.swift in Sources */,
 				0D26AEF4299E8196005260EE /* LocalAuthenticationHandlerInterface.swift in Sources */,
@@ -2883,6 +2902,7 @@
 				0D573CB629C106E900B97379 /* About.swift in Sources */,
 				0D26AF17299E8196005260EE /* Fonts+Generated.swift in Sources */,
 				0D26AF18299E8196005260EE /* WalletEventsFlowStore.swift in Sources */,
+				45B6AB6D29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				0D26AF19299E8196005260EE /* StoredWallet.swift in Sources */,
 				0D26AF1A299E8196005260EE /* UserDefaultsInterface.swift in Sources */,
 				34F682E629A75EB60022C079 /* WalletConfig.swift in Sources */,
@@ -3081,6 +3101,7 @@
 				0D18581B272728D60046B928 /* PhraseChip.swift in Sources */,
 				9E7FE0F92832824C00C374E8 /* QRCodeScanView.swift in Sources */,
 				9E153A6F292167FF00112F41 /* ZcashSDKEnvironmentTestKey.swift in Sources */,
+				45B6AB7029F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				9E0F5743297EB96C005304FA /* TCALoggerReducer.swift in Sources */,
 				0DF482BA2787ADA800EB37D6 /* ConditionalModifier.swift in Sources */,
 				34C4329029B62D8D00F74045 /* L10n.swift in Sources */,
@@ -3128,6 +3149,7 @@
 				9E486DF029B9EE84003E6945 /* KeyboardAdaptive.swift in Sources */,
 				9E7FE0D7282D286500C374E8 /* RecoveryPhrase.swift in Sources */,
 				9EBDF989291F9428000A1A05 /* LocalAuthenticationMocks.swift in Sources */,
+				45B6AB6C29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				660558F7270C862F009D6954 /* Fonts+Generated.swift in Sources */,
 				F96B41E7273B501F0021B49A /* WalletEventsFlowStore.swift in Sources */,
 				9E7FE0E6282E7B1100C374E8 /* StoredWallet.swift in Sources */,
@@ -3245,6 +3267,7 @@
 				9E3451BC29C857C800177D16 /* NotEnoughFeeSpaceSnapshots.swift in Sources */,
 				9E3451B229C8565500177D16 /* SecItemClientTests.swift in Sources */,
 				9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */,
+				45B6AB6E29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				9E3451B329C8565500177D16 /* WalletBalance+testing.swift in Sources */,
 				9E3451AA29C84ED500177D16 /* CurrencySelectionTests.swift in Sources */,
 				9E3451C529C857E400177D16 /* WalletEventsSnapshotTests.swift in Sources */,
@@ -3253,6 +3276,7 @@
 				9E3451BB29C857C800177D16 /* HomeSnapshotTests.swift in Sources */,
 				9E3451AF29C855B200177D16 /* SensitiveDataTests.swift in Sources */,
 				9E3451A729C84E9900177D16 /* AppInitializationTests.swift in Sources */,
+				45B6AB7229F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				9E3451B029C855E600177D16 /* SettingsTests.swift in Sources */,
 				9E34519F29C849D300177D16 /* ImportWalletTests.swift in Sources */,
 				9E74CCD029DC0628003D6E32 /* ReviewRequestTests.swift in Sources */,

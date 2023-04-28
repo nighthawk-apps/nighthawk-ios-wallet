@@ -13,6 +13,12 @@ typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State,
 
 struct RecoveryPhraseDisplayReducer: ReducerProtocol {
     struct State: Equatable {
+        enum RecoveryPhraseDisplayFlow {
+            case onboarding
+            case settings
+        }
+        
+        var flow: RecoveryPhraseDisplayFlow
         var phrase: RecoveryPhrase?
         var birthday: BlockHeight?
         var showCopyToBufferAlert = false

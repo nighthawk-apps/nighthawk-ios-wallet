@@ -33,6 +33,17 @@ struct NHPlainOnboardingView: View {
                 }
             }
             .applyNighthawkBackground()
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.createNewWallet),
+                destination: {
+                    NHWalletCreatedView(
+                        store: store.scope(
+                            state: \.walletCreatedState,
+                            action: OnboardingFlowReducer.Action.walletCreated
+                        )
+                    )
+                }
+            )
         }
     }
 }

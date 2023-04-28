@@ -147,10 +147,12 @@ private extension NHRecoveryPhraseDisplayView {
             .buttonStyle(.nighthawkPrimary(width: 152))
             .disabled(!viewStore.state.isConfirmSeedPhraseWrittenChecked)
             
-            ShareLink(item: render(phrase: phrase, blockHeight: viewStore.state.birthday)) {
-                Text(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf)
+            if viewStore.flow == .settings {
+                ShareLink(item: render(phrase: phrase, blockHeight: viewStore.state.birthday)) {
+                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf)
+                }
+                .buttonStyle(.nighthawkSecondary(width: 218))
             }
-            .buttonStyle(.nighthawkSecondary(width: 218))
         }
         .frame(maxWidth: .infinity)
     }

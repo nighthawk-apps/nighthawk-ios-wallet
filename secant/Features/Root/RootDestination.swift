@@ -52,6 +52,13 @@ extension RootReducer {
 
             case .sandbox(.reset):
                 state.destinationState.destination = .startup
+                
+            case .onboarding(.walletCreated(.backup)):
+                state.phraseDisplayState.flow = .onboarding
+                state.destinationState.destination = .phraseDisplay
+                
+            case .onboarding(.walletCreated(.skip)):
+                state.destinationState.destination = .home
 
             case .phraseValidation(.proceedToHome):
                 state.destinationState.destination = .home

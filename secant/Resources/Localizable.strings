@@ -284,6 +284,11 @@
 "nighthawk.plainOnboarding.create" = "Create Wallet";
 "nighthawk.plainOnboarding.restore" = "Restore From Backup";
 
+// MARK: - Wallet Created
+"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
+"nighthawk.walletCreated.backup" = "Backup your wallet";
+"nighthawk.walletCreated.skip" = "Skip for now";
+
 // MARK: - Recovery Phrase Display
 "nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
 "nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.";

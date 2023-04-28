@@ -10,23 +10,15 @@ struct RootView: View {
             Group {
                 switch viewStore.destinationState.destination {
                 case .home:
-//                    NavigationView {
-//                        HomeView(
-//                            store: store.scope(
-//                                state: \.homeState,
-//                                action: RootReducer.Action.home
-//                            )
-//                        )
-//                    }
-//                    .navigationViewStyle(.stack)
                     NavigationView {
-                        NHRecoveryPhraseDisplayView(
+                        HomeView(
                             store: store.scope(
-                                state: \.phraseDisplayState,
-                                action: RootReducer.Action.phraseDisplay
+                                state: \.homeState,
+                                action: RootReducer.Action.home
                             )
                         )
                     }
+                    .navigationViewStyle(.stack)
 
                 case .sandbox:
                     NavigationView {

@@ -85,6 +85,7 @@ struct OnboardingFooterView_Previews: PreviewProvider {
             initialState: OnboardingFlowReducer.State(
                 walletConfig: .default,
                 importWalletState: .placeholder,
+                walletCreatedState: .placeholder,
                 index: 3
             ),
             reducer: OnboardingFlowReducer()

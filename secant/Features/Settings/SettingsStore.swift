@@ -164,6 +164,7 @@ extension SettingsReducer.State {
         exportLogsState: .placeholder,
         isCrashReportingOn: true,
         phraseDisplayState: RecoveryPhraseDisplayReducer.State(
+            flow: .settings,
             phrase: .placeholder
         )
     )
