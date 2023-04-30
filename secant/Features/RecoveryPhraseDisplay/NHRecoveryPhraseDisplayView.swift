@@ -14,19 +14,14 @@ import ZcashLightClientKit
 struct NHRecoveryPhraseDisplayView: View {
     let store: RecoveryPhraseDisplayStore
     
-    private let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-    private let columnsPdf = [
-        GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()),
-        GridItem(.flexible()), GridItem(.flexible())
-    ]
-    
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                if let phrase = viewStore.phrase {
+                if let phrase = viewStore.phrase,
+                    let groups = phrase.toGroups(groupSizeOverride: 3) {
                     instructions
                     
-                    backupSeedGrid(with: phrase)
+                    backupSeedGrid(with: groups)
                     
                     walletBirthday(with: viewStore.state.birthday)
                     
@@ -34,7 +29,7 @@ struct NHRecoveryPhraseDisplayView: View {
                     
                     Spacer()
                     
-                    actions(phrase: phrase, viewStore: viewStore)
+                    actions(groups: groups, viewStore: viewStore)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -69,28 +64,69 @@ private extension NHRecoveryPhraseDisplayView {
             .padding(.bottom, 18)
     }
     
-    func backupSeedGrid(with phrase: RecoveryPhrase, forPdf: Bool = false) -> some View {
-        LazyVGrid(columns: forPdf ? columnsPdf : columns) {
-            ForEach(Array(phrase.words.enumerated()), id: \.element.data) { index, word in
-                HStack(alignment: .lastTextBaseline) {
-                    Group {
-                        Text("\(index + 1).")
-                            .paragraph(
-                                color: forPdf
-                                ? .black
-                                : Asset.Colors.Nighthawk.parmaviolet.color
-                            )
+    func backupSeedGrid(
+        with groups: [RecoveryPhrase.Group],
+        forPdf: Bool = false
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(groups, id: \.startIndex) { group in
+                VStack {
+                    HStack(alignment: .center) {
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+
+                                Text(group.words[0].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
                         
-                        Text(word.data)
-                            .paragraph(color: forPdf ? .black : .white)
-                            .lineLimit(1)
+                        Spacer()
+                        
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex + 1).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+
+                                Text(group.words[1].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        
+                        Spacer()
+                        
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex + 2).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+
+                                Text(group.words[2].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        
+                        Spacer()
                     }
-                    .lineSpacing(6)
-                    
-                    Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 10)
             }
         }
         .modify {
@@ -139,7 +175,7 @@ private extension NHRecoveryPhraseDisplayView {
         .frame(maxWidth: .infinity)
     }
     
-    func actions(phrase: RecoveryPhrase, viewStore: ViewStoreOf<RecoveryPhraseDisplayReducer>) -> some View {
+    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplayReducer>) -> some View {
         VStack(spacing: 16) {
             Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
                 viewStore.send(.finishedPressed)
@@ -148,7 +184,7 @@ private extension NHRecoveryPhraseDisplayView {
             .disabled(!viewStore.state.isConfirmSeedPhraseWrittenChecked)
             
             if viewStore.flow == .settings {
-                ShareLink(item: render(phrase: phrase, blockHeight: viewStore.state.birthday)) {
+                ShareLink(item: render(groups: groups, blockHeight: viewStore.state.birthday)) {
                     Text(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf)
                 }
                 .buttonStyle(.nighthawkSecondary(width: 218))
@@ -160,14 +196,14 @@ private extension NHRecoveryPhraseDisplayView {
 
 // MARK: - Export as PDF
 private extension NHRecoveryPhraseDisplayView {
-    func render(phrase: RecoveryPhrase, blockHeight: BlockHeight?) -> URL {
+    func render(groups: [RecoveryPhrase.Group], blockHeight: BlockHeight?) -> URL {
         let renderer = ImageRenderer(
             content: VStack(alignment: .leading) {
                 Text(L10n.Nighthawk.RecoveryPhraseDisplay.pdfHeader)
                     .paragraph(color: .black)
                     .padding(.bottom, 23)
                 
-                backupSeedGrid(with: phrase, forPdf: true)
+                backupSeedGrid(with: groups, forPdf: true)
                     .padding(.leading, 64)
                 
                 walletBirthday(with: blockHeight, forPdf: true)
