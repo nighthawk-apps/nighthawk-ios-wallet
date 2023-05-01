@@ -16,6 +16,7 @@ fonts:
     - Fonts/Zboto.otf
     - Fonts/Rubik
     - Fonts/Roboto
+    - Fonts/PulpDisplay
   outputs:
       templatePath: Templates/fonts/fonts_swift5_swiftui.stencil
       output: Fonts+Generated.swift

@@ -337,6 +337,38 @@
 		34F682F629A7641B0022C079 /* WalletConfigProviderTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F682F429A7641B0022C079 /* WalletConfigProviderTestKey.swift */; };
 		34F682F829A775C10022C079 /* UserDefaultsWalletConfigStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F682F729A775C10022C079 /* UserDefaultsWalletConfigStorage.swift */; };
 		34F682F929A775C10022C079 /* UserDefaultsWalletConfigStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F682F729A775C10022C079 /* UserDefaultsWalletConfigStorage.swift */; };
+		455952A529C4A1360004A3D3 /* NHWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952A429C4A1360004A3D3 /* NHWelcomeView.swift */; };
+		455952A629C4A1360004A3D3 /* NHWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952A429C4A1360004A3D3 /* NHWelcomeView.swift */; };
+		455952AB29C4A8B20004A3D3 /* NighthawkTextStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952AA29C4A8B20004A3D3 /* NighthawkTextStyles.swift */; };
+		455952AC29C4A8B20004A3D3 /* NighthawkTextStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952AA29C4A8B20004A3D3 /* NighthawkTextStyles.swift */; };
+		455952AE29C4ADAA0004A3D3 /* View+Available.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952AD29C4ADAA0004A3D3 /* View+Available.swift */; };
+		455952AF29C4ADAA0004A3D3 /* View+Available.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455952AD29C4ADAA0004A3D3 /* View+Available.swift */; };
+		456D4C5729CBF11C0003A340 /* PulpDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 456D4C5629CBF11C0003A340 /* PulpDisplay-Medium.ttf */; };
+		456D4C5829CBF11C0003A340 /* PulpDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 456D4C5629CBF11C0003A340 /* PulpDisplay-Medium.ttf */; };
+		456D4C5A29CBF14F0003A340 /* PulpDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 456D4C5929CBF14F0003A340 /* PulpDisplay-Regular.ttf */; };
+		456D4C5B29CBF14F0003A340 /* PulpDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 456D4C5929CBF14F0003A340 /* PulpDisplay-Regular.ttf */; };
+		456D4C5D29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */; };
+		456D4C5E29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */; };
+		456D4C6129CBFA360003A340 /* NighthawkLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6029CBFA360003A340 /* NighthawkLogo.swift */; };
+		456D4C6229CBFA360003A340 /* NighthawkLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6029CBFA360003A340 /* NighthawkLogo.swift */; };
+		456D4C6429CBFCB90003A340 /* NighthawkBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6329CBFCB90003A340 /* NighthawkBackground.swift */; };
+		456D4C6529CBFCB90003A340 /* NighthawkBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6329CBFCB90003A340 /* NighthawkBackground.swift */; };
+		456D4C6729CC02230003A340 /* NighthawkPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */; };
+		456D4C6829CC02230003A340 /* NighthawkPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */; };
+		456D4C6A29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */; };
+		456D4C6B29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */; };
+		4575B84F29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */; };
+		4575B85029ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */; };
+		45941DEA29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */; };
+		45941DEB29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */; };
+		4596E35529CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */; };
+		4596E35629CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */; };
+		45B6AB6C29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB6D29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB6E29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */; };
+		45B6AB7029F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
+		45B6AB7129F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
+		45B6AB7229F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */; };
 		660558E9270C7A54009D6954 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 660558E8270C7A54009D6954 /* Colors.xcassets */; };
 		660558F7270C862F009D6954 /* Fonts+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660558F5270C862F009D6954 /* Fonts+Generated.swift */; };
 		660558F8270C862F009D6954 /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660558F6270C862F009D6954 /* XCAssets+Generated.swift */; };
@@ -695,6 +727,21 @@
 		34F682F129A764120022C079 /* WalletConfigProviderLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConfigProviderLiveKey.swift; sourceTree = "<group>"; };
 		34F682F429A7641B0022C079 /* WalletConfigProviderTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConfigProviderTestKey.swift; sourceTree = "<group>"; };
 		34F682F729A775C10022C079 /* UserDefaultsWalletConfigStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWalletConfigStorage.swift; sourceTree = "<group>"; };
+		455952A429C4A1360004A3D3 /* NHWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWelcomeView.swift; sourceTree = "<group>"; };
+		455952AA29C4A8B20004A3D3 /* NighthawkTextStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkTextStyles.swift; sourceTree = "<group>"; };
+		455952AD29C4ADAA0004A3D3 /* View+Available.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Available.swift"; sourceTree = "<group>"; };
+		456D4C5629CBF11C0003A340 /* PulpDisplay-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PulpDisplay-Medium.ttf"; sourceTree = "<group>"; };
+		456D4C5929CBF14F0003A340 /* PulpDisplay-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PulpDisplay-Regular.ttf"; sourceTree = "<group>"; };
+		456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHPlainOnboardingView.swift; sourceTree = "<group>"; };
+		456D4C6029CBFA360003A340 /* NighthawkLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkLogo.swift; sourceTree = "<group>"; };
+		456D4C6329CBFCB90003A340 /* NighthawkBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkBackground.swift; sourceTree = "<group>"; };
+		456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkPrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkLinkButtonStyle.swift; sourceTree = "<group>"; };
+		45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHCheckBox.swift; sourceTree = "<group>"; };
+		4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHRecoveryPhraseDisplayView.swift; sourceTree = "<group>"; };
+		45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWalletCreatedStore.swift; sourceTree = "<group>"; };
+		45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWalletCreatedView.swift; sourceTree = "<group>"; };
 		660558E8270C7A54009D6954 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		660558F5270C862F009D6954 /* Fonts+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Fonts+Generated.swift"; sourceTree = "<group>"; };
 		660558F6270C862F009D6954 /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
@@ -954,6 +1001,7 @@
 			children = (
 				9E69A24C27FB002800A55317 /* WelcomeStore.swift */,
 				0D0781C3278750E30083ACD7 /* WelcomeView.swift */,
+				455952A429C4A1360004A3D3 /* NHWelcomeView.swift */,
 			);
 			path = Welcome;
 			sourceTree = "<group>";
@@ -970,6 +1018,7 @@
 		0D2ACE7E26C2C65E00D62E3C /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				456D4C5529CBF10C0003A340 /* PulpDisplay */,
 				0DACFA8227209F930039EEA5 /* Roboto */,
 				0D535FDB271F3B50009A9E3E /* Rubik */,
 				0D2ACE7F26C2C67100D62E3C /* Zboto.otf */,
@@ -1109,6 +1158,7 @@
 			children = (
 				0D8A43C3272AEEDE005A6414 /* SecantTextStyles.swift */,
 				9E4DC6E127C4C6B700E657F4 /* SecantButtonStyles.swift */,
+				455952AA29C4A8B20004A3D3 /* NighthawkTextStyles.swift */,
 			);
 			path = FontStyles;
 			sourceTree = "<group>";
@@ -1156,6 +1206,7 @@
 				0DF2DC5327235E3E00FA31E2 /* View+InnerShadow.swift */,
 				0DF482B92787ADA800EB37D6 /* ConditionalModifier.swift */,
 				0D3016B429BF94D1002371B3 /* Button+Disabling.swift */,
+				455952AD29C4ADAA0004A3D3 /* View+Available.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1281,11 +1332,48 @@
 			path = WalletConfigProvider;
 			sourceTree = "<group>";
 		};
+		456D4C5529CBF10C0003A340 /* PulpDisplay */ = {
+			isa = PBXGroup;
+			children = (
+				456D4C5929CBF14F0003A340 /* PulpDisplay-Regular.ttf */,
+				456D4C5629CBF11C0003A340 /* PulpDisplay-Medium.ttf */,
+			);
+			path = PulpDisplay;
+			sourceTree = "<group>";
+		};
+		456D4C5F29CBFA240003A340 /* NighthawkLogo */ = {
+			isa = PBXGroup;
+			children = (
+				456D4C6029CBFA360003A340 /* NighthawkLogo.swift */,
+			);
+			path = NighthawkLogo;
+			sourceTree = "<group>";
+		};
+		45941DE829DC5C08005DEA28 /* NHCheckBox */ = {
+			isa = PBXGroup;
+			children = (
+				45941DE929DC5C2C005DEA28 /* NHCheckBox.swift */,
+			);
+			path = NHCheckBox;
+			sourceTree = "<group>";
+		};
+		45B6AB6A29F0CC7F003AE5DE /* WalletCreated */ = {
+			isa = PBXGroup;
+			children = (
+				45B6AB6B29F0CCAC003AE5DE /* NHWalletCreatedStore.swift */,
+				45B6AB6F29F0CCBA003AE5DE /* NHWalletCreatedView.swift */,
+			);
+			path = WalletCreated;
+			sourceTree = "<group>";
+		};
 		663FAB9A271D873300E495F8 /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
 				66DC733E271D88CC0053CBB6 /* StandardButtonStyle.swift */,
 				663FAB9B271D874D00E495F8 /* ActiveButton.swift */,
+				456D4C6629CC02230003A340 /* NighthawkPrimaryButtonStyle.swift */,
+				456D4C6929CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift */,
+				4575B84E29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -1293,6 +1381,7 @@
 		6654C73B2715A3F000901167 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				45B6AB6A29F0CC7F003AE5DE /* WalletCreated */,
 				9E33ECCF29D4CC9900708DE4 /* Alerts */,
 				9E7CB61B2874140900A02233 /* AddressDetails */,
 				9E6713F2289BC51200A6796F /* BalanceBreakdown */,
@@ -1322,6 +1411,7 @@
 				2E5C03802738C570008BFFD3 /* OnboardingFlowView.swift */,
 				6654C73F2715A45900901167 /* Views */,
 				0D3016B729BFB2FB002371B3 /* PlainOnboardingView.swift */,
+				456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */,
 			);
 			path = OnboardingFlow;
 			sourceTree = "<group>";
@@ -1357,6 +1447,7 @@
 			isa = PBXGroup;
 			children = (
 				0D7DF08B271DCC0E00530046 /* ScreenBackground.swift */,
+				456D4C6329CBFCB90003A340 /* NighthawkBackground.swift */,
 			);
 			path = Backgrounds;
 			sourceTree = "<group>";
@@ -1783,6 +1874,8 @@
 		9E7FE0BE282D1DFE00C374E8 /* UI Components */ = {
 			isa = PBXGroup;
 			children = (
+				45941DE829DC5C08005DEA28 /* NHCheckBox */,
+				456D4C5F29CBFA240003A340 /* NighthawkLogo */,
 				346D41E228DF0B0900963F36 /* CheckCircle */,
 				9E7CB6132869E8A700A02233 /* CircularProgress */,
 				0DF2DC5227235E1F00FA31E2 /* Extensions */,
@@ -1816,6 +1909,7 @@
 			children = (
 				0D3D04092728B3A10032ABC1 /* RecoveryPhraseDisplayStore.swift */,
 				0D3D04072728B3440032ABC1 /* RecoveryPhraseDisplayView.swift */,
+				4596E35429CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift */,
 			);
 			path = RecoveryPhraseDisplay;
 			sourceTree = "<group>";
@@ -2413,6 +2507,7 @@
 				0D7E5D71299FBCDF00BE9569 /* Assets.xcassets in Resources */,
 				0D26AF7D299E8196005260EE /* endlessCircleProgress.json in Resources */,
 				0D26AF7E299E8196005260EE /* Roboto-Bold.ttf in Resources */,
+				456D4C5829CBF11C0003A340 /* PulpDisplay-Medium.ttf in Resources */,
 				0D26AF7F299E8196005260EE /* Roboto-Italic.ttf in Resources */,
 				0D26AF80299E8196005260EE /* Rubik-Italic-VariableFont_wght.ttf in Resources */,
 				0D26AF81299E8196005260EE /* Roboto-LightItalic.ttf in Resources */,
@@ -2422,6 +2517,7 @@
 				0D26AF85299E8196005260EE /* Colors.xcassets in Resources */,
 				0D26AF86299E8196005260EE /* Rubik-VariableFont_wght.ttf in Resources */,
 				0D26AF87299E8196005260EE /* Roboto-Light.ttf in Resources */,
+				456D4C5B29CBF14F0003A340 /* PulpDisplay-Regular.ttf in Resources */,
 				0D26AF88299E8196005260EE /* LaunchScreen.storyboard in Resources */,
 				0D26AF8A299E8196005260EE /* Roboto-Black.ttf in Resources */,
 				0D26AF8B299E8196005260EE /* Roboto-ThinItalic.ttf in Resources */,
@@ -2443,6 +2539,7 @@
 				9E6612362878345000C75B70 /* endlessCircleProgress.json in Resources */,
 				0DACFA9027209FA70039EEA5 /* Roboto-Bold.ttf in Resources */,
 				0DACFA9227209FA70039EEA5 /* Roboto-Italic.ttf in Resources */,
+				456D4C5729CBF11C0003A340 /* PulpDisplay-Medium.ttf in Resources */,
 				0D535FDE271F4214009A9E3E /* Rubik-Italic-VariableFont_wght.ttf in Resources */,
 				0DACFA9127209FA70039EEA5 /* Roboto-LightItalic.ttf in Resources */,
 				0DACFA9927209FA70039EEA5 /* Roboto-BlackItalic.ttf in Resources */,
@@ -2452,6 +2549,7 @@
 				0D535FDF271F4214009A9E3E /* Rubik-VariableFont_wght.ttf in Resources */,
 				0DACFA9A27209FA70039EEA5 /* Roboto-Light.ttf in Resources */,
 				9E2F1C8C280ED6A7004E65FE /* LaunchScreen.storyboard in Resources */,
+				456D4C5A29CBF14F0003A340 /* PulpDisplay-Regular.ttf in Resources */,
 				0D4E7A0D26B364180058B01E /* Assets.xcassets in Resources */,
 				0DACFA9727209FA70039EEA5 /* Roboto-Black.ttf in Resources */,
 				0DACFA9C27209FA70039EEA5 /* Roboto-ThinItalic.ttf in Resources */,
@@ -2671,6 +2769,7 @@
 				3467319A29AE374300974482 /* SupportDataGeneratorInterface.swift in Sources */,
 				0D26AEA8299E8196005260EE /* AudioServicesInterface.swift in Sources */,
 				0D26AEAA299E8196005260EE /* CrashReporterLiveKey.swift in Sources */,
+				455952A629C4A1360004A3D3 /* NHWelcomeView.swift in Sources */,
 				0D26AEAB299E8196005260EE /* RecoveryPhraseRandomizerLiveKey.swift in Sources */,
 				0D26AEAC299E8196005260EE /* TCATextField.swift in Sources */,
 				34F682F029A7640A0022C079 /* WalletConfigProviderInterface.swift in Sources */,
@@ -2711,6 +2810,7 @@
 				0D26AECC299E8196005260EE /* OnboardingFlowStore.swift in Sources */,
 				0D26AECD299E8196005260EE /* SDKSynchronizerLive.swift in Sources */,
 				0D26AECE299E8196005260EE /* URIParserInterface.swift in Sources */,
+				455952AC29C4A8B20004A3D3 /* NighthawkTextStyles.swift in Sources */,
 				0D26AECF299E8196005260EE /* CurrencySelectionStore.swift in Sources */,
 				0D26AED0299E8196005260EE /* UserDefaultsTestKey.swift in Sources */,
 				0D26AED1299E8196005260EE /* RecoveryPhraseValidationFlowView.swift in Sources */,
@@ -2729,6 +2829,7 @@
 				3467319629AE265300974482 /* SupportDataGenerator.swift in Sources */,
 				0D26AEDC299E8196005260EE /* CheckCircle.swift in Sources */,
 				9E33ECD929D5E30200708DE4 /* AlertRequest.swift in Sources */,
+				456D4C6529CBFCB90003A340 /* NighthawkBackground.swift in Sources */,
 				0D26AEDD299E8196005260EE /* LogStore.swift in Sources */,
 				0D26AEDE299E8196005260EE /* RecoveryPhraseRandomizer.swift in Sources */,
 				3467319D29AE374A00974482 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -2743,6 +2844,7 @@
 				0D26AEE8299E8196005260EE /* NumberFormatterInterface.swift in Sources */,
 				0D26AEE9299E8196005260EE /* WithStateBinding.swift in Sources */,
 				0D26AEEA299E8196005260EE /* Date+Readable.swift in Sources */,
+				456D4C6229CBFA360003A340 /* NighthawkLogo.swift in Sources */,
 				0D26AEEB299E8196005260EE /* Previews.swift in Sources */,
 				0D26AEEC299E8196005260EE /* FeedbackGeneratorInterface.swift in Sources */,
 				0D26AEED299E8196005260EE /* PhraseChip.swift in Sources */,
@@ -2752,11 +2854,13 @@
 				0D26AEF0299E8196005260EE /* TCALoggerReducer.swift in Sources */,
 				0D26AEF1299E8196005260EE /* ConditionalModifier.swift in Sources */,
 				34C4329129B62D8D00F74045 /* L10n.swift in Sources */,
+				45B6AB7129F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				0D26AEF2299E8196005260EE /* MultipleLineTextField.swift in Sources */,
 				0D26AEF3299E8196005260EE /* NotEnoughFreeSpaceView.swift in Sources */,
 				0D26AEF4299E8196005260EE /* LocalAuthenticationHandlerInterface.swift in Sources */,
 				0D26AEF5299E8196005260EE /* TransactionState.swift in Sources */,
 				0D26AEF6299E8196005260EE /* SDKSynchronizerTest.swift in Sources */,
+				455952AF29C4ADAA0004A3D3 /* View+Available.swift in Sources */,
 				0D26AEF7299E8196005260EE /* Drawer.swift in Sources */,
 				0D26AEF9299E8196005260EE /* SDKSynchronizerInterface.swift in Sources */,
 				0D26AEFA299E8196005260EE /* DesignGuide.swift in Sources */,
@@ -2771,6 +2875,7 @@
 				0D26AF01299E8196005260EE /* RecoveryPhraseDisplayView.swift in Sources */,
 				0D3016B629BF94D1002371B3 /* Button+Disabling.swift in Sources */,
 				0D26AF02299E8196005260EE /* URIParser.swift in Sources */,
+				4596E35629CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */,
 				0D26AF03299E8196005260EE /* URIParserLive.swift in Sources */,
 				9E852D6229B098F400CF4AC1 /* RootDebug.swift in Sources */,
 				34F682ED29A763FD0022C079 /* WalletConfigProvider.swift in Sources */,
@@ -2791,11 +2896,13 @@
 				0D26AF13299E8196005260EE /* RecoveryPhraseDisplayStore.swift in Sources */,
 				0D26AF14299E8196005260EE /* Deeplink.swift in Sources */,
 				9E486DF129B9EE84003E6945 /* KeyboardAdaptive.swift in Sources */,
+				4575B85029ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */,
 				0D26AF15299E8196005260EE /* RecoveryPhrase.swift in Sources */,
 				0D26AF16299E8196005260EE /* LocalAuthenticationMocks.swift in Sources */,
 				0D573CB629C106E900B97379 /* About.swift in Sources */,
 				0D26AF17299E8196005260EE /* Fonts+Generated.swift in Sources */,
 				0D26AF18299E8196005260EE /* WalletEventsFlowStore.swift in Sources */,
+				45B6AB6D29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				0D26AF19299E8196005260EE /* StoredWallet.swift in Sources */,
 				0D26AF1A299E8196005260EE /* UserDefaultsInterface.swift in Sources */,
 				34F682E629A75EB60022C079 /* WalletConfig.swift in Sources */,
@@ -2815,6 +2922,7 @@
 				0D26AF2C299E8196005260EE /* DatabaseFilesLiveKey.swift in Sources */,
 				0D26AF2D299E8196005260EE /* DebugMenu.swift in Sources */,
 				0D26AF2E299E8196005260EE /* MnemonicInterface.swift in Sources */,
+				456D4C5E29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */,
 				0D26AF2F299E8196005260EE /* PasteboardLiveKey.swift in Sources */,
 				0D26AF32299E8196005260EE /* View+InnerShadow.swift in Sources */,
 				0D26AF33299E8196005260EE /* ZcashSDKEnvironmentInterface.swift in Sources */,
@@ -2838,14 +2946,17 @@
 				0D26AF44299E8196005260EE /* Memo+toString.swift in Sources */,
 				0D26AF45299E8196005260EE /* ScreenBackground.swift in Sources */,
 				0D26AF46299E8196005260EE /* CheckCircleStore.swift in Sources */,
+				456D4C6829CC02230003A340 /* NighthawkPrimaryButtonStyle.swift in Sources */,
 				0D26AF47299E8196005260EE /* CreateTransactionView.swift in Sources */,
 				0D26AF48299E8196005260EE /* DatabaseFilesInterface.swift in Sources */,
 				0D26AF49299E8196005260EE /* DerivationToolLiveKey.swift in Sources */,
 				0D26AF4A299E8196005260EE /* Bindings.swift in Sources */,
 				0D26AF4B299E8196005260EE /* TextFieldTitleAccessoryButtonStyle.swift in Sources */,
+				45941DEB29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */,
 				0D26AF4C299E8196005260EE /* PasteboardTestKey.swift in Sources */,
 				0D26AF4D299E8196005260EE /* ImportWalletStore.swift in Sources */,
 				0D26AF4E299E8196005260EE /* BalanceBreakdownView.swift in Sources */,
+				456D4C6B29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */,
 				0D26AF4F299E8196005260EE /* SettingsView.swift in Sources */,
 				0D26AF50299E8196005260EE /* Strings.swift in Sources */,
 				0D26AF52299E8196005260EE /* LogsHandlerTest.swift in Sources */,
@@ -2909,6 +3020,7 @@
 				9EBDF96E291ECED4000A1A05 /* CaptureDeviceLiveKey.swift in Sources */,
 				3467319929AE374300974482 /* SupportDataGeneratorInterface.swift in Sources */,
 				9EBDF968291ECDA2000A1A05 /* AudioServicesInterface.swift in Sources */,
+				455952A529C4A1360004A3D3 /* NHWelcomeView.swift in Sources */,
 				0D26103E298C3FA600CC9DE9 /* CrashReporterLiveKey.swift in Sources */,
 				9EB863A829239DCB003D0F8B /* RecoveryPhraseRandomizerLiveKey.swift in Sources */,
 				2EDA07A027EDE18C00D6F09B /* TCATextField.swift in Sources */,
@@ -2948,6 +3060,7 @@
 				9E2A07B829DAE0A900F2B086 /* ReviewRequestLiveKey.swift in Sources */,
 				6654C73E2715A41300901167 /* OnboardingFlowStore.swift in Sources */,
 				9EB863CB2923CA20003D0F8B /* SDKSynchronizerLive.swift in Sources */,
+				455952AB29C4A8B20004A3D3 /* NighthawkTextStyles.swift in Sources */,
 				9EB863A1292398A8003D0F8B /* URIParserInterface.swift in Sources */,
 				2E6CF8DD27D78319004DCD7A /* CurrencySelectionStore.swift in Sources */,
 				9E153A7729216EFB00112F41 /* UserDefaultsTestKey.swift in Sources */,
@@ -2966,6 +3079,7 @@
 				F9971A5327680DD000A2DB75 /* ProfileStore.swift in Sources */,
 				9E486DE529B637AF003E6945 /* ImportBirthdayView.swift in Sources */,
 				3467319529AE265300974482 /* SupportDataGenerator.swift in Sources */,
+				456D4C6429CBFCB90003A340 /* NighthawkBackground.swift in Sources */,
 				346D41E428DF0B8600963F36 /* CheckCircle.swift in Sources */,
 				9E0F5745297EBA1B005304FA /* LogStore.swift in Sources */,
 				9EB863AA29239EB2003D0F8B /* RecoveryPhraseRandomizer.swift in Sources */,
@@ -2980,12 +3094,14 @@
 				34C5658529B60C8B002F3A7C /* ExportLogsStore.swift in Sources */,
 				9EB863932922D036003D0F8B /* NumberFormatterInterface.swift in Sources */,
 				F9EEB8162742C2210032EEB8 /* WithStateBinding.swift in Sources */,
+				456D4C6129CBFA360003A340 /* NighthawkLogo.swift in Sources */,
 				9E7FE0D3282D274E00C374E8 /* Date+Readable.swift in Sources */,
 				F93673D62742CB840099C6AF /* Previews.swift in Sources */,
 				9EB8638E2922CD4A003D0F8B /* FeedbackGeneratorInterface.swift in Sources */,
 				0D18581B272728D60046B928 /* PhraseChip.swift in Sources */,
 				9E7FE0F92832824C00C374E8 /* QRCodeScanView.swift in Sources */,
 				9E153A6F292167FF00112F41 /* ZcashSDKEnvironmentTestKey.swift in Sources */,
+				45B6AB7029F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				9E0F5743297EB96C005304FA /* TCALoggerReducer.swift in Sources */,
 				0DF482BA2787ADA800EB37D6 /* ConditionalModifier.swift in Sources */,
 				34C4329029B62D8D00F74045 /* L10n.swift in Sources */,
@@ -2993,6 +3109,7 @@
 				3448CB3228E47666006ADEDB /* NotEnoughFreeSpaceView.swift in Sources */,
 				9EBDF985291F91EF000A1A05 /* LocalAuthenticationHandlerInterface.swift in Sources */,
 				9E7FE0EC282E7D9400C374E8 /* TransactionState.swift in Sources */,
+				455952AE29C4ADAA0004A3D3 /* View+Available.swift in Sources */,
 				9EB863CD2923CA28003D0F8B /* SDKSynchronizerTest.swift in Sources */,
 				9E2F1C8F280EDE09004E65FE /* Drawer.swift in Sources */,
 				9EAFEB882806E5AE00199FC9 /* SDKSynchronizerInterface.swift in Sources */,
@@ -3007,6 +3124,7 @@
 				34C5658229B60C1C002F3A7C /* UIShareDialog.swift in Sources */,
 				0D3D04082728B3440032ABC1 /* RecoveryPhraseDisplayView.swift in Sources */,
 				0D3016B529BF94D1002371B3 /* Button+Disabling.swift in Sources */,
+				4596E35529CDDA0500EFBCD2 /* NHRecoveryPhraseDisplayView.swift in Sources */,
 				9EB863A2292398A8003D0F8B /* URIParser.swift in Sources */,
 				9EB863C12923C779003D0F8B /* URIParserLive.swift in Sources */,
 				9E852D6129B098F400CF4AC1 /* RootDebug.swift in Sources */,
@@ -3025,11 +3143,13 @@
 				9E153A602920CE2700112F41 /* MnemonicLiveKey.swift in Sources */,
 				9E6612332878338C00C75B70 /* LottieAnimation.swift in Sources */,
 				9EB863C92923C953003D0F8B /* UserPreferencesStorageMocks.swift in Sources */,
+				4575B84F29ECCDD2003B9EBD /* NighthawkLinkButtonStyle.swift in Sources */,
 				0D3D040A2728B3A10032ABC1 /* RecoveryPhraseDisplayStore.swift in Sources */,
 				9EAB4671285A1C77002904A0 /* Deeplink.swift in Sources */,
 				9E486DF029B9EE84003E6945 /* KeyboardAdaptive.swift in Sources */,
 				9E7FE0D7282D286500C374E8 /* RecoveryPhrase.swift in Sources */,
 				9EBDF989291F9428000A1A05 /* LocalAuthenticationMocks.swift in Sources */,
+				45B6AB6C29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				660558F7270C862F009D6954 /* Fonts+Generated.swift in Sources */,
 				F96B41E7273B501F0021B49A /* WalletEventsFlowStore.swift in Sources */,
 				9E7FE0E6282E7B1100C374E8 /* StoredWallet.swift in Sources */,
@@ -3051,6 +3171,7 @@
 				9EBDF956291E5E86000A1A05 /* DatabaseFilesLiveKey.swift in Sources */,
 				9E2F1C842809B606004E65FE /* DebugMenu.swift in Sources */,
 				9E153A5F2920CE2700112F41 /* MnemonicInterface.swift in Sources */,
+				456D4C5D29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */,
 				9E153A6729210B3B00112F41 /* PasteboardLiveKey.swift in Sources */,
 				0DF2DC5427235E3E00FA31E2 /* View+InnerShadow.swift in Sources */,
 				9E153A70292167FF00112F41 /* ZcashSDKEnvironmentInterface.swift in Sources */,
@@ -3073,14 +3194,17 @@
 				34BF09092927C98000222134 /* Memo+toString.swift in Sources */,
 				0D7DF08C271DCC0E00530046 /* ScreenBackground.swift in Sources */,
 				346715A528E2027D0035F7C4 /* CheckCircleStore.swift in Sources */,
+				456D4C6729CC02230003A340 /* NighthawkPrimaryButtonStyle.swift in Sources */,
 				F9C165C22740403600592F76 /* CreateTransactionView.swift in Sources */,
 				9EBDF955291E5E86000A1A05 /* DatabaseFilesInterface.swift in Sources */,
 				9EBDF976291F79F9000A1A05 /* DerivationToolLiveKey.swift in Sources */,
 				F9C165B4274031F600592F76 /* Bindings.swift in Sources */,
 				2E35F99A27B3E99C00EB79CD /* TextFieldTitleAccessoryButtonStyle.swift in Sources */,
+				45941DEA29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */,
 				9E153A6929210B3B00112F41 /* PasteboardTestKey.swift in Sources */,
 				9E2DF99C27CF704D00649636 /* ImportWalletStore.swift in Sources */,
 				9E6713F8289BC58C00A6796F /* BalanceBreakdownView.swift in Sources */,
+				456D4C6A29CC072E0003A340 /* NighthawkSecondaryButtonStyle.swift in Sources */,
 				F9971A6627680DFE00A2DB75 /* SettingsView.swift in Sources */,
 				F96B41EB273B50520021B49A /* Strings.swift in Sources */,
 				9E612C7629880FC900D09B09 /* LogsHandlerTest.swift in Sources */,
@@ -3143,6 +3267,7 @@
 				9E3451BC29C857C800177D16 /* NotEnoughFeeSpaceSnapshots.swift in Sources */,
 				9E3451B229C8565500177D16 /* SecItemClientTests.swift in Sources */,
 				9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */,
+				45B6AB6E29F0CCAC003AE5DE /* NHWalletCreatedStore.swift in Sources */,
 				9E3451B329C8565500177D16 /* WalletBalance+testing.swift in Sources */,
 				9E3451AA29C84ED500177D16 /* CurrencySelectionTests.swift in Sources */,
 				9E3451C529C857E400177D16 /* WalletEventsSnapshotTests.swift in Sources */,
@@ -3151,6 +3276,7 @@
 				9E3451BB29C857C800177D16 /* HomeSnapshotTests.swift in Sources */,
 				9E3451AF29C855B200177D16 /* SensitiveDataTests.swift in Sources */,
 				9E3451A729C84E9900177D16 /* AppInitializationTests.swift in Sources */,
+				45B6AB7229F0CCBA003AE5DE /* NHWalletCreatedView.swift in Sources */,
 				9E3451B029C855E600177D16 /* SettingsTests.swift in Sources */,
 				9E34519F29C849D300177D16 /* ImportWalletTests.swift in Sources */,
 				9E74CCD029DC0628003D6E32 /* ReviewRequestTests.swift in Sources */,
@@ -3201,17 +3327,17 @@
 		0D26AF92299E8196005260EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-testnet";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 49;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
-				DEVELOPMENT_TEAM = RLPRR8CPQG;
+				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "secant/secant-mainnet-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3230,16 +3356,16 @@
 		0D26AF93299E8196005260EE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-testnet";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 49;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
-				DEVELOPMENT_TEAM = RLPRR8CPQG;
+				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "secant/secant-mainnet-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3382,11 +3508,11 @@
 				CURRENT_PROJECT_VERSION = 49;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
-				DEVELOPMENT_TEAM = RLPRR8CPQG;
+				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "secant/secant-testnet-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3410,11 +3536,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 49;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
-				DEVELOPMENT_TEAM = RLPRR8CPQG;
+				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "secant/secant-testnet-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3442,7 +3568,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = secantTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3465,7 +3591,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = secantTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3486,7 +3612,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = secantUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3508,7 +3634,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = secantUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

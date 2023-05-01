@@ -34,6 +34,13 @@ internal enum Asset {
       internal static let calloutBackupSucceeded = ImageAsset(name: "calloutBackupSucceeded")
     }
     internal enum Icons {
+      internal enum Nighthawk {
+        internal static let checked = ImageAsset(name: "checked")
+        internal static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
+        internal static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
+        internal static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+        internal static let unchecked = ImageAsset(name: "unchecked")
+      }
       internal static let qrCode = ImageAsset(name: "qrCode")
     }
     internal static let welcomeScreenLogo = ImageAsset(name: "WelcomeScreenLogo")
@@ -72,6 +79,13 @@ internal enum Asset {
       internal static let fontDark = ColorAsset(name: "fontDark")
       internal static let fontLight = ColorAsset(name: "fontLight")
       internal static let primary = ColorAsset(name: "primary")
+    }
+    internal enum Nighthawk {
+      internal static let darkNavy = ColorAsset(name: "darkNavy")
+      internal static let navy = ColorAsset(name: "navy")
+      internal static let parmaviolet = ColorAsset(name: "parmaviolet")
+      internal static let peach = ColorAsset(name: "peach")
+      internal static let richBlack = ColorAsset(name: "richBlack")
     }
     internal enum Onboarding {
       internal static let badgeShadow = ColorAsset(name: "BadgeShadow")

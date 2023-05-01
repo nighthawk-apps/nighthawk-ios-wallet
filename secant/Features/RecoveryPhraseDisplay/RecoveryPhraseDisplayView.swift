@@ -81,7 +81,10 @@ struct RecoveryPhraseDisplayView: View {
 extension RecoveryPhraseDisplayStore {
     static var demo: RecoveryPhraseDisplayStore {
         RecoveryPhraseDisplayStore(
-            initialState: .init(phrase: .placeholder),
+            initialState: .init(
+                flow: .settings,
+                phrase: .placeholder
+            ),
             reducer: RecoveryPhraseDisplayReducer.demo,
             environment: Void()
         )

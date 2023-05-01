@@ -58,7 +58,8 @@ struct OnboardingScreen_Previews: PreviewProvider {
             store: Store(
                 initialState: OnboardingFlowReducer.State(
                     walletConfig: .default,
-                    importWalletState: .placeholder
+                    importWalletState: .placeholder,
+                    walletCreatedState: .placeholder
                 ),
                 reducer: OnboardingFlowReducer()
             )
@@ -70,7 +71,8 @@ struct OnboardingScreen_Previews: PreviewProvider {
             store: Store(
                 initialState: OnboardingFlowReducer.State(
                     walletConfig: .default,
-                    importWalletState: .placeholder
+                    importWalletState: .placeholder,
+                    walletCreatedState: .placeholder
                 ),
                 reducer: OnboardingFlowReducer()
             )
@@ -82,7 +84,8 @@ struct OnboardingScreen_Previews: PreviewProvider {
             store: Store(
                 initialState: OnboardingFlowReducer.State(
                     walletConfig: .default,
-                    importWalletState: .placeholder
+                    importWalletState: .placeholder,
+                    walletCreatedState: .placeholder
                 ),
                 reducer: OnboardingFlowReducer()
             )

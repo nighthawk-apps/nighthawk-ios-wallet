@@ -265,3 +265,38 @@
 
 "field.transactionAmount.zecAmount" = "%@ Amount";
 "field.transactionAmount.amount" = "Amount:";
+
+
+//==========================================================
+// NIGHTHAWK
+//==========================================================
+// MARK: - Nighthawk
+
+// MARK: - Welcome Screen
+"nighthawk.welcomeScreen.title" = "Nighthawk";
+"nighthawk.welcomeScreen.subtitle" = "Private money in your pocket.";
+
+// MARK: - Plain Onboarding Flow
+"nighthawk.plainOnboarding.subtitle" = "Get started";
+"nighthawk.plainOnboarding.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
+"nighthawk.plainOnboarding.terms1" = "By using this app you accept our";
+"nighthawk.plainOnboarding.terms2" = "Terms and Conditions";
+"nighthawk.plainOnboarding.create" = "Create Wallet";
+"nighthawk.plainOnboarding.restore" = "Restore From Backup";
+
+// MARK: - Wallet Created
+"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
+"nighthawk.walletCreated.backup" = "Backup your wallet";
+"nighthawk.walletCreated.skip" = "Skip for now";
+
+// MARK: - Recovery Phrase Display
+"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
+"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your Zcash in Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";

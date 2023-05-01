@@ -172,10 +172,7 @@ extension RootReducer {
                     state.phraseDisplayState.phrase = recoveryPhrase
                     state.phraseValidationState = randomRecoveryPhrase.random(recoveryPhrase)
 
-                    return .concatenate(
-                        EffectTask(value: .initialization(.initializeSDK)),
-                        EffectTask(value: .phraseValidation(.displayBackedUpPhrase))
-                    )
+                    return EffectTask(value: .initialization(.initializeSDK))
                 } catch {
                     return EffectTask(value: .alert(.root(.cantCreateNewWallet(error.localizedDescription))))
                 }

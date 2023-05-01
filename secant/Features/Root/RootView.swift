@@ -42,7 +42,7 @@ struct RootView: View {
                                 )
                             )
                         } else {
-                            PlainOnboardingView(
+                            NHPlainOnboardingView(
                                 store: store.scope(
                                     state: \.onboardingState,
                                     action: RootReducer.Action.onboarding
@@ -71,7 +71,7 @@ struct RootView: View {
 
                 case .phraseDisplay:
                     NavigationView {
-                        RecoveryPhraseDisplayView(
+                        NHRecoveryPhraseDisplayView(
                             store: store.scope(
                                 state: \.phraseDisplayState,
                                 action: RootReducer.Action.phraseDisplay
@@ -80,7 +80,7 @@ struct RootView: View {
                     }
 
                 case .welcome:
-                    WelcomeView(
+                    NHWelcomeView(
                         store: store.scope(
                             state: \.welcomeState,
                             action: RootReducer.Action.welcome
