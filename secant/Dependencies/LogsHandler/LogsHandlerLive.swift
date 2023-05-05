@@ -9,6 +9,9 @@ import Foundation
 import ComposableArchitecture
 
 extension LogsHandlerClient: DependencyKey {
+    #if SECANT_MAINNET_NO_LOGGING
+    static let liveValue = LogsHandlerClient(exportAndStoreLogs: { nil })
+    #else
     static let liveValue = LogsHandlerClient(
         exportAndStoreLogs: {
             // create a directory
@@ -62,8 +65,10 @@ extension LogsHandlerClient: DependencyKey {
             return archiveURL
         }
     )
+    #endif
 }
 
+#if !SECANT_MAINNET_NO_LOGGING
 private extension LogsHandlerClient {
     static func exportAndStoreLogsFor(key: String, atURL: URL) async throws -> (result: String, dir: URL) {
         let logsStr = try await LogStore.exportCategory(key)
@@ -77,3 +82,4 @@ private extension LogsHandlerClient {
         return (result: result, dir: atURL)
     }
 }
+#endif

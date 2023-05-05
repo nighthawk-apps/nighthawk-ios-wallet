@@ -34,6 +34,9 @@ internal enum Asset {
       internal static let calloutBackupSucceeded = ImageAsset(name: "calloutBackupSucceeded")
     }
     internal enum Icons {
+      internal enum Nighthawk {
+        internal static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+      }
       internal static let qrCode = ImageAsset(name: "qrCode")
     }
     internal static let welcomeScreenLogo = ImageAsset(name: "WelcomeScreenLogo")

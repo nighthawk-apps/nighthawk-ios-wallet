@@ -31,6 +31,10 @@ extension SDKSynchronizerClient: DependencyKey {
             logLevel: .debug
         )
         
+        #if SECANT_MAINNET_NO_LOGGING
+        initializer
+        #endif
+        
         let synchronizer = SDKSynchronizer(initializer: initializer)
 
         return SDKSynchronizerClient(

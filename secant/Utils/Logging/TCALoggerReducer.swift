@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import ZcashLightClientKit
 
+#if !SECANT_MAINNET_NO_LOGGING
 extension ReducerProtocol {
     @inlinable
     public func logging(
@@ -72,3 +73,4 @@ public struct LogChangesReducer<Base: ReducerProtocol>: ReducerProtocol {
         )
     }
 }
+#endif

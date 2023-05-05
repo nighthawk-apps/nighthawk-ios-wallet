@@ -165,9 +165,16 @@ extension RootReducer.State {
 
 extension RootStore {
     static var placeholder: RootStore {
+        #if SECANT_MAINNET_NO_LOGGING
+        RootStore(
+            initialState: .placeholder,
+            reducer: RootReducer()
+        )
+        #else
         RootStore(
             initialState: .placeholder,
             reducer: RootReducer().logging()
         )
+        #endif
     }
 }

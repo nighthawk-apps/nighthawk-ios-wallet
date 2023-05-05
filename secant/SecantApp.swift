@@ -20,7 +20,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        #if !SECANT_MAINNET_NO_LOGGING
         walletLogger = OSLogger(logLevel: .debug, category: LoggerConstants.walletLogs)
+        #endif
         // set the default behavior for the NSDecimalNumber
         NSDecimalNumber.defaultBehavior = Zatoshi.decimalHandler
         rootViewStore.send(.initialization(.appDelegate(.didFinishLaunching)))
@@ -54,22 +56,22 @@ struct SecantApp: App {
 
 enum TargetConstants {
     static var zcashNetwork: ZcashNetwork {
-#if SECANT_MAINNET
+#if SECANT_MAINNET || SECANT_MAINNET_NO_LOGGING
     return ZcashNetworkBuilder.network(for: .mainnet)
 #elseif SECANT_TESTNET
     return ZcashNetworkBuilder.network(for: .testnet)
 #else
-    fatalError("SECANT_MAINNET or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
+    fatalError("SECANT_MAINNET, SECANT_MAINNET_NO_LOGGING, or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
 #endif
     }
     
     static var tokenName: String {
-#if SECANT_MAINNET
+#if SECANT_MAINNET || SECANT_MAINNET_NO_LOGGING
     return "ZEC"
 #elseif SECANT_TESTNET
     return "TAZ"
 #else
-    fatalError("SECANT_MAINNET or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
+    fatalError("SECANT_MAINNET, SECANT_MAINNET_NO_LOGGING, or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
 #endif
     }
 }

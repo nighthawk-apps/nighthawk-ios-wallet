@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+#if canImport(FirebaseCore) && canImport(FirebaseCrashlytics)
 import FirebaseCore
 import FirebaseCrashlytics
 
@@ -40,3 +41,15 @@ extension CrashReporterClient: DependencyKey {
         }
     )
 }
+#else
+
+extension CrashReporterClient: DependencyKey {
+    static let liveValue = CrashReporterClient(
+        configure: { _ in },
+        testCrash: { fatalError("Crash was triggered to test the crash reporter") },
+        optIn: {},
+        optOut: {}
+    )
+}
+
+#endif

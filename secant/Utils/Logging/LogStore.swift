@@ -5,6 +5,7 @@
 //  Created by Lukáš Korba on 23.01.2023.
 //
 
+#if !SECANT_MAINNET_NO_LOGGING
 import Foundation
 import OSLog
     
@@ -36,3 +37,4 @@ enum LogStore {
         return res
     }
 }
+#endif
