@@ -31,6 +31,17 @@ private extension RootView {
         WithViewStore(store) { viewStore in
             Group {
                 switch viewStore.destinationState.destination {
+                case .nhHome:
+                    NavigationView {
+                        NHHomeView(
+                            store: store.scope(
+                                state: \.nhHomeState,
+                                action: RootReducer.Action.nhHome
+                            )
+                        )
+                    }
+                    .navigationViewStyle(.stack)
+                    
                 case .home:
                     NavigationView {
                         HomeView(
@@ -139,7 +150,7 @@ private extension RootView {
 
     @ViewBuilder func debugView(_ viewStore: RootViewStore) -> some View {
         VStack(alignment: .leading) {
-            if viewStore.destinationState.previousDestination == .home {
+            if viewStore.destinationState.previousDestination == .nhHome {
                 Button(L10n.General.back) {
                     viewStore.goToDestination(.home)
                 }

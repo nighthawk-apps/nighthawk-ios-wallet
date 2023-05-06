@@ -39,7 +39,10 @@ internal enum Asset {
         internal static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
         internal static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
         internal static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+        internal static let settings = ImageAsset(name: "settings")
+        internal static let transfer = ImageAsset(name: "transfer")
         internal static let unchecked = ImageAsset(name: "unchecked")
+        internal static let wallet = ImageAsset(name: "wallet")
       }
       internal static let qrCode = ImageAsset(name: "qrCode")
     }

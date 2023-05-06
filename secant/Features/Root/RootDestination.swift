@@ -17,6 +17,7 @@ extension RootReducer {
     struct DestinationState: Equatable {
         enum Destination: Equatable {
             case home
+            case nhHome
             case onboarding
             case phraseDisplay
             case phraseValidation
@@ -60,17 +61,18 @@ extension RootReducer {
                 state.destinationState.destination = .phraseDisplay
                 
             case .onboarding(.walletCreated(.skip)):
-                state.destinationState.destination = .home
+                state.destinationState.destination = .nhHome
 
             case .phraseValidation(.proceedToHome):
-                state.destinationState.destination = .home
+                state.destinationState.destination = .nhHome
 
             case .phraseValidation(.displayBackedUpPhrase):
                 state.destinationState.destination = .phraseDisplay
 
             case .phraseDisplay(.finishedPressed):
-                state.destinationState.destination = .home
+                state.destinationState.destination = .nhHome
 
+            // TODO: Rework deep linking with new tab nav setup
             case .destination(.deeplink(let url)):
                 // get the latest synchronizer state
                 let synchronizerStatus = sdkSynchronizer.latestState().syncStatus
@@ -96,16 +98,16 @@ extension RootReducer {
                 }
 
             case .destination(.deeplinkHome):
-                state.destinationState.destination = .home
-                state.homeState.destination = nil
+//                state.destinationState.destination = .home
+//                state.homeState.destination = nil
                 return .none
 
             case let .destination(.deeplinkSend(amount, address, memo)):
-                state.destinationState.destination = .home
-                state.homeState.destination = .send
-                state.homeState.sendState.amount = amount
-                state.homeState.sendState.address = address
-                state.homeState.sendState.memoState.text = memo.redacted
+//                state.destinationState.destination = .home
+//                state.homeState.destination = .send
+//                state.homeState.sendState.amount = amount
+//                state.homeState.sendState.address = address
+//                state.homeState.sendState.memoState.text = memo.redacted
                 return .none
 
             case let .destination(.deeplinkFailed(url, error)):
@@ -117,7 +119,7 @@ extension RootReducer {
                 }
                 return EffectTask(value: .destination(.deeplink(url)))
 
-            case .home, .initialization, .onboarding, .phraseDisplay, .phraseValidation, .sandbox, .updateStateAfterConfigUpdate, .alert,
+            case .nhHome, .home, .initialization, .onboarding, .phraseDisplay, .phraseValidation, .sandbox, .updateStateAfterConfigUpdate, .alert,
                 .welcome, .binding, .nukeWalletFailed, .nukeWalletSucceeded, .debug, .walletConfigLoaded, .dismissAlert, .exportLogs, .uniAlert:
                 return .none
             }

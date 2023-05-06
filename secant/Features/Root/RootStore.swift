@@ -18,6 +18,7 @@ struct RootReducer: ReducerProtocol {
         var debugState: DebugState
         var destinationState: DestinationState
         var exportLogsState: ExportLogsReducer.State
+        var nhHomeState: NHHomeReducer.State
         var homeState: HomeReducer.State
         var onboardingState: OnboardingFlowReducer.State
         var phraseValidationState: RecoveryPhraseValidationFlowReducer.State
@@ -36,6 +37,7 @@ struct RootReducer: ReducerProtocol {
         case dismissAlert
         case destination(DestinationAction)
         case exportLogs(ExportLogsReducer.Action)
+        case nhHome(NHHomeReducer.Action)
         case home(HomeReducer.Action)
         case initialization(InitializationAction)
         case nukeWalletFailed
@@ -66,6 +68,10 @@ struct RootReducer: ReducerProtocol {
     @ReducerBuilder<State, Action>
     var core: some ReducerProtocol<State, Action> {
         BindingReducer()
+        
+        Scope(state: \.nhHomeState, action: /Action.nhHome) {
+            NHHomeReducer()
+        }
 
         Scope(state: \.homeState, action: /Action.home) {
             HomeReducer()
@@ -150,6 +156,7 @@ extension RootReducer.State {
             debugState: .placeholder,
             destinationState: .placeholder,
             exportLogsState: .placeholder,
+            nhHomeState: .placeholder,
             homeState: .placeholder,
             onboardingState: .init(
                 walletConfig: .default,

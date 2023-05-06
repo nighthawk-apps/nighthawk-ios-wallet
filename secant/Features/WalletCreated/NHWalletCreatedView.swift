@@ -2,7 +2,7 @@
 //  NHWalletCreatedView.swift
 //  secant
 //
-//  Created by Two Point on 4/19/23.
+//  Created by Matthew Watt on 4/19/23.
 //
 
 import ComposableArchitecture

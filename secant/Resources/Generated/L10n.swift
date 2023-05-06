@@ -215,6 +215,14 @@ internal enum L10n {
     internal static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
   internal enum Nighthawk {
+    internal enum HomeScreen {
+      /// Settings
+      internal static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
+      /// Transfer
+      internal static let transfer = L10n.tr("Localizable", "nighthawk.homeScreen.transfer", fallback: "Transfer")
+      /// Wallet
+      internal static let wallet = L10n.tr("Localizable", "nighthawk.homeScreen.wallet", fallback: "Wallet")
+    }
     internal enum PlainOnboarding {
       /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
       internal static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")
