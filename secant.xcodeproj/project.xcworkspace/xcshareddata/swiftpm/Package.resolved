@@ -348,11 +348,16 @@
       "location" : "https://github.com/zcash-hackworks/zcash-light-client-ffi",
       "state" : {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "revision" : "cdbc06f10b2d7cbe0d6362b30f68167825942e86"
 =======
         "revision" : "bf5992c2e53749ad11c1e85ad5d9c63e39bdf3cc",
         "version" : "0.3.0"
 >>>>>>> fe1e7b7 ([#705] Transaction detail lacks memo and addresses (#706))
+=======
+        "revision" : "75821e2b859600707318e4a788abbe27e6615833",
+        "version" : "0.3.1"
+>>>>>>> 041a630 ([#707] Adopt latest SDK (#708))
       }
     },
     {
@@ -361,10 +366,14 @@
       "location" : "https://github.com/zcash/ZcashLightClientKit.git",
       "state" : {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "revision" : "ee3d082155bf542aa3580c84e6140a329633319a"
 =======
         "revision" : "88e120509b44104790949504fa58d0add9fb970e"
 >>>>>>> fe1e7b7 ([#705] Transaction detail lacks memo and addresses (#706))
+=======
+        "revision" : "336c5a7c382f363d27a28585c42d190e25c8bdee"
+>>>>>>> 041a630 ([#707] Adopt latest SDK (#708))
       }
     }
   ],
