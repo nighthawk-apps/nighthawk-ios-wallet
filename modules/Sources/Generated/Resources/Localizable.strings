@@ -303,3 +303,25 @@
 "nighthawk.homeScreen.wallet" = "Wallet";
 "nighthawk.homeScreen.transfer" = "Transfer";
 "nighthawk.homeScreen.settings" = "Settings";
+
+// MARK: - Home Screen - Wallet tab
+"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
+"nighthawk.walletTab.totalBalance" = "Total balance";
+"nighthawk.walletTab.shieldedBalance" = "Shielded balance";
+"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.zec" = "ZEC";
+"nighthawk.walletTab.recentActivity" = "Recent activity";
+
+
+// MARK: - Sync message
+"nighthawk.sync.message.enhancing" = "Enhancing…";
+"nighthawk.sync.message.fetchingUTXO" = "Fetching UTXOs…";
+"nighthawk.sync.message.disconnected" = "Reconnecting…";
+"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "Up-To-Date";
+"nighthawk.sync.message.unprepared" = "Connecting…";
+"nighthawk.sync.message.error" = "Error: %@";
+"nighthawk.sync.message.sync" = "Scanning…%@%%";
+"nighthawk.sync.message.preparing" = "Preparing to scan";
+"nighthawk.sync.message.finalizing" = "Finalizing";
+

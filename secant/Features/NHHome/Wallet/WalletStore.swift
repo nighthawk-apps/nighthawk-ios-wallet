@@ -6,18 +6,64 @@
 //
 
 import ComposableArchitecture
+import ZcashLightClientKit
 
 struct WalletReducer: ReducerProtocol {
-    struct State: Equatable {}
+    struct State: Equatable {
+        enum Destination: Equatable {
+            case showWalletEvent(WalletEvent)
+        }
+        
+        var destination: Destination?
+        
+        var latestMinedHeight: BlockHeight?
+        var requiredTransactionConfirmations = 0
+        var synchronizerStatusSnapshot: SyncStatusSnapshot
+        var shieldedBalance: Balance
+        var transparentBalance: Balance
+        @BindingState var balanceViewType: BalanceView.ViewType = .hidden
+        var walletEvents = IdentifiedArrayOf<WalletEvent>.placeholder
+        
+        var isSyncing: Bool {
+            if case .syncing = synchronizerStatusSnapshot.syncStatus {
+                return true
+            }
+            return false
+        }
+        
+        var isSyncingFailed: Bool {
+            if case .error = synchronizerStatusSnapshot.syncStatus {
+                return true
+            }
+            return false
+        }
+        
+        var isUpToDate: Bool {
+            if case .synced = synchronizerStatusSnapshot.syncStatus {
+                return true
+            }
+            return false
+        }
+        
+        var totalBalance: Zatoshi {
+            shieldedBalance.data.total + transparentBalance.data.total
+        }
+    }
     
-    enum Action: Equatable {
-        case noop
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+        case updateDestination(WalletReducer.State.Destination?)
     }
     
     var body: some ReducerProtocol<State, Action> {
-        Reduce { _, action in
+        BindingReducer()
+        
+        Reduce { state, action in
             switch action {
-            case .noop:
+            case let .updateDestination(destination):
+                state.destination = destination
+                return .none
+            case .binding:
                 return .none
             }
         }
@@ -27,6 +73,10 @@ struct WalletReducer: ReducerProtocol {
 // MARK: - Placeholder
 extension WalletReducer.State {
     static var placeholder: Self {
-        .init()
+        .init(
+            synchronizerStatusSnapshot: .default,
+            shieldedBalance: .zero,
+            transparentBalance: .zero
+        )
     }
 }

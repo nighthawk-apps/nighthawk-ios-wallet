@@ -9,6 +9,16 @@ import SwiftUI
 
 struct NHTabBar: View {
     let destination: Binding<NHHomeReducer.State.Destination>
+    let isUpToDate: Bool
+    
+    init(
+        destination: Binding<NHHomeReducer.State.Destination>,
+        isUpToDate: Bool
+    ) {
+        self.destination = destination
+        self.isUpToDate = isUpToDate
+        UITabBar.appearance().isHidden = true
+    }
     
     var body: some View {
         HStack {
@@ -25,6 +35,7 @@ struct NHTabBar: View {
                 isSelected: destination.wrappedValue == .transfer
             )
             .onTapGesture { destination.wrappedValue = .transfer }
+            .disable(when: !isUpToDate, dimmingOpacity: 0.3)
                         
             Tab(
                 title: L10n.Nighthawk.HomeScreen.settings,

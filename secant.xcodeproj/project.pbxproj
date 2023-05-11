@@ -189,6 +189,12 @@
 		456D4C5E29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */; };
 		456D4C6129CBFA360003A340 /* NighthawkLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6029CBFA360003A340 /* NighthawkLogo.swift */; };
 		456D4C6229CBFA360003A340 /* NighthawkLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D4C6029CBFA360003A340 /* NighthawkLogo.swift */; };
+		45803EE92A06DE690062582F /* IndeterminateProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EE82A06DE690062582F /* IndeterminateProgress.swift */; };
+		45803EEA2A06DE690062582F /* IndeterminateProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EE82A06DE690062582F /* IndeterminateProgress.swift */; };
+		45803EEC2A0746750062582F /* SyncStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EEB2A0746750062582F /* SyncStatusView.swift */; };
+		45803EED2A0746750062582F /* SyncStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EEB2A0746750062582F /* SyncStatusView.swift */; };
+		45803EEF2A0747170062582F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EEE2A0747170062582F /* BalanceView.swift */; };
+		45803EF02A0747170062582F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45803EEE2A0747170062582F /* BalanceView.swift */; };
 		4586C8AD2A0536040018097B /* NHHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4586C8AC2A0536040018097B /* NHHomeView.swift */; };
 		4586C8AE2A0536040018097B /* NHHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4586C8AC2A0536040018097B /* NHHomeView.swift */; };
 		4586C8B02A0536130018097B /* NHHomeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4586C8AF2A0536130018097B /* NHHomeStore.swift */; };
@@ -496,6 +502,9 @@
 		455952A429C4A1360004A3D3 /* NHWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHWelcomeView.swift; sourceTree = "<group>"; };
 		456D4C5C29CBF9A70003A340 /* NHPlainOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHPlainOnboardingView.swift; sourceTree = "<group>"; };
 		456D4C6029CBFA360003A340 /* NighthawkLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkLogo.swift; sourceTree = "<group>"; };
+		45803EE82A06DE690062582F /* IndeterminateProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndeterminateProgress.swift; sourceTree = "<group>"; };
+		45803EEB2A0746750062582F /* SyncStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusView.swift; sourceTree = "<group>"; };
+		45803EEE2A0747170062582F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		4586C8AC2A0536040018097B /* NHHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHHomeView.swift; sourceTree = "<group>"; };
 		4586C8AF2A0536130018097B /* NHHomeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHHomeStore.swift; sourceTree = "<group>"; };
 		4586C8B52A053ACD0018097B /* NHSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHSettingsView.swift; sourceTree = "<group>"; };
@@ -992,6 +1001,8 @@
 			children = (
 				451A48872A05422E007C5A64 /* WalletView.swift */,
 				451A488A2A054234007C5A64 /* WalletStore.swift */,
+				45803EEB2A0746750062582F /* SyncStatusView.swift */,
+				45803EEE2A0747170062582F /* BalanceView.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -1092,6 +1103,7 @@
 			isa = PBXGroup;
 			children = (
 				66A0807A271993C500118B79 /* OnboardingProgressIndicator.swift */,
+				45803EE82A06DE690062582F /* IndeterminateProgress.swift */,
 			);
 			path = ProgressIndicators;
 			sourceTree = "<group>";
@@ -2111,6 +2123,7 @@
 				0D26AED2299E8196005260EE /* BalanceBreakdownStore.swift in Sources */,
 				0D26AED3299E8196005260EE /* SyncStatusSnapshot.swift in Sources */,
 				0D26AED6299E8196005260EE /* UserPreferencesStorageInterface.swift in Sources */,
+				45803EF02A0747170062582F /* BalanceView.swift in Sources */,
 				451A48932A0544E8007C5A64 /* NHTabBar.swift in Sources */,
 				0D26AEDA299E8196005260EE /* ImportSeedEditor.swift in Sources */,
 				0D26AEDB299E8196005260EE /* ProfileStore.swift in Sources */,
@@ -2181,6 +2194,8 @@
 				0D26AF40299E8196005260EE /* RootDestination.swift in Sources */,
 				0D26AF41299E8196005260EE /* OnboardingProgressIndicator.swift in Sources */,
 				9E33ECD829D5E30200708DE4 /* AlertStates.swift in Sources */,
+				45803EED2A0746750062582F /* SyncStatusView.swift in Sources */,
+				45803EEA2A06DE690062582F /* IndeterminateProgress.swift in Sources */,
 				0D26AF44299E8196005260EE /* Memo+toString.swift in Sources */,
 				0D26AF46299E8196005260EE /* CheckCircleStore.swift in Sources */,
 				0D26AF47299E8196005260EE /* CreateTransactionView.swift in Sources */,
@@ -2254,6 +2269,7 @@
 				2E6CF8DD27D78319004DCD7A /* CurrencySelectionStore.swift in Sources */,
 				9E33ECD529D5D99700708DE4 /* AlertReducer.swift in Sources */,
 				9E6713F7289BC58C00A6796F /* BalanceBreakdownStore.swift in Sources */,
+				45803EEF2A0747170062582F /* BalanceView.swift in Sources */,
 				9E66122C2877188700C75B70 /* SyncStatusSnapshot.swift in Sources */,
 				451A48922A0544E8007C5A64 /* NHTabBar.swift in Sources */,
 				0D63170029919970007D873F /* UserPreferencesStorageInterface.swift in Sources */,
@@ -2323,7 +2339,9 @@
 				9E5BF64F2823E94900BA3F17 /* TransactionAddressTextField.swift in Sources */,
 				2E35F99227B28E7600EB79CD /* SingleLineTextField.swift in Sources */,
 				9E9ADA7F2938F5EC0071767B /* RootDestination.swift in Sources */,
+				45803EEC2A0746750062582F /* SyncStatusView.swift in Sources */,
 				66A0807B271993C500118B79 /* OnboardingProgressIndicator.swift in Sources */,
+				45803EE92A06DE690062582F /* IndeterminateProgress.swift in Sources */,
 				34BF09092927C98000222134 /* Memo+toString.swift in Sources */,
 				346715A528E2027D0035F7C4 /* CheckCircleStore.swift in Sources */,
 				F9C165C22740403600592F76 /* CreateTransactionView.swift in Sources */,

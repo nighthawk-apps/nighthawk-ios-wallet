@@ -30,6 +30,26 @@ extension WalletEvent {
                 .padding(.leading, 30)
         }
     }
+    
+    @ViewBuilder func nhRowView() -> some View {
+        switch state {
+        case .send(let transaction),
+            .pending(let transaction),
+            .received(let transaction),
+            .failed(let transaction):
+            TransactionRowView(transaction: transaction)
+        case .shielded(let zatoshi):
+            // TODO: [#390] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/390
+            Text(L10n.WalletEvent.Row.shielded(zatoshi.decimalString()))
+                .padding(.leading, 30)
+        case .walletImport:
+            // TODO: [#391] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/391
+            Text(L10n.WalletEvent.Row.import)
+                .padding(.leading, 30)
+        }
+    }
 }
 
 // MARK: - Details
