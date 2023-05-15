@@ -96,6 +96,7 @@ internal enum Asset {
     }
     internal enum Nighthawk {
       internal static let darkNavy = ColorAsset(name: "darkNavy")
+      internal static let error = ColorAsset(name: "error")
       internal static let navy = ColorAsset(name: "navy")
       internal static let parmaviolet = ColorAsset(name: "parmaviolet")
       internal static let peach = ColorAsset(name: "peach")

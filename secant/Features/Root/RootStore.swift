@@ -161,6 +161,7 @@ extension RootReducer.State {
             onboardingState: .init(
                 walletConfig: .default,
                 importWalletState: .placeholder,
+                nhImportWalletState: .placeholder,
                 walletCreatedState: .placeholder
             ),
             phraseValidationState: .placeholder,

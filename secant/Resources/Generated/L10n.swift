@@ -223,6 +223,28 @@ internal enum L10n {
       /// Wallet
       internal static let wallet = L10n.tr("Localizable", "nighthawk.homeScreen.wallet", fallback: "Wallet")
     }
+    internal enum ImportWallet {
+      /// Birthday Height (optional)
+      internal static let birthdayHeight = L10n.tr("Localizable", "nighthawk.importWallet.birthdayHeight", fallback: "Birthday Height (optional)")
+      /// Continue
+      internal static let `continue` = L10n.tr("Localizable", "nighthawk.importWallet.continue", fallback: "Continue")
+      /// Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
+      internal static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
+      /// Error ⸱ This doesn't look like a valid birthday height
+      internal static let invalidBirthday = L10n.tr("Localizable", "nighthawk.importWallet.invalidBirthday", fallback: "Error ⸱ This doesn't look like a valid birthday height")
+      /// Error ⸱ This doesn't look like a valid seed phrase
+      internal static let invalidMnemonic = L10n.tr("Localizable", "nighthawk.importWallet.invalidMnemonic", fallback: "Error ⸱ This doesn't look like a valid seed phrase")
+      /// Restore from backup
+      internal static let restoreFromBackup = L10n.tr("Localizable", "nighthawk.importWallet.restoreFromBackup", fallback: "Restore from backup")
+      /// Your seed phrase
+      internal static let yourSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.yourSeedPhrase", fallback: "Your seed phrase")
+    }
+    internal enum ImportWalletSuccess {
+      /// Success
+      internal static let success = L10n.tr("Localizable", "nighthawk.importWalletSuccess.success", fallback: "Success")
+      /// View wallet
+      internal static let viewWallet = L10n.tr("Localizable", "nighthawk.importWalletSuccess.viewWallet", fallback: "View wallet")
+    }
     internal enum PlainOnboarding {
       /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
       internal static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")

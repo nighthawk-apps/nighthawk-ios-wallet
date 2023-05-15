@@ -84,7 +84,8 @@ private extension RootView {
                         }
                     }
                     .navigationViewStyle(.stack)
-                    
+                    .tint(.white)
+
                 case .startup:
                     ZStack(alignment: .topTrailing) {
                         debugView(viewStore)

@@ -36,6 +36,9 @@ struct NHHomeView: View {
                 .overlay(alignment: .top) {
                     NighthawkLogo(spacing: .compact)
                         .padding(.top, 40)
+                        .accessDebugMenuWithHiddenGesture {
+                            viewStore.send(.debugMenuStartup)
+                        }
                 }
                 
                 NHTabBar(destination: viewStore.binding(\.$destination), isUpToDate: viewStore.isUpToDate)

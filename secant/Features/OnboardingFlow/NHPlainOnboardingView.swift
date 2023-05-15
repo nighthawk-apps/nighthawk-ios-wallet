@@ -31,7 +31,10 @@ struct NHPlainOnboardingView: View {
                         animation: .easeInOut(duration: 0.8)
                     )
                 } onRestore: {
-                    // todo
+                    viewStore.send(
+                        .importExistingWallet,
+                        animation: .easeInOut(duration: 0.8)
+                    )
                 }
             }
             .applyNighthawkBackground()
@@ -46,6 +49,18 @@ struct NHPlainOnboardingView: View {
                     )
                 }
             )
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.nhImportExistingWallet),
+                destination: {
+                    NHImportWalletView(
+                        store: store.scope(
+                            state: \.nhImportWalletState,
+                            action: OnboardingFlowReducer.Action.nhImportWallet
+                        )
+                    )
+                }
+            )
+            .navigationBarTitle(Text(""))
         }
     }
 }
@@ -54,7 +69,7 @@ struct NHPlainOnboardingView: View {
 private extension NHPlainOnboardingView {
     @ViewBuilder func mainContent() -> some View {
         Text(L10n.Nighthawk.PlainOnboarding.subtitle)
-            .subtitle
+            .subtitle()
             .padding(.bottom, 15)
         
         Text(L10n.Nighthawk.PlainOnboarding.body)

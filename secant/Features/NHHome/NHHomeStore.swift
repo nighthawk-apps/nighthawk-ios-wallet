@@ -51,6 +51,7 @@ struct NHHomeReducer: ReducerProtocol {
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case debugMenuStartup
         case onAppear
         case onDisappear
         case settings(NHSettingsReducer.Action)
@@ -130,7 +131,7 @@ struct NHHomeReducer: ReducerProtocol {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .binding, .settings, .transfer, .wallet:
+            case .binding, .debugMenuStartup, .settings, .transfer, .wallet:
                 return .none
             }
         }

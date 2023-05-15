@@ -224,16 +224,16 @@ extension RootReducer {
                     backDestination
                 )
 
-            case .welcome(.debugMenuStartup), .home(.debugMenuStartup):
+            case .welcome(.debugMenuStartup), .home(.debugMenuStartup), .nhHome(.debugMenuStartup):
                 return .concatenate(
                     EffectTask.cancel(id: CancelId.timer),
                     EffectTask(value: .destination(.updateDestination(.startup)))
                 )
 
-            case .onboarding(.importWallet(.successfullyRecovered)):
+            case .onboarding(.importWallet(.successfullyRecovered)), .onboarding(.nhImportWallet(.importWalletSuccess(.viewWallet))):
                 return EffectTask(value: .destination(.updateDestination(.nhHome)))
 
-            case .onboarding(.importWallet(.initializeSDK)):
+            case .onboarding(.importWallet(.initializeSDK)), .onboarding(.nhImportWallet(.initializeSDK)):
                 return EffectTask(value: .initialization(.initializeSDK))
 
             case .onboarding(.createNewWallet):

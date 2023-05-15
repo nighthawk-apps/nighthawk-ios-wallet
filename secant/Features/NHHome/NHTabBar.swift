@@ -2,7 +2,7 @@
 //  NHTabBar.swift
 //  secant
 //
-//  Created by Two Point on 5/5/23.
+//  Created by Matthew Watt on 5/5/23.
 //
 
 import SwiftUI
