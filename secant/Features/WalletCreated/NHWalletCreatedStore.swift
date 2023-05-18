@@ -14,11 +14,22 @@ struct NHWalletCreatedReducer: ReducerProtocol {
     
     enum Action: Equatable {
         case backup
+        case onAppear
         case skip
     }
     
+    @Dependency(\.feedbackGenerator) var feedbackGenerator
+    
     var body: some ReducerProtocol<State, Action> {
-        Reduce { _, _ in .none }
+        Reduce { _, action in
+            switch action {
+            case .onAppear:
+                feedbackGenerator.generateSuccessFeedback()
+                return .none
+            case .backup, .skip:
+                return .none
+            }
+        }
     }
 }
 

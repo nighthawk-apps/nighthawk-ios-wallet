@@ -283,6 +283,44 @@ internal enum L10n {
       /// Write down your backup seed
       internal static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
     }
+    internal enum SettingsTab {
+      /// Nighthawk v%@ & Licenses
+      internal static func aboutSubtitle(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.settingsTab.aboutSubtitle", String(describing: p1), fallback: "Nighthawk v%@ & Licenses")
+      }
+      /// About
+      internal static let aboutTitle = L10n.tr("Localizable", "nighthawk.settingsTab.aboutTitle", fallback: "About")
+      /// Keep your wallet safe in case you lose your phone
+      internal static let backupSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.backupSubtitle", fallback: "Keep your wallet safe in case you lose your phone")
+      /// Backup your wallet
+      internal static let backupTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backupTitle", fallback: "Backup your wallet")
+      /// Change backend lightwalletd server
+      internal static let changeServerSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServerSubtitle", fallback: "Change backend lightwalletd server")
+      /// Change server
+      internal static let changeServerTitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServerTitle", fallback: "Change server")
+      /// Opt-in to our partner services
+      internal static let externalServicesSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServicesSubtitle", fallback: "Opt-in to our partner services")
+      /// External services
+      internal static let externalServicesTitle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServicesTitle", fallback: "External services")
+      /// Choose your local currency
+      internal static let fiatSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.fiatSubtitle", fallback: "Choose your local currency")
+      /// Fiat Currency
+      internal static let fiatTitle = L10n.tr("Localizable", "nighthawk.settingsTab.fiatTitle", fallback: "Fiat Currency")
+      /// Reminding you to keep the wallet up-to-date
+      internal static let notificationsSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.notificationsSubtitle", fallback: "Reminding you to keep the wallet up-to-date")
+      /// Sync notifications
+      internal static let notificationsTitle = L10n.tr("Localizable", "nighthawk.settingsTab.notificationsTitle", fallback: "Sync notifications")
+      /// Rescan wallet balances to troubleshoot issues
+      internal static let rescanSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanSubtitle", fallback: "Rescan wallet balances to troubleshoot issues")
+      /// Rescan wallet
+      internal static let rescanTitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanTitle", fallback: "Rescan wallet")
+      /// Set/Change Pin Code & Biometric
+      internal static let securitySubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", fallback: "Set/Change Pin Code & Biometric")
+      /// Security
+      internal static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
+      /// Settings
+      internal static let settings = L10n.tr("Localizable", "nighthawk.settingsTab.settings", fallback: "Settings")
+    }
     internal enum Sync {
       internal enum Message {
         /// Reconnecting…
@@ -311,6 +349,12 @@ internal enum L10n {
         internal static let uptodate = L10n.tr("Localizable", "nighthawk.sync.message.uptodate", fallback: "Up-To-Date")
       }
     }
+    internal enum TransactionHistory {
+      /// %@ %@
+      internal static func zecAmount(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.transactionHistory.zecAmount", String(describing: p1), String(describing: p2), fallback: "%@ %@")
+      }
+    }
     internal enum WalletCreated {
       /// Backup your wallet
       internal static let backup = L10n.tr("Localizable", "nighthawk.walletCreated.backup", fallback: "Backup your wallet")
@@ -330,6 +374,8 @@ internal enum L10n {
       internal static let totalBalance = L10n.tr("Localizable", "nighthawk.walletTab.totalBalance", fallback: "Total balance")
       /// Transparent balance
       internal static let transparentBalance = L10n.tr("Localizable", "nighthawk.walletTab.transparentBalance", fallback: "Transparent balance")
+      /// View transaction history
+      internal static let viewTransactionHistory = L10n.tr("Localizable", "nighthawk.walletTab.viewTransactionHistory", fallback: "View transaction history")
       /// ZEC
       internal static let zec = L10n.tr("Localizable", "nighthawk.walletTab.zec", fallback: "ZEC")
     }

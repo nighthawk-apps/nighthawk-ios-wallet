@@ -325,7 +325,10 @@
 "nighthawk.walletTab.transparentBalance" = "Transparent balance";
 "nighthawk.walletTab.zec" = "ZEC";
 "nighthawk.walletTab.recentActivity" = "Recent activity";
+"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
 
+// MARK: - Home Screen - Transaction history
+"nighthawk.transactionHistory.zecAmount" = "%@ %@";
 
 // MARK: - Sync message
 "nighthawk.sync.message.enhancing" = "Enhancing…";
@@ -339,3 +342,21 @@
 "nighthawk.sync.message.preparing" = "Preparing to scan";
 "nighthawk.sync.message.finalizing" = "Finalizing";
 
+// MARK: - Home Screen - Settings tab
+"nighthawk.settingsTab.settings" = "Settings";
+"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
+"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
+"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
+"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
+"nighthawk.settingsTab.securityTitle" = "Security";
+"nighthawk.settingsTab.securitySubtitle" = "Set/Change Pin Code & Biometric";
+"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
+"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
+"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
+"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
+"nighthawk.settingsTab.changeServerTitle" = "Change server";
+"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
+"nighthawk.settingsTab.externalServicesTitle" = "External services";
+"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
+"nighthawk.settingsTab.aboutTitle" = "About";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";

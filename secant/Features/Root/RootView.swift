@@ -41,6 +41,7 @@ private extension RootView {
                         )
                     }
                     .navigationViewStyle(.stack)
+                    .tint(.white)
                     
                 case .home:
                     NavigationView {
@@ -153,7 +154,7 @@ private extension RootView {
         VStack(alignment: .leading) {
             if viewStore.destinationState.previousDestination == .nhHome {
                 Button(L10n.General.back) {
-                    viewStore.goToDestination(.home)
+                    viewStore.goToDestination(.nhHome)
                 }
                 .activeButtonStyle
                 .frame(width: 150)

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import Subsonic
 import SwiftUI
 import UIComponents
 
@@ -19,6 +20,10 @@ struct NHWalletCreatedView: View {
                 heading
                 Spacer()
                 actions(viewStore: viewStore)
+            }
+            .onAppear {
+                play(sound: "sound_receive_small.mp3")
+                viewStore.send(.onAppear)
             }
         }
         .applyNighthawkBackground()

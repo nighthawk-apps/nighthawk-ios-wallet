@@ -17,13 +17,9 @@ struct NHHomeView: View {
                 TabView(selection: viewStore.binding(\.$destination)) {
                     WalletView(store: store.walletStore())
                         .tag(NHHomeReducer.State.Destination.wallet)
-                        .modify {
+                        .overlay(alignment: .top) {
                             if viewStore.isSyncing {
-                                $0.overlay(alignment: .top) {
-                                    IndeterminateProgress()
-                                }
-                            } else {
-                                $0
+                                IndeterminateProgress()
                             }
                         }
                     
@@ -34,11 +30,13 @@ struct NHHomeView: View {
                         .tag(NHHomeReducer.State.Destination.settings)
                 }
                 .overlay(alignment: .top) {
-                    NighthawkLogo(spacing: .compact)
-                        .padding(.top, 40)
-                        .accessDebugMenuWithHiddenGesture {
-                            viewStore.send(.debugMenuStartup)
-                        }
+                    if viewStore.destination != .settings {
+                        NighthawkLogo(spacing: .compact)
+                            .padding(.top, 40)
+                            .accessDebugMenuWithHiddenGesture {
+                                viewStore.send(.debugMenuStartup)
+                            }
+                    }
                 }
                 
                 NHTabBar(destination: viewStore.binding(\.$destination), isUpToDate: viewStore.isUpToDate)
@@ -46,5 +44,6 @@ struct NHHomeView: View {
             .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
+        .navigationBarTitle("")
     }
 }

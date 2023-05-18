@@ -22,6 +22,15 @@ struct WalletView: View {
                 
                 latestWalletEvents(with: viewStore)
             }
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.transactionHistory),
+                destination: {
+                    TransactionHistoryView(store: store.transactionHistoryStore())
+                }
+            )
+            .navigationLinkEmpty(isActive: viewStore.bindingForSelectedWalletEvent(viewStore.selectedWalletEvent)) {
+                viewStore.selectedWalletEvent?.nhDetailView()
+            }
         }
         .applyNighthawkBackground()
     }
@@ -143,7 +152,7 @@ private extension WalletView {
     ) -> some View {
         Group {
             if viewStore.isUpToDate && !viewStore.walletEvents.isEmpty {
-                VStack {
+                VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
@@ -152,11 +161,30 @@ private extension WalletView {
                     }
                     
                     ForEach(viewStore.walletEvents.prefix(2)) { walletEvent in
-                        walletEvent.nhRowView()
-                            .onTapGesture {
-                                viewStore.send(.updateDestination(.showWalletEvent(walletEvent)))
-                            }
-                            .frame(height: 60)
+                        Button(action: { viewStore.send(.updateDestination(.showWalletEvent(walletEvent))) }) {
+                            walletEvent.nhRowView(showAmount: viewStore.balanceViewType != .hidden)
+                        }
+                        
+                        Divider()
+                            .frame(height: 2)
+                            .overlay(Asset.Colors.Nighthawk.navy.color)
+                    }
+                    
+                    Button(action: { viewStore.send(.viewTransactionHistory) }) {
+                        HStack(alignment: .center) {
+                            Text(L10n.Nighthawk.WalletTab.viewTransactionHistory)
+                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                            
+                            Spacer()
+                            
+                            Asset.Assets.Icons.Nighthawk.chevronRight.image
+                                .resizable()
+                                .renderingMode(.template)
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.vertical)
                     }
                 }
                 .frame(maxWidth: .infinity)

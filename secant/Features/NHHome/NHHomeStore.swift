@@ -27,7 +27,7 @@ struct NHHomeReducer: ReducerProtocol {
         var shieldedBalance: Balance
         var transparentBalance: Balance
         var synchronizerStatusSnapshot: SyncStatusSnapshot
-        var walletEvents = IdentifiedArrayOf<WalletEvent>.placeholder
+        var walletEvents = IdentifiedArrayOf<WalletEvent>()
 
         var isSyncing: Bool {
             if case .syncing = synchronizerStatusSnapshot.syncStatus {
@@ -122,7 +122,7 @@ struct NHHomeReducer: ReducerProtocol {
                 state.destination = destination
                 return .none
             case let .updateWalletEvents(walletEvents):
-                let sortedWalletEvents = walletEvents
+                let sortedWalletEvents = IdentifiedArrayOf<WalletEvent>.placeholder
                     .sorted(by: { lhs, rhs in
                         guard let lhsTimestamp = lhs.timestamp, let rhsTimestamp = rhs.timestamp else {
                             return false
