@@ -201,6 +201,12 @@
 		451A488C2A054234007C5A64 /* WalletStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451A488A2A054234007C5A64 /* WalletStore.swift */; };
 		451A48922A0544E8007C5A64 /* NHTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451A48912A0544E8007C5A64 /* NHTabBar.swift */; };
 		451A48932A0544E8007C5A64 /* NHTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451A48912A0544E8007C5A64 /* NHTabBar.swift */; };
+		45229B9E2A1B9204002EE82A /* SubsonicInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229B9D2A1B9204002EE82A /* SubsonicInterface.swift */; };
+		45229B9F2A1B9204002EE82A /* SubsonicInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229B9D2A1B9204002EE82A /* SubsonicInterface.swift */; };
+		45229BA12A1B9259002EE82A /* SubsonicLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */; };
+		45229BA22A1B9259002EE82A /* SubsonicLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */; };
+		45229BA42A1B931B002EE82A /* SubsonicTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */; };
+		45229BA52A1B931B002EE82A /* SubsonicTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */; };
 		453A02CC2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */; };
 		453A02CD2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */; };
 		453A02CF2A1652D80022E6BC /* TransactionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CE2A1652D80022E6BC /* TransactionHistoryView.swift */; };
@@ -553,6 +559,9 @@
 		451A48872A05422E007C5A64 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		451A488A2A054234007C5A64 /* WalletStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStore.swift; sourceTree = "<group>"; };
 		451A48912A0544E8007C5A64 /* NHTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHTabBar.swift; sourceTree = "<group>"; };
+		45229B9D2A1B9204002EE82A /* SubsonicInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicInterface.swift; sourceTree = "<group>"; };
+		45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicLiveKey.swift; sourceTree = "<group>"; };
+		45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicTestKey.swift; sourceTree = "<group>"; };
 		453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryStore.swift; sourceTree = "<group>"; };
 		453A02CE2A1652D80022E6BC /* TransactionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryView.swift; sourceTree = "<group>"; };
 		453A02D22A1658EB0022E6BC /* NHTransactionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHTransactionRowView.swift; sourceTree = "<group>"; };
@@ -1077,6 +1086,16 @@
 			path = ImportWalletSuccess;
 			sourceTree = "<group>";
 		};
+		45229B9C2A1B91E7002EE82A /* Subsonic */ = {
+			isa = PBXGroup;
+			children = (
+				45229B9D2A1B9204002EE82A /* SubsonicInterface.swift */,
+				45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */,
+				45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */,
+			);
+			path = Subsonic;
+			sourceTree = "<group>";
+		};
 		453A02CA2A1652BB0022E6BC /* TransactionHistory */ = {
 			isa = PBXGroup;
 			children = (
@@ -1597,7 +1616,7 @@
 			isa = PBXGroup;
 			children = (
 				0D767873298C374F0047E085 /* CrashReporter */,
-				9E0310C62A24BB230021F995 /* URIParser */,
+				45229B9C2A1B91E7002EE82A /* Subsonic */,
 				9EB863B72923C55A003D0F8B /* UserPreferencesStorage */,
 				34F682EA29A763F00022C079 /* WalletConfigProvider */,
 				9EB86396292392F6003D0F8B /* WalletStorage */,
@@ -2348,6 +2367,7 @@
 				0D26AEFA299E8196005260EE /* DesignGuide.swift in Sources */,
 				0D26AEFC299E8196005260EE /* RootStore.swift in Sources */,
 				0D26AEFD299E8196005260EE /* HomeView.swift in Sources */,
+				45229BA52A1B931B002EE82A /* SubsonicTestKey.swift in Sources */,
 				0D26AEFF299E8196005260EE /* SandboxView.swift in Sources */,
 				453A02CD2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */,
 				34C5658329B60C1C002F3A7C /* UIShareDialog.swift in Sources */,
@@ -2414,6 +2434,7 @@
 				0D26AF53299E8196005260EE /* TextFieldFooter.swift in Sources */,
 				0D26AF54299E8196005260EE /* CrashReporterInterface.swift in Sources */,
 				346731A329AE3A5100974482 /* UIMailDialog.swift in Sources */,
+				45229BA22A1B9259002EE82A /* SubsonicLiveKey.swift in Sources */,
 				0D26AF55299E8196005260EE /* ProfileView.swift in Sources */,
 				0D26AF56299E8196005260EE /* ScanStore.swift in Sources */,
 				0D26AF59299E8196005260EE /* WalletStorage.swift in Sources */,
@@ -2433,6 +2454,7 @@
 				0D26AF69299E8196005260EE /* AddressDetailsView.swift in Sources */,
 				0D26AF6A299E8196005260EE /* ClearBackgroundView.swift in Sources */,
 				450234652A11DE1A0026F4C7 /* NotificationsStore.swift in Sources */,
+				45229B9F2A1B9204002EE82A /* SubsonicInterface.swift in Sources */,
 				0D26AF6C299E8196005260EE /* TransactionSentView.swift in Sources */,
 				4548B2DE2A0C99080028885C /* NHImportWalletView.swift in Sources */,
 			);
@@ -2500,6 +2522,7 @@
 				9E2F1C8F280EDE09004E65FE /* Drawer.swift in Sources */,
 				0DB8AA81271DC7520035BC9D /* DesignGuide.swift in Sources */,
 				F9971A4D27680DC400A2DB75 /* RootStore.swift in Sources */,
+				45229BA42A1B931B002EE82A /* SubsonicTestKey.swift in Sources */,
 				9EAFEB9228081E9400199FC9 /* HomeView.swift in Sources */,
 				453A02CC2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */,
 				9EAFEB8F2808183D00199FC9 /* SandboxView.swift in Sources */,
@@ -2565,7 +2588,7 @@
 				455C28892A13BB7E0024C82C /* BackupView.swift in Sources */,
 				F9971A6627680DFE00A2DB75 /* SettingsView.swift in Sources */,
 				2EDA07A227EDE1AE00D6F09B /* TextFieldFooter.swift in Sources */,
-				0D26103C298C3E4800CC9DE9 /* CrashReporterInterface.swift in Sources */,
+				45229BA12A1B9259002EE82A /* SubsonicLiveKey.swift in Sources */,
 				346731A229AE3A5100974482 /* UIMailDialog.swift in Sources */,
 				F9971A5427680DD000A2DB75 /* ProfileView.swift in Sources */,
 				F9971A6027680DF600A2DB75 /* ScanStore.swift in Sources */,
@@ -2586,6 +2609,7 @@
 				9E7CB6212874143800A02233 /* AddressDetailsView.swift in Sources */,
 				9E6713FA289BE0E100A6796F /* ClearBackgroundView.swift in Sources */,
 				450234642A11DE1A0026F4C7 /* NotificationsStore.swift in Sources */,
+				45229B9E2A1B9204002EE82A /* SubsonicInterface.swift in Sources */,
 				F9C165C42740403600592F76 /* TransactionSentView.swift in Sources */,
 				4548B2DD2A0C99080028885C /* NHImportWalletView.swift in Sources */,
 			);

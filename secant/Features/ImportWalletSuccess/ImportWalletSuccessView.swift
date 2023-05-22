@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import Subsonic
 import SwiftUI
 
 struct ImportWalletSuccessView: View {
@@ -44,7 +43,6 @@ struct ImportWalletSuccessView: View {
             .applyNighthawkBackground()
             .navigationBarHidden(true)
             .onAppear {
-                play(sound: "sound_receive_small.mp3")
                 viewStore.send(.generateSuccessFeedback)
             }
         }

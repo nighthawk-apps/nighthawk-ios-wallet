@@ -22,7 +22,6 @@ struct NHWalletCreatedView: View {
                 actions(viewStore: viewStore)
             }
             .onAppear {
-                play(sound: "sound_receive_small.mp3")
                 viewStore.send(.onAppear)
             }
         }
