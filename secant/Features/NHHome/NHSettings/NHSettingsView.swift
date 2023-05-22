@@ -59,6 +59,24 @@ struct NHSettingsView: View {
                     RescanView(store: store.rescanStore())
                 }
             )
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.changeServer),
+                destination: {
+                    ChangeServerView(store: store.changeServerStore())
+                }
+            )
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.externalServices),
+                destination: {
+                    ExternalServicesView(store: store.externalServicesStore())
+                }
+            )
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForDestination(.about),
+                destination: {
+                    AboutView(store: store.aboutStore())
+                }
+            )
             .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()

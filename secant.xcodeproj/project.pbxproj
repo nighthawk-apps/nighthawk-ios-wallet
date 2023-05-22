@@ -207,6 +207,18 @@
 		45229BA22A1B9259002EE82A /* SubsonicLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */; };
 		45229BA42A1B931B002EE82A /* SubsonicTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */; };
 		45229BA52A1B931B002EE82A /* SubsonicTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */; };
+		45229BA72A1B953E002EE82A /* ChangeServerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA62A1B953E002EE82A /* ChangeServerStore.swift */; };
+		45229BA82A1B953E002EE82A /* ChangeServerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA62A1B953E002EE82A /* ChangeServerStore.swift */; };
+		45229BAA2A1B95FB002EE82A /* ChangeServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA92A1B95FB002EE82A /* ChangeServerView.swift */; };
+		45229BAB2A1B95FB002EE82A /* ChangeServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BA92A1B95FB002EE82A /* ChangeServerView.swift */; };
+		45229BAE2A1B96C3002EE82A /* ExternalServicesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BAD2A1B96C3002EE82A /* ExternalServicesStore.swift */; };
+		45229BAF2A1B96C3002EE82A /* ExternalServicesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BAD2A1B96C3002EE82A /* ExternalServicesStore.swift */; };
+		45229BB12A1B96EE002EE82A /* ExternalServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB02A1B96EE002EE82A /* ExternalServicesView.swift */; };
+		45229BB22A1B96EE002EE82A /* ExternalServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB02A1B96EE002EE82A /* ExternalServicesView.swift */; };
+		45229BB52A1B97DA002EE82A /* AboutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB42A1B97DA002EE82A /* AboutStore.swift */; };
+		45229BB62A1B97DA002EE82A /* AboutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB42A1B97DA002EE82A /* AboutStore.swift */; };
+		45229BB82A1B97DF002EE82A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB72A1B97DF002EE82A /* AboutView.swift */; };
+		45229BB92A1B97DF002EE82A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45229BB72A1B97DF002EE82A /* AboutView.swift */; };
 		453A02CC2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */; };
 		453A02CD2A1652D10022E6BC /* TransactionHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */; };
 		453A02CF2A1652D80022E6BC /* TransactionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453A02CE2A1652D80022E6BC /* TransactionHistoryView.swift */; };
@@ -562,6 +574,12 @@
 		45229B9D2A1B9204002EE82A /* SubsonicInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicInterface.swift; sourceTree = "<group>"; };
 		45229BA02A1B9259002EE82A /* SubsonicLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicLiveKey.swift; sourceTree = "<group>"; };
 		45229BA32A1B931B002EE82A /* SubsonicTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicTestKey.swift; sourceTree = "<group>"; };
+		45229BA62A1B953E002EE82A /* ChangeServerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeServerStore.swift; sourceTree = "<group>"; };
+		45229BA92A1B95FB002EE82A /* ChangeServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeServerView.swift; sourceTree = "<group>"; };
+		45229BAD2A1B96C3002EE82A /* ExternalServicesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalServicesStore.swift; sourceTree = "<group>"; };
+		45229BB02A1B96EE002EE82A /* ExternalServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalServicesView.swift; sourceTree = "<group>"; };
+		45229BB42A1B97DA002EE82A /* AboutStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutStore.swift; sourceTree = "<group>"; };
+		45229BB72A1B97DF002EE82A /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		453A02CB2A1652D10022E6BC /* TransactionHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryStore.swift; sourceTree = "<group>"; };
 		453A02CE2A1652D80022E6BC /* TransactionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryView.swift; sourceTree = "<group>"; };
 		453A02D22A1658EB0022E6BC /* NHTransactionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NHTransactionRowView.swift; sourceTree = "<group>"; };
@@ -1096,6 +1114,24 @@
 			path = Subsonic;
 			sourceTree = "<group>";
 		};
+		45229BAC2A1B96B5002EE82A /* ExternalServices */ = {
+			isa = PBXGroup;
+			children = (
+				45229BAD2A1B96C3002EE82A /* ExternalServicesStore.swift */,
+				45229BB02A1B96EE002EE82A /* ExternalServicesView.swift */,
+			);
+			path = ExternalServices;
+			sourceTree = "<group>";
+		};
+		45229BB32A1B976C002EE82A /* About */ = {
+			isa = PBXGroup;
+			children = (
+				45229BB42A1B97DA002EE82A /* AboutStore.swift */,
+				45229BB72A1B97DF002EE82A /* AboutView.swift */,
+			);
+			path = About;
+			sourceTree = "<group>";
+		};
 		453A02CA2A1652BB0022E6BC /* TransactionHistory */ = {
 			isa = PBXGroup;
 			children = (
@@ -1163,6 +1199,8 @@
 		455C28922A13BFED0024C82C /* ChangeServer */ = {
 			isa = PBXGroup;
 			children = (
+				45229BA62A1B953E002EE82A /* ChangeServerStore.swift */,
+				45229BA92A1B95FB002EE82A /* ChangeServerView.swift */,
 			);
 			path = ChangeServer;
 			sourceTree = "<group>";
@@ -1217,6 +1255,8 @@
 				455C28842A13BB5C0024C82C /* Backup */,
 				455C288B2A13BCBD0024C82C /* Rescan */,
 				455C28922A13BFED0024C82C /* ChangeServer */,
+				45229BAC2A1B96B5002EE82A /* ExternalServices */,
+				45229BB32A1B976C002EE82A /* About */,
 				4586C8B52A053ACD0018097B /* NHSettingsView.swift */,
 				4586C8B82A053AE70018097B /* NHSettingsStore.swift */,
 			);
@@ -2323,6 +2363,7 @@
 				0D26AEBA299E8196005260EE /* AddressDetailsStore.swift in Sources */,
 				0D26AEBC299E8196005260EE /* TCATextFieldStore.swift in Sources */,
 				0D26AEBF299E8196005260EE /* TransactionFailedView.swift in Sources */,
+				45229BB92A1B97DF002EE82A /* AboutView.swift in Sources */,
 				0D26AEC2299E8196005260EE /* TransactionRowView.swift in Sources */,
 				0D26AEC4299E8196005260EE /* TCALogging.swift in Sources */,
 				9E80C4672A25EAFB0049E6A7 /* URIParser.swift in Sources */,
@@ -2347,6 +2388,7 @@
 				9E486DE629B637AF003E6945 /* ImportBirthdayView.swift in Sources */,
 				0D26AEDC299E8196005260EE /* CheckCircle.swift in Sources */,
 				9E33ECD929D5E30200708DE4 /* AlertRequest.swift in Sources */,
+				45229BAB2A1B95FB002EE82A /* ChangeServerView.swift in Sources */,
 				451A48892A05422E007C5A64 /* WalletView.swift in Sources */,
 				451A48862A0540E3007C5A64 /* TransferStore.swift in Sources */,
 				0D26AEE4299E8196005260EE /* CurrencySelectionView.swift in Sources */,
@@ -2381,6 +2423,7 @@
 				0D26AF07299E8196005260EE /* RootView.swift in Sources */,
 				450D3BAA2A101C7300B49B9E /* NHTextField.swift in Sources */,
 				0D26AF0A299E8196005260EE /* OnboardingFooterView.swift in Sources */,
+				45229BAF2A1B96C3002EE82A /* ExternalServicesStore.swift in Sources */,
 				4586C8AE2A0536040018097B /* NHHomeView.swift in Sources */,
 				0D26AF0E299E8196005260EE /* MultiLineTextFieldStore.swift in Sources */,
 				0D26AF0F299E8196005260EE /* DebugFrame.swift in Sources */,
@@ -2396,6 +2439,7 @@
 				0D26AF19299E8196005260EE /* StoredWallet.swift in Sources */,
 				34F682E629A75EB60022C079 /* WalletConfig.swift in Sources */,
 				0D26AF1B299E8196005260EE /* HomeStore.swift in Sources */,
+				45229BA82A1B953E002EE82A /* ChangeServerStore.swift in Sources */,
 				0D26AF1E299E8196005260EE /* QRCodeGenerator.swift in Sources */,
 				0D26AF1F299E8196005260EE /* Array+Chunked.swift in Sources */,
 				0D26AF20299E8196005260EE /* UInt+SuperscriptText.swift in Sources */,
@@ -2405,6 +2449,8 @@
 				0D26AF27299E8196005260EE /* WalletStorageInterface.swift in Sources */,
 				455C288E2A13BCC90024C82C /* RescanStore.swift in Sources */,
 				0D26AF2D299E8196005260EE /* DebugMenu.swift in Sources */,
+				45229BB62A1B97DA002EE82A /* AboutStore.swift in Sources */,
+                456D4C5E29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */,
 				456D4C5E29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */,
 				450D3BAE2A10784300B49B9E /* ImportWalletSuccessStore.swift in Sources */,
 				34F682F629A7641B0022C079 /* WalletConfigProviderTestKey.swift in Sources */,
@@ -2429,6 +2475,9 @@
 				4586C8BA2A053AE70018097B /* NHSettingsStore.swift in Sources */,
 				453A02D72A1663CB0022E6BC /* NHTransactionDetailView.swift in Sources */,
 				4586C8BA2A053AE70018097B /* NHSettingsStore.swift in Sources */,
+				0D26AF4D299E8196005260EE /* ImportWalletStore.swift in Sources */,
+				45229BB22A1B96EE002EE82A /* ExternalServicesView.swift in Sources */,
+				0D26AF4E299E8196005260EE /* BalanceBreakdownView.swift in Sources */,
 				455C288A2A13BB7E0024C82C /* BackupView.swift in Sources */,
 				0D26AF4F299E8196005260EE /* SettingsView.swift in Sources */,
 				0D26AF53299E8196005260EE /* TextFieldFooter.swift in Sources */,
@@ -2482,6 +2531,17 @@
 				2EDA07A027EDE18C00D6F09B /* TCATextField.swift in Sources */,
 				34F682EF29A7640A0022C079 /* WalletConfigProviderInterface.swift in Sources */,
 				453A02CF2A1652D80022E6BC /* TransactionHistoryView.swift in Sources */,
+				2EB7758727FC67FD00269373 /* TransactionAmountTextFieldStore.swift in Sources */,
+				450D3BB02A10784E00B49B9E /* ImportWalletSuccessView.swift in Sources */,
+				0D3016B829BFB2FB002371B3 /* PlainOnboardingView.swift in Sources */,
+				F96B41E8273B501F0021B49A /* TransactionDetailView.swift in Sources */,
+				9E7CB6202874143800A02233 /* AddressDetailsStore.swift in Sources */,
+				45229BB82A1B97DF002EE82A /* AboutView.swift in Sources */,
+				0DC487C32772574C00BE6A63 /* RecoveryPhraseBackupSucceededView.swift in Sources */,
+				2EB1C5E827D77F6100BC43D7 /* TCATextFieldStore.swift in Sources */,
+				9E5BF641281FD7B600BA3F17 /* TransactionFailedView.swift in Sources */,
+				9EAB467A2861EA6A002904A0 /* TransactionRowView.swift in Sources */,
+				9E0F5741297E7F1D005304FA /* TCALogging.swift in Sources */,
 				455C28862A13BB790024C82C /* BackupStore.swift in Sources */,
 				455C28902A13BCCF0024C82C /* RescanView.swift in Sources */,
 				9E9CEA3E29D47BE000599DF5 /* OnChangeReducer.swift in Sources */,
@@ -2500,6 +2560,7 @@
 				0D63170029919970007D873F /* UserPreferencesStorageInterface.swift in Sources */,
 				9E0310CC2A24BB420021F995 /* URIParserInterface.swift in Sources */,
 				9E2DF99D27CF704D00649636 /* ImportSeedEditor.swift in Sources */,
+				45229BAA2A1B95FB002EE82A /* ChangeServerView.swift in Sources */,
 				F9971A5327680DD000A2DB75 /* ProfileStore.swift in Sources */,
 				451A48882A05422E007C5A64 /* WalletView.swift in Sources */,
 				9E486DE529B637AF003E6945 /* ImportBirthdayView.swift in Sources */,
@@ -2536,6 +2597,7 @@
 				F9971A5F27680DF600A2DB75 /* ScanView.swift in Sources */,
 				450D3BA92A101C7300B49B9E /* NHTextField.swift in Sources */,
 				F9971A4E27680DC400A2DB75 /* RootView.swift in Sources */,
+				45229BAE2A1B96C3002EE82A /* ExternalServicesStore.swift in Sources */,
 				4586C8AD2A0536040018097B /* NHHomeView.swift in Sources */,
 				2EA11F5B27467EF800709571 /* OnboardingFooterView.swift in Sources */,
 				9E7225F6288AC71A00DF7F17 /* MultiLineTextFieldStore.swift in Sources */,
@@ -2551,6 +2613,7 @@
 				F96B41E7273B501F0021B49A /* WalletEventsFlowStore.swift in Sources */,
 				9E7FE0E6282E7B1100C374E8 /* StoredWallet.swift in Sources */,
 				34F682E529A75EB60022C079 /* WalletConfig.swift in Sources */,
+				45229BA72A1B953E002EE82A /* ChangeServerStore.swift in Sources */,
 				9EAFEB9128081E9400199FC9 /* HomeStore.swift in Sources */,
 				451A488B2A054234007C5A64 /* WalletStore.swift in Sources */,
 				9E7CB61A287310EC00A02233 /* QRCodeGenerator.swift in Sources */,
@@ -2560,6 +2623,7 @@
 				455C288D2A13BCC90024C82C /* RescanStore.swift in Sources */,
 				9EB8639C2923935B003D0F8B /* WalletStorageLiveKey.swift in Sources */,
 				9EB8639B2923935B003D0F8B /* WalletStorageInterface.swift in Sources */,
+				45229BB52A1B97DA002EE82A /* AboutStore.swift in Sources */,
 				9E2F1C842809B606004E65FE /* DebugMenu.swift in Sources */,
 				456D4C5D29CBF9A70003A340 /* NHPlainOnboardingView.swift in Sources */,
 				450D3BAD2A10784300B49B9E /* ImportWalletSuccessStore.swift in Sources */,
@@ -2583,6 +2647,7 @@
 				453A02D62A1663CB0022E6BC /* NHTransactionDetailView.swift in Sources */,
 				45941DEA29DC5C2C005DEA28 /* NHCheckBox.swift in Sources */,
 				4586C8B92A053AE70018097B /* NHSettingsStore.swift in Sources */,
+				45229BB12A1B96EE002EE82A /* ExternalServicesView.swift in Sources */,
 				9E2DF99C27CF704D00649636 /* ImportWalletStore.swift in Sources */,
 				9E6713F8289BC58C00A6796F /* BalanceBreakdownView.swift in Sources */,
 				455C28892A13BB7E0024C82C /* BackupView.swift in Sources */,

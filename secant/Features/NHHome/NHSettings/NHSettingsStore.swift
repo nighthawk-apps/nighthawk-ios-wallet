@@ -30,6 +30,9 @@ struct NHSettingsReducer: ReducerProtocol {
         var security: SecurityReducer.State
         var backup: BackupReducer.State
         var rescan: RescanReducer.State
+        var changeServer: ChangeServerReducer.State
+        var externalServices: ExternalServicesReducer.State
+        var about: AboutReducer.State
     }
     
     enum Action: Equatable {
@@ -38,6 +41,9 @@ struct NHSettingsReducer: ReducerProtocol {
         case security(SecurityReducer.Action)
         case backup(BackupReducer.Action)
         case rescan(RescanReducer.Action)
+        case changeServer(ChangeServerReducer.Action)
+        case externalServices(ExternalServicesReducer.Action)
+        case about(AboutReducer.Action)
         case onAppear
         case updateDestination(State.Destination?)
     }
@@ -65,6 +71,18 @@ struct NHSettingsReducer: ReducerProtocol {
             RescanReducer()
         }
         
+        Scope(state: \.changeServer, action: /Action.changeServer) {
+            ChangeServerReducer()
+        }
+        
+        Scope(state: \.externalServices, action: /Action.externalServices) {
+            ExternalServicesReducer()
+        }
+        
+        Scope(state: \.about, action: /Action.about) {
+            AboutReducer()
+        }
+        
         Reduce { state, action in
             switch action {
             case let .updateDestination(destination):
@@ -73,7 +91,7 @@ struct NHSettingsReducer: ReducerProtocol {
             case .onAppear:
                 state.appVersion = appVersion.appVersion()
                 return .none
-            case .notifications, .fiat, .security, .backup, .rescan:
+            case .notifications, .fiat, .security, .backup, .rescan, .changeServer, .externalServices, .about:
                 return .none
             }
         }
@@ -89,7 +107,10 @@ extension NHSettingsReducer.State {
             fiat: .placeholder,
             security: .placeholder,
             backup: .placeholder,
-            rescan: .placeholder
+            rescan: .placeholder,
+            changeServer: .placeholder,
+            externalServices: .placeholder,
+            about: .placeholder
         )
     }
 }
@@ -127,6 +148,27 @@ extension Store<NHSettingsReducer.State, NHSettingsReducer.Action> {
         self.scope(
             state: \.rescan,
             action: Action.rescan
+        )
+    }
+    
+    func changeServerStore() -> Store<ChangeServerReducer.State, ChangeServerReducer.Action> {
+        self.scope(
+            state: \.changeServer,
+            action: Action.changeServer
+        )
+    }
+    
+    func externalServicesStore() -> Store<ExternalServicesReducer.State, ExternalServicesReducer.Action> {
+        self.scope(
+            state: \.externalServices,
+            action: Action.externalServices
+        )
+    }
+    
+    func aboutStore() -> Store<AboutReducer.State, AboutReducer.Action> {
+        self.scope(
+            state: \.about,
+            action: Action.about
         )
     }
 }
