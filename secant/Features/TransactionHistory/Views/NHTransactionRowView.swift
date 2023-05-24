@@ -42,47 +42,6 @@ struct NHTransactionRowView: View {
         }
         .padding(.vertical)
     }
-    
-//    var body: some View {
-//        ZStack {
-//            icon
-//
-//            HStack {
-//                VStack(alignment: .leading) {
-//                    Text(operationTitle)
-//                        .font(.system(size: 16))
-//                        .foregroundColor(Asset.Colors.Mfp.fontDark.color)
-//
-//                    Text("\(transaction.date?.asHumanReadable() ?? L10n.General.dateNotAvailable)")
-//                        .font(.system(size: 16))
-//                        .foregroundColor(Asset.Colors.Mfp.fontDark.color)
-//                        .opacity(0.5)
-//                }
-//
-//                Spacer()
-//
-//                Group {
-//                    Text(transaction.unarySymbol)
-//                        .font(.system(size: 16))
-//                        .foregroundColor(Asset.Colors.Mfp.fontDark.color)
-//                    + Text(L10n.balance(transaction.zecAmount.decimalString(), TargetConstants.tokenName))
-//                        .font(.system(size: 16))
-//                        .foregroundColor(Asset.Colors.Mfp.fontDark.color)
-//                }
-//                .padding(.trailing, 30)
-//            }
-//            .padding(.leading, 80)
-//
-//            VStack {
-//                Spacer()
-//                Rectangle()
-//                    .padding(.horizontal, 30)
-//                    .frame(height: 1, alignment: .center)
-//                    .foregroundColor(Asset.Colors.Text.transactionRowSubtitle.color)
-//            }
-//        }
-//        .frame(height: 60)
-//    }
 }
 
 extension NHTransactionRowView {
