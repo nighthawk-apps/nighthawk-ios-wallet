@@ -3523,6 +3523,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = ZcashSDKEnvironment;
 		};
+		9E88FB9D2A20CAA000DAA500 /* DateClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DateClient;
+		};
 		9EAB466C285A0468002904A0 /* Parsing */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9EAB466B285A0468002904A0 /* XCRemoteSwiftPackageReference "swift-parsing" */;
