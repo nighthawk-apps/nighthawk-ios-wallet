@@ -753,6 +753,7 @@
 				9E0031702A272746003DFCEB /* AudioServices in Frameworks */,
 				9E0031782A272747003DFCEB /* Deeplink in Frameworks */,
 				0D26AF75299E8196005260EE /* MnemonicSwift in Frameworks */,
+				9E0310C32A24A4D40021F995 /* DerivationToolClient in Frameworks */,
 				0D26AF76299E8196005260EE /* ComposableArchitecture in Frameworks */,
 				9E00319C2A272BB6003DFCEB /* SDKSynchronizer in Frameworks */,
 				9E9075062A2689D600269308 /* RecoveryPhraseValidationFlow in Frameworks */,
@@ -3530,6 +3531,26 @@
 		9E88FBA12A20D35800DAA500 /* AppVersionClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppVersionClient;
+		};
+		9E88FBA32A247F6900DAA500 /* AudioServicesClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AudioServicesClient;
+		};
+		9E88FBA52A24804900DAA500 /* CaptureDeviceClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CaptureDeviceClient;
+		};
+		9E88FBA72A2481DB00DAA500 /* DatabaseFilesClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DatabaseFilesClient;
+		};
+		9E88FBA92A24A0E000DAA500 /* DerivationToolClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DerivationToolClient;
+		};
+		9E88FBAB2A24A0E900DAA500 /* DeeplinkClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DeeplinkClient;
 		};
 		9EAB466C285A0468002904A0 /* Parsing */ = {
 			isa = XCSwiftPackageProductDependency;
