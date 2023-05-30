@@ -116,6 +116,18 @@ let package = Package(
             path: "Sources/Dependencies/FeedbackGenerator"
         ),
         .target(
+            name: "DiskSpaceCheckerClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
+            name: "FeedbackGeneratorClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
             name: "FileManager",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")

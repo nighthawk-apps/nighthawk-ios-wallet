@@ -754,6 +754,7 @@
 				9E0031782A272747003DFCEB /* Deeplink in Frameworks */,
 				0D26AF75299E8196005260EE /* MnemonicSwift in Frameworks */,
 				9E0310C32A24A4D40021F995 /* DerivationToolClient in Frameworks */,
+				9E80C4582A25E9690049E6A7 /* DiskSpaceCheckerClient in Frameworks */,
 				0D26AF76299E8196005260EE /* ComposableArchitecture in Frameworks */,
 				9E00319C2A272BB6003DFCEB /* SDKSynchronizer in Frameworks */,
 				9E9075062A2689D600269308 /* RecoveryPhraseValidationFlow in Frameworks */,
@@ -776,6 +777,7 @@
 				9E0031882A272A52003DFCEB /* LogsHandler in Frameworks */,
 				4502345A2A10953C0026F4C7 /* Subsonic in Frameworks */,
 				0D5D9B8F2914620700DBD03F /* URLRouting in Frameworks */,
+				9E80C44E2A25E8F00049E6A7 /* NumberFormatterClient in Frameworks */,
 				34CE032B29C0938600A6626B /* ZcashLightClientKit in Frameworks */,
 				9E0031642A272736003DFCEB /* CaptureDevice in Frameworks */,
 				9E0031602A272736003DFCEB /* AppVersion in Frameworks */,
@@ -3523,6 +3525,62 @@
 		9E9075132A2691B700269308 /* ZcashSDKEnvironment */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ZcashSDKEnvironment;
+		};
+		9E80C4472A25E8DF0049E6A7 /* PasteboardClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PasteboardClient;
+		};
+		9E80C4492A25E8E70049E6A7 /* LogsHandlerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LogsHandlerClient;
+		};
+		9E80C44B2A25E8EC0049E6A7 /* MnemonicClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MnemonicClient;
+		};
+		9E80C44D2A25E8F00049E6A7 /* NumberFormatterClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NumberFormatterClient;
+		};
+		9E80C44F2A25E8FA0049E6A7 /* LogsHandlerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LogsHandlerClient;
+		};
+		9E80C4512A25E8FA0049E6A7 /* MnemonicClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MnemonicClient;
+		};
+		9E80C4532A25E8FA0049E6A7 /* NumberFormatterClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NumberFormatterClient;
+		};
+		9E80C4552A25E8FA0049E6A7 /* PasteboardClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PasteboardClient;
+		};
+		9E80C4572A25E9690049E6A7 /* DiskSpaceCheckerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DiskSpaceCheckerClient;
+		};
+		9E80C4592A25E96D0049E6A7 /* FeedbackGeneratorClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FeedbackGeneratorClient;
+		};
+		9E80C45B2A25E9720049E6A7 /* DiskSpaceCheckerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DiskSpaceCheckerClient;
+		};
+		9E80C45D2A25E9760049E6A7 /* FeedbackGeneratorClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FeedbackGeneratorClient;
+		};
+		9E80C45F2A25E9A70049E6A7 /* LocalAuthenticationClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LocalAuthenticationClient;
+		};
+		9E80C4612A25E9AC0049E6A7 /* LocalAuthenticationClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LocalAuthenticationClient;
 		};
 		9E88FB9F2A20D33C00DAA500 /* DateClient */ = {
 			isa = XCSwiftPackageProductDependency;

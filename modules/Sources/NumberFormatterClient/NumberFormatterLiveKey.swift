@@ -7,11 +7,12 @@
 
 import Foundation
 import ComposableArchitecture
+import Utils
 
 extension NumberFormatterClient: DependencyKey {
-    static let liveValue = NumberFormatterClient.live()
+    public static let liveValue = NumberFormatterClient.live()
 
-    static func live(numberFormatter: NumberFormatter = NumberFormatter.zcashNumberFormatter) -> Self {
+    public static func live(numberFormatter: NumberFormatter = NumberFormatter.zcashNumberFormatter) -> Self {
         Self(
             string: { numberFormatter.string(from: $0) },
             number: { numberFormatter.number(from: $0) }
