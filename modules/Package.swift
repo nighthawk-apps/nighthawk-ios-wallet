@@ -247,6 +247,59 @@ let package = Package(
             ]
         ),
         .target(
+            name: "RecoveryPhraseValidationFlow",
+            dependencies: [
+                "FeedbackGeneratorClient",
+                "Generated",
+                "Models",
+                "PasteboardClient",
+                "UIComponents",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ]
+        ),
+        .target(
+            name: "ReviewRequestClient",
+            dependencies: [
+                "AppVersionClient",
+                "DateClient",
+                "UserDefaultsClient",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "SDKSynchronizerClient",
+            dependencies: [
+                "DatabaseFilesClient",
+                "Models",
+                "ZcashSDKEnvironment",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ]
+        ),
+        .target(
+            name: "SecItem",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "SupportDataGeneratorClient",
+            dependencies: [
+                "Generated",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "UIComponents",
+            dependencies: [
+                "Generated",
+                "Utils"
+            ]
+        ),
+        .target(
             name: "Utils",
             dependencies: [
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")

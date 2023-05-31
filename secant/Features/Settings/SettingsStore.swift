@@ -59,7 +59,7 @@ struct SettingsReducer: ReducerProtocol {
                 return .none
             case .backupWalletAccessRequest:
                 return .run { send in
-                    if await localAuthentication.authenticate(L10n.LocalAuthentication.reason) {
+                    if await localAuthentication.authenticate() {
                         await send(.backupWallet)
                     }
                 }

@@ -753,6 +753,7 @@
 				9E0031702A272746003DFCEB /* AudioServices in Frameworks */,
 				9E0031782A272747003DFCEB /* Deeplink in Frameworks */,
 				0D26AF75299E8196005260EE /* MnemonicSwift in Frameworks */,
+				9E90751C2A2691E200269308 /* SDKSynchronizerClient in Frameworks */,
 				9E0310C32A24A4D40021F995 /* DerivationToolClient in Frameworks */,
 				9E80C4582A25E9690049E6A7 /* DiskSpaceCheckerClient in Frameworks */,
 				0D26AF76299E8196005260EE /* ComposableArchitecture in Frameworks */,
@@ -3609,6 +3610,62 @@
 		9E88FBAB2A24A0E900DAA500 /* DeeplinkClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DeeplinkClient;
+		};
+		9E9075012A2681F700269308 /* Generated */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Generated;
+		};
+		9E9075032A2681FF00269308 /* Generated */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Generated;
+		};
+		9E9075052A2689D600269308 /* RecoveryPhraseValidationFlow */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RecoveryPhraseValidationFlow;
+		};
+		9E9075072A2689DB00269308 /* RecoveryPhraseValidationFlow */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RecoveryPhraseValidationFlow;
+		};
+		9E9075092A268CD700269308 /* SecItem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SecItem;
+		};
+		9E90750B2A268CDC00269308 /* SecItem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SecItem;
+		};
+		9E90750D2A26919B00269308 /* ReviewRequestClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReviewRequestClient;
+		};
+		9E90750F2A2691A000269308 /* ReviewRequestClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReviewRequestClient;
+		};
+		9E9075112A2691B200269308 /* ZcashSDKEnvironment */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ZcashSDKEnvironment;
+		};
+		9E9075132A2691B700269308 /* ZcashSDKEnvironment */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ZcashSDKEnvironment;
+		};
+		9E9075152A2691C600269308 /* SupportDataGeneratorClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SupportDataGeneratorClient;
+		};
+		9E9075172A2691CB00269308 /* SupportDataGeneratorClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SupportDataGeneratorClient;
+		};
+		9E9075192A2691D900269308 /* SDKSynchronizerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SDKSynchronizerClient;
+		};
+		9E90751B2A2691E200269308 /* SDKSynchronizerClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SDKSynchronizerClient;
 		};
 		9EAB466C285A0468002904A0 /* Parsing */ = {
 			isa = XCSwiftPackageProductDependency;

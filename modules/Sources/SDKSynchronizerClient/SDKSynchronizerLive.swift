@@ -10,21 +10,21 @@ import Combine
 import ComposableArchitecture
 import ZcashLightClientKit
 import DatabaseFilesClient
+import Models
+import ZcashSDKEnvironment
 
-extension SDKSynchronizerClient: DependencyKey {
-    static let liveValue: SDKSynchronizerClient = Self.live()
-
-    static func live(
+extension SDKSynchronizerClient {
+    public static func live(
         databaseFiles: DatabaseFilesClient = .liveValue,
-        environment: ZcashSDKEnvironment = .liveValue
+        environment: ZcashSDKEnvironment = .liveValue,
+        network: ZcashNetwork
     ) -> Self {
-        let network = environment.network
         let initializer = Initializer(
             cacheDbURL: databaseFiles.cacheDbURLFor(network),
             fsBlockDbRoot: databaseFiles.fsBlockDbRootFor(network),
             generalStorageURL: databaseFiles.documentsDirectory(),
             dataDbURL: databaseFiles.dataDbURLFor(network),
-            endpoint: environment.endpoint,
+            endpoint: environment.endpoint(network),
             network: network,
             spendParamsURL: databaseFiles.spendParamsURLFor(network),
             outputParamsURL: databaseFiles.outputParamsURLFor(network),
@@ -46,7 +46,7 @@ extension SDKSynchronizerClient: DependencyKey {
             start: { retry in try await synchronizer.start(retry: retry) },
             stop: { synchronizer.stop() },
             isSyncing: { synchronizer.latestState.syncStatus.isSyncing },
-            isInitialized: { synchronizer.latestState.syncStatus != .unprepared },
+            isInitialized: { synchronizer.latestState.syncStatus != SyncStatus.unprepared },
             rewind: { synchronizer.rewind($0) },
             getShieldedBalance: { synchronizer.latestState.shieldedBalance },
             getTransparentBalance: { synchronizer.latestState.transparentBalance },
