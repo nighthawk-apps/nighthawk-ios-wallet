@@ -9,8 +9,9 @@ import Foundation
 import ComposableArchitecture
 import ZcashLightClientKit
 import Models
+import Pasteboard
 
-typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action>
+public typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action>
 
 struct RecoveryPhraseDisplayReducer: ReducerProtocol {
     struct State: Equatable {
@@ -71,7 +72,7 @@ struct RecoveryPhraseDisplayReducer: ReducerProtocol {
 }
 
 extension RecoveryPhraseDisplayReducer {
-    static let demo = AnyReducer<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action, Void> { _ in
+    public static let demo = AnyReducer<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action, Void> { _ in
         RecoveryPhraseDisplayReducer()
     }
 }
