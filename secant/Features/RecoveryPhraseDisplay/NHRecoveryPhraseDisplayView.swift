@@ -6,8 +6,11 @@
 //
 
 import ComposableArchitecture
+import Generated
+import Models
 import PDFKit
 import SwiftUI
+import UIComponents
 import ZcashLightClientKit
 
 @MainActor
@@ -17,8 +20,9 @@ struct NHRecoveryPhraseDisplayView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                if let phrase = viewStore.phrase,
-                    let groups = phrase.toGroups(groupSizeOverride: 3) {
+                if let phrase = viewStore.phrase {
+                    let groups = phrase.toGroups(groupSizeOverride: 3)
+                    
                     instructions
                     
                     backupSeedGrid(with: groups)

@@ -214,6 +214,60 @@ public enum L10n {
     /// Not enough space on disk to do synchronisation!
     public static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
+  public enum Nighthawk {
+    public enum PlainOnboarding {
+      /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
+      public static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")
+      /// Create Wallet
+      public static let create = L10n.tr("Localizable", "nighthawk.plainOnboarding.create", fallback: "Create Wallet")
+      /// Restore From Backup
+      public static let restore = L10n.tr("Localizable", "nighthawk.plainOnboarding.restore", fallback: "Restore From Backup")
+      /// Get started
+      public static let subtitle = L10n.tr("Localizable", "nighthawk.plainOnboarding.subtitle", fallback: "Get started")
+      /// By using this app you accept our
+      public static let terms1 = L10n.tr("Localizable", "nighthawk.plainOnboarding.terms1", fallback: "By using this app you accept our")
+      /// Terms and Conditions
+      public static let terms2 = L10n.tr("Localizable", "nighthawk.plainOnboarding.terms2", fallback: "Terms and Conditions")
+    }
+    public enum RecoveryPhraseDisplay {
+      /// Wallet birthday:
+      public static let birthday = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.birthday", fallback: "Wallet birthday:")
+      /// I confirm I have saved my seed phrase.
+      public static let confirmPhraseWrittenDownCheckBox = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox", fallback: "I confirm I have saved my seed phrase.")
+      /// Continue
+      public static let `continue` = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.continue", fallback: "Continue")
+      /// Nighthawk Wallet
+      public static let exportAppName = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAppName", fallback: "Nighthawk Wallet")
+      /// Export as PDF
+      public static let exportAsPdf = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAsPdf", fallback: "Export as PDF")
+      /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.
+      public static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.")
+      /// Write it down on paper and store it somewhere safe.
+      public static let instructions2 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions2", fallback: "Write it down on paper and store it somewhere safe.")
+      /// These are seed words used to restore your Zcash in Nighthawk Wallet:
+      public static let pdfHeader = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfHeader", fallback: "These are seed words used to restore your Zcash in Nighthawk Wallet:")
+      /// Backup PDF generated at %@
+      public static func pdfTimestamp(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfTimestamp", String(describing: p1), fallback: "Backup PDF generated at %@")
+      }
+      /// Write down your backup seed
+      public static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
+    }
+    public enum WalletCreated {
+      /// Backup your wallet
+      public static let backup = L10n.tr("Localizable", "nighthawk.walletCreated.backup", fallback: "Backup your wallet")
+      /// Skip for now
+      public static let skip = L10n.tr("Localizable", "nighthawk.walletCreated.skip", fallback: "Skip for now")
+      /// Wallet created! Congratulations!
+      public static let title = L10n.tr("Localizable", "nighthawk.walletCreated.title", fallback: "Wallet created! Congratulations!")
+    }
+    public enum WelcomeScreen {
+      /// Private money in your pocket.
+      public static let subtitle = L10n.tr("Localizable", "nighthawk.welcomeScreen.subtitle", fallback: "Private money in your pocket.")
+      /// Nighthawk
+      public static let title = L10n.tr("Localizable", "nighthawk.welcomeScreen.title", fallback: "Nighthawk")
+    }
+  }
   public enum Onboarding {
     public enum Button {
       /// Import an Existing Wallet

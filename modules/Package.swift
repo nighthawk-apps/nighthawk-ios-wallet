@@ -40,7 +40,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.50.3"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
         .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "ee3d082155bf542aa3580c84e6140a329633319a"),
-        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.0.0")
+        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.0.0"),
+        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.2")
     ],
     targets: [
         .target(
@@ -123,7 +124,10 @@ let package = Package(
         ),
         .target(
             name: "Generated",
-            resources: [.process("Resources")]
+            resources: [.process("Resources")],
+            plugins: [
+                .plugin(name: "SwiftGenPlugin", package: "SwiftGenPlugin")
+            ]
         ),
         .target(
             name: "LocalAuthenticationHandler",

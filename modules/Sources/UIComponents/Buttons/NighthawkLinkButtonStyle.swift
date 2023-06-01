@@ -5,10 +5,11 @@
 //  Created by Matthew Watt on 4/16/23.
 //
 
+import Generated
 import SwiftUI
 
-struct NighthawkLinkButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct NighthawkLinkButtonStyle: ButtonStyle {
+    public func makeBody(configuration: Configuration) -> some View {
         LinkButton(configuration: configuration)
     }
     
@@ -28,7 +29,7 @@ struct NighthawkLinkButtonStyle: ButtonStyle {
     }
 }
 
-extension ButtonStyle where Self == NighthawkLinkButtonStyle {
+public extension ButtonStyle where Self == NighthawkLinkButtonStyle {
     static func nighthawkLink() -> NighthawkLinkButtonStyle { NighthawkLinkButtonStyle() }
 }
 

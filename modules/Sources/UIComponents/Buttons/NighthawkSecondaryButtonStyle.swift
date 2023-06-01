@@ -5,9 +5,10 @@
 //  Created by Matthew Watt on 3/22/23.
 //
 
+import Generated
 import SwiftUI
 
-struct NighthawkSecondaryButtonStyle: ButtonStyle {
+public struct NighthawkSecondaryButtonStyle: ButtonStyle {
     let width: CGFloat?
     
     init(width: CGFloat? = nil) {
@@ -50,6 +51,6 @@ struct NighthawkSecondaryButtonStyle: ButtonStyle {
     }
 }
 
-extension ButtonStyle where Self == NighthawkSecondaryButtonStyle {
+public extension ButtonStyle where Self == NighthawkSecondaryButtonStyle {
     static func nighthawkSecondary(width: CGFloat? = nil) -> NighthawkSecondaryButtonStyle { NighthawkSecondaryButtonStyle(width: width) }
 }

@@ -34,6 +34,13 @@ public enum Asset {
       public static let calloutBackupSucceeded = ImageAsset(name: "calloutBackupSucceeded")
     }
     public enum Icons {
+      public enum Nighthawk {
+        public static let checked = ImageAsset(name: "checked")
+        public static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
+        public static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
+        public static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+        public static let unchecked = ImageAsset(name: "unchecked")
+      }
       public static let qrCode = ImageAsset(name: "qrCode")
     }
     public static let welcomeScreenLogo = ImageAsset(name: "WelcomeScreenLogo")
@@ -72,6 +79,13 @@ public enum Asset {
       public static let fontDark = ColorAsset(name: "fontDark")
       public static let fontLight = ColorAsset(name: "fontLight")
       public static let primary = ColorAsset(name: "primary")
+    }
+    public enum Nighthawk {
+      public static let darkNavy = ColorAsset(name: "darkNavy")
+      public static let navy = ColorAsset(name: "navy")
+      public static let parmaviolet = ColorAsset(name: "parmaviolet")
+      public static let peach = ColorAsset(name: "peach")
+      public static let richBlack = ColorAsset(name: "richBlack")
     }
     public enum Onboarding {
       public static let badgeShadow = ColorAsset(name: "BadgeShadow")

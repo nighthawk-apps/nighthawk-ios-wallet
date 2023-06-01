@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import Generated
 
-extension Text {
+public extension Text {
     var title: some View {
         self.modifier(TitleTextStyle())
     }
