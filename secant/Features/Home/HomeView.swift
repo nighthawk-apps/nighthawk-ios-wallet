@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import StoreKit
+import Generated
 
 struct HomeView: View {
     let store: Store<HomeReducer.State, HomeReducer.Action>
@@ -110,7 +111,7 @@ extension HomeView {
             Button {
                 viewStore.send(.updateDestination(.balanceBreakdown))
             } label: {
-                Text(L10n.balance(viewStore.shieldedBalance.data.total.decimalString(), TargetConstants.tokenName))
+                Text(L10n.balance(viewStore.shieldedBalance.data.verified.decimalString(), TargetConstants.tokenName))
                     .font(.system(size: 32))
                     .fontWeight(.bold)
             }

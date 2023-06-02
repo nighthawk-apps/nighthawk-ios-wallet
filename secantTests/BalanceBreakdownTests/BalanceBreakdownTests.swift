@@ -6,10 +6,12 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
 import Combine
+import Utils
+import Generated
+@testable import secant_testnet
 
 class BalanceBreakdownTests: XCTestCase {
     func testOnAppear() throws {
@@ -67,7 +69,7 @@ class BalanceBreakdownTests: XCTestCase {
             reducer: BalanceBreakdownReducer()
         )
 
-        store.dependencies.sdkSynchronizer = .mocked(shieldFunds: { _, _, _ in throw SynchronizerError.criticalError })
+        store.dependencies.sdkSynchronizer = .mocked(shieldFunds: { _, _, _ in throw ZcashError.synchronizerNotPrepared })
         store.dependencies.derivationTool = .liveValue
         store.dependencies.mnemonic = .mock
         store.dependencies.walletStorage.exportWallet = { .placeholder }
@@ -76,11 +78,17 @@ class BalanceBreakdownTests: XCTestCase {
         await store.send(.shieldFunds) { state in
             state.shieldingFunds = true
         }
-        await store.receive(.shieldFundsFailure(SynchronizerError.criticalError.localizedDescription)) { state in
+        await store.receive(.shieldFundsFailure(ZcashError.synchronizerNotPrepared)) { state in
             state.shieldingFunds = false
         }
 
-        await store.receive(.alert(.balanceBreakdown(.shieldFundsFailure("A critical Error Occurred"))))
+        await store.receive(
+            .alert(
+                .balanceBreakdown(
+                    .shieldFundsFailure(ZcashError.synchronizerNotPrepared)
+                )
+            )
+        )
 
         // long-living (cancelable) effects need to be properly canceled.
         // the .onDisappear action cancels the observer of the synchronizer status change.

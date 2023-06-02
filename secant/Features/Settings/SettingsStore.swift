@@ -1,6 +1,12 @@
 import ComposableArchitecture
 import MessageUI
 import SwiftUI
+import AppVersion
+import MnemonicClient
+import LogsHandler
+import LocalAuthenticationHandler
+import SupportDataGenerator
+import Models
 
 typealias SettingsStore = Store<SettingsReducer.State, SettingsReducer.Action>
 typealias SettingsViewStore = ViewStore<SettingsReducer.State, SettingsReducer.Action>
@@ -66,7 +72,7 @@ struct SettingsReducer: ReducerProtocol {
                     state.phraseDisplayState.phrase = recoveryPhrase
                     return EffectTask(value: .updateDestination(.backupPhrase))
                 } catch {
-                    return EffectTask(value: .alert(.settings(.cantBackupWallet(error.localizedDescription))))
+                    return EffectTask(value: .alert(.settings(.cantBackupWallet(error.toZcashError()))))
                 }
 
             case .binding(\.$isCrashReportingOn):

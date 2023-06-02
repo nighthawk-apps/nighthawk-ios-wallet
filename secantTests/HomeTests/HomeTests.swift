@@ -8,19 +8,14 @@
 import Combine
 import XCTest
 import ComposableArchitecture
+import Utils
 @testable import secant_testnet
 @testable import ZcashLightClientKit
 
 class HomeTests: XCTestCase {
     func testSendButtonIsDisabledWhenSyncing() {
         let mockSnapshot = SyncStatusSnapshot.init(
-            .syncing(
-                .init(
-                    startHeight: 1_700_000,
-                    targetHeight: 1_800_000,
-                    progressHeight: 1_770_000
-                )
-            )
+            .syncing(0.7)
         )
 
         let store = TestStore(
@@ -94,7 +89,7 @@ class HomeTests: XCTestCase {
     }
 
     func testSynchronizerErrorBringsUpAlert() {
-        let testError = SynchronizerError.syncFailed
+        let testError = ZcashError.synchronizerNotPrepared
         let errorSnapshot = SyncStatusSnapshot.snapshotFor(
             state: .error(testError)
         )
@@ -111,8 +106,14 @@ class HomeTests: XCTestCase {
             state.synchronizerStatusSnapshot = errorSnapshot
         }
 
-        store.receive(.showSynchronizerErrorAlert(errorSnapshot))
+        store.receive(.showSynchronizerErrorAlert(testError))
         
-        store.receive(.alert(.home(.syncFailed("Error: Synchronizer failed", "Dismiss"))))
+        store.receive(
+            .alert(
+                .home(
+                    .syncFailed(ZcashError.synchronizerNotPrepared, "Dismiss")
+                )
+            )
+        )
     }
 }

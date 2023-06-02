@@ -7,9 +7,11 @@
 
 import Combine
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import Deeplink
+import SDKSynchronizer
+@testable import secant_testnet
 
 @MainActor
 class DeeplinkTests: XCTestCase {
@@ -70,7 +72,7 @@ class DeeplinkTests: XCTestCase {
             return XCTFail("Deeplink: 'testDeeplinkRequest_homeURL' URL is expected to be valid.")
         }
 
-        let result = try Deeplink().resolveDeeplinkURL(url, isValidZcashAddress: { _ in false })
+        let result = try Deeplink().resolveDeeplinkURL(url, networkType: .testnet, isValidZcashAddress: { _, _ in false })
         
         XCTAssertEqual(result, Deeplink.Destination.home)
     }
@@ -86,12 +88,12 @@ class DeeplinkTests: XCTestCase {
         )
         
         store.dependencies.deeplink = DeeplinkClient(
-            resolveDeeplinkURL: { _, _ in Deeplink.Destination.home }
+            resolveDeeplinkURL: { _, _, _ in Deeplink.Destination.home }
         )
         store.dependencies.sdkSynchronizer = SDKSynchronizerClient.mocked(
             latestState: {
                 var state = SynchronizerState.zero
-                state.syncStatus = .synced
+                state.syncStatus = .upToDate
                 return state
             }
         )
@@ -115,7 +117,7 @@ class DeeplinkTests: XCTestCase {
             return XCTFail("Deeplink: 'testDeeplinkRequest_sendURL_amount' URL is expected to be valid.")
         }
 
-        let result = try Deeplink().resolveDeeplinkURL(url, isValidZcashAddress: { _ in false })
+        let result = try Deeplink().resolveDeeplinkURL(url, networkType: .testnet, isValidZcashAddress: { _, _ in false })
         
         XCTAssertEqual(result, Deeplink.Destination.send(amount: 123_000_000, address: "address", memo: "some text"))
     }
@@ -131,12 +133,12 @@ class DeeplinkTests: XCTestCase {
         )
         
         store.dependencies.deeplink = DeeplinkClient(
-            resolveDeeplinkURL: { _, _ in Deeplink.Destination.send(amount: 123_000_000, address: "address", memo: "some text") }
+            resolveDeeplinkURL: { _, _, _ in Deeplink.Destination.send(amount: 123_000_000, address: "address", memo: "some text") }
         )
         store.dependencies.sdkSynchronizer = SDKSynchronizerClient.mocked(
             latestState: {
                 var state = SynchronizerState.zero
-                state.syncStatus = .synced
+                state.syncStatus = .upToDate
                 return state
             }
         )

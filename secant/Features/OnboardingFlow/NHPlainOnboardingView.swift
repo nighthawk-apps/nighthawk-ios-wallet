@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
+import UIComponents
 
 struct NHPlainOnboardingView: View {
     let store: OnboardingFlowStore
@@ -71,7 +73,7 @@ private extension NHPlainOnboardingView {
                 .padding(.bottom, 4)
             
             Button(L10n.Nighthawk.PlainOnboarding.terms2, action: onTermsLinkTapped)
-            .buttonStyle(.nighthawkLink())
+                .buttonStyle(.nighthawkLink())
         }
     }
     

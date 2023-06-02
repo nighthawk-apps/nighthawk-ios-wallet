@@ -7,7 +7,10 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Generated
 import ZcashLightClientKit
+import SDKSynchronizer
+import Utils
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     var rootStore: RootStore = .placeholder
@@ -38,6 +41,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct SecantApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    
+    init() {
+        FontFamily.registerAllCustomFonts()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -59,8 +66,8 @@ struct SecantApp: App {
 /// Whenever the ZcashNetwork is required use this var to determine which is the
 /// network type suitable for the present target.
 
-enum TargetConstants {
-    static var zcashNetwork: ZcashNetwork {
+public enum TargetConstants {
+    public static var zcashNetwork: ZcashNetwork {
 #if SECANT_MAINNET
     return ZcashNetworkBuilder.network(for: .mainnet)
 #elseif SECANT_TESTNET
@@ -70,7 +77,7 @@ enum TargetConstants {
 #endif
     }
     
-    static var tokenName: String {
+    public static var tokenName: String {
 #if SECANT_MAINNET
     return "ZEC"
 #elseif SECANT_TESTNET
@@ -79,4 +86,8 @@ enum TargetConstants {
     fatalError("SECANT_MAINNET or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
 #endif
     }
+}
+
+extension SDKSynchronizerClient: DependencyKey {
+    public static let liveValue: SDKSynchronizerClient = Self.live(network: TargetConstants.zcashNetwork)
 }

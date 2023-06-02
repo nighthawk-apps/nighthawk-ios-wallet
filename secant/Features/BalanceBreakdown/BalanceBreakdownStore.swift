@@ -8,12 +8,17 @@
 import Foundation
 import ComposableArchitecture
 import ZcashLightClientKit
+import DerivationTool
+import MnemonicClient
+import NumberFormatter
+import Utils
+import Generated
 
 typealias BalanceBreakdownStore = Store<BalanceBreakdownReducer.State, BalanceBreakdownReducer.Action>
 typealias BalanceBreakdownViewStore = ViewStore<BalanceBreakdownReducer.State, BalanceBreakdownReducer.Action>
 
 struct BalanceBreakdownReducer: ReducerProtocol {
-    private enum CancelId {}
+    private enum CancelId { case timer }
     
     struct State: Equatable {
         var autoShieldingThreshold: Zatoshi
@@ -22,8 +27,8 @@ struct BalanceBreakdownReducer: ReducerProtocol {
         var shieldingFunds: Bool
         var transparentBalance: Balance
         
-        var totalBalance: Zatoshi {
-            shieldedBalance.data.total + transparentBalance.data.total
+        var totalSpendableBalance: Zatoshi {
+            shieldedBalance.data.verified + transparentBalance.data.verified
         }
 
         var isShieldableBalanceAvailable: Bool {
@@ -41,7 +46,7 @@ struct BalanceBreakdownReducer: ReducerProtocol {
         case onDisappear
         case shieldFunds
         case shieldFundsSuccess
-        case shieldFundsFailure(String)
+        case shieldFundsFailure(ZcashError)
         case synchronizerStateChanged(SynchronizerState)
         case updateLatestBlock
     }
@@ -64,10 +69,10 @@ struct BalanceBreakdownReducer: ReducerProtocol {
                     .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
                     .map(BalanceBreakdownReducer.Action.synchronizerStateChanged)
                     .eraseToEffect()
-                    .cancellable(id: CancelId.self, cancelInFlight: true)
+                    .cancellable(id: CancelId.timer, cancelInFlight: true)
 
             case .onDisappear:
-                return .cancel(id: CancelId.self)
+                return .cancel(id: CancelId.timer)
 
             case .shieldFunds:
                 state.shieldingFunds = true
@@ -75,13 +80,13 @@ struct BalanceBreakdownReducer: ReducerProtocol {
                     do {
                         let storedWallet = try walletStorage.exportWallet()
                         let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                        let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0)
+                        let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, TargetConstants.zcashNetwork.networkType)
 
                         _ = try await sdkSynchronizer.shieldFunds(spendingKey, Memo(string: ""), state.autoShieldingThreshold)
 
                         await send(.shieldFundsSuccess)
                     } catch {
-                        await send(.shieldFundsFailure(error.localizedDescription))
+                        await send(.shieldFundsFailure(error.toZcashError()))
                     }
                 }
 
@@ -89,9 +94,9 @@ struct BalanceBreakdownReducer: ReducerProtocol {
                 state.shieldingFunds = false
                 return EffectTask(value: .alert(.balanceBreakdown(.shieldFundsSuccess)))
 
-            case let .shieldFundsFailure(errorDescription):
+            case .shieldFundsFailure(let error):
                 state.shieldingFunds = false
-                return EffectTask(value: .alert(.balanceBreakdown(.shieldFundsFailure(errorDescription))))
+                return EffectTask(value: .alert(.balanceBreakdown(.shieldFundsFailure(error))))
 
             case .synchronizerStateChanged(let latestState):
                 state.shieldedBalance = latestState.shieldedBalance.redacted

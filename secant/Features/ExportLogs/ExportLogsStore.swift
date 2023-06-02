@@ -9,6 +9,8 @@ import Combine
 import ComposableArchitecture
 import Foundation
 import ZcashLightClientKit
+import LogsHandler
+import Utils
 
 typealias ExportLogsStore = Store<ExportLogsReducer.State, ExportLogsReducer.Action>
 typealias ExportLogsViewStore = ViewStore<ExportLogsReducer.State, ExportLogsReducer.Action>
@@ -24,7 +26,7 @@ struct ExportLogsReducer: ReducerProtocol {
         case alert(AlertRequest)
         case start
         case finished(URL?)
-        case failed(String)
+        case failed(ZcashError)
         case shareFinished
     }
 
@@ -40,10 +42,14 @@ struct ExportLogsReducer: ReducerProtocol {
                 state.exportLogsDisabled = true
                 return .run { send in
                     do {
-                        let zippedLogsURL = try await logsHandler.exportAndStoreLogs()
+                        let zippedLogsURL = try await logsHandler.exportAndStoreLogs(
+                            LoggerConstants.sdkLogs,
+                            LoggerConstants.tcaLogs,
+                            LoggerConstants.walletLogs
+                        )
                         await send(.finished(zippedLogsURL))
                     } catch {
-                        await send(.failed(error.localizedDescription))
+                        await send(.failed(error.toZcashError()))
                     }
                 }
 
@@ -55,10 +61,10 @@ struct ExportLogsReducer: ReducerProtocol {
                 state.isSharingLogs = true
                 return .none
 
-            case let .failed(errorDescription):
+            case let .failed(error):
                 state.exportLogsDisabled = false
                 state.isSharingLogs = false
-                return EffectTask(value: .alert(.exportLogs(.failed(errorDescription))))
+                return EffectTask(value: .alert(.exportLogs(.failed(error))))
 
             case .shareFinished:
                 state.isSharingLogs = false

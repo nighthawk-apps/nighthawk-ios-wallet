@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
+import UIComponents
 
 struct NHWalletCreatedView: View {
     let store: NHWalletCreatedStore

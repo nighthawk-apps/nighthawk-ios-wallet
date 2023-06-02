@@ -1,11 +1,33 @@
 import SwiftUI
 import StoreKit
 import ComposableArchitecture
+import Generated
+import RecoveryPhraseValidationFlow
 
 struct RootView: View {
     let store: RootStore
 
     var body: some View {
+        switchOverDestination()
+    }
+}
+
+private struct FeatureFlagWrapper: Identifiable, Equatable, Comparable {
+    let name: FeatureFlag
+    let isEnabled: Bool
+    var id: String { name.rawValue }
+
+    static func < (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
+        lhs.name.rawValue < rhs.name.rawValue
+    }
+
+    static func == (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
+        lhs.name.rawValue == rhs.name.rawValue
+    }
+}
+
+private extension RootView {
+    @ViewBuilder func switchOverDestination() -> some View {
         WithViewStore(store) { viewStore in
             Group {
                 switch viewStore.destinationState.destination {
@@ -19,7 +41,7 @@ struct RootView: View {
                         )
                     }
                     .navigationViewStyle(.stack)
-
+                    
                 case .sandbox:
                     NavigationView {
                         SandboxView(
@@ -30,7 +52,7 @@ struct RootView: View {
                         )
                     }
                     .navigationViewStyle(.stack)
-
+                    
                 case .onboarding:
                     NavigationView {
                         if viewStore.walletConfig
@@ -51,13 +73,13 @@ struct RootView: View {
                         }
                     }
                     .navigationViewStyle(.stack)
-
+                    
                 case .startup:
                     ZStack(alignment: .topTrailing) {
                         debugView(viewStore)
                             .transition(.opacity)
                     }
-
+                    
                 case .phraseValidation:
                     NavigationView {
                         RecoveryPhraseValidationFlowView(
@@ -68,7 +90,7 @@ struct RootView: View {
                         )
                     }
                     .navigationViewStyle(.stack)
-
+                    
                 case .phraseDisplay:
                     NavigationView {
                         NHRecoveryPhraseDisplayView(
@@ -78,7 +100,7 @@ struct RootView: View {
                             )
                         )
                     }
-
+                    
                 case .welcome:
                     NHWelcomeView(
                         store: store.scope(
@@ -89,24 +111,13 @@ struct RootView: View {
                 }
             }
             .onOpenURL(perform: { viewStore.goToDeeplink($0) })
-            .alert(store.scope(state: \.uniAlert), dismiss: .dismissAlert)
-
+            .alert(store.scope(
+                state: \.uniAlert,
+                action: { _ in RootReducer.Action.dismissAlert }
+            ), dismiss: .dismissAlert)
+            
             shareLogsView(viewStore)
         }
-    }
-}
-
-private struct FeatureFlagWrapper: Identifiable, Equatable, Comparable {
-    let name: FeatureFlag
-    let isEnabled: Bool
-    var id: String { name.rawValue }
-
-    static func < (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
-        lhs.name.rawValue < rhs.name.rawValue
-    }
-
-    static func == (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
-        lhs.name.rawValue == rhs.name.rawValue
     }
 }
 
@@ -205,7 +216,10 @@ private extension RootView {
                 }
             }
             .confirmationDialog(
-                store.scope(state: \.debugState.rescanDialog),
+                store.scope(
+                    state: \.debugState.rescanDialog,
+                    action: { _ in RootReducer.Action.debug(.cancelRescan) }
+                ),
                 dismiss: .debug(.cancelRescan)
             )
         }

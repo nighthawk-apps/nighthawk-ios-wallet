@@ -6,9 +6,11 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import AudioServices
+import NumberFormatter
+@testable import secant_testnet
 
 // swiftlint:disable type_body_length
 class SendTests: XCTestCase {
@@ -63,26 +65,13 @@ class SendTests: XCTestCase {
 
         await testScheduler.advance(by: 0.01)
 
-        let transactionState = TransactionState(
-            expiryHeight: 40,
-            memos: [],
-            minedHeight: 50,
-            shielded: true,
-            zAddress: "tteafadlamnelkqe",
-            fee: Zatoshi(10),
-            id: "id",
-            status: .paid(success: true),
-            timestamp: 1234567,
-            zecAmount: Zatoshi(10)
-        )
-
         // first it's expected that progress screen is showed
         await store.receive(.updateDestination(.inProgress)) { state in
             state.destination = .inProgress
         }
 
         // check the success transaction to be received back
-        await store.receive(.sendTransactionResult(Result.success(transactionState))) { state in
+        await store.receive(.sendTransactionSuccess) { state in
             // from this moment on the sending next transaction is allowed again
             // the 'isSendingTransaction' needs to be false again
             state.isSendingTransaction = false
@@ -131,26 +120,13 @@ class SendTests: XCTestCase {
 
         await testScheduler.advance(by: 0.01)
 
-        let transactionState = TransactionState(
-            expiryHeight: 40,
-            memos: [],
-            minedHeight: 50,
-            shielded: true,
-            zAddress: "tteafadlamnelkqe",
-            fee: Zatoshi(10),
-            id: "id",
-            status: .paid(success: true),
-            timestamp: 1234567,
-            zecAmount: Zatoshi(10)
-        )
-
         // first it's expected that progress screen is showed
         await store.receive(.updateDestination(.inProgress)) { state in
             state.destination = .inProgress
         }
 
         // check the success transaction to be received back
-        await store.receive(.sendTransactionResult(Result.success(transactionState))) { state in
+        await store.receive(.sendTransactionSuccess) { state in
             // from this moment on the sending next transaction is allowed again
             // the 'isSendingTransaction' needs to be false again
             state.isSendingTransaction = false
@@ -188,6 +164,7 @@ class SendTests: XCTestCase {
         store.dependencies.mnemonic = .liveValue
         store.dependencies.walletStorage = .noOp
         store.dependencies.sdkSynchronizer = .noOp
+        store.dependencies.sdkSynchronizer.sendTransaction = { _, _, _, _ in throw ZcashError.synchronizerNotPrepared }
 
         // simulate the sending confirmation button to be pressed
         _ = await store.send(.sendPressed) { state in
@@ -204,7 +181,9 @@ class SendTests: XCTestCase {
         }
 
         // check the failure transaction to be received back
-        await store.receive(.sendTransactionResult(Result.failure(SynchronizerError.criticalError as NSError))) { state in
+        await store.receive(
+            .sendTransactionFailure(ZcashError.synchronizerNotPrepared)
+        ) { state in
             // from this moment on the sending next transaction is allowed again
             // the 'isSendingTransaction' needs to be false again
             state.isSendingTransaction = false
@@ -223,7 +202,7 @@ class SendTests: XCTestCase {
         )
 
         store.dependencies.derivationTool = .noOp
-        store.dependencies.derivationTool.isZcashAddress = { _ in false }
+        store.dependencies.derivationTool.isZcashAddress = { _, _ in false }
 
         let address = "3HRG769ii3HDSJV5vNknQPzXqtL2mTSGnr".redacted
         store.send(.transactionAddressInput(.textField(.set(address)))) { state in
@@ -246,7 +225,7 @@ class SendTests: XCTestCase {
         )
         
         store.dependencies.derivationTool = .noOp
-        store.dependencies.derivationTool.isZcashAddress = { _ in true }
+        store.dependencies.derivationTool.isZcashAddress = { _, _ in true }
 
         let address = "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po".redacted
         store.send(.transactionAddressInput(.textField(.set(address)))) { state in
@@ -425,7 +404,7 @@ class SendTests: XCTestCase {
         )
 
         store.dependencies.derivationTool = .noOp
-        store.dependencies.derivationTool.isZcashAddress = { _ in true }
+        store.dependencies.derivationTool.isZcashAddress = { _, _ in true }
 
         let address = "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po".redacted
         store.send(.transactionAddressInput(.textField(.set(address)))) { state in
@@ -465,7 +444,7 @@ class SendTests: XCTestCase {
         )
 
         store.dependencies.derivationTool = .noOp
-        store.dependencies.derivationTool.isZcashAddress = { _ in true }
+        store.dependencies.derivationTool.isZcashAddress = { _, _ in true }
 
         let address = "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po".redacted
         store.send(.transactionAddressInput(.textField(.set(address)))) { state in
@@ -544,8 +523,8 @@ class SendTests: XCTestCase {
         )
 
         store.dependencies.derivationTool = .noOp
-        store.dependencies.derivationTool.isZcashAddress = { _ in true }
-        store.dependencies.derivationTool.isTransparentAddress = { _ in true }
+        store.dependencies.derivationTool.isZcashAddress = { _, _ in true }
+        store.dependencies.derivationTool.isTransparentAddress = { _, _ in true }
 
         let address = "tmGh6ttAnQRJra81moqYcedFadW9XtUT5Eq".redacted
         store.send(.transactionAddressInput(.textField(.set(address)))) { state in

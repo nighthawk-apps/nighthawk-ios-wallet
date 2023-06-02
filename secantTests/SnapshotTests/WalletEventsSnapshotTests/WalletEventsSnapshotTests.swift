@@ -6,9 +6,10 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import Models
+@testable import secant_testnet
 
 class WalletEventsSnapshotTests: XCTestCase {
     func testFullWalletEventsSnapshot() throws {
@@ -49,7 +50,7 @@ class WalletEventsSnapshotTests: XCTestCase {
             zecAmount: Zatoshi(25_000_000)
         )
         
-        let walletEvent = WalletEvent(id: transaction.id, state: .send(transaction), timestamp: transaction.timestamp)
+        let walletEvent = WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
         
         let balance = WalletBalance(verified: 12_345_000, total: 12_345_000)
         let store = HomeStore(
@@ -102,7 +103,7 @@ class WalletEventsSnapshotTests: XCTestCase {
             zecAmount: Zatoshi(25_000_000)
         )
         
-        let walletEvent = WalletEvent(id: transaction.id, state: .send(transaction), timestamp: transaction.timestamp)
+        let walletEvent = WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
         
         let balance = WalletBalance(verified: 12_345_000, total: 12_345_000)
         let store = HomeStore(
@@ -150,12 +151,12 @@ class WalletEventsSnapshotTests: XCTestCase {
             zAddress: "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po",
             fee: Zatoshi(1_000_000),
             id: "ff3927e1f83df9b1b0dc75540ddc59ee435eecebae914d2e6dfe8576fbedc9a8",
-            status: .pending,
+            status: .sending,
             timestamp: 1234567,
             zecAmount: Zatoshi(25_000_000)
         )
         
-        let walletEvent = WalletEvent(id: transaction.id, state: .send(transaction), timestamp: transaction.timestamp)
+        let walletEvent = WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
         
         let balance = WalletBalance(verified: 12_345_000, total: 12_345_000)
         let store = HomeStore(
@@ -214,7 +215,7 @@ class WalletEventsSnapshotTests: XCTestCase {
             zecAmount: Zatoshi(25_000_000)
         )
         
-        let walletEvent = WalletEvent(id: transaction.id, state: .send(transaction), timestamp: transaction.timestamp)
+        let walletEvent = WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
         
         let balance = WalletBalance(verified: 12_345_000, total: 12_345_000)
         let store = HomeStore(

@@ -6,9 +6,10 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import Pasteboard
+@testable import secant_testnet
 
 class ProfileTests: XCTestCase {
     // swiftlint:disable line_length

@@ -7,12 +7,14 @@
 
 import ComposableArchitecture
 import Foundation
+import CaptureDevice
+import Utils
 
 typealias ScanStore = Store<ScanReducer.State, ScanReducer.Action>
 typealias ScanViewStore = ViewStore<ScanReducer.State, ScanReducer.Action>
 
 struct ScanReducer: ReducerProtocol {
-    private enum CancelId {}
+    private enum CancelId { case timer }
 
     struct State: Equatable {
         enum ScanStatus: Equatable {
@@ -70,11 +72,11 @@ struct ScanReducer: ReducerProtocol {
                 state.isTorchAvailable = try captureDevice.isTorchAvailable()
                 return .none
             } catch {
-                return EffectTask(value: .alert(.scan(.cantInitializeCamera(error.localizedDescription))))
+                return EffectTask(value: .alert(.scan(.cantInitializeCamera(error.toZcashError()))))
             }
         
         case .onDisappear:
-            return .cancel(id: CancelId.self)
+            return .cancel(id: CancelId.timer)
 
         case .found:
             return .none
@@ -93,16 +95,16 @@ struct ScanReducer: ReducerProtocol {
                 // once valid URI is scanned we want to start the timer to deliver the code
                 // any new code cancels the schedule and fires new one
                 return .concatenate(
-                    EffectTask.cancel(id: CancelId.self),
+                    EffectTask.cancel(id: CancelId.timer),
                     EffectTask(value: .found(code))
                         .delay(for: 1.0, scheduler: mainQueue)
                         .eraseToEffect()
-                        .cancellable(id: CancelId.self, cancelInFlight: true)
+                        .cancellable(id: CancelId.timer, cancelInFlight: true)
                 )
             } else {
                 state.scanStatus = .failed
             }
-            return .cancel(id: CancelId.self)
+            return .cancel(id: CancelId.timer)
             
         case .torchPressed:
             do {
@@ -110,7 +112,7 @@ struct ScanReducer: ReducerProtocol {
                 state.isTorchOn.toggle()
                 return .none
             } catch {
-                return EffectTask(value: .alert(.scan(.cantInitializeCamera(error.localizedDescription))))
+                return EffectTask(value: .alert(.scan(.cantInitializeCamera(error.toZcashError()))))
             }
         }
     }

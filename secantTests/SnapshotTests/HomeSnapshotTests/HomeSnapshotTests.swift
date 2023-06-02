@@ -6,15 +6,16 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import Models
+@testable import secant_testnet
 
 class HomeSnapshotTests: XCTestCase {
     func testHomeSnapshot() throws {
         let transactionsHelper: [TransactionStateMockHelper] = [
             TransactionStateMockHelper(date: 1651039202, amount: Zatoshi(1), status: .paid(success: true), uuid: "1"),
-            TransactionStateMockHelper(date: 1651039101, amount: Zatoshi(2), status: .pending, uuid: "2"),
+            TransactionStateMockHelper(date: 1651039101, amount: Zatoshi(2), status: .sending, uuid: "2"),
             TransactionStateMockHelper(date: 1651039000, amount: Zatoshi(3), status: .received, uuid: "3"),
             TransactionStateMockHelper(date: 1651039505, amount: Zatoshi(4), status: .failed, uuid: "4")
         ]
@@ -30,7 +31,7 @@ class HomeSnapshotTests: XCTestCase {
             )
             transaction.zAddress = "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po"
             
-            return WalletEvent(id: transaction.id, state: .send(transaction), timestamp: transaction.timestamp)
+            return WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
         }
         
         let balance = WalletBalance(verified: 12_345_000, total: 12_345_000)

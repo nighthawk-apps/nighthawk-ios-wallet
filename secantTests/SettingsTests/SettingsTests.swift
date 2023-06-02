@@ -6,8 +6,11 @@
 //
 
 import XCTest
-@testable import secant_testnet
+import Utils
 import ComposableArchitecture
+import LogsHandler
+import Models
+@testable import secant_testnet
 
 @MainActor
 class SettingsTests: XCTestCase {
@@ -92,7 +95,7 @@ class SettingsTests: XCTestCase {
             reducer: SettingsReducer()
         )
         
-        store.dependencies.logsHandler = LogsHandlerClient(exportAndStoreLogs: { nil })
+        store.dependencies.logsHandler = LogsHandlerClient(exportAndStoreLogs: { _, _, _ in nil })
         
         await store.send(.exportLogs(.start)) { state in
             state.exportLogsState.exportLogsDisabled = true

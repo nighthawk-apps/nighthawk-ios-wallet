@@ -7,6 +7,9 @@
 
 import ComposableArchitecture
 import Foundation
+import ZcashLightClientKit
+import Models
+import Utils
 
 /// In this file is a collection of helpers that control all state and action related operations
 /// for the `RootReducer` with a connection to the app/wallet initialization and erasure of the wallet.
@@ -20,7 +23,7 @@ extension RootReducer {
         case checkWalletConfig
         case initializeSDK
         case initialSetups
-        case initializationFailed(String)
+        case initializationFailed(ZcashError)
         case nukeWallet
         case nukeWalletRequest
         case respondToWalletInitializationState(InitializationState)
@@ -43,7 +46,7 @@ extension RootReducer {
                     .receive(on: mainQueue)
                     .map(RootReducer.Action.walletConfigLoaded)
                     .eraseToEffect()
-                    .cancellable(id: WalletConfigCancelId.self, cancelInFlight: true)
+                    .cancellable(id: WalletConfigCancelId.timer, cancelInFlight: true)
 
             case .walletConfigLoaded(let walletConfig):
                 if walletConfig == WalletConfig.default {
@@ -73,8 +76,7 @@ extension RootReducer {
             case .initialization(.checkWalletInitialization):
                 let walletState = RootReducer.walletInitializationState(
                     databaseFiles: databaseFiles,
-                    walletStorage: walletStorage,
-                    zcashSDKEnvironment: zcashSDKEnvironment
+                    walletStorage: walletStorage
                 )
                 return EffectTask(value: .initialization(.respondToWalletInitializationState(walletState)))
 
@@ -100,7 +102,7 @@ extension RootReducer {
                     return EffectTask(value: .destination(.updateDestination(.onboarding)))
                         .delay(for: 3, scheduler: mainQueue)
                         .eraseToEffect()
-                        .cancellable(id: CancelId.self, cancelInFlight: true)
+                        .cancellable(id: CancelId.timer, cancelInFlight: true)
                 }
 
                 /// Stored wallet is present, database files may or may not be present, trying to initialize app state variables and environments.
@@ -114,23 +116,23 @@ extension RootReducer {
                         return EffectTask(value: .alert(.root(.cantLoadSeedPhrase)))
                     }
 
-                    let birthday = state.storedWallet?.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
+                    let birthday = state.storedWallet?.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(TargetConstants.zcashNetwork)
 
                     try mnemonic.isValid(storedWallet.seedPhrase.value())
                     let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0)
-                    let viewingKey = try spendingKey.deriveFullViewingKey()
+                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, TargetConstants.zcashNetwork.networkType)
+                    let viewingKey = try derivationTool.deriveUnifiedFullViewingKey(spendingKey, TargetConstants.zcashNetwork.networkType)
                     
                     return .run { send in
                         do {
                             try await sdkSynchronizer.prepareWith(seedBytes, viewingKey, birthday)
                             try await sdkSynchronizer.start(false)
                         } catch {
-                            await send(.initialization(.initializationFailed(error.localizedDescription)))
+                            await send(.initialization(.initializationFailed(error.toZcashError())))
                         }
                     }
                 } catch {
-                    return EffectTask(value: .initialization(.initializationFailed(error.localizedDescription)))
+                    return EffectTask(value: .initialization(.initializationFailed(error.toZcashError())))
                 }
 
             case .initialization(.checkBackupPhraseValidation):
@@ -155,13 +157,13 @@ extension RootReducer {
                 return EffectTask(value: .destination(.updateDestination(landingDestination)))
                     .delay(for: 3, scheduler: mainQueue)
                     .eraseToEffect()
-                    .cancellable(id: CancelId.self, cancelInFlight: true)
+                    .cancellable(id: CancelId.timer, cancelInFlight: true)
 
             case .initialization(.createNewWallet):
                 do {
                     // get the random english mnemonic
                     let newRandomPhrase = try mnemonic.randomMnemonic()
-                    let birthday = zcashSDKEnvironment.latestCheckpoint
+                    let birthday = zcashSDKEnvironment.latestCheckpoint(TargetConstants.zcashNetwork)
 
                     // store the wallet to the keychain
                     try walletStorage.importWallet(newRandomPhrase, birthday, .english, !state.walletConfig.isEnabled(.testBackupPhraseFlow))
@@ -174,7 +176,7 @@ extension RootReducer {
 
                     return EffectTask(value: .initialization(.initializeSDK))
                 } catch {
-                    return EffectTask(value: .alert(.root(.cantCreateNewWallet(error.localizedDescription))))
+                    return EffectTask(value: .alert(.root(.cantCreateNewWallet(error.toZcashError()))))
                 }
 
             case .phraseValidation(.succeed):
@@ -182,7 +184,7 @@ extension RootReducer {
                     try walletStorage.markUserPassedPhraseBackupTest(true)
                     return .none
                 } catch {
-                    return EffectTask(value: .alert(.root(.cantStoreThatUserPassedPhraseBackupTest(error.localizedDescription))))
+                    return EffectTask(value: .alert(.root(.cantStoreThatUserPassedPhraseBackupTest(error.toZcashError()))))
                 }
 
             case .initialization(.nukeWalletRequest):
@@ -198,14 +200,14 @@ extension RootReducer {
                     .replaceError(with: RootReducer.Action.nukeWalletFailed)
                     .receive(on: mainQueue)
                     .eraseToEffect()
-                    .cancellable(id: SynchronizerCancelId.self, cancelInFlight: true)
+                    .cancellable(id: SynchronizerCancelId.timer, cancelInFlight: true)
 
             case .nukeWalletSucceeded:
                 walletStorage.nukeWallet()
                 state.onboardingState.destination = nil
                 state.onboardingState.index = 0
                 return .concatenate(
-                    .cancel(id: SynchronizerCancelId.self),
+                    .cancel(id: SynchronizerCancelId.timer),
                     EffectTask(value: .initialization(.checkWalletInitialization))
                 )
 
@@ -218,13 +220,13 @@ extension RootReducer {
                 }
                 return .concatenate(
                     EffectTask(value: .alert(.root(.wipeFailed))),
-                    .cancel(id: SynchronizerCancelId.self),
+                    .cancel(id: SynchronizerCancelId.timer),
                     backDestination
                 )
 
             case .welcome(.debugMenuStartup), .home(.debugMenuStartup):
                 return .concatenate(
-                    EffectTask.cancel(id: CancelId.self),
+                    EffectTask.cancel(id: CancelId.timer),
                     EffectTask(value: .destination(.updateDestination(.startup)))
                 )
 
@@ -249,9 +251,9 @@ extension RootReducer {
                 state.homeState.walletConfig = walletConfig
                 return .none
 
-            case .initialization(.initializationFailed(let errorMessage)):
+            case .initialization(.initializationFailed(let error)):
                 state.appInitializationState = .failed
-                return EffectTask(value: .alert(.root(.initializationFailed(errorMessage))))
+                return EffectTask(value: .alert(.root(.initializationFailed(error))))
                 
             case .home, .destination, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
                 .welcome, .binding, .debug, .exportLogs, .uniAlert, .dismissAlert, .alert:

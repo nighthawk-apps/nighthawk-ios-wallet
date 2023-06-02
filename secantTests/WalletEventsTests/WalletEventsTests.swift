@@ -6,9 +6,11 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
 import ZcashLightClientKit
+import Pasteboard
+import Models
+@testable import secant_testnet
 
 class WalletEventsTests: XCTestCase {
     func testSynchronizerSubscription() throws {
@@ -57,13 +59,13 @@ class WalletEventsTests: XCTestCase {
                 amount: $0.amount,
                 fee: Zatoshi(10),
                 shielded: $0.shielded,
-                status: $0.amount.amount > 5 ? .pending : $0.status,
+                status: $0.amount.amount > 5 ? .sending : $0.status,
                 timestamp: $0.date,
                 uuid: $0.uuid
             )
             return WalletEvent(
                 id: transaction.id,
-                state: transaction.status == .pending ? .pending(transaction) : .send(transaction),
+                state: .transaction(transaction),
                 timestamp: transaction.timestamp
             )
         }
@@ -82,7 +84,7 @@ class WalletEventsTests: XCTestCase {
         store.dependencies.mainQueue = .immediate
         store.dependencies.sdkSynchronizer = .mocked()
 
-        await store.send(.synchronizerStateChanged(.synced)) { state in
+        await store.send(.synchronizerStateChanged(.upToDate)) { state in
             state.latestMinedHeight = 0
         }
 

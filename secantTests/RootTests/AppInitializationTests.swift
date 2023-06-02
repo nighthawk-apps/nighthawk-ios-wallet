@@ -6,8 +6,13 @@
 //
 
 import XCTest
-@testable import secant_testnet
 import ComposableArchitecture
+import MnemonicClient
+import Models
+import UIComponents
+import RecoveryPhraseValidationFlow
+import Generated
+@testable import secant_testnet
 
 class AppInitializationTests: XCTestCase {
     /// This integration test starts with finishing the app launch and triggering bunch of initialization procedures.

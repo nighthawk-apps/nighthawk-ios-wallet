@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 4/4/23.
 //
 
+import Generated
 import SwiftUI
 
 struct NHCheckBox<Label>: View where Label: View {

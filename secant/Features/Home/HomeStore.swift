@@ -1,16 +1,20 @@
-import ComposableArchitecture
-import SwiftUI
-import ZcashLightClientKit
-
 import UIKit
+import SwiftUI
 import AVFoundation
+import ComposableArchitecture
+import ZcashLightClientKit
+import AudioServices
+import DiskSpaceChecker
+import Utils
+import Models
+import Generated
+import ReviewRequest
 
 typealias HomeStore = Store<HomeReducer.State, HomeReducer.Action>
 typealias HomeViewStore = ViewStore<HomeReducer.State, HomeReducer.Action>
 
 struct HomeReducer: ReducerProtocol {
-    private enum CancelId {}
-    private enum CancelEventsId {}
+    private enum CancelId { case timer }
 
     struct State: Equatable {
         enum Destination: Equatable {
@@ -38,7 +42,7 @@ struct HomeReducer: ReducerProtocol {
         var zecPrice = Decimal(140.0)
 
         var totalCurrencyBalance: Zatoshi {
-            Zatoshi.from(decimal: shieldedBalance.data.total.decimalValue.decimalValue * zecPrice)
+            Zatoshi.from(decimal: shieldedBalance.data.verified.decimalValue.decimalValue * zecPrice)
         }
 
         var isSyncing: Bool {
@@ -49,7 +53,7 @@ struct HomeReducer: ReducerProtocol {
         }
         
         var isUpToDate: Bool {
-            if case .synced = synchronizerStatusSnapshot.syncStatus {
+            if case .upToDate = synchronizerStatusSnapshot.syncStatus {
                 return true
             }
             return false
@@ -58,7 +62,7 @@ struct HomeReducer: ReducerProtocol {
         var isSendButtonDisabled: Bool {
             // If the destination is `.send` the button must be enabled
             // to avoid involuntary navigation pop.
-            self.destination != .send && self.isSyncing
+            (self.destination != .send && self.isSyncing) || shieldedBalance.data.verified.amount == 0
         }
     }
 
@@ -73,12 +77,12 @@ struct HomeReducer: ReducerProtocol {
         case reviewRequestFinished
         case send(SendFlowReducer.Action)
         case settings(SettingsReducer.Action)
-        case syncFailed(String)
+        case syncFailed(ZcashError)
         case foundTransactions
         case synchronizerStateChanged(SynchronizerState)
         case walletEvents(WalletEventsFlowReducer.Action)
         case updateDestination(HomeReducer.State.Destination?)
-        case showSynchronizerErrorAlert(SyncStatusSnapshot)
+        case showSynchronizerErrorAlert(ZcashError)
         case retrySync
         case updateWalletEvents([WalletEvent])
     }
@@ -121,7 +125,7 @@ struct HomeReducer: ReducerProtocol {
                         .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
                         .map(HomeReducer.Action.synchronizerStateChanged)
                         .eraseToEffect()
-                        .cancellable(id: CancelId.self, cancelInFlight: true)
+                        .cancellable(id: CancelId.timer, cancelInFlight: true)
                     return .merge(
                         EffectTask(value: .updateDestination(nil)),
                         syncEffect
@@ -131,15 +135,12 @@ struct HomeReducer: ReducerProtocol {
                 }
                 
             case .onDisappear:
-                return .merge(
-                    .cancel(id: CancelId.self),
-                    .cancel(id: CancelEventsId.self)
-                )
+                return .cancel(id: CancelId.timer)
                 
             case .resolveReviewRequest:
                 if reviewRequest.canRequestReview() {
                     state.canRequestReview = true
-                    return .fireAndForget { await reviewRequest.reviewRequested() }
+                    return .fireAndForget { reviewRequest.reviewRequested() }
                 }
                 return .none
                 
@@ -161,18 +162,18 @@ struct HomeReducer: ReducerProtocol {
                 state.shieldedBalance = latestState.shieldedBalance.redacted
 
                 switch snapshot.syncStatus {
-                case .error:
-                    return EffectTask(value: .showSynchronizerErrorAlert(snapshot))
-                    
-                case .synced:
-                    return .fireAndForget { await reviewRequest.syncFinished() }
-                    
+                case .error(let error):
+                    return EffectTask(value: .showSynchronizerErrorAlert(error.toZcashError()))
+
+                case .upToDate:
+                    return .fireAndForget { reviewRequest.syncFinished() }
+
                 default:
                     return .none
                 }
 
             case .foundTransactions:
-                return .fireAndForget { await reviewRequest.foundTransactions() }
+                return .fireAndForget { reviewRequest.foundTransactions() }
 
             case .updateDestination(.profile):
                 state.profileState.destination = nil
@@ -207,12 +208,12 @@ struct HomeReducer: ReducerProtocol {
                     do {
                         try await sdkSynchronizer.start(true)
                     } catch {
-                        await send(.syncFailed(error.localizedDescription))
+                        await send(.syncFailed(error.toZcashError()))
                     }
                 }
 
-            case .showSynchronizerErrorAlert(let snapshot):
-                return EffectTask(value: .alert(.home(.syncFailed(snapshot.message, L10n.Home.SyncFailed.dismiss))))
+            case .showSynchronizerErrorAlert(let error):
+                return EffectTask(value: .alert(.home(.syncFailed(error, L10n.Home.SyncFailed.dismiss))))
                 
             case .balanceBreakdown(.onDisappear):
                 state.destination = nil
@@ -224,8 +225,8 @@ struct HomeReducer: ReducerProtocol {
             case .debugMenuStartup:
                 return .none
                 
-            case .syncFailed(let errorMessage):
-                return EffectTask(value: .alert(.home(.syncFailed(errorMessage, L10n.General.ok))))
+            case .syncFailed(let error):
+                return EffectTask(value: .alert(.home(.syncFailed(error, L10n.General.ok))))
                 
             case .alert:
                 return .none
@@ -322,7 +323,7 @@ extension HomeStore {
                 settingsState: .placeholder,
                 shieldedBalance: Balance.zero,
                 synchronizerStatusSnapshot: .snapshotFor(
-                    state: .error(SynchronizerError.syncFailed)
+                    state: .error(ZcashError.synchronizerNotPrepared)
                 ),
                 walletConfig: .default,
                 walletEventsState: .emptyPlaceHolder
