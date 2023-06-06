@@ -310,12 +310,6 @@
 		9E2DF99E27CF704D00649636 /* ImportWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2DF99B27CF704D00649636 /* ImportWalletView.swift */; };
 		9E2F1C8C280ED6A7004E65FE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */; };
 		9E2F1C8F280EDE09004E65FE /* Drawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8E280EDE09004E65FE /* Drawer.swift */; };
-		9E33ECD429D5D99000708DE4 /* AlertRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E33ECD029D4CCB600708DE4 /* AlertRequest.swift */; };
-		9E33ECD529D5D99700708DE4 /* AlertReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9CEA3229D32D5100599DF5 /* AlertReducer.swift */; };
-		9E33ECD629D5D99A00708DE4 /* AlertStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E33ECD229D4D1FB00708DE4 /* AlertStates.swift */; };
-		9E33ECD729D5E30200708DE4 /* AlertReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9CEA3229D32D5100599DF5 /* AlertReducer.swift */; };
-		9E33ECD829D5E30200708DE4 /* AlertStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E33ECD229D4D1FB00708DE4 /* AlertStates.swift */; };
-		9E33ECD929D5E30200708DE4 /* AlertRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E33ECD029D4CCB600708DE4 /* AlertRequest.swift */; };
 		9E33ECDA29D5E30700708DE4 /* OnChangeReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9CEA3D29D47BE000599DF5 /* OnChangeReducer.swift */; };
 		9E34519529C4A4BF00177D16 /* AddressDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E207C382966EF87003E2C9B /* AddressDetailsTests.swift */; };
 		9E34519629C4A4D800177D16 /* secantUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4E7A2526B364180058B01E /* secantUITests.swift */; };
@@ -584,8 +578,6 @@
 		9E2DF99B27CF704D00649636 /* ImportWalletView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWalletView.swift; sourceTree = "<group>"; };
 		9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9E2F1C8E280EDE09004E65FE /* Drawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drawer.swift; sourceTree = "<group>"; };
-		9E33ECD029D4CCB600708DE4 /* AlertRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertRequest.swift; sourceTree = "<group>"; };
-		9E33ECD229D4D1FB00708DE4 /* AlertStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertStates.swift; sourceTree = "<group>"; };
 		9E391123283E4CAC0073DD9A /* ImportWalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletTests.swift; sourceTree = "<group>"; };
 		9E39112D283F91600073DD9A /* ZatoshiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZatoshiTests.swift; sourceTree = "<group>"; };
 		9E391131284644580073DD9A /* AppInitializationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInitializationTests.swift; sourceTree = "<group>"; };
@@ -627,7 +619,6 @@
 		9E94C62228AA7EE0008256E9 /* BalanceBreakdownSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceBreakdownSnapshotTests.swift; sourceTree = "<group>"; };
 		9E9ADA7C2938F4C00071767B /* RootInitialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootInitialization.swift; sourceTree = "<group>"; };
 		9E9ADA7E2938F5EC0071767B /* RootDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootDestination.swift; sourceTree = "<group>"; };
-		9E9CEA3229D32D5100599DF5 /* AlertReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertReducer.swift; sourceTree = "<group>"; };
 		9E9CEA3D29D47BE000599DF5 /* OnChangeReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeReducer.swift; sourceTree = "<group>"; };
 		9E9ECC8C28589E150099D5A2 /* HomeSnapshotTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSnapshotTests.swift; sourceTree = "<group>"; };
 		9E9ECC8E28589E150099D5A2 /* WelcomeSnapshotTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeSnapshotTests.swift; sourceTree = "<group>"; };
@@ -1232,14 +1223,12 @@
 				9E2DF99727CF704D00649636 /* ImportWallet */,
 				3448CB3028E4764E006ADEDB /* NotEnoughFreeSpace */,
 				6654C73C2715A3FA00901167 /* OnboardingFlow */,
-				9E7FE0E4282E753700C374E8 /* RecoveryPhraseDisplay */,
 				F9971A4927680DC400A2DB75 /* Root */,
 				9EAFEB8B2808174900199FC9 /* Sandbox */,
 				F9971A5B27680DF600A2DB75 /* Scan */,
 				F9C165B62740403600592F76 /* SendFlow */,
 				F9971A6127680DFE00A2DB75 /* Settings */,
 				F96B41E2273B501F0021B49A /* WalletEventsFlow */,
-				0D0781C2278750C00083ACD7 /* Welcome */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -1342,16 +1331,6 @@
 				9E2F1C8E280EDE09004E65FE /* Drawer.swift */,
 			);
 			path = Drawer;
-			sourceTree = "<group>";
-		};
-		9E33ECCF29D4CC9900708DE4 /* Alerts */ = {
-			isa = PBXGroup;
-			children = (
-				9E33ECD029D4CCB600708DE4 /* AlertRequest.swift */,
-				9E9CEA3229D32D5100599DF5 /* AlertReducer.swift */,
-				9E33ECD229D4D1FB00708DE4 /* AlertStates.swift */,
-			);
-			path = Alerts;
 			sourceTree = "<group>";
 		};
 		9E391122283E4C970073DD9A /* ImportWalletTests */ = {
@@ -2348,7 +2327,6 @@
 				0D26AF55299E8196005260EE /* ProfileView.swift in Sources */,
 				0D26AF56299E8196005260EE /* ScanStore.swift in Sources */,
 				0D26AF5F299E8196005260EE /* SendFlowView.swift in Sources */,
-				9E33ECD729D5E30200708DE4 /* AlertReducer.swift in Sources */,
 				0D26AF64299E8196005260EE /* SettingsStore.swift in Sources */,
 				0D26AF65299E8196005260EE /* InitializationState.swift in Sources */,
 				0D26AF66299E8196005260EE /* ZcashSymbol.swift in Sources */,
@@ -2370,7 +2348,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E33ECD629D5D99A00708DE4 /* AlertStates.swift in Sources */,
 				2EB660E02747EAB900A06A07 /* OnboardingFlowView.swift in Sources */,
 				0D261040298C406F00CC9DE9 /* CrashReporterTestKey.swift in Sources */,
 				451A48822A0540C4007C5A64 /* TransferView.swift in Sources */,
@@ -3083,7 +3060,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = exactVersion;
-				version = 0.53.2;
+				version = 0.54.0;
 			};
 		};
 		9E2AC0FD27D8EC120042AA47 /* XCRemoteSwiftPackageReference "MnemonicSwift" */ = {

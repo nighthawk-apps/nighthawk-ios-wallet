@@ -111,7 +111,8 @@ extension RootReducer {
                 return .none
 
             case let .destination(.deeplinkFailed(url, error)):
-                return EffectTask(value: .alert(.root(.failedToProcessDeeplink(url, error))))
+                state.alert = AlertState.failedToProcessDeeplink(url, error)
+                return .none
 
             case .home(.walletEvents(.replyTo(let address))):
                 guard let url = URL(string: "zcash:\(address)") else {
