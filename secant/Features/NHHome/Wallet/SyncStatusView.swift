@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/6/23.
 //
 
+import Generated
 import SwiftUI
 
 struct SyncStatusView: View {
@@ -36,12 +37,9 @@ private extension SyncStatusView {
         switch status.syncStatus {
         case .unprepared:
             return Asset.Assets.Icons.Nighthawk.connecting.image
-        case .disconnected:
-            return Asset.Assets.Icons.Nighthawk.reconnecting.image
-        case .enhancing:
-            return Asset.Assets.Icons.Nighthawk.enhancing.image
         case let .syncing(progress):
-            if progress.progress == 0 || progress.progress == 100 {
+            let percentage = progress * 100
+            if percentage == 0 || percentage == 100 {
                 return Asset.Assets.Icons.Nighthawk.preparing.image
             } else {
                 return Asset.Assets.Icons.Nighthawk.syncing.image

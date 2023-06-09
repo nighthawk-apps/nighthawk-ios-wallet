@@ -6,6 +6,7 @@
 //
 
 import CasePaths
+import Generated
 import SwiftUI
 
 struct NHTextField: View {

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Models
 
 struct TransactionHistoryReducer: ReducerProtocol {
     struct State: Equatable {

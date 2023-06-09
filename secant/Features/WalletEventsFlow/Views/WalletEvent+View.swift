@@ -33,11 +33,9 @@ extension WalletEvent {
     
     @ViewBuilder func nhRowView(showAmount: Bool) -> some View {
         switch state {
-        case .send(let transaction),
-            .pending(let transaction),
-            .received(let transaction),
-            .failed(let transaction):
+        case .transaction(let transaction):
             NHTransactionRowView(transaction: transaction, showAmount: showAmount)
+            
         case .shielded(let zatoshi):
             // TODO: [#390] implement design once shielding is supported
             // https://github.com/zcash/secant-ios-wallet/issues/390
@@ -72,10 +70,7 @@ extension WalletEvent {
     
     @ViewBuilder func nhDetailView() -> some View {
         switch state {
-        case .send(let transaction),
-            .pending(let transaction),
-            .received(let transaction),
-            .failed(let transaction):
+        case .transaction(let transaction):
             NHTransactionDetailView(transaction: transaction)
         case .shielded(let zatoshi):
             // TODO: [#390] implement design once shielding is supported

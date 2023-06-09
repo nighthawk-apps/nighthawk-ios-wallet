@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
+import Utils
 import ZcashLightClientKit
 
 struct NHImportWalletReducer: ReducerProtocol {
@@ -81,7 +83,7 @@ struct NHImportWalletReducer: ReducerProtocol {
                 state.isValidMnemonic = true
                 return .none
             case .birthdayInputChanged(let redactedBirthday):
-                let saplingActivation = zcashSDKEnvironment.network.constants.saplingActivationHeight
+                let saplingActivation = TargetConstants.zcashNetwork.constants.saplingActivationHeight
 
                 state.birthdayHeight = redactedBirthday
 
@@ -96,8 +98,9 @@ struct NHImportWalletReducer: ReducerProtocol {
                     // validate the seed
                     try mnemonic.isValid(state.importedSeedPhrase.data)
                     
-                    // store it to the keychain
-                    let birthday = state.birthdayHeightValue ?? zcashSDKEnvironment.latestCheckpoint.redacted
+                    // store it to the keychain, if the user did not input a height,
+                    // fall back to sapling activation
+                    let birthday = state.birthdayHeightValue ?? TargetConstants.zcashNetwork.constants.saplingActivationHeight.redacted
                     
                     try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english, false)
                     

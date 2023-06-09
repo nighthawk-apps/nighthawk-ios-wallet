@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import Generated
 import SwiftUI
 
 struct NHTabBar: View {

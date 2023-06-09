@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
 
 struct WalletView: View {
@@ -54,9 +55,9 @@ private extension WalletView {
     
     func header(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
         Group {
-            if viewStore.isSyncing || viewStore.isSyncingFailed {
+            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed {
                 SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-            } else if viewStore.isUpToDate {
+            } else if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
                 balanceTabsView(with: viewStore)
             }
         }
@@ -151,7 +152,7 @@ private extension WalletView {
         with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>
     ) -> some View {
         Group {
-            if viewStore.isUpToDate && !viewStore.walletEvents.isEmpty {
+            if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced && !viewStore.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)

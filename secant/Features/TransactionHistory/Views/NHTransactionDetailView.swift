@@ -1,5 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
+import Generated
+import Models
 import ZcashLightClientKit
 
 struct NHTransactionDetailView: View {
@@ -26,10 +28,14 @@ struct NHTransactionDetailView: View {
                         address(mark: .inactive)
                         memo(transaction, mark: .highlight)
                         
-                    case .pending:
+                    case .sending:
                         Text(L10n.Transaction.youAreSending(transaction.zecAmount.decimalString(), TargetConstants.tokenName))
                             .padding()
                         address(mark: .inactive)
+                        memo(transaction, mark: .highlight)
+                    case .receiving:
+                        Text(L10n.Transaction.youAreReceiving(transaction.zecAmount.decimalString(), TargetConstants.tokenName))
+                            .padding()
                         memo(transaction, mark: .highlight)
                     case .received:
                         Text(L10n.Transaction.youReceived(transaction.zecAmount.decimalString(), TargetConstants.tokenName))
@@ -62,8 +68,11 @@ extension NHTransactionDetailView {
     var header: some View {
         HStack {
             switch transaction.status {
-            case .pending:
-                Text(L10n.Transaction.pending)
+            case .sending:
+                Text(L10n.Transaction.sending)
+                Spacer()
+            case .receiving:
+                Text(L10n.Transaction.receiving)
                 Spacer()
             case .failed:
                 Text("\(transaction.date?.asHumanReadable() ?? L10n.General.dateNotAvailable)")
@@ -121,7 +130,8 @@ extension NHTransactionDetailView {
 
 extension NHTransactionDetailView {
     var addressPrefixText: String {
-        transaction.status == .received ? L10n.Transaction.from : L10n.Transaction.to
+        (transaction.status == .received || transaction.status == .receiving)
+        ? "" : L10n.Transaction.to
     }
     
     var heightText: String {

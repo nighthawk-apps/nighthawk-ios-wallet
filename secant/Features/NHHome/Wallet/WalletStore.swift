@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import Models
 import SwiftUI
+import Utils
 import ZcashLightClientKit
 
 struct WalletReducer: ReducerProtocol {
@@ -27,22 +29,8 @@ struct WalletReducer: ReducerProtocol {
         var walletEvents = IdentifiedArrayOf<WalletEvent>.placeholder
         var selectedWalletEvent: WalletEvent?
         
-        var isSyncing: Bool {
-            if case .syncing = synchronizerStatusSnapshot.syncStatus {
-                return true
-            }
-            return false
-        }
-        
         var isSyncingFailed: Bool {
             if case .error = synchronizerStatusSnapshot.syncStatus {
-                return true
-            }
-            return false
-        }
-        
-        var isUpToDate: Bool {
-            if case .synced = synchronizerStatusSnapshot.syncStatus {
                 return true
             }
             return false

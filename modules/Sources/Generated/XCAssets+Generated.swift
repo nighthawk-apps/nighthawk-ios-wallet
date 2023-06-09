@@ -35,11 +35,35 @@ public enum Asset {
     }
     public enum Icons {
       public enum Nighthawk {
+        public static let about = ImageAsset(name: "about")
+        public static let backup = ImageAsset(name: "backup")
         public static let checked = ImageAsset(name: "checked")
+        public static let chevronRight = ImageAsset(name: "chevron_right")
+        public static let connecting = ImageAsset(name: "connecting")
+        public static let error = ImageAsset(name: "error")
+        public static let failed = ImageAsset(name: "failed")
+        public static let fiat = ImageAsset(name: "fiat")
+        public static let nhQrCode = ImageAsset(name: "nhQrCode")
         public static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
         public static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
+        public static let notifications = ImageAsset(name: "notifications")
+        public static let piggy = ImageAsset(name: "piggy")
         public static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+        public static let preparing = ImageAsset(name: "preparing")
+        public static let received = ImageAsset(name: "received")
+        public static let rescan = ImageAsset(name: "rescan")
+        public static let security = ImageAsset(name: "security")
+        public static let sent = ImageAsset(name: "sent")
+        public static let server = ImageAsset(name: "server")
+        public static let services = ImageAsset(name: "services")
+        public static let settings = ImageAsset(name: "settings")
+        public static let shielded = ImageAsset(name: "shielded")
+        public static let swipe = ImageAsset(name: "swipe")
+        public static let syncing = ImageAsset(name: "syncing")
+        public static let transfer = ImageAsset(name: "transfer")
         public static let unchecked = ImageAsset(name: "unchecked")
+        public static let unshielded = ImageAsset(name: "unshielded")
+        public static let wallet = ImageAsset(name: "wallet")
       }
       public static let qrCode = ImageAsset(name: "qrCode")
     }
@@ -82,6 +106,7 @@ public enum Asset {
     }
     public enum Nighthawk {
       public static let darkNavy = ColorAsset(name: "darkNavy")
+      public static let error = ColorAsset(name: "error")
       public static let navy = ColorAsset(name: "navy")
       public static let parmaviolet = ColorAsset(name: "parmaviolet")
       public static let peach = ColorAsset(name: "peach")

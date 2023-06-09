@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 import Foundation
+import Models
+import Utils
 import ZcashLightClientKit
 
 struct NHHomeReducer: ReducerProtocol {
@@ -28,20 +30,6 @@ struct NHHomeReducer: ReducerProtocol {
         var transparentBalance: Balance
         var synchronizerStatusSnapshot: SyncStatusSnapshot
         var walletEvents = IdentifiedArrayOf<WalletEvent>()
-
-        var isSyncing: Bool {
-            if case .syncing = synchronizerStatusSnapshot.syncStatus {
-                return true
-            }
-            return false
-        }
-        
-        var isUpToDate: Bool {
-            if case .synced = synchronizerStatusSnapshot.syncStatus {
-                return true
-            }
-            return false
-        }
 
         // Tab states
         var walletState: WalletReducer.State
@@ -110,7 +98,7 @@ struct NHHomeReducer: ReducerProtocol {
                 state.shieldedBalance = latestState.shieldedBalance.redacted
                 state.transparentBalance = latestState.transparentBalance.redacted
                 
-                if case .synced = latestState.syncStatus {
+                if latestState.syncStatus.isSynced {
                     state.latestMinedHeight = sdkSynchronizer.latestScannedHeight()
                     return .task {
                         return .updateWalletEvents(try await sdkSynchronizer.getAllTransactions())
@@ -204,8 +192,8 @@ extension Store<NHHomeReducer.State, NHHomeReducer.Action> {
 extension NHHomeReducer.State {
     static var placeholder: Self {
         .init(
-            shieldedBalance: .zero,
-            transparentBalance: .zero,
+            shieldedBalance: .init(),
+            transparentBalance: .init(),
             synchronizerStatusSnapshot: .default,
             walletState: .placeholder,
             transferState: .placeholder,

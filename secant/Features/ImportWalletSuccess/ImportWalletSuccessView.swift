@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
 
 struct ImportWalletSuccessView: View {

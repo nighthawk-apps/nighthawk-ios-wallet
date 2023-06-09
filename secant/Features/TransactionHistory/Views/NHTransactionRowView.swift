@@ -5,6 +5,8 @@
 //  Created by Matthew Watt on 5/18/23.
 //
 
+import Generated
+import Models
 import SwiftUI
 import ZcashLightClientKit
 
@@ -54,16 +56,18 @@ extension NHTransactionRowView {
         case .failed:
             // TODO: [#392] final text to be provided (https://github.com/zcash/secant-ios-wallet/issues/392)
             return L10n.Transaction.failed
-        case .pending:
+        case .sending:
             return L10n.Transaction.sending
+        case .receiving:
+            return L10n.Transaction.receiving
         }
     }
     
     var icon: Image {
         switch transaction.status {
-        case .paid:
+        case .paid, .sending:
             return Asset.Assets.Icons.Nighthawk.sent.image
-        case .received, .pending:
+        case .received, .receiving:
             return Asset.Assets.Icons.Nighthawk.received.image
         case .failed:
             return Asset.Assets.Icons.Nighthawk.failed.image

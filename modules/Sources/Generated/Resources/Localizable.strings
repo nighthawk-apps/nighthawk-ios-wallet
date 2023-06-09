@@ -331,10 +331,6 @@
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
 
 // MARK: - Sync message
-"nighthawk.sync.message.enhancing" = "Enhancing…";
-"nighthawk.sync.message.fetchingUTXO" = "Fetching UTXOs…";
-"nighthawk.sync.message.disconnected" = "Reconnecting…";
-"nighthawk.sync.message.stopped" = "Stopped";
 "nighthawk.sync.message.uptodate" = "Up-To-Date";
 "nighthawk.sync.message.unprepared" = "Connecting…";
 "nighthawk.sync.message.error" = "Error: %@";
