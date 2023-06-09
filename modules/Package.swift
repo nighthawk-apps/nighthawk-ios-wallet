@@ -23,6 +23,7 @@ let package = Package(
         .library(name: "FeedbackGenerator", targets: ["FeedbackGenerator"]),
         .library(name: "FileManager", targets: ["FileManager"]),
         .library(name: "Generated", targets: ["Generated"]),
+        .library(name: "Home", targets: ["Home"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
         .library(name: "LocalAuthenticationHandler", targets: ["LocalAuthenticationHandler"]),
         .library(name: "LogsHandler", targets: ["LogsHandler"]),
@@ -35,6 +36,7 @@ let package = Package(
         .library(name: "RecoveryPhraseDisplay", targets: ["RecoveryPhraseDisplay"]),
         .library(name: "RecoveryPhraseValidationFlow", targets: ["RecoveryPhraseValidationFlow"]),
         .library(name: "ReviewRequest", targets: ["ReviewRequest"]),
+        .library(name: "Root", targets: ["Root"]),
         .library(name: "Sandbox", targets: ["Sandbox"]),
         .library(name: "Scan", targets: ["Scan"]),
         .library(name: "SDKSynchronizer", targets: ["SDKSynchronizer"]),
@@ -201,12 +203,27 @@ let package = Package(
             ]
         ),
         .target(
-            name: "LocalAuthenticationHandler",
+            name: "Home",
             dependencies: [
+                "AudioServices",
+                "BalanceBreakdown",
+                "DiskSpaceChecker",
                 "Generated",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+                "Models",
+                "Profile",
+                "ReviewRequest",
+                "Scan",
+                "SendFlow",
+                "Settings",
+                "SDKSynchronizer",
+                "UIComponents",
+                "Utils",
+                "WalletEventsFlow",
+                "ZcashSDKEnvironment",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
-            path: "Sources/Dependencies/LocalAuthenticationHandler"
+            path: "Sources/Features/Home"
         ),
         .target(
             name: "ImportWallet",
@@ -221,6 +238,14 @@ let package = Package(
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/ImportWallet"
+        ),
+        .target(
+            name: "LocalAuthenticationHandler",
+            dependencies: [
+                "Generated",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/LocalAuthenticationHandler"
         ),
         .target(
             name: "LogsHandler",
@@ -323,6 +348,34 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/ReviewRequest"
+        ),
+        .target(
+            name: "Root",
+            dependencies: [
+                "DatabaseFiles",
+                "Deeplink",
+                "DerivationTool",
+                "ExportLogs",
+                "Generated",
+                "Home",
+                "MnemonicClient",
+                "Models",
+                "OnboardingFlow",
+                "RecoveryPhraseDisplay",
+                "RecoveryPhraseValidationFlow",
+                "Sandbox",
+                "SDKSynchronizer",
+                "UIComponents",
+                "UserPreferencesStorage",
+                "Utils",
+                "WalletConfigProvider",
+                "WalletStorage",
+                "Welcome",
+                "ZcashSDKEnvironment",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/Root"
         ),
         .target(
             name: "Sandbox",

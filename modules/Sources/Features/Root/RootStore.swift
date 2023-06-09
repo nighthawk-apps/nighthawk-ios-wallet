@@ -15,14 +15,17 @@ import Foundation
 import ExportLogs
 import OnboardingFlow
 import Sandbox
+import Home
 
-typealias RootStore = Store<RootReducer.State, RootReducer.Action>
-typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
+public typealias RootStore = Store<RootReducer.State, RootReducer.Action>
+public typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
 
-struct RootReducer: ReducerProtocol {
+public struct RootReducer: ReducerProtocol {
     enum CancelId { case timer }
     enum SynchronizerCancelId { case timer }
     enum WalletConfigCancelId { case timer }
+    let tokenName: String
+    let zcashNetwork: ZcashNetwork
 
     struct State: Equatable {
         @PresentationState var alert: AlertState<Action>?
@@ -41,7 +44,7 @@ struct RootReducer: ReducerProtocol {
         var welcomeState: WelcomeReducer.State
     }
 
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case alert(PresentationAction<Action>)
         case binding(BindingAction<RootReducer.State>)
         case debug(DebugAction)
@@ -62,7 +65,8 @@ struct RootReducer: ReducerProtocol {
         case welcome(WelcomeReducer.Action)
     }
 
-    @Dependency(\.crashReporter) var crashReporter
+    // TODO: [#747] crashReporter needs a bit of extra work, see https://github.com/zcash/secant-ios-wallet/issues/747
+    //@Dependency(\.crashReporter) var crashReporter
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.deeplink) var deeplink
     @Dependency(\.derivationTool) var derivationTool
@@ -75,6 +79,11 @@ struct RootReducer: ReducerProtocol {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
 
+    public init(tokenName: String, zcashNetwork: ZcashNetwork) {
+        self.tokenName = tokenName
+        self.zcashNetwork = zcashNetwork
+    }
+    
     @ReducerBuilder<State, Action>
     var core: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -84,7 +93,7 @@ struct RootReducer: ReducerProtocol {
         }
 
         Scope(state: \.homeState, action: /Action.home) {
-            HomeReducer()
+            HomeReducer(networkType: zcashNetwork.networkType)
         }
 
         Scope(state: \.exportLogsState, action: /Action.exportLogs) {
@@ -92,7 +101,7 @@ struct RootReducer: ReducerProtocol {
         }
 
         Scope(state: \.onboardingState, action: /Action.onboarding) {
-            OnboardingFlowReducer(saplingActivationHeight: TargetConstants.zcashNetwork.constants.saplingActivationHeight)
+            OnboardingFlowReducer(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
         }
 
         Scope(state: \.phraseValidationState, action: /Action.phraseValidation) {
@@ -118,21 +127,22 @@ struct RootReducer: ReducerProtocol {
         debugReduce()
     }
     
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         self.core
     }
 }
 
 extension RootReducer {
-    static func walletInitializationState(
+    public static func walletInitializationState(
         databaseFiles: DatabaseFilesClient,
-        walletStorage: WalletStorageClient
+        walletStorage: WalletStorageClient,
+        zcashNetwork: ZcashNetwork
     ) -> InitializationState {
         var keysPresent = false
         do {
             keysPresent = try walletStorage.areKeysPresent()
             let databaseFilesPresent = databaseFiles.areDbFilesPresentFor(
-                TargetConstants.zcashNetwork
+                zcashNetwork
             )
             
             switch (keysPresent, databaseFilesPresent) {
@@ -146,7 +156,7 @@ extension RootReducer {
                 return .initialized
             }
         } catch WalletStorage.WalletStorageError.uninitializedWallet {
-            if databaseFiles.areDbFilesPresentFor(TargetConstants.zcashNetwork) {
+            if databaseFiles.areDbFilesPresentFor(zcashNetwork) {
                 return .keysMissing
             }
         } catch {
@@ -160,7 +170,7 @@ extension RootReducer {
 // MARK: Alerts
 
 extension AlertState where Action == RootReducer.Action {
-    static func cantCreateNewWallet(_ error: ZcashError) -> AlertState {
+    public static func cantCreateNewWallet(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.Failed.title)
         } message: {
@@ -168,7 +178,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func cantLoadSeedPhrase() -> AlertState {
+    public static func cantLoadSeedPhrase() -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.Failed.title)
         } message: {
@@ -176,7 +186,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func cantStartSync(_ error: ZcashError) -> AlertState {
+    public static func cantStartSync(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Debug.Alert.Rewind.CantStartSync.title)
         } message: {
@@ -184,7 +194,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func cantStoreThatUserPassedPhraseBackupTest(_ error: ZcashError) -> AlertState {
+    public static func cantStoreThatUserPassedPhraseBackupTest(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.Failed.title)
         } message: {
@@ -194,7 +204,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func failedToProcessDeeplink(_ url: URL, _ error: ZcashError) -> AlertState {
+    public static func failedToProcessDeeplink(_ url: URL, _ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Destination.Alert.FailedToProcessDeeplink.title)
         } message: {
@@ -202,7 +212,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func initializationFailed(_ error: ZcashError) -> AlertState {
+    public static func initializationFailed(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.SdkInitFailed.title)
         } message: {
@@ -210,7 +220,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func rewindFailed(_ error: ZcashError) -> AlertState {
+    public static func rewindFailed(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Debug.Alert.Rewind.Failed.title)
         } message: {
@@ -218,7 +228,7 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func walletStateFailed(_ walletState: InitializationState) -> AlertState {
+    public static func walletStateFailed(_ walletState: InitializationState) -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.Failed.title)
         } message: {
@@ -226,13 +236,13 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
-    static func wipeFailed() -> AlertState {
+    public static func wipeFailed() -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.WipeFailed.title)
         }
     }
     
-    static func wipeRequest() -> AlertState {
+    public static func wipeRequest() -> AlertState {
         AlertState {
             TextState(L10n.Root.Initialization.Alert.Wipe.title)
         } actions: {
@@ -251,7 +261,7 @@ extension AlertState where Action == RootReducer.Action {
 // MARK: Placeholders
 
 extension RootReducer.State {
-    static var placeholder: Self {
+    public static var placeholder: Self {
         .init(
             debugState: .placeholder,
             destinationState: .placeholder,
@@ -277,10 +287,13 @@ extension RootReducer.State {
 }
 
 extension RootStore {
-    static var placeholder: RootStore {
+    public static var placeholder: RootStore {
         RootStore(
             initialState: .placeholder,
-            reducer: RootReducer().logging()
+            reducer: RootReducer(
+                tokenName: "ZEC",
+                zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
+            ).logging()
         )
     }
 }
