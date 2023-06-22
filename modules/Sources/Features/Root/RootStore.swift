@@ -48,7 +48,6 @@ public struct RootReducer: ReducerProtocol {
         case alert(PresentationAction<Action>)
         case binding(BindingAction<RootReducer.State>)
         case debug(DebugAction)
-        case dismissAlert
         case destination(DestinationAction)
         case exportLogs(ExportLogsReducer.Action)
         case nhHome(NHHomeReducer.Action)
@@ -249,7 +248,7 @@ extension AlertState where Action == RootReducer.Action {
             ButtonState(role: .destructive, action: .initialization(.nukeWallet)) {
                 TextState(L10n.General.yes)
             }
-            ButtonState(role: .cancel, action: .dismissAlert) {
+            ButtonState(role: .cancel, action: .alert(.dismiss)) {
                 TextState(L10n.General.no)
             }
         } message: {

@@ -131,7 +131,7 @@ extension RootReducer {
 }
 
 private extension RootReducer {
-    public func process(
+    func process(
         url: URL,
         deeplink: DeeplinkClient,
         derivationTool: DerivationToolClient
