@@ -35,11 +35,37 @@ internal enum Asset {
     }
     internal enum Icons {
       internal enum Nighthawk {
+        internal static let about = ImageAsset(name: "about")
+        internal static let backup = ImageAsset(name: "backup")
         internal static let checked = ImageAsset(name: "checked")
+        internal static let chevronRight = ImageAsset(name: "chevron_right")
+        internal static let connecting = ImageAsset(name: "connecting")
+        internal static let enhancing = ImageAsset(name: "enhancing")
+        internal static let error = ImageAsset(name: "error")
+        internal static let failed = ImageAsset(name: "failed")
+        internal static let fiat = ImageAsset(name: "fiat")
+        internal static let nhQrCode = ImageAsset(name: "nhQrCode")
         internal static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
         internal static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
+        internal static let notifications = ImageAsset(name: "notifications")
+        internal static let piggy = ImageAsset(name: "piggy")
         internal static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
+        internal static let preparing = ImageAsset(name: "preparing")
+        internal static let received = ImageAsset(name: "received")
+        internal static let reconnecting = ImageAsset(name: "reconnecting")
+        internal static let rescan = ImageAsset(name: "rescan")
+        internal static let security = ImageAsset(name: "security")
+        internal static let sent = ImageAsset(name: "sent")
+        internal static let server = ImageAsset(name: "server")
+        internal static let services = ImageAsset(name: "services")
+        internal static let settings = ImageAsset(name: "settings")
+        internal static let shielded = ImageAsset(name: "shielded")
+        internal static let swipe = ImageAsset(name: "swipe")
+        internal static let syncing = ImageAsset(name: "syncing")
+        internal static let transfer = ImageAsset(name: "transfer")
         internal static let unchecked = ImageAsset(name: "unchecked")
+        internal static let unshielded = ImageAsset(name: "unshielded")
+        internal static let wallet = ImageAsset(name: "wallet")
       }
       internal static let qrCode = ImageAsset(name: "qrCode")
     }
@@ -82,6 +108,7 @@ internal enum Asset {
     }
     internal enum Nighthawk {
       internal static let darkNavy = ColorAsset(name: "darkNavy")
+      internal static let error = ColorAsset(name: "error")
       internal static let navy = ColorAsset(name: "navy")
       internal static let parmaviolet = ColorAsset(name: "parmaviolet")
       internal static let peach = ColorAsset(name: "peach")

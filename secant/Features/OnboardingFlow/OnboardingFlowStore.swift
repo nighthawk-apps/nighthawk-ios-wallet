@@ -18,6 +18,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
         enum Destination: Equatable, CaseIterable {
             case createNewWallet
             case importExistingWallet
+            case nhImportExistingWallet
         }
         
         struct Step: Equatable, Identifiable {
@@ -30,6 +31,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
         var destination: Destination?
         var walletConfig: WalletConfig
         var importWalletState: ImportWalletReducer.State
+        var nhImportWalletState: NHImportWalletReducer.State
         var walletCreatedState: NHWalletCreatedReducer.State
         var index = 0
         var skippedAtindex: Int?
@@ -54,6 +56,7 @@ struct OnboardingFlowReducer: ReducerProtocol {
         case walletCreated(NHWalletCreatedReducer.Action)
         case importExistingWallet
         case importWallet(ImportWalletReducer.Action)
+        case nhImportWallet(NHImportWalletReducer.Action)
         case next
         case onAppear
         case skip
@@ -67,6 +70,10 @@ struct OnboardingFlowReducer: ReducerProtocol {
         
         Scope(state: \.walletCreatedState, action: /Action.walletCreated) {
             NHWalletCreatedReducer()
+        }
+        
+        Scope(state: \.nhImportWalletState, action: /Action.nhImportWallet) {
+            NHImportWalletReducer()
         }
         
         Reduce { state, action in
@@ -112,10 +119,10 @@ struct OnboardingFlowReducer: ReducerProtocol {
                 return .none
 
             case .importExistingWallet:
-                state.destination = .importExistingWallet
+                state.destination = .nhImportExistingWallet
                 return .none
                 
-            case .importWallet, .walletCreated:
+            case .importWallet, .walletCreated, .nhImportWallet:
                 return .none
             }
         }

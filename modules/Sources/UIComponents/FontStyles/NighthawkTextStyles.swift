@@ -13,8 +13,8 @@ public extension Text {
         self.modifier(TitleTextStyle())
     }
     
-    var subtitle: some View {
-        self.modifier(SubtitleTextStyle())
+    func subtitle(color: Color = Asset.Colors.Nighthawk.peach.color) -> some View {
+        self.modifier(SubtitleTextStyle(color: color))
     }
     
     func paragraph(color: Color = .white) -> some View {
@@ -34,9 +34,11 @@ public extension Text {
     }
     
     private struct SubtitleTextStyle: ViewModifier {
+        var color: Color
+        
         func body(content: Content) -> some View {
             content
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .foregroundColor(color)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
         }
     }

@@ -141,7 +141,7 @@ extension RootReducer {
                     return EffectTask(value: .alert(.root(.cantLoadSeedPhrase)))
                 }
 
-                var landingDestination = RootReducer.DestinationState.Destination.home
+                var landingDestination = RootReducer.DestinationState.Destination.nhHome
 
                 if !storedWallet.hasUserPassedPhraseBackupTest && state.walletConfig.isEnabled(.testBackupPhraseFlow) {
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
@@ -224,16 +224,16 @@ extension RootReducer {
                     backDestination
                 )
 
-            case .welcome(.debugMenuStartup), .home(.debugMenuStartup):
+            case .welcome(.debugMenuStartup), .home(.debugMenuStartup), .nhHome(.debugMenuStartup):
                 return .concatenate(
                     EffectTask.cancel(id: CancelId.timer),
                     EffectTask(value: .destination(.updateDestination(.startup)))
                 )
 
-            case .onboarding(.importWallet(.successfullyRecovered)):
-                return EffectTask(value: .destination(.updateDestination(.home)))
+            case .onboarding(.importWallet(.successfullyRecovered)), .onboarding(.nhImportWallet(.importWalletSuccess(.viewWallet))):
+                return EffectTask(value: .destination(.updateDestination(.nhHome)))
 
-            case .onboarding(.importWallet(.initializeSDK)):
+            case .onboarding(.importWallet(.initializeSDK)), .onboarding(.nhImportWallet(.initializeSDK)):
                 return EffectTask(value: .initialization(.initializeSDK))
 
             case .onboarding(.createNewWallet):
@@ -255,7 +255,7 @@ extension RootReducer {
                 state.appInitializationState = .failed
                 return EffectTask(value: .alert(.root(.initializationFailed(error))))
                 
-            case .home, .destination, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
+            case .nhHome, .home, .destination, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
                 .welcome, .binding, .debug, .exportLogs, .uniAlert, .dismissAlert, .alert:
                 return .none
             }

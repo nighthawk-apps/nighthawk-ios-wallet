@@ -61,6 +61,7 @@ struct OnboardingContentView_Previews: PreviewProvider {
             initialState: OnboardingFlowReducer.State(
                 walletConfig: .default,
                 importWalletState: .placeholder,
+                nhImportWalletState: .placeholder,
                 walletCreatedState: .placeholder,
                 index: 0
             ),

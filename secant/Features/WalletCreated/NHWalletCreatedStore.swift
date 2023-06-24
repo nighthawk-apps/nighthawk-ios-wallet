@@ -14,11 +14,24 @@ struct NHWalletCreatedReducer: ReducerProtocol {
     
     enum Action: Equatable {
         case backup
+        case onAppear
         case skip
     }
     
+    @Dependency(\.feedbackGenerator) var feedbackGenerator
+    @Dependency(\.subsonic) var subsonic
+    
     var body: some ReducerProtocol<State, Action> {
-        Reduce { _, _ in .none }
+        Reduce { _, action in
+            switch action {
+            case .onAppear:
+                feedbackGenerator.generateSuccessFeedback()
+                subsonic.play("sound_receive_small.mp3")
+                return .none
+            case .backup, .skip:
+                return .none
+            }
+        }
     }
 }
 

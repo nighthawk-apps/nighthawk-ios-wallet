@@ -215,6 +215,36 @@ internal enum L10n {
     internal static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
   internal enum Nighthawk {
+    internal enum HomeScreen {
+      /// Settings
+      internal static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
+      /// Transfer
+      internal static let transfer = L10n.tr("Localizable", "nighthawk.homeScreen.transfer", fallback: "Transfer")
+      /// Wallet
+      internal static let wallet = L10n.tr("Localizable", "nighthawk.homeScreen.wallet", fallback: "Wallet")
+    }
+    internal enum ImportWallet {
+      /// Birthday Height (optional)
+      internal static let birthdayHeight = L10n.tr("Localizable", "nighthawk.importWallet.birthdayHeight", fallback: "Birthday Height (optional)")
+      /// Continue
+      internal static let `continue` = L10n.tr("Localizable", "nighthawk.importWallet.continue", fallback: "Continue")
+      /// Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
+      internal static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
+      /// Error ⸱ This doesn't look like a valid birthday height
+      internal static let invalidBirthday = L10n.tr("Localizable", "nighthawk.importWallet.invalidBirthday", fallback: "Error ⸱ This doesn't look like a valid birthday height")
+      /// Error ⸱ This doesn't look like a valid seed phrase
+      internal static let invalidMnemonic = L10n.tr("Localizable", "nighthawk.importWallet.invalidMnemonic", fallback: "Error ⸱ This doesn't look like a valid seed phrase")
+      /// Restore from backup
+      internal static let restoreFromBackup = L10n.tr("Localizable", "nighthawk.importWallet.restoreFromBackup", fallback: "Restore from backup")
+      /// Your seed phrase
+      internal static let yourSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.yourSeedPhrase", fallback: "Your seed phrase")
+    }
+    internal enum ImportWalletSuccess {
+      /// Success
+      internal static let success = L10n.tr("Localizable", "nighthawk.importWalletSuccess.success", fallback: "Success")
+      /// View wallet
+      internal static let viewWallet = L10n.tr("Localizable", "nighthawk.importWalletSuccess.viewWallet", fallback: "View wallet")
+    }
     internal enum PlainOnboarding {
       /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
       internal static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")
@@ -253,6 +283,78 @@ internal enum L10n {
       /// Write down your backup seed
       internal static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
     }
+    internal enum SettingsTab {
+      /// Nighthawk v%@ & Licenses
+      internal static func aboutSubtitle(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.settingsTab.aboutSubtitle", String(describing: p1), fallback: "Nighthawk v%@ & Licenses")
+      }
+      /// About
+      internal static let aboutTitle = L10n.tr("Localizable", "nighthawk.settingsTab.aboutTitle", fallback: "About")
+      /// Keep your wallet safe in case you lose your phone
+      internal static let backupSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.backupSubtitle", fallback: "Keep your wallet safe in case you lose your phone")
+      /// Backup your wallet
+      internal static let backupTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backupTitle", fallback: "Backup your wallet")
+      /// Change backend lightwalletd server
+      internal static let changeServerSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServerSubtitle", fallback: "Change backend lightwalletd server")
+      /// Change server
+      internal static let changeServerTitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServerTitle", fallback: "Change server")
+      /// Opt-in to our partner services
+      internal static let externalServicesSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServicesSubtitle", fallback: "Opt-in to our partner services")
+      /// External services
+      internal static let externalServicesTitle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServicesTitle", fallback: "External services")
+      /// Choose your local currency
+      internal static let fiatSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.fiatSubtitle", fallback: "Choose your local currency")
+      /// Fiat Currency
+      internal static let fiatTitle = L10n.tr("Localizable", "nighthawk.settingsTab.fiatTitle", fallback: "Fiat Currency")
+      /// Reminding you to keep the wallet up-to-date
+      internal static let notificationsSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.notificationsSubtitle", fallback: "Reminding you to keep the wallet up-to-date")
+      /// Sync notifications
+      internal static let notificationsTitle = L10n.tr("Localizable", "nighthawk.settingsTab.notificationsTitle", fallback: "Sync notifications")
+      /// Rescan wallet balances to troubleshoot issues
+      internal static let rescanSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanSubtitle", fallback: "Rescan wallet balances to troubleshoot issues")
+      /// Rescan wallet
+      internal static let rescanTitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanTitle", fallback: "Rescan wallet")
+      /// Set/Change Pin Code & Biometric
+      internal static let securitySubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", fallback: "Set/Change Pin Code & Biometric")
+      /// Security
+      internal static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
+      /// Settings
+      internal static let settings = L10n.tr("Localizable", "nighthawk.settingsTab.settings", fallback: "Settings")
+    }
+    internal enum Sync {
+      internal enum Message {
+        /// Reconnecting…
+        internal static let disconnected = L10n.tr("Localizable", "nighthawk.sync.message.disconnected", fallback: "Reconnecting…")
+        /// Enhancing…
+        internal static let enhancing = L10n.tr("Localizable", "nighthawk.sync.message.enhancing", fallback: "Enhancing…")
+        /// Error: %@
+        internal static func error(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.sync.message.error", String(describing: p1), fallback: "Error: %@")
+        }
+        /// Fetching UTXOs…
+        internal static let fetchingUTXO = L10n.tr("Localizable", "nighthawk.sync.message.fetchingUTXO", fallback: "Fetching UTXOs…")
+        /// Finalizing
+        internal static let finalizing = L10n.tr("Localizable", "nighthawk.sync.message.finalizing", fallback: "Finalizing")
+        /// Preparing to scan
+        internal static let preparing = L10n.tr("Localizable", "nighthawk.sync.message.preparing", fallback: "Preparing to scan")
+        /// Stopped
+        internal static let stopped = L10n.tr("Localizable", "nighthawk.sync.message.stopped", fallback: "Stopped")
+        /// Scanning…%@%%
+        internal static func sync(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.sync.message.sync", String(describing: p1), fallback: "Scanning…%@%%")
+        }
+        /// Connecting…
+        internal static let unprepared = L10n.tr("Localizable", "nighthawk.sync.message.unprepared", fallback: "Connecting…")
+        /// Up-To-Date
+        internal static let uptodate = L10n.tr("Localizable", "nighthawk.sync.message.uptodate", fallback: "Up-To-Date")
+      }
+    }
+    internal enum TransactionHistory {
+      /// %@ %@
+      internal static func zecAmount(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.transactionHistory.zecAmount", String(describing: p1), String(describing: p2), fallback: "%@ %@")
+      }
+    }
     internal enum WalletCreated {
       /// Backup your wallet
       internal static let backup = L10n.tr("Localizable", "nighthawk.walletCreated.backup", fallback: "Backup your wallet")
@@ -260,6 +362,22 @@ internal enum L10n {
       internal static let skip = L10n.tr("Localizable", "nighthawk.walletCreated.skip", fallback: "Skip for now")
       /// Wallet created! Congratulations!
       internal static let title = L10n.tr("Localizable", "nighthawk.walletCreated.title", fallback: "Wallet created! Congratulations!")
+    }
+    internal enum WalletTab {
+      /// Recent activity
+      internal static let recentActivity = L10n.tr("Localizable", "nighthawk.walletTab.recentActivity", fallback: "Recent activity")
+      /// Shielded balance
+      internal static let shieldedBalance = L10n.tr("Localizable", "nighthawk.walletTab.shieldedBalance", fallback: "Shielded balance")
+      /// Swipe left to show your balance
+      internal static let swipeToShowBalances = L10n.tr("Localizable", "nighthawk.walletTab.swipeToShowBalances", fallback: "Swipe left to show your balance")
+      /// Total balance
+      internal static let totalBalance = L10n.tr("Localizable", "nighthawk.walletTab.totalBalance", fallback: "Total balance")
+      /// Transparent balance
+      internal static let transparentBalance = L10n.tr("Localizable", "nighthawk.walletTab.transparentBalance", fallback: "Transparent balance")
+      /// View transaction history
+      internal static let viewTransactionHistory = L10n.tr("Localizable", "nighthawk.walletTab.viewTransactionHistory", fallback: "View transaction history")
+      /// ZEC
+      internal static let zec = L10n.tr("Localizable", "nighthawk.walletTab.zec", fallback: "ZEC")
     }
     internal enum WelcomeScreen {
       /// Private money in your pocket.

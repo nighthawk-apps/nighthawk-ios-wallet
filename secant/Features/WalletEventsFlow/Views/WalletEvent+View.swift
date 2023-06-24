@@ -30,6 +30,24 @@ extension WalletEvent {
                 .padding(.leading, 30)
         }
     }
+    
+    @ViewBuilder func nhRowView(showAmount: Bool) -> some View {
+        switch state {
+        case .transaction(let transaction):
+            NHTransactionRowView(transaction: transaction, showAmount: showAmount)
+            
+        case .shielded(let zatoshi):
+            // TODO: [#390] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/390
+            Text(L10n.WalletEvent.Row.shielded(zatoshi.decimalString()))
+                .padding(.leading, 30)
+        case .walletImport:
+            // TODO: [#391] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/391
+            Text(L10n.WalletEvent.Row.import)
+                .padding(.leading, 30)
+        }
+    }
 }
 
 // MARK: - Details
@@ -39,6 +57,21 @@ extension WalletEvent {
         switch state {
         case .transaction(let transaction):
             TransactionDetailView(transaction: transaction, store: store)
+        case .shielded(let zatoshi):
+            // TODO: [#390] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/390
+            Text(L10n.WalletEvent.Detail.shielded(zatoshi.decimalString()))
+        case .walletImport:
+            // TODO: [#391] implement design once shielding is supported
+            // https://github.com/zcash/secant-ios-wallet/issues/391
+            Text(L10n.WalletEvent.Detail.import)
+        }
+    }
+    
+    @ViewBuilder func nhDetailView() -> some View {
+        switch state {
+        case .transaction(let transaction):
+            NHTransactionDetailView(transaction: transaction)
         case .shielded(let zatoshi):
             // TODO: [#390] implement design once shielding is supported
             // https://github.com/zcash/secant-ios-wallet/issues/390

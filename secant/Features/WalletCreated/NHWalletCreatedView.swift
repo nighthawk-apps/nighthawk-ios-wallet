@@ -2,11 +2,12 @@
 //  NHWalletCreatedView.swift
 //  secant
 //
-//  Created by Two Point on 4/19/23.
+//  Created by Matthew Watt on 4/19/23.
 //
 
 import ComposableArchitecture
 import Generated
+import Subsonic
 import SwiftUI
 import UIComponents
 
@@ -19,6 +20,9 @@ struct NHWalletCreatedView: View {
                 heading
                 Spacer()
                 actions(viewStore: viewStore)
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
         .applyNighthawkBackground()
