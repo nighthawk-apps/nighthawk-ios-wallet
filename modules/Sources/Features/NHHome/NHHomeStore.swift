@@ -14,7 +14,7 @@ import Utils
 import ZcashLightClientKit
 
 public struct NHHomeReducer: ReducerProtocol {
-    private enum CancelId {}
+    private enum CancelId { case timer }
     
     public struct State: Equatable {
         public enum Destination: Equatable, Hashable {
@@ -84,7 +84,7 @@ public struct NHHomeReducer: ReducerProtocol {
                         .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
                         .map(NHHomeReducer.Action.synchronizerStateChanged)
                         .eraseToEffect()
-                        .cancellable(id: CancelId.self, cancelInFlight: true)
+                        .cancellable(id: CancelId.timer, cancelInFlight: true)
                     return syncEffect
                 } else {
                     // TODO: Handle not enough free disk space
@@ -92,7 +92,7 @@ public struct NHHomeReducer: ReducerProtocol {
 //                    return EffectTask(value: .updateDestination(.notEnoughFreeDiskSpace))
                 }
             case .onDisappear:
-                return .cancel(id: CancelId.self)
+                return .cancel(id: CancelId.timer)
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.nhSnapshotFor(state: latestState.syncStatus)
                 guard snapshot != state.synchronizerStatusSnapshot else {
@@ -102,7 +102,7 @@ public struct NHHomeReducer: ReducerProtocol {
                 state.shieldedBalance = latestState.shieldedBalance.redacted
                 state.transparentBalance = latestState.transparentBalance.redacted
                 
-                if latestState.syncStatus.isSynced {
+                if latestState.syncStatus == .upToDate {
                     state.latestMinedHeight = sdkSynchronizer.latestScannedHeight()
                     return .task {
                         return .updateWalletEvents(try await sdkSynchronizer.getAllTransactions())

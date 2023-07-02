@@ -26,7 +26,7 @@ public struct NHHomeView: View {
                     WalletView(store: store.walletStore(), tokenName: tokenName)
                         .tag(NHHomeReducer.State.Destination.wallet)
                         .overlay(alignment: .top) {
-                            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                            if viewStore.synchronizerStatusSnapshot.isSyncing {
                                 IndeterminateProgress()
                             }
                         }
@@ -49,7 +49,7 @@ public struct NHHomeView: View {
                 
                 NHTabBar(
                     destination: viewStore.binding(\.$destination),
-                    isUpToDate: viewStore.synchronizerStatusSnapshot.syncStatus.isSynced
+                    isUpToDate: viewStore.synchronizerStatusSnapshot.isSynced
                 )
             }
             .onAppear { viewStore.send(.onAppear) }

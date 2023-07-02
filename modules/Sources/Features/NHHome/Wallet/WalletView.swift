@@ -66,9 +66,9 @@ private extension WalletView {
     
     func header(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed {
+            if viewStore.synchronizerStatusSnapshot.isSyncing || viewStore.isSyncingFailed {
                 SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-            } else if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
+            } else if viewStore.synchronizerStatusSnapshot.isSynced {
                 balanceTabsView(with: viewStore)
             }
         }
@@ -167,7 +167,7 @@ private extension WalletView {
         with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>
     ) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced && !viewStore.walletEvents.isEmpty {
+            if viewStore.synchronizerStatusSnapshot.isSynced && !viewStore.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
