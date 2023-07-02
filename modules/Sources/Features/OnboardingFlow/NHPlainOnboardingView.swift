@@ -7,13 +7,19 @@
 
 import ComposableArchitecture
 import Generated
+import NHImportWallet
 import SwiftUI
 import UIComponents
+import WalletCreated
 
-struct NHPlainOnboardingView: View {
+public struct NHPlainOnboardingView: View {
     let store: OnboardingFlowStore
     
-    var body: some View {
+    public init(store: OnboardingFlowStore) {
+        self.store = store
+    }
+    
+    public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
                 NighthawkLogo()
@@ -41,7 +47,7 @@ struct NHPlainOnboardingView: View {
             .navigationLinkEmpty(
                 isActive: viewStore.bindingForDestination(.createNewWallet),
                 destination: {
-                    NHWalletCreatedView(
+                    WalletCreatedView(
                         store: store.scope(
                             state: \.walletCreatedState,
                             action: OnboardingFlowReducer.Action.walletCreated

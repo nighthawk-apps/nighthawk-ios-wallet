@@ -9,8 +9,8 @@ import CasePaths
 import Generated
 import SwiftUI
 
-struct NHTextEditor: View {
-    enum ValidationState: Equatable {
+public struct NHTextEditor: View {
+    public enum ValidationState: Equatable {
         case valid
         case invalid(error: String)
     }
@@ -19,7 +19,7 @@ struct NHTextEditor: View {
     private var text: Binding<String>
     private var isValid: NHTextEditor.ValidationState
     
-    init(
+    public init(
         placeholder: String? = nil,
         text: Binding<String>,
         isValid: NHTextEditor.ValidationState = .valid
@@ -32,7 +32,7 @@ struct NHTextEditor: View {
     @FocusState private var _focusState: Bool
     @State private var _dirty = false
     
-    var body: some View {
+    public var body: some View {
         let errorMessage = (/NHTextEditor.ValidationState.invalid).extract(from: isValid)
         let isError = errorMessage != nil
         let showError = isError && _dirty && !_focusState

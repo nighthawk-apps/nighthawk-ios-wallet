@@ -10,24 +10,39 @@ import ComposableArchitecture
 import ZcashLightClientKit
 import Models
 import Pasteboard
+import WalletStorage
 
 public typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action>
 
-struct RecoveryPhraseDisplayReducer: ReducerProtocol {
-    struct State: Equatable {
-        enum RecoveryPhraseDisplayFlow {
+public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
+    public struct State: Equatable {
+        public enum RecoveryPhraseDisplayFlow {
             case onboarding
             case settings
         }
         
-        var flow: RecoveryPhraseDisplayFlow
-        var phrase: RecoveryPhrase?
-        var birthday: BlockHeight?
-        var showCopyToBufferAlert = false
-        @BindingState var isConfirmSeedPhraseWrittenChecked = false
+        public var flow: RecoveryPhraseDisplayFlow
+        public var phrase: RecoveryPhrase?
+        public var birthday: BlockHeight?
+        public var showCopyToBufferAlert = false
+        @BindingState public var isConfirmSeedPhraseWrittenChecked = false
+        
+        public init(
+            flow: RecoveryPhraseDisplayFlow,
+            phrase: RecoveryPhrase? = nil,
+            birthday: BlockHeight? = nil,
+            showCopyToBufferAlert: Bool = false,
+            isConfirmSeedPhraseWrittenChecked: Bool = false
+        ) {
+            self.flow = flow
+            self.phrase = phrase
+            self.birthday = birthday
+            self.showCopyToBufferAlert = showCopyToBufferAlert
+            self.isConfirmSeedPhraseWrittenChecked = isConfirmSeedPhraseWrittenChecked
+        }
     }
     
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case onAppear
         case copyToBufferPressed
         case finishedPressed
@@ -38,7 +53,9 @@ struct RecoveryPhraseDisplayReducer: ReducerProtocol {
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.walletStorage) var walletStorage
     
-    var body: some ReducerProtocol<State, Action> {
+    public init() {}
+    
+    public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         
         Reduce { state, action in

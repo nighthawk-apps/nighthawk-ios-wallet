@@ -10,10 +10,14 @@ import Generated
 import SwiftUI
 import UIComponents
 
-struct NHWelcomeView: View {
-    var store: WelcomeStore
+public struct NHWelcomeView: View {
+    let store: WelcomeStore
     
-    var body: some View {
+    public init(store: WelcomeStore) {
+        self.store = store
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
             

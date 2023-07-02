@@ -11,6 +11,8 @@ import ComposableArchitecture
 import Generated
 import Models
 import ImportWallet
+import NHImportWallet
+import WalletCreated
 import ZcashLightClientKit
 
 public typealias OnboardingFlowStore = Store<OnboardingFlowReducer.State, OnboardingFlowReducer.Action>
@@ -33,14 +35,14 @@ public struct OnboardingFlowReducer: ReducerProtocol {
             public let background: Image
         }
 
-        var destination: Destination?
-        var walletConfig: WalletConfig
-        var importWalletState: ImportWalletReducer.State
-        var nhImportWalletState: NHImportWalletReducer.State
-        var walletCreatedState: NHWalletCreatedReducer.State
-        var index = 0
-        var skippedAtindex: Int?
-        var steps: IdentifiedArrayOf<Step> = Self.onboardingSteps
+        public var destination: Destination?
+        public var walletConfig: WalletConfig
+        public var importWalletState: ImportWalletReducer.State
+        public var nhImportWalletState: NHImportWalletReducer.State
+        public var walletCreatedState: WalletCreatedReducer.State
+        public var index = 0
+        public var skippedAtindex: Int?
+        public var steps: IdentifiedArrayOf<Step> = Self.onboardingSteps
 
         public var currentStep: Step { steps[index] }
         public var isFinalStep: Bool { steps.count == index + 1 }
@@ -58,6 +60,8 @@ public struct OnboardingFlowReducer: ReducerProtocol {
             destination: Destination? = nil,
             walletConfig: WalletConfig,
             importWalletState: ImportWalletReducer.State,
+            nhImportWalletState: NHImportWalletReducer.State,
+            walletCreatedState: WalletCreatedReducer.State,
             index: Int = 0,
             skippedAtindex: Int? = nil,
             steps: IdentifiedArrayOf<Step> = Self.onboardingSteps
@@ -65,6 +69,8 @@ public struct OnboardingFlowReducer: ReducerProtocol {
             self.destination = destination
             self.walletConfig = walletConfig
             self.importWalletState = importWalletState
+            self.nhImportWalletState = nhImportWalletState
+            self.walletCreatedState = walletCreatedState
             self.index = index
             self.skippedAtindex = skippedAtindex
             self.steps = steps
@@ -75,7 +81,7 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         case back
         case termsAndConditions
         case createNewWallet
-        case walletCreated(NHWalletCreatedReducer.Action)
+        case walletCreated(WalletCreatedReducer.Action)
         case importExistingWallet
         case importWallet(ImportWalletReducer.Action)
         case nhImportWallet(NHImportWalletReducer.Action)
@@ -95,11 +101,11 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         }
         
         Scope(state: \.walletCreatedState, action: /Action.walletCreated) {
-            NHWalletCreatedReducer()
+            WalletCreatedReducer()
         }
         
         Scope(state: \.nhImportWalletState, action: /Action.nhImportWallet) {
-            NHImportWalletReducer()
+            NHImportWalletReducer(saplingActivationHeight: saplingActivationHeight)
         }
         
         Reduce { state, action in

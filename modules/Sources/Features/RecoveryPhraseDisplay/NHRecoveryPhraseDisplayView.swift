@@ -13,11 +13,14 @@ import SwiftUI
 import UIComponents
 import ZcashLightClientKit
 
-@MainActor
-struct NHRecoveryPhraseDisplayView: View {
+public struct NHRecoveryPhraseDisplayView: View {
     let store: RecoveryPhraseDisplayStore
     
-    var body: some View {
+    public init(store: RecoveryPhraseDisplayStore) {
+        self.store = store
+    }
+    
+    public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
                 if let phrase = viewStore.phrase {
@@ -179,6 +182,7 @@ private extension NHRecoveryPhraseDisplayView {
         .frame(maxWidth: .infinity)
     }
     
+    @MainActor
     func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplayReducer>) -> some View {
         VStack(spacing: 16) {
             Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
@@ -200,6 +204,7 @@ private extension NHRecoveryPhraseDisplayView {
 
 // MARK: - Export as PDF
 private extension NHRecoveryPhraseDisplayView {
+    @MainActor
     func render(groups: [RecoveryPhrase.Group], blockHeight: BlockHeight?) -> URL {
         let renderer = ImageRenderer(
             content: VStack(alignment: .leading) {

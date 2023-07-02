@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "lottie-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-spm.git",
+      "state" : {
+        "revision" : "60ea4f82fba8b4cb21a75665a889e86ed4d81c6e",
+        "version" : "4.2.0"
+      }
+    },
+    {
       "identity" : "mnemonicswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zcash-hackworks/MnemonicSwift",
@@ -208,15 +217,6 @@
       }
     },
     {
-      "identity" : "swiftgenplugin",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftGen/SwiftGenPlugin",
-      "state" : {
-        "revision" : "879b85a470cacd70c19e22eb7e11a3aed66f4068",
-        "version" : "6.6.2"
-      }
-    },
-    {
       "identity" : "swiftui-navigation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swiftui-navigation",
@@ -245,7 +245,7 @@
     {
       "identity" : "zcashlightclientkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zcash/ZcashLightClientKit",
+      "location" : "https://github.com/zcash/ZcashLightClientKit.git",
       "state" : {
         "revision" : "ee3d082155bf542aa3580c84e6140a329633319a"
       }

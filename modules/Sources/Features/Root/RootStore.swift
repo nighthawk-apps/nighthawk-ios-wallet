@@ -16,6 +16,7 @@ import ExportLogs
 import OnboardingFlow
 import Sandbox
 import Home
+import NHHome
 
 public typealias RootStore = Store<RootReducer.State, RootReducer.Action>
 public typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
@@ -27,7 +28,7 @@ public struct RootReducer: ReducerProtocol {
     let tokenName: String
     let zcashNetwork: ZcashNetwork
 
-    struct State: Equatable {
+    public struct State: Equatable {
         @PresentationState var alert: AlertState<Action>?
         var appInitializationState: InitializationState = .uninitialized
         var debugState: DebugState
@@ -44,7 +45,7 @@ public struct RootReducer: ReducerProtocol {
         var welcomeState: WelcomeReducer.State
     }
 
-    public enum Action: Equatable {
+    public enum Action: Equatable, BindableAction {
         case alert(PresentationAction<Action>)
         case binding(BindingAction<RootReducer.State>)
         case debug(DebugAction)

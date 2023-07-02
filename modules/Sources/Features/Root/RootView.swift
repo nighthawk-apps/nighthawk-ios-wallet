@@ -10,6 +10,7 @@ import ExportLogs
 import OnboardingFlow
 import Sandbox
 import Home
+import NHHome
 import ZcashLightClientKit
 
 public struct RootView: View {
@@ -53,7 +54,8 @@ private extension RootView {
                             store: store.scope(
                                 state: \.nhHomeState,
                                 action: RootReducer.Action.nhHome
-                            )
+                            ),
+                            tokenName: tokenName
                         )
                     }
                     .navigationViewStyle(.stack)

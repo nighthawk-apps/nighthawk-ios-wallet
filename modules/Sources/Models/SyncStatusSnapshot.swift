@@ -40,7 +40,7 @@ extension SyncStatusSnapshot {
 }
 
 // MARK: - Nighthawk
-extension SyncStatusSnapshot {
+public extension SyncStatusSnapshot {
     static func nhSnapshotFor(state: SyncStatus) -> SyncStatusSnapshot {
         switch state {
         case .upToDate:

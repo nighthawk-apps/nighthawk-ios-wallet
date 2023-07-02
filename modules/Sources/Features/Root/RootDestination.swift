@@ -121,7 +121,7 @@ extension RootReducer {
                 return EffectTask(value: .destination(.deeplink(url)))
 
             case .nhHome, .home, .initialization, .onboarding, .phraseDisplay, .phraseValidation, .sandbox, .updateStateAfterConfigUpdate, .alert,
-                .welcome, .binding, .nukeWalletFailed, .nukeWalletSucceeded, .debug, .walletConfigLoaded, .dismissAlert, .exportLogs, .uniAlert:
+                .welcome, .binding, .nukeWalletFailed, .nukeWalletSucceeded, .debug, .walletConfigLoaded, .exportLogs:
                 return .none
             }
             

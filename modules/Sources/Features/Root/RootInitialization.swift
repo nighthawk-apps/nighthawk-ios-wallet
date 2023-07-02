@@ -265,7 +265,7 @@ extension RootReducer {
                 return .none
                 
             case .nhHome, .home, .destination, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
-                .welcome, .binding, .debug, .exportLogs, .uniAlert, .dismissAlert, .alert:
+                .welcome, .binding, .debug, .exportLogs, .alert:
                 return .none
             }
         }

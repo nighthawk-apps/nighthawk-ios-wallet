@@ -8,7 +8,7 @@
 import Generated
 import SwiftUI
 
-struct IndeterminateProgress: View {
+public struct IndeterminateProgress: View {
     private enum Constants {
         static let height: CGFloat = 4
         static let coverPercentage: CGFloat = 0.8
@@ -19,7 +19,9 @@ struct IndeterminateProgress: View {
     @State private var offset = Constants.minOffset
     @State private var scaleX = 1.0
     
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         Rectangle()
             .foregroundColor(Asset.Colors.Nighthawk.peach.color.opacity(0.2))
             .frame(height: Constants.height)

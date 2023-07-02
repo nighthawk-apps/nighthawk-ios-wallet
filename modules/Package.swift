@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "modules",
     platforms: [
-      .iOS(.v15)
+      .iOS(.v16)
     ],
     products: [
         .library(name: "AddressDetails", targets: ["AddressDetails"]),
@@ -25,6 +25,9 @@ let package = Package(
         .library(name: "Generated", targets: ["Generated"]),
         .library(name: "Home", targets: ["Home"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
+        .library(name: "ImportWalletSuccess", targets: ["ImportWalletSuccess"]),
+        .library(name: "NHHome", targets: ["NHHome"]),
+        .library(name: "NHImportWallet", targets: ["NHImportWallet"]),
         .library(name: "LocalAuthenticationHandler", targets: ["LocalAuthenticationHandler"]),
         .library(name: "LogsHandler", targets: ["LogsHandler"]),
         .library(name: "MnemonicClient", targets: ["MnemonicClient"]),
@@ -41,8 +44,11 @@ let package = Package(
         .library(name: "Scan", targets: ["Scan"]),
         .library(name: "SDKSynchronizer", targets: ["SDKSynchronizer"]),
         .library(name: "SecItem", targets: ["SecItem"]),
+        .library(name: "SubsonicClient", targets: ["SubsonicClient"]),
         .library(name: "SendFlow", targets: ["SendFlow"]),
         .library(name: "Settings", targets: ["Settings"]),
+        .library(name: "TransactionHistory", targets: ["TransactionHistory"]),
+        .library(name: "WalletCreated", targets: ["WalletCreated"]),
         .library(name: "SupportDataGenerator", targets: ["SupportDataGenerator"]),
         .library(name: "UIComponents", targets: ["UIComponents"]),
         .library(name: "URIParser", targets: ["URIParser"]),
@@ -60,8 +66,9 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.14.1"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
         .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "ee3d082155bf542aa3580c84e6140a329633319a"),
-        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.0.0"),
-        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.2")
+        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
+        .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0")
     ],
     targets: [
         .target(
@@ -175,20 +182,6 @@ let package = Package(
             path: "Sources/Dependencies/FeedbackGenerator"
         ),
         .target(
-            name: "DiskSpaceChecker",
-            dependencies: [
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ],
-            path: "Sources/Dependencies/DiskSpaceChecker"
-        ),
-        .target(
-            name: "FeedbackGenerator",
-            dependencies: [
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/FeedbackGenerator"
-        ),
-        .target(
             name: "FileManager",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -197,10 +190,7 @@ let package = Package(
         ),
         .target(
             name: "Generated",
-            resources: [.process("Resources")],
-            plugins: [
-                .plugin(name: "SwiftGenPlugin", package: "SwiftGenPlugin")
-            ]
+            resources: [.process("Resources")]
         ),
         .target(
             name: "Home",
@@ -240,6 +230,48 @@ let package = Package(
             path: "Sources/Features/ImportWallet"
         ),
         .target(
+            name: "ImportWalletSuccess",
+            dependencies: [
+                "FeedbackGenerator",
+                "Generated",
+                "SubsonicClient",
+                "UIComponents",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/ImportWalletSuccess"
+        ),
+        .target(
+            name: "NHHome",
+            dependencies: [
+                "AppVersion",
+                "DiskSpaceChecker",
+                "Models",
+                "OnboardingFlow",
+                "SDKSynchronizer",
+                "TransactionHistory",
+                "UIComponents",
+                "WalletEventsFlow",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/NHHome"
+        ),
+        .target(
+            name: "NHImportWallet",
+            dependencies: [
+                "Generated",
+                "ImportWalletSuccess",
+                "MnemonicClient",
+                "UIComponents",
+                "Utils",
+                "WalletStorage",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/NHImportWallet"
+        ),
+        .target(
             name: "LocalAuthenticationHandler",
             dependencies: [
                 "Generated",
@@ -267,7 +299,9 @@ let package = Package(
             name: "Models",
             dependencies: [
                 "Utils",
-                "UIComponents"
+                "UIComponents",
+                .product(name: "MnemonicSwift", package: "MnemonicSwift"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Models"
         ),
@@ -285,7 +319,9 @@ let package = Package(
                 "Generated",
                 "ImportWallet",
                 "Models",
+                "NHImportWallet",
                 "UIComponents",
+                "WalletCreated",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
@@ -321,6 +357,7 @@ let package = Package(
                 "Models",
                 "Pasteboard",
                 "UIComponents",
+                "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/RecoveryPhraseDisplay"
@@ -357,6 +394,7 @@ let package = Package(
                 "DerivationTool",
                 "ExportLogs",
                 "Generated",
+                "NHHome",
                 "Home",
                 "MnemonicClient",
                 "Models",
@@ -422,6 +460,14 @@ let package = Package(
             path: "Sources/Dependencies/SecItem"
         ),
         .target(
+            name: "SubsonicClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "Subsonic", package: "Subsonic")
+            ],
+            path: "Sources/Dependencies/SubsonicClient"
+        ),
+        .target(
             name: "SendFlow",
             dependencies: [
                 "AudioServices",
@@ -461,6 +507,29 @@ let package = Package(
             path: "Sources/Features/Settings"
         ),
         .target(
+            name: "TransactionHistory",
+            dependencies: [
+                "Generated",
+                "Models",
+                "Utils",
+                "WalletEventsFlow",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/TransactionHistory"
+        ),
+        .target(
+            name: "WalletCreated",
+            dependencies: [
+                "FeedbackGenerator",
+                "Generated",
+                "SubsonicClient",
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ],
+            path: "Sources/Features/WalletCreated"
+        ),
+        .target(
             name: "SupportDataGenerator",
             dependencies: [
                 "Generated",
@@ -474,71 +543,14 @@ let package = Package(
             dependencies: [
                 "DerivationTool",
                 "Generated",
+                "NumberFormatter",
                 "Utils",
                 "ZcashSDKEnvironment"
             ],
             path: "Sources/UIComponents"
         ),
         .target(
-            name: "RecoveryPhraseValidationFlow",
-            dependencies: [
-                "FeedbackGenerator",
-                "Generated",
-                "Models",
-                "Pasteboard",
-                "UIComponents",
-                "Utils",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
-            ],
-            path: "Sources/Features/RecoveryPhraseValidationFlow"
-        ),
-        .target(
-            name: "ReviewRequest",
-            dependencies: [
-                "AppVersion",
-                "Date",
-                "UserDefaults",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/ReviewRequest"
-        ),
-        .target(
-            name: "SDKSynchronizer",
-            dependencies: [
-                "DatabaseFiles",
-                "Models",
-                "ZcashSDKEnvironment",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
-            ],
-            path: "Sources/Dependencies/SDKSynchronizer"
-        ),
-        .target(
-            name: "SecItem",
-            dependencies: [
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/SecItem"
-        ),
-        .target(
-            name: "SupportDataGenerator",
-            dependencies: [
-                "Generated",
-                "Utils",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/SupportDataGenerator"
-        ),
-        .target(
-            name: "UIComponents",
-            dependencies: [
-                "Generated",
-                "Utils"
-            ]
-        ),
-        .target(
-            name: "Utils",
+            name: "URIParser",
             dependencies: [
                 "DerivationTool",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -565,7 +577,8 @@ let package = Package(
             name: "Utils",
             dependencies: [
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit"),
-                .product(name: "CasePaths", package: "swift-case-paths")
+                .product(name: "CasePaths", package: "swift-case-paths"),
+                .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "Sources/Utils"
         ),
