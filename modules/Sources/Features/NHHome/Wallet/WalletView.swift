@@ -26,6 +26,13 @@ public struct WalletView: View {
                 
                 header(with: viewStore)
                 
+                if viewStore.transparentBalance.data.total < viewStore.autoShieldingThreshold {
+                    Button(L10n.Nighthawk.WalletTab.shieldNow) {
+                        
+                    }
+                    .buttonStyle(.nighthawkPrimary())
+                }
+                
                 Spacer()
                 
                 latestWalletEvents(with: viewStore)

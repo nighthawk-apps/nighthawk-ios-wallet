@@ -65,7 +65,6 @@ public enum Asset {
         public static let unshielded = ImageAsset(name: "unshielded")
         public static let wallet = ImageAsset(name: "wallet")
       }
-      public static let qrCode = ImageAsset(name: "qrCode")
     }
     public static let welcomeScreenLogo = ImageAsset(name: "WelcomeScreenLogo")
   }

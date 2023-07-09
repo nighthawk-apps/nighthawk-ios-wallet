@@ -23,6 +23,7 @@ public struct WalletReducer: ReducerProtocol {
         
         public var destination: Destination?
         
+        public var autoShieldingThreshold: Zatoshi
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0
         public var synchronizerStatusSnapshot: SyncStatusSnapshot
@@ -101,6 +102,7 @@ extension WalletReducer.State {
 extension WalletReducer.State {
     static var placeholder: Self {
         .init(
+            autoShieldingThreshold: Zatoshi(1_000_000),
             synchronizerStatusSnapshot: .default,
             shieldedBalance: .zero,
             transparentBalance: .zero,

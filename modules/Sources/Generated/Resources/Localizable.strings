@@ -326,6 +326,7 @@
 "nighthawk.walletTab.zec" = "ZEC";
 "nighthawk.walletTab.recentActivity" = "Recent activity";
 "nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
+"nighthawk.walletTab.shieldNow" = "Shield now";
 
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
