@@ -37,9 +37,11 @@ public enum Asset {
       public enum Nighthawk {
         public static let about = ImageAsset(name: "about")
         public static let backup = ImageAsset(name: "backup")
+        public static let check = ImageAsset(name: "check")
         public static let checked = ImageAsset(name: "checked")
         public static let chevronRight = ImageAsset(name: "chevron_right")
         public static let connecting = ImageAsset(name: "connecting")
+        public static let doubleCheck = ImageAsset(name: "double_check")
         public static let error = ImageAsset(name: "error")
         public static let failed = ImageAsset(name: "failed")
         public static let fiat = ImageAsset(name: "fiat")

@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Generated
 import SwiftUI
+import NHTransactionDetail
 import TransactionHistory
 
 public struct WalletView: View {
@@ -26,11 +27,14 @@ public struct WalletView: View {
                 
                 header(with: viewStore)
                 
-                if viewStore.transparentBalance.data.total < viewStore.autoShieldingThreshold {
+                if viewStore.transparentBalance.data.total < viewStore.autoShieldingThreshold &&
+                    viewStore.balanceViewType == .transparent &&
+                    viewStore.synchronizerStatusSnapshot.isSynced {
                     Button(L10n.Nighthawk.WalletTab.shieldNow) {
                         
                     }
                     .buttonStyle(.nighthawkPrimary())
+                    .padding(.top, 16)
                 }
                 
                 Spacer()
@@ -43,13 +47,15 @@ public struct WalletView: View {
                     TransactionHistoryView(store: store.transactionHistoryStore())
                 }
             )
-            .navigationLinkEmpty(isActive: viewStore.bindingForSelectedWalletEvent(viewStore.selectedWalletEvent)) {
-                viewStore.selectedWalletEvent?.nhDetailView(
-                    latestMinedHeight: viewStore.latestMinedHeight,
-                    requiredTransactionConfirmations: viewStore.requiredTransactionConfirmations,
-                    tokenName: tokenName
-                )
-            }
+            .navigationLinkEmpty(
+                isActive: viewStore.bindingForSelectedWalletEvent(viewStore.selectedWalletEvent),
+                destination: {
+                    NHTransactionDetailView(
+                        store: store.transactionDetailStore(),
+                        tokenName: tokenName
+                    )
+                }
+            )
         }
         .applyNighthawkBackground()
     }

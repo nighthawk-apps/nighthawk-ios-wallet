@@ -28,6 +28,7 @@ let package = Package(
         .library(name: "ImportWalletSuccess", targets: ["ImportWalletSuccess"]),
         .library(name: "NHHome", targets: ["NHHome"]),
         .library(name: "NHImportWallet", targets: ["NHImportWallet"]),
+        .library(name: "NHTransactionDetail", targets: ["NHTransactionDetail"]),
         .library(name: "LocalAuthenticationHandler", targets: ["LocalAuthenticationHandler"]),
         .library(name: "LogsHandler", targets: ["LogsHandler"]),
         .library(name: "MnemonicClient", targets: ["MnemonicClient"]),
@@ -251,6 +252,7 @@ let package = Package(
                 "AppVersion",
                 "DiskSpaceChecker",
                 "Models",
+                "NHTransactionDetail",
                 "OnboardingFlow",
                 "SDKSynchronizer",
                 "TransactionHistory",
@@ -274,6 +276,16 @@ let package = Package(
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/NHImportWallet"
+        ),
+        .target(
+            name: "NHTransactionDetail",
+            dependencies: [
+                "Generated",
+                "Models",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/NHTransactionDetail"
         ),
         .target(
             name: "LocalAuthenticationHandler",

@@ -11,6 +11,10 @@ import Models
 public struct TransactionHistoryReducer: ReducerProtocol {
     public struct State: Equatable {
         public var walletEvents: IdentifiedArrayOf<WalletEvent>
+        
+        public init(walletEvents: IdentifiedArrayOf<WalletEvent>) {
+            self.walletEvents = walletEvents
+        }
     }
     
     public enum Action: Equatable {}
@@ -25,7 +29,7 @@ public struct TransactionHistoryReducer: ReducerProtocol {
 // MARK: - Placeholder
 extension TransactionHistoryReducer.State {
     public static var placeholder: Self {
-        .init(walletEvents: .placeholder)
+        .init(walletEvents: [])
     }
 }
 

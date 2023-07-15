@@ -6,8 +6,9 @@
 //
 
 import ComposableArchitecture
-import Models
 import Generated
+import Models
+import NHTransactionDetail
 import SwiftUI
 import TransactionHistory
 import WalletEventsFlow
@@ -31,34 +32,6 @@ extension WalletEvent {
             // https://github.com/zcash/secant-ios-wallet/issues/391
             Text(L10n.WalletEvent.Row.import)
                 .padding(.leading, 30)
-        }
-    }
-}
-
-// MARK: - Details
-
-extension WalletEvent {
-    @ViewBuilder public func nhDetailView(
-        latestMinedHeight: BlockHeight?,
-        requiredTransactionConfirmations: Int,
-        tokenName: String
-    ) -> some View {
-        switch state {
-        case .transaction(let transaction):
-            NHTransactionDetailView(
-                latestMinedHeight: latestMinedHeight,
-                requiredTransactionConfirmations: requiredTransactionConfirmations,
-                tokenName: tokenName,
-                transaction: transaction
-            )
-        case .shielded(let zatoshi):
-            // TODO: [#390] implement design once shielding is supported
-            // https://github.com/zcash/secant-ios-wallet/issues/390
-            Text(L10n.WalletEvent.Detail.shielded(zatoshi.decimalString()))
-        case .walletImport:
-            // TODO: [#391] implement design once shielding is supported
-            // https://github.com/zcash/secant-ios-wallet/issues/391
-            Text(L10n.WalletEvent.Detail.import)
         }
     }
 }

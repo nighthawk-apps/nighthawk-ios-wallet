@@ -341,6 +341,64 @@ public enum L10n {
         public static let uptodate = L10n.tr("Localizable", "nighthawk.sync.message.uptodate", fallback: "Up-To-Date")
       }
     }
+    public enum Transaction {
+      /// Confirmed
+      public static let confirmed = L10n.tr("Localizable", "nighthawk.transaction.confirmed", fallback: "Confirmed")
+      /// Failed
+      public static let failed = L10n.tr("Localizable", "nighthawk.transaction.failed", fallback: "Failed")
+      /// Received
+      public static let received = L10n.tr("Localizable", "nighthawk.transaction.received", fallback: "Received")
+      /// Sent
+      public static let sent = L10n.tr("Localizable", "nighthawk.transaction.sent", fallback: "Sent")
+    }
+    public enum TransactionDetails {
+      /// Address
+      public static let address = L10n.tr("Localizable", "nighthawk.transactionDetails.address", fallback: "Address")
+      /// Block ID
+      public static let blockId = L10n.tr("Localizable", "nighthawk.transactionDetails.blockId", fallback: "Block ID")
+      /// Confirmations
+      public static let confirmations = L10n.tr("Localizable", "nighthawk.transactionDetails.confirmations", fallback: "Confirmations")
+      /// Leaving Nighthawk Wallet
+      public static let leavingWallet = L10n.tr("Localizable", "nighthawk.transactionDetails.leavingWallet", fallback: "Leaving Nighthawk Wallet")
+      /// While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@
+      public static func leavingWarning(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.transactionDetails.leavingWarning", String(describing: p1), fallback: "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@")
+      }
+      /// Memo
+      public static let memo = L10n.tr("Localizable", "nighthawk.transactionDetails.memo", fallback: "Memo")
+      /// Network fee
+      public static let networkFee = L10n.tr("Localizable", "nighthawk.transactionDetails.networkFee", fallback: "Network fee")
+      /// Pool
+      public static let pool = L10n.tr("Localizable", "nighthawk.transactionDetails.pool", fallback: "Pool")
+      /// Recipient
+      public static let recipient = L10n.tr("Localizable", "nighthawk.transactionDetails.recipient", fallback: "Recipient")
+      /// Shielded
+      public static let recipientShielded = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientShielded", fallback: "Shielded")
+      /// Transparent
+      public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Transparent")
+      /// Sapling
+      public static let sapling = L10n.tr("Localizable", "nighthawk.transactionDetails.sapling", fallback: "Sapling")
+      /// Subtotal
+      public static let subtotal = L10n.tr("Localizable", "nighthawk.transactionDetails.subtotal", fallback: "Subtotal")
+      /// Time (UTC)
+      public static let time = L10n.tr("Localizable", "nighthawk.transactionDetails.time", fallback: "Time (UTC)")
+      /// Transaction details
+      public static let title = L10n.tr("Localizable", "nighthawk.transactionDetails.title", fallback: "Transaction details")
+      /// Total amount
+      public static let totalAmount = L10n.tr("Localizable", "nighthawk.transactionDetails.totalAmount", fallback: "Total amount")
+      /// Transaction ID
+      public static let transactionId = L10n.tr("Localizable", "nighthawk.transactionDetails.transactionId", fallback: "Transaction ID")
+      /// Transparent
+      public static let transparent = L10n.tr("Localizable", "nighthawk.transactionDetails.transparent", fallback: "Transparent")
+      /// Unconfirmed
+      public static let unconfirmed = L10n.tr("Localizable", "nighthawk.transactionDetails.unconfirmed", fallback: "Unconfirmed")
+      /// view on Block Explorer
+      public static let viewOnBlockExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnBlockExplorer", fallback: "view on Block Explorer")
+      /// View on explorer
+      public static let viewOnExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnExplorer", fallback: "View on explorer")
+      /// View TX details
+      public static let viewTxDetails = L10n.tr("Localizable", "nighthawk.transactionDetails.viewTxDetails", fallback: "View TX details")
+    }
     public enum TransactionHistory {
       /// %@ %@
       public static func zecAmount(_ p1: Any, _ p2: Any) -> String {

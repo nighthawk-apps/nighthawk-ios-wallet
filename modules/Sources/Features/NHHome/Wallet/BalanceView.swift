@@ -49,7 +49,6 @@ public struct BalanceView: View {
                 )
                 .foregroundColor(.white)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
-                .padding(.bottom, 5)
             }
             
             balanceText(for: type)

@@ -357,3 +357,34 @@
 "nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
 "nighthawk.settingsTab.aboutTitle" = "About";
 "nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+
+// MARK: - Transaction details
+"nighthawk.transactionDetails.title" = "Transaction details";
+"nighthawk.transactionDetails.memo" = "Memo";
+"nighthawk.transactionDetails.time" = "Time (UTC)";
+"nighthawk.transactionDetails.pool" = "Pool";
+"nighthawk.transactionDetails.sapling" = "Sapling";
+"nighthawk.transactionDetails.transparent" = "Transparent";
+"nighthawk.transactionDetails.blockId" = "Block ID";
+"nighthawk.transactionDetails.confirmations" = "Confirmations";
+"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "view on Block Explorer";
+"nighthawk.transactionDetails.transactionId" = "Transaction ID";
+"nighthawk.transactionDetails.recipient" = "Recipient";
+"nighthawk.transactionDetails.recipientShielded" = "Shielded";
+"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
+"nighthawk.transactionDetails.address" = "Address";
+"nighthawk.transactionDetails.subtotal" = "Subtotal";
+"nighthawk.transactionDetails.networkFee" = "Network fee";
+"nighthawk.transactionDetails.totalAmount" = "Total amount";
+"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
+"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
+"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
+"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
+
+
+// MARK: - Transaction
+"nighthawk.transaction.confirmed" = "Confirmed";
+"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.received" = "Received";
+"nighthawk.transaction.failed" = "Failed";
