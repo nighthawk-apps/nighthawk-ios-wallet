@@ -7,6 +7,9 @@
 
 import ComposableArchitecture
 
+public typealias TransferStore = Store<TransferReducer.State, TransferReducer.Action>
+public typealias TransferViewStore = ViewStore<TransferReducer.State, TransferReducer.Action>
+
 public struct TransferReducer: ReducerProtocol {
     public struct State: Equatable {}
     

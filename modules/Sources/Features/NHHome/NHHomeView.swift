@@ -38,7 +38,7 @@ public struct NHHomeView: View {
                         .tag(NHHomeReducer.State.Destination.settings)
                 }
                 .overlay(alignment: .top) {
-                    if viewStore.destination != .settings {
+                    if viewStore.destination == .wallet {
                         NighthawkLogo(spacing: .compact)
                             .padding(.top, 40)
                             .accessDebugMenuWithHiddenGesture {

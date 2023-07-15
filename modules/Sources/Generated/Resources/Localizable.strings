@@ -339,6 +339,16 @@
 "nighthawk.sync.message.preparing" = "Preparing to scan";
 "nighthawk.sync.message.finalizing" = "Finalizing";
 
+// MARK: - Home Screen - Transfer tab
+"nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";
+"nighthawk.transferTab.sendMoneyTitle" = "Send money";
+"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money";
+"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
+"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard";
+"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
+"nighthawk.transferTab.topUpWalletDescription" = "Securely buy Zcash through our partners";
+
+
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Settings";
 "nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
