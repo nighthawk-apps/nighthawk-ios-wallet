@@ -11,6 +11,8 @@ import ZcashLightClientKit
 import FileManager
 import DatabaseFiles
 import ZcashSDKEnvironment
+import WalletStorage
+import Root
 @testable import secant_testnet
 
 class RootTests: XCTestCase {
@@ -19,7 +21,8 @@ class RootTests: XCTestCase {
     func testWalletInitializationState_Uninitialized() throws {
         let walletState = RootReducer.walletInitializationState(
             databaseFiles: .noOp,
-            walletStorage: .noOp
+            walletStorage: .noOp,
+            zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
         )
 
         XCTAssertEqual(walletState, .uninitialized)
@@ -34,7 +37,8 @@ class RootTests: XCTestCase {
 
         let walletState = RootReducer.walletInitializationState(
             databaseFiles: .live(databaseFiles: DatabaseFiles(fileManager: wfmMock)),
-            walletStorage: .noOp
+            walletStorage: .noOp,
+            zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
         )
 
         XCTAssertEqual(walletState, .keysMissing)
@@ -49,7 +53,8 @@ class RootTests: XCTestCase {
 
         let walletState = RootReducer.walletInitializationState(
             databaseFiles: .live(databaseFiles: DatabaseFiles(fileManager: wfmMock)),
-            walletStorage: .noOp
+            walletStorage: .noOp,
+            zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
         )
 
         XCTAssertEqual(walletState, .uninitialized)
@@ -67,7 +72,8 @@ class RootTests: XCTestCase {
         
         let walletState = RootReducer.walletInitializationState(
             databaseFiles: .live(databaseFiles: DatabaseFiles(fileManager: wfmMock)),
-            walletStorage: walletStorage
+            walletStorage: walletStorage,
+            zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
         )
 
         XCTAssertEqual(walletState, .filesMissing)
@@ -85,7 +91,8 @@ class RootTests: XCTestCase {
         
         let walletState = RootReducer.walletInitializationState(
             databaseFiles: .live(databaseFiles: DatabaseFiles(fileManager: wfmMock)),
-            walletStorage: walletStorage
+            walletStorage: walletStorage,
+            zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
         )
 
         XCTAssertEqual(walletState, .initialized)
@@ -94,7 +101,7 @@ class RootTests: XCTestCase {
     func testRespondToWalletInitializationState_Uninitialized() throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         store.dependencies.mainQueue = Self.testScheduler.eraseToAnyScheduler()
@@ -112,19 +119,12 @@ class RootTests: XCTestCase {
     func testRespondToWalletInitializationState_KeysMissing() throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         store.send(.initialization(.respondToWalletInitializationState(.keysMissing))) { state in
             state.appInitializationState = .keysMissing
-        }
-        
-        store.receive(.alert(.root(.walletStateFailed(.keysMissing)))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Wallet initialisation failed."),
-                message: TextState("App initialisation state: keysMissing."),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
+            state.alert = AlertState.walletStateFailed(.keysMissing)
         }
     }
 
@@ -134,7 +134,7 @@ class RootTests: XCTestCase {
 
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         store.dependencies.walletStorage = .noOp
@@ -149,24 +149,11 @@ class RootTests: XCTestCase {
         store.receive(.initialization(.checkBackupPhraseValidation)) { state in
             // failed is expected because environment is throwing errors
             state.appInitializationState = .failed
+            state.alert = AlertState.cantLoadSeedPhrase()
         }
 
-        store.receive(.initialization(.initializationFailed(zcashError)))
-
-        store.receive(.alert(.root(.cantLoadSeedPhrase))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Wallet initialisation failed."),
-                message: TextState("Can't load seed phrase from local storage."),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
-        }
-        
-        store.receive(.alert(.root(.initializationFailed(zcashError)))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Failed to initialize the SDK"),
-                message: TextState("Error: \(zcashError.message) (code: \(zcashError.code.rawValue))"),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
+        store.receive(.initialization(.initializationFailed(zcashError))) { state in
+            state.alert = AlertState.initializationFailed(zcashError)
         }
     }
 
@@ -176,7 +163,7 @@ class RootTests: XCTestCase {
 
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         store.dependencies.walletStorage = .noOp
@@ -189,31 +176,18 @@ class RootTests: XCTestCase {
         store.receive(.initialization(.checkBackupPhraseValidation)) { state in
             // failed is expected because environment is throwing errors
             state.appInitializationState = .failed
+            state.alert = AlertState.cantLoadSeedPhrase()
         }
         
-        store.receive(.initialization(.initializationFailed(zcashError)))
-        
-        store.receive(.alert(.root(.cantLoadSeedPhrase))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Wallet initialisation failed."),
-                message: TextState("Can't load seed phrase from local storage."),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
-        }
-        
-        store.receive(.alert(.root(.initializationFailed(zcashError)))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Failed to initialize the SDK"),
-                message: TextState("Error: \(zcashError.message) (code: \(zcashError.code.rawValue))"),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
+        store.receive(.initialization(.initializationFailed(zcashError))) { state in
+            state.alert = AlertState.initializationFailed(zcashError)
         }
     }
     
     func testWalletEventReplyTo_validAddress() throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         let address = "t1gXqfSSQt6WfpwyuCU3Wi7sSVZ66DYQ3Po".redacted

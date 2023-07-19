@@ -9,6 +9,8 @@ import XCTest
 import ComposableArchitecture
 import ZcashLightClientKit
 import Models
+import WalletEventsFlow
+import Home
 @testable import secant_testnet
 
 class WalletEventsSnapshotTests: XCTestCase {
@@ -23,7 +25,7 @@ class WalletEventsSnapshotTests: XCTestCase {
         // landing wallet events screen
         addAttachments(
             name: "\(#function)_initial",
-            WalletEventsFlowView(store: store)
+            WalletEventsFlowView(store: store, tokenName: "ZEC")
         )
     }
     
@@ -65,7 +67,7 @@ class WalletEventsSnapshotTests: XCTestCase {
                 walletConfig: .default,
                 walletEventsState: .init(walletEvents: IdentifiedArrayOf(uniqueElements: [walletEvent]))
             ),
-            reducer: HomeReducer()
+            reducer: HomeReducer(networkType: .testnet)
         )
         
         ViewStore(store).send(.walletEvents(.updateDestination(.showWalletEvent(walletEvent))))
@@ -76,7 +78,7 @@ class WalletEventsSnapshotTests: XCTestCase {
         
         addAttachments(
             name: "\(#function)_WalletEventDetail",
-            TransactionDetailView(transaction: transaction, store: walletEventsStore)
+            TransactionDetailView(store: walletEventsStore, transaction: transaction, tokenName: "ZEC")
         )
     }
     
@@ -118,7 +120,7 @@ class WalletEventsSnapshotTests: XCTestCase {
                 walletConfig: .default,
                 walletEventsState: .init(walletEvents: IdentifiedArrayOf(uniqueElements: [walletEvent]))
             ),
-            reducer: HomeReducer()
+            reducer: HomeReducer(networkType: .testnet)
         )
         
         ViewStore(store).send(.walletEvents(.updateDestination(.showWalletEvent(walletEvent))))
@@ -129,7 +131,7 @@ class WalletEventsSnapshotTests: XCTestCase {
         
         addAttachments(
             name: "\(#function)_WalletEventDetail",
-            TransactionDetailView(transaction: transaction, store: walletEventsStore)
+            TransactionDetailView(store: walletEventsStore, transaction: transaction, tokenName: "ZEC")
         )
     }
     
@@ -171,7 +173,7 @@ class WalletEventsSnapshotTests: XCTestCase {
                 walletConfig: .default,
                 walletEventsState: .init(walletEvents: IdentifiedArrayOf(uniqueElements: [walletEvent]))
             ),
-            reducer: HomeReducer()
+            reducer: HomeReducer(networkType: .testnet)
         )
         
         let walletEventsState = WalletEventsFlowReducer.State(
@@ -187,7 +189,7 @@ class WalletEventsSnapshotTests: XCTestCase {
         
         addAttachments(
             name: "\(#function)_WalletEventDetail",
-            TransactionDetailView(transaction: transaction, store: walletEventsStore)
+            TransactionDetailView(store: walletEventsStore, transaction: transaction, tokenName: "ZEC")
         )
     }
     
@@ -230,7 +232,7 @@ class WalletEventsSnapshotTests: XCTestCase {
                 walletConfig: .default,
                 walletEventsState: .init(walletEvents: IdentifiedArrayOf(uniqueElements: [walletEvent]))
             ),
-            reducer: HomeReducer()
+            reducer: HomeReducer(networkType: .testnet)
         )
         
         ViewStore(store).send(.walletEvents(.updateDestination(.showWalletEvent(walletEvent))))
@@ -241,7 +243,7 @@ class WalletEventsSnapshotTests: XCTestCase {
         
         addAttachments(
             name: "\(#function)_WalletEventDetail",
-            TransactionDetailView(transaction: transaction, store: walletEventsStore)
+            TransactionDetailView(store: walletEventsStore, transaction: transaction, tokenName: "ZEC")
         )
     }
 }

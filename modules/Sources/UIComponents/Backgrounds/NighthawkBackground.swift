@@ -8,8 +8,8 @@
 import Generated
 import SwiftUI
 
-struct NighthawkBackgroundModifier: ViewModifier {
-    func body(content: Content) -> some View {
+public struct NighthawkBackgroundModifier: ViewModifier {
+    public func body(content: Content) -> some View {
         ZStack {
             Asset.Colors.Nighthawk.darkNavy.color
                 .ignoresSafeArea()

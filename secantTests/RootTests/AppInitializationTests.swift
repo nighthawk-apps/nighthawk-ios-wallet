@@ -12,6 +12,9 @@ import Models
 import UIComponents
 import RecoveryPhraseValidationFlow
 import Generated
+import RecoveryPhraseDisplay
+import Root
+import ZcashLightClientKit
 @testable import secant_testnet
 
 class AppInitializationTests: XCTestCase {
@@ -92,7 +95,7 @@ class AppInitializationTests: XCTestCase {
 
         let store = TestStore(
             initialState: appState,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         let testQueue = DispatchQueue.test
@@ -149,7 +152,7 @@ class AppInitializationTests: XCTestCase {
     @MainActor func testDidFinishLaunching_to_KeysMissing() async throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         store.dependencies.databaseFiles = .noOp
@@ -173,14 +176,7 @@ class AppInitializationTests: XCTestCase {
 
         await store.receive(.initialization(.respondToWalletInitializationState(.keysMissing))) { state in
             state.appInitializationState = .keysMissing
-        }
-        
-        await store.receive(.alert(.root(.walletStateFailed(.keysMissing)))) { state in
-            state.uniAlert = AlertState(
-                title: TextState("Wallet initialisation failed."),
-                message: TextState("App initialisation state: keysMissing."),
-                dismissButton: .default(TextState("Ok"), action: .send(.dismissAlert))
-            )
+            state.alert = AlertState.walletStateFailed(.keysMissing)
         }
         
         await store.finish()
@@ -190,7 +186,7 @@ class AppInitializationTests: XCTestCase {
     @MainActor func testDidFinishLaunching_to_Uninitialized() async throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         store.dependencies.databaseFiles = .noOp

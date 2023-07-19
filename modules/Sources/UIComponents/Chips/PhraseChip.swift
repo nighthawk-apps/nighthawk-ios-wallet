@@ -9,6 +9,7 @@ import SwiftUI
 import Utils
 import Generated
 
+
 public struct PhraseChip: View {
     public enum Kind: Hashable {
         case empty

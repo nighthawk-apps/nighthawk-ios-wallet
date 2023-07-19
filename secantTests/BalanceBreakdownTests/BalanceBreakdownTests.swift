@@ -11,13 +11,14 @@ import ZcashLightClientKit
 import Combine
 import Utils
 import Generated
+import BalanceBreakdown
 @testable import secant_testnet
 
 class BalanceBreakdownTests: XCTestCase {
     func testOnAppear() throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
         
         store.dependencies.sdkSynchronizer = .mocked()
@@ -29,7 +30,7 @@ class BalanceBreakdownTests: XCTestCase {
         // expected side effects as a result of .onAppear registration
         store.receive(.synchronizerStateChanged(.zero))
         store.receive(.updateLatestBlock) { state in
-            state.latestBlock = "nil"
+            state.latestBlock = ""
         }
 
         // long-living (cancelable) effects need to be properly canceled.
@@ -40,7 +41,7 @@ class BalanceBreakdownTests: XCTestCase {
     @MainActor func testShieldFundsSucceed() async throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
 
         store.dependencies.sdkSynchronizer = .mock
@@ -54,9 +55,8 @@ class BalanceBreakdownTests: XCTestCase {
         }
         await store.receive(.shieldFundsSuccess) { state in
             state.shieldingFunds = false
+            state.alert = AlertState.shieldFundsSuccess()
         }
-
-        await store.receive(.alert(.balanceBreakdown(.shieldFundsSuccess)))
         
         // long-living (cancelable) effects need to be properly canceled.
         // the .onDisappear action cancels the observer of the synchronizer status change.
@@ -66,7 +66,7 @@ class BalanceBreakdownTests: XCTestCase {
     @MainActor func testShieldFundsFails() async throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
 
         store.dependencies.sdkSynchronizer = .mocked(shieldFunds: { _, _, _ in throw ZcashError.synchronizerNotPrepared })
@@ -80,15 +80,8 @@ class BalanceBreakdownTests: XCTestCase {
         }
         await store.receive(.shieldFundsFailure(ZcashError.synchronizerNotPrepared)) { state in
             state.shieldingFunds = false
+            state.alert = AlertState.shieldFundsFailure(ZcashError.synchronizerNotPrepared)
         }
-
-        await store.receive(
-            .alert(
-                .balanceBreakdown(
-                    .shieldFundsFailure(ZcashError.synchronizerNotPrepared)
-                )
-            )
-        )
 
         // long-living (cancelable) effects need to be properly canceled.
         // the .onDisappear action cancels the observer of the synchronizer status change.
@@ -98,7 +91,7 @@ class BalanceBreakdownTests: XCTestCase {
     @MainActor func testShieldFundsButtonDisabledWhenNoShieldableFunds() async throws {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
 
         XCTAssertFalse(store.state.shieldingFunds)
@@ -120,7 +113,7 @@ class BalanceBreakdownTests: XCTestCase {
                     )
                 )
             ),
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
 
         XCTAssertFalse(store.state.shieldingFunds)
@@ -142,7 +135,7 @@ class BalanceBreakdownTests: XCTestCase {
                     )
                 )
             ),
-            reducer: BalanceBreakdownReducer()
+            reducer: BalanceBreakdownReducer(networkType: .testnet)
         )
 
         XCTAssertTrue(store.state.shieldingFunds)

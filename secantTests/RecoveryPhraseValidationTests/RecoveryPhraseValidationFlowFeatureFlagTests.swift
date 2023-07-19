@@ -12,6 +12,10 @@ import RecoveryPhraseValidationFlow
 import Models
 import UIComponents
 import Generated
+import WalletConfigProvider
+import RecoveryPhraseDisplay
+import Root
+import ZcashLightClientKit
 @testable import secant_testnet
 
 // swiftlint:disable:next type_name
@@ -29,7 +33,7 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
     func testRecoveryPhraseValidationFlow_SkipPuzzleUserConfirmedBackup() {
         let store = TestStore(
             initialState: .placeholder,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         store.send(.phraseDisplay(.finishedPressed)) { state in
@@ -47,7 +51,7 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
         
         let store = TestStore(
             initialState: rootState,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         store.send(.phraseDisplay(.finishedPressed)) { state in
@@ -61,7 +65,7 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
 
         let store = TestStore(
             initialState: rootState,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         store.dependencies.mainQueue = .immediate
@@ -86,7 +90,7 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
 
         let store = TestStore(
             initialState: rootState,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
 
         let mnemonic =
@@ -187,7 +191,7 @@ class RecoveryPhraseValidationFlowFeatureFlagTests: XCTestCase {
 
         let store = TestStore(
             initialState: appState,
-            reducer: RootReducer()
+            reducer: RootReducer(tokenName: "ZEC", zcashNetwork: ZcashNetworkBuilder.network(for: .testnet))
         )
         
         let testQueue = DispatchQueue.test
