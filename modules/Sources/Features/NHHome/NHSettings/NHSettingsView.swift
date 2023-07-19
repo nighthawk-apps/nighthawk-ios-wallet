@@ -21,8 +21,7 @@ struct NHSettingsView: View {
                 
                 HStack {
                     Text(L10n.Nighthawk.SettingsTab.settings)
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                        .paragraphMedium()
                     Spacer()
                 }
                 

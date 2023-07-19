@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import Addresses
 import ComposableArchitecture
 import OnboardingFlow
 import SwiftUI
@@ -56,5 +57,8 @@ public struct NHHomeView: View {
         }
         .applyNighthawkBackground()
         .navigationBarTitle("")
+        .sheet(store: store.addressesStore()) { store in
+            AddressesView(store: store)
+        }
     }
 }

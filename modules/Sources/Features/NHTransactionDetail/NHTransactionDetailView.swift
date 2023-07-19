@@ -51,8 +51,7 @@ private extension NHTransactionDetailView {
                 .padding(.bottom, 16)
             
             Text(L10n.Nighthawk.TransactionDetails.title)
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .paragraphMedium()
         }
         .padding(.bottom, 24)
     }

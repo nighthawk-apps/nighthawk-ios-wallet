@@ -20,8 +20,7 @@ struct TransactionStatusView: View {
                 .frame(width: 16, height: 16)
             
             Text(statusText)
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .paragraphMedium()
         }
         .padding(.horizontal, 16)
         .frame(height: 26)

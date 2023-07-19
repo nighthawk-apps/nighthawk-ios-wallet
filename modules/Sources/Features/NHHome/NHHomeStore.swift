@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import Addresses
 import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
@@ -24,6 +25,7 @@ public struct NHHomeReducer: ReducerProtocol {
         }
         
         @BindingState public var destination = Destination.wallet
+        @PresentationState public var addresses: AddressesReducer.State?
         
         // Shared state
         public var requiredTransactionConfirmations = 0
@@ -32,6 +34,7 @@ public struct NHHomeReducer: ReducerProtocol {
         public var transparentBalance: Balance
         public var synchronizerStatusSnapshot: SyncStatusSnapshot
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
+        public var shouldShowAddresses = false
 
         // Tab states
         public var walletState: WalletReducer.State
@@ -41,6 +44,7 @@ public struct NHHomeReducer: ReducerProtocol {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case addresses(PresentationAction<AddressesReducer.Action>)
         case debugMenuStartup
         case onAppear
         case onDisappear
@@ -123,9 +127,37 @@ public struct NHHomeReducer: ReducerProtocol {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .binding, .debugMenuStartup, .settings, .transfer, .wallet:
+            case .wallet(.viewAddressesTapped):
+                state.addresses = .init()
+                return .none
+            case .transfer(.destination(.presented(.receive(.showQrCodeTapped)))):
+                state.transfer.destination = nil
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .wallet(.viewAddressesTapped)
+                }
+            case .transfer(.destination(.presented(.receive(.topUpWalletTapped)))):
+                state.transfer.destination = nil
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .transfer(.topUpWalletTapped)
+                }
+            case .addresses(.presented(.topUpWalletTapped)):
+                state.addresses = nil
+                state.destination = .transfer
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .transfer(.topUpWalletTapped)
+                }
+            case .addresses, .binding, .debugMenuStartup, .settings, .transfer, .wallet:
                 return .none
             }
+        }
+        .ifLet(\.$addresses, action: /Action.addresses) {
+            AddressesReducer()
         }
     }
 }
@@ -189,6 +221,10 @@ extension Store<NHHomeReducer.State, NHHomeReducer.Action> {
     
     func settingsStore() -> Store<NHSettingsReducer.State, NHSettingsReducer.Action> {
         scope(state: \.settings, action: Action.settings)
+    }
+    
+    func addressesStore() -> Store<PresentationState<AddressesReducer.State>, PresentationAction<AddressesReducer.Action>> {
+        scope(state: \.$addresses, action: Action.addresses)
     }
 }
 

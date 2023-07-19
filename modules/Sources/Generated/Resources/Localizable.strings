@@ -328,6 +328,16 @@
 "nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
 "nighthawk.walletTab.shieldNow" = "Shield now";
 
+// MARK: - Home Screen - Wallet tab - Addresses
+"nighthawk.walletTab.addresses.unifiedAddress" = "Unified address";
+"nighthawk.walletTab.addresses.saplingAddress" = "Shielded (Sapling)";
+"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade Zcash through our specially selected partners.";
+"nighthawk.walletTab.addresses.copy" = "Copy";
+"nighthawk.walletTab.addresses.seeMore" = "See more";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
+
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
 
@@ -342,12 +352,28 @@
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";
 "nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money";
+"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard";
+"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard.";
 "nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy Zcash through our partners";
+"nighthawk.transferTab.topUpWalletDescription" = "Securely buy Zcash through our partners.";
 
+// MARK: - Home Screen - Transfer - Receive
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money securely";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
+"nighthawk.transferTab.receive.copyPrivateAddressTitle" = "Copy private address";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+
+// MARK: - Home Screen - Transfer - Top up wallet
+"nighthawk.transferTab.topUpWallet.sideshiftTitle" = "Swap with SideShift.ai";
+"nighthawk.transferTab.topUpWallet.sideshiftDescription" = "Swap between 30+ coins. No sign-up required.";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
 
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Settings";

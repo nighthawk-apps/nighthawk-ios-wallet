@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 import Generated
+import Receive
 import SwiftUI
+import TopUp
 import UIComponents
 
 struct TransferView: View {
@@ -24,6 +26,20 @@ struct TransferView: View {
             }
         }
         .applyNighthawkBackground()
+        .sheet(
+            store: store.destinationStore(),
+            state: /TransferReducer.Destination.State.receive,
+            action: TransferReducer.Destination.Action.receive
+        ) { store in
+            ReceiveView(store: store)
+        }
+        .sheet(
+            store: store.destinationStore(),
+            state: /TransferReducer.Destination.State.topUp,
+            action: TransferReducer.Destination.Action.topUp
+        ) { store in
+            TopUpView(store: store)
+        }
     }
 }
 
@@ -35,8 +51,7 @@ private extension TransferView {
         
         HStack {
             Text(L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .paragraphMedium()
             Spacer()
         }
         .padding(.horizontal, 25)
@@ -52,7 +67,7 @@ private extension TransferView {
                 )
             }
             
-            Button(action: {}) {
+            Button(action: { viewStore.send(.receiveMoneyTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.receiveMoneyTitle,
                     description: L10n.Nighthawk.TransferTab.receiveMoneyDescription,
@@ -60,7 +75,7 @@ private extension TransferView {
                 )
             }
             
-            Button(action: {}) {
+            Button(action: { viewStore.send(.topUpWalletTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.topUpWalletTitle,
                     description: L10n.Nighthawk.TransferTab.topUpWalletDescription,

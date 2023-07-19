@@ -23,16 +23,14 @@ public struct WalletView: View {
     public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                qrCodeButton()
+                qrCodeButton(with: viewStore)
                 
                 header(with: viewStore)
                 
-                if viewStore.transparentBalance.data.total < viewStore.autoShieldingThreshold &&
+                if viewStore.transparentBalance.data.total >= viewStore.autoShieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
                     viewStore.synchronizerStatusSnapshot.isSynced {
-                    Button(L10n.Nighthawk.WalletTab.shieldNow) {
-                        
-                    }
+                    Button(L10n.Nighthawk.WalletTab.shieldNow) {}
                     .buttonStyle(.nighthawkPrimary())
                     .padding(.top, 16)
                 }
@@ -63,9 +61,9 @@ public struct WalletView: View {
 
 // MARK: - Subviews
 private extension WalletView {
-    func qrCodeButton() -> some View {
+    func qrCodeButton(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
         HStack {
-            Button(action: {}) {
+            Button(action: { viewStore.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     .resizable()
                     .frame(width: 22, height: 22)
@@ -184,8 +182,7 @@ private extension WalletView {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                            .paragraphMedium()
                         Spacer()
                     }
                     

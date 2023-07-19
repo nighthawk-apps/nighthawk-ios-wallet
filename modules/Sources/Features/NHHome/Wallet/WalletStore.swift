@@ -55,6 +55,7 @@ public struct WalletReducer: ReducerProtocol {
         case transactionHistory(TransactionHistoryReducer.Action)
         case transactionDetail(NHTransactionDetailReducer.Action)
         case viewTransactionHistory
+        case viewAddressesTapped
     }
     
     public var body: some ReducerProtocol<State, Action> {
@@ -82,7 +83,7 @@ public struct WalletReducer: ReducerProtocol {
                 return .none
             case .viewTransactionHistory:
                 return .task { .updateDestination(.transactionHistory) }
-            case .binding, .transactionHistory, .transactionDetail:
+            case .binding, .transactionHistory, .transactionDetail, .viewAddressesTapped:
                 return .none
             }
         }

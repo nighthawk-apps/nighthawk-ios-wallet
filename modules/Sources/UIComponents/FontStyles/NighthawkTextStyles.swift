@@ -21,6 +21,10 @@ public extension Text {
         self.modifier(ParagraphTextStyle(color: color))
     }
     
+    func paragraphMedium(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
+        self.modifier(ParagraphMediumTextStyle(color: color))
+    }
+    
     func caption(color: Color = .white) -> some View {
         self.modifier(CaptionTextStyle(color: color))
     }
@@ -50,6 +54,16 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+        }
+    }
+    
+    private struct ParagraphMediumTextStyle: ViewModifier {
+        var color: Color
+        
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(color)
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
         }
     }
     

@@ -9,6 +9,7 @@ let package = Package(
       .iOS(.v16)
     ],
     products: [
+        .library(name: "Addresses", targets: ["Addresses"]),
         .library(name: "AddressDetails", targets: ["AddressDetails"]),
         .library(name: "AppVersion", targets: ["AppVersion"]),
         .library(name: "AudioServices", targets: ["AudioServices"]),
@@ -35,8 +36,10 @@ let package = Package(
         .library(name: "Models", targets: ["Models"]),
         .library(name: "NumberFormatter", targets: ["NumberFormatter"]),
         .library(name: "OnboardingFlow", targets: ["OnboardingFlow"]),
+        .library(name: "Partners", targets: ["Partners"]),
         .library(name: "Pasteboard", targets: ["Pasteboard"]),
         .library(name: "Profile", targets: ["Profile"]),
+        .library(name: "Receive", targets: ["Receive"]),
         .library(name: "RecoveryPhraseDisplay", targets: ["RecoveryPhraseDisplay"]),
         .library(name: "RecoveryPhraseValidationFlow", targets: ["RecoveryPhraseValidationFlow"]),
         .library(name: "ReviewRequest", targets: ["ReviewRequest"]),
@@ -48,6 +51,7 @@ let package = Package(
         .library(name: "SubsonicClient", targets: ["SubsonicClient"]),
         .library(name: "SendFlow", targets: ["SendFlow"]),
         .library(name: "Settings", targets: ["Settings"]),
+        .library(name: "TopUp", targets: ["TopUp"]),
         .library(name: "TransactionHistory", targets: ["TransactionHistory"]),
         .library(name: "WalletCreated", targets: ["WalletCreated"]),
         .library(name: "SupportDataGenerator", targets: ["SupportDataGenerator"]),
@@ -70,9 +74,25 @@ let package = Package(
         .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "ee3d082155bf542aa3580c84e6140a329633319a"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0")
+        .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
+        .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
+        .package(url: "https://github.com/pointfreeco/swiftui-navigation", from: "0.7.1")
     ],
     targets: [
+        .target(
+            name: "Addresses",
+            dependencies: [
+                "Generated",
+                "Pasteboard",
+                "SDKSynchronizer",
+                "UIComponents",
+                "Utils",
+                .product(name: "AlertToast", package: "AlertToast"),
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/Addresses"
+        ),
         .target(
             name: "AddressDetails",
             dependencies: [
@@ -249,12 +269,15 @@ let package = Package(
         .target(
             name: "NHHome",
             dependencies: [
+                "Addresses",
                 "AppVersion",
                 "DiskSpaceChecker",
                 "Models",
                 "NHTransactionDetail",
                 "OnboardingFlow",
+                "Receive",
                 "SDKSynchronizer",
+                "TopUp",
                 "TransactionHistory",
                 "UIComponents",
                 "WalletEventsFlow",
@@ -344,6 +367,13 @@ let package = Package(
             path: "Sources/Features/OnboardingFlow"
         ),
         .target(
+            name: "Partners",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/Partners"
+        ),
+        .target(
             name: "Pasteboard",
             dependencies: [
                 "Utils",
@@ -365,6 +395,19 @@ let package = Package(
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/Profile"
+        ),
+        .target(
+            name: "Receive",
+            dependencies: [
+                "Generated",
+                "Pasteboard",
+                "SDKSynchronizer",
+                "UIComponents",
+                .product(name: "AlertToast", package: "AlertToast"),
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/Receive"
         ),
         .target(
             name: "RecoveryPhraseDisplay",
@@ -523,6 +566,19 @@ let package = Package(
             path: "Sources/Features/Settings"
         ),
         .target(
+            name: "TopUp",
+            dependencies: [
+                "Generated",
+                "Partners",
+                "Pasteboard",
+                "SDKSynchronizer",
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/TopUp"
+        ),
+        .target(
             name: "TransactionHistory",
             dependencies: [
                 "Generated",
@@ -561,7 +617,9 @@ let package = Package(
                 "Generated",
                 "NumberFormatter",
                 "Utils",
-                "ZcashSDKEnvironment"
+                "ZcashSDKEnvironment",
+                .product(name: "AlertToast", package: "AlertToast"),
+                .product(name: "SwiftUINavigation", package: "swiftui-navigation")
             ],
             path: "Sources/UIComponents"
         ),
