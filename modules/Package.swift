@@ -46,6 +46,7 @@ let package = Package(
         .library(name: "Root", targets: ["Root"]),
         .library(name: "Sandbox", targets: ["Sandbox"]),
         .library(name: "Scan", targets: ["Scan"]),
+        .library(name: "NHSendFlow", targets: ["NHSendFlow"]),
         .library(name: "SDKSynchronizer", targets: ["SDKSynchronizer"]),
         .library(name: "SecItem", targets: ["SecItem"]),
         .library(name: "SubsonicClient", targets: ["SubsonicClient"]),
@@ -276,6 +277,7 @@ let package = Package(
                 "NHTransactionDetail",
                 "OnboardingFlow",
                 "Receive",
+                "NHSendFlow",
                 "SDKSynchronizer",
                 "TopUp",
                 "TransactionHistory",
@@ -499,6 +501,21 @@ let package = Package(
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/Scan"
+        ),
+        .target(
+            name: "NHSendFlow",
+            dependencies: [
+                "CaptureDevice",
+                "DerivationTool",
+                "Generated",
+                "Pasteboard",
+                "UIComponents",
+                "URIParser",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/NHSendFlow"
         ),
         .target(
             name: "SDKSynchronizer",

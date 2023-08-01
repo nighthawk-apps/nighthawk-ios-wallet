@@ -15,6 +15,8 @@ import Utils
 import ZcashLightClientKit
 
 public struct NHHomeReducer: ReducerProtocol {
+    let networkType: NetworkType
+    
     private enum CancelId { case timer }
     
     public struct State: Equatable {
@@ -61,7 +63,9 @@ public struct NHHomeReducer: ReducerProtocol {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public init() {}
+    public init(networkType: NetworkType) {
+        self.networkType = networkType
+    }
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -71,7 +75,7 @@ public struct NHHomeReducer: ReducerProtocol {
         }
         
         Scope(state: \.transfer, action: /Action.transfer) {
-            TransferReducer()
+            TransferReducer(networkType: networkType)
         }
         
         Scope(state: \.settings, action: /Action.settings) {
@@ -190,11 +194,13 @@ extension NHHomeReducer.State {
     var transfer: TransferReducer.State {
         get {
             var state = transferState
+            state.shieldedBalance = shieldedBalance
             return state
         }
         
         set {
             self.transferState = newValue
+            self.shieldedBalance = newValue.shieldedBalance
         }
     }
     

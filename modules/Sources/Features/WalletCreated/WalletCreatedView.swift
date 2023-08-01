@@ -21,7 +21,7 @@ public struct WalletCreatedView: View {
     public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                heading
+                NighthawkHeading(title: L10n.Nighthawk.WalletCreated.title)
                 Spacer()
                 actions(viewStore: viewStore)
             }
@@ -36,18 +36,6 @@ public struct WalletCreatedView: View {
 
 // MARK: - Subviews
 private extension WalletCreatedView {
-    @ViewBuilder var heading: some View {
-        Asset.Assets.Icons.Nighthawk.nighthawkSymbolPeach
-            .image
-            .resizable()
-            .frame(width: 35, height: 35)
-            .padding(.bottom, 30)
-            .padding(.top, 44)
-        
-        Text(L10n.Nighthawk.WalletCreated.title)
-            .title
-    }
-    
     func actions(viewStore: ViewStoreOf<WalletCreatedReducer>) -> some View {
         VStack(spacing: 16) {
             Button(L10n.Nighthawk.WalletCreated.backup) {

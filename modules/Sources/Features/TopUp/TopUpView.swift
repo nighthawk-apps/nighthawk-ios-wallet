@@ -20,7 +20,8 @@ public struct TopUpView: View {
     public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                heading
+                NighthawkHeading(title: L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
+                    .padding(.bottom, 40)
                 
                 partnersList(with: viewStore)
                 
@@ -40,21 +41,6 @@ public struct TopUpView: View {
 
 // MARK: - Subviews
 private extension TopUpView {
-    var heading: some View {
-        VStack {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbolPeach
-                .image
-                .resizable()
-                .frame(width: 35, height: 35)
-                .padding(.bottom, 22)
-                .padding(.top, 44)
-            
-            Text(L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
-                .paragraphMedium()
-        }
-        .padding(.bottom, 40)
-    }
-    
     func partnersList(with viewStore: TopUpViewStore) -> some View {
         VStack(spacing: 10) {
             HStack {

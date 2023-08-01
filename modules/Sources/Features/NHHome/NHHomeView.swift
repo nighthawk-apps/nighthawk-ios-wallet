@@ -32,8 +32,11 @@ public struct NHHomeView: View {
                             }
                         }
                     
-                    TransferView(store: store.transferStore())
-                        .tag(NHHomeReducer.State.Destination.transfer)
+                    TransferView(
+                        store: store.transferStore(),
+                        tokenName: tokenName
+                    )
+                    .tag(NHHomeReducer.State.Destination.transfer)
                     
                     NHSettingsView(store: store.settingsStore())
                         .tag(NHHomeReducer.State.Destination.settings)

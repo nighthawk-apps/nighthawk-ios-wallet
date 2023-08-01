@@ -375,6 +375,29 @@
 "nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
 "nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
 
+// MARK: - Home Screen - Transfer - Send
+"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
+"nighthawk.transferTab.send.continue" = "Continue";
+"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
+"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
+
+// MARK: - Home Screen - Transfer - Scan
+"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+
+// MARK: - Home Screen - Transfer - Add memo
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
+"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
+
+// MARK: - Home Screen - Transfer - Recipient
+"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
+"nighthawk.transferTab.recipient.addZAddress" = "Add z-address here";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
+"nighthawk.transferTab.recipient.continue" = "Continue";
+
+// MARK: - Home Screen - Transfer - Review
+"nighthawk.transferTab.review.title" = "Review and send";
+
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Settings";
 "nighthawk.settingsTab.notificationsTitle" = "Sync notifications";

@@ -8,12 +8,14 @@
 import ComposableArchitecture
 import Generated
 import Receive
+import NHSendFlow
 import SwiftUI
 import TopUp
 import UIComponents
 
 struct TransferView: View {
     let store: TransferStore
+    let tokenName: String
     
     var body: some View {
         WithViewStore(store) { viewStore in
@@ -40,6 +42,13 @@ struct TransferView: View {
         ) { store in
             TopUpView(store: store)
         }
+        .sheet(
+            store: store.destinationStore(),
+            state: /TransferReducer.Destination.State.send,
+            action: TransferReducer.Destination.Action.send
+        ) { store in
+            NHSendFlowView(store: store, tokenName: tokenName)
+        }
     }
 }
 
@@ -59,7 +68,7 @@ private extension TransferView {
     
     func optionsList(with viewStore: TransferViewStore) -> some View {
         VStack(spacing: 10) {
-            Button(action: {}) {
+            Button(action: { viewStore.send(.sendMoneyTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.sendMoneyTitle,
                     description: L10n.Nighthawk.TransferTab.sendMoneyDescription,

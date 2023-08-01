@@ -89,7 +89,7 @@ public struct RootReducer: ReducerProtocol {
         BindingReducer()
         
         Scope(state: \.nhHomeState, action: /Action.nhHome) {
-            NHHomeReducer()
+            NHHomeReducer(networkType: zcashNetwork.networkType)
         }
 
         Scope(state: \.homeState, action: /Action.home) {

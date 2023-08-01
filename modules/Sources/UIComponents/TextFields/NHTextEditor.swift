@@ -18,15 +18,18 @@ public struct NHTextEditor: View {
     private var placeholder: String?
     private var text: Binding<String>
     private var isValid: NHTextEditor.ValidationState
+    private var foregroundColor: Color
     
     public init(
         placeholder: String? = nil,
         text: Binding<String>,
-        isValid: NHTextEditor.ValidationState = .valid
+        isValid: NHTextEditor.ValidationState = .valid,
+        foregroundColor: Color = Asset.Colors.Nighthawk.peach.color
     ) {
         self.placeholder = placeholder
         self.text = text
         self.isValid = isValid
+        self.foregroundColor = foregroundColor
     }
     
     @FocusState private var _focusState: Bool
@@ -51,7 +54,7 @@ public struct NHTextEditor: View {
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(
                                 _focusState || !text.wrappedValue.isEmpty
-                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.8)
+                                ? foregroundColor.opacity(0.8)
                                 : Asset.Colors.Nighthawk.parmaviolet.color,
                                 lineWidth: 2
                             )
@@ -62,7 +65,7 @@ public struct NHTextEditor: View {
                     Text(placeholder)
                         .subtitle(
                             color: _focusState || !text.wrappedValue.isEmpty
-                            ? Asset.Colors.Nighthawk.peach.color.opacity(0.8)
+                            ? foregroundColor.opacity(0.8)
                             : Asset.Colors.Nighthawk.parmaviolet.color
                         )
                         .padding(.leading, 14)

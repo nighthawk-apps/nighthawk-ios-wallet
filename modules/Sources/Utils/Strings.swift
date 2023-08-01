@@ -70,3 +70,9 @@ extension String {
         return validationType.isValid(text: self)
     }
 }
+
+extension String {
+    public var isWholeNumber: Bool {
+        allSatisfy { $0.isWholeNumber }
+    }
+}

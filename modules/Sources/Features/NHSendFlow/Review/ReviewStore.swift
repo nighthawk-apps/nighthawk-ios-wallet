@@ -1,40 +1,54 @@
 //
-//  NHTransactionDetailStore.swift
+//  ReviewStore.swift
 //  
 //
-//  Created by Matthew Watt on 7/14/23.
+//  Created by Matthew Watt on 7/22/23.
 //
 
 import ComposableArchitecture
-import Foundation
 import Generated
-import Models
-import UIComponents
 import UIKit
+import Utils
 import ZcashLightClientKit
 
-public typealias NHTransactionDetailStore = Store<NHTransactionDetailReducer.State, NHTransactionDetailReducer.Action>
-public typealias NHTransactionDetailViewStore = ViewStore<NHTransactionDetailReducer.State, NHTransactionDetailReducer.Action>
+public typealias ReviewStore = Store<ReviewReducer.State, ReviewReducer.Action>
+public typealias ReviewViewStore = ViewStore<ReviewReducer.State, ReviewReducer.Action>
 
-public struct NHTransactionDetailReducer: ReducerProtocol {
+public struct ReviewReducer: ReducerProtocol {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action>?
-        public var latestMinedHeight: BlockHeight?
-        public var requiredTransactionConfirmations: Int
-        public var transaction: TransactionState
+        
+        public var amount: Zatoshi
+        public var memo: RedactableString
+        public var recipient: RedactableString
+        
+        public init(
+            amount: Zatoshi,
+            memo: RedactableString,
+            recipient: RedactableString
+        ) {
+            self.amount = amount
+            self.memo = memo
+            self.recipient = recipient
+        }
     }
     
     public enum Action: Equatable {
+        case backButtonTapped
         case alert(PresentationAction<Action>)
         case warnBeforeLeavingApp(URL?)
         case openBlockExplorer(URL?)
     }
     
-    public init () {}
+    public init() {}
+    
+    @Dependency(\.dismiss) var dismiss
     
     public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
+            case .backButtonTapped:
+                return .run { _ in await self.dismiss() }
             case .alert(.presented(let action)):
                 return EffectTask(value: action)
 
@@ -59,7 +73,7 @@ public struct NHTransactionDetailReducer: ReducerProtocol {
 
 // MARK: Alerts
 
-extension AlertState where Action == NHTransactionDetailReducer.Action {
+extension AlertState where Action == ReviewReducer.Action {
     public static func warnBeforeLeavingApp(_ blockExplorerURL: URL?) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.TransactionDetails.leavingWallet)
@@ -75,15 +89,3 @@ extension AlertState where Action == NHTransactionDetailReducer.Action {
         }
     }
 }
-
-// MARK: - Placeholder
-extension NHTransactionDetailReducer.State {
-    public static var placeholder: Self {
-        .init(
-            latestMinedHeight: .zero,
-            requiredTransactionConfirmations: .zero,
-            transaction: .placeholder()
-        )
-    }
-}
-

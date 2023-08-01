@@ -420,6 +420,12 @@ public enum L10n {
       public static let topUpWalletDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletDescription", fallback: "Securely buy Zcash through our partners.")
       /// Top up your wallet
       public static let topUpWalletTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletTitle", fallback: "Top up your wallet")
+      public enum AddMemo {
+        /// Add a message to your payment
+        public static let addMessageToPayment = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.addMessageToPayment", fallback: "Add a message to your payment")
+        /// Write something...
+        public static let writeSomething = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.writeSomething", fallback: "Write something...")
+      }
       public enum Receive {
         /// This will copy your t-address.
         public static let copyNonPrivateAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressDescription", fallback: "This will copy your t-address.")
@@ -433,6 +439,36 @@ public enum L10n {
         public static let receiveMoneySecurely = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneySecurely", fallback: "Receive money securely")
         /// Show QR Code
         public static let showQrCodeTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.showQrCodeTitle", fallback: "Show QR Code")
+      }
+      public enum Recipient {
+        /// Add z-address here
+        public static let addZAddress = L10n.tr("Localizable", "nighthawk.transferTab.recipient.addZAddress", fallback: "Add z-address here")
+        /// Choose who to send it to
+        public static let chooseRecipient = L10n.tr("Localizable", "nighthawk.transferTab.recipient.chooseRecipient", fallback: "Choose who to send it to")
+        /// Continue
+        public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.recipient.continue", fallback: "Continue")
+        /// Paste from clipboard
+        public static let pasteFromClipboard = L10n.tr("Localizable", "nighthawk.transferTab.recipient.pasteFromClipboard", fallback: "Paste from clipboard")
+      }
+      public enum Review {
+        /// Review and send
+        public static let title = L10n.tr("Localizable", "nighthawk.transferTab.review.title", fallback: "Review and send")
+      }
+      public enum Scan {
+        /// Scan a Payment Request
+        public static let scanPaymentRequest = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequest", fallback: "Scan a Payment Request")
+        /// If you have a payment request, you can scan the QR code here to auto-fill all the details.
+        public static let scanPaymentRequestDetails = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequestDetails", fallback: "If you have a payment request, you can scan the QR code here to auto-fill all the details.")
+      }
+      public enum Send {
+        /// Choose how much to send
+        public static let chooseHowMuch = L10n.tr("Localizable", "nighthawk.transferTab.send.chooseHowMuch", fallback: "Choose how much to send")
+        /// Continue
+        public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.send.continue", fallback: "Continue")
+        /// Scan a payment code
+        public static let scanCode = L10n.tr("Localizable", "nighthawk.transferTab.send.scanCode", fallback: "Scan a payment code")
+        /// Top up wallet
+        public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
       }
       public enum TopUpWallet {
         /// Your %@ has been copied to the clipboard.

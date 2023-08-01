@@ -37,8 +37,10 @@ public enum Asset {
       public enum Nighthawk {
         public static let about = ImageAsset(name: "about")
         public static let backup = ImageAsset(name: "backup")
+        public static let boxedQrCode = ImageAsset(name: "boxed_qr_code")
         public static let check = ImageAsset(name: "check")
         public static let checked = ImageAsset(name: "checked")
+        public static let chevronLeft = ImageAsset(name: "chevron_left")
         public static let chevronRight = ImageAsset(name: "chevron_right")
         public static let connecting = ImageAsset(name: "connecting")
         public static let copy = ImageAsset(name: "copy")
