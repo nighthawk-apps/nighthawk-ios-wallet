@@ -110,7 +110,7 @@ private struct _NighthawkTextFieldStyle<InputAccessoryContent>: TextFieldStyle w
                     ? Asset.Colors.Nighthawk.error.color
                     : isFocused || !isEmpty
                     ? foregroundColor.opacity(0.8)
-                    : foregroundColor,
+                    : Asset.Colors.Nighthawk.parmaviolet.color,
                     lineWidth: 2
                 )
                 .frame(height: 56)

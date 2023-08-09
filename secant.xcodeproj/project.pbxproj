@@ -33,6 +33,11 @@
 		4502345E2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */; };
 		450D3BB62A107B9400B49B9E /* lottie_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 450D3BB52A107B9400B49B9E /* lottie_success.json */; };
 		450D3BB72A107B9400B49B9E /* lottie_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 450D3BB52A107B9400B49B9E /* lottie_success.json */; };
+		4518C7152A7928700080444E /* lottie_sending.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7142A7928700080444E /* lottie_sending.json */; };
+		4518C7162A7928700080444E /* lottie_sending.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7142A7928700080444E /* lottie_sending.json */; };
+		4518C7182A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
+		4518C7192A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
+		451D42EC2A7BC3C300E1936C /* Root in Frameworks */ = {isa = PBXBuildFile; productRef = 451D42EB2A7BC3C300E1936C /* Root */; };
 		454754E42A5093B70076725D /* FileManager in Frameworks */ = {isa = PBXBuildFile; productRef = 9E0310B42A24A4CA0021F995 /* FileManager */; };
 		454754E52A5093B70076725D /* MnemonicClient in Frameworks */ = {isa = PBXBuildFile; productRef = 9E80C44B2A25E8EC0049E6A7 /* MnemonicClient */; };
 		454754E62A5093B70076725D /* SupportDataGenerator in Frameworks */ = {isa = PBXBuildFile; productRef = 9E0031A52A272BC8003DFCEB /* SupportDataGenerator */; };
@@ -168,6 +173,8 @@
 		34F039B229ABCE8500CF0053 /* WalletConfigProviderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConfigProviderTests.swift; sourceTree = "<group>"; };
 		4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_receive_small.mp3; sourceTree = "<group>"; };
 		450D3BB52A107B9400B49B9E /* lottie_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = lottie_success.json; sourceTree = "<group>"; };
+		4518C7142A7928700080444E /* lottie_sending.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_sending.json; sourceTree = "<group>"; };
+		4518C7172A7A7E860080444E /* lottie_send_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_send_success.json; sourceTree = "<group>"; };
 		6654C7432715A4AC00901167 /* OnboardingStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStoreTests.swift; sourceTree = "<group>"; };
 		9E01F8272833CDA0000EFC57 /* ScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTests.swift; sourceTree = "<group>"; };
 		9E02B56B27FED475005B809B /* DatabaseFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseFilesTests.swift; sourceTree = "<group>"; };
@@ -245,6 +252,7 @@
 				9E54526A2A28D5570098B887 /* (null) in Frameworks */,
 				9E0031A42A272BC7003DFCEB /* SDKSynchronizer in Frameworks */,
 				9E9075022A2681F700269308 /* Generated in Frameworks */,
+				451D42EC2A7BC3C300E1936C /* Root in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,8 +503,10 @@
 		9E6612342878341F00C75B70 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				4518C7142A7928700080444E /* lottie_sending.json */,
 				34DA414828E439CD00F8CC61 /* sendingTransaction.json */,
 				9E6612352878345000C75B70 /* endlessCircleProgress.json */,
+				4518C7172A7A7E860080444E /* lottie_send_success.json */,
 				450D3BB52A107B9400B49B9E /* lottie_success.json */,
 			);
 			path = Lotties;
@@ -716,6 +726,7 @@
 				9E0031A32A272BC7003DFCEB /* SDKSynchronizer */,
 				9E0031A52A272BC8003DFCEB /* SupportDataGenerator */,
 				9E0031A72A272BC8003DFCEB /* UserDefaults */,
+				451D42EB2A7BC3C300E1936C /* Root */,
 			);
 			productName = secant;
 			productReference = 0D4E7A0526B364170058B01E /* secant-testnet.app */;
@@ -809,12 +820,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4518C7192A7A7E860080444E /* lottie_send_success.json in Resources */,
 				0D26AF7A299E8196005260EE /* sendingTransaction.json in Resources */,
 				0D26AF7D299E8196005260EE /* endlessCircleProgress.json in Resources */,
 				0D26AF84299E8196005260EE /* Preview Assets.xcassets in Resources */,
 				450D3BB72A107B9400B49B9E /* lottie_success.json in Resources */,
 				0D26AF88299E8196005260EE /* LaunchScreen.storyboard in Resources */,
 				9E90751F2A269BE300269308 /* Assets.xcassets in Resources */,
+				4518C7162A7928700080444E /* lottie_sending.json in Resources */,
 				0D26AF8C299E8196005260EE /* GoogleService-Info.plist in Resources */,
 				4502345E2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */,
 			);
@@ -824,12 +837,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4518C7182A7A7E860080444E /* lottie_send_success.json in Resources */,
 				34DA414928E439CD00F8CC61 /* sendingTransaction.json in Resources */,
 				9E6612362878345000C75B70 /* endlessCircleProgress.json in Resources */,
 				0D4E7A1026B364180058B01E /* Preview Assets.xcassets in Resources */,
 				450D3BB62A107B9400B49B9E /* lottie_success.json in Resources */,
 				9E2F1C8C280ED6A7004E65FE /* LaunchScreen.storyboard in Resources */,
 				9E90751E2A269BE300269308 /* Assets.xcassets in Resources */,
+				4518C7152A7928700080444E /* lottie_sending.json in Resources */,
 				0D3B01EC298DAF89007EBCDA /* GoogleService-Info.plist in Resources */,
 				4502345D2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */,
 			);
@@ -1474,6 +1489,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		451D42EB2A7BC3C300E1936C /* Root */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Root;
+		};
 		45876BC92A50964B00380FFF /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;

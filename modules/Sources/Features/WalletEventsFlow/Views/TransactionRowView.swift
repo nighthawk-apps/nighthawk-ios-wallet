@@ -9,6 +9,7 @@ import SwiftUI
 import ZcashLightClientKit
 import Models
 import Generated
+import UIComponents
 
 public struct TransactionRowView: View {
     let transaction: TransactionState

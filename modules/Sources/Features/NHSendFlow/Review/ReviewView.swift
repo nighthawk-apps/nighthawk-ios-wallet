@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 import ZcashLightClientKit
@@ -22,14 +23,50 @@ public struct ReviewView: View {
     
     public var body: some View {
         WithViewStore(store) { viewStore in
-            VStack {
+            ScrollView([.vertical]) {
                 NighthawkHeading(title: L10n.Nighthawk.TransferTab.Review.title)
+                    .padding(.bottom, 44)
+
+                transactionSummary(with: viewStore)
+
+                TransactionDetailsTable(
+                    lineItems: viewStore.transactionLineItems(with: tokenName)
+                )
                 
-                Spacer()
+                Button(
+                    L10n.Nighthawk.TransferTab.Review.send,
+                    action: { viewStore.send(.sendZcashTapped) }
+                )
+                .buttonStyle(.nighthawkPrimary())
+                .padding(.bottom, 28)
             }
             .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
         }
         .applyNighthawkBackground()
+        .alert(
+            store: store.scope(
+                state: \.$alert,
+                action: { .alert($0) }
+            )
+        )
+    }
+}
+
+// MARK: - Subviews
+private extension ReviewView {
+    func transactionSummary(with viewStore: ReviewViewStore) -> some View {
+        VStack {
+            HStack(alignment: .center) {
+                Group {
+                    Text("\(viewStore.subtotal.decimalString())")
+                        .foregroundColor(.white)
+                    
+                    Text(tokenName)
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
+            }
+        }
     }
 }
 
@@ -76,18 +113,16 @@ private extension ReviewViewStore {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.subtotal,
-                    value: "\(self.amount.decimalString()) \(tokenName)",
+                    value: "\(self.subtotal.decimalString()) \(tokenName)",
                     showBorder: false
                 ),
-                // TODO: calc fee
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.networkFee,
-                    value: "\(Zatoshi.zero.decimalString()) \(tokenName)"
+                    value: "\(self.fee.decimalString()) \(tokenName)"
                 ),
-                // TODO: calc total based on subtotal and fees
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.amount.decimalString()) \(tokenName)"
+                    value: "\(self.total.decimalString()) \(tokenName)"
                 )
             ]
         )

@@ -52,44 +52,57 @@ public struct AddressesView: View {
     }
 }
 
+// MARK: - NHPage
+extension AddressesReducer.State.Destination: NHPage {}
+
 // MARK: - Subviews
 private extension AddressesView {
     func actionsCarousel(with viewStore: AddressesViewStore) -> some View {
         GeometryReader { geometry in
-            ScrollView([.horizontal]) {
-                HStack {
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
-                        address: viewStore.unifiedAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
-                        copyAction: { viewStore.send(.copyTapped(.unified)) }
-                    )
-                    .frame(maxWidth: geometry.size.width * 0.68)
-                    
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
-                        address: viewStore.transparentAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
-                        copyAction: { viewStore.send(.copyTapped(.transparent)) }
-                    )
-                    .frame(maxWidth: geometry.size.width * 0.68)
-                    
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
-                        address: viewStore.saplingAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
-                        copyAction: { viewStore.send(.copyTapped(.sapling)) }
-                    )
-                    .frame(maxWidth: geometry.size.width * 0.68)
-                    
-                    topUpView(seeMoreAction: { viewStore.send(.topUpWalletTapped) })
-                    .frame(maxWidth: geometry.size.width * 0.68)
-                }
-                .padding(.horizontal, geometry.size.width * 0.18)
-                .padding(.top, 32)
-                .padding(.bottom, 64)
+            VStack {
+                tabs(with: viewStore, geometry: geometry)
+                
+                NHPageIndicator(selection: viewStore.binding(\.$destination))
             }
+            .padding(.top, 16)
+            .padding(.bottom, 64)
         }
+    }
+    
+    func tabs(with viewStore: AddressesViewStore, geometry: GeometryProxy) -> some View {
+        TabView(selection: viewStore.binding(\.$destination)) {
+            topUpView(seeMoreAction: { viewStore.send(.topUpWalletTapped) })
+            .frame(maxWidth: geometry.size.width * 0.68)
+            .tag(AddressesReducer.State.Destination.topUp)
+            
+            addressView(
+                title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
+                address: viewStore.unifiedAddress,
+                badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
+                copyAction: { viewStore.send(.copyTapped(.unified)) }
+            )
+            .frame(maxWidth: geometry.size.width * 0.68)
+            .tag(AddressesReducer.State.Destination.unified)
+            
+            addressView(
+                title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
+                address: viewStore.saplingAddress,
+                badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
+                copyAction: { viewStore.send(.copyTapped(.sapling)) }
+            )
+            .frame(maxWidth: geometry.size.width * 0.68)
+            .tag(AddressesReducer.State.Destination.sapling)
+            
+            addressView(
+                title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
+                address: viewStore.transparentAddress,
+                badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
+                copyAction: { viewStore.send(.copyTapped(.transparent)) }
+            )
+            .frame(maxWidth: geometry.size.width * 0.68)
+            .tag(AddressesReducer.State.Destination.transparent)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
     func addressView(
@@ -99,27 +112,31 @@ private extension AddressesView {
         copyAction: @escaping () -> Void
     ) -> some View {
         VStack {
-            QRCodeContainer(
-                qrImage: qrCode(for: address),
-                badge: badge
-            )
-            .frame(maxWidth: .infinity)
-            .layoutPriority(1)
-            
-            HStack {
-                Text(title)
-                    .paragraphMedium()
-                
-                Spacer()
-            }
-            .padding(.vertical, 8)
-            
-            HStack {
-                Text(address)
-                    .caption()
-                    .multilineTextAlignment(.leading)
-                
-                Spacer()
+            ScrollView([.vertical], showsIndicators: false) {
+                VStack {
+                    QRCodeContainer(
+                        qrImage: qrCode(for: address),
+                        badge: badge
+                    )
+                    .frame(maxWidth: .infinity)
+                    .layoutPriority(1)
+                    
+                    HStack {
+                        Text(title)
+                            .paragraphMedium()
+                        
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                    
+                    HStack {
+                        Text(address)
+                            .caption()
+                            .multilineTextAlignment(.leading)
+                        
+                        Spacer()
+                    }
+                }
             }
             
             Spacer()

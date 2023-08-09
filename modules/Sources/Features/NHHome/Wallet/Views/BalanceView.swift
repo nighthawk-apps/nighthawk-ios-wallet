@@ -45,7 +45,7 @@ public struct BalanceView: View {
             if !isBalanceHidden {
                 // swift-lint:disable:next-line line_length
                 Text(
-                    "\(balance.decimalString(formatter: NumberFormatter.zcashNumberFormatter8FractionDigits)) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
+                    "\(balance.decimalString()) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
                 )
                 .foregroundColor(.white)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))

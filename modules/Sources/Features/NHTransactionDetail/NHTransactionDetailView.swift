@@ -30,6 +30,7 @@ public struct NHTransactionDetailView: View {
                 .buttonStyle(.nighthawkPrimary())
                 .padding(.bottom, 30)
             }
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
         .toolbarBackground(.hidden, for: .navigationBar)

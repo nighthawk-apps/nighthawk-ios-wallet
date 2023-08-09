@@ -10,7 +10,6 @@ import Generated
 import Models
 import NHTransactionDetail
 import SwiftUI
-import TransactionHistory
 import WalletEventsFlow
 import ZcashLightClientKit
 

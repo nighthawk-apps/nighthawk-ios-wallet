@@ -7,13 +7,19 @@
 
 import ComposableArchitecture
 import DerivationTool
+import MnemonicClient
+import SDKSynchronizer
+import SwiftUI
 import Utils
+import WalletStorage
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 public typealias NHSendFlowStore = Store<NHSendFlowReducer.State, NHSendFlowReducer.Action>
 public typealias NHSendFlowViewStore = ViewStore<NHSendFlowReducer.State, NHSendFlowReducer.Action>
 
 public struct NHSendFlowReducer: ReducerProtocol {
+    private enum SyncStatusUpdatesID { case timer }
     let networkType: NetworkType
     
     public struct Path: ReducerProtocol {
@@ -21,16 +27,22 @@ public struct NHSendFlowReducer: ReducerProtocol {
         
         public enum State: Equatable {
             case addMemo(AddMemoReducer.State)
+            case failed(FailedReducer.State)
             case recipient(RecipientReducer.State)
             case review(ReviewReducer.State)
             case scan(NHScanReducer.State)
+            case sending(SendingReducer.State)
+            case success(SuccessReducer.State)
         }
         
         public enum Action: Equatable {
             case addMemo(AddMemoReducer.Action)
+            case failed(FailedReducer.Action)
             case recipient(RecipientReducer.Action)
             case review(ReviewReducer.Action)
             case scan(NHScanReducer.Action)
+            case sending(SendingReducer.Action)
+            case success(SuccessReducer.Action)
         }
         
         public init(networkType: NetworkType) {
@@ -40,6 +52,10 @@ public struct NHSendFlowReducer: ReducerProtocol {
         public var body: some ReducerProtocol<State, Action> {
             Scope(state: /State.addMemo, action: /Action.addMemo) {
                 AddMemoReducer()
+            }
+            
+            Scope(state: /State.failed, action: /Action.failed) {
+                FailedReducer()
             }
             
             Scope(state: /State.recipient, action: /Action.recipient) {
@@ -53,33 +69,39 @@ public struct NHSendFlowReducer: ReducerProtocol {
             Scope(state: /State.scan, action: /Action.scan) {
                 NHScanReducer(networkType: networkType)
             }
+            
+            Scope(state: /State.sending, action: /Action.sending) {
+                SendingReducer()
+            }
+            
+            Scope(state: /State.success, action: /Action.success) {
+                SuccessReducer()
+            }
         }
     }
     
     
     public struct State: Equatable {
         public var path = StackState<Path.State>()
-        public var shieldedBalance: Balance = .zero
+
+        public var shieldedBalance = Balance.zero
+        public var memoCharLimit = 0
+        public var maxAmount = Zatoshi.zero
+        public var isSendingTransaction = false
         
+        // Inputs
         @BindingState public var amountToSendInput = "0"
-        public var recipient: RedactableString = "".redacted
-        public var memo: RedactableString = "".redacted
-        
         public var amountToSend: Zatoshi {
             Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
+        public var recipient: RedactableString = "".redacted
+        public var memo: RedactableString = "".redacted
         
-        public var hasEnteredAmount: Bool {
-            amountToSend > .zero
-        }
-        
-        public var hasEnteredRecipient: Bool {
-            !recipient.data.isEmpty
-        }
-        
+        // Helpers
+        public var hasEnteredAmount: Bool { amountToSend > .zero }
+        public var hasEnteredRecipient: Bool { !recipient.data.isEmpty }
         public var canSendEnteredAmount: Bool {
-            true
-            //            amountToSend <= shieldedBalance.data.verified
+             amountToSend <= maxAmount
         }
 
         public init() {}
@@ -88,9 +110,14 @@ public struct NHSendFlowReducer: ReducerProtocol {
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
-        case topUpWalletTapped
         case continueTapped
+        case onAppear
         case scanCodeTapped
+        case sendTransactionFailure
+        case sendTransactionInProgress
+        case sendTransactionSuccess
+        case synchronizerStateChanged(SynchronizerState)
+        case topUpWalletTapped
     }
     
     public init(networkType: NetworkType) {
@@ -98,6 +125,11 @@ public struct NHSendFlowReducer: ReducerProtocol {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.mnemonic) var mnemonic
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -115,7 +147,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 state.path.append(
                     Path.State.review(
                         .init(
-                            amount: state.amountToSend,
+                            subtotal: state.amountToSend,
                             memo: state.memo,
                             recipient: state.recipient
                         )
@@ -139,10 +171,72 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 )
                 let _ = state.path.popLast()
                 return .none
+            case .path(.element(id: _, action: .review(.sendZcashTapped))):
+                guard !state.isSendingTransaction else { return .none }
+                
+                do {
+                    let storedWallet = try walletStorage.exportWallet()
+                    let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
+                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, networkType)
+                    
+                    state.isSendingTransaction = true
+                    
+                    let memo: Memo? = state.memo.data.isEmpty ? nil : try Memo(string: state.memo.data)
+                    
+                    let recipient = try Recipient(state.recipient.data, network: networkType)
+                    return .run { [state] send in
+                        do {
+                            await send(NHSendFlowReducer.Action.sendTransactionInProgress)
+                            _ = try await sdkSynchronizer.sendTransaction(
+                                spendingKey,
+                                state.amountToSend,
+                                recipient,
+                                memo
+                            )
+                            await send(NHSendFlowReducer.Action.sendTransactionSuccess)
+                        } catch {
+                            await send(NHSendFlowReducer.Action.sendTransactionFailure)
+                        }
+                    }
+                } catch {
+                    return .task { .sendTransactionFailure }
+                }
             case .continueTapped:
-                state.path.append(Path.State.addMemo(.init()))
+                var addMemoState = AddMemoReducer.State()
+                addMemoState.memoCharLimit = state.memoCharLimit
+                state.path.append(Path.State.addMemo(addMemoState))
                 return .none
+            case .onAppear:
+                state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
+                return sdkSynchronizer.stateStream()
+                    .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                    .map(NHSendFlowReducer.Action.synchronizerStateChanged)
+                    .eraseToEffect()
+                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
             case .scanCodeTapped:
+                return .none
+            case .sendTransactionFailure:
+                state.isSendingTransaction = false
+                state.path = state.path.filter { state in
+                    if case .sending = state {
+                        return false
+                    }
+                    
+                    return true
+                }
+                state.path.append(Path.State.failed(.init()))
+                return .none
+            case .sendTransactionInProgress:
+                state.path.append(NHSendFlowReducer.Path.State.sending(.init()))
+                return .none
+            case .sendTransactionSuccess:
+                state.isSendingTransaction = false
+                state.path.append(NHSendFlowReducer.Path.State.success(.init()))
+                return .none
+            case let .synchronizerStateChanged(latestState):
+                let shieldedBalance = latestState.shieldedBalance
+                state.shieldedBalance = shieldedBalance.redacted
+                state.maxAmount = shieldedBalance.verified
                 return .none
             case .topUpWalletTapped:
                 return .none

@@ -88,22 +88,12 @@ private extension RootView {
                     
                 case .onboarding:
                     NavigationView {
-                        if viewStore.walletConfig
-                            .isEnabled(.onboardingFlow) {
-                            OnboardingScreen(
-                                store: store.scope(
-                                    state: \.onboardingState,
-                                    action: RootReducer.Action.onboarding
-                                )
+                        NHPlainOnboardingView(
+                            store: store.scope(
+                                state: \.onboardingState,
+                                action: RootReducer.Action.onboarding
                             )
-                        } else {
-                            NHPlainOnboardingView(
-                                store: store.scope(
-                                    state: \.onboardingState,
-                                    action: RootReducer.Action.onboarding
-                                )
-                            )
-                        }
+                        )
                     }
                     .navigationViewStyle(.stack)
                     .tint(.white)

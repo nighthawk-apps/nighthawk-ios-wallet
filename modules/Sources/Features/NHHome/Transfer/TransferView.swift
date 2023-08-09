@@ -72,7 +72,7 @@ private extension TransferView {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.sendMoneyTitle,
                     description: L10n.Nighthawk.TransferTab.sendMoneyDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.send.image
+                    icon: Asset.Assets.Icons.Nighthawk.sent.image
                 )
             }
             
@@ -80,7 +80,7 @@ private extension TransferView {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.receiveMoneyTitle,
                     description: L10n.Nighthawk.TransferTab.receiveMoneyDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.receive.image
+                    icon: Asset.Assets.Icons.Nighthawk.received.image
                 )
             }
             

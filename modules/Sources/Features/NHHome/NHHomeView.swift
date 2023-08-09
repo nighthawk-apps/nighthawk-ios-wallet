@@ -45,9 +45,6 @@ public struct NHHomeView: View {
                     if viewStore.destination == .wallet {
                         NighthawkLogo(spacing: .compact)
                             .padding(.top, 40)
-                            .accessDebugMenuWithHiddenGesture {
-                                viewStore.send(.debugMenuStartup)
-                            }
                     }
                 }
                 

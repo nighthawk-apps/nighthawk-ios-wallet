@@ -9,7 +9,6 @@ import ComposableArchitecture
 import Models
 import SwiftUI
 import NHTransactionDetail
-import TransactionHistory
 import Utils
 import ZcashLightClientKit
 

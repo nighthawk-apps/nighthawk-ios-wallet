@@ -33,7 +33,7 @@ public struct NHTransactionRowView: View {
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
-                Text("\(transaction.date?.asHumanReadable() ?? L10n.General.dateNotAvailable)")
+                Text("\(transaction.date?.asHumanReadable() ?? "---")")
                     .caption()
             }
             
@@ -57,16 +57,15 @@ extension NHTransactionRowView {
     var operationTitle: String {
         switch transaction.status {
         case .paid:
-            return L10n.Transaction.sent
+            return L10n.Nighthawk.Transaction.sent
         case .received:
-            return L10n.Transaction.received
+            return L10n.Nighthawk.Transaction.received
         case .failed:
-            // TODO: [#392] final text to be provided (https://github.com/zcash/secant-ios-wallet/issues/392)
-            return L10n.Transaction.failed
+            return L10n.Nighthawk.Transaction.failed
         case .sending:
-            return L10n.Transaction.sending
+            return L10n.Nighthawk.Transaction.sending
         case .receiving:
-            return L10n.Transaction.receiving
+            return L10n.Nighthawk.Transaction.receiving
         }
     }
     

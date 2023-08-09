@@ -28,6 +28,7 @@ public struct NHTransactionDetailReducer: ReducerProtocol {
         case alert(PresentationAction<Action>)
         case warnBeforeLeavingApp(URL?)
         case openBlockExplorer(URL?)
+        case onAppear
     }
     
     public init () {}
@@ -51,6 +52,9 @@ public struct NHTransactionDetailReducer: ReducerProtocol {
                 if let url = blockExplorerURL {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
+                return .none
+            case .onAppear:
+                print(state.transaction)
                 return .none
             }
         }

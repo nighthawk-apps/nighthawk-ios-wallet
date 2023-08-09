@@ -29,7 +29,7 @@ public struct NighthawkLogo: View {
                 .padding(.bottom, spacing.rawValue)
             
             Text(L10n.Nighthawk.WelcomeScreen.title)
-                .title
+                .title()
         }
     }
 }

@@ -9,10 +9,14 @@ import Generated
 import Models
 import SwiftUI
 
-struct TransactionStatusView: View {
+public struct TransactionStatusView: View {
     let status: TransactionState.Status
     
-    var body: some View {
+    public init(status: TransactionState.Status) {
+        self.status = status
+    }
+    
+    public var body: some View {
         HStack(alignment: .center) {
             statusImage
                 .resizable()

@@ -1,5 +1,5 @@
 //
-//  DropDelegate.swift
+//  WordChipDropDelegate.swift
 //  secant-testnet
 //
 //  Created by Francisco Gindre on 11/16/21.
@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 import OrderedCollections
 import ComposableArchitecture
-import UIComponents
 
 /// Drop delegate that accepts items conforming to `PhraseChip.validationWordTypeIdentifier`
 public struct WordChipDropDelegate: DropDelegate {

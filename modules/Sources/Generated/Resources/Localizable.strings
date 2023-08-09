@@ -312,6 +312,12 @@
 "nighthawk.importWalletSuccess.success" = "Success";
 "nighthawk.importWalletSuccess.viewWallet" = "View wallet";
 
+// MARK: - Transactions
+"nighthawk.transaction.sending" = "Sending";
+"nighthawk.transaction.receiving" = "Receiving";
+"nighthawk.transaction.failed" = "Failed";
+"nighthawk.transaction.received" = "Received";
+"nighthawk.transaction.sent" = "Sent";
 
 // MARK: - Home Screen
 "nighthawk.homeScreen.wallet" = "Wallet";
@@ -330,7 +336,7 @@
 
 // MARK: - Home Screen - Wallet tab - Addresses
 "nighthawk.walletTab.addresses.unifiedAddress" = "Unified address";
-"nighthawk.walletTab.addresses.saplingAddress" = "Shielded (Sapling)";
+"nighthawk.walletTab.addresses.saplingAddress" = "Legacy shielded address";
 "nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade Zcash through our specially selected partners.";
@@ -339,6 +345,7 @@
 "nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
 
 // MARK: - Home Screen - Transaction history
+"nighthawk.transactionHistory.title" = "Transaction History";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
 
 // MARK: - Sync message
@@ -377,6 +384,7 @@
 
 // MARK: - Home Screen - Transfer - Send
 "nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
+"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
 "nighthawk.transferTab.send.continue" = "Continue";
 "nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
 "nighthawk.transferTab.send.scanCode" = "Scan a payment code";
@@ -397,6 +405,20 @@
 
 // MARK: - Home Screen - Transfer - Review
 "nighthawk.transferTab.review.title" = "Review and send";
+"nighthawk.transferTab.review.send" = "Send Zcash";
+
+// MARK: - Home Screen - Transfer - Sending
+"nighthawk.transferTab.sending.title" = "Sending";
+
+// MARK: - Home Screen - Transfer - Failed
+"nighthawk.transferTab.failed.title" = "Failed";
+"nighthawk.transferTab.failed.tryAgain" = "Try again";
+"nighthawk.transferTab.failed.cancel" = "Cancel";
+
+// MARK: - Home Screen - Transfer - Success
+"nighthawk.transferTab.success.title" = "Success";
+"nighthawk.transferTab.success.done" = "Done";
+"nighthawk.transferTab.success.moreDetails" = "More details";
 
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Settings";
@@ -414,8 +436,21 @@
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
 "nighthawk.settingsTab.externalServicesTitle" = "External services";
 "nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
+"nighthawk.settingsTab.advancedTitle" = "Advanced";
+"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
 "nighthawk.settingsTab.aboutTitle" = "About";
 "nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+
+// MARK: - Home Screen - Settings tab - Advanced
+"nighthawk.settingsTab.advanced.title" = "Advanced settings";
+"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
+"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
+"nighthawk.settingsTab.advanced.nukeWallet.title" = "Nuke wallet";
+"nighthawk.settingsTab.advanced.nukeWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.";
+"nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle" = "ARE YOU SURE?";
+"nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
 
 // MARK: - Transaction details
 "nighthawk.transactionDetails.title" = "Transaction details";

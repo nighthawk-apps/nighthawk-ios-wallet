@@ -9,7 +9,6 @@ import ComposableArchitecture
 import Generated
 import SwiftUI
 import NHTransactionDetail
-import TransactionHistory
 
 public struct WalletView: View {
     let store: Store<WalletReducer.State, WalletReducer.Action>
@@ -42,7 +41,10 @@ public struct WalletView: View {
             .navigationLinkEmpty(
                 isActive: viewStore.bindingForDestination(.transactionHistory),
                 destination: {
-                    TransactionHistoryView(store: store.transactionHistoryStore())
+                    TransactionHistoryView(
+                        store: store.transactionHistoryStore(),
+                        tokenName: tokenName
+                    )
                 }
             )
             .navigationLinkEmpty(

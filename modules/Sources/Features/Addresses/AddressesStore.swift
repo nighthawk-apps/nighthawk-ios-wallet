@@ -16,11 +16,11 @@ public typealias AddressesViewStore = ViewStore<AddressesReducer.State, Addresse
 
 public struct AddressesReducer: ReducerProtocol {
     public struct State: Equatable {
-        public enum Destination: String, Equatable, Hashable {
-            case transparent
+        public enum Destination: String, CaseIterable, Equatable, Hashable {
+            case topUp
             case unified
             case sapling
-            case topUp
+            case transparent
         }
         
         public enum Toast {
@@ -28,6 +28,7 @@ public struct AddressesReducer: ReducerProtocol {
         }
         
         @BindingState public var toast: Toast?
+        @BindingState public var destination: Destination = .unified
         public var uAddress: UnifiedAddress?
 
         public var unifiedAddress: String {

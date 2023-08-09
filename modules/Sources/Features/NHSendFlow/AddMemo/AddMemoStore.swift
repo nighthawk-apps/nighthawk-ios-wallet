@@ -15,6 +15,7 @@ public typealias AddMemoViewStore = ViewStore<AddMemoReducer.State, AddMemoReduc
 public struct AddMemoReducer: ReducerProtocol {
     public struct State: Equatable {
         public var memo = "".redacted
+        public var memoCharLimit = 0
         public var hasEnteredMemo: Bool { !memo.data.isEmpty }
         
         public init() {}
@@ -36,6 +37,7 @@ public struct AddMemoReducer: ReducerProtocol {
             case .backButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .memoInputChanged(let redactedmemo):
+                guard redactedmemo.data.count <= state.memoCharLimit else { return .none }
                 state.memo = redactedmemo
                 return .none
             case .continueOrSkipTapped:

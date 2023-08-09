@@ -8,7 +8,9 @@
 import ComposableArchitecture
 
 public struct AboutReducer: ReducerProtocol {
-    public struct State: Equatable {}
+    public struct State: Equatable {
+        public init() {}
+    }
     public enum Action: Equatable {}
     
     public var body: some ReducerProtocol<State, Action> {

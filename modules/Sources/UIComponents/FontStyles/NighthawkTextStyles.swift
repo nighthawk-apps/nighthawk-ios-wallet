@@ -9,8 +9,8 @@ import SwiftUI
 import Generated
 
 public extension Text {
-    var title: some View {
-        self.modifier(TitleTextStyle())
+    func title(color: Color = Asset.Colors.Nighthawk.peach.color) -> some View {
+        self.modifier(TitleTextStyle(color: color))
     }
     
     func subtitle(color: Color = Asset.Colors.Nighthawk.peach.color) -> some View {
@@ -28,11 +28,17 @@ public extension Text {
     func caption(color: Color = .white) -> some View {
         self.modifier(CaptionTextStyle(color: color))
     }
+    
+    func captionBold(color: Color = .white) -> some View {
+        self.modifier(CaptionBoldTextStyle(color: color))
+    }
 
     private struct TitleTextStyle: ViewModifier {
+        var color: Color
+        
         func body(content: Content) -> some View {
             content
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .foregroundColor(color)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 21))
         }
     }
@@ -74,6 +80,18 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                .lineSpacing(6)
+        }
+    }
+    
+    private struct CaptionBoldTextStyle: ViewModifier {
+        var color: Color
+        
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(color)
+                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
+                .lineSpacing(6)
         }
     }
 }

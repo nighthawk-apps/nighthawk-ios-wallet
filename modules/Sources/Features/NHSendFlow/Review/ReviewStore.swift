@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import UIKit
 import Utils
 import ZcashLightClientKit
@@ -18,16 +19,18 @@ public struct ReviewReducer: ReducerProtocol {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action>?
         
-        public var amount: Zatoshi
+        public var subtotal: Zatoshi
+        public var fee = Zatoshi(1_000) // TODO: Show ZIP-317 fees when SDK supports it
         public var memo: RedactableString
         public var recipient: RedactableString
+        public var total: Zatoshi { subtotal + fee }
         
         public init(
-            amount: Zatoshi,
+            subtotal: Zatoshi,
             memo: RedactableString,
             recipient: RedactableString
         ) {
-            self.amount = amount
+            self.subtotal = subtotal
             self.memo = memo
             self.recipient = recipient
         }
@@ -38,6 +41,7 @@ public struct ReviewReducer: ReducerProtocol {
         case alert(PresentationAction<Action>)
         case warnBeforeLeavingApp(URL?)
         case openBlockExplorer(URL?)
+        case sendZcashTapped
     }
     
     public init() {}
@@ -65,6 +69,8 @@ public struct ReviewReducer: ReducerProtocol {
                 if let url = blockExplorerURL {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
+                return .none
+            case .sendZcashTapped:
                 return .none
             }
         }

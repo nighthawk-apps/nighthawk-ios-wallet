@@ -20,9 +20,10 @@ public typealias SystemFont = FontConvertible.SystemFont
 // swiftlint:disable identifier_name line_length type_body_length
 public enum FontFamily {
   public enum PulpDisplay {
+    public static let bold = FontConvertible(name: "PulpDisplay-Bold", family: "Pulp Display", path: "PulpDisplay-Bold.ttf")
     public static let medium = FontConvertible(name: "PulpDisplay-Medium", family: "Pulp Display", path: "PulpDisplay-Medium.ttf")
     public static let regular = FontConvertible(name: "PulpDisplay-Regular", family: "Pulp Display", path: "PulpDisplay-Regular.ttf")
-    public static let all: [FontConvertible] = [medium, regular]
+    public static let all: [FontConvertible] = [bold, medium, regular]
   }
   public enum Roboto {
     public static let black = FontConvertible(name: "Roboto-Black", family: "Roboto", path: "Roboto-Black.ttf")
