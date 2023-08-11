@@ -41,9 +41,7 @@ public struct TopUpReducer: ReducerProtocol {
         
         var uAddress: UnifiedAddress?
         
-        public init(uAddress: UnifiedAddress? = nil) {
-            self.uAddress = uAddress
-        }
+        public init() {}
     }
     
     public enum Action: Equatable {
@@ -58,8 +56,6 @@ public struct TopUpReducer: ReducerProtocol {
     @Dependency(\.partners) var partners
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    
-    public init() {}
     
     public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -106,6 +102,8 @@ public struct TopUpReducer: ReducerProtocol {
             }
         }
     }
+    
+    public init() {}
 }
 
 // MARK: - Alerts

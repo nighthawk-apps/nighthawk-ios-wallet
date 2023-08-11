@@ -34,13 +34,6 @@ struct NHSettingsView: View {
                             action: { viewStore.send(.goTo(.notifications())) }
                         )
                         
-//                        settingRow(
-//                            title: L10n.Nighthawk.SettingsTab.fiatTitle,
-//                            subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
-//                            icon: Asset.Assets.Icons.Nighthawk.fiat.image,
-//                            action: { viewStore.send(.goTo(.fiat())) }
-//                        )
-                        
                         settingRow(
                             title: L10n.Nighthawk.SettingsTab.securityTitle,
                             subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle,
@@ -61,16 +54,6 @@ struct NHSettingsView: View {
                             icon: Asset.Assets.Icons.Nighthawk.rescan.image,
                             action: { viewStore.send(.goTo(.rescan())) }
                         )
-                        
-                        // TODO: [#1095] Hiding this until known for sure whether SDK changes are needed to support it.
-                        // TODO: Open an issue in the iOS SDK repo if and when it is determined necessary. (the below is for Android)
-                        // (https://github.com/zcash/zcash-android-wallet-sdk/issues/1095)
-//                        settingRow(
-//                            title: L10n.Nighthawk.SettingsTab.changeServerTitle,
-//                            subtitle: L10n.Nighthawk.SettingsTab.changeServerSubtitle,
-//                            icon: Asset.Assets.Icons.Nighthawk.server.image,
-//                            action: { viewStore.send(.goTo(.changeServer())) }
-//                        )
                         
                         settingRow(
                             title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
@@ -161,16 +144,7 @@ struct NHSettingsView: View {
 }
 
 // MARK: - Subviews
-private extension NHSettingsView {
-    func notifications(with viewStore: NHSettingsViewStore) -> some View {
-        settingRow(
-            title: L10n.Nighthawk.SettingsTab.notificationsTitle,
-            subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
-            icon: Asset.Assets.Icons.Nighthawk.notifications.image,
-            action: { viewStore.send(.goTo(.notifications())) }
-        )
-    }
-    
+private extension NHSettingsView {    
     func settingRow(
         title: String,
         subtitle: String,

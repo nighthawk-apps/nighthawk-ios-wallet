@@ -46,9 +46,7 @@ public struct ReceiveReducer: ReducerProtocol {
         
         var uAddress: UnifiedAddress?
         
-        public init(uAddress: UnifiedAddress? = nil) {
-            self.uAddress = uAddress
-        }
+        public init() {}
     }
     
     public enum Action: BindableAction, Equatable {
@@ -63,8 +61,6 @@ public struct ReceiveReducer: ReducerProtocol {
     
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    
-    public init () {}
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -92,6 +88,8 @@ public struct ReceiveReducer: ReducerProtocol {
             }
         }
     }
+    
+    public init () {}
 }
 
 // MARK: - Placeholder

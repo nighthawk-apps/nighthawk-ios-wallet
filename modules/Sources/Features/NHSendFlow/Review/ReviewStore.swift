@@ -20,7 +20,7 @@ public struct ReviewReducer: ReducerProtocol {
         @PresentationState public var alert: AlertState<Action>?
         
         public var subtotal: Zatoshi
-        public var fee = Zatoshi(1_000) // TODO: Show ZIP-317 fees when SDK supports it
+        public var fee = Zatoshi(10_000) // TODO: [#1186] Show ZIP-317 fees when SDK supports it (https://github.com/zcash/ZcashLightClientKit/issues/1186)
         public var memo: RedactableString
         public var recipient: RedactableString
         public var total: Zatoshi { subtotal + fee }

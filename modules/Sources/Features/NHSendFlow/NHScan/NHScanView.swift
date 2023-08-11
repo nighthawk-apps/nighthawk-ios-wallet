@@ -13,10 +13,12 @@ import Utils
 
 public struct NHScanView: View {
     let store: NHScanStore
-    
-    public init(store: NHScanStore) {
-        self.store = store
-    }
+    let normalizedRectOfInterest: CGRect = CGRect(
+        x: 0.25,
+        y: 0.25,
+        width: 0.5,
+        height: 0.5
+    )
     
     public var body: some View {
         WithViewStore(store) { viewStore in
@@ -29,7 +31,7 @@ public struct NHScanView: View {
                     .padding(.bottom, 40)
                     
                     QRCodeScanView(
-                        rectOfInterest: normalizedRectOfInterest(geometry.size),
+                        rectOfInterest: normalizedRectOfInterest,
                         onQRScanningDidFail: { viewStore.send(.scanFailed) },
                         onQRScanningSucceededWithCode: { viewStore.send(.scan($0.redacted)) }
                     )
@@ -54,6 +56,10 @@ public struct NHScanView: View {
         }
         .applyNighthawkBackground()
     }
+    
+    public init(store: NHScanStore) {
+        self.store = store
+    }
 }
 
 // MARK: - Subviews
@@ -70,18 +76,9 @@ private extension NHScanView {
             height: frameSize(size)
         )
     }
-
-    func normalizedRectOfInterest(_ size: CGSize) -> CGRect {
-        CGRect(
-            x: 0.25,
-            y: 0.25,
-            width: 0.5,
-            height: 0.5
-        )
-    }
 }
 
-// Used to stroke the corners of the scanner's viewport
+// MARK: - Private implementation
 private struct CornerStrokeSquare: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()

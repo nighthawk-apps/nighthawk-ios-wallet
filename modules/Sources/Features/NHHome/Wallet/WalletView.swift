@@ -26,7 +26,7 @@ public struct WalletView: View {
                 
                 header(with: viewStore)
                 
-                if viewStore.transparentBalance.data.total >= viewStore.autoShieldingThreshold &&
+                if viewStore.transparentBalance.data.verified >= viewStore.autoShieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
                     viewStore.synchronizerStatusSnapshot.isSynced {
                     Button(L10n.Nighthawk.WalletTab.shieldNow) {}

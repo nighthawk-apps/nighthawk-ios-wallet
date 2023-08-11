@@ -15,9 +15,6 @@ public typealias NHScanStore = Store<NHScanReducer.State, NHScanReducer.Action>
 public typealias NHScanViewStore = ViewStore<NHScanReducer.State, NHScanReducer.Action>
 
 public struct NHScanReducer: ReducerProtocol {
-    private enum CancelId { case timer }
-    let networkType: NetworkType
-    
     public struct State: Equatable {
         public enum ScanStatus: Equatable {
             case failed
@@ -26,7 +23,6 @@ public struct NHScanReducer: ReducerProtocol {
         }
         
         public var scanStatus: ScanStatus = .unknown
-        
         public var scannedValue: String? {
             guard case let .value(scannedValue) = scanStatus else {
                 return nil
@@ -47,10 +43,9 @@ public struct NHScanReducer: ReducerProtocol {
         case scan(RedactableString)
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
+    private enum CancelId { case timer }
     
+    let networkType: NetworkType
     @Dependency(\.captureDevice) var captureDevice
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mainQueue) var mainQueue
@@ -99,11 +94,8 @@ public struct NHScanReducer: ReducerProtocol {
             }
         }
     }
-}
-
-// MARK: - Placeholder
-extension NHScanReducer.State {
-    public static var placeholder: Self {
-        .init()
+    
+    public init(networkType: NetworkType) {
+        self.networkType = networkType
     }
 }

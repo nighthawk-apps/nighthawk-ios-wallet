@@ -181,10 +181,12 @@ public struct NHSendFlowReducer: ReducerProtocol {
                     
                     state.isSendingTransaction = true
                     
-                    let memo: Memo? = state.memo.data.isEmpty ? nil : try Memo(string: state.memo.data)
-                    
                     let recipient = try Recipient(state.recipient.data, network: networkType)
-                    return .run { [state] send in
+                    var memo: Memo?
+                    if (/Recipient.transparent).extract(from: recipient) == nil && !state.memo.data.isEmpty {
+                        memo = try Memo(string: state.memo.data)
+                    }
+                    return .run { [state, memo] send in
                         do {
                             await send(NHSendFlowReducer.Action.sendTransactionInProgress)
                             _ = try await sdkSynchronizer.sendTransaction(
