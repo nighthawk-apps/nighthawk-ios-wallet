@@ -55,11 +55,12 @@ public struct NHUserPreferencesStorage {
     }
     
     public var screenMode: NighthawkSetting.ScreenMode {
-        getValue(forKey: Constants.zcashScreenMode.rawValue, default: selectedScreenMode)
+        let rawValue = getValue(forKey: Constants.zcashScreenMode.rawValue, default: selectedScreenMode.rawValue)
+        return NighthawkSetting.ScreenMode(rawValue: rawValue) ?? .off
     }
     
     public func setScreenMode(_ mode: NighthawkSetting.ScreenMode) {
-        setValue(mode, forKey: Constants.zcashScreenMode.rawValue)
+        setValue(mode.rawValue, forKey: Constants.zcashScreenMode.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults

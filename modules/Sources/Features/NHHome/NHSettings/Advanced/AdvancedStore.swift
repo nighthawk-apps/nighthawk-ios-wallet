@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Generated
 import Models
 import NHUserPreferencesStorage
+import UIKit
 
 public typealias AdvancedStore = Store<AdvancedReducer.State, AdvancedReducer.Action>
 public typealias AdvancedViewStore = ViewStore<AdvancedReducer.State, AdvancedReducer.Action>
@@ -17,7 +18,7 @@ public struct AdvancedReducer: ReducerProtocol {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action>?
         
-        @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode?
+        @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         
         public init() {}
     }
@@ -49,6 +50,10 @@ public struct AdvancedReducer: ReducerProtocol {
                 return .none
             case .onAppear:
                 state.selectedScreenMode = nhUserStoredPreferences.screenMode()
+                return .none
+            case .binding(\.$selectedScreenMode):
+                nhUserStoredPreferences.setScreenMode(state.selectedScreenMode)
+                UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
                 return .none
             case .alert, .binding, .nukeWalletConfirmed:
                 return .none

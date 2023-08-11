@@ -10,12 +10,12 @@ import SwiftUI
 
 public struct RadioSelectionList<Option: Identifiable & Hashable, OptionContent: View>: View {
     let options: [Option]
-    let selection: Binding<Option?>
+    let selection: Binding<Option>
     let optionContent: (Option) -> OptionContent
     
     public init(
         options: [Option],
-        selection: Binding<Option?>,
+        selection: Binding<Option>,
         optionContent: @escaping (Option) -> OptionContent
     ) {
         self.options = options

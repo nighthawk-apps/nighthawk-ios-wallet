@@ -10,7 +10,9 @@ import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
 import Models
+import NHUserPreferencesStorage
 import SDKSynchronizer
+import UIKit
 import Utils
 import ZcashLightClientKit
 
@@ -36,7 +38,6 @@ public struct NHHomeReducer: ReducerProtocol {
         public var transparentBalance: Balance
         public var synchronizerStatusSnapshot: SyncStatusSnapshot
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
-        public var shouldShowAddresses = false
 
         // Tab states
         public var walletState: WalletReducer.State
@@ -60,6 +61,7 @@ public struct NHHomeReducer: ReducerProtocol {
     
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
@@ -86,6 +88,7 @@ public struct NHHomeReducer: ReducerProtocol {
             switch action {
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
+                UIApplication.shared.isIdleTimerDisabled = nhUserStoredPreferences.screenMode() == .keepOn
                 
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     let syncEffect = sdkSynchronizer.stateStream()
