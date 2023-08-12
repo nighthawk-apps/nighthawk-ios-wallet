@@ -368,7 +368,7 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money securely";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyPrivateAddressTitle" = "Copy private address";
+"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";

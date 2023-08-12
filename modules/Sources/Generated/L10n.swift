@@ -473,8 +473,8 @@ public enum L10n {
         public static let copyNonPrivateAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressDescription", fallback: "This will copy your t-address.")
         /// Copy a non-private address
         public static let copyNonPrivateAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressTitle", fallback: "Copy a non-private address")
-        /// Copy private address
-        public static let copyPrivateAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyPrivateAddressTitle", fallback: "Copy private address")
+        /// Copy unified address
+        public static let copyUnifiedAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressTitle", fallback: "Copy unified address")
         /// Receive money publicly
         public static let receiveMoneyPublicly = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneyPublicly", fallback: "Receive money publicly")
         /// Receive money securely

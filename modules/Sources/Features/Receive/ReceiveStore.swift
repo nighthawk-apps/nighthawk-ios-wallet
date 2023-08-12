@@ -54,7 +54,7 @@ public struct ReceiveReducer: ReducerProtocol {
         case onAppear
         case uAddressChanged(UnifiedAddress?)
         case showQrCodeTapped
-        case copyPrivateAddressTapped
+        case copyUnifiedAddressTapped
         case topUpWalletTapped
         case copyTransparentAddressTapped
     }
@@ -75,7 +75,7 @@ public struct ReceiveReducer: ReducerProtocol {
             case .uAddressChanged(let uAddress):
                 state.uAddress = uAddress
                 return .none
-            case .copyPrivateAddressTapped:
+            case .copyUnifiedAddressTapped:
                 pasteboard.setString(state.unifiedAddress.redacted)
                 state.toast = .copiedToClipboard
                 return .none
