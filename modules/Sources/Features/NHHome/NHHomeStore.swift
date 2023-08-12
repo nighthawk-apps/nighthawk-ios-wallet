@@ -5,15 +5,20 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import Addresses
 import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
 import Models
+import NHUserPreferencesStorage
 import SDKSynchronizer
+import UIKit
 import Utils
 import ZcashLightClientKit
 
 public struct NHHomeReducer: ReducerProtocol {
+    let networkType: NetworkType
+    
     private enum CancelId { case timer }
     
     public struct State: Equatable {
@@ -24,6 +29,7 @@ public struct NHHomeReducer: ReducerProtocol {
         }
         
         @BindingState public var destination = Destination.wallet
+        @PresentationState public var addresses: AddressesReducer.State?
         
         // Shared state
         public var requiredTransactionConfirmations = 0
@@ -41,6 +47,7 @@ public struct NHHomeReducer: ReducerProtocol {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case addresses(PresentationAction<AddressesReducer.Action>)
         case debugMenuStartup
         case onAppear
         case onDisappear
@@ -54,10 +61,13 @@ public struct NHHomeReducer: ReducerProtocol {
     
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public init() {}
+    public init(networkType: NetworkType) {
+        self.networkType = networkType
+    }
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -67,7 +77,7 @@ public struct NHHomeReducer: ReducerProtocol {
         }
         
         Scope(state: \.transfer, action: /Action.transfer) {
-            TransferReducer()
+            TransferReducer(networkType: networkType)
         }
         
         Scope(state: \.settings, action: /Action.settings) {
@@ -78,6 +88,7 @@ public struct NHHomeReducer: ReducerProtocol {
             switch action {
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
+                UIApplication.shared.isIdleTimerDisabled = nhUserStoredPreferences.screenMode() == .keepOn
                 
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     let syncEffect = sdkSynchronizer.stateStream()
@@ -123,9 +134,37 @@ public struct NHHomeReducer: ReducerProtocol {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .binding, .debugMenuStartup, .settings, .transfer, .wallet:
+            case .wallet(.viewAddressesTapped):
+                state.addresses = .init()
+                return .none
+            case .transfer(.destination(.presented(.receive(.showQrCodeTapped)))):
+                state.transfer.destination = nil
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .wallet(.viewAddressesTapped)
+                }
+            case .transfer(.destination(.presented(.receive(.topUpWalletTapped)))):
+                state.transfer.destination = nil
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .transfer(.topUpWalletTapped)
+                }
+            case .addresses(.presented(.topUpWalletTapped)):
+                state.addresses = nil
+                state.destination = .transfer
+                return .task {
+                    // Slight delay to allow previous sheet to dismiss before presenting
+                    try await Task.sleep(seconds: 0.005)
+                    return .transfer(.topUpWalletTapped)
+                }
+            case .addresses, .binding, .debugMenuStartup, .settings, .transfer, .wallet:
                 return .none
             }
+        }
+        .ifLet(\.$addresses, action: /Action.addresses) {
+            AddressesReducer()
         }
     }
 }
@@ -158,11 +197,13 @@ extension NHHomeReducer.State {
     var transfer: TransferReducer.State {
         get {
             var state = transferState
+            state.shieldedBalance = shieldedBalance
             return state
         }
         
         set {
             self.transferState = newValue
+            self.shieldedBalance = newValue.shieldedBalance
         }
     }
     
@@ -189,6 +230,10 @@ extension Store<NHHomeReducer.State, NHHomeReducer.Action> {
     
     func settingsStore() -> Store<NHSettingsReducer.State, NHSettingsReducer.Action> {
         scope(state: \.settings, action: Action.settings)
+    }
+    
+    func addressesStore() -> Store<PresentationState<AddressesReducer.State>, PresentationAction<AddressesReducer.Action>> {
+        scope(state: \.$addresses, action: Action.addresses)
     }
 }
 

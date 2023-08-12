@@ -8,7 +8,6 @@
 import Foundation
 import ZcashLightClientKit
 import Utils
-import UIComponents
 
 public enum RecoveryPhraseError: Error {
     /// This error is thrown then the Recovery Phrase can't be generated
@@ -23,7 +22,7 @@ public struct RecoveryPhrase: Equatable, Redactable {
 
     public let words: [RedactableString]
     
-    private let groupSize = 6
+    public let groupSize = 6
 
     public init(words: [RedactableString]) {
         self.words = words
@@ -42,14 +41,6 @@ public struct RecoveryPhrase: Equatable, Redactable {
             .map { $0.data }
             .joined(separator: " ")
         return result.redacted
-    }
-
-    public func words(fromMissingIndices indices: [Int]) -> [PhraseChip.Kind] {
-        assert((indices.count - 1) * groupSize <= self.words.count)
-
-        return indices.enumerated().map { index, position in
-                .unassigned(word: self.words[(index * groupSize) + position])
-        }
     }
 }
 

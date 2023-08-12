@@ -197,7 +197,8 @@ extension RootReducer {
                 state.alert = AlertState.wipeRequest()
                 return .none
             
-            case .initialization(.nukeWallet):
+            case .initialization(.nukeWallet),
+                 .nhHome(.settings(.path(.element(id: _, action: .advanced(.nukeWalletConfirmed))))):
                 guard let wipePublisher = sdkSynchronizer.wipe() else {
                     return EffectTask(value: .nukeWalletFailed)
                 }
@@ -211,8 +212,8 @@ extension RootReducer {
 
             case .nukeWalletSucceeded:
                 walletStorage.nukeWallet()
-                state.onboardingState.destination = nil
-                state.onboardingState.index = 0
+                state.nhHomeState.settingsState.path = .init()
+                state.nhHomeState.destination = .wallet
                 return .concatenate(
                     .cancel(id: SynchronizerCancelId.timer),
                     EffectTask(value: .initialization(.checkWalletInitialization))

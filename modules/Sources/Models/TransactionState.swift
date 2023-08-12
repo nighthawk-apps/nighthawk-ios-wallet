@@ -60,6 +60,10 @@ public struct TransactionState: Equatable, Identifiable {
         URL(string: "https://zcashblockexplorer.com/transactions/\(id)")
     }
     
+    public var viewRecipientOnlineURL: URL? {
+        URL(string: "https://zcashblockexplorer.com/address/\(address)")
+    }
+    
     public init(
         errorMessage: String? = nil,
         expiryHeight: BlockHeight? = nil,

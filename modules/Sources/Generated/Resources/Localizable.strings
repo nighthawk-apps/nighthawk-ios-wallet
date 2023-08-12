@@ -312,6 +312,12 @@
 "nighthawk.importWalletSuccess.success" = "Success";
 "nighthawk.importWalletSuccess.viewWallet" = "View wallet";
 
+// MARK: - Transactions
+"nighthawk.transaction.sending" = "Sending";
+"nighthawk.transaction.receiving" = "Receiving";
+"nighthawk.transaction.failed" = "Failed";
+"nighthawk.transaction.received" = "Received";
+"nighthawk.transaction.sent" = "Sent";
 
 // MARK: - Home Screen
 "nighthawk.homeScreen.wallet" = "Wallet";
@@ -326,8 +332,20 @@
 "nighthawk.walletTab.zec" = "ZEC";
 "nighthawk.walletTab.recentActivity" = "Recent activity";
 "nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
+"nighthawk.walletTab.shieldNow" = "Shield now";
+
+// MARK: - Home Screen - Wallet tab - Addresses
+"nighthawk.walletTab.addresses.unifiedAddress" = "Unified address";
+"nighthawk.walletTab.addresses.saplingAddress" = "Legacy shielded address";
+"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade Zcash through our specially selected partners.";
+"nighthawk.walletTab.addresses.copy" = "Copy";
+"nighthawk.walletTab.addresses.seeMore" = "See more";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
 
 // MARK: - Home Screen - Transaction history
+"nighthawk.transactionHistory.title" = "Transaction History";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
 
 // MARK: - Sync message
@@ -337,6 +355,70 @@
 "nighthawk.sync.message.sync" = "Scanning…%@%%";
 "nighthawk.sync.message.preparing" = "Preparing to scan";
 "nighthawk.sync.message.finalizing" = "Finalizing";
+
+// MARK: - Home Screen - Transfer tab
+"nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";
+"nighthawk.transferTab.sendMoneyTitle" = "Send money";
+"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money.";
+"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
+"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard.";
+"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
+"nighthawk.transferTab.topUpWalletDescription" = "Securely buy Zcash through our partners.";
+
+// MARK: - Home Screen - Transfer - Receive
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money securely";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
+"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+
+// MARK: - Home Screen - Transfer - Top up wallet
+"nighthawk.transferTab.topUpWallet.sideshiftTitle" = "Swap with SideShift.ai";
+"nighthawk.transferTab.topUpWallet.sideshiftDescription" = "Swap between 30+ coins. No sign-up required.";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+
+// MARK: - Home Screen - Transfer - Send
+"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
+"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
+"nighthawk.transferTab.send.continue" = "Continue";
+"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
+"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
+
+// MARK: - Home Screen - Transfer - Scan
+"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+
+// MARK: - Home Screen - Transfer - Add memo
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
+"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
+
+// MARK: - Home Screen - Transfer - Recipient
+"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
+"nighthawk.transferTab.recipient.addZAddress" = "Add z-address here";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
+"nighthawk.transferTab.recipient.continue" = "Continue";
+
+// MARK: - Home Screen - Transfer - Review
+"nighthawk.transferTab.review.title" = "Review and send";
+"nighthawk.transferTab.review.send" = "Send Zcash";
+
+// MARK: - Home Screen - Transfer - Sending
+"nighthawk.transferTab.sending.title" = "Sending";
+
+// MARK: - Home Screen - Transfer - Failed
+"nighthawk.transferTab.failed.title" = "Failed";
+"nighthawk.transferTab.failed.tryAgain" = "Try again";
+"nighthawk.transferTab.failed.cancel" = "Cancel";
+
+// MARK: - Home Screen - Transfer - Success
+"nighthawk.transferTab.success.title" = "Success";
+"nighthawk.transferTab.success.done" = "Done";
+"nighthawk.transferTab.success.moreDetails" = "More details";
 
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Settings";
@@ -354,5 +436,49 @@
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
 "nighthawk.settingsTab.externalServicesTitle" = "External services";
 "nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
+"nighthawk.settingsTab.advancedTitle" = "Advanced";
+"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
 "nighthawk.settingsTab.aboutTitle" = "About";
 "nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+
+// MARK: - Home Screen - Settings tab - Advanced
+"nighthawk.settingsTab.advanced.title" = "Advanced settings";
+"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
+"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
+"nighthawk.settingsTab.advanced.nukeWallet.title" = "Nuke wallet";
+"nighthawk.settingsTab.advanced.nukeWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.";
+"nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle" = "ARE YOU SURE?";
+"nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
+
+// MARK: - Transaction details
+"nighthawk.transactionDetails.title" = "Transaction details";
+"nighthawk.transactionDetails.memo" = "Memo";
+"nighthawk.transactionDetails.time" = "Time (UTC)";
+"nighthawk.transactionDetails.pool" = "Pool";
+"nighthawk.transactionDetails.sapling" = "Sapling";
+"nighthawk.transactionDetails.transparent" = "Transparent";
+"nighthawk.transactionDetails.blockId" = "Block ID";
+"nighthawk.transactionDetails.confirmations" = "Confirmations";
+"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "view on Block Explorer";
+"nighthawk.transactionDetails.transactionId" = "Transaction ID";
+"nighthawk.transactionDetails.recipient" = "Recipient";
+"nighthawk.transactionDetails.recipientShielded" = "Shielded";
+"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
+"nighthawk.transactionDetails.address" = "Address";
+"nighthawk.transactionDetails.subtotal" = "Subtotal";
+"nighthawk.transactionDetails.networkFee" = "Network fee";
+"nighthawk.transactionDetails.totalAmount" = "Total amount";
+"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
+"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
+"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
+"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
+
+
+// MARK: - Transaction
+"nighthawk.transaction.confirmed" = "Confirmed";
+"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.received" = "Received";
+"nighthawk.transaction.failed" = "Failed";

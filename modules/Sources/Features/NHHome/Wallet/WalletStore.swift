@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Models
 import SwiftUI
-import TransactionHistory
+import NHTransactionDetail
 import Utils
 import ZcashLightClientKit
 
@@ -23,6 +23,7 @@ public struct WalletReducer: ReducerProtocol {
         
         public var destination: Destination?
         
+        public var autoShieldingThreshold: Zatoshi
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0
         public var synchronizerStatusSnapshot: SyncStatusSnapshot
@@ -44,13 +45,16 @@ public struct WalletReducer: ReducerProtocol {
         }
         
         public var transactionHistoryState: TransactionHistoryReducer.State
+        public var transactionDetailState: NHTransactionDetailReducer.State
     }
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case updateDestination(WalletReducer.State.Destination?)
         case transactionHistory(TransactionHistoryReducer.Action)
+        case transactionDetail(NHTransactionDetailReducer.Action)
         case viewTransactionHistory
+        case viewAddressesTapped
     }
     
     public var body: some ReducerProtocol<State, Action> {
@@ -58,6 +62,10 @@ public struct WalletReducer: ReducerProtocol {
         
         Scope(state: \.transactionHistory, action: /Action.transactionHistory) {
             TransactionHistoryReducer()
+        }
+        
+        Scope(state: \.transactionDetail, action: /Action.transactionDetail) {
+            NHTransactionDetailReducer()
         }
         
         Reduce { state, action in
@@ -74,7 +82,7 @@ public struct WalletReducer: ReducerProtocol {
                 return .none
             case .viewTransactionHistory:
                 return .task { .updateDestination(.transactionHistory) }
-            case .binding, .transactionHistory:
+            case .binding, .transactionHistory, .transactionDetail, .viewAddressesTapped:
                 return .none
             }
         }
@@ -95,16 +103,34 @@ extension WalletReducer.State {
             self.walletEvents = newValue.walletEvents
         }
     }
+    
+    var transactionDetail: NHTransactionDetailReducer.State {
+        get {
+            var state = transactionDetailState
+            state.latestMinedHeight = latestMinedHeight
+            state.requiredTransactionConfirmations = requiredTransactionConfirmations
+            if let event = selectedWalletEvent, case let .transaction(transaction) = event.state {
+                state.transaction = transaction
+            }
+            return state
+        }
+        
+        set {
+            self.transactionDetailState = newValue
+        }
+    }
 }
 
 // MARK: - Placeholder
 extension WalletReducer.State {
     static var placeholder: Self {
         .init(
+            autoShieldingThreshold: Zatoshi(1_000_000),
             synchronizerStatusSnapshot: .default,
             shieldedBalance: .zero,
             transparentBalance: .zero,
-            transactionHistoryState: .placeholder
+            transactionHistoryState: .placeholder,
+            transactionDetailState: .placeholder
         )
     }
 }
@@ -115,6 +141,13 @@ extension Store<WalletReducer.State, WalletReducer.Action> {
         self.scope(
             state: \.transactionHistory,
             action: Action.transactionHistory
+        )
+    }
+    
+    func transactionDetailStore() -> NHTransactionDetailStore {
+        self.scope(
+            state: \.transactionDetail,
+            action: Action.transactionDetail
         )
     }
 }

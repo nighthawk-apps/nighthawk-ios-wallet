@@ -82,7 +82,7 @@ public struct WalletStorage {
             throw WalletStorageError.uninitializedWallet
         }
         
-        guard let wallet = try decode(json: data, as: StoredWallet.self) else {
+        guard let wallet = try? decode(json: data, as: StoredWallet.self) else {
             throw WalletStorageError.uninitializedWallet
         }
         

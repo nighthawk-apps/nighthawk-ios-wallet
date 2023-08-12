@@ -181,7 +181,7 @@ extension ViewStore<NHImportWalletReducer.State, NHImportWalletReducer.Action> {
         self.isValidMnemonic ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidMnemonic)
     }
     
-    func validateBirthday() -> NHTextField.ValidationState {
+    func validateBirthday() -> NHTextFieldValidationState {
         (self.birthdayHeight.data.isEmpty ||
         (!self.birthdayHeight.data.isEmpty && self.birthdayHeightValue != nil))
         ? .valid

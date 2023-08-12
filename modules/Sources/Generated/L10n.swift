@@ -290,6 +290,10 @@ public enum L10n {
       }
       /// About
       public static let aboutTitle = L10n.tr("Localizable", "nighthawk.settingsTab.aboutTitle", fallback: "About")
+      /// Less common settings
+      public static let advancedSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advancedSubtitle", fallback: "Less common settings")
+      /// Advanced
+      public static let advancedTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advancedTitle", fallback: "Advanced")
       /// Keep your wallet safe in case you lose your phone
       public static let backupSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.backupSubtitle", fallback: "Keep your wallet safe in case you lose your phone")
       /// Backup your wallet
@@ -320,6 +324,30 @@ public enum L10n {
       public static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
       /// Settings
       public static let settings = L10n.tr("Localizable", "nighthawk.settingsTab.settings", fallback: "Settings")
+      public enum Advanced {
+        /// Advanced settings
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.title", fallback: "Advanced settings")
+        public enum NukeWallet {
+          /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
+          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
+          /// ARE YOU SURE?
+          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
+          /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.
+          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
+          /// Nuke wallet
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.title", fallback: "Nuke wallet")
+        }
+        public enum ScreenMode {
+          /// Keep on
+          public static let keepOn = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.keepOn", fallback: "Keep on")
+          /// Off
+          public static let off = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.off", fallback: "Off")
+          /// If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.
+          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.subtitle", fallback: "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.")
+          /// Keep screen on
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
+        }
+      }
     }
     public enum Sync {
       public enum Message {
@@ -341,10 +369,188 @@ public enum L10n {
         public static let uptodate = L10n.tr("Localizable", "nighthawk.sync.message.uptodate", fallback: "Up-To-Date")
       }
     }
+    public enum Transaction {
+      /// Confirmed
+      public static let confirmed = L10n.tr("Localizable", "nighthawk.transaction.confirmed", fallback: "Confirmed")
+      /// Failed
+      public static let failed = L10n.tr("Localizable", "nighthawk.transaction.failed", fallback: "Failed")
+      /// Received
+      public static let received = L10n.tr("Localizable", "nighthawk.transaction.received", fallback: "Received")
+      /// Receiving
+      public static let receiving = L10n.tr("Localizable", "nighthawk.transaction.receiving", fallback: "Receiving")
+      /// Sending
+      public static let sending = L10n.tr("Localizable", "nighthawk.transaction.sending", fallback: "Sending")
+      /// Sent
+      public static let sent = L10n.tr("Localizable", "nighthawk.transaction.sent", fallback: "Sent")
+    }
+    public enum TransactionDetails {
+      /// Address
+      public static let address = L10n.tr("Localizable", "nighthawk.transactionDetails.address", fallback: "Address")
+      /// Block ID
+      public static let blockId = L10n.tr("Localizable", "nighthawk.transactionDetails.blockId", fallback: "Block ID")
+      /// Confirmations
+      public static let confirmations = L10n.tr("Localizable", "nighthawk.transactionDetails.confirmations", fallback: "Confirmations")
+      /// Leaving Nighthawk Wallet
+      public static let leavingWallet = L10n.tr("Localizable", "nighthawk.transactionDetails.leavingWallet", fallback: "Leaving Nighthawk Wallet")
+      /// While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@
+      public static func leavingWarning(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.transactionDetails.leavingWarning", String(describing: p1), fallback: "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@")
+      }
+      /// Memo
+      public static let memo = L10n.tr("Localizable", "nighthawk.transactionDetails.memo", fallback: "Memo")
+      /// Network fee
+      public static let networkFee = L10n.tr("Localizable", "nighthawk.transactionDetails.networkFee", fallback: "Network fee")
+      /// Pool
+      public static let pool = L10n.tr("Localizable", "nighthawk.transactionDetails.pool", fallback: "Pool")
+      /// Recipient
+      public static let recipient = L10n.tr("Localizable", "nighthawk.transactionDetails.recipient", fallback: "Recipient")
+      /// Shielded
+      public static let recipientShielded = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientShielded", fallback: "Shielded")
+      /// Transparent
+      public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Transparent")
+      /// Sapling
+      public static let sapling = L10n.tr("Localizable", "nighthawk.transactionDetails.sapling", fallback: "Sapling")
+      /// Subtotal
+      public static let subtotal = L10n.tr("Localizable", "nighthawk.transactionDetails.subtotal", fallback: "Subtotal")
+      /// Time (UTC)
+      public static let time = L10n.tr("Localizable", "nighthawk.transactionDetails.time", fallback: "Time (UTC)")
+      /// Transaction details
+      public static let title = L10n.tr("Localizable", "nighthawk.transactionDetails.title", fallback: "Transaction details")
+      /// Total amount
+      public static let totalAmount = L10n.tr("Localizable", "nighthawk.transactionDetails.totalAmount", fallback: "Total amount")
+      /// Transaction ID
+      public static let transactionId = L10n.tr("Localizable", "nighthawk.transactionDetails.transactionId", fallback: "Transaction ID")
+      /// Transparent
+      public static let transparent = L10n.tr("Localizable", "nighthawk.transactionDetails.transparent", fallback: "Transparent")
+      /// Unconfirmed
+      public static let unconfirmed = L10n.tr("Localizable", "nighthawk.transactionDetails.unconfirmed", fallback: "Unconfirmed")
+      /// view on Block Explorer
+      public static let viewOnBlockExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnBlockExplorer", fallback: "view on Block Explorer")
+      /// View on explorer
+      public static let viewOnExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnExplorer", fallback: "View on explorer")
+      /// View TX details
+      public static let viewTxDetails = L10n.tr("Localizable", "nighthawk.transactionDetails.viewTxDetails", fallback: "View TX details")
+    }
     public enum TransactionHistory {
+      /// Transaction History
+      public static let title = L10n.tr("Localizable", "nighthawk.transactionHistory.title", fallback: "Transaction History")
       /// %@ %@
       public static func zecAmount(_ p1: Any, _ p2: Any) -> String {
         return L10n.tr("Localizable", "nighthawk.transactionHistory.zecAmount", String(describing: p1), String(describing: p2), fallback: "%@ %@")
+      }
+    }
+    public enum TransferTab {
+      /// Your wallet address will be copied to the clipboard.
+      public static let receiveMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyDescription", fallback: "Your wallet address will be copied to the clipboard.")
+      /// Receive money
+      public static let receiveMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyTitle", fallback: "Receive money")
+      /// Send and receive Zcash
+      public static let sendAndReceiveZcash = L10n.tr("Localizable", "nighthawk.transferTab.sendAndReceiveZcash", fallback: "Send and receive Zcash")
+      /// Allow someone to scan the code to send money.
+      public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Allow someone to scan the code to send money.")
+      /// Send money
+      public static let sendMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyTitle", fallback: "Send money")
+      /// Securely buy Zcash through our partners.
+      public static let topUpWalletDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletDescription", fallback: "Securely buy Zcash through our partners.")
+      /// Top up your wallet
+      public static let topUpWalletTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletTitle", fallback: "Top up your wallet")
+      public enum AddMemo {
+        /// Add a message to your payment
+        public static let addMessageToPayment = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.addMessageToPayment", fallback: "Add a message to your payment")
+        /// Write something...
+        public static let writeSomething = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.writeSomething", fallback: "Write something...")
+      }
+      public enum Failed {
+        /// Cancel
+        public static let cancel = L10n.tr("Localizable", "nighthawk.transferTab.failed.cancel", fallback: "Cancel")
+        /// Failed
+        public static let title = L10n.tr("Localizable", "nighthawk.transferTab.failed.title", fallback: "Failed")
+        /// Try again
+        public static let tryAgain = L10n.tr("Localizable", "nighthawk.transferTab.failed.tryAgain", fallback: "Try again")
+      }
+      public enum Receive {
+        /// This will copy your t-address.
+        public static let copyNonPrivateAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressDescription", fallback: "This will copy your t-address.")
+        /// Copy a non-private address
+        public static let copyNonPrivateAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressTitle", fallback: "Copy a non-private address")
+        /// Copy unified address
+        public static let copyUnifiedAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressTitle", fallback: "Copy unified address")
+        /// Receive money publicly
+        public static let receiveMoneyPublicly = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneyPublicly", fallback: "Receive money publicly")
+        /// Receive money securely
+        public static let receiveMoneySecurely = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneySecurely", fallback: "Receive money securely")
+        /// Show QR Code
+        public static let showQrCodeTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.showQrCodeTitle", fallback: "Show QR Code")
+      }
+      public enum Recipient {
+        /// Add z-address here
+        public static let addZAddress = L10n.tr("Localizable", "nighthawk.transferTab.recipient.addZAddress", fallback: "Add z-address here")
+        /// Choose who to send it to
+        public static let chooseRecipient = L10n.tr("Localizable", "nighthawk.transferTab.recipient.chooseRecipient", fallback: "Choose who to send it to")
+        /// Continue
+        public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.recipient.continue", fallback: "Continue")
+        /// Paste from clipboard
+        public static let pasteFromClipboard = L10n.tr("Localizable", "nighthawk.transferTab.recipient.pasteFromClipboard", fallback: "Paste from clipboard")
+      }
+      public enum Review {
+        /// Send Zcash
+        public static let send = L10n.tr("Localizable", "nighthawk.transferTab.review.send", fallback: "Send Zcash")
+        /// Review and send
+        public static let title = L10n.tr("Localizable", "nighthawk.transferTab.review.title", fallback: "Review and send")
+      }
+      public enum Scan {
+        /// Scan a Payment Request
+        public static let scanPaymentRequest = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequest", fallback: "Scan a Payment Request")
+        /// If you have a payment request, you can scan the QR code here to auto-fill all the details.
+        public static let scanPaymentRequestDetails = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequestDetails", fallback: "If you have a payment request, you can scan the QR code here to auto-fill all the details.")
+      }
+      public enum Send {
+        /// Choose how much to send
+        public static let chooseHowMuch = L10n.tr("Localizable", "nighthawk.transferTab.send.chooseHowMuch", fallback: "Choose how much to send")
+        /// Continue
+        public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.send.continue", fallback: "Continue")
+        /// Scan a payment code
+        public static let scanCode = L10n.tr("Localizable", "nighthawk.transferTab.send.scanCode", fallback: "Scan a payment code")
+        /// Spendable balance (incl. tx fee) is %@ %@
+        public static func spendableBalance(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.send.spendableBalance", String(describing: p1), String(describing: p2), fallback: "Spendable balance (incl. tx fee) is %@ %@")
+        }
+        /// Top up wallet
+        public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
+      }
+      public enum Sending {
+        /// Sending
+        public static let title = L10n.tr("Localizable", "nighthawk.transferTab.sending.title", fallback: "Sending")
+      }
+      public enum Success {
+        /// Done
+        public static let done = L10n.tr("Localizable", "nighthawk.transferTab.success.done", fallback: "Done")
+        /// More details
+        public static let moreDetails = L10n.tr("Localizable", "nighthawk.transferTab.success.moreDetails", fallback: "More details")
+        /// Success
+        public static let title = L10n.tr("Localizable", "nighthawk.transferTab.success.title", fallback: "Success")
+      }
+      public enum TopUpWallet {
+        /// Your %@ has been copied to the clipboard.
+        /// 
+        /// Choose "Open Browser" below, select '%@' as the receiving coin on the %@ site, and then paste your %@
+        public static func fundWalletAlertMessage(_ p1: Any, _ p2: Any, _ p3: Any, _ p4: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.fundWalletAlertMessage", String(describing: p1), String(describing: p2), String(describing: p3), String(describing: p4), fallback: "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@")
+        }
+        /// Fund wallet with %@?
+        public static func fundWalletAlertTitle(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.fundWalletAlertTitle", String(describing: p1), fallback: "Fund wallet with %@?")
+        }
+        /// Open Browser
+        public static let openBrowser = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.openBrowser", fallback: "Open Browser")
+        /// Swap between 30+ coins. No sign-up required.
+        public static let sideshiftDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.sideshiftDescription", fallback: "Swap between 30+ coins. No sign-up required.")
+        /// Swap with SideShift.ai
+        public static let sideshiftTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.sideshiftTitle", fallback: "Swap with SideShift.ai")
+        /// Swap transparent coins without limits.
+        public static let stealthExIoDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.stealthExIoDescription", fallback: "Swap transparent coins without limits.")
+        /// Swap with StealthEx.io
+        public static let stealthExIoTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.stealthExIoTitle", fallback: "Swap with StealthEx.io")
       }
     }
     public enum WalletCreated {
@@ -360,6 +566,8 @@ public enum L10n {
       public static let recentActivity = L10n.tr("Localizable", "nighthawk.walletTab.recentActivity", fallback: "Recent activity")
       /// Shielded balance
       public static let shieldedBalance = L10n.tr("Localizable", "nighthawk.walletTab.shieldedBalance", fallback: "Shielded balance")
+      /// Shield now
+      public static let shieldNow = L10n.tr("Localizable", "nighthawk.walletTab.shieldNow", fallback: "Shield now")
       /// Swipe left to show your balance
       public static let swipeToShowBalances = L10n.tr("Localizable", "nighthawk.walletTab.swipeToShowBalances", fallback: "Swipe left to show your balance")
       /// Total balance
@@ -370,6 +578,24 @@ public enum L10n {
       public static let viewTransactionHistory = L10n.tr("Localizable", "nighthawk.walletTab.viewTransactionHistory", fallback: "View transaction history")
       /// ZEC
       public static let zec = L10n.tr("Localizable", "nighthawk.walletTab.zec", fallback: "ZEC")
+      public enum Addresses {
+        /// Copied to clipboard!
+        public static let copiedToClipboard = L10n.tr("Localizable", "nighthawk.walletTab.addresses.copiedToClipboard", fallback: "Copied to clipboard!")
+        /// Copy
+        public static let copy = L10n.tr("Localizable", "nighthawk.walletTab.addresses.copy", fallback: "Copy")
+        /// Legacy shielded address
+        public static let saplingAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.saplingAddress", fallback: "Legacy shielded address")
+        /// See more
+        public static let seeMore = L10n.tr("Localizable", "nighthawk.walletTab.addresses.seeMore", fallback: "See more")
+        /// Top up your wallet
+        public static let topUpYourWallet = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWallet", fallback: "Top up your wallet")
+        /// Buy or trade Zcash through our specially selected partners.
+        public static let topUpYourWalletDescription = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWalletDescription", fallback: "Buy or trade Zcash through our specially selected partners.")
+        /// Transparent address
+        public static let transparentAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.transparentAddress", fallback: "Transparent address")
+        /// Unified address
+        public static let unifiedAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.unifiedAddress", fallback: "Unified address")
+      }
     }
     public enum WelcomeScreen {
       /// Private money in your pocket.
