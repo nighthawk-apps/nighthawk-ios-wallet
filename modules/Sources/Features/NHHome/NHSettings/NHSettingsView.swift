@@ -144,7 +144,7 @@ struct NHSettingsView: View {
 }
 
 // MARK: - Subviews
-private extension NHSettingsView {    
+private extension NHSettingsView {
     func settingRow(
         title: String,
         subtitle: String,
