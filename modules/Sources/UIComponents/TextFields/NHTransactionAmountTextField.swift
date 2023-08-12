@@ -9,12 +9,10 @@ import Generated
 import SwiftUI
 import Utils
 
-// TODO: Matt W - This is an initial pass. This will only work for locales where "." is the decimal separator.
-// Ticket for work to handle various locales https://trello.com/c/XT9GNvp6/39-ios-handle-localization-for-zec-amount-input
-
 public struct NHTransactionAmountTextField: UIViewRepresentable {
     private var text: Binding<String>
     private let tokenName: String
+    private let decimalSeparator = Locale.current.decimalSeparator ?? "."
     
     public init(text: Binding<String>, tokenName: String) {
         self.text = text
@@ -22,7 +20,7 @@ public struct NHTransactionAmountTextField: UIViewRepresentable {
     }
     
     public func makeUIView(context: Context) -> ZecAmountRenderingView {
-        let view = ZecAmountRenderingView(tokenName: tokenName)
+        let view = ZecAmountRenderingView(tokenName: tokenName, decimalSeparator: decimalSeparator)
         view.delegate = context.coordinator
         view.backgroundColor = .clear
         view.textColor = .white
@@ -68,9 +66,11 @@ public class ZecAmountRenderingView: UILabel {
     }
     
     private let tokenName: String
+    private let decimalSeparator: String
     
-    required init(tokenName: String) {
+    required init(tokenName: String, decimalSeparator: String) {
         self.tokenName = tokenName
+        self.decimalSeparator = decimalSeparator
         super.init(frame: .zero)
         let tap = UITapGestureRecognizer()
         tap.addTarget(self, action: #selector(handleTap))
@@ -104,8 +104,8 @@ extension ZecAmountRenderingView: UIKeyInput, UITextInputTraits {
             delegate?.textDidChange(
                 input == "0" ? text : "\(input)\(text)"
             )
-        } else if text == "." && !input.contains(".") {
-            delegate?.textDidChange("\(input).")
+        } else if text == decimalSeparator && !input.contains(decimalSeparator) {
+            delegate?.textDidChange("\(input)\(decimalSeparator)")
         }
     }
     
@@ -122,7 +122,7 @@ extension ZecAmountRenderingView: UIKeyInput, UITextInputTraits {
 // MARK: - Private implementation
 private extension ZecAmountRenderingView {
     var fractionalPlaces: Int {
-        let parts = input.split(separator: ".")
+        let parts = input.split(separator: decimalSeparator)
         if parts.count < 2 {
             return 0
         }
