@@ -24,6 +24,7 @@ extension RootReducer {
             case sandbox
             case startup
             case welcome
+            case migrate
         }
         
         public var internalDestination: Destination = .welcome
@@ -120,7 +121,7 @@ extension RootReducer {
                 }
                 return EffectTask(value: .destination(.deeplink(url)))
 
-            case .nhHome, .home, .initialization, .onboarding, .phraseDisplay, .phraseValidation, .sandbox, .updateStateAfterConfigUpdate, .alert,
+            case .nhHome, .home, .initialization, .migrate, .onboarding, .phraseDisplay, .phraseValidation, .sandbox, .updateStateAfterConfigUpdate, .alert,
                 .welcome, .binding, .nukeWalletFailed, .nukeWalletSucceeded, .debug, .walletConfigLoaded, .exportLogs:
                 return .none
             }

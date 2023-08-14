@@ -38,7 +38,7 @@ public struct NighthawkSecondaryButtonStyle: ButtonStyle {
                 .padding(.horizontal, 14)
                 .background(
                     (
-                        isEnabled ? Asset.Colors.Nighthawk.richBlack.color : Asset.Colors.Nighthawk.navy.color
+                        isEnabled ? Asset.Colors.Nighthawk.navy.color : Asset.Colors.Nighthawk.richBlack.color
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
                 .foregroundColor(
@@ -46,7 +46,7 @@ public struct NighthawkSecondaryButtonStyle: ButtonStyle {
                         isEnabled ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
-                .cornerRadius(4)
+                .cornerRadius(8)
         }
     }
 }

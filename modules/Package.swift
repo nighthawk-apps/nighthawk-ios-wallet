@@ -27,6 +27,7 @@ let package = Package(
         .library(name: "Home", targets: ["Home"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
         .library(name: "ImportWalletSuccess", targets: ["ImportWalletSuccess"]),
+        .library(name: "Migrate", targets: ["Migrate"]),
         .library(name: "NHHome", targets: ["NHHome"]),
         .library(name: "NHImportWallet", targets: ["NHImportWallet"]),
         .library(name: "NHTransactionDetail", targets: ["NHTransactionDetail"]),
@@ -77,7 +78,8 @@ let package = Package(
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
         .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
-        .package(url: "https://github.com/pointfreeco/swiftui-navigation", from: "0.7.1")
+        .package(url: "https://github.com/pointfreeco/swiftui-navigation", from: "0.7.1"),
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9")
     ],
     targets: [
         .target(
@@ -266,6 +268,15 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/ImportWalletSuccess"
+        ),
+        .target(
+            name: "Migrate",
+            dependencies: [
+                "Generated",
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/Migrate"
         ),
         .target(
             name: "NHHome",
@@ -466,6 +477,7 @@ let package = Package(
                 "Generated",
                 "NHHome",
                 "Home",
+                "Migrate",
                 "MnemonicClient",
                 "Models",
                 "OnboardingFlow",
@@ -704,7 +716,8 @@ let package = Package(
                 "MnemonicClient",
                 "Models",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit"),
+                .product(name: "KeychainSwift", package: "keychain-swift")
             ],
             path: "Sources/Dependencies/WalletStorage"
         ),

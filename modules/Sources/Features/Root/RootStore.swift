@@ -7,6 +7,7 @@ import ZcashSDKEnvironment
 import WalletStorage
 import WalletConfigProvider
 import UserPreferencesStorage
+import Migrate
 import Models
 import RecoveryPhraseDisplay
 import Welcome
@@ -36,6 +37,7 @@ public struct RootReducer: ReducerProtocol {
         var exportLogsState: ExportLogsReducer.State
         var nhHomeState: NHHomeReducer.State
         var homeState: HomeReducer.State
+        var migrateState: MigrateReducer.State
         var onboardingState: OnboardingFlowReducer.State
         var phraseValidationState: RecoveryPhraseValidationFlowReducer.State
         var phraseDisplayState: RecoveryPhraseDisplayReducer.State
@@ -53,6 +55,7 @@ public struct RootReducer: ReducerProtocol {
         case exportLogs(ExportLogsReducer.Action)
         case nhHome(NHHomeReducer.Action)
         case home(HomeReducer.Action)
+        case migrate(MigrateReducer.Action)
         case initialization(InitializationAction)
         case nukeWalletFailed
         case nukeWalletSucceeded
@@ -98,6 +101,10 @@ public struct RootReducer: ReducerProtocol {
 
         Scope(state: \.exportLogsState, action: /Action.exportLogs) {
             ExportLogsReducer()
+        }
+        
+        Scope(state: \.migrateState, action: /Action.migrate) {
+            MigrateReducer()
         }
 
         Scope(state: \.onboardingState, action: /Action.onboarding) {
@@ -156,6 +163,10 @@ extension RootReducer {
                 return .initialized
             }
         } catch WalletStorage.WalletStorageError.uninitializedWallet {
+            if walletStorage.areLegacyKeysPresent() {
+                return .needsMigration
+            }
+            
             if databaseFiles.areDbFilesPresentFor(zcashNetwork) {
                 return .keysMissing
             }
@@ -220,6 +231,14 @@ extension AlertState where Action == RootReducer.Action {
         }
     }
     
+    public static func migrationFailed() -> AlertState {
+        AlertState {
+            TextState(L10n.Nighthawk.MigrateScreen.MigrationFailed.title)
+        } message: {
+            TextState(L10n.Nighthawk.MigrateScreen.MigrationFailed.description)
+        }
+    }
+    
     public static func rewindFailed(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Root.Debug.Alert.Rewind.Failed.title)
@@ -268,6 +287,7 @@ extension RootReducer.State {
             exportLogsState: .placeholder,
             nhHomeState: .placeholder,
             homeState: .placeholder,
+            migrateState: .placeholder,
             onboardingState: .init(
                 walletConfig: .default,
                 importWalletState: .placeholder,

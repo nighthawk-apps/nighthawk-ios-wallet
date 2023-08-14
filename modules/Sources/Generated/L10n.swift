@@ -245,6 +245,24 @@ public enum L10n {
       /// View wallet
       public static let viewWallet = L10n.tr("Localizable", "nighthawk.importWalletSuccess.viewWallet", fallback: "View wallet")
     }
+    public enum MigrateScreen {
+      /// Continue
+      public static let `continue` = L10n.tr("Localizable", "nighthawk.migrateScreen.continue", fallback: "Continue")
+      /// We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.
+      /// 
+      /// Would you like to proceed automatically?
+      public static let explanation = L10n.tr("Localizable", "nighthawk.migrateScreen.explanation", fallback: "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?")
+      /// Restore manually
+      public static let restoreManually = L10n.tr("Localizable", "nighthawk.migrateScreen.restoreManually", fallback: "Restore manually")
+      /// Migrating from old app version
+      public static let title = L10n.tr("Localizable", "nighthawk.migrateScreen.title", fallback: "Migrating from old app version")
+      public enum MigrationFailed {
+        /// An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.
+        public static let description = L10n.tr("Localizable", "nighthawk.migrateScreen.migrationFailed.description", fallback: "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.")
+        /// Migration failed
+        public static let title = L10n.tr("Localizable", "nighthawk.migrateScreen.migrationFailed.title", fallback: "Migration failed")
+      }
+    }
     public enum PlainOnboarding {
       /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
       public static let body = L10n.tr("Localizable", "nighthawk.plainOnboarding.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")

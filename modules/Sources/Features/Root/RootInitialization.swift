@@ -18,12 +18,12 @@ extension RootReducer {
         case appDelegate(AppDelegateAction)
         case checkBackupPhraseValidation
         case checkWalletInitialization
-        case configureCrashReporter
         case createNewWallet
         case checkWalletConfig
         case initializeSDK
         case initialSetups
         case initializationFailed(ZcashError)
+        case migrateLegacyWallet
         case nukeWallet
         case nukeWalletRequest
         case respondToWalletInitializationState(InitializationState)
@@ -66,7 +66,6 @@ extension RootReducer {
                 LoggerProxy.event(".appDelegate(.didFinishLaunching)")
                 /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
                 return .concatenate(
-                    EffectTask(value: .initialization(.configureCrashReporter)),
                     EffectTask(value: .initialization(.checkWalletInitialization))
                         .delay(for: 0.02, scheduler: mainQueue)
                         .eraseToEffect()
@@ -87,6 +86,10 @@ extension RootReducer {
                 case .failed:
                     state.appInitializationState = .failed
                     state.alert = AlertState.walletStateFailed(walletState)
+                    return .none
+                case .needsMigration:
+                    state.appInitializationState = .needsMigration
+                    state.destinationState.destination = .migrate
                     return .none
                 case .keysMissing:
                     state.appInitializationState = .keysMissing
@@ -192,6 +195,28 @@ extension RootReducer {
                     state.alert = AlertState.cantStoreThatUserPassedPhraseBackupTest(error.toZcashError())
                 }
                 return .none
+                
+            case .initialization(.migrateLegacyWallet):
+                do {
+                    let phrase = try walletStorage.exportLegacyPhrase()
+                    let birthday = try walletStorage.exportLegacyBirthday()
+                    
+                    // Delete legacy wallet storage
+                    walletStorage.nukeLegacyWallet()
+                    
+                    // store the wallet to the keychain
+                    try walletStorage.importWallet(
+                        phrase,
+                        birthday,
+                        .english,
+                        !state.walletConfig.isEnabled(.testBackupPhraseFlow)
+                    )
+                    
+                    return .task { .initialization(.initializeSDK) }
+                } catch {
+                    state.alert = AlertState.migrationFailed()
+                }
+                return .none
 
             case .initialization(.nukeWalletRequest):
                 state.alert = AlertState.wipeRequest()
@@ -237,6 +262,13 @@ extension RootReducer {
                     EffectTask.cancel(id: CancelId.timer),
                     EffectTask(value: .destination(.updateDestination(.startup)))
                 )
+                
+            case .migrate(.continueTapped):
+                return .task { .initialization(.migrateLegacyWallet) }
+                
+            case .migrate(.restoreManuallyTapped):
+                walletStorage.nukeLegacyWallet()
+                return .task { .initialization(.respondToWalletInitializationState(.uninitialized)) }
 
             case .onboarding(.importWallet(.successfullyRecovered)), .onboarding(.nhImportWallet(.importWalletSuccess(.viewWallet))):
                 return EffectTask(value: .destination(.updateDestination(.nhHome)))
@@ -246,13 +278,6 @@ extension RootReducer {
 
             case .onboarding(.createNewWallet):
                 return EffectTask(value: .initialization(.createNewWallet))
-
-            case .initialization(.configureCrashReporter):
-                // TODO: [#747] crashReporter needs a bit of extra work, see https://github.com/zcash/secant-ios-wallet/issues/747
-//                crashReporter.configure(
-//                    !userStoredPreferences.isUserOptedOutOfCrashReporting()
-//                )
-                return .none
                 
             case .updateStateAfterConfigUpdate(let walletConfig):
                 state.walletConfig = walletConfig
@@ -265,7 +290,7 @@ extension RootReducer {
                 state.alert = AlertState.initializationFailed(error)
                 return .none
                 
-            case .nhHome, .home, .destination, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
+            case .nhHome, .home, .destination, .migrate, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
                 .welcome, .binding, .debug, .exportLogs, .alert:
                 return .none
             }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import KeychainSwift
 import MnemonicSwift
 import ZcashLightClientKit
 import Utils
@@ -18,6 +19,11 @@ import Models
 public struct WalletStorage {
     public enum Constants {
         public static let zcashStoredWallet = "zcashStoredWallet"
+        
+        public static let zcashLegacyPhrase = "zECCWalletPhrase"
+        public static let zcashLegacyBirthday = "zECCWalletBirthday"
+        public static let zcashLegacyKeys = "zECCWalletKeys"
+        public static let zcashLegacySeedKey = "zEECWalletSeedKey"
         /// Versioning of the stored data
         public static let zcashKeychainVersion = 1
     }
@@ -40,6 +46,7 @@ public struct WalletStorage {
 
     private let secItem: SecItemClient
     public var zcashStoredWalletPrefix = ""
+    private let keychain = KeychainSwift()
     
     public init(secItem: SecItemClient) {
         self.secItem = secItem
@@ -82,7 +89,7 @@ public struct WalletStorage {
             throw WalletStorageError.uninitializedWallet
         }
         
-        guard let wallet = try? decode(json: data, as: StoredWallet.self) else {
+        guard let wallet = try decode(json: data, as: StoredWallet.self) else {
             throw WalletStorageError.uninitializedWallet
         }
         
@@ -102,6 +109,25 @@ public struct WalletStorage {
         }
         
         return true
+    }
+    
+    public func areLegacyKeysPresent() -> Bool {
+        let phrase = keychain.get(Constants.zcashLegacyPhrase)
+        let birthday = keychain.get(Constants.zcashLegacyBirthday)
+        return phrase != nil && birthday != nil
+    }
+    
+    public func exportLegacyPhrase() throws -> String {
+        guard let seed = keychain.get(Constants.zcashLegacyPhrase) else { throw WalletStorageError.uninitializedWallet }
+        return seed
+    }
+    
+    public func exportLegacyBirthday() throws -> BlockHeight {
+        guard let birthday = keychain.get(Constants.zcashLegacyBirthday),
+            let value = BlockHeight(birthday) else {
+                throw WalletStorageError.uninitializedWallet
+        }
+        return value
     }
     
     public func updateBirthday(_ height: BlockHeight) throws {
@@ -136,6 +162,18 @@ public struct WalletStorage {
     
     public func nukeWallet() {
         deleteData(forKey: Constants.zcashStoredWallet)
+    }
+    
+    public func nukeLegacyWallet() {
+        keychain.delete(Constants.zcashLegacyKeys)
+        keychain.delete(Constants.zcashLegacySeedKey)
+        keychain.delete(Constants.zcashLegacyPhrase)
+        keychain.delete(Constants.zcashLegacyBirthday)
+        
+        // Fix: retrocompatibility with old wallets, previous to IVK Synchronizer updates
+        for key in keychain.allKeys {
+            keychain.delete(key)
+        }
     }
     
     // MARK: - Wallet Storage Codable & Query helpers
