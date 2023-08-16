@@ -36,14 +36,21 @@ public struct MigrateView: View {
                         viewStore.send(.continueTapped)
                     }
                     .buttonStyle(.nighthawkPrimary(width: 160))
+                    .disabled(viewStore.isLoading)
                     
                     Button(L10n.Nighthawk.MigrateScreen.restoreManually) {
                         viewStore.send(.restoreManuallyTapped)
                     }
                     .buttonStyle(.nighthawkSecondary(width: 160))
+                    .disabled(viewStore.isLoading)
                 }
                 
                 Spacer()
+            }
+            .overlay(alignment: .top) {
+                if viewStore.isLoading {
+                    IndeterminateProgress()
+                }
             }
         }
         .applyNighthawkBackground()

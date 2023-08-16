@@ -234,6 +234,10 @@ extension AlertState where Action == RootReducer.Action {
     public static func migrationFailed() -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.MigrateScreen.MigrationFailed.title)
+        } actions: {
+            ButtonState(action: .migrate(.restoreManuallyTapped)) {
+                TextState(L10n.Nighthawk.MigrateScreen.continue)
+            }
         } message: {
             TextState(L10n.Nighthawk.MigrateScreen.MigrationFailed.description)
         }

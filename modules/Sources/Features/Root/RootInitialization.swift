@@ -212,7 +212,10 @@ extension RootReducer {
                         !state.walletConfig.isEnabled(.testBackupPhraseFlow)
                     )
                     
-                    return .task { .initialization(.initializeSDK) }
+                    return .concatenate(
+                        EffectTask(value: .initialization(.initializeSDK)),
+                        EffectTask(value: .initialization(.checkBackupPhraseValidation))
+                    )
                 } catch {
                     state.alert = AlertState.migrationFailed()
                 }
