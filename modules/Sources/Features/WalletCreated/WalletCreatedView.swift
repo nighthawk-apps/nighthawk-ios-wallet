@@ -41,12 +41,12 @@ private extension WalletCreatedView {
             Button(L10n.Nighthawk.WalletCreated.backup) {
                 viewStore.send(.backup)
             }
-            .buttonStyle(.nighthawkPrimary(width: 152))
+            .buttonStyle(.nighthawkPrimary(width: 180))
             
             Button(L10n.Nighthawk.WalletCreated.skip) {
                 viewStore.send(.skip)
             }
-            .buttonStyle(.nighthawkSecondary(width: 152))
+            .buttonStyle(.nighthawkSecondary(width: 180))
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, 64)

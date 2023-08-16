@@ -24,6 +24,7 @@ extension RootReducer {
         case initialSetups
         case initializationFailed(ZcashError)
         case migrateLegacyWallet
+        case finishManualRestore
         case nukeWallet
         case nukeWalletRequest
         case respondToWalletInitializationState(InitializationState)
@@ -242,6 +243,7 @@ extension RootReducer {
                 walletStorage.nukeWallet()
                 state.nhHomeState.settingsState.path = .init()
                 state.nhHomeState.destination = .wallet
+                state.onboardingState.destination = nil
                 return .concatenate(
                     .cancel(id: SynchronizerCancelId.timer),
                     EffectTask(value: .initialization(.checkWalletInitialization))
@@ -270,6 +272,19 @@ extension RootReducer {
                 return .task { .initialization(.migrateLegacyWallet) }
                 
             case .migrate(.restoreManuallyTapped):
+                guard let wipePublisher = sdkSynchronizer.wipe() else {
+                    return EffectTask(value: .nukeWalletFailed)
+                }
+                return wipePublisher
+                    .replaceEmpty(with: Void())
+                    .map { _ in return RootReducer.Action.initialization(.finishManualRestore) }
+                    .replaceError(with: RootReducer.Action.nukeWalletFailed)
+                    .receive(on: mainQueue)
+                    .eraseToEffect()
+                    .cancellable(id: SynchronizerCancelId.timer, cancelInFlight: true)
+                
+            case .initialization(.finishManualRestore):
+                walletStorage.nukeWallet()
                 walletStorage.nukeLegacyWallet()
                 return .task { .initialization(.respondToWalletInitializationState(.uninitialized)) }
 
