@@ -180,7 +180,8 @@ public struct WalletStorage {
     */
     private func removeRetrocompatibilityKeys() {
         let allKeys = Set(keychain.allKeys)
-        let allButNew = allKeys.subtracting([Constants.zcashStoredWallet])
+        // BUGFIX: avoid calling `keychain.delete("")` because it apparently wipes the keychain
+        let allButNew = allKeys.subtracting([Constants.zcashStoredWallet, ""])
         for key in allButNew {
             keychain.delete(key)
         }
@@ -244,7 +245,7 @@ public struct WalletStorage {
 
         var result: AnyObject?
         let status = secItem.copyMatching(query as CFDictionary, &result)
-        print(status)
+        
         return result as? Data
     }
     
