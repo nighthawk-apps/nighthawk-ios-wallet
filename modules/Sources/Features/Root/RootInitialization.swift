@@ -202,16 +202,20 @@ extension RootReducer {
                     let phrase = try walletStorage.exportLegacyPhrase()
                     let birthday = try walletStorage.exportLegacyBirthday()
                     
-                    // Delete legacy wallet storage
-                    walletStorage.nukeLegacyWallet()
-                    
-                    // store the wallet to the keychain
+
+                    // store the birthday and phrase found on the legacy keychain values
+                    // into the wallet under the new keychain format.
                     try walletStorage.importWallet(
                         phrase,
                         birthday,
                         .english,
                         !state.walletConfig.isEnabled(.testBackupPhraseFlow)
                     )
+
+                    // once we are sure that the values were stored under the new format,
+                    // Delete legacy wallet storage and all the remaining values that don't
+                    // be used anymore.
+                    walletStorage.nukeLegacyWallet()
                     
                     return .concatenate(
                         EffectTask(value: .initialization(.initializeSDK)),
