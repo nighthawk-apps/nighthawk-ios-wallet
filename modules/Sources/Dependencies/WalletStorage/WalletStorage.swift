@@ -171,7 +171,18 @@ public struct WalletStorage {
         keychain.delete(Constants.zcashLegacyBirthday)
         
         // Fix: retrocompatibility with old wallets, previous to IVK Synchronizer updates
-        for key in keychain.allKeys {
+        removeRetrocompatibilityKeys()
+    }
+
+    /**
+     Removes all remaining keys related to this App except the ones considered "New" under the key `Constants.zcashStoredWallet`
+     If there are no retrocompatibility keys present this function will do nothing.
+    */
+    private func removeRetrocompatibilityKeys() {
+        let allKeys = Set(keychain.allKeys)
+        // BUGFIX: avoid calling `keychain.delete("")` because it apparently wipes the keychain
+        let allButNew = allKeys.subtracting([Constants.zcashStoredWallet, ""])
+        for key in allButNew {
             keychain.delete(key)
         }
     }
@@ -233,7 +244,7 @@ public struct WalletStorage {
         let query = restoreQuery(forAccount: account, andKey: forKey)
 
         var result: AnyObject?
-        _ = secItem.copyMatching(query as CFDictionary, &result)
+        let status = secItem.copyMatching(query as CFDictionary, &result)
         
         return result as? Data
     }
