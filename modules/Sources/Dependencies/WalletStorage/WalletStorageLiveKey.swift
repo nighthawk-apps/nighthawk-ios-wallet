@@ -29,6 +29,15 @@ extension WalletStorageClient: DependencyKey {
             areKeysPresent: {
                 try walletStorage.areKeysPresent()
             },
+            areLegacyKeysPresent: {
+                walletStorage.areLegacyKeysPresent()
+            },
+            exportLegacyPhrase: {
+                try walletStorage.exportLegacyPhrase()
+            },
+            exportLegacyBirthday: {
+                try walletStorage.exportLegacyBirthday()
+            },
             updateBirthday: { birthday in
                 try walletStorage.updateBirthday(birthday)
             },
@@ -37,6 +46,9 @@ extension WalletStorageClient: DependencyKey {
             },
             nukeWallet: {
                 walletStorage.nukeWallet()
+            },
+            nukeLegacyWallet: {
+                walletStorage.nukeLegacyWallet()
             }
         )
     }

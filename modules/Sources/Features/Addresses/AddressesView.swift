@@ -66,6 +66,7 @@ private extension AddressesView {
             }
             .padding(.top, 16)
             .padding(.bottom, 64)
+            .frame(maxHeight: geometry.size.width * 1.35)
         }
     }
     

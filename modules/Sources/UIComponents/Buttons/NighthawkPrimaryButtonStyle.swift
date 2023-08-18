@@ -57,7 +57,7 @@ public struct NighthawkPrimaryButtonStyle: ButtonStyle {
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
                 .foregroundColor(isEnabled ? foregroundColor : Asset.Colors.Nighthawk.parmaviolet.color)
-                .cornerRadius(4)
+                .cornerRadius(8)
         }
     }
 }

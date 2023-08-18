@@ -13,9 +13,13 @@ extension WalletStorageClient: TestDependencyKey {
         importWallet: XCTUnimplemented("\(Self.self).importWallet"),
         exportWallet: XCTUnimplemented("\(Self.self).exportWallet", placeholder: .placeholder),
         areKeysPresent: XCTUnimplemented("\(Self.self).areKeysPresent", placeholder: false),
+        areLegacyKeysPresent: XCTUnimplemented("\(Self.self).areLegacyKeysPresent", placeholder: false),
+        exportLegacyPhrase: XCTUnimplemented("\(Self.self).exportLegacyPhrase"),
+        exportLegacyBirthday: XCTUnimplemented("\(Self.self).exportLegacyBirthday"),
         updateBirthday: XCTUnimplemented("\(Self.self).updateBirthday"),
         markUserPassedPhraseBackupTest: XCTUnimplemented("\(Self.self).markUserPassedPhraseBackupTest"),
-        nukeWallet: XCTUnimplemented("\(Self.self).nukeWallet")
+        nukeWallet: XCTUnimplemented("\(Self.self).nukeWallet"),
+        nukeLegacyWallet: XCTUnimplemented("\(Self.self).nukeLegacyWallet")
     )
 }
 
@@ -24,8 +28,12 @@ extension WalletStorageClient {
         importWallet: { _, _, _, _ in },
         exportWallet: { .placeholder },
         areKeysPresent: { false },
+        areLegacyKeysPresent: { false },
+        exportLegacyPhrase: { "" },
+        exportLegacyBirthday: { .zero },
         updateBirthday: { _ in },
         markUserPassedPhraseBackupTest: { _ in },
-        nukeWallet: { }
+        nukeWallet: { },
+        nukeLegacyWallet: { }
     )
 }

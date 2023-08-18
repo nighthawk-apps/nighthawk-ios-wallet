@@ -7,6 +7,7 @@ import Models
 import RecoveryPhraseDisplay
 import Welcome
 import ExportLogs
+import Migrate
 import OnboardingFlow
 import Sandbox
 import Home
@@ -130,6 +131,13 @@ private extension RootView {
                         store: store.scope(
                             state: \.welcomeState,
                             action: RootReducer.Action.welcome
+                        )
+                    )
+                case .migrate:
+                    MigrateView(
+                        store: store.scope(
+                            state: \.migrateState,
+                            action: RootReducer.Action.migrate
                         )
                     )
                 }

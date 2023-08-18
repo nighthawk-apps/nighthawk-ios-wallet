@@ -274,6 +274,14 @@
 "nighthawk.welcomeScreen.title" = "Nighthawk";
 "nighthawk.welcomeScreen.subtitle" = "Private money in your pocket.";
 
+// MARK: - Migrate Screen
+"nighthawk.migrateScreen.title" = "Migrating from old app version";
+"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
+"nighthawk.migrateScreen.continue" = "Continue";
+"nighthawk.migrateScreen.restoreManually" = "Restore manually";
+"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
+"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+
 // MARK: - Plain Onboarding Flow
 "nighthawk.plainOnboarding.subtitle" = "Get started";
 "nighthawk.plainOnboarding.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";

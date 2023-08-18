@@ -51,6 +51,17 @@ public struct WalletStorageClient {
     ///
     /// - Returns: the information whether some wallet is stored or is not available
     public var areKeysPresent: () throws -> Bool
+    
+    /// Check if the wallet representation for the legacy wallet is present in the persistent storage.
+    ///
+    /// - Returns: the information whether some wallet is stored or is not available
+    public var areLegacyKeysPresent: () -> Bool
+    
+    /// Load the legacy wallet phrase from the persistent and secured storage.
+    public var exportLegacyPhrase: () throws -> String
+    
+    /// Load the legacy wallet birthday from the persistent and secured storage.
+    public var exportLegacyBirthday: () throws -> BlockHeight
 
     /// Update the birthday in the securely stored wallet.
     ///
@@ -74,19 +85,31 @@ public struct WalletStorageClient {
     /// There's no fate but what we make for ourselves - Sarah Connor.
     public let nukeWallet: () -> Void
     
+    /// Use carefully: deletes the legacy stored wallet.
+    /// There's no fate but what we make for ourselves - Sarah Connor.
+    public let nukeLegacyWallet: () -> Void
+    
     public init(
         importWallet: @escaping (String, BlockHeight?, MnemonicLanguageType, Bool) throws -> Void,
         exportWallet: @escaping () throws -> StoredWallet,
         areKeysPresent: @escaping () throws -> Bool,
+        areLegacyKeysPresent: @escaping () -> Bool,
+        exportLegacyPhrase: @escaping () throws -> String,
+        exportLegacyBirthday: @escaping () throws -> BlockHeight,
         updateBirthday: @escaping (BlockHeight) throws -> Void,
         markUserPassedPhraseBackupTest: @escaping (Bool) throws -> Void,
-        nukeWallet: @escaping () -> Void
+        nukeWallet: @escaping () -> Void,
+        nukeLegacyWallet: @escaping () -> Void
     ) {
         self.importWallet = importWallet
         self.exportWallet = exportWallet
         self.areKeysPresent = areKeysPresent
+        self.areLegacyKeysPresent = areLegacyKeysPresent
+        self.exportLegacyPhrase = exportLegacyPhrase
+        self.exportLegacyBirthday = exportLegacyBirthday
         self.updateBirthday = updateBirthday
         self.markUserPassedPhraseBackupTest = markUserPassedPhraseBackupTest
         self.nukeWallet = nukeWallet
+        self.nukeLegacyWallet = nukeLegacyWallet
     }
 }
