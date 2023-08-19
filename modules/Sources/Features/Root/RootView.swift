@@ -6,7 +6,6 @@ import RecoveryPhraseValidationFlow
 import Models
 import RecoveryPhraseDisplay
 import Welcome
-import ExportLogs
 import Migrate
 import OnboardingFlow
 import Sandbox
@@ -147,32 +146,11 @@ private extension RootView {
                 state: \.$alert,
                 action: { .alert($0) }
             ))
-            .alert(store: store.scope(
-                state: \.exportLogsState.$alert,
-                action: { .exportLogs(.alert($0)) }
-            ))
-
-            shareLogsView(viewStore)
         }
     }
 }
 
 private extension RootView {
-    @ViewBuilder func shareLogsView(_ viewStore: RootViewStore) -> some View {
-        if viewStore.exportLogsState.isSharingLogs {
-            UIShareDialogView(
-                activityItems: viewStore.exportLogsState.zippedLogsURLs
-            ) {
-                viewStore.send(.exportLogs(.shareFinished))
-            }
-            // UIShareDialogView only wraps UIActivityViewController presentation
-            // so frame is set to 0 to not break SwiftUIs layout
-            .frame(width: 0, height: 0)
-        } else {
-            EmptyView()
-        }
-    }
-
     @ViewBuilder func debugView(_ viewStore: RootViewStore) -> some View {
         VStack(alignment: .leading) {
             if viewStore.destinationState.previousDestination == .nhHome {
@@ -201,15 +179,6 @@ private extension RootView {
                     Button(L10n.Root.Debug.Option.restartApp) {
                         viewStore.goToDestination(.welcome)
                     }
-
-                    Button(L10n.Root.Debug.Option.testCrashReporter) {
-                        viewStore.send(.debug(.testCrashReporter))
-                    }
-
-                    Button(L10n.Root.Debug.Option.exportLogs) {
-                        viewStore.send(.exportLogs(.start))
-                    }
-                    .disabled(viewStore.exportLogsState.exportLogsDisabled)
 
                     Button(L10n.Root.Debug.Option.appReview) {
                         viewStore.send(.debug(.rateTheApp))

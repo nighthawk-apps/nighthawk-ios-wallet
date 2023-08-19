@@ -54,7 +54,6 @@ public struct NHTransactionDetailReducer: ReducerProtocol {
                 }
                 return .none
             case .onAppear:
-                print(state.transaction)
                 return .none
             }
         }

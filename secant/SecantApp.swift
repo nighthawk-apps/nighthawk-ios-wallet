@@ -19,7 +19,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         reducer: RootReducer(
             tokenName: TargetConstants.tokenName,
             zcashNetwork: TargetConstants.zcashNetwork
-        ).logging()
+        )
     )
     lazy var rootViewStore = ViewStore(
         rootStore.stateless,
@@ -30,7 +30,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        walletLogger = OSLogger(logLevel: .debug, category: LoggerConstants.walletLogs)
         // set the default behavior for the NSDecimalNumber
         NSDecimalNumber.defaultBehavior = Zatoshi.decimalHandler
         rootViewStore.send(.initialization(.appDelegate(.didFinishLaunching)))

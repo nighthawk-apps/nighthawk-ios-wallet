@@ -13,7 +13,6 @@ import RecoveryPhraseDisplay
 import Welcome
 import Generated
 import Foundation
-import ExportLogs
 import OnboardingFlow
 import Sandbox
 import Home
@@ -34,7 +33,6 @@ public struct RootReducer: ReducerProtocol {
         var appInitializationState: InitializationState = .uninitialized
         var debugState: DebugState
         var destinationState: DestinationState
-        var exportLogsState: ExportLogsReducer.State
         var nhHomeState: NHHomeReducer.State
         var homeState: HomeReducer.State
         var migrateState: MigrateReducer.State
@@ -52,7 +50,6 @@ public struct RootReducer: ReducerProtocol {
         case binding(BindingAction<RootReducer.State>)
         case debug(DebugAction)
         case destination(DestinationAction)
-        case exportLogs(ExportLogsReducer.Action)
         case nhHome(NHHomeReducer.Action)
         case home(HomeReducer.Action)
         case migrate(MigrateReducer.Action)
@@ -68,8 +65,6 @@ public struct RootReducer: ReducerProtocol {
         case welcome(WelcomeReducer.Action)
     }
 
-    // TODO: [#747] crashReporter needs a bit of extra work, see https://github.com/zcash/secant-ios-wallet/issues/747
-    //@Dependency(\.crashReporter) var crashReporter
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.deeplink) var deeplink
     @Dependency(\.derivationTool) var derivationTool
@@ -97,10 +92,6 @@ public struct RootReducer: ReducerProtocol {
 
         Scope(state: \.homeState, action: /Action.home) {
             HomeReducer(networkType: zcashNetwork.networkType)
-        }
-
-        Scope(state: \.exportLogsState, action: /Action.exportLogs) {
-            ExportLogsReducer()
         }
         
         Scope(state: \.migrateState, action: /Action.migrate) {
@@ -288,7 +279,6 @@ extension RootReducer.State {
         .init(
             debugState: .placeholder,
             destinationState: .placeholder,
-            exportLogsState: .placeholder,
             nhHomeState: .placeholder,
             homeState: .placeholder,
             migrateState: .placeholder,
@@ -317,7 +307,7 @@ extension RootStore {
             reducer: RootReducer(
                 tokenName: "ZEC",
                 zcashNetwork: ZcashNetworkBuilder.network(for: .testnet)
-            ).logging()
+            )
         )
     }
 }

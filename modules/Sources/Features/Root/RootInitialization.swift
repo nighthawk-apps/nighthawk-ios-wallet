@@ -313,7 +313,7 @@ extension RootReducer {
                 return .none
                 
             case .nhHome, .home, .destination, .migrate, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
-                .welcome, .binding, .debug, .exportLogs, .alert:
+                .welcome, .binding, .debug, .alert:
                 return .none
             }
         }

@@ -20,7 +20,6 @@ let package = Package(
         .library(name: "Deeplink", targets: ["Deeplink"]),
         .library(name: "DerivationTool", targets: ["DerivationTool"]),
         .library(name: "DiskSpaceChecker", targets: ["DiskSpaceChecker"]),
-        .library(name: "ExportLogs", targets: ["ExportLogs"]),
         .library(name: "FeedbackGenerator", targets: ["FeedbackGenerator"]),
         .library(name: "FileManager", targets: ["FileManager"]),
         .library(name: "Generated", targets: ["Generated"]),
@@ -33,7 +32,6 @@ let package = Package(
         .library(name: "NHTransactionDetail", targets: ["NHTransactionDetail"]),
         .library(name: "NHUserPreferencesStorage", targets: ["NHUserPreferencesStorage"]),
         .library(name: "LocalAuthenticationHandler", targets: ["LocalAuthenticationHandler"]),
-        .library(name: "LogsHandler", targets: ["LogsHandler"]),
         .library(name: "MnemonicClient", targets: ["MnemonicClient"]),
         .library(name: "Models", targets: ["Models"]),
         .library(name: "NumberFormatter", targets: ["NumberFormatter"]),
@@ -189,17 +187,6 @@ let package = Package(
             path: "Sources/Dependencies/DiskSpaceChecker"
         ),
         .target(
-            name: "ExportLogs",
-            dependencies: [
-                "Generated",
-                "LogsHandler",
-                "Utils",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
-            ],
-            path: "Sources/Features/ExportLogs"
-        ),
-        .target(
             name: "FeedbackGenerator",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -342,14 +329,6 @@ let package = Package(
             path: "Sources/Dependencies/LocalAuthenticationHandler"
         ),
         .target(
-            name: "LogsHandler",
-            dependencies: [
-                "Utils",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/LogsHandler"
-        ),
-        .target(
             name: "MnemonicClient",
             dependencies: [
                 .product(name: "MnemonicSwift", package: "MnemonicSwift"),
@@ -473,7 +452,6 @@ let package = Package(
                 "DatabaseFiles",
                 "Deeplink",
                 "DerivationTool",
-                "ExportLogs",
                 "Generated",
                 "NHHome",
                 "Home",
@@ -587,10 +565,8 @@ let package = Package(
             name: "Settings",
             dependencies: [
                 "AppVersion",
-                "ExportLogs",
                 "Generated",
                 "LocalAuthenticationHandler",
-                "LogsHandler",
                 "MnemonicClient",
                 "Models",
                 "RecoveryPhraseDisplay",
