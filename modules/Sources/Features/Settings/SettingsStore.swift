@@ -3,7 +3,6 @@ import MessageUI
 import SwiftUI
 import AppVersion
 import MnemonicClient
-import LogsHandler
 import LocalAuthenticationHandler
 import SupportDataGenerator
 import Models
@@ -13,7 +12,6 @@ import Generated
 import WalletStorage
 import SDKSynchronizer
 import UserPreferencesStorage
-import ExportLogs
 
 public typealias SettingsStore = Store<SettingsReducer.State, SettingsReducer.Action>
 public typealias SettingsViewStore = ViewStore<SettingsReducer.State, SettingsReducer.Action>
@@ -29,8 +27,6 @@ public struct SettingsReducer: ReducerProtocol {
         public var appVersion = ""
         public var appBuild = ""
         public var destination: Destination?
-        public var exportLogsState: ExportLogsReducer.State
-        @BindingState public var isCrashReportingOn: Bool
         public var phraseDisplayState: RecoveryPhraseDisplayReducer.State
         public var supportData: SupportData?
         
@@ -38,16 +34,12 @@ public struct SettingsReducer: ReducerProtocol {
             appVersion: String = "",
             appBuild: String = "",
             destination: Destination? = nil,
-            exportLogsState: ExportLogsReducer.State,
-            isCrashReportingOn: Bool,
             phraseDisplayState: RecoveryPhraseDisplayReducer.State,
             supportData: SupportData? = nil
         ) {
             self.appVersion = appVersion
             self.appBuild = appBuild
             self.destination = destination
-            self.exportLogsState = exportLogsState
-            self.isCrashReportingOn = isCrashReportingOn
             self.phraseDisplayState = phraseDisplayState
             self.supportData = supportData
         }
@@ -58,7 +50,6 @@ public struct SettingsReducer: ReducerProtocol {
         case backupWallet
         case backupWalletAccessRequest
         case binding(BindingAction<SettingsReducer.State>)
-        case exportLogs(ExportLogsReducer.Action)
         case onAppear
         case phraseDisplay(RecoveryPhraseDisplayReducer.Action)
         case sendSupportMail
@@ -70,11 +61,8 @@ public struct SettingsReducer: ReducerProtocol {
     @Dependency(\.localAuthentication) var localAuthentication
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.logsHandler) var logsHandler
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    // TODO: [#747] crashReporter needs a bit of extra work, see https://github.com/zcash/secant-ios-wallet/issues/747
-    //@Dependency(\.crashReporter) var crashReporter
 
     public init() {}
     
@@ -82,7 +70,6 @@ public struct SettingsReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                state.isCrashReportingOn = !userStoredPreferences.isUserOptedOutOfCrashReporting()
                 state.appVersion = appVersion.appVersion()
                 state.appBuild = appVersion.appBuild()
                 return .none
@@ -103,21 +90,6 @@ public struct SettingsReducer: ReducerProtocol {
                 } catch {
                     state.alert = AlertState.cantBackupWallet(error.toZcashError())
                 }
-                return .none
-                
-            case .binding(\.$isCrashReportingOn):
-                // TODO: [#747] crashReporter needs a bit of extra work, see https://github.com/zcash/secant-ios-wallet/issues/747
-//                if state.isCrashReportingOn {
-//                    crashReporter.optOut()
-//                } else {
-//                    crashReporter.optIn()
-//                }
-
-                return .run { [state] _ in
-                    await userStoredPreferences.setIsUserOptedOutOfCrashReporting(state.isCrashReportingOn)
-                }
-                
-            case .exportLogs:
                 return .none
 
             case .phraseDisplay:
@@ -158,10 +130,6 @@ public struct SettingsReducer: ReducerProtocol {
 
         Scope(state: \.phraseDisplayState, action: /Action.phraseDisplay) {
             RecoveryPhraseDisplayReducer()
-        }
-
-        Scope(state: \.exportLogsState, action: /Action.exportLogs) {
-            ExportLogsReducer()
         }
     }
 }
@@ -230,8 +198,6 @@ extension AlertState where Action == SettingsReducer.Action {
 
 extension SettingsReducer.State {
     public static let placeholder = SettingsReducer.State(
-        exportLogsState: .placeholder,
-        isCrashReportingOn: true,
         phraseDisplayState: RecoveryPhraseDisplayReducer.State(
             flow: .settings,
             phrase: .placeholder

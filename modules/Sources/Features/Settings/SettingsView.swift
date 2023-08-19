@@ -3,7 +3,6 @@ import ComposableArchitecture
 import Generated
 import RecoveryPhraseDisplay
 import UIComponents
-import ExportLogs
 
 public struct SettingsView: View {
     let store: SettingsStore
@@ -15,36 +14,12 @@ public struct SettingsView: View {
     public var body: some View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 40) {
-                Toggle(
-                    L10n.Settings.crashReporting,
-                    isOn: viewStore.binding(\.$isCrashReportingOn)
-                )
                 Button(
                     action: { viewStore.send(.backupWalletAccessRequest) },
                     label: { Text(L10n.Settings.backupWallet) }
                 )
                 .activeButtonStyle
                 .frame(height: 50)
-                
-                Button(
-                    action: { viewStore.send(.exportLogs(.start)) },
-                    label: {
-                        if viewStore.exportLogsState.exportLogsDisabled {
-                            HStack {
-                                ProgressView()
-                                Text(L10n.Settings.exporting)
-                            }
-                        } else {
-                            Text(L10n.Settings.exportLogs)
-                        }
-                    }
-                )
-                .activeButtonStyle
-                .frame(height: 50)
-                .disable(
-                    when: viewStore.exportLogsState.exportLogsDisabled,
-                    dimmingOpacity: 0.5
-                )
                 
                 Button(
                     action: { viewStore.send(.sendSupportMail) },
@@ -80,8 +55,6 @@ public struct SettingsView: View {
             )
             .onAppear { viewStore.send(.onAppear) }
 
-            shareLogsView(viewStore)
-
             if let supportData = viewStore.supportData {
                 UIMailDialogView(
                     supportData: supportData,
@@ -98,25 +71,6 @@ public struct SettingsView: View {
             state: \.$alert,
             action: { .alert($0) }
         ))
-        .alert(store: store.scope(
-            state: \.exportLogsState.$alert,
-            action: { .exportLogs(.alert($0)) }
-        ))
-    }
-
-    @ViewBuilder func shareLogsView(_ viewStore: SettingsViewStore) -> some View {
-        if viewStore.exportLogsState.isSharingLogs {
-            UIShareDialogView(
-                activityItems: viewStore.exportLogsState.zippedLogsURLs
-            ) {
-                viewStore.send(.exportLogs(.shareFinished))
-            }
-            // UIShareDialogView only wraps UIActivityViewController presentation
-            // so frame is set to 0 to not break SwiftUIs layout
-            .frame(width: 0, height: 0)
-        } else {
-            EmptyView()
-        }
     }
 }
 

@@ -7,13 +7,6 @@
 
 import Foundation
 import ZcashLightClientKit
-import os
-
-public enum LoggerConstants {
-    public static let sdkLogs = "sdkLogs"
-    public static let tcaLogs = "tcaLogs"
-    public static let walletLogs = "walletLogs"
-}
 
 public var walletLogger: ZcashLightClientKit.Logger?
 
