@@ -71,7 +71,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.14.1"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "b9524ae1abfa54bbcaac802dbccb9e4eecc847cc"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "4d95f2cb9df23be534540b569597df8bd16717a6"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
