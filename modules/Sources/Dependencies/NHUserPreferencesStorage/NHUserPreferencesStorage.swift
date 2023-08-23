@@ -17,12 +17,14 @@ public struct NHUserPreferencesStorage {
         case zcashCurrency
         case zcashFiatConverted
         case zcashScreenMode
+        case zcashSyncNotificationFrequency
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
     private let convertedCurrency: String
     private let fiatConversion: Bool
     private let selectedScreenMode: NighthawkSetting.ScreenMode
+    private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
     
     private let userDefaults: UserDefaultsClient
     
@@ -30,11 +32,13 @@ public struct NHUserPreferencesStorage {
         convertedCurrency: String,
         fiatConversion: Bool,
         selectedScreenMode: NighthawkSetting.ScreenMode,
+        selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         userDefaults: UserDefaultsClient
     ) {
         self.convertedCurrency = convertedCurrency
         self.fiatConversion = fiatConversion
         self.selectedScreenMode = selectedScreenMode
+        self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
         self.userDefaults = userDefaults
     }
 
@@ -61,6 +65,18 @@ public struct NHUserPreferencesStorage {
     
     public func setScreenMode(_ mode: NighthawkSetting.ScreenMode) {
         setValue(mode.rawValue, forKey: Constants.zcashScreenMode.rawValue)
+    }
+    
+    public var syncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency {
+        let rawValue = getValue(
+            forKey: Constants.zcashSyncNotificationFrequency.rawValue,
+            default: selectedSyncNotificationFrequency.rawValue
+        )
+        return NighthawkSetting.SyncNotificationFrequency(rawValue: rawValue) ?? .off
+    }
+    
+    public func setSyncNotificationFrequency(_ frequency: NighthawkSetting.SyncNotificationFrequency) {
+        setValue(frequency.rawValue, forKey: Constants.zcashSyncNotificationFrequency.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults
