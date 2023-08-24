@@ -58,6 +58,7 @@ let package = Package(
         .library(name: "UIComponents", targets: ["UIComponents"]),
         .library(name: "URIParser", targets: ["URIParser"]),
         .library(name: "UserDefaults", targets: ["UserDefaults"]),
+        .library(name: "UserNotificationCenter", targets: ["UserNotificationCenter"]),
         .library(name: "UserPreferencesStorage", targets: ["UserPreferencesStorage"]),
         .library(name: "Utils", targets: ["Utils"]),
         .library(name: "WalletConfigProvider", targets: ["WalletConfigProvider"]),
@@ -270,6 +271,7 @@ let package = Package(
             dependencies: [
                 "Addresses",
                 "AppVersion",
+                "Date",
                 "DiskSpaceChecker",
                 "Models",
                 "NHTransactionDetail",
@@ -280,6 +282,7 @@ let package = Package(
                 "SDKSynchronizer",
                 "TopUp",
                 "UIComponents",
+                "UserNotificationCenter",
                 "WalletEventsFlow",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
@@ -642,6 +645,13 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/UserDefaults"
+        ),
+        .target(
+            name: "UserNotificationCenter",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/UserNotificationCenter"
         ),
         .target(
             name: "UserPreferencesStorage",

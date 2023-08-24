@@ -381,6 +381,26 @@ public enum L10n {
         public static let weeklyDescription = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.weeklyDescription", fallback: "Allow sync notifications to remind you to open the wallet every week.")
         /// Weekly
         public static let weeklyOption = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.weeklyOption", fallback: "Weekly")
+        public enum Notification {
+          /// Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!
+          public static let detail = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.notification.detail", fallback: "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!")
+          /// Time to sync!
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.notification.title", fallback: "Time to sync!")
+        }
+        public enum PermissionDeniedAlert {
+          /// Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.
+          public static let description = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description", fallback: "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.")
+          /// Go to settings
+          public static let goToSettings = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings", fallback: "Go to settings")
+          /// Permission denied
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title", fallback: "Permission denied")
+        }
+        public enum ScheduleNotificationFailedAlert {
+          /// We were unable to schedule your sync notification at this time.
+          public static let details = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details", fallback: "We were unable to schedule your sync notification at this time.")
+          /// Failed to schedule notification
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title", fallback: "Failed to schedule notification")
+        }
       }
     }
     public enum Sync {

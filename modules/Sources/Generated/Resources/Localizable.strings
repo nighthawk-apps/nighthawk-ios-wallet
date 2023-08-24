@@ -457,6 +457,13 @@
 "nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
 "nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
 "nighthawk.settingsTab.syncNotifications.offOption" = "Off";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
 
 // MARK: - Home Screen - Settings tab - Advanced
 "nighthawk.settingsTab.advanced.title" = "Advanced settings";

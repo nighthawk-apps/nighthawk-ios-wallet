@@ -63,7 +63,14 @@ struct NotificationsView: View {
             }
             .padding(.top, 25)
             .padding(.horizontal, 25)
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
+        .alert(
+            store: store.scope(
+                state: \.$alert,
+                action: { .alert($0) }
+            )
+        )
     }
 }
