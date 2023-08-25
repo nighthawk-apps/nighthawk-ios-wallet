@@ -28,6 +28,9 @@ public struct NHUserPreferencesStorageClient {
     
     public var syncNotificationFrequency: () -> NighthawkSetting.SyncNotificationFrequency
     public var setSyncNotificationFrequency: (NighthawkSetting.SyncNotificationFrequency) -> Void
+    
+    public var areBiometricsEnabled: () -> Bool
+    public var setAreBiometricsEnabled: (Bool) -> Void
 
     public var removeAll: () -> Void
 }

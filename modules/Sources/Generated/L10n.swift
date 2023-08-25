@@ -340,9 +340,9 @@ public enum L10n {
       public static let rescanSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanSubtitle", fallback: "Rescan wallet balances to troubleshoot issues")
       /// Rescan wallet
       public static let rescanTitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanTitle", fallback: "Rescan wallet")
-      /// Enable %@
+      /// Enable/Disable %@
       public static func securitySubtitle(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", String(describing: p1), fallback: "Enable %@")
+        return L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", String(describing: p1), fallback: "Enable/Disable %@")
       }
       /// Security
       public static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
@@ -370,6 +370,24 @@ public enum L10n {
           public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.subtitle", fallback: "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.")
           /// Keep screen on
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
+        }
+      }
+      public enum Security {
+        /// %@ disabled
+        public static func biometricsDisabled(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.security.biometricsDisabled", String(describing: p1), fallback: "%@ disabled")
+        }
+        /// %@ enabled
+        public static func biometricsEnabled(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.security.biometricsEnabled", String(describing: p1), fallback: "%@ enabled")
+        }
+        /// Authenticate to disable %@
+        public static func disableValidationReason(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.security.disableValidationReason", String(describing: p1), fallback: "Authenticate to disable %@")
+        }
+        /// Authenticate to enable %@
+        public static func enableValidationReason(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.security.enableValidationReason", String(describing: p1), fallback: "Authenticate to enable %@")
         }
       }
       public enum SyncNotifications {

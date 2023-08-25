@@ -21,6 +21,8 @@ extension NHUserPreferencesStorageClient: DependencyKey {
             setScreenMode: live.setScreenMode(_:),
             syncNotificationFrequency: { live.syncNotificationFrequency },
             setSyncNotificationFrequency: live.setSyncNotificationFrequency(_:),
+            areBiometricsEnabled: { live.areBiometricsEnabled },
+            setAreBiometricsEnabled: live.setAreBiometricsEnabled(_:),
             removeAll: live.removeAll
         )
     }()
@@ -32,6 +34,7 @@ extension NHUserPreferencesStorage {
         fiatConversion: true,
         selectedScreenMode: .off,
         selectedSyncNotificationFrequency: .off,
+        biometricsEnabled: false,
         userDefaults: .live()
     )
 }

@@ -21,6 +21,8 @@ extension NHUserPreferencesStorageClient: TestDependencyKey {
             setScreenMode: mock.setScreenMode(_:),
             syncNotificationFrequency: { mock.syncNotificationFrequency },
             setSyncNotificationFrequency: mock.setSyncNotificationFrequency(_:),
+            areBiometricsEnabled: { mock.areBiometricsEnabled },
+            setAreBiometricsEnabled: mock.setAreBiometricsEnabled(_:),
             removeAll: mock.removeAll
         )
     }()
@@ -32,6 +34,7 @@ extension NHUserPreferencesStorage {
         fiatConversion: true,
         selectedScreenMode: .off,
         selectedSyncNotificationFrequency: .off,
+        biometricsEnabled: false,
         userDefaults: .noOp
     )
 }

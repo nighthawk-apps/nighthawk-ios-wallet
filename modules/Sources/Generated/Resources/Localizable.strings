@@ -438,7 +438,7 @@
 "nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
 "nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
 "nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable %@";
+"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
 "nighthawk.settingsTab.backupTitle" = "Backup your wallet";
 "nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
 "nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
@@ -467,6 +467,12 @@
 "nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
 "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
 "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+
+// MARK: - Home Screen - Settings tab - Security
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
+"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
+"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
 
 // MARK: - Home Screen - Settings tab - Advanced
 "nighthawk.settingsTab.advanced.title" = "Advanced settings";
