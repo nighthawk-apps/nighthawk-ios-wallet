@@ -278,6 +278,7 @@ let package = Package(
                 "NHUserPreferencesStorage",
                 "OnboardingFlow",
                 "Receive",
+                "LocalAuthenticationHandler",
                 "NHSendFlow",
                 "SDKSynchronizer",
                 "TopUp",

@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import LocalAuthenticationHandler
+import LocalAuthentication
 
 extension DependencyValues {
     public var localAuthentication: LocalAuthenticationClient {
@@ -16,5 +16,6 @@ extension DependencyValues {
 }
 
 public struct LocalAuthenticationClient {
-    public let authenticate: @Sendable () async -> Bool
+    public let authenticate: @Sendable (String) async -> Bool
+    public let biometryType: () -> LABiometryType
 }

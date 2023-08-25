@@ -66,11 +66,9 @@ extension RootReducer {
                 // TODO: [#524] finish all the wallet events according to definition, https://github.com/zcash/secant-ios-wallet/issues/524
                 LoggerProxy.event(".appDelegate(.didFinishLaunching)")
                 /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                return .concatenate(
-                    EffectTask(value: .initialization(.checkWalletInitialization))
-                        .delay(for: 0.02, scheduler: mainQueue)
-                        .eraseToEffect()
-                )
+                return EffectTask(value: .initialization(.checkWalletInitialization))
+                    .delay(for: 0.02, scheduler: mainQueue)
+                    .eraseToEffect()
 
                 /// Evaluate the wallet's state based on keychain keys and database files presence
             case .initialization(.checkWalletInitialization):

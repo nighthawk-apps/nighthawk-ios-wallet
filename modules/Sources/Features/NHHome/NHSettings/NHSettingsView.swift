@@ -11,6 +11,11 @@ import SwiftUI
 import UIComponents
 
 struct NHSettingsView: View {
+    private enum Constants {
+        static let faceId = "Face ID"
+        static let touchId = "Touch ID"
+    }
+    
     let store: Store<NHSettingsReducer.State, NHSettingsReducer.Action>
     
     var body: some View {
@@ -34,12 +39,18 @@ struct NHSettingsView: View {
                             action: { viewStore.send(.goTo(.notifications())) }
                         )
                         
-                        settingRow(
-                            title: L10n.Nighthawk.SettingsTab.securityTitle,
-                            subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle,
-                            icon: Asset.Assets.Icons.Nighthawk.security.image,
-                            action: { viewStore.send(.goTo(.security())) }
-                        )
+                        if viewStore.biometryType != .none {
+                            settingRow(
+                                title: L10n.Nighthawk.SettingsTab.securityTitle,
+                                subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle(
+                                    viewStore.biometryType == .faceID
+                                    ? Constants.faceId
+                                    : Constants.touchId
+                                ),
+                                icon: Asset.Assets.Icons.Nighthawk.security.image,
+                                action: { viewStore.send(.goTo(.security())) }
+                            )
+                        }
                         
                         settingRow(
                             title: L10n.Nighthawk.SettingsTab.backupTitle,

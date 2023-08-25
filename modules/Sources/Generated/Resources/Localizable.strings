@@ -270,6 +270,9 @@
 //==========================================================
 // MARK: - Nighthawk
 
+// MARK: - Local authentication
+"nighthawk.localAuthentication.reason" = "You must authenticate to proceed.";
+
 // MARK: - Welcome Screen
 "nighthawk.welcomeScreen.title" = "Nighthawk";
 "nighthawk.welcomeScreen.subtitle" = "Private money in your pocket.";
@@ -435,7 +438,7 @@
 "nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
 "nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
 "nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Set/Change Pin Code & Biometric";
+"nighthawk.settingsTab.securitySubtitle" = "Enable %@";
 "nighthawk.settingsTab.backupTitle" = "Backup your wallet";
 "nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
 "nighthawk.settingsTab.rescanTitle" = "Rescan wallet";

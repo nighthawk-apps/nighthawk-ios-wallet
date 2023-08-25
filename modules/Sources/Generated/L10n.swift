@@ -245,6 +245,10 @@ public enum L10n {
       /// View wallet
       public static let viewWallet = L10n.tr("Localizable", "nighthawk.importWalletSuccess.viewWallet", fallback: "View wallet")
     }
+    public enum LocalAuthentication {
+      /// You must authenticate to proceed.
+      public static let reason = L10n.tr("Localizable", "nighthawk.localAuthentication.reason", fallback: "You must authenticate to proceed.")
+    }
     public enum MigrateScreen {
       /// Continue
       public static let `continue` = L10n.tr("Localizable", "nighthawk.migrateScreen.continue", fallback: "Continue")
@@ -336,8 +340,10 @@ public enum L10n {
       public static let rescanSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanSubtitle", fallback: "Rescan wallet balances to troubleshoot issues")
       /// Rescan wallet
       public static let rescanTitle = L10n.tr("Localizable", "nighthawk.settingsTab.rescanTitle", fallback: "Rescan wallet")
-      /// Set/Change Pin Code & Biometric
-      public static let securitySubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", fallback: "Set/Change Pin Code & Biometric")
+      /// Enable %@
+      public static func securitySubtitle(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.settingsTab.securitySubtitle", String(describing: p1), fallback: "Enable %@")
+      }
       /// Security
       public static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
       /// Settings
