@@ -19,6 +19,8 @@ extension NHUserPreferencesStorageClient: DependencyKey {
             setIsFiatConverted: live.setIsFiatConverted(_:),
             screenMode: { live.screenMode },
             setScreenMode: live.setScreenMode(_:),
+            syncNotificationFrequency: { live.syncNotificationFrequency },
+            setSyncNotificationFrequency: live.setSyncNotificationFrequency(_:),
             removeAll: live.removeAll
         )
     }()
@@ -29,6 +31,7 @@ extension NHUserPreferencesStorage {
         convertedCurrency: "USD",
         fiatConversion: true,
         selectedScreenMode: .off,
+        selectedSyncNotificationFrequency: .off,
         userDefaults: .live()
     )
 }

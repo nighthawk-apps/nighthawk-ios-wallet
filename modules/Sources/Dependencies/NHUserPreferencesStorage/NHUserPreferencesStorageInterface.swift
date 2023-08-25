@@ -25,6 +25,9 @@ public struct NHUserPreferencesStorageClient {
     
     public var screenMode: () -> NighthawkSetting.ScreenMode
     public var setScreenMode: (NighthawkSetting.ScreenMode) -> Void
+    
+    public var syncNotificationFrequency: () -> NighthawkSetting.SyncNotificationFrequency
+    public var setSyncNotificationFrequency: (NighthawkSetting.SyncNotificationFrequency) -> Void
 
     public var removeAll: () -> Void
 }

@@ -14,4 +14,12 @@ public enum NighthawkSetting {
         
         public var id: String { rawValue }
     }
+    
+    public enum SyncNotificationFrequency: String, CaseIterable, Identifiable, Hashable {
+        case weekly
+        case monthly
+        case off
+        
+        public var id: String { rawValue }
+    }
 }

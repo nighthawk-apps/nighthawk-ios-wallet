@@ -58,6 +58,7 @@ let package = Package(
         .library(name: "UIComponents", targets: ["UIComponents"]),
         .library(name: "URIParser", targets: ["URIParser"]),
         .library(name: "UserDefaults", targets: ["UserDefaults"]),
+        .library(name: "UserNotificationCenter", targets: ["UserNotificationCenter"]),
         .library(name: "UserPreferencesStorage", targets: ["UserPreferencesStorage"]),
         .library(name: "Utils", targets: ["Utils"]),
         .library(name: "WalletConfigProvider", targets: ["WalletConfigProvider"]),
@@ -71,7 +72,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.14.1"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "b9524ae1abfa54bbcaac802dbccb9e4eecc847cc"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "d446c6d3369ed7c5a2e2e0d23e772968dd6a32b4"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
@@ -270,6 +271,7 @@ let package = Package(
             dependencies: [
                 "Addresses",
                 "AppVersion",
+                "Date",
                 "DiskSpaceChecker",
                 "Models",
                 "NHTransactionDetail",
@@ -280,6 +282,7 @@ let package = Package(
                 "SDKSynchronizer",
                 "TopUp",
                 "UIComponents",
+                "UserNotificationCenter",
                 "WalletEventsFlow",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
@@ -642,6 +645,13 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/UserDefaults"
+        ),
+        .target(
+            name: "UserNotificationCenter",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/UserNotificationCenter"
         ),
         .target(
             name: "UserPreferencesStorage",

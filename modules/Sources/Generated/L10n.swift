@@ -366,6 +366,42 @@ public enum L10n {
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
         }
       }
+      public enum SyncNotifications {
+        /// When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.
+        public static let description = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.description", fallback: "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.")
+        /// Allow sync notifications to remind you to open the wallet every month.
+        public static let monthlyDescription = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.monthlyDescription", fallback: "Allow sync notifications to remind you to open the wallet every month.")
+        /// Monthly
+        public static let monthlyOption = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.monthlyOption", fallback: "Monthly")
+        /// Off
+        public static let offOption = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.offOption", fallback: "Off")
+        /// Sync notifications
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.title", fallback: "Sync notifications")
+        /// Allow sync notifications to remind you to open the wallet every week.
+        public static let weeklyDescription = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.weeklyDescription", fallback: "Allow sync notifications to remind you to open the wallet every week.")
+        /// Weekly
+        public static let weeklyOption = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.weeklyOption", fallback: "Weekly")
+        public enum Notification {
+          /// Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!
+          public static let detail = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.notification.detail", fallback: "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!")
+          /// Time to sync!
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.notification.title", fallback: "Time to sync!")
+        }
+        public enum PermissionDeniedAlert {
+          /// Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.
+          public static let description = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description", fallback: "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.")
+          /// Go to settings
+          public static let goToSettings = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings", fallback: "Go to settings")
+          /// Permission denied
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title", fallback: "Permission denied")
+        }
+        public enum ScheduleNotificationFailedAlert {
+          /// We were unable to schedule your sync notification at this time.
+          public static let details = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details", fallback: "We were unable to schedule your sync notification at this time.")
+          /// Failed to schedule notification
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title", fallback: "Failed to schedule notification")
+        }
+      }
     }
     public enum Sync {
       public enum Message {

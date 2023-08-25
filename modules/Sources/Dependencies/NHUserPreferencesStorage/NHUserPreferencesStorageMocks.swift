@@ -19,6 +19,8 @@ extension NHUserPreferencesStorageClient: TestDependencyKey {
             setIsFiatConverted: mock.setIsFiatConverted(_:),
             screenMode: { mock.screenMode },
             setScreenMode: mock.setScreenMode(_:),
+            syncNotificationFrequency: { mock.syncNotificationFrequency },
+            setSyncNotificationFrequency: mock.setSyncNotificationFrequency(_:),
             removeAll: mock.removeAll
         )
     }()
@@ -29,6 +31,7 @@ extension NHUserPreferencesStorage {
         convertedCurrency: "USD",
         fiatConversion: true,
         selectedScreenMode: .off,
+        selectedSyncNotificationFrequency: .off,
         userDefaults: .noOp
     )
 }
