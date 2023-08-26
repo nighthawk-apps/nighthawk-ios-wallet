@@ -271,10 +271,11 @@
 // MARK: - Nighthawk
 
 // MARK: - Local authentication
-"nighthawk.localAuthentication.reason" = "You must authenticate to proceed.";
+"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
 
 // MARK: - Welcome Screen
 "nighthawk.welcomeScreen.title" = "Nighthawk";
+"nighthawk.welcomeScreen.retry" = "Retry";
 "nighthawk.welcomeScreen.subtitle" = "Private money in your pocket.";
 
 // MARK: - Migrate Screen

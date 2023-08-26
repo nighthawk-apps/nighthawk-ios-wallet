@@ -17,6 +17,7 @@ public struct RootView: View {
     let store: RootStore
     let tokenName: String
     let networkType: NetworkType
+    @Environment(\.scenePhase) var scenePhase
 
     public init(store: RootStore, tokenName: String, networkType: NetworkType) {
         self.store = store
@@ -60,6 +61,9 @@ private extension RootView {
                     }
                     .navigationViewStyle(.stack)
                     .tint(.white)
+                    .onChange(of: scenePhase) { newPhase in
+                        viewStore.send(.initialization(.scene(.didChangePhase(newPhase))))
+                    }
                     
                 case .home:
                     NavigationView {
@@ -132,6 +136,9 @@ private extension RootView {
                             action: RootReducer.Action.welcome
                         )
                     )
+                    .onChange(of: scenePhase) { newScene in
+                        viewStore.send(.initialization(.scene(.didChangePhase(newScene))))
+                    }
                 case .migrate:
                     MigrateView(
                         store: store.scope(

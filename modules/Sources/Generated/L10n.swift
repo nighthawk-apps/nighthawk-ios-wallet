@@ -246,8 +246,8 @@ public enum L10n {
       public static let viewWallet = L10n.tr("Localizable", "nighthawk.importWalletSuccess.viewWallet", fallback: "View wallet")
     }
     public enum LocalAuthentication {
-      /// You must authenticate to proceed.
-      public static let reason = L10n.tr("Localizable", "nighthawk.localAuthentication.reason", fallback: "You must authenticate to proceed.")
+      /// You must authenticate to access your Nighthawk wallet.
+      public static let accessWalletReason = L10n.tr("Localizable", "nighthawk.localAuthentication.accessWalletReason", fallback: "You must authenticate to access your Nighthawk wallet.")
     }
     public enum MigrateScreen {
       /// Continue
@@ -676,6 +676,8 @@ public enum L10n {
       }
     }
     public enum WelcomeScreen {
+      /// Retry
+      public static let retry = L10n.tr("Localizable", "nighthawk.welcomeScreen.retry", fallback: "Retry")
       /// Private money in your pocket.
       public static let subtitle = L10n.tr("Localizable", "nighthawk.welcomeScreen.subtitle", fallback: "Private money in your pocket.")
       /// Nighthawk

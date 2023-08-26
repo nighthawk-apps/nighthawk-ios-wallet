@@ -18,24 +18,35 @@ public struct NHWelcomeView: View {
     }
     
     public var body: some View {
-        VStack {
-            Spacer()
-            
+        WithViewStore(store) { viewStore in
             VStack {
-                NighthawkLogo()
-                    .padding(.bottom, 10)
+                Spacer()
                 
-                Text(L10n.Nighthawk.WelcomeScreen.subtitle)
-                    .paragraph()
-            }
+                VStack {
+                    NighthawkLogo()
+                        .padding(.bottom, 10)
+                    
+                    Text(L10n.Nighthawk.WelcomeScreen.subtitle)
+                        .paragraph()
+                }
+                
+                if viewStore.authenticationFailed {
+                    Button(
+                        L10n.Nighthawk.WelcomeScreen.retry,
+                        action: { viewStore.send(.retryTapped) }
+                    )
+                    .buttonStyle(.nighthawkPrimary())
+                    .padding(.top, 8)
+                }
 
-            Spacer()
-            
-            Asset.Assets.Icons.Nighthawk.poweredByZcash
-                .image
-                .resizable()
-                .frame(width: 131, height: 20)
-                .padding(.bottom, 44)
+                Spacer()
+                
+                Asset.Assets.Icons.Nighthawk.poweredByZcash
+                    .image
+                    .resizable()
+                    .frame(width: 131, height: 20)
+                    .padding(.bottom, 44)
+            }
         }
         .applyNighthawkBackground()
     }

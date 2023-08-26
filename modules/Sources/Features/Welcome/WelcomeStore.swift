@@ -11,10 +11,13 @@ import ComposableArchitecture
 public typealias WelcomeStore = Store<WelcomeReducer.State, WelcomeReducer.Action>
 
 public struct WelcomeReducer: ReducerProtocol {
-    public struct State: Equatable {}
+    public struct State: Equatable {
+        public var authenticationFailed = false
+    }
     
     public enum Action: Equatable {
         case debugMenuStartup
+        case retryTapped
     }
     
     public init() {}

@@ -16,7 +16,7 @@ extension LocalAuthenticationClient: DependencyKey {
         context: LAContext = .init()
     ) -> Self {
         // context.biometryType is not populated on the context until this method is called
-        context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+        context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
         
         return Self(
             authenticate: { reason in
@@ -24,16 +24,11 @@ extension LocalAuthenticationClient: DependencyKey {
                 
                 do {
                     /// Biometrics validation
-                    if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-                        return try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+                    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                        return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
                     } else {
-                        /// Biometrics not supported by the device, fallback to passcode
-                        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                            return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)
-                        } else {
-                            /// No local authentication available, user's device is not protected, fallback to allow access to sensitive content
-                            return true
-                        }
+                        /// No local authentication available, user's device is not protected, fallback to allow access to sensitive content
+                        return true
                     }
                 } catch {
                     /// Some interruption occurred during the authentication, access to the sensitive content is therefore forbidden

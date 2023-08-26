@@ -87,15 +87,6 @@ public struct NHSettingsReducer: ReducerProtocol {
         
         public var appVersion: String
         public var biometryType: LABiometryType
-        
-        public var notifications: NotificationsReducer.State
-        public var fiat: FiatReducer.State
-        public var security: SecurityReducer.State
-        public var backup: BackupReducer.State
-        public var rescan: RescanReducer.State
-        public var changeServer: ChangeServerReducer.State
-        public var externalServices: ExternalServicesReducer.State
-        public var about: AboutReducer.State
     }
     
     public enum Action: Equatable {
@@ -132,15 +123,7 @@ extension NHSettingsReducer.State {
     public static var placeholder: Self {
         .init(
             appVersion: "1.0.0",
-            biometryType: .none,
-            notifications: .placeholder,
-            fiat: .placeholder,
-            security: .placeholder,
-            backup: .placeholder,
-            rescan: .placeholder,
-            changeServer: .placeholder,
-            externalServices: .placeholder,
-            about: .placeholder
+            biometryType: .none
         )
     }
 }

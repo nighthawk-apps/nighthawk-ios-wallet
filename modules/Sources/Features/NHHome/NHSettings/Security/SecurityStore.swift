@@ -47,7 +47,7 @@ public struct SecurityReducer: ReducerProtocol {
             case .binding(\.$areBiometricsEnabled):
                 return .task { [state] in
                     let reason: String
-                    switch state.biometryType {
+                    switch localAuthentication.biometryType() {
                     case .faceID:
                         reason = state.areBiometricsEnabled
                             ? L10n.Nighthawk.SettingsTab.Security.enableValidationReason("Face ID")

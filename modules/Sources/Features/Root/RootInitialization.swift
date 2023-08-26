@@ -7,8 +7,10 @@
 
 import ComposableArchitecture
 import Foundation
+import Generated
 import ZcashLightClientKit
 import Models
+import NHHome
 import Utils
 
 /// In this file is a collection of helpers that control all state and action related operations
@@ -16,6 +18,8 @@ import Utils
 extension RootReducer {
     public enum InitializationAction: Equatable {
         case appDelegate(AppDelegateAction)
+        case authenticate
+        case authenticationResponse(Bool)
         case checkBackupPhraseValidation
         case checkWalletInitialization
         case createNewWallet
@@ -28,6 +32,7 @@ extension RootReducer {
         case nukeWallet
         case nukeWalletRequest
         case respondToWalletInitializationState(InitializationState)
+        case scene(SceneAction)
         case walletConfigChanged(WalletConfig)
     }
 
@@ -35,12 +40,51 @@ extension RootReducer {
     public func initializationReduce() -> Reduce<RootReducer.State, RootReducer.Action> {
         Reduce { state, action in
             switch action {
+            case .initialization(.authenticate):
+                if !state.welcomeState.authenticationFailed {
+                    return .task {
+                        return await .initialization(
+                            .authenticationResponse(
+                                localAuthentication.authenticate(L10n.Nighthawk.LocalAuthentication.accessWalletReason)
+                            )
+                        )
+                    }
+                }
+                return .none
+            case .welcome(.retryTapped):
+                return .task {
+                    return await .initialization(
+                        .authenticationResponse(
+                            localAuthentication.authenticate(L10n.Nighthawk.LocalAuthentication.accessWalletReason)
+                        )
+                    )
+                }
+            case let .initialization(.authenticationResponse(authenticated)):
+                state.welcomeState.authenticationFailed = !authenticated
+                if authenticated {
+                    return .run { send in
+                        await send(.initialization(.initializeSDK))
+                        await send(.initialization(.checkBackupPhraseValidation))
+                    }
+                }
+                return .none
             case .initialization(.appDelegate(.didFinishLaunching)):
-                // TODO: [#704], trigger the review request logic when approved by the team,
-                // https://github.com/zcash/secant-ios-wallet/issues/704
                 return EffectTask(value: .initialization(.checkWalletConfig))
                     .delay(for: 0.02, scheduler: mainQueue)
                     .eraseToEffect()
+                
+            case let .initialization(.scene(.didChangePhase(newPhase))):
+                if newPhase == .inactive && !state.nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil }) {
+                    return .concatenate(
+                        .cancel(id: SynchronizerCancelId.timer),
+                        .send(.destination(.updateDestination(.welcome)))
+                    )
+                } else if newPhase == .active {
+                    return EffectTask(value: .initialization(.checkWalletConfig))
+                        .delay(for: 0.02, scheduler: mainQueue)
+                        .eraseToEffect()
+                }
+                return .none
 
             case .initialization(.checkWalletConfig):
                 return walletConfigProvider.load()
@@ -98,10 +142,15 @@ extension RootReducer {
                     if walletState == .filesMissing {
                         state.appInitializationState = .filesMissing
                     }
-                    return .concatenate(
-                        EffectTask(value: .initialization(.initializeSDK)),
-                        EffectTask(value: .initialization(.checkBackupPhraseValidation))
-                    )
+                    
+                    if nhUserStoredPreferences.areBiometricsEnabled() {
+                        return .run { send in await send(.initialization(.authenticate)) }
+                    } else {
+                        return .run { send in
+                            await send(.initialization(.initializeSDK))
+                            await send(.initialization(.checkBackupPhraseValidation))
+                        }
+                    }
                 case .uninitialized:
                     state.appInitializationState = .uninitialized
                     return EffectTask(value: .destination(.updateDestination(.onboarding)))

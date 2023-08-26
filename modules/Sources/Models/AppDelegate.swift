@@ -6,7 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 public enum AppDelegateAction: Equatable {
     case didFinishLaunching
+}
+
+public enum SceneAction: Equatable {
+    case didChangePhase(ScenePhase)
 }

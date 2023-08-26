@@ -17,6 +17,8 @@ import OnboardingFlow
 import Sandbox
 import Home
 import NHHome
+import LocalAuthenticationHandler
+import NHUserPreferencesStorage
 
 public typealias RootStore = Store<RootReducer.State, RootReducer.Action>
 public typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
@@ -76,6 +78,8 @@ public struct RootReducer: ReducerProtocol {
     @Dependency(\.walletConfigProvider) var walletConfigProvider
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+    @Dependency(\.localAuthentication) var localAuthentication
+    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
 
     public init(tokenName: String, zcashNetwork: ZcashNetwork) {
         self.tokenName = tokenName
