@@ -41,6 +41,7 @@ public struct ReviewView: View {
                 .padding(.bottom, 28)
             }
             .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
         .alert(
@@ -75,11 +76,11 @@ private extension ReviewViewStore {
     // TODO: Consider using ResultBuilder for this.
     func transactionLineItems(with tokenName: String) -> [TransactionLineItem] {
         var result: [TransactionLineItem] = []
-        if !self.memo.data.isEmpty {
+        if let memoStr = self.memo?.data, !memoStr.isEmpty {
             result.append(
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.memo,
-                    value: self.memo.data,
+                    value: memoStr,
                     isMemo: true
                 )
             )
@@ -93,7 +94,9 @@ private extension ReviewViewStore {
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.recipient,
-                    value: L10n.Nighthawk.TransactionDetails.recipientShielded,
+                    value: self.recipientIsTransparent
+                        ? L10n.Nighthawk.TransactionDetails.recipientTransparent
+                        : L10n.Nighthawk.TransactionDetails.recipientShielded,
                     showBorder: false
                 ),
                 TransactionLineItem(

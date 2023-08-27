@@ -63,7 +63,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
             }
             
             Scope(state: /State.review, action: /Action.review) {
-                ReviewReducer()
+                ReviewReducer(networkType: networkType)
             }
             
             Scope(state: /State.scan, action: /Action.scan) {
@@ -95,7 +95,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
             Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
         public var recipient: RedactableString = "".redacted
-        public var memo: RedactableString = "".redacted
+        public var memo: RedactableString?
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
@@ -140,10 +140,6 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 guard case let .addMemo(addMemoState) = state.path[id: id]
                 else { return .none }
                 state.memo = addMemoState.memo
-                state.path.append(Path.State.recipient(.init()))
-                return .none
-            case .path(.element(id: _, action: .recipient(.continueTapped))):
-                guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
                 state.path.append(
                     Path.State.review(
                         .init(
@@ -153,6 +149,25 @@ public struct NHSendFlowReducer: ReducerProtocol {
                         )
                     )
                 )
+                return .none
+            case .path(.element(id: _, action: .recipient(.continueTapped))):
+                guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
+                if derivationTool.isTransparentAddress(state.recipient.data, networkType) {
+                    state.path.append(
+                        Path.State.review(
+                            .init(
+                                subtotal: state.amountToSend,
+                                memo: state.memo,
+                                recipient: state.recipient
+                            )
+                        )
+                    )
+                } else {
+                    var addMemoState = AddMemoReducer.State()
+                    addMemoState.memoCharLimit = state.memoCharLimit
+                    state.path.append(Path.State.addMemo(addMemoState))
+                }
+                
                 return .none
             case .path(.element(id: _, action: .recipient(.scanQRCodeTapped))):
                 state.path.append(Path.State.scan(.init()))
@@ -183,8 +198,8 @@ public struct NHSendFlowReducer: ReducerProtocol {
                     
                     let recipient = try Recipient(state.recipient.data, network: networkType)
                     var memo: Memo?
-                    if (/Recipient.transparent).extract(from: recipient) == nil && !state.memo.data.isEmpty {
-                        memo = try Memo(string: state.memo.data)
+                    if (/Recipient.transparent).extract(from: recipient) == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
+                        memo = try Memo(string: memoStr)
                     }
                     return .run { [state, memo] send in
                         do {
@@ -204,9 +219,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
                     return .task { .sendTransactionFailure }
                 }
             case .continueTapped:
-                var addMemoState = AddMemoReducer.State()
-                addMemoState.memoCharLimit = state.memoCharLimit
-                state.path.append(Path.State.addMemo(addMemoState))
+                state.path.append(Path.State.recipient(.init()))
                 return .none
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit

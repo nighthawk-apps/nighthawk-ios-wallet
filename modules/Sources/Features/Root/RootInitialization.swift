@@ -11,6 +11,7 @@ import Generated
 import ZcashLightClientKit
 import Models
 import NHHome
+import SwiftUI
 import Utils
 
 /// In this file is a collection of helpers that control all state and action related operations
@@ -74,7 +75,7 @@ extension RootReducer {
                     .eraseToEffect()
                 
             case let .initialization(.scene(.didChangePhase(newPhase))):
-                if newPhase == .inactive && !state.nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil }) {
+                if state.shouldResetToSplash(for: newPhase) && nhUserStoredPreferences.areBiometricsEnabled() {
                     return .concatenate(
                         .cancel(id: SynchronizerCancelId.timer),
                         .send(.destination(.updateDestination(.welcome)))
@@ -364,5 +365,12 @@ extension RootReducer {
                 return .none
             }
         }
+    }
+}
+
+// MARK: - Implementation
+private extension RootReducer.State {
+    func shouldResetToSplash(for phase: ScenePhase) -> Bool {
+        phase == .inactive && !nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil })
     }
 }
