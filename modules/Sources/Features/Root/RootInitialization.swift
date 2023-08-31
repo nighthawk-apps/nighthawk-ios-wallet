@@ -44,21 +44,47 @@ extension RootReducer {
             case .initialization(.authenticate):
                 if !state.welcomeState.authenticationFailed {
                     return .task {
-                        return await .initialization(
-                            .authenticationResponse(
-                                localAuthentication.authenticate(L10n.Nighthawk.LocalAuthentication.accessWalletReason)
-                            )
-                        )
+                        let context = localAuthentication.context()
+                        
+                        do {
+                            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
+                                return try await .initialization(
+                                    .authenticationResponse(
+                                        context.evaluatePolicy(
+                                            .deviceOwnerAuthentication,
+                                            localizedReason: L10n.Nighthawk.LocalAuthentication.accessWalletReason
+                                        )
+                                    )
+                                )
+                            } else {
+                                return .initialization(.authenticationResponse(false))
+                            }
+                        } catch {
+                            return .initialization(.authenticationResponse(false))
+                        }
                     }
                 }
                 return .none
             case .welcome(.retryTapped):
                 return .task {
-                    return await .initialization(
-                        .authenticationResponse(
-                            localAuthentication.authenticate(L10n.Nighthawk.LocalAuthentication.accessWalletReason)
-                        )
-                    )
+                    let context = localAuthentication.context()
+                    
+                    do {
+                        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
+                            return try await .initialization(
+                                .authenticationResponse(
+                                    context.evaluatePolicy(
+                                        .deviceOwnerAuthentication,
+                                        localizedReason: L10n.Nighthawk.LocalAuthentication.accessWalletReason
+                                    )
+                                )
+                            )
+                        } else {
+                            return .initialization(.authenticationResponse(false))
+                        }
+                    } catch {
+                        return .initialization(.authenticationResponse(false))
+                    }
                 }
             case let .initialization(.authenticationResponse(authenticated)):
                 state.welcomeState.authenticationFailed = !authenticated
@@ -371,6 +397,8 @@ extension RootReducer {
 // MARK: - Implementation
 private extension RootReducer.State {
     func shouldResetToSplash(for phase: ScenePhase) -> Bool {
-        phase == .inactive && !nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil })
+        phase == .inactive
+        && !nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil })
+        && nhHomeState.destination != .transfer
     }
 }

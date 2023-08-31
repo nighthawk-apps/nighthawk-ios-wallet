@@ -12,11 +12,13 @@ extension LocalAuthenticationClient {
     
     public static let mockAuthenticationSucceeded = Self(
         authenticate: { _ in true },
-        biometryType: biometryType
+        biometryType: biometryType,
+        context: { LAContext() }
     )
     
     public static let mockAuthenticationFailed = Self(
         authenticate: { _ in false },
-        biometryType: biometryType
+        biometryType: biometryType,
+        context: { LAContext() }
     )
 }

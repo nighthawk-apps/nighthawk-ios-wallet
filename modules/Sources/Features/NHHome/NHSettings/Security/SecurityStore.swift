@@ -62,7 +62,17 @@ public struct SecurityReducer: ReducerProtocol {
                         return .noOp
                     }
                     
-                    return await .authenticationResponse(localAuthentication.authenticate(reason))
+                    let context = localAuthentication.context()
+                    
+                    do {
+                        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
+                            return try await .authenticationResponse(context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason))
+                        } else {
+                            return .authenticationResponse(false)
+                        }
+                    } catch {
+                        return .authenticationResponse(false)
+                    }
                 }
             case .onAppear:
                 state.areBiometricsEnabled = nhUserStoredPreferences.areBiometricsEnabled()

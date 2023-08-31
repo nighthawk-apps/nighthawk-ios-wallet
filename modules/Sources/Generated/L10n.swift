@@ -248,6 +248,8 @@ public enum L10n {
     public enum LocalAuthentication {
       /// You must authenticate to access your Nighthawk wallet.
       public static let accessWalletReason = L10n.tr("Localizable", "nighthawk.localAuthentication.accessWalletReason", fallback: "You must authenticate to access your Nighthawk wallet.")
+      /// You must authenticate to send funds from your wallet.
+      public static let sendFundsReason = L10n.tr("Localizable", "nighthawk.localAuthentication.sendFundsReason", fallback: "You must authenticate to send funds from your wallet.")
     }
     public enum MigrateScreen {
       /// Continue

@@ -35,7 +35,8 @@ extension LocalAuthenticationClient: DependencyKey {
                     return false
                 }
             },
-            biometryType: { context.biometryType }
+            biometryType: { context.biometryType },
+            context: { LAContext() }
         )
     }
 }

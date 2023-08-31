@@ -272,6 +272,7 @@
 
 // MARK: - Local authentication
 "nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
+"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
 
 // MARK: - Welcome Screen
 "nighthawk.welcomeScreen.title" = "Nighthawk";

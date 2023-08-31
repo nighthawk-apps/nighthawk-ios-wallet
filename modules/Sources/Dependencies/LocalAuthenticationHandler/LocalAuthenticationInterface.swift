@@ -18,4 +18,5 @@ extension DependencyValues {
 public struct LocalAuthenticationClient {
     public let authenticate: @Sendable (String) async -> Bool
     public let biometryType: () -> LABiometryType
+    public let context: () -> LAContext
 }
