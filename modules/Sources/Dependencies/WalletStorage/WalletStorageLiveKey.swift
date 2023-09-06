@@ -15,12 +15,11 @@ extension WalletStorageClient: DependencyKey {
 
     public static func live(walletStorage: WalletStorage = WalletStorage(secItem: .live)) -> Self {
         Self(
-            importWallet: { bip39, birthday, language, hasUserPassedPhraseBackupTest  in
+            importWallet: { bip39, birthday, language in
                 try walletStorage.importWallet(
                     bip39: bip39,
                     birthday: birthday,
-                    language: language,
-                    hasUserPassedPhraseBackupTest: hasUserPassedPhraseBackupTest
+                    language: language
                 )
             },
             exportWallet: {
@@ -40,9 +39,6 @@ extension WalletStorageClient: DependencyKey {
             },
             updateBirthday: { birthday in
                 try walletStorage.updateBirthday(birthday)
-            },
-            markUserPassedPhraseBackupTest: { flag in
-                try walletStorage.markUserPassedPhraseBackupTest(flag)
             },
             nukeWallet: {
                 walletStorage.nukeWallet()

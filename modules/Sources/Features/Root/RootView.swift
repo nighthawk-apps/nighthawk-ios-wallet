@@ -2,14 +2,11 @@ import SwiftUI
 import StoreKit
 import ComposableArchitecture
 import Generated
-import RecoveryPhraseValidationFlow
 import Models
 import RecoveryPhraseDisplay
 import Welcome
 import Migrate
 import OnboardingFlow
-import Sandbox
-import Home
 import NHHome
 import ZcashLightClientKit
 
@@ -27,20 +24,6 @@ public struct RootView: View {
     
     public var body: some View {
         switchOverDestination()
-    }
-}
-
-private struct FeatureFlagWrapper: Identifiable, Equatable, Comparable {
-    let name: FeatureFlag
-    let isEnabled: Bool
-    var id: String { name.rawValue }
-
-    static func < (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
-        lhs.name.rawValue < rhs.name.rawValue
-    }
-
-    static func == (lhs: FeatureFlagWrapper, rhs: FeatureFlagWrapper) -> Bool {
-        lhs.name.rawValue == rhs.name.rawValue
     }
 }
 
@@ -65,31 +48,6 @@ private extension RootView {
                         viewStore.send(.initialization(.scene(.didChangePhase(newPhase))))
                     }
                     
-                case .home:
-                    NavigationView {
-                        HomeView(
-                            store: store.scope(
-                                state: \.homeState,
-                                action: RootReducer.Action.home
-                            ),
-                            tokenName: tokenName
-                        )
-                    }
-                    .navigationViewStyle(.stack)
-                    
-                case .sandbox:
-                    NavigationView {
-                        SandboxView(
-                            store: store.scope(
-                                state: \.sandboxState,
-                                action: RootReducer.Action.sandbox
-                            ),
-                            tokenName: tokenName,
-                            networkType: networkType
-                        )
-                    }
-                    .navigationViewStyle(.stack)
-                    
                 case .onboarding:
                     NavigationView {
                         NHPlainOnboardingView(
@@ -101,23 +59,6 @@ private extension RootView {
                     }
                     .navigationViewStyle(.stack)
                     .tint(.white)
-
-                case .startup:
-                    ZStack(alignment: .topTrailing) {
-                        debugView(viewStore)
-                            .transition(.opacity)
-                    }
-                    
-                case .phraseValidation:
-                    NavigationView {
-                        RecoveryPhraseValidationFlowView(
-                            store: store.scope(
-                                state: \.phraseValidationState,
-                                action: RootReducer.Action.phraseValidation
-                            )
-                        )
-                    }
-                    .navigationViewStyle(.stack)
                     
                 case .phraseDisplay:
                     NavigationView {
@@ -154,88 +95,6 @@ private extension RootView {
                 action: { .alert($0) }
             ))
         }
-    }
-}
-
-private extension RootView {
-    @ViewBuilder func debugView(_ viewStore: RootViewStore) -> some View {
-        VStack(alignment: .leading) {
-            if viewStore.destinationState.previousDestination == .nhHome {
-                Button(L10n.General.back) {
-                    viewStore.goToDestination(.nhHome)
-                }
-                .activeButtonStyle
-                .frame(width: 150)
-                .padding()
-            }
-
-            List {
-                Section(header: Text(L10n.Root.Debug.title)) {
-                    Button(L10n.Root.Debug.Option.gotoSandbox) {
-                        viewStore.goToDestination(.sandbox)
-                    }
-
-                    Button(L10n.Root.Debug.Option.gotoOnboarding) {
-                        viewStore.goToDestination(.onboarding)
-                    }
-
-                    Button(L10n.Root.Debug.Option.gotoPhraseValidationDemo) {
-                        viewStore.goToDestination(.phraseValidation)
-                    }
-
-                    Button(L10n.Root.Debug.Option.restartApp) {
-                        viewStore.goToDestination(.welcome)
-                    }
-
-                    Button(L10n.Root.Debug.Option.appReview) {
-                        viewStore.send(.debug(.rateTheApp))
-                        if let currentScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                            SKStoreReviewController.requestReview(in: currentScene)
-                        }
-                    }
-
-                    Button(L10n.Root.Debug.Option.rescanBlockchain) {
-                        viewStore.send(.debug(.rescanBlockchain))
-                    }
-
-                    Button(L10n.Root.Debug.Option.nukeWallet) {
-                        viewStore.send(.initialization(.nukeWalletRequest))
-                    }
-                }
-
-                Section(header: Text(L10n.Root.Debug.featureFlags)) {
-                    let flags = viewStore.state.walletConfig.flags
-                        .map { FeatureFlagWrapper(name: $0.key, isEnabled: $0.value) }
-                        .sorted()
-
-                    ForEach(flags) { flag in
-                        HStack {
-                            Toggle(
-                                isOn: Binding(
-                                    get: { flag.isEnabled },
-                                    set: { _ in
-                                        viewStore.send(.debug(.updateFlag(flag.name, flag.isEnabled)))
-                                    }
-                                ),
-                                label: {
-                                    Text(flag.name.rawValue)
-                                        .foregroundColor(flag.isEnabled ? .green : .red)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-            .confirmationDialog(
-                store.scope(
-                    state: \.debugState.rescanDialog,
-                    action: { _ in RootReducer.Action.debug(.cancelRescan) }
-                ),
-                dismiss: .debug(.cancelRescan)
-            )
-        }
-        .navigationBarTitle(L10n.Root.Debug.navigationTitle)
     }
 }
 

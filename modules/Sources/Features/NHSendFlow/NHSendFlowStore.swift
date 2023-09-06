@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import DerivationTool
 import Generated
-import LocalAuthenticationHandler
+import LocalAuthenticationClient
 import NHUserPreferencesStorage
 import MnemonicClient
 import SDKSynchronizer
@@ -130,7 +130,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
     }
     
     @Dependency(\.derivationTool) var derivationTool
-    @Dependency(\.localAuthentication) var localAuthentication
+    @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.nhUserStoredPreferences) var nhUserPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
@@ -196,9 +196,22 @@ public struct NHSendFlowReducer: ReducerProtocol {
             case .path(.element(id: _, action: .review(.sendZcashTapped))):
                 if nhUserPreferencesStorage.areBiometricsEnabled() {
                     return .task {
-                        return await .authenticationResponse(
-                            localAuthentication.authenticate(L10n.Nighthawk.LocalAuthentication.sendFundsReason)
-                        )
+                        let context = localAuthenticationContext()
+                        
+                        do {
+                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                                return try await .authenticationResponse(
+                                    context.evaluatePolicy(
+                                        .deviceOwnerAuthentication,
+                                        L10n.Nighthawk.LocalAuthentication.sendFundsReason
+                                    )
+                                )
+                            } else {
+                                return .authenticationResponse(false)
+                            }
+                        } catch {
+                            return .authenticationResponse(false)
+                        }
                     }
                 } else {
                     return .run { send in await send(.sendTransaction) }

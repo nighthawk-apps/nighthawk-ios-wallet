@@ -31,12 +31,11 @@ public struct WalletStorageClient {
     ///   - bip39: Mnemonic/Seed phrase from `MnemonicSwift`
     ///   - birthday: BlockHeight from SDK
     ///   - language: Mnemonic's language
-    ///   - hasUserPassedPhraseBackupTest: If user passed the puzzle phrase backup
     /// - Throws:
     ///   - `WalletStorageError.unsupportedLanguage`:  when mnemonic's language is anything other than English
     ///   - `WalletStorageError.alreadyImported` when valid wallet is already in the storage
     ///   - `WalletStorageError.storageError` when some unrecognized error occurred
-    public let importWallet: (String, BlockHeight?, MnemonicLanguageType, Bool) throws -> Void
+    public let importWallet: (String, BlockHeight?, MnemonicLanguageType) throws -> Void
 
     /// Load the representation of the wallet from the persistent and secured storage.
     ///
@@ -72,15 +71,6 @@ public struct WalletStorageClient {
     ///   - `WalletStorageError.storageError` when some unrecognized error occurred.
     public let updateBirthday: (BlockHeight) throws -> Void
 
-    /// Update the information that user has passed the recovery phrase backup test.
-    /// The function doesn't take any parameters, default value is the user hasn't passed the test
-    /// and this function only sets the true = fact user passed.
-    ///
-    /// - Throws:
-    ///   - `WalletStorage.KeychainError.encoding`:  when encoding the wallet's data failed.
-    ///   - `WalletStorageError.storageError` when some unrecognized error occurred.
-    public let markUserPassedPhraseBackupTest: (Bool) throws -> Void
-
     /// Use carefully: deletes the stored wallet.
     /// There's no fate but what we make for ourselves - Sarah Connor.
     public let nukeWallet: () -> Void
@@ -90,14 +80,13 @@ public struct WalletStorageClient {
     public let nukeLegacyWallet: () -> Void
     
     public init(
-        importWallet: @escaping (String, BlockHeight?, MnemonicLanguageType, Bool) throws -> Void,
+        importWallet: @escaping (String, BlockHeight?, MnemonicLanguageType) throws -> Void,
         exportWallet: @escaping () throws -> StoredWallet,
         areKeysPresent: @escaping () throws -> Bool,
         areLegacyKeysPresent: @escaping () -> Bool,
         exportLegacyPhrase: @escaping () throws -> String,
         exportLegacyBirthday: @escaping () throws -> BlockHeight,
         updateBirthday: @escaping (BlockHeight) throws -> Void,
-        markUserPassedPhraseBackupTest: @escaping (Bool) throws -> Void,
         nukeWallet: @escaping () -> Void,
         nukeLegacyWallet: @escaping () -> Void
     ) {
@@ -108,7 +97,6 @@ public struct WalletStorageClient {
         self.exportLegacyPhrase = exportLegacyPhrase
         self.exportLegacyBirthday = exportLegacyBirthday
         self.updateBirthday = updateBirthday
-        self.markUserPassedPhraseBackupTest = markUserPassedPhraseBackupTest
         self.nukeWallet = nukeWallet
         self.nukeLegacyWallet = nukeLegacyWallet
     }

@@ -143,10 +143,7 @@ public struct ImportWalletReducer: ReducerProtocol {
                     // fall back to sapling activation
                     let birthday = state.birthdayHeightValue ?? saplingActivationHeight.redacted
                     
-                    try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english, false)
-                    
-                    // update the backup phrase validation flag
-                    try walletStorage.markUserPassedPhraseBackupTest(true)
+                    try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english)
                     
                     state.alert = AlertState.succeed()
                     

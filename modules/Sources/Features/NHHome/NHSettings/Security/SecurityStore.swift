@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Generated
 import LocalAuthentication
-import LocalAuthenticationHandler
+import LocalAuthenticationClient
 import NHUserPreferencesStorage
 
 public typealias SecurityStore = Store<SecurityReducer.State, SecurityReducer.Action>
@@ -29,7 +29,7 @@ public struct SecurityReducer: ReducerProtocol {
         case onAppear
     }
     
-    @Dependency(\.localAuthentication) var localAuthentication
+    @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
     
     public var body: some ReducerProtocol<SecurityReducer.State, SecurityReducer.Action> {
@@ -47,7 +47,9 @@ public struct SecurityReducer: ReducerProtocol {
             case .binding(\.$areBiometricsEnabled):
                 return .task { [state] in
                     let reason: String
-                    switch localAuthentication.biometryType() {
+                    let context = localAuthenticationContext()
+                    _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
+                    switch context.biometryType() {
                     case .faceID:
                         reason = state.areBiometricsEnabled
                             ? L10n.Nighthawk.SettingsTab.Security.enableValidationReason("Face ID")
@@ -61,12 +63,10 @@ public struct SecurityReducer: ReducerProtocol {
                     @unknown default:
                         return .noOp
                     }
-                    
-                    let context = localAuthentication.context()
-                    
+                                        
                     do {
-                        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
-                            return try await .authenticationResponse(context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason))
+                        if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                            return try await .authenticationResponse(context.evaluatePolicy(.deviceOwnerAuthentication, reason))
                         } else {
                             return .authenticationResponse(false)
                         }
@@ -76,7 +76,9 @@ public struct SecurityReducer: ReducerProtocol {
                 }
             case .onAppear:
                 state.areBiometricsEnabled = nhUserStoredPreferences.areBiometricsEnabled()
-                state.biometryType = localAuthentication.biometryType()
+                let context = localAuthenticationContext()
+                _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
+                state.biometryType = context.biometryType()
                 return .none
             case .binding, .noOp:
                 return .none

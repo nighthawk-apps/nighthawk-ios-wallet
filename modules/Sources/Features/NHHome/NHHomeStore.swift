@@ -48,7 +48,6 @@ public struct NHHomeReducer: ReducerProtocol {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case addresses(PresentationAction<AddressesReducer.Action>)
-        case debugMenuStartup
         case onAppear
         case onDisappear
         case settings(NHSettingsReducer.Action)
@@ -163,7 +162,7 @@ public struct NHHomeReducer: ReducerProtocol {
                     try await Task.sleep(seconds: 0.005)
                     return .transfer(.topUpWalletTapped)
                 }
-            case .addresses, .binding, .debugMenuStartup, .settings, .transfer, .wallet:
+            case .addresses, .binding, .settings, .transfer, .wallet:
                 return .none
             }
         }

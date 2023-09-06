@@ -12,11 +12,10 @@ public typealias WelcomeStore = Store<WelcomeReducer.State, WelcomeReducer.Actio
 
 public struct WelcomeReducer: ReducerProtocol {
     public struct State: Equatable {
-        public var authenticationFailed = false
+        public var hasAuthenticated = false
     }
     
     public enum Action: Equatable {
-        case debugMenuStartup
         case retryTapped
     }
     

@@ -9,7 +9,7 @@ import AppVersion
 import ComposableArchitecture
 import Generated
 import LocalAuthentication
-import LocalAuthenticationHandler
+import LocalAuthenticationClient
 import SwiftUI
 
 public typealias NHSettingsStore = Store<NHSettingsReducer.State, NHSettingsReducer.Action>
@@ -96,7 +96,7 @@ public struct NHSettingsReducer: ReducerProtocol {
     }
     
     @Dependency(\.appVersion) var appVersion
-    @Dependency(\.localAuthentication) var localAuthentication
+    @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     
     public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -106,7 +106,11 @@ public struct NHSettingsReducer: ReducerProtocol {
                 return .none
             case .onAppear:
                 state.appVersion = appVersion.appVersion()
-                state.biometryType = localAuthentication.biometryType()
+                let context = localAuthenticationContext()
+                // biometryType is not populated until canEvaluatePolicy is called: https://developer.apple.com/documentation/localauthentication/lacontext/2867583-biometrytype
+                // So call it before trying to fetch the biometryType.
+                _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
+                state.biometryType = context.biometryType()
                 return .none
             case .path:
                 return .none
