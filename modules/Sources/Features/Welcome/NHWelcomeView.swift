@@ -30,7 +30,7 @@ public struct NHWelcomeView: View {
                         .paragraph()
                 }
                 
-                if !viewStore.hasAuthenticated {
+                if !viewStore.hasAuthenticated && viewStore.biometricsEnabled {
                     Button(
                         L10n.Nighthawk.WelcomeScreen.retry,
                         action: { viewStore.send(.retryTapped) }
