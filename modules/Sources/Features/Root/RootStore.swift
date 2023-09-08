@@ -2,10 +2,8 @@ import ComposableArchitecture
 import ZcashLightClientKit
 import DatabaseFiles
 import Deeplink
-import RecoveryPhraseValidationFlow
 import ZcashSDKEnvironment
 import WalletStorage
-import WalletConfigProvider
 import UserPreferencesStorage
 import Migrate
 import Models
@@ -14,9 +12,9 @@ import Welcome
 import Generated
 import Foundation
 import OnboardingFlow
-import Sandbox
-import Home
 import NHHome
+import LocalAuthenticationClient
+import NHUserPreferencesStorage
 
 public typealias RootStore = Store<RootReducer.State, RootReducer.Action>
 public typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
@@ -31,37 +29,26 @@ public struct RootReducer: ReducerProtocol {
     public struct State: Equatable {
         @PresentationState var alert: AlertState<Action>?
         var appInitializationState: InitializationState = .uninitialized
-        var debugState: DebugState
         var destinationState: DestinationState
-        var nhHomeState: NHHomeReducer.State
-        var homeState: HomeReducer.State
         var migrateState: MigrateReducer.State
+        var nhHomeState: NHHomeReducer.State
         var onboardingState: OnboardingFlowReducer.State
-        var phraseValidationState: RecoveryPhraseValidationFlowReducer.State
         var phraseDisplayState: RecoveryPhraseDisplayReducer.State
-        var sandboxState: SandboxReducer.State
         var storedWallet: StoredWallet?
-        var walletConfig: WalletConfig
         var welcomeState: WelcomeReducer.State
     }
 
     public enum Action: Equatable, BindableAction {
         case alert(PresentationAction<Action>)
         case binding(BindingAction<RootReducer.State>)
-        case debug(DebugAction)
         case destination(DestinationAction)
         case nhHome(NHHomeReducer.Action)
-        case home(HomeReducer.Action)
         case migrate(MigrateReducer.Action)
         case initialization(InitializationAction)
         case nukeWalletFailed
         case nukeWalletSucceeded
         case onboarding(OnboardingFlowReducer.Action)
         case phraseDisplay(RecoveryPhraseDisplayReducer.Action)
-        case phraseValidation(RecoveryPhraseValidationFlowReducer.Action)
-        case sandbox(SandboxReducer.Action)
-        case updateStateAfterConfigUpdate(WalletConfig)
-        case walletConfigLoaded(WalletConfig)
         case welcome(WelcomeReducer.Action)
     }
 
@@ -70,12 +57,12 @@ public struct RootReducer: ReducerProtocol {
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
-    @Dependency(\.randomRecoveryPhrase) var randomRecoveryPhrase
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    @Dependency(\.walletConfigProvider) var walletConfigProvider
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+    @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
 
     public init(tokenName: String, zcashNetwork: ZcashNetwork) {
         self.tokenName = tokenName
@@ -89,10 +76,6 @@ public struct RootReducer: ReducerProtocol {
         Scope(state: \.nhHomeState, action: /Action.nhHome) {
             NHHomeReducer(networkType: zcashNetwork.networkType)
         }
-
-        Scope(state: \.homeState, action: /Action.home) {
-            HomeReducer(networkType: zcashNetwork.networkType)
-        }
         
         Scope(state: \.migrateState, action: /Action.migrate) {
             MigrateReducer()
@@ -102,16 +85,8 @@ public struct RootReducer: ReducerProtocol {
             OnboardingFlowReducer(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
         }
 
-        Scope(state: \.phraseValidationState, action: /Action.phraseValidation) {
-            RecoveryPhraseValidationFlowReducer()
-        }
-
         Scope(state: \.phraseDisplayState, action: /Action.phraseDisplay) {
             RecoveryPhraseDisplayReducer()
-        }
-
-        Scope(state: \.sandboxState, action: /Action.sandbox) {
-            SandboxReducer()
         }
 
         Scope(state: \.welcomeState, action: /Action.welcome) {
@@ -121,8 +96,6 @@ public struct RootReducer: ReducerProtocol {
         initializationReduce()
 
         destinationReduce()
-        
-        debugReduce()
     }
     
     public var body: some ReducerProtocol<State, Action> {
@@ -193,16 +166,6 @@ extension AlertState where Action == RootReducer.Action {
             TextState(L10n.Root.Debug.Alert.Rewind.CantStartSync.title)
         } message: {
             TextState(L10n.Root.Debug.Alert.Rewind.CantStartSync.message(error.message, error.code.rawValue))
-        }
-    }
-    
-    public static func cantStoreThatUserPassedPhraseBackupTest(_ error: ZcashError) -> AlertState {
-        AlertState {
-            TextState(L10n.Root.Initialization.Alert.Failed.title)
-        } message: {
-            TextState(
-                L10n.Root.Initialization.Alert.CantStoreThatUserPassedPhraseBackupTest.message(error.message, error.code.rawValue)
-            )
         }
     }
     
@@ -277,24 +240,18 @@ extension AlertState where Action == RootReducer.Action {
 extension RootReducer.State {
     public static var placeholder: Self {
         .init(
-            debugState: .placeholder,
             destinationState: .placeholder,
-            nhHomeState: .placeholder,
-            homeState: .placeholder,
             migrateState: .placeholder,
+            nhHomeState: .placeholder,
             onboardingState: .init(
-                walletConfig: .default,
                 importWalletState: .placeholder,
                 nhImportWalletState: .placeholder,
                 walletCreatedState: .placeholder
             ),
-            phraseValidationState: .placeholder,
             phraseDisplayState: RecoveryPhraseDisplayReducer.State(
                 flow: .settings,
                 phrase: .placeholder
             ),
-            sandboxState: .placeholder,
-            walletConfig: .default,
             welcomeState: .placeholder
         )
     }

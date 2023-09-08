@@ -112,10 +112,7 @@ public struct NHImportWalletReducer: ReducerProtocol {
                     // fall back to sapling activation
                     let birthday = state.birthdayHeightValue ?? saplingActivationHeight.redacted
                     
-                    try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english, false)
-                    
-                    // update the backup phrase validation flag
-                    try walletStorage.markUserPassedPhraseBackupTest(true)
+                    try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english)
                     
                     return .concatenate(
                         EffectTask(value: .updateDestination(.importSuccess)),

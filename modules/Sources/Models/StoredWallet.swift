@@ -17,20 +17,17 @@ public struct StoredWallet: Codable, Equatable {
     public let version: Int
     
     public var birthday: Birthday?
-    public var hasUserPassedPhraseBackupTest: Bool
     
     public init(
         language: MnemonicLanguageType,
         seedPhrase: SeedPhrase,
         version: Int,
-        birthday: Birthday? = nil,
-        hasUserPassedPhraseBackupTest: Bool
+        birthday: Birthday? = nil
     ) {
         self.language = language
         self.seedPhrase = seedPhrase
         self.version = version
         self.birthday = birthday
-        self.hasUserPassedPhraseBackupTest = hasUserPassedPhraseBackupTest
     }
 }
 
@@ -39,7 +36,6 @@ extension StoredWallet {
         language: .english,
         seedPhrase: SeedPhrase(RecoveryPhrase.testPhrase.joined(separator: " ")),
         version: 0,
-        birthday: Birthday(0),
-        hasUserPassedPhraseBackupTest: false
+        birthday: Birthday(0)
     )
 }

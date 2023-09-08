@@ -36,7 +36,6 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         }
 
         public var destination: Destination?
-        public var walletConfig: WalletConfig
         public var importWalletState: ImportWalletReducer.State
         public var nhImportWalletState: NHImportWalletReducer.State
         public var walletCreatedState: WalletCreatedReducer.State
@@ -58,7 +57,6 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         
         public init(
             destination: Destination? = nil,
-            walletConfig: WalletConfig,
             importWalletState: ImportWalletReducer.State,
             nhImportWalletState: NHImportWalletReducer.State,
             walletCreatedState: WalletCreatedReducer.State,
@@ -67,7 +65,6 @@ public struct OnboardingFlowReducer: ReducerProtocol {
             steps: IdentifiedArrayOf<Step> = Self.onboardingSteps
         ) {
             self.destination = destination
-            self.walletConfig = walletConfig
             self.importWalletState = importWalletState
             self.nhImportWalletState = nhImportWalletState
             self.walletCreatedState = walletCreatedState
@@ -86,7 +83,6 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         case importWallet(ImportWalletReducer.Action)
         case nhImportWallet(NHImportWalletReducer.Action)
         case next
-        case onAppear
         case skip
         case updateDestination(OnboardingFlowReducer.State.Destination?)
     }
@@ -109,13 +105,7 @@ public struct OnboardingFlowReducer: ReducerProtocol {
         }
         
         Reduce { state, action in
-            switch action {
-            case .onAppear:
-                if !state.walletConfig.isEnabled(.onboardingFlow) {
-                    return EffectTask(value: .skip)
-                }
-                return .none
-                
+            switch action {                
             case .back:
                 guard state.index > 0 else { return .none }
                 if let skippedFrom = state.skippedAtindex {

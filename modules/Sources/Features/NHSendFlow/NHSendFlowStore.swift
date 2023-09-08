@@ -7,6 +7,9 @@
 
 import ComposableArchitecture
 import DerivationTool
+import Generated
+import LocalAuthenticationClient
+import NHUserPreferencesStorage
 import MnemonicClient
 import SDKSynchronizer
 import SwiftUI
@@ -63,7 +66,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
             }
             
             Scope(state: /State.review, action: /Action.review) {
-                ReviewReducer()
+                ReviewReducer(networkType: networkType)
             }
             
             Scope(state: /State.scan, action: /Action.scan) {
@@ -95,7 +98,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
             Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
         public var recipient: RedactableString = "".redacted
-        public var memo: RedactableString = "".redacted
+        public var memo: RedactableString?
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
@@ -110,9 +113,11 @@ public struct NHSendFlowReducer: ReducerProtocol {
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
+        case authenticationResponse(Bool)
         case continueTapped
         case onAppear
         case scanCodeTapped
+        case sendTransaction
         case sendTransactionFailure
         case sendTransactionInProgress
         case sendTransactionSuccess
@@ -125,6 +130,8 @@ public struct NHSendFlowReducer: ReducerProtocol {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.nhUserStoredPreferences) var nhUserPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -140,10 +147,6 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 guard case let .addMemo(addMemoState) = state.path[id: id]
                 else { return .none }
                 state.memo = addMemoState.memo
-                state.path.append(Path.State.recipient(.init()))
-                return .none
-            case .path(.element(id: _, action: .recipient(.continueTapped))):
-                guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
                 state.path.append(
                     Path.State.review(
                         .init(
@@ -153,6 +156,25 @@ public struct NHSendFlowReducer: ReducerProtocol {
                         )
                     )
                 )
+                return .none
+            case .path(.element(id: _, action: .recipient(.continueTapped))):
+                guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
+                if derivationTool.isTransparentAddress(state.recipient.data, networkType) {
+                    state.path.append(
+                        Path.State.review(
+                            .init(
+                                subtotal: state.amountToSend,
+                                memo: state.memo,
+                                recipient: state.recipient
+                            )
+                        )
+                    )
+                } else {
+                    var addMemoState = AddMemoReducer.State()
+                    addMemoState.memoCharLimit = state.memoCharLimit
+                    state.path.append(Path.State.addMemo(addMemoState))
+                }
+                
                 return .none
             case .path(.element(id: _, action: .recipient(.scanQRCodeTapped))):
                 state.path.append(Path.State.scan(.init()))
@@ -172,6 +194,48 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 let _ = state.path.popLast()
                 return .none
             case .path(.element(id: _, action: .review(.sendZcashTapped))):
+                if nhUserPreferencesStorage.areBiometricsEnabled() {
+                    return .task {
+                        let context = localAuthenticationContext()
+                        
+                        do {
+                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                                return try await .authenticationResponse(
+                                    context.evaluatePolicy(
+                                        .deviceOwnerAuthentication,
+                                        L10n.Nighthawk.LocalAuthentication.sendFundsReason
+                                    )
+                                )
+                            } else {
+                                return .authenticationResponse(false)
+                            }
+                        } catch {
+                            return .authenticationResponse(false)
+                        }
+                    }
+                } else {
+                    return .run { send in await send(.sendTransaction) }
+                }
+                
+            case let .authenticationResponse(authenticated):
+                if authenticated {
+                    return .run { send in await send(.sendTransaction) }
+                }
+                return .none
+                
+            case .continueTapped:
+                state.path.append(Path.State.recipient(.init()))
+                return .none
+            case .onAppear:
+                state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
+                return sdkSynchronizer.stateStream()
+                    .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                    .map(NHSendFlowReducer.Action.synchronizerStateChanged)
+                    .eraseToEffect()
+                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
+            case .scanCodeTapped:
+                return .none
+            case .sendTransaction:
                 guard !state.isSendingTransaction else { return .none }
                 
                 do {
@@ -183,8 +247,8 @@ public struct NHSendFlowReducer: ReducerProtocol {
                     
                     let recipient = try Recipient(state.recipient.data, network: networkType)
                     var memo: Memo?
-                    if (/Recipient.transparent).extract(from: recipient) == nil && !state.memo.data.isEmpty {
-                        memo = try Memo(string: state.memo.data)
+                    if (/Recipient.transparent).extract(from: recipient) == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
+                        memo = try Memo(string: memoStr)
                     }
                     return .run { [state, memo] send in
                         do {
@@ -203,20 +267,6 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 } catch {
                     return .task { .sendTransactionFailure }
                 }
-            case .continueTapped:
-                var addMemoState = AddMemoReducer.State()
-                addMemoState.memoCharLimit = state.memoCharLimit
-                state.path.append(Path.State.addMemo(addMemoState))
-                return .none
-            case .onAppear:
-                state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
-                return sdkSynchronizer.stateStream()
-                    .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                    .map(NHSendFlowReducer.Action.synchronizerStateChanged)
-                    .eraseToEffect()
-                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
-            case .scanCodeTapped:
-                return .none
             case .sendTransactionFailure:
                 state.isSendingTransaction = false
                 state.path = state.path.filter { state in

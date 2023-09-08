@@ -7,14 +7,21 @@
 
 import Foundation
 import ComposableArchitecture
+import NHUserPreferencesStorage
 
 public typealias WelcomeStore = Store<WelcomeReducer.State, WelcomeReducer.Action>
 
 public struct WelcomeReducer: ReducerProtocol {
-    public struct State: Equatable {}
+    public struct State: Equatable {
+        public var hasAuthenticated = false
+        public var biometricsEnabled: Bool {
+            @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+            return nhUserStoredPreferences.areBiometricsEnabled()
+        }
+    }
     
     public enum Action: Equatable {
-        case debugMenuStartup
+        case retryTapped
     }
     
     public init() {}

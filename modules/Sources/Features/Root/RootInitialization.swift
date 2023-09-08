@@ -7,19 +7,22 @@
 
 import ComposableArchitecture
 import Foundation
+import Generated
 import ZcashLightClientKit
 import Models
+import NHHome
+import SwiftUI
 import Utils
 
 /// In this file is a collection of helpers that control all state and action related operations
 /// for the `RootReducer` with a connection to the app/wallet initialization and erasure of the wallet.
 extension RootReducer {
     public enum InitializationAction: Equatable {
-        case appDelegate(AppDelegateAction)
+        case authenticate
+        case authenticationResponse(Bool)
         case checkBackupPhraseValidation
         case checkWalletInitialization
         case createNewWallet
-        case checkWalletConfig
         case initializeSDK
         case initialSetups
         case initializationFailed(ZcashError)
@@ -28,49 +31,89 @@ extension RootReducer {
         case nukeWallet
         case nukeWalletRequest
         case respondToWalletInitializationState(InitializationState)
-        case walletConfigChanged(WalletConfig)
+        case scene(SceneAction)
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     public func initializationReduce() -> Reduce<RootReducer.State, RootReducer.Action> {
         Reduce { state, action in
             switch action {
-            case .initialization(.appDelegate(.didFinishLaunching)):
-                // TODO: [#704], trigger the review request logic when approved by the team,
-                // https://github.com/zcash/secant-ios-wallet/issues/704
-                return EffectTask(value: .initialization(.checkWalletConfig))
-                    .delay(for: 0.02, scheduler: mainQueue)
-                    .eraseToEffect()
-
-            case .initialization(.checkWalletConfig):
-                return walletConfigProvider.load()
-                    .receive(on: mainQueue)
-                    .map(RootReducer.Action.walletConfigLoaded)
-                    .eraseToEffect()
-                    .cancellable(id: WalletConfigCancelId.timer, cancelInFlight: true)
-
-            case .walletConfigLoaded(let walletConfig):
-                if walletConfig == WalletConfig.default {
-                    return EffectTask(value: .initialization(.initialSetups))
-                } else {
-                    return EffectTask(value: .initialization(.walletConfigChanged(walletConfig)))
+            case .initialization(.authenticate):
+                if !state.welcomeState.hasAuthenticated {
+                    return .task {
+                        let context = localAuthenticationContext()
+                        
+                        do {
+                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                                return try await .initialization(
+                                    .authenticationResponse(
+                                        context.evaluatePolicy(
+                                            .deviceOwnerAuthentication,
+                                            L10n.Nighthawk.LocalAuthentication.accessWalletReason
+                                        )
+                                    )
+                                )
+                            } else {
+                                return .initialization(.authenticationResponse(false))
+                            }
+                        } catch {
+                            return .initialization(.authenticationResponse(false))
+                        }
+                    }
                 }
-            
-            case .initialization(.walletConfigChanged(let walletConfig)):
-                return .concatenate(
-                    EffectTask(value: .updateStateAfterConfigUpdate(walletConfig)),
-                    EffectTask(value: .initialization(.initialSetups))
-                )
+                return .none
+            case .welcome(.retryTapped):
+                return .task {
+                    let context = localAuthenticationContext()
+                    
+                    do {
+                        if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                            return try await .initialization(
+                                .authenticationResponse(
+                                    context.evaluatePolicy(
+                                        .deviceOwnerAuthentication,
+                                        L10n.Nighthawk.LocalAuthentication.accessWalletReason
+                                    )
+                                )
+                            )
+                        } else {
+                            return .initialization(.authenticationResponse(false))
+                        }
+                    } catch {
+                        return .initialization(.authenticationResponse(false))
+                    }
+                }
+            case let .initialization(.authenticationResponse(authenticated)):
+                state.welcomeState.hasAuthenticated = authenticated
+                if authenticated {
+                    return .run { send in
+                        await send(.initialization(.initializeSDK))
+                        await send(.initialization(.checkBackupPhraseValidation))
+                    }
+                }
+                return .none
+                
+            case let .initialization(.scene(.didChangePhase(newPhase))):
+                if state.shouldResetToSplash(for: newPhase) && nhUserStoredPreferences.areBiometricsEnabled() {
+                    state.welcomeState.hasAuthenticated = false
+                    return .concatenate(
+                        .cancel(id: SynchronizerCancelId.timer),
+                        .send(.destination(.updateDestination(.welcome)))
+                    )
+                } else if newPhase == .active {
+                    return EffectTask(value: .initialization(.initialSetups))
+                        .delay(for: 0.02, scheduler: mainQueue)
+                        .eraseToEffect()
+                }
+                return .none
                 
             case .initialization(.initialSetups):
                 // TODO: [#524] finish all the wallet events according to definition, https://github.com/zcash/secant-ios-wallet/issues/524
                 LoggerProxy.event(".appDelegate(.didFinishLaunching)")
                 /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                return .concatenate(
-                    EffectTask(value: .initialization(.checkWalletInitialization))
-                        .delay(for: 0.02, scheduler: mainQueue)
-                        .eraseToEffect()
-                )
+                return EffectTask(value: .initialization(.checkWalletInitialization))
+                    .delay(for: 0.02, scheduler: mainQueue)
+                    .eraseToEffect()
 
                 /// Evaluate the wallet's state based on keychain keys and database files presence
             case .initialization(.checkWalletInitialization):
@@ -100,10 +143,15 @@ extension RootReducer {
                     if walletState == .filesMissing {
                         state.appInitializationState = .filesMissing
                     }
-                    return .concatenate(
-                        EffectTask(value: .initialization(.initializeSDK)),
-                        EffectTask(value: .initialization(.checkBackupPhraseValidation))
-                    )
+                    
+                    if nhUserStoredPreferences.areBiometricsEnabled() {
+                        return .run { send in await send(.initialization(.authenticate)) }
+                    } else {
+                        return .run { send in
+                            await send(.initialization(.initializeSDK))
+                            await send(.initialization(.checkBackupPhraseValidation))
+                        }
+                    }
                 case .uninitialized:
                     state.appInitializationState = .uninitialized
                     return EffectTask(value: .destination(.updateDestination(.onboarding)))
@@ -151,16 +199,6 @@ extension RootReducer {
                 }
 
                 var landingDestination = RootReducer.DestinationState.Destination.nhHome
-
-                if !storedWallet.hasUserPassedPhraseBackupTest && state.walletConfig.isEnabled(.testBackupPhraseFlow) {
-                    let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
-
-                    let recoveryPhrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.phraseDisplayState.phrase = recoveryPhrase
-                    state.phraseValidationState = randomRecoveryPhrase.random(recoveryPhrase)
-                    landingDestination = .phraseDisplay
-                }
-
                 state.appInitializationState = .initialized
 
                 return EffectTask(value: .destination(.updateDestination(landingDestination)))
@@ -175,25 +213,16 @@ extension RootReducer {
                     let birthday = zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
 
                     // store the wallet to the keychain
-                    try walletStorage.importWallet(newRandomPhrase, birthday, .english, !state.walletConfig.isEnabled(.testBackupPhraseFlow))
+                    try walletStorage.importWallet(newRandomPhrase, birthday, .english)
 
                     // start the backup phrase validation test
                     let randomRecoveryPhraseWords = mnemonic.asWords(newRandomPhrase)
                     let recoveryPhrase = RecoveryPhrase(words: randomRecoveryPhraseWords.map { $0.redacted })
                     state.phraseDisplayState.phrase = recoveryPhrase
-                    state.phraseValidationState = randomRecoveryPhrase.random(recoveryPhrase)
 
                     return EffectTask(value: .initialization(.initializeSDK))
                 } catch {
                     state.alert = AlertState.cantCreateNewWallet(error.toZcashError())
-                }
-                return .none
-
-            case .phraseValidation(.succeed):
-                do {
-                    try walletStorage.markUserPassedPhraseBackupTest(true)
-                } catch {
-                    state.alert = AlertState.cantStoreThatUserPassedPhraseBackupTest(error.toZcashError())
                 }
                 return .none
                 
@@ -205,12 +234,7 @@ extension RootReducer {
 
                     // store the birthday and phrase found on the legacy keychain values
                     // into the wallet under the new keychain format.
-                    try walletStorage.importWallet(
-                        phrase,
-                        birthday,
-                        .english,
-                        !state.walletConfig.isEnabled(.testBackupPhraseFlow)
-                    )
+                    try walletStorage.importWallet(phrase, birthday, .english)
 
                     // once we are sure that the values were stored under the new format,
                     // Delete legacy wallet storage and all the remaining values that don't
@@ -265,12 +289,6 @@ extension RootReducer {
                     .cancel(id: SynchronizerCancelId.timer),
                     backDestination
                 )
-
-            case .welcome(.debugMenuStartup), .home(.debugMenuStartup), .nhHome(.debugMenuStartup):
-                return .concatenate(
-                    EffectTask.cancel(id: CancelId.timer),
-                    EffectTask(value: .destination(.updateDestination(.startup)))
-                )
                 
             case .migrate(.continueTapped):
                 return .task { .initialization(.migrateLegacyWallet) }
@@ -300,22 +318,25 @@ extension RootReducer {
 
             case .onboarding(.createNewWallet):
                 return EffectTask(value: .initialization(.createNewWallet))
-                
-            case .updateStateAfterConfigUpdate(let walletConfig):
-                state.walletConfig = walletConfig
-                state.onboardingState.walletConfig = walletConfig
-                state.homeState.walletConfig = walletConfig
-                return .none
 
             case .initialization(.initializationFailed(let error)):
                 state.appInitializationState = .failed
                 state.alert = AlertState.initializationFailed(error)
                 return .none
                 
-            case .nhHome, .home, .destination, .migrate, .onboarding, .phraseDisplay, .phraseValidation, .sandbox,
-                .welcome, .binding, .debug, .alert:
+            case .nhHome, .destination, .migrate, .onboarding, .phraseDisplay,
+                .welcome, .binding, .alert:
                 return .none
             }
         }
+    }
+}
+
+// MARK: - Implementation
+private extension RootReducer.State {
+    func shouldResetToSplash(for phase: ScenePhase) -> Bool {
+        phase == .inactive
+        && !nhHomeState.settingsState.path.contains(where: { (/NHSettingsReducer.Path.State.security).extract(from: $0) != nil })
+        && nhHomeState.destination != .transfer
     }
 }

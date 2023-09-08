@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DerivationTool
 import Generated
 import Models
 import UIKit
@@ -16,18 +17,20 @@ public typealias ReviewStore = Store<ReviewReducer.State, ReviewReducer.Action>
 public typealias ReviewViewStore = ViewStore<ReviewReducer.State, ReviewReducer.Action>
 
 public struct ReviewReducer: ReducerProtocol {
+    let networkType: NetworkType
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action>?
         
         public var subtotal: Zatoshi
         public var fee = Zatoshi(10_000) // TODO: [#1186] Show ZIP-317 fees when SDK supports it (https://github.com/zcash/ZcashLightClientKit/issues/1186)
-        public var memo: RedactableString
+        public var memo: RedactableString?
         public var recipient: RedactableString
+        public var recipientIsTransparent = false
         public var total: Zatoshi { subtotal + fee }
         
         public init(
             subtotal: Zatoshi,
-            memo: RedactableString,
+            memo: RedactableString?,
             recipient: RedactableString
         ) {
             self.subtotal = subtotal
@@ -40,12 +43,12 @@ public struct ReviewReducer: ReducerProtocol {
         case backButtonTapped
         case alert(PresentationAction<Action>)
         case warnBeforeLeavingApp(URL?)
+        case onAppear
         case openBlockExplorer(URL?)
         case sendZcashTapped
     }
     
-    public init() {}
-    
+    @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.dismiss) var dismiss
     
     public var body: some ReducerProtocol<State, Action> {
@@ -55,15 +58,18 @@ public struct ReviewReducer: ReducerProtocol {
                 return .run { _ in await self.dismiss() }
             case .alert(.presented(let action)):
                 return EffectTask(value: action)
-
+                
             case .alert(.dismiss):
                 state.alert = nil
                 return .none
-
+                
             case .alert:
                 return .none
             case .warnBeforeLeavingApp(let blockExplorerURL):
                 state.alert = AlertState.warnBeforeLeavingApp(blockExplorerURL)
+                return .none
+            case .onAppear:
+                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient.data, networkType)
                 return .none
             case .openBlockExplorer(let blockExplorerURL):
                 if let url = blockExplorerURL {
@@ -74,6 +80,10 @@ public struct ReviewReducer: ReducerProtocol {
                 return .none
             }
         }
+    }
+    
+    public init(networkType: NetworkType) {
+        self.networkType = networkType
     }
 }
 

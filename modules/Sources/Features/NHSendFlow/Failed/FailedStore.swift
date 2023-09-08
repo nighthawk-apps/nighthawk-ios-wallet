@@ -27,9 +27,9 @@ public struct FailedReducer: ReducerProtocol {
     public var body: some ReducerProtocol<State, Action> {
         Reduce { _, action in
             switch action {
-            case .backButtonTapped:
+            case .backButtonTapped, .tryAgainTapped:
                 return .run { _ in await self.dismiss() }
-            case .cancelTapped, .tryAgainTapped:
+            case .cancelTapped:
                 return .none
             }
         }

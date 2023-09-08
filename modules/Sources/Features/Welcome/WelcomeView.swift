@@ -28,9 +28,6 @@ public struct WelcomeView: View {
                 Text(L10n.WelcomeScreen.title)
                     .font(.system(size: 23))
             }
-            .accessDebugMenuWithHiddenGesture {
-                ViewStore(store).send(.debugMenuStartup)
-            }
         }
         .frame(alignment: .center)
         .applyScreenBackground()

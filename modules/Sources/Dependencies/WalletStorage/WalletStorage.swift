@@ -55,8 +55,7 @@ public struct WalletStorage {
     public func importWallet(
         bip39 phrase: String,
         birthday: BlockHeight?,
-        language: MnemonicLanguageType = .english,
-        hasUserPassedPhraseBackupTest: Bool = false
+        language: MnemonicLanguageType = .english
     ) throws {
         // Future-proof of the bundle to potentially avoid migration. We enforce english mnemonic.
         guard language == .english else {
@@ -67,8 +66,7 @@ public struct WalletStorage {
             language: language,
             seedPhrase: SeedPhrase(phrase),
             version: Constants.zcashKeychainVersion,
-            birthday: Birthday(birthday),
-            hasUserPassedPhraseBackupTest: hasUserPassedPhraseBackupTest
+            birthday: Birthday(birthday)
         )
 
         do {
@@ -133,21 +131,6 @@ public struct WalletStorage {
         do {
             var wallet = try exportWallet()
             wallet.birthday = Birthday(height)
-            
-            guard let data = try encode(object: wallet) else {
-                throw KeychainError.encoding
-            }
-            
-            try updateData(data, forKey: Constants.zcashStoredWallet)
-        } catch {
-            throw error
-        }
-    }
-    
-    public func markUserPassedPhraseBackupTest(_ flag: Bool = true) throws {
-        do {
-            var wallet = try exportWallet()
-            wallet.hasUserPassedPhraseBackupTest = flag
             
             guard let data = try encode(object: wallet) else {
                 throw KeychainError.encoding
