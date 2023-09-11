@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Generated
 import LocalAuthentication
 import LocalAuthenticationClient
+import RecoveryPhraseDisplay
 import SwiftUI
 
 public typealias NHSettingsStore = Store<NHSettingsReducer.State, NHSettingsReducer.Action>
@@ -20,7 +21,7 @@ public struct NHSettingsReducer: ReducerProtocol {
         public enum State: Equatable {
             case about(AboutReducer.State = .init())
             case advanced(AdvancedReducer.State = .init())
-            case backup(BackupReducer.State = .init())
+            case backup(RecoveryPhraseDisplayReducer.State = .init(flow: .settings))
             case changeServer(ChangeServerReducer.State = .init())
             case externalServices(ExternalServicesReducer.State = .init())
             case fiat(FiatReducer.State = .init())
@@ -32,7 +33,7 @@ public struct NHSettingsReducer: ReducerProtocol {
         public enum Action: Equatable {
             case about(AboutReducer.Action)
             case advanced(AdvancedReducer.Action)
-            case backup(BackupReducer.Action)
+            case backup(RecoveryPhraseDisplayReducer.Action)
             case changeServer(ChangeServerReducer.Action)
             case externalServices(ExternalServicesReducer.Action)
             case fiat(FiatReducer.Action)
@@ -51,7 +52,7 @@ public struct NHSettingsReducer: ReducerProtocol {
             }
             
             Scope(state: /State.backup, action: /Action.backup) {
-                BackupReducer()
+                RecoveryPhraseDisplayReducer()
             }
             
             Scope(state: /State.changeServer, action: /Action.changeServer) {
@@ -83,6 +84,7 @@ public struct NHSettingsReducer: ReducerProtocol {
     }
     
     public struct State: Equatable {
+        @PresentationState public var destination: Destination.State?
         public var path = StackState<Path.State>()
         
         public var appVersion: String
@@ -90,9 +92,30 @@ public struct NHSettingsReducer: ReducerProtocol {
     }
     
     public enum Action: Equatable {
+        case destination(PresentationAction<Destination.Action>)
         case path(StackAction<Path.State, Path.Action>)
         case goTo(Path.State)
         case onAppear
+    }
+    
+    public struct Destination: ReducerProtocol {
+        public enum State: Equatable {
+            case alert(AlertState<Action.Alert>)
+        }
+        
+        public enum Action: Equatable {
+            case alert(Alert)
+            
+            public enum Alert: Equatable {
+                case viewSeed
+            }
+        }
+        
+        public var body: some ReducerProtocolOf<Self> {
+            Reduce { _, _ in .none }
+        }
+        
+        public init() {}
     }
     
     @Dependency(\.appVersion) var appVersion
@@ -101,6 +124,14 @@ public struct NHSettingsReducer: ReducerProtocol {
     public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
+            case .destination(.dismiss):
+                return .none
+            case .destination(.presented(.alert(.viewSeed))):
+                state.path.append(.backup())
+                return .none
+            case .goTo(.backup):
+                state.destination = .alert(AlertState.confirmViewSeedWords())
+                return .none
             case let .goTo(pathState):
                 state.path.append(pathState)
                 return .none
@@ -119,6 +150,28 @@ public struct NHSettingsReducer: ReducerProtocol {
         .forEach(\.path, action: /Action.path) {
             Path()
         }
+        .ifLet(\.$destination, action: /Action.destination) {
+            Destination()
+        }
+    }
+}
+
+// MARK: Alerts
+extension AlertState where Action == NHSettingsReducer.Destination.Action.Alert {
+    public static func confirmViewSeedWords() -> AlertState {
+        AlertState {
+            TextState(L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertTitle)
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(L10n.General.cancel)
+            }
+            
+            ButtonState(role: .destructive, action: .viewSeed) {
+                TextState(L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertConfirmAction)
+            }
+        } message: {
+            TextState(L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertMessage)
+        }
     }
 }
 
@@ -129,14 +182,5 @@ extension NHSettingsReducer.State {
             appVersion: "1.0.0",
             biometryType: .none
         )
-    }
-}
-
-extension Store<NHSettingsReducer.State, NHSettingsReducer.Action> {
-    func stackStore() -> Store<
-        StackState<NHSettingsReducer.Path.State>,
-        StackAction<NHSettingsReducer.Path.State, NHSettingsReducer.Path.Action>
-    > {
-        scope(state: \.path, action: { .path($0) })
     }
 }

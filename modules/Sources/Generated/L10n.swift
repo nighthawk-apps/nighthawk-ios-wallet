@@ -215,6 +215,16 @@ public enum L10n {
     public static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
   public enum Nighthawk {
+    public enum ExportSeed {
+      /// Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.
+      public static let description = L10n.tr("Localizable", "nighthawk.exportSeed.description", fallback: "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.")
+      /// Export PDF
+      public static let export = L10n.tr("Localizable", "nighthawk.exportSeed.export", fallback: "Export PDF")
+      /// Please Enter Password
+      public static let passwordPlaceholder = L10n.tr("Localizable", "nighthawk.exportSeed.passwordPlaceholder", fallback: "Please Enter Password")
+      /// Export as PDF
+      public static let title = L10n.tr("Localizable", "nighthawk.exportSeed.title", fallback: "Export as PDF")
+    }
     public enum HomeScreen {
       /// Settings
       public static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
@@ -373,6 +383,14 @@ public enum L10n {
           /// Keep screen on
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
         }
+      }
+      public enum Backup {
+        /// View seed
+        public static let viewSeedWarningAlertConfirmAction = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction", fallback: "View seed")
+        /// WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.
+        public static let viewSeedWarningAlertMessage = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertMessage", fallback: "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.")
+        /// View seed words?
+        public static let viewSeedWarningAlertTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle", fallback: "View seed words?")
       }
       public enum Security {
         /// %@ disabled

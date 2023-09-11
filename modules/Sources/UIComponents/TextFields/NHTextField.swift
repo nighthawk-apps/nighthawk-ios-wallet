@@ -18,6 +18,7 @@ public struct NHTextField<InputAccessoryContent>: View where InputAccessoryConte
     private var placeholder: String?
     private var text: Binding<String>
     private var isValid: NHTextFieldValidationState
+    private let isSecure: Bool
     private let foregroundColor: Color
     private let inputAccessoryView: () -> InputAccessoryContent
     
@@ -25,12 +26,14 @@ public struct NHTextField<InputAccessoryContent>: View where InputAccessoryConte
         placeholder: String? = nil,
         text: Binding<String>,
         isValid: NHTextFieldValidationState = .valid,
+        isSecure: Bool = false,
         foregroundColor: Color = Asset.Colors.Nighthawk.peach.color,
         inputAccessoryView: @escaping () -> InputAccessoryContent = { EmptyView() }
     ) {
         self.placeholder = placeholder
         self.text = text
         self.isValid = isValid
+        self.isSecure = isSecure
         self.foregroundColor = foregroundColor
         self.inputAccessoryView = inputAccessoryView
     }
@@ -45,10 +48,17 @@ public struct NHTextField<InputAccessoryContent>: View where InputAccessoryConte
         
         return VStack(alignment: .leading, spacing: 8) {
             Group {
-                TextField("", text: text)
-                    .foregroundColor(.white)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
-                    .focused($_focusState)
+                if isSecure {
+                    SecureField("", text: text)
+                        .foregroundColor(.white)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
+                        .focused($_focusState)
+                } else {
+                    TextField("", text: text)
+                        .foregroundColor(.white)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
+                        .focused($_focusState)
+                }
             }
             .textFieldStyle(
                 _NighthawkTextFieldStyle(

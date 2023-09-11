@@ -1,14 +1,18 @@
 //
-//  RecoveryPhraseDisplayView.swift
-//  secant-testnet
+//  NHRecoveryPhraseDisplayView.swift
+//  secant
 //
-//  Created by Francisco Gindre on 10/26/21.
+//  Created by Matthew Watt on 3/24/23.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import ExportSeed
 import Generated
+import Models
+import PDFKit
+import SwiftUI
 import UIComponents
+import ZcashLightClientKit
 
 public struct RecoveryPhraseDisplayView: View {
     let store: RecoveryPhraseDisplayStore
@@ -16,94 +20,256 @@ public struct RecoveryPhraseDisplayView: View {
     public init(store: RecoveryPhraseDisplayStore) {
         self.store = store
     }
-
+    
     public var body: some View {
-        WithViewStore(self.store) { viewStore in
-            VStack(alignment: .center, spacing: 0) {
-                if let groups = viewStore.phrase?.toGroups(groupSizeOverride: 2) {
-                    VStack(spacing: 20) {
-                        Text(L10n.RecoveryPhraseDisplay.title)
-                            .font(.system(size: 20))
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                        
-                        VStack(alignment: .center, spacing: 4) {
-                            Text(L10n.RecoveryPhraseDisplay.description)
-                                .font(.system(size: 16))
-                                .padding(.horizontal, 20)
-                        }
-                    }
-                    .padding(.top, 0)
-                    .padding(.bottom, 20)
+        WithViewStore(store) { viewStore in
+            VStack {
+                if let phrase = viewStore.phrase {
+                    let groups = phrase.toGroups(groupSizeOverride: 3)
                     
-                    Spacer()
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(groups, id: \.startIndex) { group in
-                            VStack {
-                                HStack(alignment: .center) {
-                                    HStack {
-                                        Spacer()
-                                        Text("\(group.startIndex). \(group.words[0].data)")
-                                        Spacer()
-                                    }
-                                    .padding(.leading, 20)
-                                    HStack {
-                                        Spacer()
-                                        Text("\(group.startIndex + 1). \(group.words[1].data)")
-                                        Spacer()
-                                    }
-                                    .padding(.trailing, 20)
-                                }
-                            }
-                        }
+                    instructions
+                    
+                    backupSeedGrid(with: groups)
+                    
+                    walletBirthday(with: viewStore.state.birthday)
+                    
+                    if viewStore.flow == .onboarding {
+                        confirmPhrase(isChecked: viewStore.binding(\.$isConfirmSeedPhraseWrittenChecked))
                     }
                     
                     Spacer()
                     
-                    VStack {
-                        Button(
-                            action: { viewStore.send(.finishedPressed) },
-                            label: { Text(L10n.RecoveryPhraseDisplay.Button.wroteItDown) }
-                        )
-                        .activeButtonStyle
-                        .frame(height: 60)
-                    }
-                    .padding()
-                } else {
-                    Text(L10n.RecoveryPhraseDisplay.noWords)
+                    actions(groups: groups, viewStore: viewStore)
                 }
             }
-            .padding(.bottom, 20)
-            .padding(.horizontal)
-            .padding(.top, 0)
-            .applyScreenBackground()
+            .frame(maxWidth: .infinity)
+            .padding(.top, 25)
+            .padding(.horizontal, 25)
+            .padding(.bottom, 66)
+            .onAppear { viewStore.send(.onAppear) }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarHidden(true)
-    }
-}
-// TODO: [#695] This should have a #DEBUG tag, but if so, it's not possible to compile this on release mode and submit it to testflight https://github.com/zcash/ZcashLightClientKit/issues/695
-extension RecoveryPhraseDisplayStore {
-    public static var demo: RecoveryPhraseDisplayStore {
-        RecoveryPhraseDisplayStore(
-            initialState: .init(
-                flow: .settings,
-                phrase: .placeholder
+        .applyNighthawkBackground()
+        .nighthawkAlert(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
             ),
-            reducer: RecoveryPhraseDisplayReducer.demo,
-            environment: Void()
-        )
+            state: /RecoveryPhraseDisplayReducer.Destination.State.exportSeedAlert,
+            action: RecoveryPhraseDisplayReducer.Destination.Action.exportSeedAlert
+        ) { store in
+            ExportSeedView(store: store)
+        }
     }
 }
 
-struct RecoveryPhraseDisplayView_Previews: PreviewProvider {
-    static let scheduler = DispatchQueue.main
-    static let store = RecoveryPhraseDisplayStore.demo
-
-    static var previews: some View {
-        NavigationView {
-            RecoveryPhraseDisplayView(store: store)
+// MARK: - Subviews
+private extension RecoveryPhraseDisplayView {
+    @ViewBuilder
+    var instructions: some View {
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.title)
+            .paragraph(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 12)
+        
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
+            .caption()
+            .lineSpacing(6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 18)
+        
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions2)
+            .caption()
+            .lineSpacing(6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 18)
+    }
+    
+    func backupSeedGrid(
+        with groups: [RecoveryPhrase.Group],
+        forPdf: Bool = false
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(groups, id: \.startIndex) { group in
+                VStack {
+                    HStack(alignment: .center) {
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+                                
+                                Text(group.words[0].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        
+                        Spacer()
+                        
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex + 1).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+                                
+                                Text(group.words[1].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        
+                        Spacer()
+                        
+                        HStack {
+                            HStack(alignment: .lastTextBaseline) {
+                                Text("\(group.startIndex + 2).")
+                                    .paragraph(
+                                        color: forPdf
+                                        ? .black
+                                        : Asset.Colors.Nighthawk.parmaviolet.color
+                                    )
+                                
+                                Text(group.words[2].data)
+                                    .paragraph(color: forPdf ? .black : .white)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        
+                        Spacer()
+                    }
+                }
+            }
         }
+        .modify {
+            if forPdf {
+                $0
+            } else {
+                $0.background(Asset.Colors.Nighthawk.darkNavy.color)
+            }
+        }
+        .padding(.bottom, 20)
+    }
+    
+    @ViewBuilder
+    func walletBirthday(with blockHeight: BlockHeight?, forPdf: Bool = false) -> some View {
+        if let blockHeight {
+            HStack(alignment: .lastTextBaseline) {
+                Group {
+                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.birthday)
+                        .paragraph(
+                            color: forPdf
+                            ? .black
+                            : Asset.Colors.Nighthawk.parmaviolet.color
+                        )
+                    
+                    Text("\(blockHeight)")
+                        .paragraph(
+                            color: forPdf
+                            ? .black
+                            : .white
+                        )
+                }
+                .lineSpacing(6)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 23)
+        }
+    }
+    
+    func confirmPhrase(isChecked: Binding<Bool>) -> some View {
+        NHCheckBox(isChecked: isChecked) {
+            Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
+                .caption()
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    @MainActor
+    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplayReducer>) -> some View {
+        Group {
+            if viewStore.flow == .settings {
+                Button(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf) {
+                    viewStore.send(.exportAsPdfPressed, animation: .easeInOut)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 218))
+                //                ShareLink(item: render(groups: groups, blockHeight: viewStore.state.birthday)) {
+                //                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf)
+                //                }
+                //                .buttonStyle(.nighthawkPrimary(width: 218))
+            } else {
+                Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
+                    viewStore.send(.continuePressed)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 152))
+                .disabled(!viewStore.state.isConfirmSeedPhraseWrittenChecked)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Export as PDF
+private extension RecoveryPhraseDisplayView {
+    @MainActor
+    func render(groups: [RecoveryPhrase.Group], blockHeight: BlockHeight?) -> URL {
+        let renderer = ImageRenderer(
+            content: VStack(alignment: .leading) {
+                Text(L10n.Nighthawk.RecoveryPhraseDisplay.pdfHeader)
+                    .paragraph(color: .black)
+                    .padding(.bottom, 23)
+                
+                backupSeedGrid(with: groups, forPdf: true)
+                    .padding(.leading, 64)
+                
+                walletBirthday(with: blockHeight, forPdf: true)
+                
+                HStack {
+                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.pdfTimestamp(Date.now.asHumanReadable()))
+                        .paragraph(color: .black)
+                    
+                    Spacer()
+                }
+                
+                Spacer()
+            }
+                .frame(width: 612, height: 792)
+                .padding(64)
+        )
+        
+        let url = URL.documentsDirectory.appending(path: "encrypted_seed.pdf")
+        renderer.render { size, context in
+            var box = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+            guard let pdf = CGContext(url as CFURL, mediaBox: &box, [kCGPDFContextOwnerPassword: "password" as CFString] as CFDictionary) else {
+                return
+            }
+            
+            pdf.beginPDFPage(nil)
+            context(pdf)
+            pdf.endPDFPage()
+            pdf.closePDF()
+            
+            // Read as a PDF document and encrypt with the provided password
+            guard let pdfDocument = PDFDocument(url: url) else { return }
+            pdfDocument.write(
+                to: url,
+                withOptions: [
+                    PDFDocumentWriteOption.userPasswordOption : "password",
+                    PDFDocumentWriteOption.ownerPasswordOption : "password"
+                ]
+            )
+        }
+        
+        return url
     }
 }

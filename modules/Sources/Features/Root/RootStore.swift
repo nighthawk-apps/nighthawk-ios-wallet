@@ -248,10 +248,7 @@ extension RootReducer.State {
                 nhImportWalletState: .placeholder,
                 walletCreatedState: .placeholder
             ),
-            phraseDisplayState: RecoveryPhraseDisplayReducer.State(
-                flow: .settings,
-                phrase: .placeholder
-            ),
+            phraseDisplayState: RecoveryPhraseDisplayReducer.State(flow: .settings),
             welcomeState: .placeholder
         )
     }

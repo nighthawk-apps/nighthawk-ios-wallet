@@ -312,6 +312,12 @@
 "nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your Zcash in Nighthawk Wallet:";
 "nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
 
+// MARK: - Export seed
+"nighthawk.exportSeed.title" = "Export as PDF";
+"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
+"nighthawk.exportSeed.export" = "Export PDF";
+"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+
 // MARK: - Import Wallet Screen
 "nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
 "nighthawk.importWallet.enterSeedPhrase" = "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
@@ -475,6 +481,12 @@
 "nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
 "nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
 "nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+
+// MARK: - Home Screen - Settings tab - Backup
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+
 
 // MARK: - Home Screen - Settings tab - Advanced
 "nighthawk.settingsTab.advanced.title" = "Advanced settings";

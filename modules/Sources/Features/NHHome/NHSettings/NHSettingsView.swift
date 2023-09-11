@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import RecoveryPhraseDisplay
 import SwiftUI
 import UIComponents
 
@@ -16,10 +17,15 @@ struct NHSettingsView: View {
         static let touchId = "Touch ID"
     }
     
-    let store: Store<NHSettingsReducer.State, NHSettingsReducer.Action>
+    let store: NHSettingsStore
     
     var body: some View {
-        NavigationStackStore(store.stackStore()) {
+        NavigationStackStore(
+            store.scope(
+                state: \.path,
+                action: { .path($0) }
+            )
+        ) {
             WithViewStore(store) { viewStore in
                 ScrollView([.vertical], showsIndicators: false) {
                     NighthawkLogo(spacing: .compact)
@@ -93,6 +99,14 @@ struct NHSettingsView: View {
             }
             .applyNighthawkBackground()
             .navigationBarTitle("")
+            .alert(
+                store: store.scope(
+                    state: \.$destination,
+                    action: { .destination($0) }
+                ),
+                state: /NHSettingsReducer.Destination.State.alert,
+                action: NHSettingsReducer.Destination.Action.alert
+            )
         } destination: { state in
             switch state {
             case .notifications:
@@ -117,7 +131,7 @@ struct NHSettingsView: View {
                 CaseLet(
                     state: /NHSettingsReducer.Path.State.backup,
                     action: NHSettingsReducer.Path.Action.backup,
-                    then: BackupView.init(store:)
+                    then: RecoveryPhraseDisplayView.init(store:)
                 )
             case .rescan:
                 CaseLet(

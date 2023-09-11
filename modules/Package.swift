@@ -20,6 +20,7 @@ let package = Package(
         .library(name: "Deeplink", targets: ["Deeplink"]),
         .library(name: "DerivationTool", targets: ["DerivationTool"]),
         .library(name: "DiskSpaceChecker", targets: ["DiskSpaceChecker"]),
+        .library(name: "ExportSeed", targets: ["ExportSeed"]),
         .library(name: "FeedbackGenerator", targets: ["FeedbackGenerator"]),
         .library(name: "FileManager", targets: ["FileManager"]),
         .library(name: "Generated", targets: ["Generated"]),
@@ -180,6 +181,14 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ],
             path: "Sources/Dependencies/DiskSpaceChecker"
+        ),
+        .target(
+            name: "ExportSeed",
+            dependencies: [
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/ExportSeed"
         ),
         .target(
             name: "FeedbackGenerator",
@@ -388,6 +397,7 @@ let package = Package(
         .target(
             name: "RecoveryPhraseDisplay",
             dependencies: [
+                "ExportSeed",
                 "Generated",
                 "Models",
                 "Pasteboard",

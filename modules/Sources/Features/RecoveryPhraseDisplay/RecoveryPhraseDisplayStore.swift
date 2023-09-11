@@ -5,12 +5,14 @@
 //  Created by Francisco Gindre on 10/26/21.
 //
 
-import Foundation
 import ComposableArchitecture
-import ZcashLightClientKit
+import ExportSeed
+import Foundation
+import MnemonicClient
 import Models
 import Pasteboard
 import WalletStorage
+import ZcashLightClientKit
 
 public typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action>
 
@@ -21,35 +23,42 @@ public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
             case settings
         }
         
+        @PresentationState public var destination: Destination.State?
         public var flow: RecoveryPhraseDisplayFlow
         public var phrase: RecoveryPhrase?
         public var birthday: BlockHeight?
-        public var showCopyToBufferAlert = false
         @BindingState public var isConfirmSeedPhraseWrittenChecked = false
         
-        public init(
-            flow: RecoveryPhraseDisplayFlow,
-            phrase: RecoveryPhrase? = nil,
-            birthday: BlockHeight? = nil,
-            showCopyToBufferAlert: Bool = false,
-            isConfirmSeedPhraseWrittenChecked: Bool = false
-        ) {
+        public init(flow: RecoveryPhraseDisplayFlow) {
             self.flow = flow
-            self.phrase = phrase
-            self.birthday = birthday
-            self.showCopyToBufferAlert = showCopyToBufferAlert
-            self.isConfirmSeedPhraseWrittenChecked = isConfirmSeedPhraseWrittenChecked
         }
     }
     
     public enum Action: BindableAction, Equatable {
-        case onAppear
-        case copyToBufferPressed
-        case finishedPressed
-        case phraseResponse(RecoveryPhrase)
         case binding(BindingAction<State>)
+        case continuePressed
+        case destination(PresentationAction<Destination.Action>)
+        case exportAsPdfPressed
+        case onAppear
     }
     
+    public struct Destination: ReducerProtocol {
+        public enum State: Equatable {
+            case exportSeedAlert(ExportSeed.State)
+        }
+        
+        public enum Action: Equatable {
+            case exportSeedAlert(ExportSeed.Action)
+        }
+        
+        public var body: some ReducerProtocolOf<Self> {
+            Reduce { _, _ in .none }
+        }
+        
+        public init() {}
+    }
+    
+    @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.walletStorage) var walletStorage
     
@@ -60,36 +69,33 @@ public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
         
         Reduce { state, action in
             switch action {
-            case .copyToBufferPressed:
-                guard let phrase = state.phrase?.toString() else { return .none }
-                pasteboard.setString(phrase)
-                state.showCopyToBufferAlert = true
+            case .binding:
                 return .none
-                
-            case .finishedPressed:
+            case .continuePressed:
                 return .none
-                
-            case let .phraseResponse(phrase):
-                state.phrase = phrase
+            case .destination(.dismiss):
+                return .none
+            case .destination:
+                return .none
+            case .exportAsPdfPressed:
+                state.destination = .exportSeedAlert(.init())
                 return .none
                 
             case .onAppear:
                 do {
                     let storedWallet = try walletStorage.exportWallet()
+                    let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
+                    let recoveryPhrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
+                    state.phrase = recoveryPhrase
                     state.birthday = storedWallet.birthday?.value()
                 } catch {
                     return .none
                 }
                 return .none
-            case .binding:
-                return .none
             }
         }
-    }
-}
-
-extension RecoveryPhraseDisplayReducer {
-    public static let demo = AnyReducer<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action, Void> { _ in
-        RecoveryPhraseDisplayReducer()
+        .ifLet(\.$destination, action: /Action.destination) {
+            Destination()
+        }
     }
 }

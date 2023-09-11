@@ -62,7 +62,7 @@ private extension RootView {
                     
                 case .phraseDisplay:
                     NavigationView {
-                        NHRecoveryPhraseDisplayView(
+                        RecoveryPhraseDisplayView(
                             store: store.scope(
                                 state: \.phraseDisplayState,
                                 action: RootReducer.Action.phraseDisplay

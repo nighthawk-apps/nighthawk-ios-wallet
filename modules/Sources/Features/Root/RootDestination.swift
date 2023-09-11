@@ -57,7 +57,7 @@ extension RootReducer {
             case .onboarding(.walletCreated(.skip)):
                 state.destinationState.destination = .nhHome
 
-            case .phraseDisplay(.finishedPressed):
+            case .phraseDisplay(.continuePressed):
                 state.destinationState.destination = .nhHome
 
             // TODO: Rework deep linking with new tab nav setup
