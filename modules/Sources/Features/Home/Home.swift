@@ -1,5 +1,5 @@
 //
-//  NHHomeStore.swift
+//  Home.swift
 //  secant
 //
 //  Created by Matthew Watt on 5/5/23.
@@ -10,14 +10,14 @@ import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
 import Models
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 import SDKSynchronizer
 import UIKit
 import Utils
 import ZcashLightClientKit
 
-public struct NHHomeReducer: ReducerProtocol {
-    let networkType: NetworkType
+public struct Home: ReducerProtocol {
+    let zcashNetwork: ZcashNetwork
     
     private enum CancelId { case timer }
     
@@ -53,20 +53,16 @@ public struct NHHomeReducer: ReducerProtocol {
         case settings(NHSettingsReducer.Action)
         case synchronizerStateChanged(SynchronizerState)
         case transfer(TransferReducer.Action)
-        case updateDestination(NHHomeReducer.State.Destination)
+        case updateDestination(Home.State.Destination)
         case wallet(WalletReducer.Action)
         case updateWalletEvents([WalletEvent])
     }
     
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
-    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-    
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -76,23 +72,23 @@ public struct NHHomeReducer: ReducerProtocol {
         }
         
         Scope(state: \.transfer, action: /Action.transfer) {
-            TransferReducer(networkType: networkType)
+            TransferReducer(networkType: zcashNetwork.networkType)
         }
         
         Scope(state: \.settings, action: /Action.settings) {
-            NHSettingsReducer()
+            NHSettingsReducer(zcashNetwork: zcashNetwork)
         }
         
         Reduce { state, action in
             switch action {
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
-                UIApplication.shared.isIdleTimerDisabled = nhUserStoredPreferences.screenMode() == .keepOn
+                UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     let syncEffect = sdkSynchronizer.stateStream()
                         .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                        .map(NHHomeReducer.Action.synchronizerStateChanged)
+                        .map(Home.Action.synchronizerStateChanged)
                         .eraseToEffect()
                         .cancellable(id: CancelId.timer, cancelInFlight: true)
                     return syncEffect
@@ -170,10 +166,14 @@ public struct NHHomeReducer: ReducerProtocol {
             AddressesReducer()
         }
     }
+    
+    public init(zcashNetwork: ZcashNetwork) {
+        self.zcashNetwork = zcashNetwork
+    }
 }
 
 // MARK: - Shared state synchronization
-extension NHHomeReducer.State {
+extension Home.State {
     var wallet: WalletReducer.State {
         get {
             var state = walletState
@@ -222,7 +222,7 @@ extension NHHomeReducer.State {
     }
 }
 
-extension Store<NHHomeReducer.State, NHHomeReducer.Action> {
+extension StoreOf<Home> {
     func walletStore() -> Store<WalletReducer.State, WalletReducer.Action> {
         scope(state: \.wallet, action: Action.wallet)
     }
@@ -241,7 +241,7 @@ extension Store<NHHomeReducer.State, NHHomeReducer.Action> {
 }
 
 // MARK: Placeholders
-extension NHHomeReducer.State {
+extension Home.State {
     public static var placeholder: Self {
         .init(
             shieldedBalance: .init(),

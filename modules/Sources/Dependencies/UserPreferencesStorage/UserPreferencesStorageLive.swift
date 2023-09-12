@@ -2,7 +2,7 @@
 //  UserPreferencesStorageLive.swift
 //  secant-testnet
 //
-//  Created by Lukáš Korba on 15.11.2022.
+//  Created by Matthew Watt on 08/03/2023.
 //
 
 import Foundation
@@ -13,22 +13,16 @@ extension UserPreferencesStorageClient: DependencyKey {
         let live = UserPreferencesStorage.live
 
         return UserPreferencesStorageClient(
-            activeAppSessionFrom: { live.activeAppSessionFrom },
-            setActiveAppSessionFrom: live.setActiveAppSessionFrom(_:),
             currency: { live.currency },
-            setCurrenty: live.setCurrency(_:),
+            setCurrency: live.setCurrency(_:),
             isFiatConverted: { live.isFiatConverted },
             setIsFiatConverted: live.setIsFiatConverted(_:),
-            isRecoveryPhraseTestCompleted: {
-                live.isRecoveryPhraseTestCompleted
-            },
-            setIsRecoveryPhraseTestCompleted: live.setIsRecoveryPhraseTestCompleted(_:),
-            isSessionAutoshielded: { live.isSessionAutoshielded },
-            setIsSessionAutoshielded: live.setIsSessionAutoshielded(_:),
-            isUserOptedOutOfCrashReporting: {
-                live.isUserOptedOutOfCrashReporting
-            },
-            setIsUserOptedOutOfCrashReporting: live.setIsUserOptedOutOfCrashReporting(_:),
+            screenMode: { live.screenMode },
+            setScreenMode: live.setScreenMode(_:),
+            syncNotificationFrequency: { live.syncNotificationFrequency },
+            setSyncNotificationFrequency: live.setSyncNotificationFrequency(_:),
+            areBiometricsEnabled: { live.areBiometricsEnabled },
+            setAreBiometricsEnabled: live.setAreBiometricsEnabled(_:),
             removeAll: live.removeAll
         )
     }()
@@ -36,12 +30,11 @@ extension UserPreferencesStorageClient: DependencyKey {
 
 extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
-        appSessionFrom: Date().timeIntervalSince1970,
         convertedCurrency: "USD",
-        fiatConvertion: true,
-        recoveryPhraseTestCompleted: false,
-        sessionAutoshielded: true,
-        userOptedOutOfCrashReporting: false,
+        fiatConversion: true,
+        selectedScreenMode: .off,
+        selectedSyncNotificationFrequency: .off,
+        biometricsEnabled: false,
         userDefaults: .live()
     )
 }

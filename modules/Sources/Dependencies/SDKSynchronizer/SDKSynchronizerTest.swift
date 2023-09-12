@@ -68,7 +68,7 @@ extension SDKSynchronizerClient {
         eventStream: @escaping () -> AnyPublisher<SynchronizerEvent, Never> = { Empty().eraseToAnyPublisher() },
         latestState: @escaping () -> SynchronizerState = { .zero },
         latestScannedHeight: @escaping () -> BlockHeight = { 0 },
-        prepareWith: @escaping ([UInt8], UnifiedFullViewingKey, BlockHeight) throws -> Void = { _, _, _ in },
+        prepareWith: @escaping ([UInt8], BlockHeight, WalletInitMode) throws -> Void = { _, _, _ in },
         start: @escaping (_ retry: Bool) throws -> Void = { _ in },
         stop: @escaping () -> Void = { },
         isSyncing: @escaping () -> Bool = { false },

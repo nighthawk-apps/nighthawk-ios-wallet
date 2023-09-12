@@ -1,5 +1,5 @@
 //
-//  NHHomeView.swift
+//  HomeView.swift
 //  secant
 //
 //  Created by Matthew Watt on 5/5/23.
@@ -7,15 +7,14 @@
 
 import Addresses
 import ComposableArchitecture
-import OnboardingFlow
 import SwiftUI
 import UIComponents
 
-public struct NHHomeView: View {
-    let store: Store<NHHomeReducer.State, NHHomeReducer.Action>
+public struct HomeView: View {
+    let store: StoreOf<Home>
     let tokenName: String
     
-    public init(store: Store<NHHomeReducer.State, NHHomeReducer.Action>, tokenName: String) {
+    public init(store: StoreOf<Home>, tokenName: String) {
         self.store = store
         self.tokenName = tokenName
     }
@@ -25,7 +24,7 @@ public struct NHHomeView: View {
             VStack(spacing: 0) {
                 TabView(selection: viewStore.binding(\.$destination)) {
                     WalletView(store: store.walletStore(), tokenName: tokenName)
-                        .tag(NHHomeReducer.State.Destination.wallet)
+                        .tag(Home.State.Destination.wallet)
                         .overlay(alignment: .top) {
                             if viewStore.synchronizerStatusSnapshot.isSyncing {
                                 IndeterminateProgress()
@@ -36,10 +35,10 @@ public struct NHHomeView: View {
                         store: store.transferStore(),
                         tokenName: tokenName
                     )
-                    .tag(NHHomeReducer.State.Destination.transfer)
+                    .tag(Home.State.Destination.transfer)
                     
                     NHSettingsView(store: store.settingsStore())
-                        .tag(NHHomeReducer.State.Destination.settings)
+                        .tag(Home.State.Destination.settings)
                 }
                 .overlay(alignment: .top) {
                     if viewStore.destination == .wallet {
@@ -48,7 +47,7 @@ public struct NHHomeView: View {
                     }
                 }
                 
-                NHTabBar(
+                NighthawkTabBar(
                     destination: viewStore.binding(\.$destination),
                     isUpToDate: viewStore.synchronizerStatusSnapshot.isSynced
                 )

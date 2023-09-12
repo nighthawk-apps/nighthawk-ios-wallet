@@ -62,7 +62,7 @@ struct NHSettingsView: View {
                             title: L10n.Nighthawk.SettingsTab.backupTitle,
                             subtitle: L10n.Nighthawk.SettingsTab.backupSubtitle,
                             icon: Asset.Assets.Icons.Nighthawk.backup.image,
-                            action: { viewStore.send(.goTo(.backup())) }
+                            action: { viewStore.send(.backupTapped) }
                         )
                         
                         settingRow(

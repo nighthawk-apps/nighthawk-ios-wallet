@@ -10,18 +10,25 @@ import ComposableArchitecture
 import Generated
 import LocalAuthentication
 import LocalAuthenticationClient
+import MnemonicClient
+import Models
 import RecoveryPhraseDisplay
 import SwiftUI
+import WalletStorage
+import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 public typealias NHSettingsStore = Store<NHSettingsReducer.State, NHSettingsReducer.Action>
 public typealias NHSettingsViewStore = ViewStore<NHSettingsReducer.State, NHSettingsReducer.Action>
 
 public struct NHSettingsReducer: ReducerProtocol {
+    let zcashNetwork: ZcashNetwork
+    
     public struct Path: ReducerProtocol {
         public enum State: Equatable {
             case about(AboutReducer.State = .init())
             case advanced(AdvancedReducer.State = .init())
-            case backup(RecoveryPhraseDisplayReducer.State = .init(flow: .settings))
+            case backup(RecoveryPhraseDisplay.State)
             case changeServer(ChangeServerReducer.State = .init())
             case externalServices(ExternalServicesReducer.State = .init())
             case fiat(FiatReducer.State = .init())
@@ -33,7 +40,7 @@ public struct NHSettingsReducer: ReducerProtocol {
         public enum Action: Equatable {
             case about(AboutReducer.Action)
             case advanced(AdvancedReducer.Action)
-            case backup(RecoveryPhraseDisplayReducer.Action)
+            case backup(RecoveryPhraseDisplay.Action)
             case changeServer(ChangeServerReducer.Action)
             case externalServices(ExternalServicesReducer.Action)
             case fiat(FiatReducer.Action)
@@ -52,7 +59,7 @@ public struct NHSettingsReducer: ReducerProtocol {
             }
             
             Scope(state: /State.backup, action: /Action.backup) {
-                RecoveryPhraseDisplayReducer()
+                RecoveryPhraseDisplay()
             }
             
             Scope(state: /State.changeServer, action: /Action.changeServer) {
@@ -92,6 +99,7 @@ public struct NHSettingsReducer: ReducerProtocol {
     }
     
     public enum Action: Equatable {
+        case backupTapped
         case destination(PresentationAction<Destination.Action>)
         case path(StackAction<Path.State, Path.Action>)
         case goTo(Path.State)
@@ -120,17 +128,29 @@ public struct NHSettingsReducer: ReducerProtocol {
     
     @Dependency(\.appVersion) var appVersion
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.mnemonic) var mnemonic
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
+            case .backupTapped:
+                state.destination = .alert(AlertState.confirmViewSeedWords())
+                return .none
             case .destination(.dismiss):
                 return .none
             case .destination(.presented(.alert(.viewSeed))):
-                state.path.append(.backup())
-                return .none
-            case .goTo(.backup):
-                state.destination = .alert(AlertState.confirmViewSeedWords())
+                do {
+                    let storedWallet = try walletStorage.exportWallet()
+                    let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
+                    let recoveryPhrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
+                    let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+                    state.path.append(.backup(.init(flow: .settings, phrase: recoveryPhrase, birthday: birthday)))
+                } catch {
+                    return .none
+                }
+                
                 return .none
             case let .goTo(pathState):
                 state.path.append(pathState)
@@ -153,6 +173,10 @@ public struct NHSettingsReducer: ReducerProtocol {
         .ifLet(\.$destination, action: /Action.destination) {
             Destination()
         }
+    }
+    
+    public init(zcashNetwork: ZcashNetwork) {
+        self.zcashNetwork = zcashNetwork
     }
 }
 

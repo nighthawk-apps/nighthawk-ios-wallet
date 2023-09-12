@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Generated
 import Models
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 import UIKit
 
 public typealias AdvancedStore = Store<AdvancedReducer.State, AdvancedReducer.Action>
@@ -33,7 +33,7 @@ public struct AdvancedReducer: ReducerProtocol {
     
     public init() {}
     
-    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -49,10 +49,10 @@ public struct AdvancedReducer: ReducerProtocol {
                 state.alert = AlertState.warnBeforeNukingWallet
                 return .none
             case .onAppear:
-                state.selectedScreenMode = nhUserStoredPreferences.screenMode()
+                state.selectedScreenMode = userStoredPreferences.screenMode()
                 return .none
             case .binding(\.$selectedScreenMode):
-                nhUserStoredPreferences.setScreenMode(state.selectedScreenMode)
+                userStoredPreferences.setScreenMode(state.selectedScreenMode)
                 UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
                 return .none
             case .alert, .binding, .nukeWalletConfirmed:

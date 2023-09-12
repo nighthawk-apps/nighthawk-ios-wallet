@@ -38,9 +38,9 @@ extension SDKSynchronizerClient {
             stateStream: { synchronizer.stateStream },
             eventStream: { synchronizer.eventStream },
             latestState: { synchronizer.latestState },
-            latestScannedHeight: { synchronizer.latestState.latestScannedHeight },
-            prepareWith: { seedBytes, viewingKey, walletBirtday in
-                let result = try await synchronizer.prepare(with: seedBytes, viewingKeys: [viewingKey], walletBirthday: walletBirtday)
+            latestScannedHeight: { synchronizer.latestState.latestBlockHeight },
+            prepareWith: { seedBytes, walletBirthday, initMode in
+                let result = try await synchronizer.prepare(with: seedBytes, walletBirthday: walletBirthday, for: initMode)
                 if result != .success { throw ZcashError.synchronizerNotPrepared }
             },
             start: { retry in try await synchronizer.start(retry: retry) },
@@ -58,7 +58,7 @@ extension SDKSynchronizerClient {
                     var transaction = TransactionState.init(
                         transaction: clearedTransaction,
                         memos: clearedTransaction.memoCount > 0 ? try await synchronizer.getMemos(for: clearedTransaction) : nil,
-                        latestBlockHeight: synchronizer.latestState.latestScannedHeight
+                        latestBlockHeight: synchronizer.latestState.latestBlockHeight
                     )
 
                     let recipients = await synchronizer.getRecipients(for: clearedTransaction)

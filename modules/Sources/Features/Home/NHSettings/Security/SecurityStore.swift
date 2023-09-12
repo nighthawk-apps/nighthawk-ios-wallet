@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Generated
 import LocalAuthentication
 import LocalAuthenticationClient
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 
 public typealias SecurityStore = Store<SecurityReducer.State, SecurityReducer.Action>
 public typealias SecurityViewStore = ViewStore<SecurityReducer.State, SecurityReducer.Action>
@@ -30,7 +30,7 @@ public struct SecurityReducer: ReducerProtocol {
     }
     
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
-    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerProtocol<SecurityReducer.State, SecurityReducer.Action> {
         BindingReducer()
@@ -39,7 +39,7 @@ public struct SecurityReducer: ReducerProtocol {
             switch action {
             case let .authenticationResponse(authenticated):
                 if authenticated {
-                    nhUserStoredPreferences.setAreBiometricsEnabled(state.areBiometricsEnabled)
+                    userStoredPreferences.setAreBiometricsEnabled(state.areBiometricsEnabled)
                 } else {
                     state.areBiometricsEnabled = !state.areBiometricsEnabled
                 }
@@ -75,7 +75,7 @@ public struct SecurityReducer: ReducerProtocol {
                     }
                 }
             case .onAppear:
-                state.areBiometricsEnabled = nhUserStoredPreferences.areBiometricsEnabled()
+                state.areBiometricsEnabled = userStoredPreferences.areBiometricsEnabled()
                 let context = localAuthenticationContext()
                 _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
                 state.biometryType = context.biometryType()

@@ -1,5 +1,5 @@
 //
-//  NHWalletCreatedView.swift
+//  WalletCreatedView.swift
 //  secant
 //
 //  Created by Matthew Watt on 4/19/23.
@@ -12,9 +12,9 @@ import SwiftUI
 import UIComponents
 
 public struct WalletCreatedView: View {
-    let store: WalletCreatedStore
+    let store: StoreOf<WalletCreated>
     
-    public init(store: WalletCreatedStore) {
+    public init(store: StoreOf<WalletCreated>) {
         self.store = store
     }
     
@@ -36,7 +36,7 @@ public struct WalletCreatedView: View {
 
 // MARK: - Subviews
 private extension WalletCreatedView {
-    func actions(viewStore: ViewStoreOf<WalletCreatedReducer>) -> some View {
+    func actions(viewStore: ViewStoreOf<WalletCreated>) -> some View {
         VStack(spacing: 16) {
             Button(L10n.Nighthawk.WalletCreated.backup) {
                 viewStore.send(.backup)
@@ -50,13 +50,5 @@ private extension WalletCreatedView {
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, 64)
-    }
-}
-
-// MARK: - Previews
-
-struct WalletCreatedView_Previews: PreviewProvider {
-    static var previews: some View {
-        WalletCreatedView(store: .placeholder)
     }
 }

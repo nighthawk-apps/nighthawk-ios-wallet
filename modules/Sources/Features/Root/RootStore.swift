@@ -4,7 +4,6 @@ import DatabaseFiles
 import Deeplink
 import ZcashSDKEnvironment
 import WalletStorage
-import UserPreferencesStorage
 import Migrate
 import Models
 import RecoveryPhraseDisplay
@@ -14,7 +13,7 @@ import Foundation
 import OnboardingFlow
 import NHHome
 import LocalAuthenticationClient
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 
 public typealias RootStore = Store<RootReducer.State, RootReducer.Action>
 public typealias RootViewStore = ViewStore<RootReducer.State, RootReducer.Action>
@@ -35,7 +34,6 @@ public struct RootReducer: ReducerProtocol {
         var onboardingState: OnboardingFlowReducer.State
         var phraseDisplayState: RecoveryPhraseDisplayReducer.State
         var storedWallet: StoredWallet?
-        var welcomeState: WelcomeReducer.State
     }
 
     public enum Action: Equatable, BindableAction {
@@ -49,7 +47,6 @@ public struct RootReducer: ReducerProtocol {
         case nukeWalletSucceeded
         case onboarding(OnboardingFlowReducer.Action)
         case phraseDisplay(RecoveryPhraseDisplayReducer.Action)
-        case welcome(WelcomeReducer.Action)
     }
 
     @Dependency(\.databaseFiles) var databaseFiles
@@ -58,11 +55,10 @@ public struct RootReducer: ReducerProtocol {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
-    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
 
     public init(tokenName: String, zcashNetwork: ZcashNetwork) {
         self.tokenName = tokenName
@@ -87,10 +83,6 @@ public struct RootReducer: ReducerProtocol {
 
         Scope(state: \.phraseDisplayState, action: /Action.phraseDisplay) {
             RecoveryPhraseDisplayReducer()
-        }
-
-        Scope(state: \.welcomeState, action: /Action.welcome) {
-            WelcomeReducer()
         }
 
         initializationReduce()
@@ -248,8 +240,7 @@ extension RootReducer.State {
                 nhImportWalletState: .placeholder,
                 walletCreatedState: .placeholder
             ),
-            phraseDisplayState: RecoveryPhraseDisplayReducer.State(flow: .settings),
-            welcomeState: .placeholder
+            phraseDisplayState: RecoveryPhraseDisplayReducer.State(flow: .settings)
         )
     }
 }

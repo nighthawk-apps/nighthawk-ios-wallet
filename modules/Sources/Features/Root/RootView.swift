@@ -48,18 +48,6 @@ private extension RootView {
                         viewStore.send(.initialization(.scene(.didChangePhase(newPhase))))
                     }
                     
-                case .onboarding:
-                    NavigationView {
-                        NHPlainOnboardingView(
-                            store: store.scope(
-                                state: \.onboardingState,
-                                action: RootReducer.Action.onboarding
-                            )
-                        )
-                    }
-                    .navigationViewStyle(.stack)
-                    .tint(.white)
-                    
                 case .phraseDisplay:
                     NavigationView {
                         RecoveryPhraseDisplayView(
@@ -71,15 +59,16 @@ private extension RootView {
                     }
                     
                 case .welcome:
-                    NHWelcomeView(
-                        store: store.scope(
-                            state: \.welcomeState,
-                            action: RootReducer.Action.welcome
-                        )
-                    )
-                    .onChange(of: scenePhase) { newScene in
-                        viewStore.send(.initialization(.scene(.didChangePhase(newScene))))
-                    }
+                    EmptyView()
+//                    NHWelcomeView(
+//                        store: store.scope(
+//                            state: \.welcomeState,
+//                            action: RootReducer.Action.welcome
+//                        )
+//                    )
+//                    .onChange(of: scenePhase) { newScene in
+//                        viewStore.send(.initialization(.scene(.didChangePhase(newScene))))
+//                    }
                 case .migrate:
                     MigrateView(
                         store: store.scope(

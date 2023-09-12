@@ -1,8 +1,8 @@
 //
-//  RecoveryPhraseDisplayStore.swift
+//  RecoveryPhraseDisplay.swift
 //  secant-testnet
 //
-//  Created by Francisco Gindre on 10/26/21.
+//  Created by Matthew Watt on 9/11/23.
 //
 
 import ComposableArchitecture
@@ -14,9 +14,7 @@ import Pasteboard
 import WalletStorage
 import ZcashLightClientKit
 
-public typealias RecoveryPhraseDisplayStore = Store<RecoveryPhraseDisplayReducer.State, RecoveryPhraseDisplayReducer.Action>
-
-public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
+public struct RecoveryPhraseDisplay: ReducerProtocol {
     public struct State: Equatable {
         public enum RecoveryPhraseDisplayFlow {
             case onboarding
@@ -25,12 +23,18 @@ public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
         
         @PresentationState public var destination: Destination.State?
         public var flow: RecoveryPhraseDisplayFlow
-        public var phrase: RecoveryPhrase?
-        public var birthday: BlockHeight?
+        public var phrase: RecoveryPhrase
+        public var birthday: BlockHeight
         @BindingState public var isConfirmSeedPhraseWrittenChecked = false
         
-        public init(flow: RecoveryPhraseDisplayFlow) {
+        public init(
+            flow: RecoveryPhraseDisplayFlow,
+            phrase: RecoveryPhrase,
+            birthday: BlockHeight
+        ) {
             self.flow = flow
+            self.phrase = phrase
+            self.birthday = birthday
         }
     }
     
@@ -39,7 +43,6 @@ public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
         case continuePressed
         case destination(PresentationAction<Destination.Action>)
         case exportAsPdfPressed
-        case onAppear
     }
     
     public struct Destination: ReducerProtocol {
@@ -79,18 +82,6 @@ public struct RecoveryPhraseDisplayReducer: ReducerProtocol {
                 return .none
             case .exportAsPdfPressed:
                 state.destination = .exportSeedAlert(.init())
-                return .none
-                
-            case .onAppear:
-                do {
-                    let storedWallet = try walletStorage.exportWallet()
-                    let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
-                    let recoveryPhrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.phrase = recoveryPhrase
-                    state.birthday = storedWallet.birthday?.value()
-                } catch {
-                    return .none
-                }
                 return .none
             }
         }

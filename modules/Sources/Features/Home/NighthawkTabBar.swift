@@ -1,5 +1,5 @@
 //
-//  NHTabBar.swift
+//  NighthawkTabBar.swift
 //  secant
 //
 //  Created by Matthew Watt on 5/5/23.
@@ -8,12 +8,12 @@
 import Generated
 import SwiftUI
 
-struct NHTabBar: View {
-    let destination: Binding<NHHomeReducer.State.Destination>
+struct NighthawkTabBar: View {
+    let destination: Binding<Home.State.Destination>
     let isUpToDate: Bool
     
     init(
-        destination: Binding<NHHomeReducer.State.Destination>,
+        destination: Binding<Home.State.Destination>,
         isUpToDate: Bool
     ) {
         self.destination = destination

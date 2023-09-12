@@ -2,10 +2,11 @@
 //  UserPreferencesStorage.swift
 //  secant-testnet
 //
-//  Created by Lukáš Korba on 03/18/2022.
+//  Created by Matthew Watt on 08/03/2023.
 //
 
 import Foundation
+import Models
 import UserDefaults
 
 /// Live implementation of the `UserPreferences` using User Defaults
@@ -13,94 +14,81 @@ import UserDefaults
 /// the UserDefaults class is thread-safe.
 public struct UserPreferencesStorage {
     public enum Constants: String, CaseIterable {
-        case zcashActiveAppSessionFrom
         case zcashCurrency
         case zcashFiatConverted
-        case zcashRecoveryPhraseTestCompleted
-        case zcashSessionAutoshielded
-        case zcashUserOptedOutOfCrashReporting
+        case zcashScreenMode
+        case zcashSyncNotificationFrequency
+        case zcashBiometricsEnabled
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
-    private let appSessionFrom: TimeInterval
     private let convertedCurrency: String
-    private let fiatConvertion: Bool
-    private let recoveryPhraseTestCompleted: Bool
-    private let sessionAutoshielded: Bool
-    private let userOptedOutOfCrashReporting: Bool
+    private let fiatConversion: Bool
+    private let selectedScreenMode: NighthawkSetting.ScreenMode
+    private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
+    private let biometricsEnabled: Bool
     
     private let userDefaults: UserDefaultsClient
     
     public init(
-        appSessionFrom: TimeInterval,
         convertedCurrency: String,
-        fiatConvertion: Bool,
-        recoveryPhraseTestCompleted: Bool,
-        sessionAutoshielded: Bool,
-        userOptedOutOfCrashReporting: Bool,
+        fiatConversion: Bool,
+        selectedScreenMode: NighthawkSetting.ScreenMode,
+        selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
+        biometricsEnabled: Bool,
         userDefaults: UserDefaultsClient
     ) {
-        self.appSessionFrom = appSessionFrom
         self.convertedCurrency = convertedCurrency
-        self.fiatConvertion = fiatConvertion
-        self.recoveryPhraseTestCompleted = recoveryPhraseTestCompleted
-        self.sessionAutoshielded = sessionAutoshielded
-        self.userOptedOutOfCrashReporting = userOptedOutOfCrashReporting
+        self.fiatConversion = fiatConversion
+        self.selectedScreenMode = selectedScreenMode
+        self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
+        self.biometricsEnabled = biometricsEnabled
         self.userDefaults = userDefaults
     }
-    
-    /// From when the app is on and uninterrupted
-    public var activeAppSessionFrom: TimeInterval {
-        getValue(forKey: Constants.zcashActiveAppSessionFrom.rawValue, default: appSessionFrom)
-    }
-    
-    public func setActiveAppSessionFrom(_ timeInterval: TimeInterval) async {
-        await setValue(timeInterval, forKey: Constants.zcashActiveAppSessionFrom.rawValue)
-    }
 
-    /// What is the set up currency
     public var currency: String {
         getValue(forKey: Constants.zcashCurrency.rawValue, default: convertedCurrency)
     }
     
-    public func setCurrency(_ string: String) async {
-        await setValue(string, forKey: Constants.zcashCurrency.rawValue)
+    public func setCurrency(_ string: String) {
+        setValue(string, forKey: Constants.zcashCurrency.rawValue)
     }
 
-    /// Whether the fiat conversion is on/off
     public var isFiatConverted: Bool {
-        getValue(forKey: Constants.zcashFiatConverted.rawValue, default: fiatConvertion)
+        getValue(forKey: Constants.zcashFiatConverted.rawValue, default: fiatConversion)
     }
 
-    public func setIsFiatConverted(_ bool: Bool) async {
-        await setValue(bool, forKey: Constants.zcashFiatConverted.rawValue)
+    public func setIsFiatConverted(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashFiatConverted.rawValue)
     }
-
-    /// Whether user finished recovery phrase backup test
-    public var isRecoveryPhraseTestCompleted: Bool {
-        getValue(forKey: Constants.zcashRecoveryPhraseTestCompleted.rawValue, default: recoveryPhraseTestCompleted)
+    
+    public var screenMode: NighthawkSetting.ScreenMode {
+        let rawValue = getValue(forKey: Constants.zcashScreenMode.rawValue, default: selectedScreenMode.rawValue)
+        return NighthawkSetting.ScreenMode(rawValue: rawValue) ?? .off
     }
-
-    public func setIsRecoveryPhraseTestCompleted(_ bool: Bool) async {
-        await setValue(bool, forKey: Constants.zcashRecoveryPhraseTestCompleted.rawValue)
+    
+    public func setScreenMode(_ mode: NighthawkSetting.ScreenMode) {
+        setValue(mode.rawValue, forKey: Constants.zcashScreenMode.rawValue)
     }
-
-    /// Whether the user has been autoshielded in the running session
-    public var isSessionAutoshielded: Bool {
-        getValue(forKey: Constants.zcashSessionAutoshielded.rawValue, default: sessionAutoshielded)
+    
+    public var syncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency {
+        let rawValue = getValue(
+            forKey: Constants.zcashSyncNotificationFrequency.rawValue,
+            default: selectedSyncNotificationFrequency.rawValue
+        )
+        return NighthawkSetting.SyncNotificationFrequency(rawValue: rawValue) ?? .off
     }
-
-    public func setIsSessionAutoshielded(_ bool: Bool) async {
-        await setValue(bool, forKey: Constants.zcashSessionAutoshielded.rawValue)
+    
+    public func setSyncNotificationFrequency(_ frequency: NighthawkSetting.SyncNotificationFrequency) {
+        setValue(frequency.rawValue, forKey: Constants.zcashSyncNotificationFrequency.rawValue)
     }
-
-    /// Whether the user has opted out of crash reporting
-    public var isUserOptedOutOfCrashReporting: Bool {
-        getValue(forKey: Constants.zcashUserOptedOutOfCrashReporting.rawValue, default: false)
+    
+    public var areBiometricsEnabled: Bool {
+        getValue(forKey: Constants.zcashBiometricsEnabled.rawValue, default: biometricsEnabled)
     }
-
-    public func setIsUserOptedOutOfCrashReporting(_ bool: Bool) async {
-        await setValue(bool, forKey: Constants.zcashUserOptedOutOfCrashReporting.rawValue)
+    
+    public func setAreBiometricsEnabled(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashBiometricsEnabled.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults
@@ -116,7 +104,7 @@ private extension UserPreferencesStorage {
         userDefaults.objectForKey(forKey) as? Value ?? defaultIfNil
     }
 
-    func setValue<Value>(_ value: Value, forKey: String) async {
+    func setValue<Value>(_ value: Value, forKey: String) {
         userDefaults.setValue(value, forKey)
     }
 }

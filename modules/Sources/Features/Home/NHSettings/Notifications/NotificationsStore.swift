@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Date
 import Generated
 import Models
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 import UIKit
 import UserNotifications
 import UserNotificationCenter
@@ -36,7 +36,7 @@ public struct NotificationsReducer: ReducerProtocol {
     }
     
     @Dependency(\.dateClient) var dateClient
-    @Dependency(\.nhUserStoredPreferences) var nhUserStoredPreferences
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.userNotificationCenter) var userNotificationCenter
     
     public var body: some ReducerProtocol<NotificationsReducer.State, NotificationsReducer.Action> {
@@ -53,10 +53,10 @@ public struct NotificationsReducer: ReducerProtocol {
                 
             case let .authorizationStatusResponse(granted):
                 if granted {
-                    nhUserStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
+                    userStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
                     return scheduleNotification(with: state.selectedSyncNotificationFrequency)
                 } else {
-                    nhUserStoredPreferences.setSyncNotificationFrequency(.off)
+                    userStoredPreferences.setSyncNotificationFrequency(.off)
                     state.selectedSyncNotificationFrequency = .off
                     state.alert = AlertState.notifyAppNeedsNotificationPermission()
                 }
@@ -64,7 +64,7 @@ public struct NotificationsReducer: ReducerProtocol {
                 
             case .binding(\.$selectedSyncNotificationFrequency):
                 if state.authorizationStatus.isAuthorized {
-                    nhUserStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
+                    userStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
                     return scheduleNotification(with: state.selectedSyncNotificationFrequency)
                 } else {
                     if state.authorizationStatus == .notDetermined {
@@ -74,7 +74,7 @@ public struct NotificationsReducer: ReducerProtocol {
                             )
                         }
                     } else if state.authorizationStatus == .denied {
-                        nhUserStoredPreferences.setSyncNotificationFrequency(.off)
+                        userStoredPreferences.setSyncNotificationFrequency(.off)
                         state.selectedSyncNotificationFrequency = .off
                         userNotificationCenter.removeAllPendingNotificationRequests()
                         state.alert = AlertState.notifyAppNeedsNotificationPermission()
@@ -86,11 +86,11 @@ public struct NotificationsReducer: ReducerProtocol {
             case let .notificationSettingsResponse(settings):
                 state.authorizationStatus = settings.authorizationStatus
                 if !settings.authorizationStatus.isAuthorized {
-                    nhUserStoredPreferences.setSyncNotificationFrequency(.off)
+                    userStoredPreferences.setSyncNotificationFrequency(.off)
                     state.selectedSyncNotificationFrequency = .off
                     userNotificationCenter.removeAllPendingNotificationRequests()
                 } else {
-                    state.selectedSyncNotificationFrequency = nhUserStoredPreferences.syncNotificationFrequency()
+                    state.selectedSyncNotificationFrequency = userStoredPreferences.syncNotificationFrequency()
                 }
                 return .none
                 

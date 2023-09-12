@@ -9,7 +9,7 @@ import ComposableArchitecture
 import DerivationTool
 import Generated
 import LocalAuthenticationClient
-import NHUserPreferencesStorage
+import UserPreferencesStorage
 import MnemonicClient
 import SDKSynchronizer
 import SwiftUI
@@ -131,7 +131,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
     
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
-    @Dependency(\.nhUserStoredPreferences) var nhUserPreferencesStorage
+    @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -194,7 +194,7 @@ public struct NHSendFlowReducer: ReducerProtocol {
                 let _ = state.path.popLast()
                 return .none
             case .path(.element(id: _, action: .review(.sendZcashTapped))):
-                if nhUserPreferencesStorage.areBiometricsEnabled() {
+                if userPreferencesStorage.areBiometricsEnabled() {
                     return .task {
                         let context = localAuthenticationContext()
                         

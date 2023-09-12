@@ -17,7 +17,6 @@ extension RootReducer {
     public struct DestinationState: Equatable {
         public enum Destination: Equatable {
             case nhHome
-            case onboarding
             case phraseDisplay
             case welcome
             case migrate
@@ -96,7 +95,7 @@ extension RootReducer {
                 return .none
 
             case .nhHome, .initialization, .migrate, .onboarding, .phraseDisplay, .alert,
-                .welcome, .binding, .nukeWalletFailed, .nukeWalletSucceeded:
+                /*.welcome,*/ .binding, .nukeWalletFailed, .nukeWalletSucceeded:
                 return .none
             }
             

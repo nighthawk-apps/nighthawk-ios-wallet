@@ -1,8 +1,8 @@
 //
-//  NHWelcomeView.swift
-//  secant
+//  SplashView.swift
+//  
 //
-//  Created by Matthew Watt on 3/17/23.
+//  Created by Matthew Watt on 9/11/23.
 //
 
 import ComposableArchitecture
@@ -10,10 +10,10 @@ import Generated
 import SwiftUI
 import UIComponents
 
-public struct NHWelcomeView: View {
-    let store: WelcomeStore
+public struct SplashView: View {
+    let store: StoreOf<Splash>
     
-    public init(store: WelcomeStore) {
+    public init(store: StoreOf<Splash>) {
         self.store = store
     }
     
@@ -26,13 +26,13 @@ public struct NHWelcomeView: View {
                     NighthawkLogo()
                         .padding(.bottom, 10)
                     
-                    Text(L10n.Nighthawk.WelcomeScreen.subtitle)
+                    Text(L10n.Nighthawk.Splash.subtitle)
                         .paragraph()
                 }
                 
                 if !viewStore.hasAuthenticated && viewStore.biometricsEnabled {
                     Button(
-                        L10n.Nighthawk.WelcomeScreen.retry,
+                        L10n.Nighthawk.Splash.retry,
                         action: { viewStore.send(.retryTapped) }
                     )
                     .buttonStyle(.nighthawkPrimary())
@@ -47,7 +47,15 @@ public struct NHWelcomeView: View {
                     .frame(width: 131, height: 20)
                     .padding(.bottom, 44)
             }
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
+        .alert(
+            store: store.scope(
+                state: \.$alert,
+                action: { .alert($0) }
+            )
+        )
     }
 }
+

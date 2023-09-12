@@ -39,52 +39,52 @@ extension RootReducer {
         Reduce { state, action in
             switch action {
             case .initialization(.authenticate):
-                if !state.welcomeState.hasAuthenticated {
-                    return .task {
-                        let context = localAuthenticationContext()
-                        
-                        do {
-                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
-                                return try await .initialization(
-                                    .authenticationResponse(
-                                        context.evaluatePolicy(
-                                            .deviceOwnerAuthentication,
-                                            L10n.Nighthawk.LocalAuthentication.accessWalletReason
-                                        )
-                                    )
-                                )
-                            } else {
-                                return .initialization(.authenticationResponse(false))
-                            }
-                        } catch {
-                            return .initialization(.authenticationResponse(false))
-                        }
-                    }
-                }
+//                if !state.welcomeState.hasAuthenticated {
+//                    return .task {
+//                        let context = localAuthenticationContext()
+//                        
+//                        do {
+//                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+//                                return try await .initialization(
+//                                    .authenticationResponse(
+//                                        context.evaluatePolicy(
+//                                            .deviceOwnerAuthentication,
+//                                            L10n.Nighthawk.LocalAuthentication.accessWalletReason
+//                                        )
+//                                    )
+//                                )
+//                            } else {
+//                                return .initialization(.authenticationResponse(false))
+//                            }
+//                        } catch {
+//                            return .initialization(.authenticationResponse(false))
+//                        }
+//                    }
+//                }
                 return .none
-            case .welcome(.retryTapped):
-                return .task {
-                    let context = localAuthenticationContext()
-                    
-                    do {
-                        if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
-                            return try await .initialization(
-                                .authenticationResponse(
-                                    context.evaluatePolicy(
-                                        .deviceOwnerAuthentication,
-                                        L10n.Nighthawk.LocalAuthentication.accessWalletReason
-                                    )
-                                )
-                            )
-                        } else {
-                            return .initialization(.authenticationResponse(false))
-                        }
-                    } catch {
-                        return .initialization(.authenticationResponse(false))
-                    }
-                }
+//            case .welcome(.retryTapped):
+//                return .task {
+//                    let context = localAuthenticationContext()
+//
+//                    do {
+//                        if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+//                            return try await .initialization(
+//                                .authenticationResponse(
+//                                    context.evaluatePolicy(
+//                                        .deviceOwnerAuthentication,
+//                                        L10n.Nighthawk.LocalAuthentication.accessWalletReason
+//                                    )
+//                                )
+//                            )
+//                        } else {
+//                            return .initialization(.authenticationResponse(false))
+//                        }
+//                    } catch {
+//                        return .initialization(.authenticationResponse(false))
+//                    }
+//                }
             case let .initialization(.authenticationResponse(authenticated)):
-                state.welcomeState.hasAuthenticated = authenticated
+//                state.welcomeState.hasAuthenticated = authenticated
                 if authenticated {
                     return .run { send in
                         await send(.initialization(.initializeSDK))
@@ -94,8 +94,8 @@ extension RootReducer {
                 return .none
                 
             case let .initialization(.scene(.didChangePhase(newPhase))):
-                if state.shouldResetToSplash(for: newPhase) && nhUserStoredPreferences.areBiometricsEnabled() {
-                    state.welcomeState.hasAuthenticated = false
+                if state.shouldResetToSplash(for: newPhase) && userStoredPreferences.areBiometricsEnabled() {
+//                    state.welcomeState.hasAuthenticated = false
                     return .concatenate(
                         .cancel(id: SynchronizerCancelId.timer),
                         .send(.destination(.updateDestination(.welcome)))
@@ -144,7 +144,7 @@ extension RootReducer {
                         state.appInitializationState = .filesMissing
                     }
                     
-                    if nhUserStoredPreferences.areBiometricsEnabled() {
+                    if userStoredPreferences.areBiometricsEnabled() {
                         return .run { send in await send(.initialization(.authenticate)) }
                     } else {
                         return .run { send in
@@ -154,10 +154,11 @@ extension RootReducer {
                     }
                 case .uninitialized:
                     state.appInitializationState = .uninitialized
-                    return EffectTask(value: .destination(.updateDestination(.onboarding)))
-                        .delay(for: 3, scheduler: mainQueue)
-                        .eraseToEffect()
-                        .cancellable(id: CancelId.timer, cancelInFlight: true)
+                    return .none
+//                    return EffectTask(value: .destination(.updateDestination(.onboarding)))
+//                        .delay(for: 3, scheduler: mainQueue)
+//                        .eraseToEffect()
+//                        .cancellable(id: CancelId.timer, cancelInFlight: true)
                 }
 
                 /// Stored wallet is present, database files may or may not be present, trying to initialize app state variables and environments.
@@ -325,7 +326,7 @@ extension RootReducer {
                 return .none
                 
             case .nhHome, .destination, .migrate, .onboarding, .phraseDisplay,
-                .welcome, .binding, .alert:
+                /*.welcome,*/ .binding, .alert:
                 return .none
             }
         }

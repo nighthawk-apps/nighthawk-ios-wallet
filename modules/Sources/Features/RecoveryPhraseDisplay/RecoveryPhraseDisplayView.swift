@@ -15,17 +15,17 @@ import UIComponents
 import ZcashLightClientKit
 
 public struct RecoveryPhraseDisplayView: View {
-    let store: RecoveryPhraseDisplayStore
+    let store: StoreOf<RecoveryPhraseDisplay>
     
-    public init(store: RecoveryPhraseDisplayStore) {
+    public init(store: StoreOf<RecoveryPhraseDisplay>) {
         self.store = store
     }
     
     public var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                if let phrase = viewStore.phrase {
-                    let groups = phrase.toGroups(groupSizeOverride: 3)
+                Group {
+                    let groups = viewStore.phrase.toGroups(groupSizeOverride: 3)
                     
                     instructions
                     
@@ -46,7 +46,6 @@ public struct RecoveryPhraseDisplayView: View {
             .padding(.top, 25)
             .padding(.horizontal, 25)
             .padding(.bottom, 66)
-            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
         .nighthawkAlert(
@@ -54,8 +53,8 @@ public struct RecoveryPhraseDisplayView: View {
                 state: \.$destination,
                 action: { .destination($0) }
             ),
-            state: /RecoveryPhraseDisplayReducer.Destination.State.exportSeedAlert,
-            action: RecoveryPhraseDisplayReducer.Destination.Action.exportSeedAlert
+            state: /RecoveryPhraseDisplay.Destination.State.exportSeedAlert,
+            action: RecoveryPhraseDisplay.Destination.Action.exportSeedAlert
         ) { store in
             ExportSeedView(store: store)
         }
@@ -196,7 +195,7 @@ private extension RecoveryPhraseDisplayView {
     }
     
     @MainActor
-    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplayReducer>) -> some View {
+    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplay>) -> some View {
         Group {
             if viewStore.flow == .settings {
                 Button(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf) {

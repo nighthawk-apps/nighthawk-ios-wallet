@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D26AF24299E8196005260EE /* SecantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0826B364170058B01E /* SecantApp.swift */; };
 		0D26AF7A299E8196005260EE /* sendingTransaction.json in Resources */ = {isa = PBXBuildFile; fileRef = 34DA414828E439CD00F8CC61 /* sendingTransaction.json */; };
 		0D26AF7D299E8196005260EE /* endlessCircleProgress.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E6612352878345000C75B70 /* endlessCircleProgress.json */; };
 		0D26AF84299E8196005260EE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
 		0D26AF88299E8196005260EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */; };
-		0D4E7A0926B364170058B01E /* SecantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0826B364170058B01E /* SecantApp.swift */; };
 		0D4E7A1026B364180058B01E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
 		34DA414928E439CD00F8CC61 /* sendingTransaction.json in Resources */ = {isa = PBXBuildFile; fileRef = 34DA414828E439CD00F8CC61 /* sendingTransaction.json */; };
 		4502345D2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */; };
@@ -23,10 +21,14 @@
 		4518C7162A7928700080444E /* lottie_sending.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7142A7928700080444E /* lottie_sending.json */; };
 		4518C7182A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
 		4518C7192A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
-		451D42EC2A7BC3C300E1936C /* Root in Frameworks */ = {isa = PBXBuildFile; productRef = 451D42EB2A7BC3C300E1936C /* Root */; };
+		4542DCCB2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
+		4542DCCC2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
+		4542DCCE2AAF46A80063EF26 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 4542DCCD2AAF46A80063EF26 /* App */; };
+		4542DCD02AAF46B20063EF26 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 4542DCCF2AAF46B20063EF26 /* App */; };
 		45876BCA2A50964B00380FFF /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 45876BC92A50964B00380FFF /* Utils */; };
-		45876BCC2A50965400380FFF /* Root in Frameworks */ = {isa = PBXBuildFile; productRef = 45876BCB2A50965400380FFF /* Root */; };
 		459EE8F72A912C550076EFDF /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 459EE8F62A912C550076EFDF /* Utils */; };
+		45CA1CE12AAF487800D4CA8F /* SDKSynchronizer in Frameworks */ = {isa = PBXBuildFile; productRef = 45CA1CE02AAF487800D4CA8F /* SDKSynchronizer */; };
+		45CA1CE32AAF488100D4CA8F /* SDKSynchronizer in Frameworks */ = {isa = PBXBuildFile; productRef = 45CA1CE22AAF488100D4CA8F /* SDKSynchronizer */; };
 		9E2F1C8C280ED6A7004E65FE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */; };
 		9E34519529C4A4BF00177D16 /* AddressDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E207C382966EF87003E2C9B /* AddressDetailsTests.swift */; };
 		9E34519629C4A4D800177D16 /* secantUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4E7A2526B364180058B01E /* secantUITests.swift */; };
@@ -48,7 +50,6 @@
 		9E3451AE29C84F2800177D16 /* SendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5BF643281FEC9900BA3F17 /* SendTests.swift */; };
 		9E3451AF29C855B200177D16 /* SensitiveDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E612C7829913F3600D09B09 /* SensitiveDataTests.swift */; };
 		9E3451B029C855E600177D16 /* SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E66129D288938A300C75B70 /* SettingsTests.swift */; };
-		9E3451B129C8565500177D16 /* UserPreferencesStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */; };
 		9E3451B229C8565500177D16 /* SecItemClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAFEB852805A23100199FC9 /* SecItemClientTests.swift */; };
 		9E3451B329C8565500177D16 /* WalletBalance+testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4E0B02881F2DB00947B78 /* WalletBalance+testing.swift */; };
 		9E3451B429C8565500177D16 /* WalletStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */; };
@@ -93,7 +94,6 @@
 		0D26AF94299E8196005260EE /* secant-mainnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "secant-mainnet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D3B01EB298DAF89007EBCDA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0D4E7A0526B364170058B01E /* secant-testnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "secant-testnet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0D4E7A0826B364170058B01E /* SecantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecantApp.swift; sourceTree = "<group>"; };
 		0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0D4E7A1126B364180058B01E /* secant-testnet-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "secant-testnet-Info.plist"; sourceTree = "<group>"; };
 		0D4E7A1626B364180058B01E /* secantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = secantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -110,6 +110,7 @@
 		450D3BB52A107B9400B49B9E /* lottie_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = lottie_success.json; sourceTree = "<group>"; };
 		4518C7142A7928700080444E /* lottie_sending.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_sending.json; sourceTree = "<group>"; };
 		4518C7172A7A7E860080444E /* lottie_send_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_send_success.json; sourceTree = "<group>"; };
+		4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkApp.swift; sourceTree = "<group>"; };
 		6654C7432715A4AC00901167 /* OnboardingStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStoreTests.swift; sourceTree = "<group>"; };
 		9E01F8272833CDA0000EFC57 /* ScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTests.swift; sourceTree = "<group>"; };
 		9E02B56B27FED475005B809B /* DatabaseFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseFilesTests.swift; sourceTree = "<group>"; };
@@ -146,7 +147,6 @@
 		9EDDEAA02829610D00B4100C /* TransactionAmountInputTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionAmountInputTests.swift; sourceTree = "<group>"; };
 		9EDDEAA12829610D00B4100C /* TransactionAddressInputTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionAddressInputTests.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
-		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,8 +154,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				45876BCC2A50965400380FFF /* Root in Frameworks */,
+				4542DCD02AAF46B20063EF26 /* App in Frameworks */,
 				45876BCA2A50964B00380FFF /* Utils in Frameworks */,
+				45CA1CE32AAF488100D4CA8F /* SDKSynchronizer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,8 +164,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4542DCCE2AAF46A80063EF26 /* App in Frameworks */,
 				459EE8F72A912C550076EFDF /* Utils in Frameworks */,
-				451D42EC2A7BC3C300E1936C /* Root in Frameworks */,
+				45CA1CE12AAF487800D4CA8F /* SDKSynchronizer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,11 +213,11 @@
 		0D4E7A0726B364170058B01E /* secant */ = {
 			isa = PBXGroup;
 			children = (
-				9E7FE0B6282D1D9800C374E8 /* Resources */,
-				0D4E7A0826B364170058B01E /* SecantApp.swift */,
+				4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */,
 				9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */,
 				0DEF4766299EA5920032708B /* secant-mainnet-Info.plist */,
 				0D4E7A1126B364180058B01E /* secant-testnet-Info.plist */,
+				9E7FE0B6282D1D9800C374E8 /* Resources */,
 				0D4E7A0E26B364180058B01E /* Preview Content */,
 			);
 			path = secant;
@@ -513,7 +515,6 @@
 				9E02B56B27FED475005B809B /* DatabaseFilesTests.swift */,
 				9E0F574A2980260D005304FA /* LoggerTests.swift */,
 				9EAFEB852805A23100199FC9 /* SecItemClientTests.swift */,
-				9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */,
 				0DB4E0B02881F2DB00947B78 /* WalletBalance+testing.swift */,
 				9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */,
 				9E39112D283F91600073DD9A /* ZatoshiTests.swift */,
@@ -539,7 +540,8 @@
 			name = "secant-mainnet";
 			packageProductDependencies = (
 				45876BC92A50964B00380FFF /* Utils */,
-				45876BCB2A50965400380FFF /* Root */,
+				4542DCCF2AAF46B20063EF26 /* App */,
+				45CA1CE22AAF488100D4CA8F /* SDKSynchronizer */,
 			);
 			productName = secant;
 			productReference = 0D26AF94299E8196005260EE /* secant-mainnet.app */;
@@ -559,8 +561,9 @@
 			);
 			name = "secant-testnet";
 			packageProductDependencies = (
-				451D42EB2A7BC3C300E1936C /* Root */,
 				459EE8F62A912C550076EFDF /* Utils */,
+				4542DCCD2AAF46A80063EF26 /* App */,
+				45CA1CE02AAF487800D4CA8F /* SDKSynchronizer */,
 			);
 			productName = secant;
 			productReference = 0D4E7A0526B364170058B01E /* secant-testnet.app */;
@@ -703,7 +706,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0D26AF24299E8196005260EE /* SecantApp.swift in Sources */,
+				4542DCCC2AAF446B0063EF26 /* NighthawkApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -711,7 +714,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0D4E7A0926B364170058B01E /* SecantApp.swift in Sources */,
+				4542DCCB2AAF446B0063EF26 /* NighthawkApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -745,7 +748,6 @@
 				9E34519F29C849D300177D16 /* ImportWalletTests.swift in Sources */,
 				9E3451A029C84A2D00177D16 /* MultiLineTextFieldTests.swift in Sources */,
 				9E3451B729C8565500177D16 /* DatabaseFilesTests.swift in Sources */,
-				9E3451B129C8565500177D16 /* UserPreferencesStorageTests.swift in Sources */,
 				9E3451BA29C857C500177D16 /* BalanceBreakdownSnapshotTests.swift in Sources */,
 				9E3451A629C84B6600177D16 /* RootTests.swift in Sources */,
 				9E3451BE29C857CF00177D16 /* OnboardingSnapshotTests.swift in Sources */,
@@ -1159,21 +1161,29 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		451D42EB2A7BC3C300E1936C /* Root */ = {
+		4542DCCD2AAF46A80063EF26 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Root;
+			productName = App;
+		};
+		4542DCCF2AAF46B20063EF26 /* App */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = App;
 		};
 		45876BC92A50964B00380FFF /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;
 		};
-		45876BCB2A50965400380FFF /* Root */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Root;
-		};
 		459EE8F62A912C550076EFDF /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;
+		};
+		45CA1CE02AAF487800D4CA8F /* SDKSynchronizer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SDKSynchronizer;
+		};
+		45CA1CE22AAF488100D4CA8F /* SDKSynchronizer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SDKSynchronizer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
