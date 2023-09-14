@@ -277,6 +277,7 @@
 // MARK: - App
 "nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
 "nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
+"nighthawk.app.nuke.alert.nukeFailed.title" = "Nuke of the wallet failed";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
@@ -334,6 +335,8 @@
 "nighthawk.importWallet.continue" = "Continue";
 "nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
 "nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
+"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
+"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
 
 // MARK: - Import Wallet Success Screen
 "nighthawk.importWalletSuccess.success" = "Success";

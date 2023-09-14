@@ -7,9 +7,13 @@
 
 import ComposableArchitecture
 import Home
+import ImportWallet
+import ImportWalletSuccess
+import Migrate
 import RecoveryPhraseDisplay
 import Splash
 import SwiftUI
+import TransactionDetail
 import WalletCreated
 import Welcome
 import ZcashLightClientKit
@@ -34,6 +38,54 @@ public struct AppView: View {
             )
         } destination: { state in
             switch state {
+            case .about:
+                CaseLet(
+                    /AppReducer.Path.State.about,
+                     action: AppReducer.Path.Action.about,
+                     then: { store in
+                         AboutView(store: store)
+                     }
+                )
+            case .advanced:
+                CaseLet(
+                    /AppReducer.Path.State.advanced,
+                     action: AppReducer.Path.Action.advanced,
+                     then: { store in
+                         AdvancedView(store: store)
+                     }
+                )
+            case .backup:
+                CaseLet(
+                    /AppReducer.Path.State.backup,
+                     action: AppReducer.Path.Action.backup,
+                     then: { store in
+                         RecoveryPhraseDisplayView(store: store)
+                     }
+                )
+            case .changeServer:
+                CaseLet(
+                    /AppReducer.Path.State.changeServer,
+                     action: AppReducer.Path.Action.changeServer,
+                     then: { store in
+                         ChangeServerView(store: store)
+                     }
+                )
+            case .externalServices:
+                CaseLet(
+                    /AppReducer.Path.State.externalServices,
+                     action: AppReducer.Path.Action.externalServices,
+                     then: { store in
+                         ExternalServicesView(store: store)
+                     }
+                )
+            case .fiat:
+                CaseLet(
+                    /AppReducer.Path.State.fiat,
+                     action: AppReducer.Path.Action.fiat,
+                     then: { store in
+                         FiatView(store: store)
+                     }
+                )
             case .home:
                 CaseLet(
                     /AppReducer.Path.State.home,
@@ -43,6 +95,40 @@ public struct AppView: View {
                              .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+            case .importWallet:
+                CaseLet(
+                    /AppReducer.Path.State.importWallet,
+                     action: AppReducer.Path.Action.importWallet,
+                     then: { store in
+                         ImportWalletView(store: store)
+                             .navigationBarTitle("")
+                     }
+                )
+            case .importWalletSuccess:
+                CaseLet(
+                    /AppReducer.Path.State.importWalletSuccess,
+                     action: AppReducer.Path.Action.importWalletSuccess,
+                     then: { store in
+                         ImportWalletSuccessView(store: store)
+                             .toolbar(.hidden, for: .navigationBar)
+                     }
+                )
+            case .migrate:
+                CaseLet(
+                    /AppReducer.Path.State.migrate,
+                     action: AppReducer.Path.Action.migrate,
+                     then: { store in
+                         MigrateView(store: store)
+                     }
+                )
+            case .notifications:
+                CaseLet(
+                    /AppReducer.Path.State.notifications,
+                     action: AppReducer.Path.Action.notifications,
+                     then: { store in
+                         NotificationsView(store: store)
+                     }
+                )
             case .recoveryPhraseDisplay:
                 CaseLet(
                     /AppReducer.Path.State.recoveryPhraseDisplay,
@@ -50,6 +136,30 @@ public struct AppView: View {
                      then: { store in
                          RecoveryPhraseDisplayView(store: store)
                              .toolbar(.hidden, for: .navigationBar)
+                     }
+                )
+            case .security:
+                CaseLet(
+                    /AppReducer.Path.State.security,
+                     action: AppReducer.Path.Action.security,
+                     then: { store in
+                         SecurityView(store: store)
+                     }
+                )
+            case .transactionDetail:
+                CaseLet(
+                    /AppReducer.Path.State.transactionDetail,
+                     action: AppReducer.Path.Action.transactionDetail,
+                     then: { store in
+                         TransactionDetailView(store: store, tokenName: tokenName)
+                     }
+                )
+            case .transactionHistory:
+                CaseLet(
+                    /AppReducer.Path.State.transactionHistory,
+                     action: AppReducer.Path.Action.transactionHistory,
+                     then: { store in
+                         TransactionHistoryView(store: store, tokenName: tokenName)
                      }
                 )
             case .walletCreated:
@@ -72,6 +182,7 @@ public struct AppView: View {
                 )
             }
         }
+        .tint(.white)
         .alert(
             store: store.scope(
                 state: \.$destination,

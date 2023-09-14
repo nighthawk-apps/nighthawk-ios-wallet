@@ -12,9 +12,9 @@ import UIComponents
 import Utils
 
 public struct ImportWalletSuccessView: View {
-    let store: Store<ImportWalletSuccessReducer.State, ImportWalletSuccessReducer.Action>
+    let store: StoreOf<ImportWalletSuccess>
     
-    public init(store: Store<ImportWalletSuccessReducer.State, ImportWalletSuccessReducer.Action>) {
+    public init(store: StoreOf<ImportWalletSuccess>) {
         self.store = store
     }
     
@@ -39,7 +39,7 @@ public struct ImportWalletSuccessView: View {
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 24))
                             
                             Button(L10n.Nighthawk.ImportWalletSuccess.viewWallet) {
-                                viewStore.send(.viewWallet)
+                                viewStore.send(.viewWalletTapped)
                             }
                             .buttonStyle(.nighthawkPrimary())
                         }

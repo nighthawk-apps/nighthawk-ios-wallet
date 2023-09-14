@@ -1,115 +1,93 @@
 //
 //  ImportWalletView.swift
-//  secant-testnet
+//  secant
 //
-//  Created by Lukáš Korba on 02/25/2022.
+//  Created by Matthew Watt on 5/10/23.
 //
 
-import SwiftUI
 import ComposableArchitecture
 import Generated
+import SwiftUI
 import UIComponents
 
 public struct ImportWalletView: View {
-    var store: ImportWalletStore
-
-    public init(store: ImportWalletStore) {
+    let store: StoreOf<ImportWallet>
+    
+    @FocusState private var isSeedEditorFocused: Bool
+    @FocusState private var isBirthdayEditorFocused: Bool
+    
+    public init(store: StoreOf<ImportWallet>) {
         self.store = store
     }
     
     public var body: some View {
         WithViewStore(store) { viewStore in
-            VStack {
-                Text(L10n.ImportWallet.description)
-                    .font(.system(size: 27))
-                    .fontWeight(.bold)
-                    .foregroundColor(Asset.Colors.Mfp.fontDark.color)
-                    .minimumScaleFactor(0.3)
-
-                ImportSeedEditor(store: store)
-                    .frame(width: nil, height: 200, alignment: .center)
-
-                Button(L10n.General.next) {
-                    viewStore.send(.updateDestination(.birthday))
+            VStack(spacing: 24) {
+                VStack(spacing: 24) {
+                    NighthawkLogo(spacing: .compact)
+                    
+                    instructions()
                 }
-                .activeButtonStyle
-                .importWalletButtonLayout()
-                .disable(
-                    when: !viewStore.isValidForm,
-                    dimmingOpacity: 0.5
+                .onTapGesture {
+                    isSeedEditorFocused = false
+                    isBirthdayEditorFocused = false
+                }
+                
+                NighthawkTextEditor(
+                    placeholder: L10n.Nighthawk.ImportWallet.yourSeedPhrase,
+                    text: viewStore.bindingForRedactableSeedPhrase(viewStore.importedSeedPhrase),
+                    isValid: viewStore.validateMnemonic()
                 )
-
+                .frame(width: nil, height: 120, alignment: .center)
+                .padding(.horizontal, 24)
+                .focused($isSeedEditorFocused)
+                
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.ImportWallet.birthdayHeight,
+                    text: viewStore.bindingForRedactableBirthday(viewStore.birthdayHeight),
+                    isValid: viewStore.validateBirthday()
+                )
+                .frame(maxWidth: .infinity)
+                .keyboardType(.numberPad)
+                .padding(.horizontal, 24)
+                .focused($isBirthdayEditorFocused)
+                
+                Button(L10n.Nighthawk.ImportWallet.continue) {
+                    viewStore.send(.continueTapped)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 156))
+                .disabled(!viewStore.state.isValidForm)
+                
                 Spacer()
             }
-            .padding(.horizontal, 20)
-            .applyScreenBackground()
+            .applyNighthawkBackground()
             .scrollableWhenScaledUp()
-            .onAppear(perform: { viewStore.send(.onAppear) })
-            .navigationLinkEmpty(
-                isActive: viewStore.bindingForDestination(.birthday),
-                destination: { ImportBirthdayView(store: store) }
-            )
-            .alert(store: store.scope(
-                state: \.$alert,
-                action: { .alert($0) }
-            ))
-        }
-    }
-}
-
-extension ImportWalletView {
-    func mnemonicStatus(_ viewStore: ImportWalletViewStore) -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Text(viewStore.mnemonicStatus)
-                    .font(.custom(FontFamily.Rubik.regular.name, size: 14))
-                    .foregroundColor(
-                        viewStore.isValidNumberOfWords ?
-                        Asset.Colors.Text.validMnemonic.color :
-                        Asset.Colors.Text.heading.color
-                    )
-                    .padding(.trailing, 35)
-                    .padding(.bottom, 15)
-                    .zIndex(1)
+            .onAppear {
+                viewStore.send(.onAppear)
+                isSeedEditorFocused = true
             }
+            .alert(
+                store: store.scope(
+                    state: \.$alert,
+                    action: { .alert($0) }
+                )
+            )
         }
     }
 }
 
-// swiftlint:disable:next private_over_fileprivate strict_fileprivate
-fileprivate struct ImportWalletButtonLayout: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .frame(
-                minWidth: 0,
-                maxWidth: .infinity,
-                minHeight: 64,
-                maxHeight: .infinity,
-                alignment: .center
-            )
+// MARK: - Subviews
+private extension ImportWalletView {
+    @ViewBuilder func instructions() -> some View {
+        Text(L10n.Nighthawk.ImportWallet.restoreFromBackup)
+            .subtitle()
+        
+        Text(L10n.Nighthawk.ImportWallet.enterSeedPhrase)
+            .paragraph()
+            .lineLimit(nil)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 28)
-            .transition(.opacity)
-    }
-}
-
-extension View {
-    func importWalletButtonLayout() -> some View {
-        modifier(ImportWalletButtonLayout())
-    }
-}
-
-// MARK: - Previews
-
-struct ImportWalletView_Previews: PreviewProvider {
-    static var previews: some View {
-        ImportWalletView(store: .demo)
-            .preferredColorScheme(.light)
-
-        ImportWalletView(store: .demo)
-            .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
-            .preferredColorScheme(.light)
+            .lineSpacing(10)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 58)
     }
 }

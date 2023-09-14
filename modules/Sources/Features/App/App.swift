@@ -9,11 +9,15 @@ import ComposableArchitecture
 import DerivationTool
 import Generated
 import Home
+import ImportWallet
+import ImportWalletSuccess
+import Migrate
 import MnemonicClient
 import Models
 import RecoveryPhraseDisplay
 import SDKSynchronizer
 import Splash
+import TransactionDetail
 import WalletCreated
 import WalletStorage
 import Welcome
@@ -22,6 +26,8 @@ import ZcashSDKEnvironment
 
 public struct AppReducer: ReducerProtocol {
     let zcashNetwork: ZcashNetwork
+    
+    enum CancelId { case timer }
     
     public struct State: Equatable {
         @PresentationState public var destination: Destination.State?
@@ -35,6 +41,8 @@ public struct AppReducer: ReducerProtocol {
         case destination(PresentationAction<Destination.Action>)
         case initializeSDKFailed(ZcashError)
         case initializeSDKSuccess
+        case nukeWalletSuccess
+        case nukeWalletFailed
         case path(StackAction<Path.State, Path.Action>)
         case splash(Splash.Action)
     }
@@ -43,26 +51,104 @@ public struct AppReducer: ReducerProtocol {
         let zcashNetwork: ZcashNetwork
         
         public enum State: Equatable {
-            case home(Home.State)
+            case about(About.State = .init())
+            case advanced(Advanced.State = .init())
+            case backup(RecoveryPhraseDisplay.State)
+            case changeServer(ChangeServer.State = .init())
+            case externalServices(ExternalServices.State = .init())
+            case fiat(Fiat.State = .init())
+            case home(Home.State = .init())
+            case importWallet(ImportWallet.State = .init())
+            case importWalletSuccess(ImportWalletSuccess.State = .init())
+            case migrate(Migrate.State = .init())
+            case notifications(Notifications.State = .init())
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
-            case walletCreated(WalletCreated.State)
-            case welcome(Welcome.State)
+            case security(Security.State = .init())
+            case transactionDetail(TransactionDetail.State)
+            case transactionHistory(TransactionHistory.State)
+            case walletCreated(WalletCreated.State = .init())
+            case welcome(Welcome.State = .init())
         }
         
         public enum Action: Equatable {
+            case about(About.Action)
+            case advanced(Advanced.Action)
+            case backup(RecoveryPhraseDisplay.Action)
+            case changeServer(ChangeServer.Action)
+            case externalServices(ExternalServices.Action)
+            case fiat(Fiat.Action)
             case home(Home.Action)
+            case importWallet(ImportWallet.Action)
+            case importWalletSuccess(ImportWalletSuccess.Action)
+            case migrate(Migrate.Action)
+            case notifications(Notifications.Action)
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.Action)
+            case security(Security.Action)
+            case transactionDetail(TransactionDetail.Action)
+            case transactionHistory(TransactionHistory.Action)
             case walletCreated(WalletCreated.Action)
             case welcome(Welcome.Action)
         }
         
         public var body: some ReducerProtocolOf<Self> {
+            Scope(state: /State.about, action: /Action.about) {
+                About()
+            }
+            
+            Scope(state: /State.advanced, action: /Action.advanced) {
+                Advanced()
+            }
+            
+            Scope(state: /State.backup, action: /Action.backup) {
+                RecoveryPhraseDisplay(zcashNetwork: zcashNetwork)
+            }
+            
+            Scope(state: /State.changeServer, action: /Action.changeServer) {
+                ChangeServer()
+            }
+            
+            Scope(state: /State.externalServices, action: /Action.externalServices) {
+                ExternalServices()
+            }
+            
+            Scope(state: /State.fiat, action: /Action.fiat) {
+                Fiat()
+            }
+            
             Scope(state: /State.home, action: /Action.home) {
                 Home(zcashNetwork: zcashNetwork)
             }
             
+            Scope(state: /State.importWallet, action: /Action.importWallet) {
+                ImportWallet(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
+            }
+            
+            Scope(state: /State.importWalletSuccess, action: /Action.importWalletSuccess) {
+                ImportWalletSuccess()
+            }
+            
+            Scope(state: /State.migrate, action: /Action.migrate) {
+                Migrate()
+            }
+            
+            Scope(state: /State.notifications, action: /Action.notifications) {
+                Notifications()
+            }
+            
             Scope(state: /State.recoveryPhraseDisplay, action: /Action.recoveryPhraseDisplay) {
-                RecoveryPhraseDisplay()
+                RecoveryPhraseDisplay(zcashNetwork: zcashNetwork)
+            }
+            
+            Scope(state: /State.security, action: /Action.security) {
+                Security()
+            }
+            
+            Scope(state: /State.transactionDetail, action: /Action.transactionDetail) {
+                TransactionDetail()
+            }
+            
+            Scope(state: /State.transactionHistory, action: /Action.transactionHistory) {
+                TransactionHistory()
             }
             
             Scope(state: /State.walletCreated, action: /Action.walletCreated) {
@@ -96,6 +182,7 @@ public struct AppReducer: ReducerProtocol {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.walletStorage) var walletStorage
@@ -114,7 +201,13 @@ public struct AppReducer: ReducerProtocol {
                 state.destination = .alert(.sdkInitFailed(error))
                 return .none
             case .initializeSDKSuccess:
-                state.path.append(.home(Home.State.placeholder))
+                state.path = StackState([.home()])
+                return .none
+            case .nukeWalletFailed:
+                return .none
+            case .nukeWalletSuccess:
+                walletStorage.nukeWallet()
+                state.path = StackState([.welcome(.init())])
                 return .none
             case .path:
                 return .none
@@ -130,8 +223,8 @@ public struct AppReducer: ReducerProtocol {
         }
         
         splashDelegateReducer()
-        
-        welcomeDelegateReducer()
+        onboardingReducer()
+        settingsReducer()
     }
     
     public init(zcashNetwork: ZcashNetwork) {
@@ -139,36 +232,17 @@ public struct AppReducer: ReducerProtocol {
     }
 }
 
-// MARK: - Alerts
-extension AlertState where Action == AppReducer.Destination.Action.Alert {
-    public static func cantCreateNewWallet(_ error: ZcashError) -> AlertState {
-        AlertState {
-            TextState(L10n.Nighthawk.Welcome.Initialization.Alert.Failed.title)
-        } message: {
-            TextState(L10n.Nighthawk.Welcome.Initialization.Alert.CantCreateNewWallet.message(error.message, error.code.rawValue))
-        }
-    }
-    
-    public static func sdkInitFailed(_ error: ZcashError) -> AlertState {
-        AlertState {
-            TextState(L10n.Nighthawk.App.Launch.Alert.SdkInitFailed.title)
-        } message: {
-            TextState(L10n.Nighthawk.App.Launch.Alert.Error.message(error.message, error.code.rawValue))
-        }
-    }
-}
-
 // MARK: - Initialize SDK
-private extension AppReducer {
+extension AppReducer {
     func initializeSDK() -> EffectTask<Action> {
         do {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
             let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
-
+            
             try mnemonic.isValid(storedWallet.seedPhrase.value())
             let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-
+            
             return .run { send in
                 do {
                     // Start synchronizer
@@ -193,59 +267,15 @@ private extension AppReducer {
             case let .splash(.delegate(action)):
                 switch action {
                 case .handleNewUser:
-                    state.path.append(.welcome(.init()))
+                    state.path.append(.welcome())
                     return .none
                 case .handleMigration:
+                    state.path.append(.migrate())
                     return .none
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK()
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .path, .splash:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: - Welcome delegate
-private extension AppReducer {
-    func welcomeDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: _, action: .welcome(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .createNewWallet:
-                    do {
-                        // get the random english mnemonic
-                        let newRandomPhrase = try mnemonic.randomMnemonic()
-                        let birthday = zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
-
-                        // store the wallet to the keychain
-                        try walletStorage.importWallet(newRandomPhrase, birthday, .english)
-
-                        // Show the backup phrase
-                        let randomRecoveryPhraseWords = mnemonic.asWords(newRandomPhrase)
-                        let recoveryPhrase = RecoveryPhrase(words: randomRecoveryPhraseWords.map { $0.redacted })
-                        
-                        state.path.append(
-                            .recoveryPhraseDisplay(
-                                .init(
-                                    flow: .onboarding,
-                                    phrase: recoveryPhrase,
-                                    birthday: birthday
-                                )
-                            )
-                        )
-
-                        return .none
-                    } catch {
-                        state.destination = .alert(.cantCreateNewWallet(error.toZcashError()))
-                    }
-                    return .none
-                case .importExistingWallet:
-                    return .none
-                }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
                 return .none
             }
         }

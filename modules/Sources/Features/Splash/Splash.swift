@@ -94,14 +94,14 @@ public struct Splash: ReducerProtocol {
                 case .keysMissing:
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
-                case .filesMissing, .uninitialized:
-                    return .run { send in await send(.delegate(.handleNewUser)) }
-                case .initialized:
+                case .initialized, .filesMissing:
                     if userStoredPreferences.areBiometricsEnabled() {
                         return .run { send in await send(.authenticate) }
                     } else {
                         return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
                     }
+                case .uninitialized:
+                    return .run { send in await send(.delegate(.handleNewUser)) }
                 }
             case .delegate:
                 return .none

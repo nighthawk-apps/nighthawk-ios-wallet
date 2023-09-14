@@ -23,22 +23,36 @@ public struct HomeView: View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 0) {
                 TabView(selection: viewStore.binding(\.$destination)) {
-                    WalletView(store: store.walletStore(), tokenName: tokenName)
-                        .tag(Home.State.Destination.wallet)
-                        .overlay(alignment: .top) {
-                            if viewStore.synchronizerStatusSnapshot.isSyncing {
-                                IndeterminateProgress()
-                            }
+                    WalletView(
+                        store: store.scope(
+                            state: \.wallet,
+                            action: Home.Action.wallet
+                        ),
+                        tokenName: tokenName
+                    )
+                    .tag(Home.State.Destination.wallet)
+                    .overlay(alignment: .top) {
+                        if viewStore.synchronizerStatusSnapshot.isSyncing {
+                            IndeterminateProgress()
                         }
+                    }
                     
                     TransferView(
-                        store: store.transferStore(),
+                        store: store.scope(
+                            state: \.transfer,
+                            action: Home.Action.transfer
+                        ),
                         tokenName: tokenName
                     )
                     .tag(Home.State.Destination.transfer)
                     
-                    NHSettingsView(store: store.settingsStore())
-                        .tag(Home.State.Destination.settings)
+                    NighthawkSettingsView(
+                        store: store.scope(
+                            state: \.settings,
+                            action: Home.Action.settings
+                        )
+                    )
+                    .tag(Home.State.Destination.settings)
                 }
                 .overlay(alignment: .top) {
                     if viewStore.destination == .wallet {
@@ -56,7 +70,7 @@ public struct HomeView: View {
         }
         .applyNighthawkBackground()
         .navigationBarTitle("")
-        .sheet(store: store.addressesStore()) { store in
+        .sheet(store: store.scope(state: \.$addresses, action: Home.Action.addresses)) { store in
             AddressesView(store: store)
         }
     }

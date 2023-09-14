@@ -230,6 +230,14 @@ public enum L10n {
           }
         }
       }
+      public enum Nuke {
+        public enum Alert {
+          public enum NukeFailed {
+            /// Nuke of the wallet failed
+            public static let title = L10n.tr("Localizable", "nighthawk.app.nuke.alert.nukeFailed.title", fallback: "Nuke of the wallet failed")
+          }
+        }
+      }
     }
     public enum ExportSeed {
       /// Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.
@@ -264,6 +272,16 @@ public enum L10n {
       public static let restoreFromBackup = L10n.tr("Localizable", "nighthawk.importWallet.restoreFromBackup", fallback: "Restore from backup")
       /// Your seed phrase
       public static let yourSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.yourSeedPhrase", fallback: "Your seed phrase")
+      public enum Alert {
+        public enum Failed {
+          /// Error: %@ (code: %@)
+          public static func message(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Localizable", "nighthawk.importWallet.alert.failed.message", String(describing: p1), String(describing: p2), fallback: "Error: %@ (code: %@)")
+          }
+          /// Failed to restore wallet
+          public static let title = L10n.tr("Localizable", "nighthawk.importWallet.alert.failed.title", fallback: "Failed to restore wallet")
+        }
+      }
     }
     public enum ImportWalletSuccess {
       /// Success

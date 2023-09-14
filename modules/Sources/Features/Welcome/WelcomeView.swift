@@ -42,29 +42,6 @@ public struct WelcomeView: View {
                 }
             }
             .applyNighthawkBackground()
-//            .navigationLinkEmpty(
-//                isActive: viewStore.bindingForDestination(.createNewWallet),
-//                destination: {
-//                    WalletCreatedView(
-//                        store: store.scope(
-//                            state: \.walletCreatedState,
-//                            action: OnboardingFlowReducer.Action.walletCreated
-//                        )
-//                    )
-//                }
-//            )
-//            .navigationLinkEmpty(
-//                isActive: viewStore.bindingForDestination(.nhImportExistingWallet),
-//                destination: {
-//                    NHImportWalletView(
-//                        store: store.scope(
-//                            state: \.nhImportWalletState,
-//                            action: OnboardingFlowReducer.Action.nhImportWallet
-//                        )
-//                    )
-//                }
-//            )
-//            .navigationBarTitle(Text(""))
         }
     }
 }

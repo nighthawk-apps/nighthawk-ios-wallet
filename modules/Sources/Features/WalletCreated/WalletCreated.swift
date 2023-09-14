@@ -21,7 +21,7 @@ public struct WalletCreated: ReducerProtocol {
         case skip
         
         public enum Delegate: Equatable {
-            case launchWallet
+            case initializeSDKAndLaunchWallet
             case backupSeedPhrase
         }
     }
@@ -41,7 +41,7 @@ public struct WalletCreated: ReducerProtocol {
                 subsonic.play("sound_receive_small.mp3")
                 return .none
             case .skip:
-                return .run { send in await send(.delegate(.launchWallet)) }
+                return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
             }
         }
     }

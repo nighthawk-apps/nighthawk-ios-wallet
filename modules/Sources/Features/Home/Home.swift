@@ -29,32 +29,33 @@ public struct Home: ReducerProtocol {
         }
         
         @BindingState public var destination = Destination.wallet
-        @PresentationState public var addresses: AddressesReducer.State?
+        @PresentationState public var addresses: Addresses.State?
         
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
-        public var shieldedBalance: Balance
-        public var transparentBalance: Balance
-        public var synchronizerStatusSnapshot: SyncStatusSnapshot
+        public var shieldedBalance: Balance = .init()
+        public var transparentBalance: Balance = .init()
+        public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
 
         // Tab states
-        public var walletState: WalletReducer.State
-        public var transferState: TransferReducer.State
-        public var settingsState: NHSettingsReducer.State
+        public var walletState: Wallet.State = .init()
+        public var transferState: Transfer.State = .init()
+        public var settingsState: NighthawkSettings.State = .init()
+        
+        public init() {}
     }
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case addresses(PresentationAction<AddressesReducer.Action>)
+        case addresses(PresentationAction<Addresses.Action>)
         case onAppear
         case onDisappear
-        case settings(NHSettingsReducer.Action)
+        case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
-        case transfer(TransferReducer.Action)
-        case updateDestination(Home.State.Destination)
-        case wallet(WalletReducer.Action)
+        case transfer(Transfer.Action)
+        case wallet(Wallet.Action)
         case updateWalletEvents([WalletEvent])
     }
     
@@ -68,15 +69,15 @@ public struct Home: ReducerProtocol {
         BindingReducer()
         
         Scope(state: \.wallet, action: /Action.wallet) {
-            WalletReducer()
+            Wallet()
         }
         
         Scope(state: \.transfer, action: /Action.transfer) {
-            TransferReducer(networkType: zcashNetwork.networkType)
+            Transfer(networkType: zcashNetwork.networkType)
         }
         
         Scope(state: \.settings, action: /Action.settings) {
-            NHSettingsReducer(zcashNetwork: zcashNetwork)
+            NighthawkSettings(zcashNetwork: zcashNetwork)
         }
         
         Reduce { state, action in
@@ -116,9 +117,6 @@ public struct Home: ReducerProtocol {
                 }
                 
                 return .none
-            case let .updateDestination(destination):
-                state.destination = destination
-                return .none
             case let .updateWalletEvents(walletEvents):
                 let sortedWalletEvents = walletEvents
                     .sorted(by: { lhs, rhs in
@@ -129,42 +127,17 @@ public struct Home: ReducerProtocol {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .wallet(.viewAddressesTapped):
-                state.addresses = .init()
-                return .none
-            case .transfer(.destination(.presented(.receive(.showQrCodeTapped)))):
-                state.transfer.destination = nil
-                return .task {
-                    // Slight delay to allow previous sheet to dismiss before presenting
-                    try await Task.sleep(seconds: 0.005)
-                    return .wallet(.viewAddressesTapped)
-                }
-            case .transfer(.destination(.presented(.receive(.topUpWalletTapped)))):
-                state.transfer.destination = nil
-                return .task {
-                    // Slight delay to allow previous sheet to dismiss before presenting
-                    try await Task.sleep(seconds: 0.005)
-                    return .transfer(.topUpWalletTapped)
-                }
-                
-            case .transfer(.destination(.presented(.send(.path(.element(id: _, action: .failed(.cancelTapped))))))):
-                state.transfer.destination = nil
-                return .none
-            case .addresses(.presented(.topUpWalletTapped)):
-                state.addresses = nil
-                state.destination = .transfer
-                return .task {
-                    // Slight delay to allow previous sheet to dismiss before presenting
-                    try await Task.sleep(seconds: 0.005)
-                    return .transfer(.topUpWalletTapped)
-                }
             case .addresses, .binding, .settings, .transfer, .wallet:
                 return .none
             }
         }
         .ifLet(\.$addresses, action: /Action.addresses) {
-            AddressesReducer()
+            Addresses()
         }
+        
+        addressesDelegateReducer()
+        transferReducer()
+        walletReducer()
     }
     
     public init(zcashNetwork: ZcashNetwork) {
@@ -172,9 +145,40 @@ public struct Home: ReducerProtocol {
     }
 }
 
+// MARK: - Addresses delegate
+extension Home {
+    func addressesDelegateReducer() -> Reduce<Home.State, Home.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .addresses(.presented(.delegate(delegateAction))):
+                switch delegateAction {
+                case .showPartners:
+                    state.addresses = nil
+                    state.destination = .transfer
+                    return .task {
+                        // Slight delay to allow previous sheet to dismiss before presenting
+                        try await Task.sleep(seconds: 0.005)
+                        return .transfer(.topUpWalletTapped)
+                    }
+                }
+            case .addresses,
+                 .binding,
+                 .onAppear,
+                 .onDisappear,
+                 .settings,
+                 .synchronizerStateChanged,
+                 .transfer,
+                 .updateWalletEvents,
+                 .wallet:
+                return .none
+            }
+        }
+    }
+}
+
 // MARK: - Shared state synchronization
 extension Home.State {
-    var wallet: WalletReducer.State {
+    var wallet: Wallet.State {
         get {
             var state = walletState
             state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
@@ -197,7 +201,7 @@ extension Home.State {
         }
     }
     
-    var transfer: TransferReducer.State {
+    var transfer: Transfer.State {
         get {
             var state = transferState
             state.shieldedBalance = shieldedBalance
@@ -210,7 +214,7 @@ extension Home.State {
         }
     }
     
-    var settings: NHSettingsReducer.State {
+    var settings: NighthawkSettings.State {
         get {
             var state = settingsState
             return state
@@ -219,37 +223,5 @@ extension Home.State {
         set {
             self.settingsState = newValue
         }
-    }
-}
-
-extension StoreOf<Home> {
-    func walletStore() -> Store<WalletReducer.State, WalletReducer.Action> {
-        scope(state: \.wallet, action: Action.wallet)
-    }
-    
-    func transferStore() -> Store<TransferReducer.State, TransferReducer.Action> {
-        scope(state: \.transfer, action: Action.transfer)
-    }
-    
-    func settingsStore() -> Store<NHSettingsReducer.State, NHSettingsReducer.Action> {
-        scope(state: \.settings, action: Action.settings)
-    }
-    
-    func addressesStore() -> Store<PresentationState<AddressesReducer.State>, PresentationAction<AddressesReducer.Action>> {
-        scope(state: \.$addresses, action: Action.addresses)
-    }
-}
-
-// MARK: Placeholders
-extension Home.State {
-    public static var placeholder: Self {
-        .init(
-            shieldedBalance: .init(),
-            transparentBalance: .init(),
-            synchronizerStatusSnapshot: .default,
-            walletState: .placeholder,
-            transferState: .placeholder,
-            settingsState: .placeholder
-        )
     }
 }

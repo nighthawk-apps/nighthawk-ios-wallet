@@ -11,11 +11,11 @@ import SwiftUI
 import UIComponents
 
 public struct TransactionHistoryView: View {
-    let store: Store<TransactionHistoryReducer.State, TransactionHistoryReducer.Action>
+    let store: StoreOf<TransactionHistory>
     let tokenName: String
     
     public init(
-        store: Store<TransactionHistoryReducer.State, TransactionHistoryReducer.Action>,
+        store: StoreOf<TransactionHistory>,
         tokenName: String
     ) {
         self.store = store

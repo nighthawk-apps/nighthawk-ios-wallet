@@ -43,7 +43,9 @@ struct NighthawkTabBar: View {
                 image: Asset.Assets.Icons.Nighthawk.settings.image,
                 isSelected: destination.wrappedValue == .settings
             )
-            .onTapGesture { destination.wrappedValue = .settings }
+            .onTapGesture {
+                destination.wrappedValue = .settings
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: 54)
         .edgesIgnoringSafeArea([.bottom])
@@ -83,7 +85,7 @@ struct Tab: View {
                 .fill(
                     isSelected
                     ? Asset.Colors.Nighthawk.peach.color
-                    : Asset.Colors.Nighthawk.navy.color
+                    : .clear
                 )
                 .frame(height: 4)
                 .frame(maxWidth: .infinity)

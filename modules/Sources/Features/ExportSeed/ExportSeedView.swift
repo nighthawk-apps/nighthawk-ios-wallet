@@ -31,7 +31,7 @@ public struct ExportSeedView: View {
                     Spacer()
                 }
                 
-                NHTextField(
+                NighthawkTextField(
                     placeholder: L10n.Nighthawk.ExportSeed.passwordPlaceholder,
                     text: .constant(""),
                     isSecure: true

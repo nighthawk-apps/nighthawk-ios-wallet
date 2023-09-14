@@ -5,16 +5,17 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import Addresses
 import ComposableArchitecture
 import Generated
 import SwiftUI
-import NHTransactionDetail
+import TransactionDetail
 
 public struct WalletView: View {
-    let store: Store<WalletReducer.State, WalletReducer.Action>
+    let store: StoreOf<Wallet>
     let tokenName: String
     
-    public init(store: Store<WalletReducer.State, WalletReducer.Action>, tokenName: String) {
+    public init(store: StoreOf<Wallet>, tokenName: String) {
         self.store = store
         self.tokenName = tokenName
     }
@@ -38,24 +39,6 @@ public struct WalletView: View {
                 
                 latestWalletEvents(with: viewStore)
             }
-            .navigationLinkEmpty(
-                isActive: viewStore.bindingForDestination(.transactionHistory),
-                destination: {
-                    TransactionHistoryView(
-                        store: store.transactionHistoryStore(),
-                        tokenName: tokenName
-                    )
-                }
-            )
-            .navigationLinkEmpty(
-                isActive: viewStore.bindingForSelectedWalletEvent(viewStore.selectedWalletEvent),
-                destination: {
-                    NHTransactionDetailView(
-                        store: store.transactionDetailStore(),
-                        tokenName: tokenName
-                    )
-                }
-            )
         }
         .applyNighthawkBackground()
     }
@@ -63,7 +46,7 @@ public struct WalletView: View {
 
 // MARK: - Subviews
 private extension WalletView {
-    func qrCodeButton(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
+    func qrCodeButton(with viewStore: ViewStoreOf<Wallet>) -> some View {
         HStack {
             Button(action: { viewStore.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
@@ -77,7 +60,7 @@ private extension WalletView {
         }
     }
     
-    func header(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
+    func header(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
             if viewStore.synchronizerStatusSnapshot.isSyncing || viewStore.isSyncingFailed {
                 SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
@@ -87,7 +70,7 @@ private extension WalletView {
         }
     }
     
-    func balanceTabsView(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
+    func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
         VStack {
             tabs(with: viewStore)
             tabIndicators(with: viewStore)
@@ -96,7 +79,7 @@ private extension WalletView {
         .padding(.top, 58)
     }
     
-    func tabs(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
+    func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
         TabView(selection: viewStore.binding(\.$balanceViewType)) {
             BalanceView(
                 balance: viewStore.totalBalance,
@@ -132,7 +115,7 @@ private extension WalletView {
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
-    func tabIndicators(with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>) -> some View {
+    func tabIndicators(with viewStore: ViewStoreOf<Wallet>) -> some View {
         HStack {
             ForEach(BalanceView.ViewType.allCases, id: \.self) { viewType in
                 Circle()
@@ -176,9 +159,7 @@ private extension WalletView {
         }
     }
     
-    func latestWalletEvents(
-        with viewStore: ViewStore<WalletReducer.State, WalletReducer.Action>
-    ) -> some View {
+    func latestWalletEvents(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
             if viewStore.synchronizerStatusSnapshot.isSynced && !viewStore.walletEvents.isEmpty {
                 VStack(spacing: 0) {
@@ -189,19 +170,19 @@ private extension WalletView {
                     }
                     
                     ForEach(viewStore.walletEvents.prefix(2)) { walletEvent in
-                        Button(action: { viewStore.send(.updateDestination(.showWalletEvent(walletEvent))) }) {
+//                        NavigationLink(state: AppReducer.Path.TransactionDetails) {
                             walletEvent.nhRowView(
                                 showAmount: viewStore.balanceViewType != .hidden,
                                 tokenName: tokenName
                             )
-                        }
+//                        }
                         
                         Divider()
                             .frame(height: 2)
                             .overlay(Asset.Colors.Nighthawk.navy.color)
                     }
                     
-                    Button(action: { viewStore.send(.viewTransactionHistory) }) {
+//                    Button(action: { viewStore.send(.viewTransactionHistory) }) {
                         HStack(alignment: .center) {
                             Text(L10n.Nighthawk.WalletTab.viewTransactionHistory)
                                 .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -216,7 +197,7 @@ private extension WalletView {
                                 .foregroundColor(.white)
                         }
                         .padding(.vertical)
-                    }
+//                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 25)

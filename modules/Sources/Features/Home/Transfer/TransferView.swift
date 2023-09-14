@@ -8,13 +8,13 @@
 import ComposableArchitecture
 import Generated
 import Receive
-import NHSendFlow
+import SendFlow
 import SwiftUI
 import TopUp
 import UIComponents
 
 struct TransferView: View {
-    let store: TransferStore
+    let store: StoreOf<Transfer>
     let tokenName: String
     
     var body: some View {
@@ -29,25 +29,34 @@ struct TransferView: View {
         }
         .applyNighthawkBackground()
         .sheet(
-            store: store.destinationStore(),
-            state: /TransferReducer.Destination.State.receive,
-            action: TransferReducer.Destination.Action.receive
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Transfer.Destination.State.receive,
+            action: Transfer.Destination.Action.receive
         ) { store in
             ReceiveView(store: store)
         }
         .sheet(
-            store: store.destinationStore(),
-            state: /TransferReducer.Destination.State.topUp,
-            action: TransferReducer.Destination.Action.topUp
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Transfer.Destination.State.topUp,
+            action: Transfer.Destination.Action.topUp
         ) { store in
             TopUpView(store: store)
         }
         .sheet(
-            store: store.destinationStore(),
-            state: /TransferReducer.Destination.State.send,
-            action: TransferReducer.Destination.Action.send
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Transfer.Destination.State.send,
+            action: Transfer.Destination.Action.send
         ) { store in
-            NHSendFlowView(store: store, tokenName: tokenName)
+            SendFlowView(store: store, tokenName: tokenName)
         }
     }
 }
@@ -66,7 +75,7 @@ private extension TransferView {
         .padding(.horizontal, 25)
     }
     
-    func optionsList(with viewStore: TransferViewStore) -> some View {
+    func optionsList(with viewStore: ViewStoreOf<Transfer>) -> some View {
         VStack(spacing: 10) {
             Button(action: { viewStore.send(.sendMoneyTapped) }) {
                 optionRow(

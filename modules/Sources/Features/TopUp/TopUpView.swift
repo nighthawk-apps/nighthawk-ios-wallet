@@ -11,9 +11,9 @@ import SwiftUI
 import UIComponents
 
 public struct TopUpView: View {
-    let store: TopUpStore
+    let store: StoreOf<TopUp>
     
-    public init(store: TopUpStore) {
+    public init(store: StoreOf<TopUp>) {
         self.store = store
     }
     
@@ -41,7 +41,7 @@ public struct TopUpView: View {
 
 // MARK: - Subviews
 private extension TopUpView {
-    func partnersList(with viewStore: TopUpViewStore) -> some View {
+    func partnersList(with viewStore: ViewStoreOf<TopUp>) -> some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneySecurely)

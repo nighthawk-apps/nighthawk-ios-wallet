@@ -8,9 +8,8 @@
 import ComposableArchitecture
 import Generated
 import Models
-import NHTransactionDetail
+import TransactionDetail
 import SwiftUI
-import WalletEventsFlow
 import ZcashLightClientKit
 
 // MARK: - Rows
@@ -19,7 +18,7 @@ extension WalletEvent {
     @ViewBuilder public func nhRowView(showAmount: Bool, tokenName: String) -> some View {
         switch state {
         case .transaction(let transaction):
-            NHTransactionRowView(transaction: transaction, showAmount: showAmount, tokenName: tokenName)
+            TransactionRowView(transaction: transaction, showAmount: showAmount, tokenName: tokenName)
 
         case .shielded(let zatoshi):
             // TODO: [#390] implement design once shielding is supported

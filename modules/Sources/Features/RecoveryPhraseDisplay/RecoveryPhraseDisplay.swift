@@ -13,8 +13,11 @@ import Models
 import Pasteboard
 import WalletStorage
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 public struct RecoveryPhraseDisplay: ReducerProtocol {
+    let zcashNetwork: ZcashNetwork
+    
     public struct State: Equatable {
         public enum RecoveryPhraseDisplayFlow {
             case onboarding
@@ -23,26 +26,26 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
         
         @PresentationState public var destination: Destination.State?
         public var flow: RecoveryPhraseDisplayFlow
-        public var phrase: RecoveryPhrase
-        public var birthday: BlockHeight
+        public var phrase: RecoveryPhrase = .empty
+        public var birthday: BlockHeight = .zero
         @BindingState public var isConfirmSeedPhraseWrittenChecked = false
         
-        public init(
-            flow: RecoveryPhraseDisplayFlow,
-            phrase: RecoveryPhrase,
-            birthday: BlockHeight
-        ) {
+        public init(flow: RecoveryPhraseDisplayFlow) {
             self.flow = flow
-            self.phrase = phrase
-            self.birthday = birthday
         }
     }
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case continuePressed
+        case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case exportAsPdfPressed
+        case onAppear
+        
+        public enum Delegate: Equatable {
+            case initializeSDKAndLaunchWallet
+        }
     }
     
     public struct Destination: ReducerProtocol {
@@ -64,9 +67,8 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.walletStorage) var walletStorage
-    
-    public init() {}
-    
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+        
     public var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         
@@ -75,6 +77,8 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
             case .binding:
                 return .none
             case .continuePressed:
+                return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+            case .delegate:
                 return .none
             case .destination(.dismiss):
                 return .none
@@ -83,10 +87,24 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
             case .exportAsPdfPressed:
                 state.destination = .exportSeedAlert(.init())
                 return .none
+            case .onAppear:
+                do {
+                    let storedWallet = try walletStorage.exportWallet()
+                    let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
+                    state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
+                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+                    return .none
+                } catch {
+                    return .none
+                }
             }
         }
         .ifLet(\.$destination, action: /Action.destination) {
             Destination()
         }
+    }
+    
+    public init(zcashNetwork: ZcashNetwork) {
+        self.zcashNetwork = zcashNetwork
     }
 }

@@ -46,8 +46,11 @@ public struct RecoveryPhraseDisplayView: View {
             .padding(.top, 25)
             .padding(.horizontal, 25)
             .padding(.bottom, 66)
+            .onAppear { viewStore.send(.onAppear) }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .applyNighthawkBackground()
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .nighthawkAlert(
             store: store.scope(
                 state: \.$destination,
@@ -187,7 +190,7 @@ private extension RecoveryPhraseDisplayView {
     }
     
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {
-        NHCheckBox(isChecked: isChecked) {
+        CheckBox(isChecked: isChecked) {
             Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
                 .caption()
         }
