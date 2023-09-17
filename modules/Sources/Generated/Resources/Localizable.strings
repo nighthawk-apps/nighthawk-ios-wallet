@@ -353,6 +353,7 @@
 "nighthawk.homeScreen.wallet" = "Wallet";
 "nighthawk.homeScreen.transfer" = "Transfer";
 "nighthawk.homeScreen.settings" = "Settings";
+"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
 
 // MARK: - Home Screen - Wallet tab
 "nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";

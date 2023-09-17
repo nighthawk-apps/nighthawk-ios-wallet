@@ -19,7 +19,7 @@ public struct AdvancedView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView([.vertical], showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(L10n.Nighthawk.SettingsTab.advancedTitle)
@@ -35,7 +35,7 @@ public struct AdvancedView: View {
                     
                     RadioSelectionList(
                         options: NighthawkSetting.ScreenMode.allCases,
-                        selection: viewStore.binding(\.$selectedScreenMode)
+                        selection: viewStore.$selectedScreenMode
                     ) { option in
                         HStack {
                             switch option {

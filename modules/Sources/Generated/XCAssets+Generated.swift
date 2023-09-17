@@ -48,6 +48,8 @@ public enum Asset {
         public static let error = ImageAsset(name: "error")
         public static let failed = ImageAsset(name: "failed")
         public static let fiat = ImageAsset(name: "fiat")
+        public static let hidden = ImageAsset(name: "hidden")
+        public static let memo = ImageAsset(name: "memo")
         public static let nhQrCode = ImageAsset(name: "nhQrCode")
         public static let nighthawkSymbol = ImageAsset(name: "nighthawk_symbol")
         public static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
@@ -76,10 +78,10 @@ public enum Asset {
         public static let unchecked = ImageAsset(name: "unchecked")
         public static let unifiedBadge = ImageAsset(name: "unified_badge")
         public static let unshielded = ImageAsset(name: "unshielded")
+        public static let visible = ImageAsset(name: "visible")
         public static let wallet = ImageAsset(name: "wallet")
       }
     }
-    public static let welcomeScreenLogo = ImageAsset(name: "WelcomeScreenLogo")
   }
   public enum Colors {
     public enum BackgroundColors {

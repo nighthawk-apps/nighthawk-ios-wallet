@@ -20,7 +20,7 @@ public struct AddMemoView: View {
     @FocusState private var isMemoEditorFocused: Bool
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkHeading(
                     title: L10n.Nighthawk.TransferTab.AddMemo.addMessageToPayment

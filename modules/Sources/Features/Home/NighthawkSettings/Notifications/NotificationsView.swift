@@ -15,7 +15,7 @@ public struct NotificationsView: View {
     let store: StoreOf<Notifications>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.SyncNotifications.title)
                     .paragraphMedium()
@@ -39,7 +39,7 @@ public struct NotificationsView: View {
                 
                 RadioSelectionList(
                     options: NighthawkSetting.SyncNotificationFrequency.allCases,
-                    selection: viewStore.binding(\.$selectedSyncNotificationFrequency).animation(.none)
+                    selection: viewStore.$selectedSyncNotificationFrequency.animation(.none)
                 ) { option in
                     HStack {
                         switch option {

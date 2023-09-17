@@ -12,7 +12,7 @@ public struct ChangeServerView: View {
     let store: StoreOf<ChangeServer>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             Text("Change server view")
         }
         .applyNighthawkBackground()

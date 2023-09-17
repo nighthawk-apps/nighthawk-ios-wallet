@@ -42,7 +42,6 @@ public struct SendingView: View {
         }
         .applyNighthawkBackground()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationBarHidden(true)
         .interactiveDismissDisabled()
     }
 }

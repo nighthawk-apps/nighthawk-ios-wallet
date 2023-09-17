@@ -12,7 +12,7 @@ public struct AboutView: View {
     let store: StoreOf<About>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             Text("About view")
         }
         .applyNighthawkBackground()

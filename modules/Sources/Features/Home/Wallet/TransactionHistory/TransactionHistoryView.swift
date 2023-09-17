@@ -23,12 +23,12 @@ public struct TransactionHistoryView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView([.vertical], showsIndicators: false) {
                 LazyVStack {
-                    ForEach(viewStore.walletEvents) { event in
-                        Button(action: {}) {
-                            event.nhRowView(
+                    ForEach(viewStore.walletEvents) { walletEvent in
+                        Button(action: { viewStore.send(.viewTransactionDetailTapped(walletEvent)) }) {
+                            walletEvent.nhRowView(
                                 showAmount: true,
                                 tokenName: tokenName
                             )
@@ -41,16 +41,8 @@ public struct TransactionHistoryView: View {
                 }
             }
             .padding(.horizontal, 25)
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                VStack {
-                    Text(L10n.Nighthawk.TransactionHistory.title)
-                        .title()
-                }
-            }
-        }
     }
 }

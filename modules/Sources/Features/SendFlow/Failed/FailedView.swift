@@ -18,7 +18,7 @@ public struct FailedView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkHeading(title: L10n.Nighthawk.TransferTab.Failed.title)
                     .padding(.bottom, 44)

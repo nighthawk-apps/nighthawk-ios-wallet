@@ -22,7 +22,7 @@ public struct ReviewView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView([.vertical]) {
                 NighthawkHeading(title: L10n.Nighthawk.TransferTab.Review.title)
                     .padding(.bottom, 44)

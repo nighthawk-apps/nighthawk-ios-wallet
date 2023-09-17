@@ -14,7 +14,7 @@ public struct MigrateView: View {
     let store: StoreOf<Migrate>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.top, 44)

@@ -15,7 +15,7 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct RecoveryPhraseDisplay: ReducerProtocol {
+public struct RecoveryPhraseDisplay: Reducer {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {
@@ -48,7 +48,9 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
         }
     }
     
-    public struct Destination: ReducerProtocol {
+    public struct Destination: Reducer {
+        let zcashNetwork: ZcashNetwork
+        
         public enum State: Equatable {
             case exportSeedAlert(ExportSeed.State)
         }
@@ -57,11 +59,15 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
             case exportSeedAlert(ExportSeed.Action)
         }
         
-        public var body: some ReducerProtocolOf<Self> {
-            Reduce { _, _ in .none }
+        public var body: some ReducerOf<Self> {
+            Scope(state: /State.exportSeedAlert, action: /Action.exportSeedAlert) {
+                ExportSeed(zcashNetwork: zcashNetwork)
+            }
         }
         
-        public init() {}
+        public init(zcashNetwork: ZcashNetwork) {
+            self.zcashNetwork = zcashNetwork
+        }
     }
     
     @Dependency(\.mnemonic) var mnemonic
@@ -69,7 +75,7 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
         
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
@@ -100,7 +106,7 @@ public struct RecoveryPhraseDisplay: ReducerProtocol {
             }
         }
         .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
+            Destination(zcashNetwork: zcashNetwork)
         }
     }
     

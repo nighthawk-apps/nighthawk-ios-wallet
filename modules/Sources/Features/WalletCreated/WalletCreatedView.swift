@@ -19,7 +19,7 @@ public struct WalletCreatedView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkHeading(title: L10n.Nighthawk.WalletCreated.title)
                 Spacer()
@@ -30,7 +30,6 @@ public struct WalletCreatedView: View {
             }
         }
         .applyNighthawkBackground()
-        .navigationBarHidden(true)
     }
 }
 

@@ -18,7 +18,7 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct NighthawkSettings: ReducerProtocol {
+public struct NighthawkSettings: Reducer {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {
@@ -53,7 +53,7 @@ public struct NighthawkSettings: ReducerProtocol {
         }
     }
     
-    public struct Destination: ReducerProtocol {
+    public struct Destination: Reducer {
         public enum State: Equatable {
             case alert(AlertState<Action.Alert>)
         }
@@ -66,7 +66,7 @@ public struct NighthawkSettings: ReducerProtocol {
             }
         }
         
-        public var body: some ReducerProtocolOf<Self> {
+        public var body: some ReducerOf<Self> {
             Reduce { _, _ in .none }
         }
         
@@ -79,7 +79,7 @@ public struct NighthawkSettings: ReducerProtocol {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .delegate:

@@ -12,7 +12,7 @@ public struct FiatView: View {
     let store: StoreOf<Fiat>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             Text("Fiat view")
         }
         .applyNighthawkBackground()

@@ -15,9 +15,9 @@ import UserNotifications
 import UserNotificationCenter
 import Utils
 
-public struct Notifications: ReducerProtocol {
+public struct Notifications: Reducer {
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action>?
+        @PresentationState public var alert: AlertState<Action.Alert>?
         @BindingState public var selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency = .off
         public var authorizationStatus: UNAuthorizationStatus = .notDetermined
         
@@ -25,30 +25,34 @@ public struct Notifications: ReducerProtocol {
     }
     
     public enum Action: BindableAction, Equatable {
-        case alert(PresentationAction<Action>)
+        case alert(PresentationAction<Alert>)
         case authorizationStatusResponse(Bool)
         case binding(BindingAction<State>)
-        case noOp
         case notificationSettingsResponse(NotificationSettings)
         case onAppear
-        case openSettings
         case scheduleNotificationFailed
+        
+        public enum Alert: Equatable {
+            case openSettings
+        }
     }
     
     @Dependency(\.dateClient) var dateClient
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.userNotificationCenter) var userNotificationCenter
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
-            case .alert(.presented(let action)):
-                return EffectTask(value: action)
+            case .alert(.presented(.openSettings)):
+                if let appSettings = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(appSettings) {
+                    UIApplication.shared.open(appSettings)
+                }
+                return .none
                 
             case .alert(.dismiss):
-                state.alert = nil
                 return .none
                 
             case let .authorizationStatusResponse(granted):
@@ -61,17 +65,15 @@ public struct Notifications: ReducerProtocol {
                     state.alert = AlertState.notifyAppNeedsNotificationPermission()
                 }
                 return .none
-                
             case .binding(\.$selectedSyncNotificationFrequency):
                 if state.authorizationStatus.isAuthorized {
                     userStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
                     return scheduleNotification(with: state.selectedSyncNotificationFrequency)
                 } else {
                     if state.authorizationStatus == .notDetermined {
-                        return .task {
-                            return .authorizationStatusResponse(
-                                (try? await userNotificationCenter.requestAuthorization([.alert, .badge, .sound])) ?? false
-                            )
+                        return .run { send in
+                            let status = (try? await userNotificationCenter.requestAuthorization([.alert, .badge, .sound])) ?? false
+                            await send(.authorizationStatusResponse(status))
                         }
                     } else if state.authorizationStatus == .denied {
                         userStoredPreferences.setSyncNotificationFrequency(.off)
@@ -95,21 +97,15 @@ public struct Notifications: ReducerProtocol {
                 return .none
                 
             case .onAppear:
-                return .task {
-                    return await .notificationSettingsResponse(userNotificationCenter.notificationSettings())
+                return .run { send in
+                    await send(.notificationSettingsResponse(userNotificationCenter.notificationSettings()))
                 }
-                
-            case .openSettings:
-                if let appSettings = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(appSettings) {
-                    UIApplication.shared.open(appSettings)
-                }
-                return .none
                 
             case .scheduleNotificationFailed:
                 state.alert = AlertState.scheduleNotificationFailed()
                 return .none
                 
-            case .alert, .binding, .noOp:
+            case .alert, .binding:
                 return .none
             }
         }
@@ -117,7 +113,7 @@ public struct Notifications: ReducerProtocol {
     
     public init() {}
     
-    private func scheduleNotification(with frequency: NighthawkSetting.SyncNotificationFrequency) -> EffectTask<Action> {
+    private func scheduleNotification(with frequency: NighthawkSetting.SyncNotificationFrequency) -> Effect<Action> {
         guard frequency != .off else {
             userNotificationCenter.removeAllPendingNotificationRequests()
             return .none
@@ -132,7 +128,7 @@ public struct Notifications: ReducerProtocol {
         let trigger: UNCalendarNotificationTrigger
         if frequency == .weekly {
             guard let nextWeek = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: today) else {
-                return .task { .scheduleNotificationFailed }
+                return .run { send in await send(.scheduleNotificationFailed) }
             }
             
             trigger = UNCalendarNotificationTrigger(
@@ -141,7 +137,7 @@ public struct Notifications: ReducerProtocol {
             )
         } else {
             guard let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: today) else {
-                return .task { .scheduleNotificationFailed }
+                return .run { send in await send(.scheduleNotificationFailed) }
             }
             
             trigger = UNCalendarNotificationTrigger(
@@ -151,12 +147,11 @@ public struct Notifications: ReducerProtocol {
         }
         
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        return .task {
+        return .run { send in
             do {
                 try await userNotificationCenter.add(request)
-                return .noOp
             } catch {
-                return .scheduleNotificationFailed
+                await send(.scheduleNotificationFailed)
             }
         }
     }
@@ -164,12 +159,12 @@ public struct Notifications: ReducerProtocol {
 
 // MARK: Alerts
 
-extension AlertState where Action == Notifications.Action {
+extension AlertState where Action == Notifications.Action.Alert {
     public static func notifyAppNeedsNotificationPermission() -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.SettingsTab.SyncNotifications.PermissionDeniedAlert.title)
         } actions: {
-            ButtonState(role: .cancel, action: .alert(.dismiss)) {
+            ButtonState(role: .cancel) {
                 TextState(L10n.General.cancel)
             }
             
@@ -185,7 +180,7 @@ extension AlertState where Action == Notifications.Action {
         AlertState {
             TextState(L10n.Nighthawk.SettingsTab.SyncNotifications.ScheduleNotificationFailedAlert.title)
         } actions: {
-            ButtonState(action: .alert(.dismiss)) {
+            ButtonState {
                 TextState(L10n.General.ok)
             }
         } message: {

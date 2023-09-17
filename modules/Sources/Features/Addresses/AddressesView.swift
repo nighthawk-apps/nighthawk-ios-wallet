@@ -12,6 +12,7 @@ import SwiftUI
 import UIComponents
 import Utils
 
+@MainActor
 public struct AddressesView: View {
     private struct Contants {
         static let qrSize: CGFloat = 180
@@ -24,7 +25,7 @@ public struct AddressesView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.top, 44)
@@ -38,7 +39,7 @@ public struct AddressesView: View {
                 viewStore.send(.onAppear)
             }
             .toast(
-                unwrapping: viewStore.binding(\.$toast),
+                unwrapping: viewStore.$toast,
                 case: /Addresses.State.Toast.copiedToClipboard,
                 alert: {
                     AlertToast(
@@ -62,7 +63,7 @@ private extension AddressesView {
             VStack {
                 tabs(with: viewStore, geometry: geometry)
                 
-                NHPageIndicator(selection: viewStore.binding(\.$destination))
+                NHPageIndicator(selection: viewStore.$destination)
             }
             .padding(.top, 16)
             .padding(.bottom, 64)
@@ -71,7 +72,7 @@ private extension AddressesView {
     }
     
     func tabs(with viewStore: ViewStoreOf<Addresses>, geometry: GeometryProxy) -> some View {
-        TabView(selection: viewStore.binding(\.$destination)) {
+        TabView(selection: viewStore.$destination) {
             topUpView(seeMoreAction: { viewStore.send(.topUpWalletTapped) })
             .frame(maxWidth: geometry.size.width * 0.68)
             .tag(Addresses.State.Destination.topUp)

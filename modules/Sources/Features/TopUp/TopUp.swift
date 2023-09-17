@@ -14,9 +14,9 @@ import SDKSynchronizer
 import UIKit
 import ZcashLightClientKit
 
-public struct TopUp: ReducerProtocol {
+public struct TopUp: Reducer {
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action>?
+        @PresentationState public var alert: AlertState<Action.Alert>?
 
         public var transparentAddress: String {
             do {
@@ -42,35 +42,36 @@ public struct TopUp: ReducerProtocol {
     }
     
     public enum Action: Equatable {
-        case alert(PresentationAction<Action>)
+        case alert(PresentationAction<Alert>)
         case onAppear
         case uAddressChanged(UnifiedAddress?)
         case showSideShiftInstructions
-        case open(URL?)
         case showStealthExInstructions
+        
+        public enum Alert: Equatable {
+            case open(URL?)
+        }
     }
     
     @Dependency(\.partners) var partners
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .onAppear:
-                return .task {
-                    return .uAddressChanged(try? await sdkSynchronizer.getUnifiedAddress(0))
+            case let .alert(.presented(.open(url))):
+                if let url {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
-
-            case .uAddressChanged(let uAddress):
-                state.uAddress = uAddress
                 return .none
-            case .alert(.presented(let action)):
-                return EffectTask(value: action)
-                
             case .alert(.dismiss):
-                state.alert = nil
                 return .none
+            case .onAppear:
+                return .run { send in
+                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                    await send(.uAddressChanged(ua))
+                }
             case .showSideShiftInstructions:
                 pasteboard.setString(state.saplingAddress.redacted)
                 state.alert = AlertState.showPartnerInstructions(
@@ -89,12 +90,8 @@ public struct TopUp: ReducerProtocol {
                     receivingCoin: "Zcash"
                 )
                 return .none
-            case .open(let url):
-                if let url {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                }
-                return .none
-            case .alert:
+            case .uAddressChanged(let uAddress):
+                state.uAddress = uAddress
                 return .none
             }
         }
@@ -104,7 +101,7 @@ public struct TopUp: ReducerProtocol {
 }
 
 // MARK: - Alerts
-extension AlertState where Action == TopUp.Action {
+extension AlertState where Action == TopUp.Action.Alert {
     public static func showPartnerInstructions(
         url: URL?,
         partnerName: String,
@@ -117,7 +114,7 @@ extension AlertState where Action == TopUp.Action {
             ButtonState(action: .open(url)) {
                 TextState(L10n.Nighthawk.TransferTab.TopUpWallet.openBrowser)
             }
-            ButtonState(role: .cancel, action: .alert(.dismiss)) {
+            ButtonState(role: .cancel) {
                 TextState(L10n.General.cancel)
             }
         } message: {

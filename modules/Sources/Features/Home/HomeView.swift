@@ -6,7 +6,9 @@
 //
 
 import Addresses
+import AlertToast
 import ComposableArchitecture
+import Generated
 import SwiftUI
 import UIComponents
 
@@ -20,9 +22,9 @@ public struct HomeView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                TabView(selection: viewStore.binding(\.$destination)) {
+                TabView(selection: viewStore.$destination) {
                     WalletView(
                         store: store.scope(
                             state: \.wallet,
@@ -62,14 +64,26 @@ public struct HomeView: View {
                 }
                 
                 NighthawkTabBar(
-                    destination: viewStore.binding(\.$destination),
+                    destination: viewStore.$destination,
                     isUpToDate: viewStore.synchronizerStatusSnapshot.isSynced
                 )
             }
             .onAppear { viewStore.send(.onAppear) }
+            .toast(
+                unwrapping: viewStore.$toast,
+                case: /Home.State.Toast.expectingFunds,
+                alert: {
+                    AlertToast(
+                        type: .regular,
+                        title: L10n.Nighthawk.HomeScreen.expectingFunds(
+                            viewStore.expectingZatoshi.decimalString(),
+                            tokenName
+                        )
+                    )
+                }
+            )
         }
         .applyNighthawkBackground()
-        .navigationBarTitle("")
         .sheet(store: store.scope(state: \.$addresses, action: Home.Action.addresses)) { store in
             AddressesView(store: store)
         }

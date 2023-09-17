@@ -15,7 +15,7 @@ public struct TransactionDetailView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView([.vertical]) {
                 NighthawkHeading(title: L10n.Nighthawk.TransactionDetails.title)
                     .padding(.bottom, 24)
@@ -25,7 +25,7 @@ public struct TransactionDetailView: View {
                 TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
 
                 Button(L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer) {
-                    viewStore.send(.warnBeforeLeavingApp(viewStore.transaction.viewOnlineURL))
+                    viewStore.send(.warnBeforeLeavingApp(viewStore.viewOnlineURL))
                 }
                 .buttonStyle(.nighthawkPrimary())
                 .padding(.bottom, 30)
@@ -33,7 +33,6 @@ public struct TransactionDetailView: View {
             .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
-        .toolbarBackground(.hidden, for: .navigationBar)
         .alert(
             store: store.scope(
                 state: \.$alert,
@@ -48,7 +47,7 @@ private extension ViewStoreOf<TransactionDetail> {
     // TODO: Consider using ResultBuilder for this.
     func transactionLineItems(with tokenName: String) -> [TransactionLineItem] {
         var result: [TransactionLineItem] = []
-        if let memoText = self.transaction.memos?.first?.toString() {
+        if let memoText = self.memo?.toString() {
             result.append(
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.memo,
@@ -62,16 +61,16 @@ private extension ViewStoreOf<TransactionDetail> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.time,
-                    value: "\(self.transaction.date?.timestamp() ?? L10n.General.dateNotAvailable)"
+                    value: "\(self.date?.timestamp() ?? L10n.General.dateNotAvailable)"
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.pool,
-                    value: "\(self.transaction.shielded ? L10n.Nighthawk.TransactionDetails.sapling : L10n.Nighthawk.TransactionDetails.transparent)"
+                    value: "\(self.shielded ? L10n.Nighthawk.TransactionDetails.sapling : L10n.Nighthawk.TransactionDetails.transparent)"
                 )
             ]
         )
         
-        if let minedHeight = self.transaction.minedHeight, minedHeight > 0 {
+        if let minedHeight = self.minedHeight, minedHeight > 0 {
             result.append(
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.blockId,
@@ -91,38 +90,38 @@ private extension ViewStoreOf<TransactionDetail> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.confirmations,
-                    value: "\(self.transaction.confirmationsWith(self.latestMinedHeight))"
+                    value: "\(self.confirmations)"
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.transactionId,
-                    value: self.transaction.id,
+                    value: self.id ?? L10n.General.unknown,
                     action: .init(
                         title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                         action: {
-                            self.send(.warnBeforeLeavingApp(self.transaction.viewOnlineURL))
+                            self.send(.warnBeforeLeavingApp(self.viewOnlineURL))
                         }
                     )
                 )
             ]
         )
         
-        if self.transaction.isSending {
+        if self.isSending {
             result.append(
                 contentsOf: [
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.recipient,
-                        value: self.transaction.shielded
+                        value: self.shielded
                             ? L10n.Nighthawk.TransactionDetails.recipientShielded
                             : L10n.Nighthawk.TransactionDetails.recipientTransparent,
                         showBorder: false
                     ),
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
-                        value: self.transaction.address,
+                        value: self.address ?? L10n.General.unknown,
                         action: .init(
                             title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                             action: {
-                                self.send(.warnBeforeLeavingApp(self.transaction.viewRecipientOnlineURL))
+                                self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))
                             }
                         )
                     )
@@ -134,16 +133,16 @@ private extension ViewStoreOf<TransactionDetail> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.subtotal,
-                    value: "\(self.transaction.zecAmount.decimalString()) \(tokenName)",
+                    value: "\(self.zecAmount?.decimalString() ?? L10n.General.unknown) \(tokenName)",
                     showBorder: false
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.networkFee,
-                    value: "\(self.transaction.fee.decimalString()) \(tokenName)"
+                    value: "\(self.fee?.decimalString() ?? L10n.General.unknown) \(tokenName)"
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.transaction.totalAmount.decimalString()) \(tokenName)"
+                    value: "\(self.totalAmount?.decimalString() ?? L10n.General.unknown) \(tokenName)"
                 )
             ]
         )
@@ -156,15 +155,17 @@ private extension ViewStoreOf<TransactionDetail> {
 private extension TransactionDetailView {
     func transactionSummary(with viewStore: ViewStoreOf<TransactionDetail>) -> some View {
         VStack {
-            summaryIcon(for: viewStore.transaction.status)
-                .resizable()
-                .renderingMode(.template)
-                .foregroundColor(.white)
-                .frame(width: 24, height: 24)
+            if let status = viewStore.status {
+                summaryIcon(for: status)
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
             
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.transaction.zecAmount.decimalString())")
+                    Text("\(viewStore.zecAmount?.decimalString() ?? L10n.General.unknown)")
                         .foregroundColor(.white)
                     
                     Text(tokenName)
@@ -173,8 +174,10 @@ private extension TransactionDetailView {
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
             
-            TransactionStatusView(status: viewStore.transaction.status)
-                .padding(.top, 22)
+            if let status = viewStore.status {
+                TransactionStatusView(status: status)
+                    .padding(.top, 22)
+            }
         }
     }
 }
@@ -189,17 +192,6 @@ private extension TransactionDetailView {
             return Asset.Assets.Icons.Nighthawk.received.image
         case .failed, .paid(success: false):
             return Asset.Assets.Icons.Nighthawk.error.image
-        }
-    }
-}
-
-private extension TransactionState {
-    var isSending: Bool {
-        switch status {
-        case .paid, .sending:
-            return true
-        default:
-            return false
         }
     }
 }

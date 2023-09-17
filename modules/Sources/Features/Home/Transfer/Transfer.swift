@@ -12,10 +12,10 @@ import TopUp
 import Utils
 import ZcashLightClientKit
 
-public struct Transfer: ReducerProtocol {
+public struct Transfer: Reducer {
     let networkType: NetworkType
     
-    public struct Destination: ReducerProtocol {
+    public struct Destination: Reducer {
         let networkType: NetworkType
         
         public enum State: Equatable {
@@ -34,7 +34,7 @@ public struct Transfer: ReducerProtocol {
             self.networkType = networkType
         }
         
-        public var body: some ReducerProtocolOf<Self> {
+        public var body: some ReducerOf<Self> {
             Scope(state: /State.receive, action: /Action.receive) {
                 Receive()
             }
@@ -67,7 +67,7 @@ public struct Transfer: ReducerProtocol {
         self.networkType = networkType
     }
     
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .destination:

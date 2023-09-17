@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DatabaseFiles
 import DerivationTool
 import Generated
 import Home
@@ -24,7 +25,7 @@ import Welcome
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct AppReducer: ReducerProtocol {
+public struct AppReducer: Reducer {
     let zcashNetwork: ZcashNetwork
     
     enum CancelId { case timer }
@@ -47,7 +48,7 @@ public struct AppReducer: ReducerProtocol {
         case splash(Splash.Action)
     }
     
-    public struct Path: ReducerProtocol {
+    public struct Path: Reducer {
         let zcashNetwork: ZcashNetwork
         
         public enum State: Equatable {
@@ -65,7 +66,7 @@ public struct AppReducer: ReducerProtocol {
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
             case security(Security.State = .init())
             case transactionDetail(TransactionDetail.State)
-            case transactionHistory(TransactionHistory.State)
+            case transactionHistory(TransactionHistory.State = .init())
             case walletCreated(WalletCreated.State = .init())
             case welcome(Welcome.State = .init())
         }
@@ -90,7 +91,7 @@ public struct AppReducer: ReducerProtocol {
             case welcome(Welcome.Action)
         }
         
-        public var body: some ReducerProtocolOf<Self> {
+        public var body: some ReducerOf<Self> {
             Scope(state: /State.about, action: /Action.about) {
                 About()
             }
@@ -165,7 +166,7 @@ public struct AppReducer: ReducerProtocol {
         }
     }
     
-    public struct Destination: ReducerProtocol {
+    public struct Destination: Reducer {
         public enum State: Equatable {
             case alert(AlertState<Action.Alert>)
         }
@@ -176,11 +177,12 @@ public struct AppReducer: ReducerProtocol {
             public enum Alert: Equatable {}
         }
         
-        public var body: some ReducerProtocolOf<Self> {
+        public var body: some ReducerOf<Self> {
             Reduce { _, _ in .none }
         }
     }
     
+    @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
@@ -188,7 +190,7 @@ public struct AppReducer: ReducerProtocol {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Scope(state: \.splash, action: /Action.splash) {
             Splash(zcashNetwork: zcashNetwork)
         }
@@ -207,6 +209,7 @@ public struct AppReducer: ReducerProtocol {
                 return .none
             case .nukeWalletSuccess:
                 walletStorage.nukeWallet()
+                try? databaseFiles.nukeDbFilesFor(zcashNetwork)
                 state.path = StackState([.welcome(.init())])
                 return .none
             case .path:
@@ -224,6 +227,7 @@ public struct AppReducer: ReducerProtocol {
         
         splashDelegateReducer()
         onboardingReducer()
+        walletReducer()
         settingsReducer()
     }
     
@@ -234,7 +238,7 @@ public struct AppReducer: ReducerProtocol {
 
 // MARK: - Initialize SDK
 extension AppReducer {
-    func initializeSDK() -> EffectTask<Action> {
+    func initializeSDK(_ mode: WalletInitMode) -> Effect<Action> {
         do {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
@@ -246,7 +250,7 @@ extension AppReducer {
             return .run { send in
                 do {
                     // Start synchronizer
-                    try await sdkSynchronizer.prepareWith(seedBytes, birthday, .existingWallet)
+                    try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess)
                 } catch {
@@ -254,7 +258,7 @@ extension AppReducer {
                 }
             }
         } catch {
-            return EffectTask(value: .initializeSDKFailed(error.toZcashError()))
+            return .send(.initializeSDKFailed(error.toZcashError()))
         }
     }
 }
@@ -273,7 +277,7 @@ private extension AppReducer {
                     state.path.append(.migrate())
                     return .none
                 case .initializeSDKAndLaunchWallet:
-                    return initializeSDK()
+                    return initializeSDK(.existingWallet)
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
                 return .none

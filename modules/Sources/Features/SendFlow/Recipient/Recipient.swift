@@ -11,7 +11,7 @@ import SwiftUI
 import Utils
 import ZcashLightClientKit
 
-public struct Recipient: ReducerProtocol {
+public struct Recipient: Reducer {
     let networkType: NetworkType
     
     public struct State: Equatable {
@@ -28,10 +28,16 @@ public struct Recipient: ReducerProtocol {
         case backButtonTapped
         case clearRecipientTapped
         case continueTapped
+        case delegate(Delegate)
         case onAppear
         case pasteFromClipboardTapped
         case recipientInputChanged(RedactableString)
         case scanQRCodeTapped
+        
+        public enum Delegate: Equatable {
+            case nextScreen
+            case scanCode
+        }
     }
     
     public init(networkType: NetworkType) {
@@ -42,13 +48,17 @@ public struct Recipient: ReducerProtocol {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .clearRecipientTapped:
                 state.recipient = "".redacted
+                return .none
+            case .continueTapped:
+                return .send(.delegate(.nextScreen))
+            case .delegate:
                 return .none
             case .onAppear:
                 if let contents = pasteboard.getString() {
@@ -66,8 +76,8 @@ public struct Recipient: ReducerProtocol {
                 state.recipient = redactedRecipient
                 state.isRecipientValid = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
                 return .none
-            case .scanQRCodeTapped, .continueTapped:
-                return .none
+            case .scanQRCodeTapped:
+                return .send(.delegate(.scanCode))
             }
         }
     }

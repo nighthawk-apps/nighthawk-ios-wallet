@@ -11,7 +11,7 @@ import Pasteboard
 import SDKSynchronizer
 import ZcashLightClientKit
 
-public struct Addresses: ReducerProtocol {
+public struct Addresses: Reducer {
     public struct State: Equatable {
         public enum Destination: String, CaseIterable, Equatable, Hashable {
             case topUp
@@ -71,7 +71,7 @@ public struct Addresses: ReducerProtocol {
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
@@ -97,8 +97,9 @@ public struct Addresses: ReducerProtocol {
             case .delegate:
                 return .none
             case .onAppear:
-                return .task {
-                    return .uAddressChanged(try? await sdkSynchronizer.getUnifiedAddress(0))
+                return .run { send in
+                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                    await send(.uAddressChanged(ua))
                 }
                 
             case .topUpWalletTapped:

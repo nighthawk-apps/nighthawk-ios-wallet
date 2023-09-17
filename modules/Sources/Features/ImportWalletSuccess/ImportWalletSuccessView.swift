@@ -19,7 +19,7 @@ public struct ImportWalletSuccessView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 GeometryReader { geometry in
                     VStack(spacing: geometry.size.height * 0.2) {
@@ -48,7 +48,6 @@ public struct ImportWalletSuccessView: View {
                 }
             }
             .applyNighthawkBackground()
-            .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.generateSuccessFeedback)
             }

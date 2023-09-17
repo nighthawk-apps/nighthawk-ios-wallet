@@ -20,7 +20,7 @@ public struct RecipientView: View {
     @FocusState private var isRecipientEditorFocused: Bool
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkHeading(
                     title: L10n.Nighthawk.TransferTab.Recipient.chooseRecipient

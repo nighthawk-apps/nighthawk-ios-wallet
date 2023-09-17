@@ -21,7 +21,7 @@ public struct ScanView: View {
     )
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 VStack {
                     NighthawkHeading(

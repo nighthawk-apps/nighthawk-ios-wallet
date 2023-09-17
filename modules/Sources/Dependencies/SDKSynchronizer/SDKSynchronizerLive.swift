@@ -38,9 +38,8 @@ extension SDKSynchronizerClient {
             stateStream: { synchronizer.stateStream },
             eventStream: { synchronizer.eventStream },
             latestState: { synchronizer.latestState },
-            latestScannedHeight: { synchronizer.latestState.latestBlockHeight },
-            prepareWith: { seedBytes, walletBirthday, initMode in
-                let result = try await synchronizer.prepare(with: seedBytes, walletBirthday: walletBirthday, for: initMode)
+            prepareWith: { seedBytes, walletBirtday, walletMode in
+                let result = try await synchronizer.prepare(with: seedBytes, walletBirthday: walletBirtday, for: walletMode)
                 if result != .success { throw ZcashError.synchronizerNotPrepared }
             },
             start: { retry in try await synchronizer.start(retry: retry) },

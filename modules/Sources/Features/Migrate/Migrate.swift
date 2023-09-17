@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Generated
 import WalletStorage
 
-public struct Migrate: ReducerProtocol {
+public struct Migrate: Reducer {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         public var isLoading = false
@@ -35,7 +35,7 @@ public struct Migrate: ReducerProtocol {
     
     @Dependency(\.walletStorage) var walletStorage
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .alert(.dismiss):

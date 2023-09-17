@@ -18,11 +18,11 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct SendFlow: ReducerProtocol {
+public struct SendFlow: Reducer {
     private enum SyncStatusUpdatesID { case timer }
     let networkType: NetworkType
     
-    public struct Path: ReducerProtocol {
+    public struct Path: Reducer {
         let networkType: NetworkType
         
         public enum State: Equatable {
@@ -49,7 +49,7 @@ public struct SendFlow: ReducerProtocol {
             self.networkType = networkType
         }
         
-        public var body: some ReducerProtocol<State, Action> {
+        public var body: some ReducerOf<Self> {
             Scope(state: /State.addMemo, action: /Action.addMemo) {
                 AddMemo()
             }
@@ -110,7 +110,6 @@ public struct SendFlow: ReducerProtocol {
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
-        case authenticationResponse(Bool)
         case continueTapped
         case onAppear
         case scanCodeTapped
@@ -127,6 +126,7 @@ public struct SendFlow: ReducerProtocol {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
@@ -135,101 +135,22 @@ public struct SendFlow: ReducerProtocol {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: id, action: .addMemo(.continueOrSkipTapped))):
-                guard case let .addMemo(addMemoState) = state.path[id: id]
-                else { return .none }
-                state.memo = addMemoState.memo
-                state.path.append(
-                    Path.State.review(
-                        .init(
-                            subtotal: state.amountToSend,
-                            memo: state.memo,
-                            recipient: state.recipient
-                        )
-                    )
-                )
-                return .none
-            case .path(.element(id: _, action: .recipient(.continueTapped))):
-                guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
-                if derivationTool.isTransparentAddress(state.recipient.data, networkType) {
-                    state.path.append(
-                        Path.State.review(
-                            .init(
-                                subtotal: state.amountToSend,
-                                memo: state.memo,
-                                recipient: state.recipient
-                            )
-                        )
-                    )
-                } else {
-                    var addMemoState = AddMemo.State()
-                    addMemoState.memoCharLimit = state.memoCharLimit
-                    state.path.append(Path.State.addMemo(addMemoState))
-                }
-                
-                return .none
-            case .path(.element(id: _, action: .recipient(.scanQRCodeTapped))):
-                state.path.append(Path.State.scan(.init()))
-                return .none
-            case let .path(.element(id: _, action: .scan(.found(code)))):
-                state.recipient = code
-                state.path = StackState(
-                    state.path.map { state in
-                        if case var .recipient(recipientState) = state {
-                            recipientState.recipient = code
-                            return Path.State.recipient(recipientState)
-                        }
-                    
-                        return state
-                    }
-                )
-                let _ = state.path.popLast()
-                return .none
-            case .path(.element(id: _, action: .review(.sendZcashTapped))):
-                if userPreferencesStorage.areBiometricsEnabled() {
-                    return .task {
-                        let context = localAuthenticationContext()
-                        
-                        do {
-                            if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
-                                return try await .authenticationResponse(
-                                    context.evaluatePolicy(
-                                        .deviceOwnerAuthentication,
-                                        L10n.Nighthawk.LocalAuthentication.sendFundsReason
-                                    )
-                                )
-                            } else {
-                                return .authenticationResponse(false)
-                            }
-                        } catch {
-                            return .authenticationResponse(false)
-                        }
-                    }
-                } else {
-                    return .run { send in await send(.sendTransaction) }
-                }
-                
-            case let .authenticationResponse(authenticated):
-                if authenticated {
-                    return .run { send in await send(.sendTransaction) }
-                }
-                return .none
-                
             case .continueTapped:
                 state.path.append(Path.State.recipient(.init()))
                 return .none
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
-                return sdkSynchronizer.stateStream()
-                    .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                    .map(SendFlow.Action.synchronizerStateChanged)
-                    .eraseToEffect()
-                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
+                return .publisher {
+                    sdkSynchronizer.stateStream()
+                        .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                        .map(SendFlow.Action.synchronizerStateChanged)
+                }
+                .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
             case .scanCodeTapped:
                 return .none
             case .sendTransaction:
@@ -262,7 +183,7 @@ public struct SendFlow: ReducerProtocol {
                         }
                     }
                 } catch {
-                    return .task { .sendTransactionFailure }
+                    return .send(.sendTransactionFailure)
                 }
             case .sendTransactionFailure:
                 state.isSendingTransaction = false
@@ -295,6 +216,211 @@ public struct SendFlow: ReducerProtocol {
         }
         .forEach(\.path, action: /Action.path) {
             Path(networkType: networkType)
+        }
+        
+        addMemoDelegateReducer()
+        recipientDelegateReducer()
+        scanDelegateReducer()
+        reviewDelegateReducer()
+        successDelegateReducer()
+        failedDelegateReducer()
+    }
+}
+
+// MARK: Add memo delegate
+extension SendFlow {
+    func addMemoDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: id, action: .addMemo(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .nextScreen:
+                    guard case let .addMemo(addMemoState) = state.path[id: id]
+                    else { return .none }
+                    state.memo = addMemoState.memo
+                    state.path.append(
+                        Path.State.review(
+                            .init(
+                                subtotal: state.amountToSend,
+                                memo: state.memo,
+                                recipient: state.recipient
+                            )
+                        )
+                    )
+                    return .none
+                }
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
+    }
+}
+
+// MARK: Recipient delegate
+extension SendFlow {
+    func recipientDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .nextScreen:
+                    guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
+                    if derivationTool.isTransparentAddress(state.recipient.data, networkType) {
+                        state.path.append(
+                            Path.State.review(
+                                .init(
+                                    subtotal: state.amountToSend,
+                                    memo: state.memo,
+                                    recipient: state.recipient
+                                )
+                            )
+                        )
+                    } else {
+                        var addMemoState = AddMemo.State()
+                        addMemoState.memoCharLimit = state.memoCharLimit
+                        state.path.append(Path.State.addMemo(addMemoState))
+                    }
+                    return .none
+                case .scanCode:
+                    state.path.append(Path.State.scan(.init()))
+                    return .none
+                }
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
+    }
+}
+
+// MARK: Scan delegate
+extension SendFlow {
+    func scanDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .scan(.delegate(.handleCode(code))))):
+                state.recipient = code
+                state.path = StackState(
+                    state.path.map { state in
+                        if case var .recipient(recipientState) = state {
+                            recipientState.recipient = code
+                            return Path.State.recipient(recipientState)
+                        }
+                    
+                        return state
+                    }
+                )
+                let _ = state.path.popLast()
+                return .none
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
+    }
+}
+
+// MARK: Review delegate
+extension SendFlow {
+    func reviewDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case .path(.element(id: _, action: .review(.delegate(.sendZcash)))):
+                return .send(.sendTransaction)
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
+    }
+}
+
+// MARK: Success delegate
+extension SendFlow {
+    func successDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case .path(.element(id: _, action: .success(.delegate(.goHome)))):
+                // TODO: This doesn't seem to be working.
+                return .run { _ in await self.dismiss() }
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
+    }
+}
+
+// MARK: Failed delegate
+extension SendFlow {
+    func failedDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .failed(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .cancelTransaction:
+                    // TODO: this doesn't seem to be working
+                    return .run { _ in await self.dismiss() }
+                }
+            case .binding,
+                 .continueTapped,
+                 .onAppear,
+                 .path,
+                 .scanCodeTapped,
+                 .sendTransaction,
+                 .sendTransactionFailure,
+                 .sendTransactionInProgress,
+                 .sendTransactionSuccess,
+                 .synchronizerStateChanged,
+                 .topUpWalletTapped:
+                return .none
+            }
         }
     }
 }

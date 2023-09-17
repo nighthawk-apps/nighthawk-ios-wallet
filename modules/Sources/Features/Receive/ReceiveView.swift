@@ -19,7 +19,7 @@ public struct ReceiveView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.vertical, 40)
@@ -33,7 +33,7 @@ public struct ReceiveView: View {
                 Spacer()
             }
             .toast(
-                unwrapping: viewStore.binding(\.$toast),
+                unwrapping: viewStore.$toast,
                 case: /Receive.State.Toast.copiedToClipboard,
                 alert: {
                     AlertToast(

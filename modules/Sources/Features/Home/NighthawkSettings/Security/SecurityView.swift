@@ -14,14 +14,14 @@ public struct SecurityView: View {
     var store: StoreOf<Security>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.securityTitle)
                     .paragraphMedium()
                 
                 Toggle(
                     toggleTitle(with: viewStore),
-                    isOn: viewStore.binding(\.$areBiometricsEnabled)
+                    isOn: viewStore.$areBiometricsEnabled
                 )
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                 .lineSpacing(6)

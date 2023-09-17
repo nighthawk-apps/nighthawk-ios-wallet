@@ -29,9 +29,19 @@ public struct TransactionRowView: View {
                 .frame(width: 24, height: 24)
             
             VStack(alignment: .leading, spacing: 5) {
-                Text(operationTitle)
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                HStack {
+                    Text(operationTitle)
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    
+                    if transaction.textMemo != nil {
+                        Asset.Assets.Icons.Nighthawk.memo.image
+                            .resizable()
+                            .renderingMode(.template)
+                            .frame(width: 16, height: 16)
+                            .foregroundColor(.white)
+                    }
+                }
 
                 Text("\(transaction.date?.asHumanReadable() ?? "---")")
                     .caption()

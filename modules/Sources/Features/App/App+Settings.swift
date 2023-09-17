@@ -11,7 +11,7 @@ import Models
 
 extension AppReducer {
     @ReducerBuilder<State, Action>
-    func settingsReducer() -> some ReducerProtocolOf<Self> {
+    func settingsReducer() -> some ReducerOf<Self> {
         nighthawkSettingsDelegateReducer()
         advancedSettingsDelegateReducer()
     }
@@ -44,7 +44,7 @@ extension AppReducer {
         }
     }
     
-    private func goTo(screen: NighthawkSettings.State.Screen, state: inout State) -> EffectTask<Action> {
+    private func goTo(screen: NighthawkSettings.State.Screen, state: inout State) -> Effect<Action> {
         switch screen {
         case .about:
             state.path.append(.about())
@@ -76,16 +76,18 @@ extension AppReducer {
         }
     }
     
-    private func nukeWallet() -> EffectTask<Action> {
+    private func nukeWallet() -> Effect<Action> {
         guard let wipePublisher = sdkSynchronizer.wipe() else {
-            return EffectTask(value: .nukeWalletFailed)
+            return .send(.nukeWalletFailed)
         }
-        return wipePublisher
-            .replaceEmpty(with: Void())
-            .map { _ in return AppReducer.Action.nukeWalletSuccess }
-            .replaceError(with: AppReducer.Action.nukeWalletFailed)
-            .receive(on: mainQueue)
-            .eraseToEffect()
-            .cancellable(id: CancelId.timer, cancelInFlight: true)
+        
+        return .publisher {
+            wipePublisher
+                .replaceEmpty(with: Void())
+                .map { _ in return AppReducer.Action.nukeWalletSuccess }
+                .replaceError(with: AppReducer.Action.nukeWalletFailed)
+                .receive(on: mainQueue)
+        }
+        .cancellable(id: CancelId.timer, cancelInFlight: true)
     }
 }

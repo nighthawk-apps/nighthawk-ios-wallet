@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Generated
 import Home
 import ImportWallet
 import ImportWalletSuccess
@@ -92,16 +93,16 @@ public struct AppView: View {
                      action: AppReducer.Path.Action.home,
                      then: { store in
                          HomeView(store: store, tokenName: tokenName)
-                             .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+                .navigationTitle("")
+                .toolbar(.hidden, for: .navigationBar)
             case .importWallet:
                 CaseLet(
                     /AppReducer.Path.State.importWallet,
                      action: AppReducer.Path.Action.importWallet,
                      then: { store in
                          ImportWalletView(store: store)
-                             .navigationBarTitle("")
                      }
                 )
             case .importWalletSuccess:
@@ -110,9 +111,9 @@ public struct AppView: View {
                      action: AppReducer.Path.Action.importWalletSuccess,
                      then: { store in
                          ImportWalletSuccessView(store: store)
-                             .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .migrate:
                 CaseLet(
                     /AppReducer.Path.State.migrate,
@@ -135,9 +136,9 @@ public struct AppView: View {
                      action: AppReducer.Path.Action.recoveryPhraseDisplay,
                      then: { store in
                          RecoveryPhraseDisplayView(store: store)
-                             .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .security:
                 CaseLet(
                     /AppReducer.Path.State.security,
@@ -162,24 +163,33 @@ public struct AppView: View {
                          TransactionHistoryView(store: store, tokenName: tokenName)
                      }
                 )
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        VStack {
+                            Text(L10n.Nighthawk.TransactionHistory.title)
+                                .title()
+                        }
+                    }
+                }
             case .walletCreated:
                 CaseLet(
                     /AppReducer.Path.State.walletCreated,
                      action: AppReducer.Path.Action.walletCreated,
                      then: { store in
                          WalletCreatedView(store: store)
-                             .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .welcome:
                 CaseLet(
                     /AppReducer.Path.State.welcome,
                      action: AppReducer.Path.Action.welcome,
                      then: { store in
                          WelcomeView(store: store)
-                             .toolbar(.hidden, for: .navigationBar)
                      }
                 )
+                .navigationTitle("")
+                .toolbar(.hidden, for: .navigationBar)
             }
         }
         .tint(.white)

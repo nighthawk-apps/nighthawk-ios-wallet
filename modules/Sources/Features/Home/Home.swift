@@ -16,7 +16,7 @@ import UIKit
 import Utils
 import ZcashLightClientKit
 
-public struct Home: ReducerProtocol {
+public struct Home: Reducer {
     let zcashNetwork: ZcashNetwork
     
     private enum CancelId { case timer }
@@ -28,35 +28,47 @@ public struct Home: ReducerProtocol {
             case settings
         }
         
-        @BindingState public var destination = Destination.wallet
+        public enum Toast {
+            case expectingFunds
+        }
+        
         @PresentationState public var addresses: Addresses.State?
+        @BindingState public var destination = Destination.wallet
+        @BindingState public var toast: Toast?
         
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
         public var shieldedBalance: Balance = .init()
         public var transparentBalance: Balance = .init()
+        public var expectingZatoshi: Zatoshi = .zero
+        public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
 
         // Tab states
         public var walletState: Wallet.State = .init()
         public var transferState: Transfer.State = .init()
-        public var settingsState: NighthawkSettings.State = .init()
+        public var settings: NighthawkSettings.State = .init()
         
         public init() {}
     }
     
     public enum Action: BindableAction, Equatable {
-        case binding(BindingAction<State>)
         case addresses(PresentationAction<Addresses.Action>)
+        case binding(BindingAction<State>)
+        case delegate(Delegate)
         case onAppear
         case onDisappear
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
         case transfer(Transfer.Action)
-        case wallet(Wallet.Action)
         case updateWalletEvents([WalletEvent])
+        case wallet(Wallet.Action)
+        
+        public enum Delegate: Equatable {
+            case showTransactionHistory
+        }
     }
     
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
@@ -65,7 +77,7 @@ public struct Home: ReducerProtocol {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Scope(state: \.wallet, action: /Action.wallet) {
@@ -87,12 +99,12 @@ public struct Home: ReducerProtocol {
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
-                    let syncEffect = sdkSynchronizer.stateStream()
-                        .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                        .map(Home.Action.synchronizerStateChanged)
-                        .eraseToEffect()
-                        .cancellable(id: CancelId.timer, cancelInFlight: true)
-                    return syncEffect
+                    return .publisher {
+                        sdkSynchronizer.stateStream()
+                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                            .map(Home.Action.synchronizerStateChanged)
+                    }
+                    .cancellable(id: CancelId.timer, cancelInFlight: true)
                 } else {
                     // TODO: Handle not enough free disk space
                     return .none
@@ -105,14 +117,25 @@ public struct Home: ReducerProtocol {
                 guard snapshot != state.synchronizerStatusSnapshot else {
                     return .none
                 }
+                state.synchronizerState = latestState
                 state.synchronizerStatusSnapshot = snapshot
                 state.shieldedBalance = latestState.shieldedBalance.redacted
                 state.transparentBalance = latestState.transparentBalance.redacted
                 
+                // Detect if there are any expected funds
+                let totalBalance = state.shieldedBalance.data.total + state.transparentBalance.data.total
+                let availableBalance = state.shieldedBalance.data.verified + state.transparentBalance.data.verified
+                if totalBalance != availableBalance && (totalBalance - availableBalance) != state.expectingZatoshi {
+                    state.expectingZatoshi = totalBalance - availableBalance
+                    state.toast = .expectingFunds
+                }
+                
                 if latestState.syncStatus == .upToDate {
-                    state.latestMinedHeight = sdkSynchronizer.latestScannedHeight()
-                    return .task {
-                        return .updateWalletEvents(try await sdkSynchronizer.getAllTransactions())
+                    state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
+                    return .run { send in
+                        if let events = try? await sdkSynchronizer.getAllTransactions() {
+                            await send(.updateWalletEvents(events))
+                        }
                     }
                 }
                 
@@ -127,7 +150,7 @@ public struct Home: ReducerProtocol {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .addresses, .binding, .settings, .transfer, .wallet:
+            case .addresses, .binding, .delegate, .settings, .transfer, .wallet:
                 return .none
             }
         }
@@ -155,14 +178,15 @@ extension Home {
                 case .showPartners:
                     state.addresses = nil
                     state.destination = .transfer
-                    return .task {
+                    return .run { send in
                         // Slight delay to allow previous sheet to dismiss before presenting
                         try await Task.sleep(seconds: 0.005)
-                        return .transfer(.topUpWalletTapped)
+                        await send(.transfer(.topUpWalletTapped))
                     }
                 }
             case .addresses,
                  .binding,
+                 .delegate,
                  .onAppear,
                  .onDisappear,
                  .settings,
@@ -181,10 +205,12 @@ extension Home.State {
     var wallet: Wallet.State {
         get {
             var state = walletState
+            state.synchronizerState = synchronizerState
             state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
             state.shieldedBalance = shieldedBalance
             state.transparentBalance = transparentBalance
             state.latestMinedHeight = latestMinedHeight
+            state.expectingZatoshi = expectingZatoshi
             state.requiredTransactionConfirmations = requiredTransactionConfirmations
             state.walletEvents = walletEvents
             return state
@@ -192,10 +218,12 @@ extension Home.State {
         
         set {
             self.walletState = newValue
+            self.synchronizerState = newValue.synchronizerState
             self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
             self.shieldedBalance = newValue.shieldedBalance
             self.transparentBalance = newValue.transparentBalance
             self.latestMinedHeight = newValue.latestMinedHeight
+            self.expectingZatoshi = newValue.expectingZatoshi
             self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
             self.walletEvents = newValue.walletEvents
         }
@@ -211,17 +239,6 @@ extension Home.State {
         set {
             self.transferState = newValue
             self.shieldedBalance = newValue.shieldedBalance
-        }
-    }
-    
-    var settings: NighthawkSettings.State {
-        get {
-            var state = settingsState
-            return state
-        }
-        
-        set {
-            self.settingsState = newValue
         }
     }
 }

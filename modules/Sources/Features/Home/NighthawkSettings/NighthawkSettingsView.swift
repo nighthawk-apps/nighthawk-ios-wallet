@@ -20,7 +20,7 @@ struct NighthawkSettingsView: View {
     let store: StoreOf<NighthawkSettings>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView([.vertical], showsIndicators: false) {
                 NighthawkLogo(spacing: .compact)
                     .padding(.vertical, 40)
@@ -59,19 +59,21 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rowTapped(.backup)) }
                     )
                     
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.rescanTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.rescanTitle,
-                        icon: Asset.Assets.Icons.Nighthawk.rescan.image,
-                        action: { viewStore.send(.rowTapped(.rescan)) }
-                    )
+                    // TODO
+//                    settingRow(
+//                        title: L10n.Nighthawk.SettingsTab.rescanTitle,
+//                        subtitle: L10n.Nighthawk.SettingsTab.rescanTitle,
+//                        icon: Asset.Assets.Icons.Nighthawk.rescan.image,
+//                        action: { viewStore.send(.rowTapped(.rescan)) }
+//                    )
                     
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.externalServicesSubtitle,
-                        icon: Asset.Assets.Icons.Nighthawk.services.image,
-                        action: { viewStore.send(.rowTapped(.externalServices)) }
-                    )
+                    // TODO
+//                    settingRow(
+//                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
+//                        subtitle: L10n.Nighthawk.SettingsTab.externalServicesSubtitle,
+//                        icon: Asset.Assets.Icons.Nighthawk.services.image,
+//                        action: { viewStore.send(.rowTapped(.externalServices)) }
+//                    )
                     
                     settingRow(
                         title: L10n.Nighthawk.SettingsTab.advancedTitle,
@@ -80,19 +82,19 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rowTapped(.advanced)) }
                     )
                     
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.aboutTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(viewStore.appVersion),
-                        icon: Asset.Assets.Icons.Nighthawk.about.image,
-                        action: { viewStore.send(.rowTapped(.about))}
-                    )
+                    // TODO
+//                    settingRow(
+//                        title: L10n.Nighthawk.SettingsTab.aboutTitle,
+//                        subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(viewStore.appVersion),
+//                        icon: Asset.Assets.Icons.Nighthawk.about.image,
+//                        action: { viewStore.send(.rowTapped(.about))}
+//                    )
                 }
             }
             .padding(.horizontal, 25)
             .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
-        .navigationBarTitle("")
         .alert(
             store: store.scope(
                 state: \.$destination,

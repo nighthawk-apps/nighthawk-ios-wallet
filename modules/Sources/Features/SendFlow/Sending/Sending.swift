@@ -7,12 +7,12 @@
 
 import ComposableArchitecture
 
-public struct Sending: ReducerProtocol {
+public struct Sending: Reducer {
     public struct State: Equatable {
         public init() {}
     }
     public enum Action: Equatable {}
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { _, _ in .none }
     }
 }

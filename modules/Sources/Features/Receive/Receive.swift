@@ -11,7 +11,7 @@ import Pasteboard
 import SDKSynchronizer
 import ZcashLightClientKit
 
-public struct Receive: ReducerProtocol {
+public struct Receive: Reducer {
     public struct State: Equatable {
         public enum Toast {
             case copiedToClipboard
@@ -65,7 +65,7 @@ public struct Receive: ReducerProtocol {
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in

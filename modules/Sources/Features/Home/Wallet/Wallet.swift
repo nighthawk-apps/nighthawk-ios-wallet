@@ -13,14 +13,16 @@ import TransactionDetail
 import Utils
 import ZcashLightClientKit
 
-public struct Wallet: ReducerProtocol {
+public struct Wallet: Reducer {
     public struct State: Equatable {
         public var autoShieldingThreshold: Zatoshi = Zatoshi(1_000_000)
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0
+        public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
         public var shieldedBalance: Balance = .zero
         public var transparentBalance: Balance = .zero
+        public var expectingZatoshi: Zatoshi = .zero
         @BindingState public var balanceViewType: BalanceView.ViewType = .hidden
         public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
         public var isSyncingFailed: Bool {
@@ -40,16 +42,18 @@ public struct Wallet: ReducerProtocol {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
-        case viewTransactionHistoryTapped
         case viewAddressesTapped
+        case viewTransactionDetailTapped(WalletEvent)
+        case viewTransactionHistoryTapped
         
         public enum Delegate: Equatable {
-            case showTransactionHistory
             case showAddresses
+            case showTransactionHistory
+            case showTransactionDetail(WalletEvent)
         }
     }
     
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
@@ -59,9 +63,11 @@ public struct Wallet: ReducerProtocol {
             case .delegate:
                 return .none
             case .viewAddressesTapped:
-                return .run { send in await send(.delegate(.showAddresses)) }
+                return .send(.delegate(.showAddresses))
+            case let .viewTransactionDetailTapped(walletEvent):
+                return .send(.delegate(.showTransactionDetail(walletEvent)))
             case .viewTransactionHistoryTapped:
-                return .run { send in await send(.delegate(.showTransactionHistory)) }
+                return .send(.delegate(.showTransactionHistory))
             }
         }
     }

@@ -9,7 +9,7 @@ import ComposableArchitecture
 import FeedbackGenerator
 import SubsonicClient
 
-public struct ImportWalletSuccess: ReducerProtocol {
+public struct ImportWalletSuccess: Reducer {
     public struct State: Equatable {
         public init() {}
     }
@@ -29,7 +29,7 @@ public struct ImportWalletSuccess: ReducerProtocol {
     
     public init() {}
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
             case .delegate:

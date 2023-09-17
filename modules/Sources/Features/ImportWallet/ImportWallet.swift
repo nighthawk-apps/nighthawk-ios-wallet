@@ -15,7 +15,7 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct ImportWallet: ReducerProtocol {
+public struct ImportWallet: Reducer {
     let saplingActivationHeight: BlockHeight
     
     public struct State: Equatable {
@@ -68,7 +68,7 @@ public struct ImportWallet: ReducerProtocol {
         self.saplingActivationHeight = saplingActivationHeight
     }
     
-    public var body: some ReducerProtocolOf<ImportWallet> {
+    public var body: some ReducerOf<ImportWallet> {
         Reduce { state, action in
             switch action {
             case .alert(.dismiss):

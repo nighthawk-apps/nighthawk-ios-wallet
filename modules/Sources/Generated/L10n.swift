@@ -250,6 +250,10 @@ public enum L10n {
       public static let title = L10n.tr("Localizable", "nighthawk.exportSeed.title", fallback: "Export as PDF")
     }
     public enum HomeScreen {
+      /// Expecting %@ %@
+      public static func expectingFunds(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Localizable", "nighthawk.homeScreen.expectingFunds", String(describing: p1), String(describing: p2), fallback: "Expecting %@ %@")
+      }
       /// Settings
       public static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
       /// Transfer

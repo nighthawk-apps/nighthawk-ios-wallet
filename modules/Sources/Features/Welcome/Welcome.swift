@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Foundation
 import Generated
 
-public struct Welcome: ReducerProtocol {
+public struct Welcome: Reducer {
     public struct State: Equatable {
         public init() {}
     }
@@ -26,15 +26,15 @@ public struct Welcome: ReducerProtocol {
         }
     }
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
             case .createNewWalletTapped:
-                return .run { send in await send(.delegate(.createNewWallet)) }
+                return .send(.delegate(.createNewWallet))
             case .delegate:
                 return .none
             case .importExistingWalletTapped:
-                return .run { send in await send(.delegate(.importExistingWallet)) }
+                return .send(.delegate(.importExistingWallet))
             case .termsAndConditionsTapped:
                 // TODO: Open terms
                 return .none

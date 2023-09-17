@@ -9,7 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 import Utils
 
-public struct AddMemo: ReducerProtocol {
+public struct AddMemo: Reducer {
     public struct State: Equatable {
         public var memo = "".redacted
         public var memoCharLimit = 0
@@ -21,27 +21,34 @@ public struct AddMemo: ReducerProtocol {
     public enum Action: Equatable {
         case backButtonTapped
         case continueOrSkipTapped
+        case delegate(Delegate)
         case memoInputChanged(RedactableString)
+        
+        public enum Delegate: Equatable {
+            case nextScreen
+        }
     }
-    
-    public init() {}
     
     @Dependency(\.dismiss) var dismiss
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
                 return .run { _ in await self.dismiss() }
+            case .continueOrSkipTapped:
+                return .send(.delegate(.nextScreen))
+            case .delegate:
+                return .none
             case .memoInputChanged(let redactedmemo):
                 guard redactedmemo.data.count <= state.memoCharLimit else { return .none }
                 state.memo = redactedmemo
                 return .none
-            case .continueOrSkipTapped:
-                return .none
             }
         }
     }
+    
+    public init() {}
 }
 
 // MARK: - ViewStore

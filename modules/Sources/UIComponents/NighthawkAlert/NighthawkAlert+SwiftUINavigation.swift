@@ -30,7 +30,7 @@ extension View {
     self.modifier(
       NighthawkAlertModifier(
         isActive: value.isPresent(),
-        content: { Binding(unwrapping: value).map(content) }
+        content: { Binding(value).map(content) }
       )
     )
   }

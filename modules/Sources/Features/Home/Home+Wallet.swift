@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 extension Home {
     @ReducerBuilder<State, Action>
-    func walletReducer() -> some ReducerProtocolOf<Self> {
+    func walletReducer() -> some ReducerOf<Self> {
         walletDelegateReducer()
     }
     
@@ -18,14 +18,17 @@ extension Home {
             switch action {
             case let .wallet(.delegate(delegateAction)):
                 switch delegateAction {
-                case .showTransactionHistory:
-                    return .none
                 case .showAddresses:
                     state.addresses = .init()
+                    return .none
+                case .showTransactionDetail:
+                    return .none
+                case .showTransactionHistory:
                     return .none
                 }
             case .addresses,
                  .binding,
+                 .delegate,
                  .onAppear,
                  .onDisappear,
                  .settings,

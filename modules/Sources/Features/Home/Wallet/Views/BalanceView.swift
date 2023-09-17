@@ -20,11 +20,13 @@ public struct BalanceView: View {
     let balance: Zatoshi
     let type: ViewType
     let tokenName: String
+    let synchronizerState: SynchronizerState
     
-    public init(balance: Zatoshi, type: ViewType, tokenName: String) {
+    public init(balance: Zatoshi, type: ViewType, tokenName: String, synchronizerState: SynchronizerState) {
         self.balance = balance
         self.type = type
         self.tokenName = tokenName
+        self.synchronizerState = synchronizerState
     }
     
     var isBalanceHidden: Bool {
@@ -43,10 +45,14 @@ public struct BalanceView: View {
                 .padding(.bottom, 20)
             
             if !isBalanceHidden {
-                // swift-lint:disable:next-line line_length
-                Text(
-                    "\(balance.decimalString()) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
-                )
+                VStack {
+                    // swift-lint:disable:next-line line_length
+                    Text(
+                        "\(balance.decimalString()) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
+                    )
+                    
+                    expectingFundsText(for: synchronizerState, type: type)
+                }
                 .foregroundColor(.white)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
@@ -86,5 +92,47 @@ private extension BalanceView {
         
         return Text(balanceString)
             .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+    }
+    
+    func expectingFundsText(for state: SynchronizerState, type: ViewType) -> some View {
+        var expectingFundsString: String?
+        switch type {
+        case .hidden:
+            break
+        case .shielded:
+            let totalBalance = state.shieldedBalance.total
+            let availableBalance = state.shieldedBalance.verified
+            if totalBalance > availableBalance {
+                expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
+                    (totalBalance - availableBalance).decimalString(),
+                    tokenName
+                )
+            }
+        case .total:
+            let totalBalance = state.shieldedBalance.total + state.transparentBalance.total
+            let availableBalance = state.shieldedBalance.verified + state.transparentBalance.verified
+            if totalBalance > availableBalance {
+                expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
+                    (totalBalance - availableBalance).decimalString(),
+                    tokenName
+                )
+            }
+        case .transparent:
+            let totalBalance = state.transparentBalance.total
+            let availableBalance = state.transparentBalance.verified
+            if totalBalance > availableBalance {
+                expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
+                    (totalBalance - availableBalance).decimalString(),
+                    tokenName
+                )
+            }
+        }
+        
+        return Group {
+            if let expectingFundsString {
+                Text(expectingFundsString)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+        }
     }
 }

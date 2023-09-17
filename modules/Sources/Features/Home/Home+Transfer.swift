@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 extension Home {
     @ReducerBuilder<State, Action>
-    func transferReducer() -> some ReducerProtocolOf<Home> {
+    func transferReducer() -> some ReducerOf<Home> {
         receiveDelegateReducer()
     }
     
@@ -31,6 +31,7 @@ extension Home {
                 }
             case .addresses,
                  .binding,
+                 .delegate,
                  .onAppear,
                  .onDisappear,
                  .settings,

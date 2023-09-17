@@ -22,19 +22,17 @@ public struct RecoveryPhraseDisplayView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 Group {
                     let groups = viewStore.phrase.toGroups(groupSizeOverride: 3)
                     
                     instructions
                     
-                    backupSeedGrid(with: groups)
-                    
-                    walletBirthday(with: viewStore.state.birthday)
+                    SeedView(groups: groups, birthday: viewStore.birthday)
                     
                     if viewStore.flow == .onboarding {
-                        confirmPhrase(isChecked: viewStore.binding(\.$isConfirmSeedPhraseWrittenChecked))
+                        confirmPhrase(isChecked: viewStore.$isConfirmSeedPhraseWrittenChecked)
                     }
                     
                     Spacer()
@@ -86,109 +84,6 @@ private extension RecoveryPhraseDisplayView {
             .padding(.bottom, 18)
     }
     
-    func backupSeedGrid(
-        with groups: [RecoveryPhrase.Group],
-        forPdf: Bool = false
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ForEach(groups, id: \.startIndex) { group in
-                VStack {
-                    HStack(alignment: .center) {
-                        HStack {
-                            HStack(alignment: .lastTextBaseline) {
-                                Text("\(group.startIndex).")
-                                    .paragraph(
-                                        color: forPdf
-                                        ? .black
-                                        : Asset.Colors.Nighthawk.parmaviolet.color
-                                    )
-                                
-                                Text(group.words[0].data)
-                                    .paragraph(color: forPdf ? .black : .white)
-                                    .lineLimit(1)
-                            }
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                        
-                        HStack {
-                            HStack(alignment: .lastTextBaseline) {
-                                Text("\(group.startIndex + 1).")
-                                    .paragraph(
-                                        color: forPdf
-                                        ? .black
-                                        : Asset.Colors.Nighthawk.parmaviolet.color
-                                    )
-                                
-                                Text(group.words[1].data)
-                                    .paragraph(color: forPdf ? .black : .white)
-                                    .lineLimit(1)
-                            }
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                        
-                        HStack {
-                            HStack(alignment: .lastTextBaseline) {
-                                Text("\(group.startIndex + 2).")
-                                    .paragraph(
-                                        color: forPdf
-                                        ? .black
-                                        : Asset.Colors.Nighthawk.parmaviolet.color
-                                    )
-                                
-                                Text(group.words[2].data)
-                                    .paragraph(color: forPdf ? .black : .white)
-                                    .lineLimit(1)
-                            }
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                    }
-                }
-            }
-        }
-        .modify {
-            if forPdf {
-                $0
-            } else {
-                $0.background(Asset.Colors.Nighthawk.darkNavy.color)
-            }
-        }
-        .padding(.bottom, 20)
-    }
-    
-    @ViewBuilder
-    func walletBirthday(with blockHeight: BlockHeight?, forPdf: Bool = false) -> some View {
-        if let blockHeight {
-            HStack(alignment: .lastTextBaseline) {
-                Group {
-                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.birthday)
-                        .paragraph(
-                            color: forPdf
-                            ? .black
-                            : Asset.Colors.Nighthawk.parmaviolet.color
-                        )
-                    
-                    Text("\(blockHeight)")
-                        .paragraph(
-                            color: forPdf
-                            ? .black
-                            : .white
-                        )
-                }
-                .lineSpacing(6)
-                
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, 23)
-        }
-    }
-    
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {
         CheckBox(isChecked: isChecked) {
             Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
@@ -205,10 +100,6 @@ private extension RecoveryPhraseDisplayView {
                     viewStore.send(.exportAsPdfPressed, animation: .easeInOut)
                 }
                 .buttonStyle(.nighthawkPrimary(width: 218))
-                //                ShareLink(item: render(groups: groups, blockHeight: viewStore.state.birthday)) {
-                //                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf)
-                //                }
-                //                .buttonStyle(.nighthawkPrimary(width: 218))
             } else {
                 Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
                     viewStore.send(.continuePressed)
@@ -221,57 +112,3 @@ private extension RecoveryPhraseDisplayView {
     }
 }
 
-// MARK: - Export as PDF
-private extension RecoveryPhraseDisplayView {
-    @MainActor
-    func render(groups: [RecoveryPhrase.Group], blockHeight: BlockHeight?) -> URL {
-        let renderer = ImageRenderer(
-            content: VStack(alignment: .leading) {
-                Text(L10n.Nighthawk.RecoveryPhraseDisplay.pdfHeader)
-                    .paragraph(color: .black)
-                    .padding(.bottom, 23)
-                
-                backupSeedGrid(with: groups, forPdf: true)
-                    .padding(.leading, 64)
-                
-                walletBirthday(with: blockHeight, forPdf: true)
-                
-                HStack {
-                    Text(L10n.Nighthawk.RecoveryPhraseDisplay.pdfTimestamp(Date.now.asHumanReadable()))
-                        .paragraph(color: .black)
-                    
-                    Spacer()
-                }
-                
-                Spacer()
-            }
-                .frame(width: 612, height: 792)
-                .padding(64)
-        )
-        
-        let url = URL.documentsDirectory.appending(path: "encrypted_seed.pdf")
-        renderer.render { size, context in
-            var box = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-            guard let pdf = CGContext(url as CFURL, mediaBox: &box, [kCGPDFContextOwnerPassword: "password" as CFString] as CFDictionary) else {
-                return
-            }
-            
-            pdf.beginPDFPage(nil)
-            context(pdf)
-            pdf.endPDFPage()
-            pdf.closePDF()
-            
-            // Read as a PDF document and encrypt with the provided password
-            guard let pdfDocument = PDFDocument(url: url) else { return }
-            pdfDocument.write(
-                to: url,
-                withOptions: [
-                    PDFDocumentWriteOption.userPasswordOption : "password",
-                    PDFDocumentWriteOption.ownerPasswordOption : "password"
-                ]
-            )
-        }
-        
-        return url
-    }
-}

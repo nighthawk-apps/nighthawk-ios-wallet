@@ -15,7 +15,7 @@ import Utils
 import WalletStorage
 import ZcashLightClientKit
 
-public struct Splash: ReducerProtocol {
+public struct Splash: Reducer {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {
@@ -53,7 +53,7 @@ public struct Splash: ReducerProtocol {
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .alert(.dismiss):

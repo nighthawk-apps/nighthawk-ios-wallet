@@ -10,6 +10,7 @@ import Generated
 import SwiftUI
 import UIComponents
 
+@MainActor
 public struct SendFlowView: View {
     let store: StoreOf<SendFlow>
     let tokenName: String
@@ -26,7 +27,7 @@ public struct SendFlowView: View {
                 action: { .path($0) }
             )
         ) {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 VStack {
                     NighthawkHeading(title: L10n.Nighthawk.TransferTab.Send.chooseHowMuch)
                     
@@ -54,25 +55,25 @@ public struct SendFlowView: View {
             switch state {
             case .addMemo:
                 CaseLet(
-                    state: /SendFlow.Path.State.addMemo,
+                    /SendFlow.Path.State.addMemo,
                     action: SendFlow.Path.Action.addMemo,
                     then: AddMemoView.init(store:)
                 )
             case .failed:
                 CaseLet(
-                    state: /SendFlow.Path.State.failed,
+                    /SendFlow.Path.State.failed,
                     action: SendFlow.Path.Action.failed,
                     then: FailedView.init(store:)
                 )
             case .recipient:
                 CaseLet(
-                    state: /SendFlow.Path.State.recipient,
+                    /SendFlow.Path.State.recipient,
                     action: SendFlow.Path.Action.recipient,
                     then: RecipientView.init(store:)
                 )
             case .review:
                 CaseLet(
-                    state: /SendFlow.Path.State.review,
+                    /SendFlow.Path.State.review,
                     action: SendFlow.Path.Action.review,
                     then: { store in
                         ReviewView(store: store, tokenName: tokenName)
@@ -80,19 +81,19 @@ public struct SendFlowView: View {
                 )
             case .scan:
                 CaseLet(
-                    state: /SendFlow.Path.State.scan,
+                    /SendFlow.Path.State.scan,
                     action: SendFlow.Path.Action.scan,
                     then: ScanView.init(store:)
                 )
             case .sending:
                 CaseLet(
-                    state: /SendFlow.Path.State.sending,
+                    /SendFlow.Path.State.sending,
                     action: SendFlow.Path.Action.sending,
                     then: SendingView.init(store:)
                 )
             case .success:
                 CaseLet(
-                    state: /SendFlow.Path.State.success,
+                    /SendFlow.Path.State.success,
                     action: SendFlow.Path.Action.success,
                     then: SuccessView.init(store:)
                 )
@@ -107,7 +108,7 @@ private extension SendFlowView {
     func amountToSend(with viewStore: ViewStoreOf<SendFlow>) -> some View {
         VStack {
             NighthawkTransactionAmountTextField(
-                text: viewStore.binding(\.$amountToSendInput).animation(),
+                text: viewStore.$amountToSendInput.animation(),
                 tokenName: tokenName
             )
             .frame(maxWidth: .infinity)

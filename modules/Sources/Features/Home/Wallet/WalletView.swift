@@ -11,6 +11,7 @@ import Generated
 import SwiftUI
 import TransactionDetail
 
+@MainActor
 public struct WalletView: View {
     let store: StoreOf<Wallet>
     let tokenName: String
@@ -21,7 +22,7 @@ public struct WalletView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 qrCodeButton(with: viewStore)
                 
@@ -31,8 +32,8 @@ public struct WalletView: View {
                     viewStore.balanceViewType == .transparent &&
                     viewStore.synchronizerStatusSnapshot.isSynced {
                     Button(L10n.Nighthawk.WalletTab.shieldNow) {}
-                    .buttonStyle(.nighthawkPrimary())
-                    .padding(.top, 16)
+                        .buttonStyle(.nighthawkPrimary())
+                        .padding(.top, 16)
                 }
                 
                 Spacer()
@@ -80,18 +81,20 @@ private extension WalletView {
     }
     
     func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
-        TabView(selection: viewStore.binding(\.$balanceViewType)) {
+        TabView(selection: viewStore.$balanceViewType) {
             BalanceView(
                 balance: viewStore.totalBalance,
                 type: .hidden,
-                tokenName: tokenName
+                tokenName: tokenName,
+                synchronizerState: viewStore.synchronizerState
             )
             .tag(BalanceView.ViewType.hidden)
             
             BalanceView(
                 balance: viewStore.totalBalance,
                 type: .total,
-                tokenName: tokenName
+                tokenName: tokenName,
+                synchronizerState: viewStore.synchronizerState
             )
             .tag(BalanceView.ViewType.total)
             .padding(.top, 32)
@@ -99,7 +102,8 @@ private extension WalletView {
             BalanceView(
                 balance: viewStore.shieldedBalance.data.total,
                 type: .shielded,
-                tokenName: tokenName
+                tokenName: tokenName,
+                synchronizerState: viewStore.synchronizerState
             )
             .tag(BalanceView.ViewType.shielded)
             .padding(.top, 32)
@@ -107,7 +111,8 @@ private extension WalletView {
             BalanceView(
                 balance: viewStore.transparentBalance.data.total,
                 type: .transparent,
-                tokenName: tokenName
+                tokenName: tokenName,
+                synchronizerState: viewStore.synchronizerState
             )
             .tag(BalanceView.ViewType.transparent)
             .padding(.top, 32)
@@ -170,19 +175,21 @@ private extension WalletView {
                     }
                     
                     ForEach(viewStore.walletEvents.prefix(2)) { walletEvent in
-//                        NavigationLink(state: AppReducer.Path.TransactionDetails) {
+                        Button {
+                            viewStore.send(.viewTransactionDetailTapped(walletEvent))
+                        } label: {
                             walletEvent.nhRowView(
                                 showAmount: viewStore.balanceViewType != .hidden,
                                 tokenName: tokenName
                             )
-//                        }
+                        }
                         
                         Divider()
                             .frame(height: 2)
                             .overlay(Asset.Colors.Nighthawk.navy.color)
                     }
                     
-//                    Button(action: { viewStore.send(.viewTransactionHistory) }) {
+                    Button(action: { viewStore.send(.viewTransactionHistoryTapped) }) {
                         HStack(alignment: .center) {
                             Text(L10n.Nighthawk.WalletTab.viewTransactionHistory)
                                 .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -197,7 +204,7 @@ private extension WalletView {
                                 .foregroundColor(.white)
                         }
                         .padding(.vertical)
-//                    }
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 25)

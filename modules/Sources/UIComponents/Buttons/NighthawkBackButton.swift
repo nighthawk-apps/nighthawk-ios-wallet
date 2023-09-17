@@ -22,6 +22,6 @@ extension View {
                 }
                 .padding([.top, .leading], 25)
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
     }
 }

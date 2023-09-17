@@ -12,7 +12,7 @@ public struct ExternalServicesView: View {
     let store: StoreOf<ExternalServices>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             Text("External services view")
         }
         .applyNighthawkBackground()

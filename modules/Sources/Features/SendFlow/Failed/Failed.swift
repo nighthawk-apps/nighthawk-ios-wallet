@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-public struct Failed: ReducerProtocol {
+public struct Failed: Reducer {
     public struct State: Equatable {
         public init() {}
     }
@@ -27,7 +27,7 @@ public struct Failed: ReducerProtocol {
     
     @Dependency(\.dismiss) var dismiss
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
             case .backButtonTapped, .tryAgainTapped:

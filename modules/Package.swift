@@ -37,7 +37,6 @@ let package = Package(
         .library(name: "Pasteboard", targets: ["Pasteboard"]),
         .library(name: "Receive", targets: ["Receive"]),
         .library(name: "RecoveryPhraseDisplay", targets: ["RecoveryPhraseDisplay"]),
-        .library(name: "Root", targets: ["Root"]),
         .library(name: "SDKSynchronizer", targets: ["SDKSynchronizer"]),
         .library(name: "SecItem", targets: ["SecItem"]),
         .library(name: "SubsonicClient", targets: ["SubsonicClient"]),
@@ -56,16 +55,14 @@ let package = Package(
         .library(name: "ZcashSDKEnvironment", targets: ["ZcashSDKEnvironment"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.54.1"),
-        .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.14.1"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", revision: "dc08513009a3f72dfeea4cc44b45201cdbd16514"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0-rc"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
         .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
-        .package(url: "https://github.com/pointfreeco/swiftui-navigation", from: "0.7.1"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9")
     ],
     targets: [
@@ -170,8 +167,13 @@ let package = Package(
         .target(
             name: "ExportSeed",
             dependencies: [
+                "MnemonicClient",
+                "Models",
                 "UIComponents",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+                "WalletStorage",
+                "ZcashSDKEnvironment",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/ExportSeed"
         ),
@@ -349,29 +351,6 @@ let package = Package(
             path: "Sources/Features/RecoveryPhraseDisplay"
         ),
         .target(
-            name: "Root",
-            dependencies: [
-                "DatabaseFiles",
-                "Deeplink",
-                "DerivationTool",
-                "Generated",
-                "Home",
-                "Migrate",
-                "MnemonicClient",
-                "Models",
-                "RecoveryPhraseDisplay",
-                "SDKSynchronizer",
-                "UIComponents",
-                "Utils",
-                "WalletStorage",
-                "Welcome",
-                "ZcashSDKEnvironment",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
-            ],
-            path: "Sources/Features/Root"
-        ),
-        .target(
             name: "SDKSynchronizer",
             dependencies: [
                 "DatabaseFiles",
@@ -474,8 +453,7 @@ let package = Package(
                 "NumberFormatter",
                 "Utils",
                 "ZcashSDKEnvironment",
-                .product(name: "AlertToast", package: "AlertToast"),
-                .product(name: "SwiftUINavigation", package: "swiftui-navigation")
+                .product(name: "AlertToast", package: "AlertToast")
             ],
             path: "Sources/UIComponents"
         ),
@@ -506,7 +484,6 @@ let package = Package(
             name: "Utils",
             dependencies: [
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit"),
-                .product(name: "CasePaths", package: "swift-case-paths"),
                 .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "Sources/Utils"

@@ -21,7 +21,7 @@ public struct ImportWalletView: View {
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 24) {
                 VStack(spacing: 24) {
                     NighthawkLogo(spacing: .compact)

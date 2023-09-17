@@ -10,7 +10,7 @@ import Models
 
 extension AppReducer {
     @ReducerBuilder<State, Action>
-    func onboardingReducer() -> some ReducerProtocolOf<Self> {
+    func onboardingReducer() -> some ReducerOf<Self> {
         welcomeDelegateReducer()
         importWalletDelegateReducer()
         importWalletSuccessDelegateReducer()
@@ -70,7 +70,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .importWalletSuccess(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .initializeSDKAndLaunchWallet:
-                    return initializeSDK()
+                    return initializeSDK(.restoreWallet)
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
                 return .none
@@ -84,7 +84,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .migrate(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .initializeSDKAndLaunchWallet:
-                    return initializeSDK()
+                    return initializeSDK(.existingWallet)
                 case .importManually:
                     state.path = StackState([.welcome()])
                     return .none
@@ -104,7 +104,7 @@ extension AppReducer {
                     state.path.append(.recoveryPhraseDisplay(.init(flow: .onboarding)))
                     return .none
                 case .initializeSDKAndLaunchWallet:
-                    return initializeSDK()
+                    return initializeSDK(.newWallet)
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
                 return .none
@@ -118,7 +118,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .recoveryPhraseDisplay(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .initializeSDKAndLaunchWallet:
-                    return initializeSDK()
+                    return initializeSDK(.newWallet)
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
                 return .none

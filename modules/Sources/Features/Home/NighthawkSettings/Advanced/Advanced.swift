@@ -11,7 +11,7 @@ import Models
 import UserPreferencesStorage
 import UIKit
 
-public struct Advanced: ReducerProtocol {
+public struct Advanced: Reducer {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         
@@ -38,7 +38,7 @@ public struct Advanced: ReducerProtocol {
     
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in

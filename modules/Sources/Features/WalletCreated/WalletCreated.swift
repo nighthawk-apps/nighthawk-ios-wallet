@@ -9,7 +9,7 @@ import ComposableArchitecture
 import FeedbackGenerator
 import SubsonicClient
 
-public struct WalletCreated: ReducerProtocol {
+public struct WalletCreated: Reducer {
     public struct State: Equatable {
         public init() {}
     }
@@ -29,7 +29,7 @@ public struct WalletCreated: ReducerProtocol {
     @Dependency(\.feedbackGenerator) var feedbackGenerator
     @Dependency(\.subsonic) var subsonic
         
-    public var body: some ReducerProtocolOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
             case .backup:
