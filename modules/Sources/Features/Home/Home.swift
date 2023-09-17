@@ -181,7 +181,7 @@ extension Home {
                     state.destination = .transfer
                     return .run { send in
                         // Slight delay to allow previous sheet to dismiss before presenting
-                        try await Task.sleep(seconds: 0.005)
+                        try await clock.sleep(for: .seconds(0.005))
                         await send(.transfer(.topUpWalletTapped))
                     }
                 }

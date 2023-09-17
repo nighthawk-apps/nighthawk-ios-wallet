@@ -48,6 +48,7 @@ public struct Splash: Reducer {
         }
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -108,7 +109,7 @@ public struct Splash: Reducer {
             case .onAppear:
                 return .run { send in
                     /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                    try await Task.sleep(seconds: 0.5)
+                    try await clock.sleep(for: .seconds(0.5))
                     await send(.checkWalletInitialization)
                 }
             }
