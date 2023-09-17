@@ -71,6 +71,7 @@ public struct Home: Reducer {
         }
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences

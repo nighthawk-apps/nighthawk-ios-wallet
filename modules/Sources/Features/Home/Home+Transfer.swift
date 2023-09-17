@@ -20,7 +20,7 @@ extension Home {
                 state.transfer.destination = nil
                 return .run { send in
                     // Slight delay to allow previous sheet to dismiss before presenting
-                    try await Task.sleep(seconds: 0.005)
+                    try await clock.sleep(for: .seconds(0.005))
                     
                     switch delegateAction {
                     case .showAddresses:
