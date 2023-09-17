@@ -1,6 +1,6 @@
 //
 //  ExportSeedView.swift
-//  
+//
 //
 //  Created by Matthew Wat on 9/10/23.
 //
@@ -15,7 +15,7 @@ import ZcashLightClientKit
 
 public struct ExportSeedView: View {
     let store: StoreOf<ExportSeed>
-        
+    
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 16) {
@@ -88,8 +88,8 @@ private extension ExportSeedView {
                 
                 Spacer()
             }
-                .frame(width: 612, height: 792)
-                .padding(64)
+            .frame(width: 612, height: 792)
+            .padding(64)
         )
         
         let url = URL.documentsDirectory.appending(path: "encrypted_seed.pdf")
