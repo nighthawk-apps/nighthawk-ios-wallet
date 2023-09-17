@@ -41,7 +41,7 @@ public struct Migrate: Reducer {
             case .alert(.dismiss):
                 return .none
             case .alert(.presented(.continue)):
-                return .run { send in await send(.delegate(.importManually)) }
+                return .send(.delegate(.importManually))
             case .continueTapped:
                 state.isLoading = true
                 do {
@@ -57,7 +57,7 @@ public struct Migrate: Reducer {
                     // be used anymore.
                     walletStorage.nukeLegacyWallet()
                     
-                    return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+                    return .send(.delegate(.initializeSDKAndLaunchWallet))
                 } catch {
                     state.alert = AlertState.migrationFailed()
                 }

@@ -33,7 +33,7 @@ public struct WalletCreated: Reducer {
         Reduce { _, action in
             switch action {
             case .backup:
-                return .run { send in await send(.delegate(.backupSeedPhrase)) }
+                return .send(.delegate(.backupSeedPhrase))
             case .delegate:
                 return .none
             case .onAppear:
@@ -41,7 +41,7 @@ public struct WalletCreated: Reducer {
                 subsonic.play("sound_receive_small.mp3")
                 return .none
             case .skip:
-                return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+                return .send(.delegate(.initializeSDKAndLaunchWallet))
             }
         }
     }

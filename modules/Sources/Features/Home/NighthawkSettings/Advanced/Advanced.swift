@@ -46,7 +46,7 @@ public struct Advanced: Reducer {
             case .alert(.dismiss):
                 return .none
             case .alert(.presented(.nukeWalletConfirmed)):
-                return .run { send in await send(.delegate(.nukeWallet)) }
+                return .send(.delegate(.nukeWallet))
             case .delegate:
                 return .none
             case .nukeWalletTapped:

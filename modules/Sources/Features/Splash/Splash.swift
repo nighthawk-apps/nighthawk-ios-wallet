@@ -90,18 +90,18 @@ public struct Splash: Reducer {
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
                 case .needsMigration:
-                    return .run { send in await send(.delegate(.handleMigration)) }
+                    return .send(.delegate(.handleMigration))
                 case .keysMissing:
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
                 case .initialized, .filesMissing:
                     if userStoredPreferences.areBiometricsEnabled() {
-                        return .run { send in await send(.authenticate) }
+                        return .send(.authenticate)
                     } else {
-                        return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+                        return .send(.delegate(.initializeSDKAndLaunchWallet))
                     }
                 case .uninitialized:
-                    return .run { send in await send(.delegate(.handleNewUser)) }
+                    return .send(.delegate(.handleNewUser))
                 }
             case .delegate:
                 return .none

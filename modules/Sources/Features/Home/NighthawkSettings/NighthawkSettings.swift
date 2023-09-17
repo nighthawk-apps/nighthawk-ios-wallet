@@ -87,7 +87,7 @@ public struct NighthawkSettings: Reducer {
             case .destination(.dismiss):
                 return .none
             case .destination(.presented(.alert(.viewSeed))):
-                return .run { send in await send(.delegate(.goTo(.backup))) }
+                return .send(.delegate(.goTo(.backup)))
             case .onAppear:
                 state.appVersion = appVersion.appVersion()
                 let context = localAuthenticationContext()
@@ -100,7 +100,7 @@ public struct NighthawkSettings: Reducer {
                 state.destination = .alert(AlertState.confirmViewSeedWords())
                 return .none
             case let .rowTapped(screen):
-                return .run { send in await send(.delegate(.goTo(screen)))}
+                return .send(.delegate(.goTo(screen)))
             }
         }
         .ifLet(\.$destination, action: /Action.destination) {

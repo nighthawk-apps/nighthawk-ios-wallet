@@ -39,7 +39,7 @@ public struct ImportWalletSuccess: Reducer {
                 subsonic.play("sound_receive_small.mp3")
                 return .none
             case .viewWalletTapped:
-                return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+                return .send(.delegate(.initializeSDKAndLaunchWallet))
             }
         }
     }

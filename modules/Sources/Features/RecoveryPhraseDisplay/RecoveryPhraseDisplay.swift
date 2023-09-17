@@ -83,7 +83,7 @@ public struct RecoveryPhraseDisplay: Reducer {
             case .binding:
                 return .none
             case .continuePressed:
-                return .run { send in await send(.delegate(.initializeSDKAndLaunchWallet)) }
+                return .send(.delegate(.initializeSDKAndLaunchWallet))
             case .delegate:
                 return .none
             case .destination(.dismiss):

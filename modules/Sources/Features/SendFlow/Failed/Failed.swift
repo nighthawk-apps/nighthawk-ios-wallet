@@ -33,7 +33,7 @@ public struct Failed: Reducer {
             case .backButtonTapped, .tryAgainTapped:
                 return .run { _ in await self.dismiss() }
             case .cancelTapped:
-                return .run { send in await send(.delegate(.cancelTransaction)) }
+                return .send(.delegate(.cancelTransaction))
             case .delegate:
                 return .none
             }

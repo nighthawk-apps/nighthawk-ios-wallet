@@ -103,7 +103,7 @@ public struct Addresses: Reducer {
                 }
                 
             case .topUpWalletTapped:
-                return .run { send in await send(.delegate(.showPartners)) }
+                return .send(.delegate(.showPartners))
 
             case .uAddressChanged(let uAddress):
                 state.uAddress = uAddress

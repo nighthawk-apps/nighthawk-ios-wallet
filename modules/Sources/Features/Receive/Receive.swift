@@ -88,9 +88,9 @@ public struct Receive: Reducer {
                     await send(.uAddressChanged(ua))
                 }
             case .showQrCodeTapped:
-                return .run { send in await send(.delegate(.showAddresses)) }
+                return .send(.delegate(.showAddresses))
             case .topUpWalletTapped:
-                return .run { send in await send(.delegate(.showPartners)) }
+                return .send(.delegate(.showPartners))
             case .uAddressChanged(let uAddress):
                 state.uAddress = uAddress
                 return .none

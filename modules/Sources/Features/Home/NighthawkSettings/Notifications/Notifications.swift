@@ -128,7 +128,7 @@ public struct Notifications: Reducer {
         let trigger: UNCalendarNotificationTrigger
         if frequency == .weekly {
             guard let nextWeek = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: today) else {
-                return .run { send in await send(.scheduleNotificationFailed) }
+                return .send(.scheduleNotificationFailed)
             }
             
             trigger = UNCalendarNotificationTrigger(
@@ -137,7 +137,7 @@ public struct Notifications: Reducer {
             )
         } else {
             guard let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: today) else {
-                return .run { send in await send(.scheduleNotificationFailed) }
+                return .send(.scheduleNotificationFailed)
             }
             
             trigger = UNCalendarNotificationTrigger(

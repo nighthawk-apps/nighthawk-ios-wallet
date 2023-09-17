@@ -95,7 +95,7 @@ public struct ImportWallet: Reducer {
                     
                     try walletStorage.importWallet(state.importedSeedPhrase.data, birthday.data, .english)
                     
-                    return .run { send in await send(.delegate(.showImportSuccess)) }
+                    return .send(.delegate(.showImportSuccess))
                 } catch {
                     state.alert = AlertState.importWalletFailed(error.toZcashError())
                     return .none
