@@ -12,19 +12,20 @@ import SwiftUI
 import UIComponents
 import Utils
 
+@MainActor
 public struct AddressesView: View {
     private struct Contants {
         static let qrSize: CGFloat = 180
     }
     
-    let store: AddressesStore
+    let store: StoreOf<Addresses>
     
-    public init(store: AddressesStore) {
+    public init(store: StoreOf<Addresses>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.top, 44)
@@ -38,8 +39,8 @@ public struct AddressesView: View {
                 viewStore.send(.onAppear)
             }
             .toast(
-                unwrapping: viewStore.binding(\.$toast),
-                case: /AddressesReducer.State.Toast.copiedToClipboard,
+                unwrapping: viewStore.$toast,
+                case: /Addresses.State.Toast.copiedToClipboard,
                 alert: {
                     AlertToast(
                         type: .regular,
@@ -53,16 +54,16 @@ public struct AddressesView: View {
 }
 
 // MARK: - NHPage
-extension AddressesReducer.State.Destination: NHPage {}
+extension Addresses.State.Destination: NHPage {}
 
 // MARK: - Subviews
 private extension AddressesView {
-    func actionsCarousel(with viewStore: AddressesViewStore) -> some View {
+    func actionsCarousel(with viewStore: ViewStoreOf<Addresses>) -> some View {
         GeometryReader { geometry in
             VStack {
                 tabs(with: viewStore, geometry: geometry)
                 
-                NHPageIndicator(selection: viewStore.binding(\.$destination))
+                NHPageIndicator(selection: viewStore.$destination)
             }
             .padding(.top, 16)
             .padding(.bottom, 64)
@@ -70,11 +71,11 @@ private extension AddressesView {
         }
     }
     
-    func tabs(with viewStore: AddressesViewStore, geometry: GeometryProxy) -> some View {
-        TabView(selection: viewStore.binding(\.$destination)) {
+    func tabs(with viewStore: ViewStoreOf<Addresses>, geometry: GeometryProxy) -> some View {
+        TabView(selection: viewStore.$destination) {
             topUpView(seeMoreAction: { viewStore.send(.topUpWalletTapped) })
             .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(AddressesReducer.State.Destination.topUp)
+            .tag(Addresses.State.Destination.topUp)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
@@ -83,7 +84,7 @@ private extension AddressesView {
                 copyAction: { viewStore.send(.copyTapped(.unified)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(AddressesReducer.State.Destination.unified)
+            .tag(Addresses.State.Destination.unified)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
@@ -92,7 +93,7 @@ private extension AddressesView {
                 copyAction: { viewStore.send(.copyTapped(.sapling)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(AddressesReducer.State.Destination.sapling)
+            .tag(Addresses.State.Destination.sapling)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
@@ -101,7 +102,7 @@ private extension AddressesView {
                 copyAction: { viewStore.send(.copyTapped(.transparent)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(AddressesReducer.State.Destination.transparent)
+            .tag(Addresses.State.Destination.transparent)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }

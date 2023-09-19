@@ -39,6 +39,9 @@ extension DatabaseFilesClient: DependencyKey {
             },
             areDbFilesPresentFor: { network in
                 databaseFiles.areDbFilesPresent(for: network)
+            },
+            nukeDbFilesFor: { network in
+                try databaseFiles.nukeDbFiles(for: network)
             }
         )
     }

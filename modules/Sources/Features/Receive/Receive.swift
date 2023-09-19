@@ -1,0 +1,102 @@
+//
+//  Receive.swift
+//  
+//
+//  Created by Matthew Watt on 7/15/23.
+//
+
+import ComposableArchitecture
+import Generated
+import Pasteboard
+import SDKSynchronizer
+import ZcashLightClientKit
+
+public struct Receive: Reducer {
+    public struct State: Equatable {
+        public enum Toast {
+            case copiedToClipboard
+        }
+        
+        @BindingState public var toast: Toast?
+        
+        public var unifiedAddress: String {
+            uAddress?.stringEncoded ?? L10n.AddressDetails.Error.cantExtractUnifiedAddress
+        }
+        
+        public var transparentAddress: String {
+            do {
+                let address = try uAddress?.transparentReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractTransparentAddress
+                return address
+            } catch {
+                return L10n.AddressDetails.Error.cantExtractTransparentAddress
+            }
+        }
+
+        public var saplingAddress: String {
+            do {
+                let address = try uAddress?.saplingReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractSaplingAddress
+                return address
+            } catch {
+                return L10n.AddressDetails.Error.cantExtractSaplingAddress
+            }
+        }
+        
+        var uAddress: UnifiedAddress?
+        
+        public init() {}
+    }
+    
+    public enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+        case copyTransparentAddressTapped
+        case copyUnifiedAddressTapped
+        case delegate(Delegate)
+        case onAppear
+        case showQrCodeTapped
+        case topUpWalletTapped
+        case uAddressChanged(UnifiedAddress?)
+        
+        public enum Delegate: Equatable {
+            case showAddresses
+            case showPartners
+        }
+    }
+    
+    @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    
+    public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+            case .delegate:
+                return .none
+            case .copyTransparentAddressTapped:
+                pasteboard.setString(state.transparentAddress.redacted)
+                state.toast = .copiedToClipboard
+                return .none
+            case .copyUnifiedAddressTapped:
+                pasteboard.setString(state.unifiedAddress.redacted)
+                state.toast = .copiedToClipboard
+                return .none
+            case .onAppear:
+                return .run { send in
+                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                    await send(.uAddressChanged(ua))
+                }
+            case .showQrCodeTapped:
+                return .send(.delegate(.showAddresses))
+            case .topUpWalletTapped:
+                return .send(.delegate(.showPartners))
+            case .uAddressChanged(let uAddress):
+                state.uAddress = uAddress
+                return .none
+            }
+        }
+    }
+    
+    public init () {}
+}

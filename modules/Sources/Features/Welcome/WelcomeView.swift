@@ -2,74 +2,89 @@
 //  WelcomeView.swift
 //  secant-testnet
 //
-//  Created by Francisco Gindre on 1/6/22.
+//  Created by Matthew Watt on 9/11/23.
 //
 
-import SwiftUI
 import ComposableArchitecture
 import Generated
+import SwiftUI
 import UIComponents
 
 public struct WelcomeView: View {
-    var store: WelcomeStore
+    let store: StoreOf<Welcome>
     
-    public init(store: WelcomeStore) {
+    public init(store: StoreOf<Welcome>) {
         self.store = store
     }
-
+    
     public var body: some View {
-        VStack(alignment: .center, spacing: 80) {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                Image(Asset.Assets.welcomeScreenLogo.name)
-                    .resizable()
-                    .frame(width: 210, height: 210)
-                    .padding(.bottom, 14)
-                
-                Text(L10n.WelcomeScreen.title)
-                    .font(.system(size: 23))
+                NighthawkLogo()
+                    .padding(.top, 44)
+                Spacer()
+                mainContent()
+                Spacer()
+                terms {
+                    viewStore.send(.termsAndConditionsTapped)
+                }
+                Spacer()
+                actions {
+                    viewStore.send(
+                        .createNewWalletTapped,
+                        animation: .easeInOut(duration: 0.8)
+                    )
+                } onRestore: {
+                    viewStore.send(
+                        .importExistingWalletTapped,
+                        animation: .easeInOut(duration: 0.8)
+                    )
+                }
             }
-        }
-        .frame(alignment: .center)
-        .applyScreenBackground()
-        .animation(.easeInOut, value: 3)
-    }
-}
-
-// MARK: - Previews
-
-struct WelcomeView_Previews: PreviewProvider {
-    static let squarePreviewSize: CGFloat = 360
-
-    static var previews: some View {
-        ZcashBadge()
-            .applyScreenBackground()
-            .previewLayout(
-                .fixed(
-                    width: squarePreviewSize,
-                    height: squarePreviewSize
-                )
-            )
-            .preferredColorScheme(.light)
-
-        ZStack {
-            ZcashBadge()
-        }
-        .padding()
-        .applyScreenBackground()
-        .previewLayout(
-            .fixed(
-                width: squarePreviewSize,
-                height: squarePreviewSize
-            )
-        )
-        .preferredColorScheme(.light)
-
-        Group {
-            WelcomeView(store: .demo)
-                .preferredColorScheme(.light)
-
-            WelcomeView(store: .demo)
-                .previewDevice("iPhone SE (2nd generation)")
+            .applyNighthawkBackground()
         }
     }
 }
+
+// MARK: - Subviews
+private extension WelcomeView {
+    @ViewBuilder func mainContent() -> some View {
+        Text(L10n.Nighthawk.Welcome.subtitle)
+            .subtitle()
+            .padding(.bottom, 15)
+        
+        Text(L10n.Nighthawk.Welcome.body)
+            .paragraph()
+            .lineSpacing(10)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 58)
+    }
+    
+    func terms(
+        onTermsLinkTapped: @escaping () -> Void
+    ) -> some View {
+        VStack {
+            Text(L10n.Nighthawk.Welcome.terms1)
+                .caption()
+                .padding(.bottom, 4)
+            
+            Button(L10n.Nighthawk.Welcome.terms2, action: onTermsLinkTapped)
+                .buttonStyle(.nighthawkLink())
+        }
+    }
+    
+    func actions(
+        onCreate: @escaping () -> Void,
+        onRestore: @escaping () -> Void
+    ) -> some View {
+        VStack(spacing: 16) {
+            Button(L10n.Nighthawk.Welcome.create, action: onCreate)
+            .buttonStyle(.nighthawkPrimary())
+            
+            Button(L10n.Nighthawk.Welcome.restore, action: onRestore)
+            .buttonStyle(.nighthawkSecondary())
+        }
+        .padding(.bottom, 64)
+    }
+}
+

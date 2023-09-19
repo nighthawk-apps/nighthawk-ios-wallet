@@ -12,14 +12,14 @@ import UIComponents
 import Utils
 
 public struct ImportWalletSuccessView: View {
-    let store: Store<ImportWalletSuccessReducer.State, ImportWalletSuccessReducer.Action>
+    let store: StoreOf<ImportWalletSuccess>
     
-    public init(store: Store<ImportWalletSuccessReducer.State, ImportWalletSuccessReducer.Action>) {
+    public init(store: StoreOf<ImportWalletSuccess>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 GeometryReader { geometry in
                     VStack(spacing: geometry.size.height * 0.2) {
@@ -39,7 +39,7 @@ public struct ImportWalletSuccessView: View {
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 24))
                             
                             Button(L10n.Nighthawk.ImportWalletSuccess.viewWallet) {
-                                viewStore.send(.viewWallet)
+                                viewStore.send(.viewWalletTapped)
                             }
                             .buttonStyle(.nighthawkPrimary())
                         }
@@ -48,7 +48,6 @@ public struct ImportWalletSuccessView: View {
                 }
             }
             .applyNighthawkBackground()
-            .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.generateSuccessFeedback)
             }

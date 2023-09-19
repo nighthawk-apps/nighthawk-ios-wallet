@@ -5,10 +5,11 @@
 //  Created by Lukáš Korba on 15.11.2022.
 //
 
+import ComposableArchitecture
 import Foundation
 import MnemonicSwift
+import SecItem
 import ZcashLightClientKit
-import ComposableArchitecture
 
 extension WalletStorageClient: DependencyKey {
     public static let liveValue = WalletStorageClient.live()

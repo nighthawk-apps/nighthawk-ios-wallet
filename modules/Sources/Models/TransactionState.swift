@@ -17,20 +17,20 @@ public struct TransactionState: Equatable, Identifiable {
         case sending
         case receiving
     }
-
+    
     public var errorMessage: String?
     public var expiryHeight: BlockHeight?
     public var memos: [Memo]?
     public var minedHeight: BlockHeight?
     public var shielded = true
     public var zAddress: String?
-
+    
     public var fee: Zatoshi
     public var id: String
     public var status: Status
     public var timestamp: TimeInterval?
     public var zecAmount: Zatoshi
-
+    
     public var address: String {
         zAddress ?? ""
     }
@@ -45,23 +45,44 @@ public struct TransactionState: Equatable, Identifiable {
             return ""
         }
     }
-
+    
     public var date: Date? {
         guard let timestamp else { return nil }
         
         return Date(timeIntervalSince1970: timestamp)
     }
-
+    
+    public var isSending: Bool {
+        switch status {
+        case .paid, .sending:
+            return true
+        default:
+            return false
+        }
+    }
+    
     public var totalAmount: Zatoshi {
         Zatoshi(zecAmount.amount + fee.amount)
     }
-
+    
     public var viewOnlineURL: URL? {
         URL(string: "https://zcashblockexplorer.com/transactions/\(id)")
     }
     
     public var viewRecipientOnlineURL: URL? {
         URL(string: "https://zcashblockexplorer.com/address/\(address)")
+    }
+    
+    public var textMemo: Memo? {
+        guard let memos else { return nil }
+        
+        for memo in memos {
+            if case .text = memo {
+                return memo
+            }
+        }
+        
+        return nil
     }
     
     public init(
@@ -108,7 +129,7 @@ extension TransactionState {
         timestamp = transaction.blockTime
         zecAmount = transaction.isSentTransaction ? Zatoshi(-transaction.value.amount) : transaction.value
         self.memos = memos
-
+        
         let isSent = transaction.isSentTransaction
         let isPending = transaction.isPending(currentHeight: latestBlockHeight ?? 0)
         switch (isSent, isPending) {

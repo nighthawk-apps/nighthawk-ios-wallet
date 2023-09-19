@@ -28,7 +28,7 @@ public struct NighthawkLogo: View {
                 .frame(width: 35, height: 35)
                 .padding(.bottom, spacing.rawValue)
             
-            Text(L10n.Nighthawk.WelcomeScreen.title)
+            Text(L10n.Nighthawk.Splash.title)
                 .title()
         }
     }

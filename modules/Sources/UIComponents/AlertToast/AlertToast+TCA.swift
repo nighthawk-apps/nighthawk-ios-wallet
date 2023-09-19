@@ -6,8 +6,8 @@
 //
 
 import AlertToast
+import ComposableArchitecture
 import SwiftUI
-import SwiftUINavigation
 
 extension View {
     public func toast<Value>(

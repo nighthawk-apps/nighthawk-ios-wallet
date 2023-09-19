@@ -226,7 +226,7 @@ public struct WalletStorage {
         let query = restoreQuery(forAccount: account, andKey: forKey)
 
         var result: AnyObject?
-        let status = secItem.copyMatching(query as CFDictionary, &result)
+        let _ = secItem.copyMatching(query as CFDictionary, &result)
         
         return result as? Data
     }

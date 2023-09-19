@@ -11,10 +11,10 @@ import SwiftUI
 import UIComponents
 
 public struct MigrateView: View {
-    let store: MigrateStore
+    let store: StoreOf<Migrate>
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.top, 44)
@@ -54,9 +54,15 @@ public struct MigrateView: View {
             }
         }
         .applyNighthawkBackground()
+        .alert(
+            store: store.scope(
+                state: \.$alert,
+                action: { .alert($0) }
+            )
+        )
     }
     
-    public init(store: MigrateStore) {
+    public init(store: StoreOf<Migrate>) {
         self.store = store
     }
 }

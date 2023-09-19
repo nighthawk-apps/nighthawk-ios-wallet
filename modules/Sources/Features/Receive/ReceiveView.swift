@@ -12,14 +12,14 @@ import SwiftUI
 import UIComponents
 
 public struct ReceiveView: View {
-    let store: ReceiveStore
+    let store: StoreOf<Receive>
     
-    public init(store: ReceiveStore) {
+    public init(store: StoreOf<Receive>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 NighthawkLogo(spacing: .compact)
                     .padding(.vertical, 40)
@@ -33,8 +33,8 @@ public struct ReceiveView: View {
                 Spacer()
             }
             .toast(
-                unwrapping: viewStore.binding(\.$toast),
-                case: /ReceiveReducer.State.Toast.copiedToClipboard,
+                unwrapping: viewStore.$toast,
+                case: /Receive.State.Toast.copiedToClipboard,
                 alert: {
                     AlertToast(
                         type: .regular,
@@ -52,7 +52,7 @@ public struct ReceiveView: View {
 
 // MARK: - Subviews
 private extension ReceiveView {
-    func secureOptionsList(with viewStore: ReceiveViewStore) -> some View {
+    func secureOptionsList(with viewStore: ViewStoreOf<Receive>) -> some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneySecurely)
@@ -87,7 +87,7 @@ private extension ReceiveView {
         .padding(.horizontal, 25)
     }
     
-    func publicOptionsList(with viewStore: ReceiveViewStore) -> some View {
+    func publicOptionsList(with viewStore: ViewStoreOf<Receive>) -> some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneyPublicly)

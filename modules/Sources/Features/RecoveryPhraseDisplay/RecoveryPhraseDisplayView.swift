@@ -1,109 +1,114 @@
 //
-//  RecoveryPhraseDisplayView.swift
-//  secant-testnet
+//  NHRecoveryPhraseDisplayView.swift
+//  secant
 //
-//  Created by Francisco Gindre on 10/26/21.
+//  Created by Matthew Watt on 3/24/23.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import ExportSeed
 import Generated
+import Models
+import PDFKit
+import SwiftUI
 import UIComponents
+import ZcashLightClientKit
 
 public struct RecoveryPhraseDisplayView: View {
-    let store: RecoveryPhraseDisplayStore
+    let store: StoreOf<RecoveryPhraseDisplay>
     
-    public init(store: RecoveryPhraseDisplayStore) {
+    public init(store: StoreOf<RecoveryPhraseDisplay>) {
         self.store = store
     }
-
+    
     public var body: some View {
-        WithViewStore(self.store) { viewStore in
-            VStack(alignment: .center, spacing: 0) {
-                if let groups = viewStore.phrase?.toGroups(groupSizeOverride: 2) {
-                    VStack(spacing: 20) {
-                        Text(L10n.RecoveryPhraseDisplay.title)
-                            .font(.system(size: 20))
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                        
-                        VStack(alignment: .center, spacing: 4) {
-                            Text(L10n.RecoveryPhraseDisplay.description)
-                                .font(.system(size: 16))
-                                .padding(.horizontal, 20)
-                        }
-                    }
-                    .padding(.top, 0)
-                    .padding(.bottom, 20)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack {
+                Group {
+                    let groups = viewStore.phrase.toGroups(groupSizeOverride: 3)
                     
-                    Spacer()
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(groups, id: \.startIndex) { group in
-                            VStack {
-                                HStack(alignment: .center) {
-                                    HStack {
-                                        Spacer()
-                                        Text("\(group.startIndex). \(group.words[0].data)")
-                                        Spacer()
-                                    }
-                                    .padding(.leading, 20)
-                                    HStack {
-                                        Spacer()
-                                        Text("\(group.startIndex + 1). \(group.words[1].data)")
-                                        Spacer()
-                                    }
-                                    .padding(.trailing, 20)
-                                }
-                            }
-                        }
+                    instructions
+                    
+                    SeedView(groups: groups, birthday: viewStore.birthday)
+                    
+                    if viewStore.flow == .onboarding {
+                        confirmPhrase(isChecked: viewStore.$isConfirmSeedPhraseWrittenChecked)
                     }
                     
                     Spacer()
                     
-                    VStack {
-                        Button(
-                            action: { viewStore.send(.finishedPressed) },
-                            label: { Text(L10n.RecoveryPhraseDisplay.Button.wroteItDown) }
-                        )
-                        .activeButtonStyle
-                        .frame(height: 60)
-                    }
-                    .padding()
-                } else {
-                    Text(L10n.RecoveryPhraseDisplay.noWords)
+                    actions(groups: groups, viewStore: viewStore)
                 }
             }
-            .padding(.bottom, 20)
-            .padding(.horizontal)
-            .padding(.top, 0)
-            .applyScreenBackground()
+            .frame(maxWidth: .infinity)
+            .padding(.top, 25)
+            .padding(.horizontal, 25)
+            .padding(.bottom, 66)
+            .onAppear { viewStore.send(.onAppear) }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarHidden(true)
-    }
-}
-// TODO: [#695] This should have a #DEBUG tag, but if so, it's not possible to compile this on release mode and submit it to testflight https://github.com/zcash/ZcashLightClientKit/issues/695
-extension RecoveryPhraseDisplayStore {
-    public static var demo: RecoveryPhraseDisplayStore {
-        RecoveryPhraseDisplayStore(
-            initialState: .init(
-                flow: .settings,
-                phrase: .placeholder
+        .applyNighthawkBackground()
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .nighthawkAlert(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
             ),
-            reducer: RecoveryPhraseDisplayReducer.demo,
-            environment: Void()
-        )
-    }
-}
-
-struct RecoveryPhraseDisplayView_Previews: PreviewProvider {
-    static let scheduler = DispatchQueue.main
-    static let store = RecoveryPhraseDisplayStore.demo
-
-    static var previews: some View {
-        NavigationView {
-            RecoveryPhraseDisplayView(store: store)
+            state: /RecoveryPhraseDisplay.Destination.State.exportSeedAlert,
+            action: RecoveryPhraseDisplay.Destination.Action.exportSeedAlert
+        ) { store in
+            ExportSeedView(store: store)
         }
     }
 }
+
+// MARK: - Subviews
+private extension RecoveryPhraseDisplayView {
+    @ViewBuilder
+    var instructions: some View {
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.title)
+            .paragraph(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 12)
+        
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
+            .caption()
+            .lineSpacing(6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 18)
+        
+        Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions2)
+            .caption()
+            .lineSpacing(6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 18)
+    }
+    
+    func confirmPhrase(isChecked: Binding<Bool>) -> some View {
+        CheckBox(isChecked: isChecked) {
+            Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
+                .caption()
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    @MainActor
+    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplay>) -> some View {
+        Group {
+            if viewStore.flow == .settings {
+                Button(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf) {
+                    viewStore.send(.exportAsPdfPressed, animation: .easeInOut)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 218))
+            } else {
+                Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
+                    viewStore.send(.continuePressed)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 152))
+                .disabled(!viewStore.state.isConfirmSeedPhraseWrittenChecked)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
