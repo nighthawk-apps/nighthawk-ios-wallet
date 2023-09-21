@@ -9,11 +9,11 @@ import Generated
 import SwiftUI
 
 struct NighthawkTabBar: View {
-    let destination: Binding<Home.State.Destination>
+    let destination: Binding<Home.State.Tab>
     let isUpToDate: Bool
     
     init(
-        destination: Binding<Home.State.Destination>,
+        destination: Binding<Home.State.Tab>,
         isUpToDate: Bool
     ) {
         self.destination = destination

@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -13,6 +13,7 @@ let package = Package(
         .library(name: "App", targets: ["App"]),
         .library(name: "AppVersion", targets: ["AppVersion"]),
         .library(name: "AudioServices", targets: ["AudioServices"]),
+        .library(name: "Autoshield", targets: ["Autoshield"]),
         .library(name: "CaptureDevice", targets: ["CaptureDevice"]),
         .library(name: "DatabaseFiles", targets: ["DatabaseFiles"]),
         .library(name: "Date", targets: ["Date"]),
@@ -58,7 +59,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0-rc"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0-rc.2"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
@@ -113,6 +114,20 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/AudioServices"
+        ),
+        .target(
+            name: "Autoshield",
+            dependencies: [
+                "DerivationTool",
+                "Generated",
+                "MnemonicClient",
+                "SDKSynchronizer",
+                "UIComponents",
+                "WalletStorage",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
+            ],
+            path: "Sources/Features/Autoshield"
         ),
         .target(
             name: "CaptureDevice",
@@ -193,10 +208,7 @@ let package = Package(
         ),
         .target(
             name: "Generated",
-            resources: [.process("Resources")],
-            plugins: [
-                .plugin(name: "SwiftGenPlugin", package: "SwiftGenPlugin")
-            ]
+            resources: [.process("Resources")]
         ),
         .target(
             name: "ImportWallet",
@@ -238,6 +250,7 @@ let package = Package(
             dependencies: [
                 "Addresses",
                 "AppVersion",
+                "Autoshield",
                 "Date",
                 "DiskSpaceChecker",
                 "Models",
@@ -261,6 +274,7 @@ let package = Package(
             dependencies: [
                 "Generated",
                 "Models",
+                "SDKSynchronizer",
                 "UIComponents",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")

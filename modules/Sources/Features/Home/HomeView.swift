@@ -7,6 +7,7 @@
 
 import Addresses
 import AlertToast
+import Autoshield
 import ComposableArchitecture
 import Generated
 import SwiftUI
@@ -24,7 +25,7 @@ public struct HomeView: View {
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                TabView(selection: viewStore.$destination) {
+                TabView(selection: viewStore.$selectedTab) {
                     WalletView(
                         store: store.scope(
                             state: \.wallet,
@@ -32,7 +33,7 @@ public struct HomeView: View {
                         ),
                         tokenName: tokenName
                     )
-                    .tag(Home.State.Destination.wallet)
+                    .tag(Home.State.Tab.wallet)
                     .overlay(alignment: .top) {
                         if viewStore.synchronizerStatusSnapshot.isSyncing {
                             IndeterminateProgress()
@@ -46,7 +47,7 @@ public struct HomeView: View {
                         ),
                         tokenName: tokenName
                     )
-                    .tag(Home.State.Destination.transfer)
+                    .tag(Home.State.Tab.transfer)
                     
                     NighthawkSettingsView(
                         store: store.scope(
@@ -54,17 +55,17 @@ public struct HomeView: View {
                             action: Home.Action.settings
                         )
                     )
-                    .tag(Home.State.Destination.settings)
+                    .tag(Home.State.Tab.settings)
                 }
                 .overlay(alignment: .top) {
-                    if viewStore.destination == .wallet {
+                    if viewStore.selectedTab == .wallet {
                         NighthawkLogo(spacing: .compact)
                             .padding(.top, 40)
                     }
                 }
                 
                 NighthawkTabBar(
-                    destination: viewStore.$destination,
+                    destination: viewStore.$selectedTab,
                     isUpToDate: viewStore.synchronizerStatusSnapshot.isSynced
                 )
             }
@@ -84,8 +85,25 @@ public struct HomeView: View {
             )
         }
         .applyNighthawkBackground()
-        .sheet(store: store.scope(state: \.$addresses, action: Home.Action.addresses)) { store in
+        .sheet(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Home.Destination.State.addresses,
+            action: Home.Destination.Action.addresses
+        ) { store in
             AddressesView(store: store)
+        }
+        .sheet(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Home.Destination.State.autoshield,
+            action: Home.Destination.Action.autoshield
+        ) { store in
+            AutoshieldView(store: store)
         }
     }
 }

@@ -1,13 +1,13 @@
 //
-//  Success.swift
-//  
+//  SendSuccess.swift
+//
 //
 //  Created by Matthew Watt on 8/2/23.
 //
 
 import ComposableArchitecture
 
-public struct Success: Reducer {
+public struct SendSuccess: Reducer {
     public struct State: Equatable {
         public init() {}
     }

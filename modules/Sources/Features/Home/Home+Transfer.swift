@@ -29,9 +29,9 @@ extension Home {
                         await send(.transfer(.topUpWalletTapped))
                     }
                 }
-            case .addresses,
-                 .binding,
+            case .binding,
                  .delegate,
+                 .destination,
                  .onAppear,
                  .onDisappear,
                  .settings,

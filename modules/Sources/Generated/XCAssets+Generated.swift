@@ -36,6 +36,7 @@ public enum Asset {
     public enum Icons {
       public enum Nighthawk {
         public static let about = ImageAsset(name: "about")
+        public static let autoshield = ImageAsset(name: "autoshield")
         public static let backup = ImageAsset(name: "backup")
         public static let boxedQrCode = ImageAsset(name: "boxed_qr_code")
         public static let check = ImageAsset(name: "check")

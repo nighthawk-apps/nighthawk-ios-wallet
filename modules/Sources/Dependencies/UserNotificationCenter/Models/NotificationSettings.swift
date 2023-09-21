@@ -1,8 +1,8 @@
 //
-//  File.swift
+//  NotificationSettings.swift
 //  
 //
-//  Created by Two Point on 8/23/23.
+//  Created by Matthew Watt on 8/23/23.
 //
 
 import UserNotifications

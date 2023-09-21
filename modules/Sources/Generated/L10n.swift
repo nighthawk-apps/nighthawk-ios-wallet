@@ -127,6 +127,8 @@ public enum L10n {
     public static let close = L10n.tr("Localizable", "general.close", fallback: "Close")
     /// date not available
     public static let dateNotAvailable = L10n.tr("Localizable", "general.dateNotAvailable", fallback: "date not available")
+    /// Done
+    public static let done = L10n.tr("Localizable", "general.done", fallback: "Done")
     /// Max
     public static let max = L10n.tr("Localizable", "general.max", fallback: "Max")
     /// Next
@@ -236,6 +238,42 @@ public enum L10n {
             /// Nuke of the wallet failed
             public static let title = L10n.tr("Localizable", "nighthawk.app.nuke.alert.nukeFailed.title", fallback: "Nuke of the wallet failed")
           }
+        }
+      }
+    }
+    public enum Autoshield {
+      /// Autoshielding
+      public static let autoshielding = L10n.tr("Localizable", "nighthawk.autoshield.autoshielding", fallback: "Autoshielding")
+      /// Learn more
+      public static let buttonNeutral = L10n.tr("Localizable", "nighthawk.autoshield.buttonNeutral", fallback: "Learn more")
+      /// Great!
+      public static let buttonPositive = L10n.tr("Localizable", "nighthawk.autoshield.buttonPositive", fallback: "Great!")
+      /// means any funds coming into your transparent address will automatically be moved to your shielded address.
+      public static let detail1 = L10n.tr("Localizable", "nighthawk.autoshield.detail1", fallback: "means any funds coming into your transparent address will automatically be moved to your shielded address.")
+      /// We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.
+      public static let detail2 = L10n.tr("Localizable", "nighthawk.autoshield.detail2", fallback: "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.")
+      /// Shielded-by-Default.
+      public static let shieldedByDefault = L10n.tr("Localizable", "nighthawk.autoshield.shieldedByDefault", fallback: "Shielded-by-Default.")
+      /// Shielding…
+      public static let shielding = L10n.tr("Localizable", "nighthawk.autoshield.shielding", fallback: "Shielding…")
+      /// Failed
+      public static let shieldingFailed = L10n.tr("Localizable", "nighthawk.autoshield.shieldingFailed", fallback: "Failed")
+      /// Auto-shielding with Nighthawk 🛡️
+      public static let shieldingMemo = L10n.tr("Localizable", "nighthawk.autoshield.shieldingMemo", fallback: "Auto-shielding with Nighthawk 🛡️")
+      /// Success
+      public static let shieldingSuccess = L10n.tr("Localizable", "nighthawk.autoshield.shieldingSuccess", fallback: "Success")
+      /// Nighthawk is now
+      public static let title1 = L10n.tr("Localizable", "nighthawk.autoshield.title1", fallback: "Nighthawk is now")
+      /// We have implemented measures to guarantee the highest level of confidentiality for your funds.
+      public static let title2 = L10n.tr("Localizable", "nighthawk.autoshield.title2", fallback: "We have implemented measures to guarantee the highest level of confidentiality for your funds.")
+      public enum Alert {
+        public enum Redirecting {
+          /// Please confirm opening your device browser to learn more about Unified Addresses.
+          public static let details = L10n.tr("Localizable", "nighthawk.autoshield.alert.redirecting.details", fallback: "Please confirm opening your device browser to learn more about Unified Addresses.")
+          /// Open Browser
+          public static let openBrowser = L10n.tr("Localizable", "nighthawk.autoshield.alert.redirecting.openBrowser", fallback: "Open Browser")
+          /// Redirecting to ElectricCoin.co
+          public static let title = L10n.tr("Localizable", "nighthawk.autoshield.alert.redirecting.title", fallback: "Redirecting to ElectricCoin.co")
         }
       }
     }
@@ -576,6 +614,8 @@ public enum L10n {
       public static let viewTxDetails = L10n.tr("Localizable", "nighthawk.transactionDetails.viewTxDetails", fallback: "View TX details")
     }
     public enum TransactionHistory {
+      /// Auto-shielded funds
+      public static let autoshieldedFunds = L10n.tr("Localizable", "nighthawk.transactionHistory.autoshieldedFunds", fallback: "Auto-shielded funds")
       /// Transaction History
       public static let title = L10n.tr("Localizable", "nighthawk.transactionHistory.title", fallback: "Transaction History")
       /// %@ %@

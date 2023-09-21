@@ -24,119 +24,30 @@ public struct TransactionDetail: Reducer {
         public var latestMinedHeight: BlockHeight? = .zero
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
+        public var networkType: NetworkType
         
-        public var address: String? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.address
-            }
-            
-            return nil
-        }
-        
-        public var confirmations: BlockHeight {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.confirmationsWith(latestMinedHeight)
-            }
-            
-            return 0
-        }
-        
+        public var address: String { walletEvent.transaction.address }
+        public var confirmations: BlockHeight { walletEvent.transaction.confirmationsWith(latestMinedHeight) }
         public var date: Date? {
             guard let timestamp = walletEvent.timestamp else { return nil }
             
             return Date(timeIntervalSince1970: timestamp)
         }
-        
-        public var fee: Zatoshi? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.fee
-            }
-            
-            return nil
-        }
-        
-        public var id: String? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.id
-            }
-            
-            return nil
-        }
-        
-        public var isSending: Bool {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.isSending
-            }
-            
-            return false
-        }
-        
-        public var memo: Memo? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.textMemo
-            }
-            
-            return nil
-        }
-        
-        public var minedHeight: BlockHeight? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.minedHeight
-            }
-            
-            return nil
-        }
-        
-        public var shielded: Bool {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.shielded
-            }
-            
-            return false
-        }
-        
-        public var status: TransactionState.Status? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.status
-            }
-            
-            return nil
-        }
-        
-        public var totalAmount: Zatoshi? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.totalAmount
-            }
-            
-            return nil
-        }
-        
-        public var viewOnlineURL: URL? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.viewOnlineURL
-            }
-            
-            return nil
-        }
-        
-        public var viewRecipientOnlineURL: URL? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.viewRecipientOnlineURL
-            }
-            
-            return nil
-        }
-        
-        public var zecAmount: Zatoshi? {
-            if case let .transaction(transaction) = walletEvent.state {
-                return transaction.zecAmount
-            }
-            
-            return nil
-        }
+        public var fee: Zatoshi { walletEvent.transaction.fee }
+        public var id: String { walletEvent.id }
+        public var isSending: Bool { walletEvent.transaction.isSending }
+        public var memo: Memo? { walletEvent.transaction.textMemo }
+        public var minedHeight: BlockHeight? { walletEvent.transaction.minedHeight }
+        public var shielded: Bool { walletEvent.transaction.shielded }
+        public var status: TransactionState.Status { walletEvent.transaction.status }
+        public var totalAmount: Zatoshi { walletEvent.transaction.totalAmount }
+        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
+        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
+        public var zecAmount: Zatoshi { walletEvent.transaction.zecAmount }
                 
-        public init(walletEvent: WalletEvent) {
+        public init(walletEvent: WalletEvent, networkType: NetworkType) {
             self.walletEvent = walletEvent
+            self.networkType = networkType
         }
     }
     

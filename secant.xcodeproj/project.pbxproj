@@ -7,12 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D26AF7A299E8196005260EE /* sendingTransaction.json in Resources */ = {isa = PBXBuildFile; fileRef = 34DA414828E439CD00F8CC61 /* sendingTransaction.json */; };
-		0D26AF7D299E8196005260EE /* endlessCircleProgress.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E6612352878345000C75B70 /* endlessCircleProgress.json */; };
 		0D26AF84299E8196005260EE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
 		0D26AF88299E8196005260EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */; };
 		0D4E7A1026B364180058B01E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
-		34DA414928E439CD00F8CC61 /* sendingTransaction.json in Resources */ = {isa = PBXBuildFile; fileRef = 34DA414828E439CD00F8CC61 /* sendingTransaction.json */; };
 		4502345D2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */; };
 		4502345E2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */; };
 		450D3BB62A107B9400B49B9E /* lottie_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 450D3BB52A107B9400B49B9E /* lottie_success.json */; };
@@ -21,6 +18,12 @@
 		4518C7162A7928700080444E /* lottie_sending.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7142A7928700080444E /* lottie_sending.json */; };
 		4518C7182A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
 		4518C7192A7A7E860080444E /* lottie_send_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 4518C7172A7A7E860080444E /* lottie_send_success.json */; };
+		45263C3A2ABC66CB008F6D86 /* lottie_shielding.json in Resources */ = {isa = PBXBuildFile; fileRef = 45263C392ABC66CB008F6D86 /* lottie_shielding.json */; };
+		45263C3B2ABC66CB008F6D86 /* lottie_shielding.json in Resources */ = {isa = PBXBuildFile; fileRef = 45263C392ABC66CB008F6D86 /* lottie_shielding.json */; };
+		45263C402ABC9F27008F6D86 /* lottie_auto_shield_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */; };
+		45263C412ABC9F27008F6D86 /* lottie_auto_shield_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */; };
+		452657032ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */ = {isa = PBXBuildFile; fileRef = 452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */; };
+		452657042ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */ = {isa = PBXBuildFile; fileRef = 452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */; };
 		4542DCCB2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
 		4542DCCC2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
 		4542DCCE2AAF46A80063EF26 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 4542DCCD2AAF46A80063EF26 /* App */; };
@@ -57,7 +60,6 @@
 		9E3451C329C857DD00177D16 /* SettingsSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7225F02889539300DF7F17 /* SettingsSnapshotTests.swift */; };
 		9E3451C429C857DF00177D16 /* View+UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E92AF0728530EBF007367AD /* View+UIImage.swift */; };
 		9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9ECC8E28589E150099D5A2 /* WelcomeSnapshotTests.swift */; };
-		9E6612362878345000C75B70 /* endlessCircleProgress.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E6612352878345000C75B70 /* endlessCircleProgress.json */; };
 		9E90751E2A269BE300269308 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E90751D2A269BE300269308 /* Assets.xcassets */; };
 		9E90751F2A269BE300269308 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E90751D2A269BE300269308 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -85,11 +87,13 @@
 		0DEF4766299EA5920032708B /* secant-mainnet-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "secant-mainnet-Info.plist"; sourceTree = "<group>"; };
 		0DFE93DE272C6D4B000FCCA5 /* RecoveryPhraseBackupTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecoveryPhraseBackupTests.swift; sourceTree = "<group>"; };
 		34429C6D28E703CD00F2B929 /* TransactionSendingSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSendingSnapshotTests.swift; sourceTree = "<group>"; };
-		34DA414828E439CD00F8CC61 /* sendingTransaction.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = sendingTransaction.json; sourceTree = "<group>"; };
 		4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_receive_small.mp3; sourceTree = "<group>"; };
 		450D3BB52A107B9400B49B9E /* lottie_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = lottie_success.json; sourceTree = "<group>"; };
 		4518C7142A7928700080444E /* lottie_sending.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_sending.json; sourceTree = "<group>"; };
 		4518C7172A7A7E860080444E /* lottie_send_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_send_success.json; sourceTree = "<group>"; };
+		45263C392ABC66CB008F6D86 /* lottie_shielding.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_shielding.json; sourceTree = "<group>"; };
+		45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_auto_shield_success.json; sourceTree = "<group>"; };
+		452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_auto_shield_failed.json; sourceTree = "<group>"; };
 		4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkApp.swift; sourceTree = "<group>"; };
 		9E01F8272833CDA0000EFC57 /* ScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTests.swift; sourceTree = "<group>"; };
 		9E02B56B27FED475005B809B /* DatabaseFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseFilesTests.swift; sourceTree = "<group>"; };
@@ -101,7 +105,6 @@
 		9E5BF63E2819542C00BA3F17 /* WalletEventsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletEventsTests.swift; sourceTree = "<group>"; };
 		9E5BF643281FEC9900BA3F17 /* SendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTests.swift; sourceTree = "<group>"; };
 		9E612C7829913F3600D09B09 /* SensitiveDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveDataTests.swift; sourceTree = "<group>"; };
-		9E6612352878345000C75B70 /* endlessCircleProgress.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = endlessCircleProgress.json; sourceTree = "<group>"; };
 		9E66129D288938A300C75B70 /* SettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
 		9E7225F02889539300DF7F17 /* SettingsSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSnapshotTests.swift; sourceTree = "<group>"; };
 		9E852D6429B0A86300CF4AC1 /* DebugTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugTests.swift; sourceTree = "<group>"; };
@@ -158,7 +161,6 @@
 				0D4E7A0726B364170058B01E /* secant */,
 				0D4E7A1926B364180058B01E /* secantTests */,
 				0D4E7A0626B364170058B01E /* Products */,
-				343CF3F429BB5A14009E44DF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -196,6 +198,7 @@
 		0D4E7A1926B364180058B01E /* secantTests */ = {
 			isa = PBXGroup;
 			children = (
+				343CF3F429BB5A14009E44DF /* Frameworks */,
 				0D4E7A1C26B364180058B01E /* Info.plist */,
 				0DFE93DD272C6D4B000FCCA5 /* BackupFlowTests */,
 				9EAB4674285B5C68002904A0 /* DeeplinkTests */,
@@ -226,6 +229,7 @@
 			children = (
 			);
 			name = Frameworks;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		346715A628E20FB30035F7C4 /* SendSnapshotTests */ = {
@@ -303,9 +307,10 @@
 		9E6612342878341F00C75B70 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */,
 				4518C7142A7928700080444E /* lottie_sending.json */,
-				34DA414828E439CD00F8CC61 /* sendingTransaction.json */,
-				9E6612352878345000C75B70 /* endlessCircleProgress.json */,
+				45263C392ABC66CB008F6D86 /* lottie_shielding.json */,
+				45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */,
 				4518C7172A7A7E860080444E /* lottie_send_success.json */,
 				450D3BB52A107B9400B49B9E /* lottie_success.json */,
 			);
@@ -467,8 +472,9 @@
 		0D4E79FD26B364170058B01E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					0D4E7A0426B364170058B01E = {
 						CreatedOnToolsVersion = 12.5;
@@ -507,12 +513,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4518C7192A7A7E860080444E /* lottie_send_success.json in Resources */,
-				0D26AF7A299E8196005260EE /* sendingTransaction.json in Resources */,
-				0D26AF7D299E8196005260EE /* endlessCircleProgress.json in Resources */,
 				0D26AF84299E8196005260EE /* Preview Assets.xcassets in Resources */,
 				450D3BB72A107B9400B49B9E /* lottie_success.json in Resources */,
 				0D26AF88299E8196005260EE /* LaunchScreen.storyboard in Resources */,
+				45263C412ABC9F27008F6D86 /* lottie_auto_shield_success.json in Resources */,
+				45263C3B2ABC66CB008F6D86 /* lottie_shielding.json in Resources */,
 				9E90751F2A269BE300269308 /* Assets.xcassets in Resources */,
+				452657042ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */,
 				4518C7162A7928700080444E /* lottie_sending.json in Resources */,
 				4502345E2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */,
 			);
@@ -523,12 +530,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4518C7182A7A7E860080444E /* lottie_send_success.json in Resources */,
-				34DA414928E439CD00F8CC61 /* sendingTransaction.json in Resources */,
-				9E6612362878345000C75B70 /* endlessCircleProgress.json in Resources */,
 				0D4E7A1026B364180058B01E /* Preview Assets.xcassets in Resources */,
 				450D3BB62A107B9400B49B9E /* lottie_success.json in Resources */,
 				9E2F1C8C280ED6A7004E65FE /* LaunchScreen.storyboard in Resources */,
+				45263C402ABC9F27008F6D86 /* lottie_auto_shield_success.json in Resources */,
+				45263C3A2ABC66CB008F6D86 /* lottie_shielding.json in Resources */,
 				9E90751E2A269BE300269308 /* Assets.xcassets in Resources */,
+				452657032ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */,
 				4518C7152A7928700080444E /* lottie_sending.json in Resources */,
 				4502345D2A1095B10026F4C7 /* sound_receive_small.mp3 in Resources */,
 			);
@@ -700,6 +708,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -762,6 +771,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

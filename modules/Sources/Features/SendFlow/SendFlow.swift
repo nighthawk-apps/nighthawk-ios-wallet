@@ -27,22 +27,22 @@ public struct SendFlow: Reducer {
         
         public enum State: Equatable {
             case addMemo(AddMemo.State)
-            case failed(Failed.State)
+            case failed(SendFailed.State)
             case recipient(Recipient.State)
             case review(Review.State)
             case scan(Scan.State)
             case sending(Sending.State)
-            case success(Success.State)
+            case success(SendSuccess.State)
         }
         
         public enum Action: Equatable {
             case addMemo(AddMemo.Action)
-            case failed(Failed.Action)
+            case failed(SendFailed.Action)
             case recipient(Recipient.Action)
             case review(Review.Action)
             case scan(Scan.Action)
             case sending(Sending.Action)
-            case success(Success.Action)
+            case success(SendSuccess.Action)
         }
         
         public init(networkType: NetworkType) {
@@ -55,7 +55,7 @@ public struct SendFlow: Reducer {
             }
             
             Scope(state: /State.failed, action: /Action.failed) {
-                Failed()
+                SendFailed()
             }
             
             Scope(state: /State.recipient, action: /Action.recipient) {
@@ -75,7 +75,7 @@ public struct SendFlow: Reducer {
             }
             
             Scope(state: /State.success, action: /Action.success) {
-                Success()
+                SendSuccess()
             }
         }
     }

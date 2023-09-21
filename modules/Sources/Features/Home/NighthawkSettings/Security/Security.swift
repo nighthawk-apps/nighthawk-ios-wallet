@@ -54,7 +54,7 @@ public struct Security: Reducer {
                         reason = state.areBiometricsEnabled
                             ? L10n.Nighthawk.SettingsTab.Security.enableValidationReason("Touch ID")
                             : L10n.Nighthawk.SettingsTab.Security.disableValidationReason("Touch ID")
-                    case .none:
+                    case .none, .opticID:
                         return
                     @unknown default:
                         return

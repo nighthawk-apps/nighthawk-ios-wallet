@@ -63,7 +63,7 @@ public struct SendFlowView: View {
                 CaseLet(
                     /SendFlow.Path.State.failed,
                     action: SendFlow.Path.Action.failed,
-                    then: FailedView.init(store:)
+                    then: SendFailedView.init(store:)
                 )
             case .recipient:
                 CaseLet(
@@ -95,7 +95,7 @@ public struct SendFlowView: View {
                 CaseLet(
                     /SendFlow.Path.State.success,
                     action: SendFlow.Path.Action.success,
-                    then: SuccessView.init(store:)
+                    then: SendSuccessView.init(store:)
                 )
             }
         }

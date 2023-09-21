@@ -1,6 +1,6 @@
 //
-//  SuccessView.swift
-//  
+//  SendSuccessView.swift
+//
 //
 //  Created by Matthew Watt on 8/2/23.
 //
@@ -11,10 +11,10 @@ import SwiftUI
 import UIComponents
 import Utils
 
-public struct SuccessView: View {
-    let store: StoreOf<Success>
+public struct SendSuccessView: View {
+    let store: StoreOf<SendSuccess>
     
-    public init(store: StoreOf<Success>) {
+    public init(store: StoreOf<SendSuccess>) {
         self.store = store
     }
     

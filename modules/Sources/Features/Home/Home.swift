@@ -6,6 +6,7 @@
 //
 
 import Addresses
+import Autoshield
 import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
@@ -22,7 +23,7 @@ public struct Home: Reducer {
     private enum CancelId { case timer }
     
     public struct State: Equatable {
-        public enum Destination: Equatable, Hashable {
+        public enum Tab: Equatable, Hashable {
             case wallet
             case transfer
             case settings
@@ -32,8 +33,8 @@ public struct Home: Reducer {
             case expectingFunds
         }
         
-        @PresentationState public var addresses: Addresses.State?
-        @BindingState public var destination = Destination.wallet
+        @PresentationState public var destination: Destination.State?
+        @BindingState public var selectedTab = Tab.wallet
         @BindingState public var toast: Toast?
         
         // Shared state
@@ -55,9 +56,9 @@ public struct Home: Reducer {
     }
     
     public enum Action: BindableAction, Equatable {
-        case addresses(PresentationAction<Addresses.Action>)
         case binding(BindingAction<State>)
         case delegate(Delegate)
+        case destination(PresentationAction<Destination.Action>)
         case onAppear
         case onDisappear
         case settings(NighthawkSettings.Action)
@@ -68,6 +69,34 @@ public struct Home: Reducer {
         
         public enum Delegate: Equatable {
             case showTransactionHistory
+        }
+    }
+    
+    public struct Destination: Reducer {
+        let networkType: NetworkType
+        
+        public enum State:  Equatable {
+            case addresses(Addresses.State)
+            case autoshield(Autoshield.State)
+        }
+        
+        public enum Action: Equatable {
+            case addresses(Addresses.Action)
+            case autoshield(Autoshield.Action)
+        }
+        
+        public var body: some ReducerOf<Self> {
+            Scope(state: /State.addresses, action: /Action.addresses) {
+                Addresses()
+            }
+            
+            Scope(state: /State.autoshield, action: /Action.autoshield) {
+                Autoshield(networkType: networkType)
+            }
+        }
+        
+        public init(networkType: NetworkType) {
+            self.networkType = networkType
         }
     }
     
@@ -123,16 +152,17 @@ public struct Home: Reducer {
                 state.shieldedBalance = latestState.shieldedBalance.redacted
                 state.transparentBalance = latestState.transparentBalance.redacted
                 
-                // Detect if there are any expected funds
-                let totalBalance = state.shieldedBalance.data.total + state.transparentBalance.data.total
-                let availableBalance = state.shieldedBalance.data.verified + state.transparentBalance.data.verified
-                if totalBalance != availableBalance && (totalBalance - availableBalance) != state.expectingZatoshi {
-                    state.expectingZatoshi = totalBalance - availableBalance
-                    state.toast = .expectingFunds
-                }
-                
                 if latestState.syncStatus == .upToDate {
                     state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
+                    
+                    // Detect if there are any expected funds
+                    let totalBalance = state.shieldedBalance.data.total + state.transparentBalance.data.total
+                    let availableBalance = state.shieldedBalance.data.verified + state.transparentBalance.data.verified
+                    if totalBalance != availableBalance && (totalBalance - availableBalance) != state.expectingZatoshi {
+                        state.expectingZatoshi = totalBalance - availableBalance
+                        state.toast = .expectingFunds
+                    }
+                    
                     return .run { send in
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
                             await send(.updateWalletEvents(events))
@@ -151,12 +181,12 @@ public struct Home: Reducer {
                     })
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
                 return .none
-            case .addresses, .binding, .delegate, .settings, .transfer, .wallet:
+            case .binding, .delegate, .destination, .settings, .transfer, .wallet:
                 return .none
             }
         }
-        .ifLet(\.$addresses, action: /Action.addresses) {
-            Addresses()
+        .ifLet(\.$destination, action: /Action.destination) {
+            Destination(networkType: zcashNetwork.networkType)
         }
         
         addressesDelegateReducer()
@@ -174,20 +204,20 @@ extension Home {
     func addressesDelegateReducer() -> Reduce<Home.State, Home.Action> {
         Reduce { state, action in
             switch action {
-            case let .addresses(.presented(.delegate(delegateAction))):
+            case let .destination(.presented(.addresses(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .showPartners:
-                    state.addresses = nil
-                    state.destination = .transfer
+                    state.destination = nil
+                    state.selectedTab = .transfer
                     return .run { send in
                         // Slight delay to allow previous sheet to dismiss before presenting
                         try await clock.sleep(for: .seconds(0.005))
                         await send(.transfer(.topUpWalletTapped))
                     }
                 }
-            case .addresses,
-                 .binding,
+            case .binding,
                  .delegate,
+                 .destination,
                  .onAppear,
                  .onDisappear,
                  .settings,
