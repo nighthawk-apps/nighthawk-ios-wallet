@@ -80,12 +80,14 @@ public struct Autoshield: Reducer {
                 }
                 return .none
             case .autoshieldFailed:
+                state.isShielding = false
                 state.path.append(.failed())
                 return .none
             case .autoshieldInProgress:
                 state.path.append(.inProgress)
                 return .none
             case .autoshieldSuccess:
+                state.isShielding = false
                 state.path.append(.success())
                 return .none
             case .path:
