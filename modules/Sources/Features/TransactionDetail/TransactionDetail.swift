@@ -25,7 +25,6 @@ public struct TransactionDetail: Reducer {
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
         public var networkType: NetworkType
-        public var uAddress: UnifiedAddress?
         
         public var address: String { walletEvent.transaction.address }
         public var confirmations: BlockHeight { walletEvent.transaction.confirmationsWith(latestMinedHeight) }
