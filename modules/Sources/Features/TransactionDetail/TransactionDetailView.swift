@@ -25,6 +25,7 @@ public struct TransactionDetailView: View {
                 TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
             }
             .onAppear { viewStore.send(.onAppear) }
+            .onDisappear { viewStore.send(.onDisappear) }
         }
         .applyNighthawkBackground()
         .alert(
@@ -123,17 +124,24 @@ private extension ViewStoreOf<TransactionDetail> {
             )
         }
         
+        if self.isSending {
+            result.append(
+                contentsOf: [
+                    TransactionLineItem(
+                        name: L10n.Nighthawk.TransactionDetails.subtotal,
+                        value: "\(self.zecAmount.decimalString()) \(tokenName)",
+                        showBorder: false
+                    ),
+                    TransactionLineItem(
+                        name: L10n.Nighthawk.TransactionDetails.networkFee,
+                        value: "\(self.fee.decimalString()) \(tokenName)"
+                    )
+                ]
+            )
+        }
+        
         result.append(
             contentsOf: [
-                TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.subtotal,
-                    value: "\(self.zecAmount.decimalString()) \(tokenName)",
-                    showBorder: false
-                ),
-                TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.networkFee,
-                    value: "\(self.fee.decimalString()) \(tokenName)"
-                ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
                     value: "\(self.totalAmount.decimalString()) \(tokenName)"
@@ -157,7 +165,7 @@ private extension TransactionDetailView {
             
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.zecAmount.decimalString())")
+                    Text("\(viewStore.totalAmount.decimalString())")
                         .foregroundColor(.white)
                     
                     Text(tokenName)
