@@ -271,8 +271,8 @@ extension SendFlow {
             case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
                 switch delegateAction {
                 case let .proceedWithRecipient(recipient):
-                    state.recipient = recipient
                     guard derivationTool.isZcashAddress(recipient.data, networkType) else { return .none }
+                    state.recipient = recipient
                     if derivationTool.isTransparentAddress(recipient.data, networkType) {
                         state.path.append(
                             Path.State.review(
