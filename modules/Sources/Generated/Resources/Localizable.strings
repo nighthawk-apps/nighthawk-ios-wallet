@@ -449,7 +449,8 @@
 
 // MARK: - Home Screen - Transfer - Recipient
 "nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addZAddress" = "Add z-address here";
+"nighthawk.transferTab.recipient.addAddress" = "Add address here";
+"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
 "nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
 "nighthawk.transferTab.recipient.continue" = "Continue";
 

@@ -94,6 +94,7 @@ let package = Package(
                 "RecoveryPhraseDisplay",
                 "SDKSynchronizer",
                 "Splash",
+                "UserPreferencesStorage",
                 "WalletCreated",
                 "Welcome",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

@@ -5,19 +5,12 @@
 //  Created by Matthew Watt on 8/1/23.
 //
 
-import ComposableArchitecture
 import Generated
 import SwiftUI
 import UIComponents
 import Utils
 
 public struct SendingView: View {
-    let store: StoreOf<Sending>
-    
-    public init(store: StoreOf<Sending>) {
-        self.store = store
-    }
-    
     public var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -44,4 +37,6 @@ public struct SendingView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .interactiveDismissDisabled()
     }
+    
+    public init() {}
 }

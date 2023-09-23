@@ -35,7 +35,7 @@ public struct HomeView: View {
                     )
                     .tag(Home.State.Tab.wallet)
                     .overlay(alignment: .top) {
-                        if viewStore.synchronizerStatusSnapshot.isSyncing {
+                        if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing {
                             IndeterminateProgress()
                         }
                     }
@@ -66,7 +66,7 @@ public struct HomeView: View {
                 
                 NighthawkTabBar(
                     destination: viewStore.$selectedTab,
-                    isUpToDate: viewStore.synchronizerStatusSnapshot.isSynced
+                    disableSend: viewStore.synchronizerFailed
                 )
             }
             .onAppear { viewStore.send(.onAppear) }
@@ -85,6 +85,14 @@ public struct HomeView: View {
             )
         }
         .applyNighthawkBackground()
+        .alert(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Home.Destination.State.alert,
+            action: Home.Destination.Action.alert
+        )
         .sheet(
             store: store.scope(
                 state: \.$destination,

@@ -10,14 +10,14 @@ import SwiftUI
 
 struct NighthawkTabBar: View {
     let destination: Binding<Home.State.Tab>
-    let isUpToDate: Bool
+    let disableSend: Bool
     
     init(
         destination: Binding<Home.State.Tab>,
-        isUpToDate: Bool
+        disableSend: Bool
     ) {
         self.destination = destination
-        self.isUpToDate = isUpToDate
+        self.disableSend = disableSend
         UITabBar.appearance().isHidden = true
     }
     
@@ -36,7 +36,7 @@ struct NighthawkTabBar: View {
                 isSelected: destination.wrappedValue == .transfer
             )
             .onTapGesture { destination.wrappedValue = .transfer }
-            .disable(when: !isUpToDate, dimmingOpacity: 0.3)
+            .disable(when: disableSend, dimmingOpacity: 0.3)
                         
             Tab(
                 title: L10n.Nighthawk.HomeScreen.settings,

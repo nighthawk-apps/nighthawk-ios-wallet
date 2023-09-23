@@ -667,12 +667,14 @@ public enum L10n {
         public static let showQrCodeTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.showQrCodeTitle", fallback: "Show QR Code")
       }
       public enum Recipient {
-        /// Add z-address here
-        public static let addZAddress = L10n.tr("Localizable", "nighthawk.transferTab.recipient.addZAddress", fallback: "Add z-address here")
+        /// Add address here
+        public static let addAddress = L10n.tr("Localizable", "nighthawk.transferTab.recipient.addAddress", fallback: "Add address here")
         /// Choose who to send it to
         public static let chooseRecipient = L10n.tr("Localizable", "nighthawk.transferTab.recipient.chooseRecipient", fallback: "Choose who to send it to")
         /// Continue
         public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.recipient.continue", fallback: "Continue")
+        /// Please enter a valid recipient
+        public static let invalid = L10n.tr("Localizable", "nighthawk.transferTab.recipient.invalid", fallback: "Please enter a valid recipient")
         /// Paste from clipboard
         public static let pasteFromClipboard = L10n.tr("Localizable", "nighthawk.transferTab.recipient.pasteFromClipboard", fallback: "Paste from clipboard")
       }

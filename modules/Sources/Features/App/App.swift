@@ -1,6 +1,6 @@
 //
 //  App.swift
-//  
+//
 //
 //  Created by Matthew Watt on 9/11/23.
 //
@@ -18,7 +18,9 @@ import Models
 import RecoveryPhraseDisplay
 import SDKSynchronizer
 import Splash
+import SwiftUI
 import TransactionDetail
+import UserPreferencesStorage
 import WalletCreated
 import WalletStorage
 import Welcome
@@ -34,6 +36,7 @@ public struct AppReducer: Reducer {
         @PresentationState public var destination: Destination.State?
         public var path = StackState<Path.State>()
         public var splash = Splash.State()
+        public var synchronizerStopped = false
         
         public init() {}
     }
@@ -41,10 +44,11 @@ public struct AppReducer: Reducer {
     public enum Action: Equatable {
         case destination(PresentationAction<Destination.Action>)
         case initializeSDKFailed(ZcashError)
-        case initializeSDKSuccess
+        case initializeSDKSuccess(shouldResetStack: Bool)
         case nukeWalletSuccess
         case nukeWalletFailed
         case path(StackAction<Path.State, Path.Action>)
+        case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
     }
     
@@ -182,11 +186,13 @@ public struct AppReducer: Reducer {
         }
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
@@ -202,8 +208,11 @@ public struct AppReducer: Reducer {
             case let .initializeSDKFailed(error):
                 state.destination = .alert(.sdkInitFailed(error))
                 return .none
-            case .initializeSDKSuccess:
-                state.path = StackState([.home()])
+            case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
+                state.synchronizerStopped = false
+                if shouldResetStack {
+                    state.path = StackState([.home()])
+                }
                 return .none
             case .nukeWalletFailed:
                 return .none
@@ -214,6 +223,32 @@ public struct AppReducer: Reducer {
                 return .none
             case .path:
                 return .none
+            case let .scenePhaseChanged(newPhase):
+                defer { state.splash.phase = newPhase }
+                switch newPhase {
+                case .inactive:
+                    if state.shouldStopSynchronizer {
+                        state.synchronizerStopped = true
+                        sdkSynchronizer.stop()
+                        
+                        if userStoredPreferences.areBiometricsEnabled() {
+                            state.splash.hasAttemptedAuthentication = false
+                            state.splash.authenticated = false
+                            state.splash.isAuthenticating = false
+                            state.path = StackState()
+                        }
+                    }
+                    return .none
+                case .active:
+                    if !state.path.isEmpty && state.synchronizerStopped {
+                        return initializeSDK(.existingWallet, shouldResetStack: false)
+                    }
+                    return .none
+                case .background:
+                    return .none
+                @unknown default:
+                    return .none
+                }
             case .splash:
                 return .none
             }
@@ -238,7 +273,7 @@ public struct AppReducer: Reducer {
 
 // MARK: - Initialize SDK
 extension AppReducer {
-    func initializeSDK(_ mode: WalletInitMode) -> Effect<Action> {
+    func initializeSDK(_ mode: WalletInitMode, shouldResetStack: Bool = true) -> Effect<Action> {
         do {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
@@ -249,10 +284,14 @@ extension AppReducer {
             
             return .run { send in
                 do {
+                    // Prepare, if needed
+                    if !sdkSynchronizer.isInitialized() {
+                        try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
+                    }
+                    
                     // Start synchronizer
-                    try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
                     try await sdkSynchronizer.start(false)
-                    await send(.initializeSDKSuccess)
+                    await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
                 } catch {
                     await send(.initializeSDKFailed(error.toZcashError()))
                 }
@@ -279,10 +318,36 @@ private extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
             }
         }
     }
 }
 
+private extension AppReducer.State {
+    var shouldStopSynchronizer: Bool {
+        guard !path.isEmpty else { return false }
+        // Any system prompt causes a scene phase change to .inactive,
+        // so don't stop synchronizer if the app is on screens where that happens:
+        // - Security screen (Face ID enable / disable)
+        // - Notification screen (system permission alert)
+        // - Transfer tab (send flow pasteboard permission alert)
+        
+        if let currentScreen = path.last {
+            if let home = (/AppReducer.Path.State.home).extract(from: currentScreen) {
+                return home.selectedTab != .transfer
+            }
+            
+            if let _ = (/AppReducer.Path.State.security).extract(from: currentScreen) {
+                return false
+            }
+            
+            if let _ = (/AppReducer.Path.State.notifications).extract(from: currentScreen) {
+                return false
+            }
+        }
+        
+        return true
+    }
+}

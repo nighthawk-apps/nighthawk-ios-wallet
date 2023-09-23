@@ -37,6 +37,11 @@ public struct Home: Reducer {
         @BindingState public var selectedTab = Tab.wallet
         @BindingState public var toast: Toast?
         
+        public var synchronizerFailedToStart = false
+        public var synchronizerFailed: Bool {
+            synchronizerFailedToStart || synchronizerStatusSnapshot.isSyncFailed
+        }
+        
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
@@ -77,12 +82,16 @@ public struct Home: Reducer {
         
         public enum State:  Equatable {
             case addresses(Addresses.State)
+            case alert(AlertState<Action.Alert>)
             case autoshield(Autoshield.State)
         }
         
         public enum Action: Equatable {
             case addresses(Addresses.Action)
+            case alert(Alert)
             case autoshield(Autoshield.Action)
+            
+            public enum Alert: Equatable {}
         }
         
         public var body: some ReducerOf<Self> {
@@ -136,9 +145,8 @@ public struct Home: Reducer {
                     }
                     .cancellable(id: CancelId.timer, cancelInFlight: true)
                 } else {
-                    // TODO: Handle not enough free disk space
+                    state.destination = .alert(.notEnoughFreeDiskSpace())
                     return .none
-//                    return EffectTask(value: .updateDestination(.notEnoughFreeDiskSpace))
                 }
             case .onDisappear:
                 return .cancel(id: CancelId.timer)

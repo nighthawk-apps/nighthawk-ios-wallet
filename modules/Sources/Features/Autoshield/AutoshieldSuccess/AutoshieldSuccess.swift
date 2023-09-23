@@ -17,6 +17,7 @@ public struct AutoshieldSuccess: Reducer {
         case doneTapped
         
         public enum Delegate: Equatable {
+            case updateTransparentBalance
             case goHome
         }
     }
@@ -27,7 +28,10 @@ public struct AutoshieldSuccess: Reducer {
             case .delegate:
                 return .none
             case .doneTapped:
-                return .send(.delegate(.goHome))
+                return .concatenate(
+                    .send(.delegate(.updateTransparentBalance)),
+                    .send(.delegate(.goHome))
+                )
             }
         }
     }

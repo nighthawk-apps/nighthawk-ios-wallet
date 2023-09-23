@@ -53,6 +53,9 @@ extension Home {
                 case .goHome:
                     state.destination = nil
                     return .none
+                case .updateTransparentBalance:
+                    state.transparentBalance = sdkSynchronizer.getTransparentBalance()?.redacted ?? .zero
+                    return .none
                 }
             case .binding,
                  .delegate,

@@ -24,7 +24,7 @@ extension AppReducer {
                 case let .goTo(screen):
                     return goTo(screen: screen, state: &state)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
             }
         }
@@ -38,7 +38,7 @@ extension AppReducer {
                 case .nukeWallet:
                     return nukeWallet()
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
             }
         }

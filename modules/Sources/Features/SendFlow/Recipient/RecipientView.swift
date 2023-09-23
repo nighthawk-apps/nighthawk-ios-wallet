@@ -31,8 +31,9 @@ public struct RecipientView: View {
                 }
                 
                 NighthawkTextField(
-                    placeholder: L10n.Nighthawk.TransferTab.Recipient.addZAddress,
+                    placeholder: L10n.Nighthawk.TransferTab.Recipient.addAddress,
                     text: viewStore.bindingForRedactableRecipient(viewStore.recipient),
+                    isValid: viewStore.validateRecipient(),
                     foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color,
                     inputAccessoryView: {
                         addressFieldAccessoryView(with: viewStore)

@@ -24,6 +24,8 @@ public struct AppView: View {
     let tokenName: String
     let networkType: NetworkType
     
+    @Environment(\.scenePhase) var scenePhase
+    
     public var body: some View {
         NavigationStackStore(
             store.scope(
@@ -201,6 +203,9 @@ public struct AppView: View {
             state: /AppReducer.Destination.State.alert,
             action: AppReducer.Destination.Action.alert
         )
+        .onChange(of: scenePhase) { newPhase in
+            store.send(.scenePhaseChanged(newPhase))
+        }
     }
     
     public init(store: StoreOf<AppReducer>, tokenName: String, networkType: NetworkType) {
