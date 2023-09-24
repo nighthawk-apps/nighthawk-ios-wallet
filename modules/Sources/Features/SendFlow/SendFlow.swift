@@ -233,7 +233,7 @@ public struct SendFlow: Reducer {
                 let shieldedBalance = latestState.shieldedBalance
                 state.shieldedBalance = shieldedBalance.redacted
                 // TODO: [#1186] Use ZIP-317 fees when SDK supports it
-                state.maxAmount = shieldedBalance.verified - Zatoshi(10_000)
+                state.maxAmount = max(shieldedBalance.verified - Zatoshi(10_000), .zero)
                 return .none
             case .topUpWalletTapped:
                 return .none
