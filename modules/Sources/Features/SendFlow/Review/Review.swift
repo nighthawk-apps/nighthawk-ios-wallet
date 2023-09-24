@@ -77,9 +77,7 @@ public struct Review: Reducer {
                 }
                 return .none
             case .backButtonTapped:
-                return .run { send in
-                    await send(.delegate(.goBack))
-                }
+                return .send(.delegate(.goBack))
             case .delegate:
                 return .none
             case .onAppear:
