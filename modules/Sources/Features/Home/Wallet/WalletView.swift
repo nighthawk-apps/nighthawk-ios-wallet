@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Generated
 import SwiftUI
 import TransactionDetail
+import UIComponents
 
 @MainActor
 public struct WalletView: View {
@@ -30,10 +31,12 @@ public struct WalletView: View {
                 
                 if viewStore.transparentBalance.data.verified >= viewStore.autoShieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
-                    viewStore.synchronizerStatusSnapshot.isSynced {
-                    Button(L10n.Nighthawk.WalletTab.shieldNow) {}
-                        .buttonStyle(.nighthawkPrimary())
-                        .padding(.top, 16)
+                    viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
+                    Button(L10n.Nighthawk.WalletTab.shieldNow) {
+                        viewStore.send(.shieldNowTapped)
+                    }
+                    .buttonStyle(.nighthawkPrimary())
+                    .padding(.top, 16)
                 }
                 
                 Spacer()
@@ -63,9 +66,9 @@ private extension WalletView {
     
     func header(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.isSyncing || viewStore.isSyncingFailed {
+            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed {
                 SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-            } else if viewStore.synchronizerStatusSnapshot.isSynced {
+            } else if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
                 balanceTabsView(with: viewStore)
             }
         }
@@ -166,7 +169,7 @@ private extension WalletView {
     
     func latestWalletEvents(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.isSynced && !viewStore.walletEvents.isEmpty {
+            if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced && !viewStore.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
@@ -178,7 +181,8 @@ private extension WalletView {
                         Button {
                             viewStore.send(.viewTransactionDetailTapped(walletEvent))
                         } label: {
-                            walletEvent.nhRowView(
+                            TransactionRowView(
+                                transaction: walletEvent.transaction,
                                 showAmount: viewStore.balanceViewType != .hidden,
                                 tokenName: tokenName
                             )

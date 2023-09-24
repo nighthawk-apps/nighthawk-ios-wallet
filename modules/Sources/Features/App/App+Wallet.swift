@@ -21,16 +21,18 @@ extension AppReducer {
             switch action {
             case let .path(.element(id: _, action: .home(.wallet(.delegate(delegateAction))))):
                 switch delegateAction {
+                case .shieldFunds:
+                    return .none
                 case .showAddresses:
                     return .none
                 case .showTransactionHistory:
                     state.path.append(.transactionHistory())
                     return .none
                 case let .showTransactionDetail(walletEvent):
-                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent)))
+                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
             }
         }
@@ -45,10 +47,10 @@ extension AppReducer {
                     // TODO: Handle disk full
                     return .none
                 case let .showTransactionDetail(walletEvent):
-                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent)))
+                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
             }
         }

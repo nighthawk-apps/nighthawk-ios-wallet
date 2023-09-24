@@ -61,29 +61,11 @@ public extension SyncStatusSnapshot {
         }
     }
     
-    // TODO: Remove these and use `SyncStatus` directly once [https://github.com/zcash/ZcashLightClientKit/pull/1155] is merged
-    // and included upstream
-    var isSyncing: Bool {
-        if case .syncing = syncStatus {
+    var isSyncFailed: Bool {
+        if case .error = syncStatus {
             return true
         }
         
         return false
-    }
-    
-    var isSynced: Bool {
-        if case .upToDate = syncStatus {
-            return true
-        }
-        
-        return false
-    }
-
-    var isPrepared: Bool {
-        if case .unprepared = syncStatus {
-            return false
-        }
-        
-        return true
     }
 }

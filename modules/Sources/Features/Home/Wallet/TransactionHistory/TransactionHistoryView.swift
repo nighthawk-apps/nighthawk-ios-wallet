@@ -28,10 +28,7 @@ public struct TransactionHistoryView: View {
                 LazyVStack {
                     ForEach(viewStore.walletEvents) { walletEvent in
                         Button(action: { viewStore.send(.viewTransactionDetailTapped(walletEvent)) }) {
-                            walletEvent.nhRowView(
-                                showAmount: true,
-                                tokenName: tokenName
-                            )
+                            TransactionRowView(transaction: walletEvent.transaction, showAmount: true, tokenName: tokenName)
                         }
                         
                         Divider()

@@ -51,7 +51,7 @@ public struct TransactionRowView: View {
             
             Group {
                 if showAmount {
-                    Text(L10n.balance(transaction.zecAmount.decimalString(), tokenName))
+                    Text(L10n.balance(transaction.totalAmount.decimalString(), tokenName))
                 } else {
                     Text(L10n.balance("---", tokenName))
                 }

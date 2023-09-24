@@ -13,9 +13,7 @@ import UIComponents
 public struct SplashView: View {
     let store: StoreOf<Splash>
     
-    public init(store: StoreOf<Splash>) {
-        self.store = store
-    }
+    @Environment(\.scenePhase) var scenePhase
     
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -30,7 +28,7 @@ public struct SplashView: View {
                         .paragraph()
                 }
                 
-                if !viewStore.hasAuthenticated && viewStore.biometricsEnabled {
+                if viewStore.hasAttemptedAuthentication && !viewStore.authenticated {
                     Button(
                         L10n.Nighthawk.Splash.retry,
                         action: { viewStore.send(.retryTapped) }
@@ -47,7 +45,13 @@ public struct SplashView: View {
                     .frame(width: 131, height: 20)
                     .padding(.bottom, 44)
             }
-            .onAppear { viewStore.send(.onAppear) }
+            .onChange(of: scenePhase) { newPhase in viewStore.send(.scenePhaseChanged(newPhase)) }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
+            .onDisappear {
+                viewStore.send(.onDisappear)
+            }
         }
         .applyNighthawkBackground()
         .alert(
@@ -56,6 +60,10 @@ public struct SplashView: View {
                 action: { .alert($0) }
             )
         )
+    }
+    
+    public init(store: StoreOf<Splash>) {
+        self.store = store
     }
 }
 

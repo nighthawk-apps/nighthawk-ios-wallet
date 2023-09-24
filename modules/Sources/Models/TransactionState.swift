@@ -23,6 +23,7 @@ public struct TransactionState: Equatable, Identifiable {
     public var memos: [Memo]?
     public var minedHeight: BlockHeight?
     public var shielded = true
+    public var tAddress: String?
     public var zAddress: String?
     
     public var fee: Zatoshi
@@ -32,7 +33,7 @@ public struct TransactionState: Equatable, Identifiable {
     public var zecAmount: Zatoshi
     
     public var address: String {
-        zAddress ?? ""
+        zAddress ?? tAddress ?? ""
     }
     
     public var unarySymbol: String {
@@ -65,12 +66,26 @@ public struct TransactionState: Equatable, Identifiable {
         Zatoshi(zecAmount.amount + fee.amount)
     }
     
-    public var viewOnlineURL: URL? {
-        URL(string: "https://zcashblockexplorer.com/transactions/\(id)")
+    public func viewOnlineURL(for networkType: NetworkType) -> URL? {
+        let subdomain = switch networkType {
+        case .mainnet:
+            ""
+        case .testnet:
+            "testnet."
+        }
+        
+        return URL(string: "https://\(subdomain)zcashblockexplorer.com/transactions/\(id)")
     }
     
-    public var viewRecipientOnlineURL: URL? {
-        URL(string: "https://zcashblockexplorer.com/address/\(address)")
+    public func viewRecipientOnlineURL(for networkType: NetworkType) -> URL? {
+        let subdomain = switch networkType {
+        case .mainnet:
+            ""
+        case .testnet:
+            "testnet."
+        }
+        
+        return URL(string: "https://\(subdomain)zcashblockexplorer.com/address/\(address)")
     }
     
     public var textMemo: Memo? {

@@ -61,23 +61,14 @@ extension SDKSynchronizerClient {
                     )
 
                     let recipients = await synchronizer.getRecipients(for: clearedTransaction)
-                    let addresses = recipients.compactMap {
-                        if case let .address(address) = $0 {
-                            return address
-                        } else {
-                            return nil
-                        }
-                    }
+                    let tAddresses = recipients.allTransparent().addresses()
+                    let zAddresses = recipients.allShielded().addresses()
                     
-                    transaction.zAddress = addresses.first?.stringEncoded
+                    transaction.zAddress = zAddresses.first
+                    transaction.tAddress = tAddresses.first
+                    transaction.shielded = tAddresses.isEmpty
                     
-                    clearedTxs.append(
-                        WalletEvent(
-                            id: transaction.id,
-                            state: .transaction(transaction),
-                            timestamp: transaction.timestamp
-                        )
-                    )
+                    clearedTxs.append(WalletEvent(transaction: transaction))
                 }
                 
                 return clearedTxs
@@ -104,5 +95,47 @@ extension SDKSynchronizerClient {
             },
             wipe: { synchronizer.wipe() }
         )
+    }
+}
+
+private extension Array where Element == TransactionRecipient {
+    func allShielded() -> Self {
+        compactMap {
+            if case let .address(address) = $0 {
+                if case .unified = address {
+                    return $0
+                } else if case .sapling = address {
+                    return $0
+                }
+                
+                return nil
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    func allTransparent() -> Self {
+        compactMap {
+            if case let .address(address) = $0 {
+                if case .transparent = address {
+                    return $0
+                }
+                
+                return nil
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    func addresses() -> [String] {
+        compactMap {
+            if case let .address(recipient) = $0 {
+                return recipient.stringEncoded
+            }
+            
+            return nil
+        }
     }
 }

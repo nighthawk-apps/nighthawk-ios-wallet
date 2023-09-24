@@ -6,8 +6,10 @@
 //
 
 import ComposableArchitecture
+import Generated
 import Pasteboard
 import SwiftUI
+import UIComponents
 import Utils
 import ZcashLightClientKit
 
@@ -35,7 +37,7 @@ public struct Recipient: Reducer {
         case scanQRCodeTapped
         
         public enum Delegate: Equatable {
-            case nextScreen
+            case proceedWithRecipient(RedactableString)
             case scanCode
         }
     }
@@ -57,7 +59,7 @@ public struct Recipient: Reducer {
                 state.recipient = "".redacted
                 return .none
             case .continueTapped:
-                return .send(.delegate(.nextScreen))
+                return .send(.delegate(.proceedWithRecipient(state.recipient)))
             case .delegate:
                 return .none
             case .onAppear:
@@ -90,5 +92,9 @@ extension ViewStoreOf<Recipient> {
             get: { _ in recipient.data },
             send: { .recipientInputChanged($0.redacted) }
         )
+    }
+    
+    func validateRecipient() -> NighthawkTextFieldValidationState {
+        self.isRecipientValid ? .valid : .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)
     }
 }

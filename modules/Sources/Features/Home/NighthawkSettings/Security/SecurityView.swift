@@ -53,7 +53,7 @@ private extension SecurityView {
             return viewStore.areBiometricsEnabled
                 ? L10n.Nighthawk.SettingsTab.Security.biometricsEnabled("Touch ID")
                 : L10n.Nighthawk.SettingsTab.Security.biometricsDisabled("Touch ID")
-        case .none:
+        case .none, .opticID:
             return ""
         @unknown default:
             return ""

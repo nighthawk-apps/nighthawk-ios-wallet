@@ -8,7 +8,7 @@ import ZcashLightClientKit
 public struct TransactionDetailView: View {
     let store: StoreOf<TransactionDetail>
     let tokenName: String
-
+    
     public init(store: StoreOf<TransactionDetail>, tokenName: String) {
         self.store = store
         self.tokenName = tokenName
@@ -19,18 +19,13 @@ public struct TransactionDetailView: View {
             ScrollView([.vertical]) {
                 NighthawkHeading(title: L10n.Nighthawk.TransactionDetails.title)
                     .padding(.bottom, 24)
-
+                
                 transactionSummary(with: viewStore)
-
+                
                 TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
-
-                Button(L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer) {
-                    viewStore.send(.warnBeforeLeavingApp(viewStore.viewOnlineURL))
-                }
-                .buttonStyle(.nighthawkPrimary())
-                .padding(.bottom, 30)
             }
             .onAppear { viewStore.send(.onAppear) }
+            .onDisappear { viewStore.send(.onDisappear) }
         }
         .applyNighthawkBackground()
         .alert(
@@ -94,7 +89,7 @@ private extension ViewStoreOf<TransactionDetail> {
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.transactionId,
-                    value: self.id ?? L10n.General.unknown,
+                    value: self.id,
                     action: .init(
                         title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                         action: {
@@ -111,13 +106,13 @@ private extension ViewStoreOf<TransactionDetail> {
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.recipient,
                         value: self.shielded
-                            ? L10n.Nighthawk.TransactionDetails.recipientShielded
-                            : L10n.Nighthawk.TransactionDetails.recipientTransparent,
+                        ? L10n.Nighthawk.TransactionDetails.recipientShielded
+                        : L10n.Nighthawk.TransactionDetails.recipientTransparent,
                         showBorder: false
                     ),
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
-                        value: self.address ?? L10n.General.unknown,
+                        value: self.address,
                         action: .init(
                             title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                             action: {
@@ -129,20 +124,27 @@ private extension ViewStoreOf<TransactionDetail> {
             )
         }
         
+        if self.isSending {
+            result.append(
+                contentsOf: [
+                    TransactionLineItem(
+                        name: L10n.Nighthawk.TransactionDetails.subtotal,
+                        value: "\(self.zecAmount.decimalString()) \(tokenName)",
+                        showBorder: false
+                    ),
+                    TransactionLineItem(
+                        name: L10n.Nighthawk.TransactionDetails.networkFee,
+                        value: "\(self.fee.decimalString()) \(tokenName)"
+                    )
+                ]
+            )
+        }
+        
         result.append(
             contentsOf: [
                 TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.subtotal,
-                    value: "\(self.zecAmount?.decimalString() ?? L10n.General.unknown) \(tokenName)",
-                    showBorder: false
-                ),
-                TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.networkFee,
-                    value: "\(self.fee?.decimalString() ?? L10n.General.unknown) \(tokenName)"
-                ),
-                TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.totalAmount?.decimalString() ?? L10n.General.unknown) \(tokenName)"
+                    value: "\(self.totalAmount.decimalString()) \(tokenName)"
                 )
             ]
         )
@@ -155,17 +157,15 @@ private extension ViewStoreOf<TransactionDetail> {
 private extension TransactionDetailView {
     func transactionSummary(with viewStore: ViewStoreOf<TransactionDetail>) -> some View {
         VStack {
-            if let status = viewStore.status {
-                summaryIcon(for: status)
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundColor(.white)
-                    .frame(width: 24, height: 24)
-            }
+            summaryIcon(for: viewStore.status)
+                .resizable()
+                .renderingMode(.template)
+                .foregroundColor(.white)
+                .frame(width: 24, height: 24)
             
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.zecAmount?.decimalString() ?? L10n.General.unknown)")
+                    Text("\(viewStore.totalAmount.decimalString())")
                         .foregroundColor(.white)
                     
                     Text(tokenName)
@@ -174,10 +174,8 @@ private extension TransactionDetailView {
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
             
-            if let status = viewStore.status {
-                TransactionStatusView(status: status)
-                    .padding(.top, 22)
-            }
+            TransactionStatusView(status: viewStore.status)
+                .padding(.top, 22)
         }
     }
 }

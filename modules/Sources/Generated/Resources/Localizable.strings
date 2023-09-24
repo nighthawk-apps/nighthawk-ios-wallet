@@ -170,6 +170,7 @@
 
 // MARK: - Common & Shared
 "general.back" = "Back";
+"general.done" = "Done";
 "general.skip" = "Skip";
 "general.next" = "Next";
 "general.send" = "Send";
@@ -279,6 +280,23 @@
 "nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
 "nighthawk.app.nuke.alert.nukeFailed.title" = "Nuke of the wallet failed";
 
+// MARK: - Autoshield
+"nighthawk.autoshield.title1" = "Nighthawk is now";
+"nighthawk.autoshield.shieldedByDefault" = "Shielded-by-Default.";
+"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
+"nighthawk.autoshield.autoshielding" = "Autoshielding";
+"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your shielded address.";
+"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
+"nighthawk.autoshield.buttonPositive" = "Great!";
+"nighthawk.autoshield.buttonNeutral" = "Learn more";
+"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
+"nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
+"nighthawk.autoshield.shielding" = "Shielding…";
+"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "Success";
+"nighthawk.autoshield.shieldingFailed" = "Failed";
+
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
 "nighthawk.splash.retry" = "Retry";
@@ -378,6 +396,7 @@
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.title" = "Transaction History";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
+"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-shielded funds";
 
 // MARK: - Sync message
 "nighthawk.sync.message.uptodate" = "Up-To-Date";
@@ -430,7 +449,8 @@
 
 // MARK: - Home Screen - Transfer - Recipient
 "nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addZAddress" = "Add z-address here";
+"nighthawk.transferTab.recipient.addAddress" = "Add address here";
+"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
 "nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
 "nighthawk.transferTab.recipient.continue" = "Continue";
 

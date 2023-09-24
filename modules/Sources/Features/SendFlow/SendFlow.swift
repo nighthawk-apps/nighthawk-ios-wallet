@@ -27,22 +27,22 @@ public struct SendFlow: Reducer {
         
         public enum State: Equatable {
             case addMemo(AddMemo.State)
-            case failed(Failed.State)
+            case failed(SendFailed.State)
             case recipient(Recipient.State)
             case review(Review.State)
             case scan(Scan.State)
-            case sending(Sending.State)
-            case success(Success.State)
+            case sending
+            case success(SendSuccess.State)
         }
         
         public enum Action: Equatable {
             case addMemo(AddMemo.Action)
-            case failed(Failed.Action)
+            case failed(SendFailed.Action)
             case recipient(Recipient.Action)
             case review(Review.Action)
             case scan(Scan.Action)
-            case sending(Sending.Action)
-            case success(Success.Action)
+            case sending(Never)
+            case success(SendSuccess.Action)
         }
         
         public init(networkType: NetworkType) {
@@ -55,7 +55,7 @@ public struct SendFlow: Reducer {
             }
             
             Scope(state: /State.failed, action: /Action.failed) {
-                Failed()
+                SendFailed()
             }
             
             Scope(state: /State.recipient, action: /Action.recipient) {
@@ -70,12 +70,8 @@ public struct SendFlow: Reducer {
                 Scan(networkType: networkType)
             }
             
-            Scope(state: /State.sending, action: /Action.sending) {
-                Sending()
-            }
-            
             Scope(state: /State.success, action: /Action.success) {
-                Success()
+                SendSuccess()
             }
         }
     }
@@ -197,7 +193,7 @@ public struct SendFlow: Reducer {
                 state.path.append(Path.State.failed(.init()))
                 return .none
             case .sendTransactionInProgress:
-                state.path.append(SendFlow.Path.State.sending(.init()))
+                state.path.append(SendFlow.Path.State.sending)
                 return .none
             case .sendTransactionSuccess:
                 state.isSendingTransaction = false
@@ -206,7 +202,8 @@ public struct SendFlow: Reducer {
             case let .synchronizerStateChanged(latestState):
                 let shieldedBalance = latestState.shieldedBalance
                 state.shieldedBalance = shieldedBalance.redacted
-                state.maxAmount = shieldedBalance.verified
+                // TODO: [#1186] Use ZIP-317 fees when SDK supports it
+                state.maxAmount = shieldedBalance.verified - Zatoshi(10_000)
                 return .none
             case .topUpWalletTapped:
                 return .none
@@ -273,15 +270,16 @@ extension SendFlow {
             switch action {
             case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
                 switch delegateAction {
-                case .nextScreen:
-                    guard derivationTool.isZcashAddress(state.recipient.data, networkType) else { return .none }
-                    if derivationTool.isTransparentAddress(state.recipient.data, networkType) {
+                case let .proceedWithRecipient(recipient):
+                    guard derivationTool.isZcashAddress(recipient.data, networkType) else { return .none }
+                    state.recipient = recipient
+                    if derivationTool.isTransparentAddress(recipient.data, networkType) {
                         state.path.append(
                             Path.State.review(
                                 .init(
                                     subtotal: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: state.recipient
+                                    recipient: recipient
                                 )
                             )
                         )

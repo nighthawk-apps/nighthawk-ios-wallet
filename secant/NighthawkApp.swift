@@ -22,7 +22,7 @@ struct NighthawkApp: App {
                 store: Store(
                     initialState: AppReducer.State()
                 ) {
-                    AppReducer(zcashNetwork: TargetConstants.zcashNetwork)._printChanges()
+                    AppReducer(zcashNetwork: TargetConstants.zcashNetwork)
                 },
                 tokenName: TargetConstants.tokenName,
                 networkType: TargetConstants.zcashNetwork.networkType

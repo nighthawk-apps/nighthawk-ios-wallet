@@ -93,7 +93,7 @@ extension SDKSynchronizerClient {
                         timestamp: $0.date,
                         uuid: $0.uuid
                     )
-                    return WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp ?? 0)
+                    return WalletEvent(transaction: transaction)
                 }
         
             let mockedPending: [TransactionStateMockHelper] = [
@@ -118,7 +118,7 @@ extension SDKSynchronizerClient {
                         timestamp: $0.date,
                         uuid: $0.uuid
                     )
-                    return WalletEvent(id: transaction.id, state: .transaction(transaction), timestamp: transaction.timestamp)
+                    return WalletEvent(transaction: transaction)
                 }
             
             clearedTransactions.append(contentsOf: pendingTransactions)

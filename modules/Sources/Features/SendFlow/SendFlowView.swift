@@ -59,18 +59,21 @@ public struct SendFlowView: View {
                     action: SendFlow.Path.Action.addMemo,
                     then: AddMemoView.init(store:)
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .failed:
                 CaseLet(
                     /SendFlow.Path.State.failed,
                     action: SendFlow.Path.Action.failed,
-                    then: FailedView.init(store:)
+                    then: SendFailedView.init(store:)
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .recipient:
                 CaseLet(
                     /SendFlow.Path.State.recipient,
                     action: SendFlow.Path.Action.recipient,
                     then: RecipientView.init(store:)
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .review:
                 CaseLet(
                     /SendFlow.Path.State.review,
@@ -79,24 +82,24 @@ public struct SendFlowView: View {
                         ReviewView(store: store, tokenName: tokenName)
                     }
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .scan:
                 CaseLet(
                     /SendFlow.Path.State.scan,
                     action: SendFlow.Path.Action.scan,
                     then: ScanView.init(store:)
                 )
+                .toolbar(.hidden, for: .navigationBar)
             case .sending:
-                CaseLet(
-                    /SendFlow.Path.State.sending,
-                    action: SendFlow.Path.Action.sending,
-                    then: SendingView.init(store:)
-                )
+                SendingView()
+                    .toolbar(.hidden, for: .navigationBar)
             case .success:
                 CaseLet(
                     /SendFlow.Path.State.success,
                     action: SendFlow.Path.Action.success,
-                    then: SuccessView.init(store:)
+                    then: SendSuccessView.init(store:)
                 )
+                .toolbar(.hidden, for: .navigationBar)
             }
         }
         .applyNighthawkBackground()

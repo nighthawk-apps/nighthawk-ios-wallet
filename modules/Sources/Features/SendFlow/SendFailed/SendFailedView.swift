@@ -1,6 +1,6 @@
 //
-//  FailedView.swift
-//  
+//  SendFailedView.swift
+//
 //
 //  Created by Matthew Watt on 8/2/23.
 //
@@ -10,10 +10,10 @@ import Generated
 import SwiftUI
 import UIComponents
 
-public struct FailedView: View {
-    let store: StoreOf<Failed>
+public struct SendFailedView: View {
+    let store: StoreOf<SendFailed>
     
-    public init(store: StoreOf<Failed>) {
+    public init(store: StoreOf<SendFailed>) {
         self.store = store
     }
     

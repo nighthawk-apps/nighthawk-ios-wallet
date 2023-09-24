@@ -10,6 +10,7 @@ import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
 import Models
+import SwiftUI
 import UserPreferencesStorage
 import Utils
 import WalletStorage
@@ -20,11 +21,14 @@ public struct Splash: Reducer {
     
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
-        public var hasAuthenticated = false
+        public var authenticated = false
+        public var hasAttemptedAuthentication = false
         public var initializationState = InitializationState.uninitialized
-        public var biometricsEnabled: Bool {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.areBiometricsEnabled()
+        public var isAuthenticating = false
+        public var phase = ScenePhase.background
+        public var isVisible = true
+        public var shouldHandleScenePhaseChange: Bool {
+            isVisible && !isAuthenticating && !hasAttemptedAuthentication
         }
         
         public init() {}
@@ -36,8 +40,10 @@ public struct Splash: Reducer {
         case authenticationResponse(Bool)
         case checkWalletInitialization
         case delegate(Delegate)
+        case onDisappear
         case onAppear
         case retryTapped
+        case scenePhaseChanged(ScenePhase)
         
         public enum Alert: Equatable {}
         
@@ -60,6 +66,7 @@ public struct Splash: Reducer {
             case .alert(.dismiss):
                 return .none
             case .authenticate, .retryTapped:
+                state.isAuthenticating = true
                 return .run { send in
                     let context = localAuthenticationContext()
                     
@@ -77,7 +84,9 @@ public struct Splash: Reducer {
                     }
                 }
             case let .authenticationResponse(authenticated):
-                state.hasAuthenticated = authenticated
+                state.hasAttemptedAuthentication = true
+                state.authenticated = authenticated
+                state.isAuthenticating = false
                 return .none
             case .checkWalletInitialization:
                 state.initializationState = Splash.walletInitializationState(
@@ -107,11 +116,20 @@ public struct Splash: Reducer {
             case .delegate:
                 return .none
             case .onAppear:
-                return .run { send in
-                    /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                    try await clock.sleep(for: .seconds(0.5))
-                    await send(.checkWalletInitialization)
+                state.isVisible = true
+                return .none
+            case .onDisappear:
+                state.isVisible = false
+                return .none
+            case let .scenePhaseChanged(newPhase):
+                if newPhase == .active && state.shouldHandleScenePhaseChange {
+                    return .run { send in
+                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
+                        try await clock.sleep(for: .seconds(0.5))
+                        await send(.checkWalletInitialization)
+                    }
                 }
+                return .none
             }
         }
         .ifLet(\.$alert, action: /Action.alert)
