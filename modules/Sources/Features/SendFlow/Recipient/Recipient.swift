@@ -54,7 +54,7 @@ public struct Recipient: Reducer {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
-                return .run { send in await send(.delegate(.goBack)) }
+                return .send(.delegate(.goBack))
             case .clearRecipientTapped:
                 state.recipient = "".redacted
                 return .none

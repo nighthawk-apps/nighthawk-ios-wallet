@@ -34,7 +34,7 @@ public struct AddMemo: Reducer {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
-                return .run { send in await send(.delegate(.goBack)) }
+                return .send(.delegate(.goBack))
             case .continueOrSkipTapped:
                 return .send(.delegate(.nextScreen))
             case .delegate:
