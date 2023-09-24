@@ -641,6 +641,8 @@ public enum L10n {
       public enum AddMemo {
         /// Add a message to your payment
         public static let addMessageToPayment = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.addMessageToPayment", fallback: "Add a message to your payment")
+        /// Include reply-to
+        public static let includeReplyTo = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.includeReplyTo", fallback: "Include reply-to")
         /// Write something...
         public static let writeSomething = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.writeSomething", fallback: "Write something...")
       }

@@ -444,6 +444,7 @@
 // MARK: - Home Screen - Transfer - Add memo
 "nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
 "nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
 
 // MARK: - Home Screen - Transfer - Recipient
 "nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";

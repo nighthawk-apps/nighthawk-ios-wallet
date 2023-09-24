@@ -32,12 +32,20 @@ public struct AddMemoView: View {
                 
                 NighthawkTextEditor(
                     placeholder: L10n.Nighthawk.TransferTab.AddMemo.writeSomething,
-                    text: viewStore.bindingForRedactableMemo(viewStore.memo),
+                    text: viewStore.bindingForRedactableMemo(viewStore.internalMemo),
                     foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color
                 )
                 .frame(width: nil, height: 120, alignment: .center)
                 .padding(.horizontal, 24)
                 .focused($isMemoEditorFocused)
+                
+                CheckBox(isChecked: viewStore.$isIncludeReplyToChecked) {
+                    Text(L10n.Nighthawk.TransferTab.AddMemo.includeReplyTo)
+                        .caption()
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 24)
+                .disable(when: !viewStore.hasEnteredMemo, dimmingOpacity: 0.3)
                 
                 Spacer()
                 
@@ -46,6 +54,7 @@ public struct AddMemoView: View {
             .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
             .onAppear {
                 isMemoEditorFocused = true
+                viewStore.send(.onAppear)
             }
         }
         .applyNighthawkBackground()
