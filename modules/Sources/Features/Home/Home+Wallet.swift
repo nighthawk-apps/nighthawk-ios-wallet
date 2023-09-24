@@ -19,6 +19,16 @@ extension Home {
             switch action {
             case let .wallet(.delegate(delegateAction)):
                 switch delegateAction {
+                case .scanPaymentRequest:
+                    state.selectedTab = .transfer
+                    state.transfer.destination = .send(
+                        .init(
+                            path: StackState([
+                                .scan(.init())
+                            ])
+                        )
+                    )
+                    return .none
                 case .shieldFunds:
                     state.destination = .autoshield(.init())
                     return .none

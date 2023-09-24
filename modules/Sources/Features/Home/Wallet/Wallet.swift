@@ -42,12 +42,14 @@ public struct Wallet: Reducer {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
+        case scanPaymentRequestTapped
         case shieldNowTapped
         case viewAddressesTapped
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
         
         public enum Delegate: Equatable {
+            case scanPaymentRequest
             case shieldFunds
             case showAddresses
             case showTransactionHistory
@@ -64,6 +66,8 @@ public struct Wallet: Reducer {
                 return .none
             case .delegate:
                 return .none
+            case .scanPaymentRequestTapped:
+                return .send(.delegate(.scanPaymentRequest))
             case .shieldNowTapped:
                 return .send(.delegate(.shieldFunds))
             case .viewAddressesTapped:

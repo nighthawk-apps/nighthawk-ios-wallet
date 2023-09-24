@@ -21,6 +21,8 @@ extension AppReducer {
             switch action {
             case let .path(.element(id: _, action: .home(.wallet(.delegate(delegateAction))))):
                 switch delegateAction {
+                case .scanPaymentRequest:
+                    return .none
                 case .shieldFunds:
                     return .none
                 case .showAddresses:

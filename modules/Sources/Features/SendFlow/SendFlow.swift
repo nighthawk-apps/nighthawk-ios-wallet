@@ -78,7 +78,7 @@ public struct SendFlow: Reducer {
     
     
     public struct State: Equatable {
-        public var path = StackState<Path.State>()
+        public var path: StackState<Path.State>
         @BindingState public var toast: Toast?
 
         public var shieldedBalance = Balance.zero
@@ -105,7 +105,9 @@ public struct SendFlow: Reducer {
             case notEnoughZcash
         }
 
-        public init() {}
+        public init(path: StackState<Path.State> = .init()) {
+            self.path = path
+        }
     }
     
     public enum Action: BindableAction, Equatable {
