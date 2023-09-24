@@ -438,6 +438,7 @@
 "nighthawk.transferTab.send.continue" = "Continue";
 "nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
 "nighthawk.transferTab.send.scanCode" = "Scan a payment code";
+"nighthawk.transferTab.send.toast.notEnoughZcash" = "Not enough Zcash!";
 
 // MARK: - Home Screen - Transfer - Scan
 "nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";

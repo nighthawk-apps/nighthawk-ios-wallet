@@ -54,13 +54,26 @@ extension ScanUIView {
         clipsToBounds = true
         captureSession = AVCaptureSession()
         
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {
-            scanningDidFail()
-            return
+        let videoCaptureDevice: AVCaptureDevice
+        if let triple = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: .back) {
+            videoCaptureDevice = triple
+        } else if let double = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: .back) {
+            videoCaptureDevice = double
+        } else {
+            guard let genericDevice = AVCaptureDevice.default(for: .video) else {
+                scanningDidFail()
+                return
+            }
+            
+            videoCaptureDevice = genericDevice
         }
-        
+                
         let videoInput: AVCaptureDeviceInput
         do {
+            try videoCaptureDevice.lockForConfiguration()
+            videoCaptureDevice.focusMode = .continuousAutoFocus
+            videoCaptureDevice.unlockForConfiguration()
+            
             videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
         } catch {
             scanningDidFail()

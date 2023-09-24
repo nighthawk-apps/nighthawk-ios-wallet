@@ -25,17 +25,16 @@ public struct AddMemo: Reducer {
         case memoInputChanged(RedactableString)
         
         public enum Delegate: Equatable {
+            case goBack
             case nextScreen
         }
     }
-    
-    @Dependency(\.dismiss) var dismiss
-    
+        
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
-                return .run { _ in await self.dismiss() }
+                return .run { send in await send(.delegate(.goBack)) }
             case .continueOrSkipTapped:
                 return .send(.delegate(.nextScreen))
             case .delegate:

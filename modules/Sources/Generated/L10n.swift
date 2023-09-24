@@ -703,6 +703,10 @@ public enum L10n {
         }
         /// Top up wallet
         public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
+        public enum Toast {
+          /// Not enough Zcash!
+          public static let notEnoughZcash = L10n.tr("Localizable", "nighthawk.transferTab.send.toast.notEnoughZcash", fallback: "Not enough Zcash!")
+        }
       }
       public enum Sending {
         /// Sending

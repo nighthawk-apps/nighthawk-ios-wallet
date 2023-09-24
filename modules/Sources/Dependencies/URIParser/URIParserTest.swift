@@ -10,6 +10,6 @@ import XCTestDynamicOverlay
 
 extension URIParserClient: TestDependencyKey {
     public static let testValue = Self(
-        isValidURI: XCTUnimplemented("\(Self.self).isValidURI", placeholder: false)
+        parseZaddrOrZIP321: XCTUnimplemented("\(Self.self).parseZaddrOrZIP321")
     )
 }

@@ -7,6 +7,7 @@
 
 import CaptureDevice
 import ComposableArchitecture
+import DerivationTool
 import URIParser
 import Utils
 import ZcashLightClientKit
@@ -40,7 +41,7 @@ public struct Scan: Reducer {
         case scanFailed
         
         public enum Delegate: Equatable {
-            case handleCode(RedactableString)
+            case handleParseResult(QRCodeParseResult)
         }
     }
     
@@ -49,6 +50,7 @@ public struct Scan: Reducer {
     let networkType: NetworkType
     @Dependency(\.captureDevice) var captureDevice
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.uriParser) var uriParser
@@ -77,15 +79,21 @@ public struct Scan: Reducer {
                 if let prevCode = state.scannedValue, prevCode == code.data {
                     return .none
                 }
-                if uriParser.isValidURI(code.data, networkType) {
+                
+                var parseResult = uriParser.parseZaddrOrZIP321(code.data, networkType)
+                if derivationTool.isTransparentAddress(code.data, networkType) {
+                    parseResult.address = code.data
+                }
+                
+                if !parseResult.address.isEmpty {
                     state.scanStatus = .value(code)
                     // once valid URI is scanned we want to start the timer to deliver the code
                     // any new code cancels the schedule and fires new one
                     return .concatenate(
                         .cancel(id: CancelId.timer),
-                        .run { send in
+                        .run { [parseResult] send in
                             try await clock.sleep(for: .seconds(1))
-                            await send(.delegate(.handleCode(code)))
+                            await send(.delegate(.handleParseResult(parseResult)))
                         }
                         .cancellable(id: CancelId.timer, cancelInFlight: true)
                     )
