@@ -975,19 +975,6 @@ public enum L10n {
         public static let testCrashReporter = L10n.tr("Localizable", "root.debug.option.testCrashReporter", fallback: "Test Crash Reporter")
       }
     }
-    public enum Destination {
-      public enum Alert {
-        public enum FailedToProcessDeeplink {
-          /// Deeplink: (%@))
-          /// Error: (%@) (code: %@)
-          public static func message(_ p1: Any, _ p2: Any, _ p3: Any) -> String {
-            return L10n.tr("Localizable", "root.destination.alert.failedToProcessDeeplink.message", String(describing: p1), String(describing: p2), String(describing: p3), fallback: "Deeplink: (%@))\nError: (%@) (code: %@)")
-          }
-          /// Failed to process deeplink.
-          public static let title = L10n.tr("Localizable", "root.destination.alert.failedToProcessDeeplink.title", fallback: "Failed to process deeplink.")
-        }
-      }
-    }
     public enum Initialization {
       public enum Alert {
         public enum CantCreateNewWallet {
