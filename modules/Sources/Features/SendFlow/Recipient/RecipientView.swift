@@ -61,7 +61,12 @@ public struct RecipientView: View {
                 .disabled(!viewStore.isRecipientValid)
                 .padding(.bottom, 28)
             }
-            .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
+            .showNighthawkBackButton(
+                action: {
+                    isRecipientEditorFocused = false
+                    viewStore.send(.backButtonTapped)
+                }
+            )
             .onAppear {
                 isRecipientEditorFocused = true
                 viewStore.send(.onAppear)

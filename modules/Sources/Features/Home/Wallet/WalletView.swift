@@ -25,7 +25,7 @@ public struct WalletView: View {
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                qrCodeButton(with: viewStore)
+                qrCodeButtons(with: viewStore)
                 
                 header(with: viewStore)
                 
@@ -50,7 +50,7 @@ public struct WalletView: View {
 
 // MARK: - Subviews
 private extension WalletView {
-    func qrCodeButton(with viewStore: ViewStoreOf<Wallet>) -> some View {
+    func qrCodeButtons(with viewStore: ViewStoreOf<Wallet>) -> some View {
         HStack {
             Button(action: { viewStore.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
@@ -61,6 +61,14 @@ private extension WalletView {
             .padding([.top, .leading], 25)
             
             Spacer()
+            
+            Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
+                Asset.Assets.Icons.Nighthawk.boxedQrCode.image
+                    .resizable()
+                    .frame(width: 22, height: 22)
+                    .aspectRatio(contentMode: .fit)
+            }
+            .padding([.top, .trailing], 25)
         }
     }
     

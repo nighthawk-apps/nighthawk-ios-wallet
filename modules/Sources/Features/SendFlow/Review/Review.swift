@@ -52,12 +52,12 @@ public struct Review: Reducer {
         }
         
         public enum Delegate: Equatable {
+            case goBack
             case sendZcash
         }
     }
     
     @Dependency(\.derivationTool) var derivationTool
-    @Dependency(\.dismiss) var dismiss
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     
@@ -77,7 +77,7 @@ public struct Review: Reducer {
                 }
                 return .none
             case .backButtonTapped:
-                return .run { _ in await self.dismiss() }
+                return .send(.delegate(.goBack))
             case .delegate:
                 return .none
             case .onAppear:

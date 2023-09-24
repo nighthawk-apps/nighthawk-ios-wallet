@@ -216,30 +216,12 @@
       }
     },
     {
-      "identity" : "swift-parsing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-parsing",
-      "state" : {
-        "revision" : "a0e7d73f462c1c38c59dc40a3969ac40cea42950",
-        "version" : "0.13.0"
-      }
-    },
-    {
       "identity" : "swift-protobuf",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-protobuf.git",
       "state" : {
         "revision" : "cf62cdaea48b77f1a631e5cb3aeda6047c2cba1d",
         "version" : "1.23.0"
-      }
-    },
-    {
-      "identity" : "swift-url-routing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-url-routing",
-      "state" : {
-        "revision" : "13f65cec4de950ba30f08d9bc4abcfa41f9479b9",
-        "version" : "0.6.0"
       }
     },
     {
@@ -274,8 +256,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zcash-hackworks/zcash-light-client-ffi",
       "state" : {
-        "revision" : "d085da2f5cae103fe88e727713071644a4bfa5a2",
-        "version" : "0.4.0-rc.3"
+        "revision" : "8eebc40ac69598c3c02344cf547e1005d5963b31",
+        "version" : "0.4.0-rc.4"
       }
     },
     {
@@ -283,8 +265,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zcash/ZcashLightClientKit",
       "state" : {
-        "revision" : "09c97184ec19af578592f05cc4fcb7f2551f8f0d",
-        "version" : "2.0.0-rc.3"
+        "revision" : "d8b069fd15bb4d9d9e4ca975af035c881c55b8c6",
+        "version" : "2.0.0-rc.4"
       }
     }
   ],

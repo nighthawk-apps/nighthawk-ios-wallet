@@ -16,8 +16,8 @@ public struct ScanView: View {
     let normalizedRectOfInterest: CGRect = CGRect(
         x: 0.25,
         y: 0.25,
-        width: 0.5,
-        height: 0.5
+        width: 1.0,
+        height: 1.0
     )
     
     public var body: some View {

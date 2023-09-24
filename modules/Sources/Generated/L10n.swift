@@ -641,6 +641,8 @@ public enum L10n {
       public enum AddMemo {
         /// Add a message to your payment
         public static let addMessageToPayment = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.addMessageToPayment", fallback: "Add a message to your payment")
+        /// Include reply-to
+        public static let includeReplyTo = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.includeReplyTo", fallback: "Include reply-to")
         /// Write something...
         public static let writeSomething = L10n.tr("Localizable", "nighthawk.transferTab.addMemo.writeSomething", fallback: "Write something...")
       }
@@ -703,6 +705,10 @@ public enum L10n {
         }
         /// Top up wallet
         public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
+        public enum Toast {
+          /// Not enough Zcash!
+          public static let notEnoughZcash = L10n.tr("Localizable", "nighthawk.transferTab.send.toast.notEnoughZcash", fallback: "Not enough Zcash!")
+        }
       }
       public enum Sending {
         /// Sending
@@ -969,19 +975,6 @@ public enum L10n {
         public static let restartApp = L10n.tr("Localizable", "root.debug.option.restartApp", fallback: "Restart the app")
         /// Test Crash Reporter
         public static let testCrashReporter = L10n.tr("Localizable", "root.debug.option.testCrashReporter", fallback: "Test Crash Reporter")
-      }
-    }
-    public enum Destination {
-      public enum Alert {
-        public enum FailedToProcessDeeplink {
-          /// Deeplink: (%@))
-          /// Error: (%@) (code: %@)
-          public static func message(_ p1: Any, _ p2: Any, _ p3: Any) -> String {
-            return L10n.tr("Localizable", "root.destination.alert.failedToProcessDeeplink.message", String(describing: p1), String(describing: p2), String(describing: p3), fallback: "Deeplink: (%@))\nError: (%@) (code: %@)")
-          }
-          /// Failed to process deeplink.
-          public static let title = L10n.tr("Localizable", "root.destination.alert.failedToProcessDeeplink.title", fallback: "Failed to process deeplink.")
-        }
       }
     }
     public enum Initialization {

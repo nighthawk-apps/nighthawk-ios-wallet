@@ -228,9 +228,6 @@
 "root.initialization.alert.wipe.message" = "Are you sure?";
 "root.initialization.alert.wipeFailed.title" = "Nuke of the wallet failed";
 
-"root.destination.alert.failedToProcessDeeplink.title" = "Failed to process deeplink.";
-"root.destination.alert.failedToProcessDeeplink.message" = "Deeplink: \(%@))\nError: \(%@) (code: %@)";
-
 "root.debug.title" = "Debug options";
 "root.debug.navigationTitle" = "Startup";
 "root.debug.option.gotoSandbox" = "Go To Sandbox (navigation proof)";
@@ -438,6 +435,7 @@
 "nighthawk.transferTab.send.continue" = "Continue";
 "nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
 "nighthawk.transferTab.send.scanCode" = "Scan a payment code";
+"nighthawk.transferTab.send.toast.notEnoughZcash" = "Not enough Zcash!";
 
 // MARK: - Home Screen - Transfer - Scan
 "nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
@@ -446,6 +444,7 @@
 // MARK: - Home Screen - Transfer - Add memo
 "nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
 "nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
 
 // MARK: - Home Screen - Transfer - Recipient
 "nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";

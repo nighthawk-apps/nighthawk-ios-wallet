@@ -37,6 +37,7 @@ public struct Recipient: Reducer {
         case scanQRCodeTapped
         
         public enum Delegate: Equatable {
+            case goBack
             case proceedWithRecipient(RedactableString)
             case scanCode
         }
@@ -47,14 +48,13 @@ public struct Recipient: Reducer {
     }
     
     @Dependency(\.derivationTool) var derivationTool
-    @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
-                return .run { _ in await self.dismiss() }
+                return .send(.delegate(.goBack))
             case .clearRecipientTapped:
                 state.recipient = "".redacted
                 return .none

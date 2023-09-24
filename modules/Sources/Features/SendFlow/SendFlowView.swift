@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 7/19/23.
 //
 
+import AlertToast
 import ComposableArchitecture
 import Generated
 import SwiftUI
@@ -49,6 +50,16 @@ public struct SendFlowView: View {
                     availableActions(with: viewStore)
                 }
                 .onAppear { viewStore.send(.onAppear) }
+                .toast(
+                    unwrapping: viewStore.$toast,
+                    case: /SendFlow.State.Toast.notEnoughZcash,
+                    alert: {
+                        AlertToast(
+                            type: .regular,
+                            title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughZcash
+                        )
+                    }
+                )
             }
             .applyNighthawkBackground()
         } destination: { state in

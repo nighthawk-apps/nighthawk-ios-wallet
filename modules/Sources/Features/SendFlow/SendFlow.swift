@@ -78,7 +78,8 @@ public struct SendFlow: Reducer {
     
     
     public struct State: Equatable {
-        public var path = StackState<Path.State>()
+        public var path: StackState<Path.State>
+        @BindingState public var toast: Toast?
 
         public var shieldedBalance = Balance.zero
         public var memoCharLimit = 0
@@ -90,17 +91,23 @@ public struct SendFlow: Reducer {
         public var amountToSend: Zatoshi {
             Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
-        public var recipient: RedactableString = "".redacted
+        public var recipient: RedactableString?
         public var memo: RedactableString?
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
-        public var hasEnteredRecipient: Bool { !recipient.data.isEmpty }
+        public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
              amountToSend <= maxAmount
         }
+        
+        public enum Toast {
+            case notEnoughZcash
+        }
 
-        public init() {}
+        public init(path: StackState<Path.State> = .init()) {
+            self.path = path
+        }
     }
     
     public enum Action: BindableAction, Equatable {
@@ -137,7 +144,28 @@ public struct SendFlow: Reducer {
         Reduce { state, action in
             switch action {
             case .continueTapped:
-                state.path.append(Path.State.recipient(.init()))
+                if state.recipient == nil {
+                    state.path.append(Path.State.recipient(.init()))
+                    return .none
+                }
+                
+                if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!.data, networkType) {
+                    var addMemoState = AddMemo.State()
+                    addMemoState.memoCharLimit = state.memoCharLimit
+                    state.path.append(Path.State.addMemo(addMemoState))
+                    return .none
+                }
+                
+                state.path.append(
+                    Path.State.review(
+                        .init(
+                            subtotal: state.amountToSend,
+                            memo: state.memo,
+                            recipient: state.recipient!
+                        )
+                    )
+                )
+                
                 return .none
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
@@ -148,9 +176,11 @@ public struct SendFlow: Reducer {
                 }
                 .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
             case .scanCodeTapped:
+                state.path.append(.scan(.init()))
                 return .none
             case .sendTransaction:
-                guard !state.isSendingTransaction else { return .none }
+                guard !state.isSendingTransaction, 
+                    let recipientStr = state.recipient?.data else { return .none }
                 
                 do {
                     let storedWallet = try walletStorage.exportWallet()
@@ -159,7 +189,7 @@ public struct SendFlow: Reducer {
                     
                     state.isSendingTransaction = true
                     
-                    let recipient = try ZcashLightClientKit.Recipient(state.recipient.data, network: networkType)
+                    let recipient = try ZcashLightClientKit.Recipient(recipientStr, network: networkType)
                     var memo: Memo?
                     if (/ZcashLightClientKit.Recipient.transparent).extract(from: recipient) == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
                         memo = try Memo(string: memoStr)
@@ -231,19 +261,36 @@ extension SendFlow {
             switch action {
             case let .path(.element(id: id, action: .addMemo(.delegate(delegateAction)))):
                 switch delegateAction {
+                case .goBack:
+                    if state.path.count == 1 {
+                        // Returning from recipient will take us back to amount entry
+                        // Reset the transaction
+                        state.amountToSendInput = "0"
+                        state.recipient = nil
+                        state.memo = nil
+                    }
+                    
+                    let _ = state.path.popLast()
+                    return .none
                 case .nextScreen:
                     guard case let .addMemo(addMemoState) = state.path[id: id]
                     else { return .none }
                     state.memo = addMemoState.memo
-                    state.path.append(
-                        Path.State.review(
-                            .init(
-                                subtotal: state.amountToSend,
-                                memo: state.memo,
-                                recipient: state.recipient
+                    
+                    if let recipient = state.recipient {
+                        state.path.append(
+                            Path.State.review(
+                                .init(
+                                    subtotal: state.amountToSend,
+                                    memo: state.memo,
+                                    recipient: recipient
+                                )
                             )
                         )
-                    )
+                    } else {
+                        state.path.append(.recipient(.init()))
+                    }
+                    
                     return .none
                 }
             case .binding,
@@ -270,6 +317,17 @@ extension SendFlow {
             switch action {
             case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
                 switch delegateAction {
+                case .goBack:
+                    if state.path.count == 1 {
+                        // Returning from recipient will take us back to amount entry
+                        // Reset the transaction
+                        state.amountToSendInput = "0"
+                        state.recipient = nil
+                        state.memo = nil
+                    }
+                    
+                    let _ = state.path.popLast()
+                    return .none
                 case let .proceedWithRecipient(recipient):
                     guard derivationTool.isZcashAddress(recipient.data, networkType) else { return .none }
                     state.recipient = recipient
@@ -315,19 +373,45 @@ extension SendFlow {
     func scanDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .scan(.delegate(.handleCode(code))))):
-                state.recipient = code
-                state.path = StackState(
-                    state.path.map { state in
-                        if case var .recipient(recipientState) = state {
-                            recipientState.recipient = code
-                            return Path.State.recipient(recipientState)
-                        }
-                    
-                        return state
-                    }
-                )
+            case let .path(.element(id: _, action: .scan(.delegate(.handleParseResult(result))))):
+                state.recipient = result.address.redacted
+                state.amountToSendInput = result.amount ?? state.amountToSendInput
+                state.memo = result.memo?.redacted
                 let _ = state.path.popLast()
+                
+                if let address = state.recipient, !address.data.isEmpty {
+                    if !state.hasEnteredAmount {
+                        state.path = StackState()
+                        return .none
+                    }
+                    
+                    if state.amountToSend > (state.maxAmount - Zatoshi(10_000)) {
+                        state.amountToSendInput = "0"
+                        state.recipient = nil
+                        state.memo = nil
+                        state.path = StackState()
+                        state.toast = .notEnoughZcash
+                        return .none
+                    }
+                    
+                    if state.memo == nil && derivationTool.isSaplingAddress(address.data, networkType) {
+                        var addMemoState = AddMemo.State()
+                        addMemoState.memoCharLimit = state.memoCharLimit
+                        state.path.append(Path.State.addMemo(addMemoState))
+                        return .none
+                    }
+                    
+                    state.path.append(
+                        .review(
+                            .init(
+                                subtotal: state.amountToSend,
+                                memo: state.memo,
+                                recipient: address
+                            )
+                        )
+                    )
+                }
+                
                 return .none
             case .binding,
                  .continueTapped,
@@ -351,8 +435,22 @@ extension SendFlow {
     func reviewDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
         Reduce { state, action in
             switch action {
-            case .path(.element(id: _, action: .review(.delegate(.sendZcash)))):
-                return .send(.sendTransaction)
+            case let .path(.element(id: _, action: .review(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .goBack:
+                    if state.path.count == 1 {
+                        // Returning from review will take us back to amount entry
+                        // Reset the transaction
+                        state.amountToSendInput = "0"
+                        state.recipient = nil
+                        state.memo = nil
+                    }
+                    
+                    let _ = state.path.popLast()
+                    return .none
+                case .sendZcash:
+                    return .send(.sendTransaction)
+                }
             case .binding,
                  .continueTapped,
                  .onAppear,
