@@ -9,8 +9,8 @@ import ComposableArchitecture
 
 extension URIParserClient: DependencyKey {
     public static let liveValue = Self(
-        isValidURI: { uri, network in
-            URIParser().isValidURI(uri, network: network)
+        parseZaddrOrZIP321: { uri, network in
+            URIParser().parseZaddrOrZIP321(from: uri, network: network)
         }
     )
 }

@@ -17,6 +17,6 @@ extension DependencyValues {
 }
 
 public struct URIParserClient {
-    public var isValidURI: (String, NetworkType) -> Bool
+    public var parseZaddrOrZIP321: (String, NetworkType) -> QRCodeParseResult
 }
         
