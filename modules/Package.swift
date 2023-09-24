@@ -17,7 +17,6 @@ let package = Package(
         .library(name: "CaptureDevice", targets: ["CaptureDevice"]),
         .library(name: "DatabaseFiles", targets: ["DatabaseFiles"]),
         .library(name: "Date", targets: ["Date"]),
-        .library(name: "Deeplink", targets: ["Deeplink"]),
         .library(name: "DerivationTool", targets: ["DerivationTool"]),
         .library(name: "DiskSpaceChecker", targets: ["DiskSpaceChecker"]),
         .library(name: "ExportSeed", targets: ["ExportSeed"]),
@@ -58,7 +57,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
-        .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.5.0"),
         .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0-rc.4"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
@@ -153,16 +151,6 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/Date"
-        ),
-        .target(
-            name: "Deeplink",
-            dependencies: [
-                "DerivationTool",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "URLRouting", package: "swift-url-routing"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
-            ],
-            path: "Sources/Dependencies/Deeplink"
         ),
         .target(
             name: "DerivationTool",
