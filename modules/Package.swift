@@ -25,6 +25,7 @@ let package = Package(
         .library(name: "Generated", targets: ["Generated"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
         .library(name: "ImportWalletSuccess", targets: ["ImportWalletSuccess"]),
+        .library(name: "ImportWarning", targets: ["ImportWarning"]),
         .library(name: "Migrate", targets: ["Migrate"]),
         .library(name: "Home", targets: ["Home"]),
         .library(name: "TransactionDetail", targets: ["TransactionDetail"]),
@@ -223,6 +224,15 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/ImportWalletSuccess"
+        ),
+        .target(
+            name: "ImportWarning",
+            dependencies: [
+                "Generated",
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/ImportWarning"
         ),
         .target(
             name: "Migrate",
@@ -508,6 +518,7 @@ let package = Package(
             name: "Welcome",
             dependencies: [
                 "Generated",
+                "ImportWarning",
                 "UIComponents",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],

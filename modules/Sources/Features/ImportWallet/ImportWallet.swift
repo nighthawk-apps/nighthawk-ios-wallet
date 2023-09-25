@@ -27,15 +27,6 @@ public struct ImportWallet: Reducer {
         public var wordsCount = 0
         public var isValidNumberOfWords = false
         public var maxWordsCount = 0
-        
-        public var mnemonicStatus: String {
-            if isValidMnemonic {
-                return L10n.ImportWallet.Seed.valid
-            } else {
-                return "\(wordsCount)/\(maxWordsCount)"
-            }
-        }
-        
         public var isValidForm: Bool {
             isValidMnemonic &&
             (birthdayHeight.data.isEmpty ||

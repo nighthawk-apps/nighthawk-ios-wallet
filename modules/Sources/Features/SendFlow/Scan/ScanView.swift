@@ -49,7 +49,10 @@ public struct ScanView: View {
                     
                     Spacer()
                 }
-                .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
+                .showNighthawkBackButton(
+                    type: viewStore.backButtonType,
+                    action: { viewStore.send(.backButtonTapped) }
+                )
             }
             .onAppear { viewStore.send(.onAppear) }
             .onDisappear { viewStore.send(.onDisappear) }

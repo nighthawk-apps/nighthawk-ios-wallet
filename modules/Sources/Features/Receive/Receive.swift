@@ -20,25 +20,15 @@ public struct Receive: Reducer {
         @BindingState public var toast: Toast?
         
         public var unifiedAddress: String {
-            uAddress?.stringEncoded ?? L10n.AddressDetails.Error.cantExtractUnifiedAddress
+            uAddress?.stringEncoded ?? "-"
         }
         
         public var transparentAddress: String {
-            do {
-                let address = try uAddress?.transparentReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractTransparentAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractTransparentAddress
-            }
+            (try? uAddress?.transparentReceiver().stringEncoded) ?? "-"
         }
 
         public var saplingAddress: String {
-            do {
-                let address = try uAddress?.saplingReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractSaplingAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractSaplingAddress
-            }
+            (try? uAddress?.saplingReceiver().stringEncoded) ?? "-"
         }
         
         var uAddress: UnifiedAddress?

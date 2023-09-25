@@ -373,46 +373,52 @@ extension SendFlow {
     func scanDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .scan(.delegate(.handleParseResult(result))))):
-                state.recipient = result.address.redacted
-                state.amountToSendInput = result.amount ?? state.amountToSendInput
-                state.memo = result.memo?.redacted
-                let _ = state.path.popLast()
-                
-                if let address = state.recipient, !address.data.isEmpty {
-                    if !state.hasEnteredAmount {
-                        state.path = StackState()
-                        return .none
-                    }
+            case let .path(.element(id: _, action: .scan(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .goHome:
+                    return .none
+                case let .handleParseResult(result):
+                    state.recipient = result.address.redacted
+                    state.amountToSendInput = result.amount ?? state.amountToSendInput
+                    state.memo = result.memo?.redacted
+                    let _ = state.path.popLast()
                     
-                    if state.amountToSend > (state.maxAmount - Zatoshi(10_000)) {
-                        state.amountToSendInput = "0"
-                        state.recipient = nil
-                        state.memo = nil
-                        state.path = StackState()
-                        state.toast = .notEnoughZcash
-                        return .none
-                    }
-                    
-                    if state.memo == nil && derivationTool.isSaplingAddress(address.data, networkType) {
-                        var addMemoState = AddMemo.State()
-                        addMemoState.memoCharLimit = state.memoCharLimit
-                        state.path.append(Path.State.addMemo(addMemoState))
-                        return .none
-                    }
-                    
-                    state.path.append(
-                        .review(
-                            .init(
-                                subtotal: state.amountToSend,
-                                memo: state.memo,
-                                recipient: address
+                    if let address = state.recipient, !address.data.isEmpty {
+                        if !state.hasEnteredAmount {
+                            state.path = StackState()
+                            return .none
+                        }
+                        
+                        if state.amountToSend > (state.maxAmount - Zatoshi(10_000)) {
+                            state.amountToSendInput = "0"
+                            state.recipient = nil
+                            state.memo = nil
+                            state.path = StackState()
+                            state.toast = .notEnoughZcash
+                            return .none
+                        }
+                        
+                        if state.memo == nil && derivationTool.isSaplingAddress(address.data, networkType) {
+                            var addMemoState = AddMemo.State()
+                            addMemoState.memoCharLimit = state.memoCharLimit
+                            state.path.append(Path.State.addMemo(addMemoState))
+                            return .none
+                        }
+                        
+                        state.path.append(
+                            .review(
+                                .init(
+                                    subtotal: state.amountToSend,
+                                    memo: state.memo,
+                                    recipient: address
+                                )
                             )
                         )
-                    )
+                    }
+                    
+                    return .none
                 }
                 
-                return .none
             case .binding,
                  .continueTapped,
                  .onAppear,

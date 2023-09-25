@@ -21,16 +21,16 @@ public struct SyncStatusSnapshot: Equatable {
     public static func snapshotFor(state: SyncStatus) -> SyncStatusSnapshot {
         switch state {
         case .upToDate:
-            return SyncStatusSnapshot(state, L10n.Sync.Message.uptodate)
+            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.uptodate)
             
         case .unprepared:
-            return SyncStatusSnapshot(state, L10n.Sync.Message.unprepared)
+            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.unprepared)
             
         case .error(let error):
-            return SyncStatusSnapshot(state, L10n.Sync.Message.error(error.toZcashError().message))
+            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.error(error.toZcashError().message))
 
         case .syncing(let progress):
-            return SyncStatusSnapshot(state, L10n.Sync.Message.sync(String(format: "%0.1f", progress * 100)))
+            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.sync(String(format: "%0.1f", progress * 100)))
         }
     }
 }
