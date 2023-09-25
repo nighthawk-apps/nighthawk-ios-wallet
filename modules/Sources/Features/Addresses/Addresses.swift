@@ -1,6 +1,6 @@
 //
 //  Addresses.swift
-//  
+//
 //
 //  Created by Matthew Watt on 7/16/23.
 //
@@ -27,27 +27,17 @@ public struct Addresses: Reducer {
         @BindingState public var toast: Toast?
         @BindingState public var destination: Destination = .unified
         public var uAddress: UnifiedAddress?
-
+        
         public var unifiedAddress: String {
-            uAddress?.stringEncoded ?? L10n.AddressDetails.Error.cantExtractUnifiedAddress
+            uAddress?.stringEncoded ?? "-"
         }
-
+        
         public var transparentAddress: String {
-            do {
-                let address = try uAddress?.transparentReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractTransparentAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractTransparentAddress
-            }
+            (try? uAddress?.transparentReceiver().stringEncoded) ?? "-"
         }
-
+        
         public var saplingAddress: String {
-            do {
-                let address = try uAddress?.saplingReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractSaplingAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractSaplingAddress
-            }
+            (try? uAddress?.saplingReceiver().stringEncoded) ?? "-"
         }
         
         public init(uAddress: UnifiedAddress? = nil) {
@@ -104,7 +94,6 @@ public struct Addresses: Reducer {
                 
             case .topUpWalletTapped:
                 return .send(.delegate(.showPartners))
-
             case .uAddressChanged(let uAddress):
                 state.uAddress = uAddress
                 return .none

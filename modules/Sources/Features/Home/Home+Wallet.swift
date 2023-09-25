@@ -23,9 +23,7 @@ extension Home {
                     state.selectedTab = .transfer
                     state.transfer.destination = .send(
                         .init(
-                            path: StackState([
-                                .scan(.init())
-                            ])
+                            path: StackState([.scan(.init(backButtonType: .close))])
                         )
                     )
                     return .none

@@ -19,21 +19,11 @@ public struct TopUp: Reducer {
         @PresentationState public var alert: AlertState<Action.Alert>?
 
         public var transparentAddress: String {
-            do {
-                let address = try uAddress?.transparentReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractTransparentAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractTransparentAddress
-            }
+            (try? uAddress?.transparentReceiver().stringEncoded) ?? "-"
         }
 
         public var saplingAddress: String {
-            do {
-                let address = try uAddress?.saplingReceiver().stringEncoded ?? L10n.AddressDetails.Error.cantExtractSaplingAddress
-                return address
-            } catch {
-                return L10n.AddressDetails.Error.cantExtractSaplingAddress
-            }
+            (try? uAddress?.saplingReceiver().stringEncoded) ?? "-"
         }
         
         var uAddress: UnifiedAddress?
