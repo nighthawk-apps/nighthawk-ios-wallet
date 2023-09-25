@@ -28,6 +28,12 @@ public struct TopUpView: View {
                 Spacer()
             }
             .onAppear { viewStore.send(.onAppear) }
+            .showNighthawkBackButton(
+                type: .close,
+                action: {
+                    viewStore.send(.closeTapped)
+                }
+            )
         }
         .applyNighthawkBackground()
         .alert(

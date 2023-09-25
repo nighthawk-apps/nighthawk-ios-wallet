@@ -113,6 +113,7 @@ public struct SendFlow: Reducer {
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
+        case closeTapped
         case continueTapped
         case onAppear
         case scanCodeTapped
@@ -120,7 +121,6 @@ public struct SendFlow: Reducer {
         case sendTransactionFailure
         case sendTransactionInProgress
         case sendTransactionSuccess
-        case synchronizerStateChanged(SynchronizerState)
         case topUpWalletTapped
     }
     
@@ -143,6 +143,11 @@ public struct SendFlow: Reducer {
         
         Reduce { state, action in
             switch action {
+            case .closeTapped:
+                return .concatenate(
+                    .cancel(id: SyncStatusUpdatesID.timer),
+                    .run { _ in await self.dismiss() }
+                )
             case .continueTapped:
                 if state.recipient == nil {
                     state.path.append(Path.State.recipient(.init()))
@@ -169,12 +174,7 @@ public struct SendFlow: Reducer {
                 return .none
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
-                return .publisher {
-                    sdkSynchronizer.stateStream()
-                        .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                        .map(SendFlow.Action.synchronizerStateChanged)
-                }
-                .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
+                return .none
             case .scanCodeTapped:
                 state.path.append(.scan(.init()))
                 return .none
@@ -228,12 +228,6 @@ public struct SendFlow: Reducer {
             case .sendTransactionSuccess:
                 state.isSendingTransaction = false
                 state.path.append(SendFlow.Path.State.success(.init()))
-                return .none
-            case let .synchronizerStateChanged(latestState):
-                let shieldedBalance = latestState.shieldedBalance
-                state.shieldedBalance = shieldedBalance.redacted
-                // TODO: [#1186] Use ZIP-317 fees when SDK supports it
-                state.maxAmount = max(shieldedBalance.verified - Zatoshi(10_000), .zero)
                 return .none
             case .topUpWalletTapped:
                 return .none
@@ -294,6 +288,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -302,7 +297,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }
@@ -352,6 +346,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -360,7 +355,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }
@@ -420,6 +414,7 @@ extension SendFlow {
                 }
                 
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -428,7 +423,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }
@@ -458,6 +452,7 @@ extension SendFlow {
                     return .send(.sendTransaction)
                 }
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -466,7 +461,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }
@@ -480,9 +474,9 @@ extension SendFlow {
         Reduce { state, action in
             switch action {
             case .path(.element(id: _, action: .success(.delegate(.goHome)))):
-                // TODO: This doesn't seem to be working.
                 return .run { _ in await self.dismiss() }
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -491,7 +485,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }
@@ -507,10 +500,10 @@ extension SendFlow {
             case let .path(.element(id: _, action: .failed(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .cancelTransaction:
-                    // TODO: this doesn't seem to be working
                     return .run { _ in await self.dismiss() }
                 }
             case .binding,
+                 .closeTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -519,7 +512,6 @@ extension SendFlow {
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
-                 .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
             }

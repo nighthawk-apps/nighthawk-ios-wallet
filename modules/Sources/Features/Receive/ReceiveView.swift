@@ -45,6 +45,12 @@ public struct ReceiveView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
+            .showNighthawkBackButton(
+                type: .close,
+                action: {
+                    viewStore.send(.closeTapped)
+                }
+            )
         }
         .applyNighthawkBackground()
     }

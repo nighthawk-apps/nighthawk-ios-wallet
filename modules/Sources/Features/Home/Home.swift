@@ -73,7 +73,7 @@ public struct Home: Reducer {
         case wallet(Wallet.Action)
         
         public enum Delegate: Equatable {
-            case showTransactionHistory
+            case showTransactionHistory([WalletEvent])
         }
     }
     

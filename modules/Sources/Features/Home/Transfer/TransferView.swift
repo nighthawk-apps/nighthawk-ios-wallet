@@ -37,6 +37,7 @@ struct TransferView: View {
             action: Transfer.Destination.Action.receive
         ) { store in
             ReceiveView(store: store)
+                .interactiveDismissDisabled()
         }
         .sheet(
             store: store.scope(
@@ -47,6 +48,7 @@ struct TransferView: View {
             action: Transfer.Destination.Action.topUp
         ) { store in
             TopUpView(store: store)
+                .interactiveDismissDisabled()
         }
         .sheet(
             store: store.scope(
@@ -57,6 +59,7 @@ struct TransferView: View {
             action: Transfer.Destination.Action.send
         ) { store in
             SendFlowView(store: store, tokenName: tokenName)
+                .interactiveDismissDisabled()
         }
     }
 }

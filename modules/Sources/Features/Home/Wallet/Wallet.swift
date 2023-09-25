@@ -52,7 +52,7 @@ public struct Wallet: Reducer {
             case scanPaymentRequest
             case shieldFunds
             case showAddresses
-            case showTransactionHistory
+            case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
         }
     }
@@ -75,7 +75,7 @@ public struct Wallet: Reducer {
             case let .viewTransactionDetailTapped(walletEvent):
                 return .send(.delegate(.showTransactionDetail(walletEvent)))
             case .viewTransactionHistoryTapped:
-                return .send(.delegate(.showTransactionHistory))
+                return .send(.delegate(.showTransactionHistory(state.walletEvents)))
             }
         }
     }

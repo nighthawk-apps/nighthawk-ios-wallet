@@ -102,6 +102,7 @@ public struct HomeView: View {
             action: Home.Destination.Action.addresses
         ) { store in
             AddressesView(store: store)
+                .interactiveDismissDisabled()
         }
         .sheet(
             store: store.scope(

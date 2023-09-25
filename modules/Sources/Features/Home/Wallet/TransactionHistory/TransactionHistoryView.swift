@@ -38,7 +38,6 @@ public struct TransactionHistoryView: View {
                 }
             }
             .padding(.horizontal, 25)
-            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
     }

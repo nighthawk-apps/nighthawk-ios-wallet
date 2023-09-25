@@ -40,7 +40,6 @@ public struct Scan: Reducer {
         case backButtonTapped
         case delegate(Delegate)
         case onAppear
-        case onDisappear
         case scan(RedactableString)
         case scanFailed
         
@@ -65,9 +64,15 @@ public struct Scan: Reducer {
             switch action {
             case .backButtonTapped:
                 if state.backButtonType == .back {
-                    return .run { _ in await self.dismiss() }
+                    return .concatenate(
+                        .cancel(id: CancelId.timer),
+                        .run { _ in await self.dismiss() }
+                    )
                 } else {
-                    return .send(.delegate(.goHome))
+                    return .concatenate(
+                        .cancel(id: CancelId.timer),
+                        .send(.delegate(.goHome))
+                    )
                 }
             case .delegate:
                 return .none
@@ -75,9 +80,6 @@ public struct Scan: Reducer {
                 // reset the values
                 state.scanStatus = .unknown
                 return .none
-                
-            case .onDisappear:
-                return .cancel(id: CancelId.timer)
                 
             case .scanFailed:
                 state.scanStatus = .failed

@@ -33,16 +33,18 @@ public struct TopUp: Reducer {
     
     public enum Action: Equatable {
         case alert(PresentationAction<Alert>)
+        case closeTapped
         case onAppear
-        case uAddressChanged(UnifiedAddress?)
         case showSideShiftInstructions
         case showStealthExInstructions
+        case uAddressChanged(UnifiedAddress?)
         
         public enum Alert: Equatable {
             case open(URL?)
         }
     }
     
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.partners) var partners
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -57,6 +59,8 @@ public struct TopUp: Reducer {
                 return .none
             case .alert(.dismiss):
                 return .none
+            case .closeTapped:
+                return .run { _ in await self.dismiss() }
             case .onAppear:
                 return .run { send in
                     let ua = try? await sdkSynchronizer.getUnifiedAddress(0)

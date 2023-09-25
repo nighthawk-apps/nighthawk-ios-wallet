@@ -47,6 +47,7 @@ public struct Addresses: Reducer {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case closeTapped
         case copyTapped(State.Destination)
         case delegate(Delegate)
         case onAppear
@@ -58,6 +59,7 @@ public struct Addresses: Reducer {
         }
     }
     
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
@@ -68,6 +70,8 @@ public struct Addresses: Reducer {
             switch action {
             case .binding:
                 return .none
+            case .closeTapped:
+                return .run { _ in await self.dismiss() }
             case let .copyTapped(destination):
                 switch destination {
                 case .transparent:

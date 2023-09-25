@@ -27,8 +27,8 @@ extension AppReducer {
                     return .none
                 case .showAddresses:
                     return .none
-                case .showTransactionHistory:
-                    state.path.append(.transactionHistory())
+                case let .showTransactionHistory(walletEvents):
+                    state.path.append(.transactionHistory(.init(walletEvents: walletEvents)))
                     return .none
                 case let .showTransactionDetail(walletEvent):
                     state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))

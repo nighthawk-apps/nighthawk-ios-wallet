@@ -35,7 +35,6 @@ public struct SendingView: View {
         }
         .applyNighthawkBackground()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .interactiveDismissDisabled()
     }
     
     public init() {}

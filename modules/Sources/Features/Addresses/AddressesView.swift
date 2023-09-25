@@ -38,6 +38,12 @@ public struct AddressesView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
+            .showNighthawkBackButton(
+                type: .close,
+                action: {
+                    viewStore.send(.closeTapped)
+                }
+            )
             .toast(
                 unwrapping: viewStore.$toast,
                 case: /Addresses.State.Toast.copiedToClipboard,

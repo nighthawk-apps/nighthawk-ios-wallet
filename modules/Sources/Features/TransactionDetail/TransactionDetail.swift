@@ -56,7 +56,6 @@ public struct TransactionDetail: Reducer {
         case delegate(Delegate)
         case onAppear
         case onDisappear
-        case synchronizerStateChanged(SynchronizerState)
         case warnBeforeLeavingApp(URL?)
         
         public enum Alert: Equatable {
@@ -88,26 +87,9 @@ public struct TransactionDetail: Reducer {
                 return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
-                if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
-                    return .publisher {
-                        sdkSynchronizer.stateStream()
-                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                            .map(Action.synchronizerStateChanged)
-                    }
-                    .cancellable(id: CancelId.timer, cancelInFlight: true)
-                } else {
-                    return .run { send in
-                        await send(.delegate(.handleDiskFull))
-                        await self.dismiss()
-                    }
-                }
+                return .none
             case .onDisappear:
                 return .cancel(id: CancelId.timer)
-            case .synchronizerStateChanged(let latestState):
-                if latestState.syncStatus == .upToDate {
-                    state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
-                }
-                return .none
             case .warnBeforeLeavingApp(let blockExplorerURL):
                 state.alert = AlertState.warnBeforeLeavingApp(blockExplorerURL)
                 return .none

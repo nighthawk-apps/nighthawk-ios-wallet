@@ -50,6 +50,12 @@ public struct SendFlowView: View {
                     availableActions(with: viewStore)
                 }
                 .onAppear { viewStore.send(.onAppear) }
+                .showNighthawkBackButton(
+                    type: .close, 
+                    action: {
+                        viewStore.send(.closeTapped)
+                    }
+                )
                 .toast(
                     unwrapping: viewStore.$toast,
                     case: /SendFlow.State.Toast.notEnoughZcash,

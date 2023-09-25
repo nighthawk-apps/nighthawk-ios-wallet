@@ -38,6 +38,7 @@ public struct Receive: Reducer {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case closeTapped
         case copyTransparentAddressTapped
         case copyUnifiedAddressTapped
         case delegate(Delegate)
@@ -52,6 +53,7 @@ public struct Receive: Reducer {
         }
     }
     
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
@@ -62,8 +64,8 @@ public struct Receive: Reducer {
             switch action {
             case .binding:
                 return .none
-            case .delegate:
-                return .none
+            case .closeTapped:
+                return .run { _ in await self.dismiss() }
             case .copyTransparentAddressTapped:
                 pasteboard.setString(state.transparentAddress.redacted)
                 state.toast = .copiedToClipboard
@@ -71,6 +73,8 @@ public struct Receive: Reducer {
             case .copyUnifiedAddressTapped:
                 pasteboard.setString(state.unifiedAddress.redacted)
                 state.toast = .copiedToClipboard
+                return .none
+            case .delegate:
                 return .none
             case .onAppear:
                 return .run { send in
