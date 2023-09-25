@@ -25,7 +25,6 @@ public struct TransactionDetailView: View {
                 TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
             }
             .onAppear { viewStore.send(.onAppear) }
-            .onDisappear { viewStore.send(.onDisappear) }
         }
         .applyNighthawkBackground()
         .alert(

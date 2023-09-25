@@ -17,8 +17,6 @@ import ZcashLightClientKit
 import ZcashSDKEnvironment
 
 public struct TransactionDetail: Reducer {
-    private enum CancelId { case timer }
-    
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         public var latestMinedHeight: BlockHeight? = .zero
@@ -55,7 +53,6 @@ public struct TransactionDetail: Reducer {
         case alert(PresentationAction<Alert>)
         case delegate(Delegate)
         case onAppear
-        case onDisappear
         case warnBeforeLeavingApp(URL?)
         
         public enum Alert: Equatable {
@@ -88,8 +85,6 @@ public struct TransactionDetail: Reducer {
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 return .none
-            case .onDisappear:
-                return .cancel(id: CancelId.timer)
             case .warnBeforeLeavingApp(let blockExplorerURL):
                 state.alert = AlertState.warnBeforeLeavingApp(blockExplorerURL)
                 return .none
