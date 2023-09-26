@@ -21,10 +21,13 @@ public struct Splash: Reducer {
     
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
-        public var authenticated = false
+        public var authenticated: Bool { lastAuthenticatedTime != nil }
+        public var isFirstLaunch = true
         public var hasAttemptedAuthentication = false
         public var initializationState = InitializationState.uninitialized
         public var isAuthenticating = false
+        public var lastAuthenticatedTime: Date?
+        public var lastInactiveTime: Date?
         public var phase = ScenePhase.background
         public var isVisible = true
         public var shouldHandleScenePhaseChange: Bool {
@@ -55,6 +58,7 @@ public struct Splash: Reducer {
     }
     
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date) var date
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -85,8 +89,10 @@ public struct Splash: Reducer {
                 }
             case let .authenticationResponse(authenticated):
                 state.hasAttemptedAuthentication = true
-                state.authenticated = authenticated
                 state.isAuthenticating = false
+                if authenticated {
+                    state.lastAuthenticatedTime = date()
+                }
                 return .none
             case .checkWalletInitialization:
                 state.initializationState = Splash.walletInitializationState(
@@ -116,7 +122,15 @@ public struct Splash: Reducer {
             case .delegate:
                 return .none
             case .onAppear:
+                defer { state.isFirstLaunch = false }
                 state.isVisible = true
+                if !state.isFirstLaunch && state.shouldHandleScenePhaseChange {
+                    return .run { send in
+                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
+                        try await clock.sleep(for: .seconds(0.5))
+                        await send(.checkWalletInitialization)
+                    }
+                }
                 return .none
             case .onDisappear:
                 state.isVisible = false

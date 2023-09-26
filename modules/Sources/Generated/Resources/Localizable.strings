@@ -165,6 +165,7 @@
 "nighthawk.sync.message.sync" = "Scanning…%@%%";
 "nighthawk.sync.message.preparing" = "Preparing to scan";
 "nighthawk.sync.message.finalizing" = "Finalizing";
+"nighthawk.sync.message.stopped" = "Stopped";
 
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";

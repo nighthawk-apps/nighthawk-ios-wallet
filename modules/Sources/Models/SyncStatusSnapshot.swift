@@ -22,33 +22,12 @@ public struct SyncStatusSnapshot: Equatable {
         switch state {
         case .upToDate:
             return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.uptodate)
-            
-        case .unprepared:
-            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.unprepared)
-            
-        case .error(let error):
-            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.error(error.toZcashError().message))
-
-        case .syncing(let progress):
-            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.sync(String(format: "%0.1f", progress * 100)))
-        }
-    }
-}
-
-extension SyncStatusSnapshot {
-    public static let `default` = SyncStatusSnapshot()
-}
-
-// MARK: - Nighthawk
-public extension SyncStatusSnapshot {
-    static func nhSnapshotFor(state: SyncStatus) -> SyncStatusSnapshot {
-        switch state {
-        case .upToDate:
-            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.uptodate)
         case .unprepared:
             return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.unprepared)
         case .error(let err):
             return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.error(err.localizedDescription))
+        case .stopped:
+            return SyncStatusSnapshot(state, L10n.Nighthawk.Sync.Message.stopped)
         case let .syncing(progress):
             let percent = progress * 100
             if percent == 0 {
@@ -61,11 +40,15 @@ public extension SyncStatusSnapshot {
         }
     }
     
-    var isSyncFailed: Bool {
+    public var isSyncFailed: Bool {
         if case .error = syncStatus {
             return true
         }
         
         return false
     }
+}
+
+extension SyncStatusSnapshot {
+    public static let `default` = SyncStatusSnapshot()
 }

@@ -393,6 +393,8 @@ public enum L10n {
         public static let finalizing = L10n.tr("Localizable", "nighthawk.sync.message.finalizing", fallback: "Finalizing")
         /// Preparing to scan
         public static let preparing = L10n.tr("Localizable", "nighthawk.sync.message.preparing", fallback: "Preparing to scan")
+        /// Stopped
+        public static let stopped = L10n.tr("Localizable", "nighthawk.sync.message.stopped", fallback: "Stopped")
         /// Scanning…%@%%
         public static func sync(_ p1: Any) -> String {
           return L10n.tr("Localizable", "nighthawk.sync.message.sync", String(describing: p1), fallback: "Scanning…%@%%")

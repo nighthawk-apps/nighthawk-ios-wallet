@@ -151,7 +151,7 @@ public struct Home: Reducer {
             case .onDisappear:
                 return .cancel(id: CancelId.timer)
             case .synchronizerStateChanged(let latestState):
-                let snapshot = SyncStatusSnapshot.nhSnapshotFor(state: latestState.syncStatus)
+                let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState.syncStatus)
                 guard snapshot != state.synchronizerStatusSnapshot else {
                     return .none
                 }

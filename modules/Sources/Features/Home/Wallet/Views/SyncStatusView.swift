@@ -47,8 +47,9 @@ private extension SyncStatusView {
             }
         case .error:
             return Asset.Assets.Icons.Nighthawk.error.image
-            
-        default:
+        case .stopped:
+            return Asset.Assets.Icons.Nighthawk.failed.image
+        case .upToDate:
             return nil
         }
     }
