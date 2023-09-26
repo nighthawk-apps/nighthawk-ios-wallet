@@ -332,8 +332,7 @@ private extension AppReducer.State {
         // Don't reset if user was inactive less than 10 minutes
         @Dependency(\.date) var date
         if let lastInactiveTime = splash.lastInactiveTime {
-            let tenMinutesAgo = date().addingTimeInterval(-(10
-                                                            * 60))
+            let tenMinutesAgo = date().addingTimeInterval(-(10 * 60))
             if tenMinutesAgo < lastInactiveTime {
                 return false
             }
