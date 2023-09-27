@@ -74,7 +74,7 @@ private extension WalletView {
     
     func header(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed {
+            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed || viewStore.isSyncingStopped {
                 SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
             } else if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
                 balanceTabsView(with: viewStore)
@@ -111,7 +111,7 @@ private extension WalletView {
             .padding(.top, 32)
             
             BalanceView(
-                balance: viewStore.shieldedBalance.data.total,
+                balance: viewStore.shieldedBalance.data.verified,
                 type: .shielded,
                 tokenName: tokenName,
                 synchronizerState: viewStore.synchronizerState
@@ -120,7 +120,7 @@ private extension WalletView {
             .padding(.top, 32)
             
             BalanceView(
-                balance: viewStore.transparentBalance.data.total,
+                balance: viewStore.transparentBalance.data.verified,
                 type: .transparent,
                 tokenName: tokenName,
                 synchronizerState: viewStore.synchronizerState

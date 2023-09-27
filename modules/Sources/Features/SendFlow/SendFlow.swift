@@ -11,6 +11,7 @@ import Generated
 import LocalAuthenticationClient
 import UserPreferencesStorage
 import MnemonicClient
+import Models
 import SDKSynchronizer
 import SwiftUI
 import Utils
@@ -119,7 +120,7 @@ public struct SendFlow: Reducer {
         case sendTransaction
         case sendTransactionFailure
         case sendTransactionInProgress
-        case sendTransactionSuccess
+        case sendTransactionSuccess(TransactionState)
         case synchronizerStateChanged(SynchronizerState)
         case topUpWalletTapped
     }
@@ -129,7 +130,6 @@ public struct SendFlow: Reducer {
     }
     
     @Dependency(\.derivationTool) var derivationTool
-    @Dependency(\.dismiss) var dismiss
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
@@ -197,13 +197,13 @@ public struct SendFlow: Reducer {
                     return .run { [state, memo] send in
                         do {
                             await send(SendFlow.Action.sendTransactionInProgress)
-                            _ = try await sdkSynchronizer.sendTransaction(
+                            let txn = try await sdkSynchronizer.sendTransaction(
                                 spendingKey,
                                 state.amountToSend,
                                 recipient,
                                 memo
                             )
-                            await send(SendFlow.Action.sendTransactionSuccess)
+                            await send(SendFlow.Action.sendTransactionSuccess(txn))
                         } catch {
                             await send(SendFlow.Action.sendTransactionFailure)
                         }
@@ -225,9 +225,9 @@ public struct SendFlow: Reducer {
             case .sendTransactionInProgress:
                 state.path.append(SendFlow.Path.State.sending)
                 return .none
-            case .sendTransactionSuccess:
+            case let .sendTransactionSuccess(transaction):
                 state.isSendingTransaction = false
-                state.path.append(SendFlow.Path.State.success(.init()))
+                state.path.append(SendFlow.Path.State.success(.init(transaction: transaction)))
                 return .none
             case let .synchronizerStateChanged(latestState):
                 let shieldedBalance = latestState.shieldedBalance
@@ -249,8 +249,6 @@ public struct SendFlow: Reducer {
         recipientDelegateReducer()
         scanDelegateReducer()
         reviewDelegateReducer()
-        successDelegateReducer()
-        failedDelegateReducer()
     }
 }
 
@@ -456,59 +454,6 @@ extension SendFlow {
                     return .none
                 case .sendZcash:
                     return .send(.sendTransaction)
-                }
-            case .binding,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .synchronizerStateChanged,
-                 .topUpWalletTapped:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: Success delegate
-extension SendFlow {
-    func successDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case .path(.element(id: _, action: .success(.delegate(.goHome)))):
-                // TODO: This doesn't seem to be working.
-                return .run { _ in await self.dismiss() }
-            case .binding,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .synchronizerStateChanged,
-                 .topUpWalletTapped:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: Failed delegate
-extension SendFlow {
-    func failedDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: _, action: .failed(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .cancelTransaction:
-                    // TODO: this doesn't seem to be working
-                    return .run { _ in await self.dismiss() }
                 }
             case .binding,
                  .continueTapped,

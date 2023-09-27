@@ -32,8 +32,15 @@ public struct Wallet: Reducer {
             return false
         }
         
+        public var isSyncingStopped: Bool {
+            if case .stopped = synchronizerStatusSnapshot.syncStatus {
+                return true
+            }
+            return false
+        }
+        
         public var totalBalance: Zatoshi {
-            shieldedBalance.data.total + transparentBalance.data.total
+            shieldedBalance.data.verified + transparentBalance.data.verified
         }
         
         public init() {}

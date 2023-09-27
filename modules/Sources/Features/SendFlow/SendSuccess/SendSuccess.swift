@@ -6,10 +6,15 @@
 //
 
 import ComposableArchitecture
+import Models
 
 public struct SendSuccess: Reducer {
     public struct State: Equatable {
-        public init() {}
+        public var transaction: TransactionState
+        
+        public init(transaction: TransactionState) {
+            self.transaction = transaction
+        }
     }
     
     public enum Action: Equatable {
@@ -19,22 +24,23 @@ public struct SendSuccess: Reducer {
         
         public enum Delegate: Equatable {
             case goHome
+            case showTransactionDetails(WalletEvent)
         }
     }
-    
-    public init() {}
-    
+        
     public var body: some ReducerOf<Self> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
             case .delegate:
                 return .none
             case .doneTapped:
                 return .send(.delegate(.goHome))
             case .moreDetailsTapped:
-                // TODO: show tx details
-                return .none
+                let event = WalletEvent(transaction: state.transaction)
+                return .send(.delegate(.showTransactionDetails(event)))
             }
         }
     }
+    
+    public init() {}
 }
