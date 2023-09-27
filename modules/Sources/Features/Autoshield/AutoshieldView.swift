@@ -63,62 +63,74 @@ public struct AutoshieldView: View {
 private struct AutoshieldRootView: View {
     let viewStore: ViewStoreOf<Autoshield>
     
+    private enum Constants {
+        static let imageSizeRatio = 0.25
+        static let paddingRatio = 0.1
+    }
+    
     var body: some View {
-        VStack(spacing: 24) {
-            Asset.Assets.Icons.Nighthawk.autoshield.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 150, height: 150)
-            HStack {
-                Group {
-                    Text(L10n.Nighthawk.Autoshield.title1) + Text(" ")
-                    + Text(L10n.Nighthawk.Autoshield.shieldedByDefault)
-                        .font(.custom(FontFamily.PulpDisplay.bold.name, size: 21)) + Text(" ")
-                    + Text(L10n.Nighthawk.Autoshield.title2)
+        GeometryReader { geometry in
+            VStack {
+                ScrollView([.vertical]) {
+                    VStack(spacing: 24) {
+                        Asset.Assets.Icons.Nighthawk.autoshield.image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: geometry.size.width * Constants.imageSizeRatio, height: geometry.size.width * Constants.imageSizeRatio)
+                        HStack {
+                            Group {
+                                Text(L10n.Nighthawk.Autoshield.title1) + Text(" ")
+                                + Text(L10n.Nighthawk.Autoshield.shieldedByDefault)
+                                    .font(.custom(FontFamily.PulpDisplay.bold.name, size: 21)) + Text(" ")
+                                + Text(L10n.Nighthawk.Autoshield.title2)
+                            }
+                            .foregroundColor(.white)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 21))
+                            .lineSpacing(6)
+                            
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Group {
+                                Text(L10n.Nighthawk.Autoshield.autoshielding)
+                                    .font(.custom(FontFamily.PulpDisplay.bold.name, size: 16)) + Text(" ")
+                                + Text(L10n.Nighthawk.Autoshield.detail1)
+                            }
+                            .foregroundColor(.white)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
+                            .lineSpacing(4)
+                            
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Text(L10n.Nighthawk.Autoshield.detail2)
+                                .subtitle(color: .white)
+                                .lineSpacing(4)
+                            
+                            Spacer()
+                        }
+                    }
                 }
-                .foregroundColor(.white)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 21))
-                .lineSpacing(6)
+                .layoutPriority(1)
                 
                 Spacer()
-            }
-            
-            HStack {
-                Group {
-                    Text(L10n.Nighthawk.Autoshield.autoshielding)
-                        .font(.custom(FontFamily.PulpDisplay.bold.name, size: 16)) + Text(" ")
-                    + Text(L10n.Nighthawk.Autoshield.detail1)
+                                
+                VStack(spacing: 8) {
+                    Button(L10n.Nighthawk.Autoshield.buttonPositive) {
+                        viewStore.send(.positiveButtonTapped)
+                    }
+                    .buttonStyle(.largePrimary)
+                    
+                    Button(L10n.Nighthawk.Autoshield.buttonNeutral) {
+                        viewStore.send(.warnBeforeLeavingApp(eccURL))
+                    }
+                    .buttonStyle(.largeOutlined)
                 }
-                .foregroundColor(.white)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
-                .lineSpacing(4)
-                
-                Spacer()
             }
-            
-            HStack {
-                Text(L10n.Nighthawk.Autoshield.detail2)
-                    .subtitle(color: .white)
-                    .lineSpacing(4)
-                
-                Spacer()
-            }
-            
-            Spacer()
-            
-            VStack(spacing: 8) {
-                Button(L10n.Nighthawk.Autoshield.buttonPositive) {
-                    viewStore.send(.positiveButtonTapped)
-                }
-                .buttonStyle(.largePrimary)
-                
-                Button(L10n.Nighthawk.Autoshield.buttonNeutral) {
-                    viewStore.send(.warnBeforeLeavingApp(eccURL))
-                }
-                .buttonStyle(.largeOutlined)
-            }
+            .padding(geometry.size.width * Constants.paddingRatio)
         }
-        .padding(48)
     }
     
     var eccURL: URL? {

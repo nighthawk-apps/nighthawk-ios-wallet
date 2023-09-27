@@ -111,7 +111,7 @@ private extension WalletView {
             .padding(.top, 32)
             
             BalanceView(
-                balance: viewStore.shieldedBalance.data.total,
+                balance: viewStore.shieldedBalance.data.verified,
                 type: .shielded,
                 tokenName: tokenName,
                 synchronizerState: viewStore.synchronizerState
@@ -120,7 +120,7 @@ private extension WalletView {
             .padding(.top, 32)
             
             BalanceView(
-                balance: viewStore.transparentBalance.data.total,
+                balance: viewStore.transparentBalance.data.verified,
                 type: .transparent,
                 tokenName: tokenName,
                 synchronizerState: viewStore.synchronizerState

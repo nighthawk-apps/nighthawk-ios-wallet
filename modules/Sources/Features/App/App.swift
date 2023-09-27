@@ -262,6 +262,7 @@ public struct AppReducer: Reducer {
         splashDelegateReducer()
         onboardingReducer()
         walletReducer()
+        transferReducer()
         settingsReducer()
     }
     

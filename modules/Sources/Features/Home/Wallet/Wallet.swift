@@ -33,7 +33,7 @@ public struct Wallet: Reducer {
         }
         
         public var totalBalance: Zatoshi {
-            shieldedBalance.data.total + transparentBalance.data.total
+            shieldedBalance.data.verified + transparentBalance.data.verified
         }
         
         public init() {}
