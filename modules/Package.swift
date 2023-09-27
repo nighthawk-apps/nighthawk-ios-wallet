@@ -25,6 +25,7 @@ let package = Package(
         .library(name: "Generated", targets: ["Generated"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
         .library(name: "ImportWalletSuccess", targets: ["ImportWalletSuccess"]),
+        .library(name: "ImportWarning", targets: ["ImportWarning"]),
         .library(name: "Migrate", targets: ["Migrate"]),
         .library(name: "Home", targets: ["Home"]),
         .library(name: "TransactionDetail", targets: ["TransactionDetail"]),
@@ -57,7 +58,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0-rc.4"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.0"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
@@ -223,6 +224,15 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/ImportWalletSuccess"
+        ),
+        .target(
+            name: "ImportWarning",
+            dependencies: [
+                "Generated",
+                "UIComponents",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/ImportWarning"
         ),
         .target(
             name: "Migrate",
@@ -508,6 +518,7 @@ let package = Package(
             name: "Welcome",
             dependencies: [
                 "Generated",
+                "ImportWarning",
                 "UIComponents",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],

@@ -188,6 +188,7 @@ public struct AppReducer: Reducer {
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.databaseFiles) var databaseFiles
+    @Dependency(\.date) var date
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
@@ -227,24 +228,22 @@ public struct AppReducer: Reducer {
                 defer { state.splash.phase = newPhase }
                 switch newPhase {
                 case .inactive:
-                    if state.shouldStopSynchronizer {
-                        state.synchronizerStopped = true
-                        sdkSynchronizer.stop()
-                        
-                        if userStoredPreferences.areBiometricsEnabled() {
-                            state.splash.hasAttemptedAuthentication = false
-                            state.splash.authenticated = false
-                            state.splash.isAuthenticating = false
-                            state.path = StackState()
-                        }
-                    }
+                    state.synchronizerStopped = true
+                    sdkSynchronizer.stop()
                     return .none
                 case .active:
-                    if !state.path.isEmpty && state.synchronizerStopped {
+                    defer { state.splash.lastInactiveTime = nil }
+                    if state.shouldResetToSplash {
+                        state.splash.lastAuthenticatedTime = nil
+                        state.splash.hasAttemptedAuthentication = false
+                        state.splash.isAuthenticating = false
+                        state.path = StackState()
+                    } else if !state.path.isEmpty && state.synchronizerStopped {
                         return initializeSDK(.existingWallet, shouldResetStack: false)
                     }
                     return .none
                 case .background:
+                    state.splash.lastInactiveTime = date()
                     return .none
                 @unknown default:
                     return .none
@@ -326,8 +325,20 @@ private extension AppReducer {
 }
 
 private extension AppReducer.State {
-    var shouldStopSynchronizer: Bool {
-        guard !path.isEmpty else { return false }
+    var shouldResetToSplash: Bool {
+        @Dependency(\.userStoredPreferences) var userStoredPreferences
+        guard !path.isEmpty, userStoredPreferences.areBiometricsEnabled(), splash.lastInactiveTime != nil else { return false }
+        
+        // Don't reset if user was inactive less than 10 minutes
+        @Dependency(\.date) var date
+        if let lastInactiveTime = splash.lastInactiveTime {
+            let tenMinutesAgo = date().addingTimeInterval(-(10 * 60))
+            if tenMinutesAgo < lastInactiveTime {
+                return false
+            }
+        }
+        
+        // Reset to splash
         // Any system prompt causes a scene phase change to .inactive,
         // so don't stop synchronizer if the app is on screens where that happens:
         // - Security screen (Face ID enable / disable)

@@ -89,7 +89,31 @@ public struct Transfer: Reducer {
             Destination(networkType: networkType)
         }
         
+        scanDelegateReducer()
         sendFailedDelegateReducer()
+    }
+}
+
+// MARK: - Scan delegate
+extension Transfer {
+    func scanDelegateReducer() -> Reduce<Transfer.State, Transfer.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .destination(.presented(.send(.path(.element(id: _, action: .scan(.delegate(delegateAction))))))):
+                switch delegateAction {
+                case .goHome:
+                    state.destination = nil
+                    return .none
+                case .handleParseResult:
+                    return .none
+                }
+            case .destination,
+                 .receiveMoneyTapped,
+                 .sendMoneyTapped,
+                 .topUpWalletTapped:
+                return .none
+            }
+        }
     }
 }
 

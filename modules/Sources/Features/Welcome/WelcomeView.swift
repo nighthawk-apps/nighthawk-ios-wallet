@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import ImportWarning
 import SwiftUI
 import UIComponents
 
@@ -37,11 +38,21 @@ public struct WelcomeView: View {
                 } onRestore: {
                     viewStore.send(
                         .importExistingWalletTapped,
-                        animation: .easeInOut(duration: 0.8)
+                        animation: .easeInOut
                     )
                 }
             }
             .applyNighthawkBackground()
+        }
+        .nighthawkAlert(
+            store: store.scope(
+                state: \.$destination,
+                action: { .destination($0) }
+            ),
+            state: /Welcome.Destination.State.importSeedWarningAlert,
+            action: Welcome.Destination.Action.importSeedWarningAlert
+        ) { store in
+            ImportWarningView(store: store)
         }
     }
 }

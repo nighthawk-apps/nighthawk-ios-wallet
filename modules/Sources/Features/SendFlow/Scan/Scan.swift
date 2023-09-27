@@ -8,18 +8,14 @@
 import CaptureDevice
 import ComposableArchitecture
 import DerivationTool
+import UIComponents
 import URIParser
 import Utils
 import ZcashLightClientKit
 
 public struct Scan: Reducer {
     public struct State: Equatable {
-        public enum ScanStatus: Equatable {
-            case failed
-            case value(RedactableString)
-            case unknown
-        }
-        
+        public var backButtonType: NighthawkBackButtonType
         public var scanStatus: ScanStatus = .unknown
         public var scannedValue: String? {
             guard case let .value(scannedValue) = scanStatus else {
@@ -29,7 +25,15 @@ public struct Scan: Reducer {
             return scannedValue.data
         }
         
-        public init() {}
+        public enum ScanStatus: Equatable {
+            case failed
+            case value(RedactableString)
+            case unknown
+        }
+        
+        public init(backButtonType: NighthawkBackButtonType = .back) {
+            self.backButtonType = backButtonType
+        }
     }
     
     public enum Action: Equatable {
@@ -41,6 +45,7 @@ public struct Scan: Reducer {
         case scanFailed
         
         public enum Delegate: Equatable {
+            case goHome
             case handleParseResult(QRCodeParseResult)
         }
     }
@@ -59,7 +64,11 @@ public struct Scan: Reducer {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
-                return .run { _ in await self.dismiss() }
+                if state.backButtonType == .back {
+                    return .run { _ in await self.dismiss() }
+                } else {
+                    return .send(.delegate(.goHome))
+                }
             case .delegate:
                 return .none
             case .onAppear:
