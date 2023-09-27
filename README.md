@@ -1,36 +1,51 @@
-# secant-ios-wallet
+# Nighthawk for iOS and Apple Silicon
 
-This wallet is a Dogfooding effort towards Zcash Halo Arc / NU5 efforts.
-
-# Motivation
-Dogfooding - _transitive verb_ - is the practice of an organization using its own product. This app was created to help us learn.
-
-Please take note: the wallet is not an official product by ECC, but rather a tool for learning about our libraries that it is built on. This means that we do not have robust infrastructure or user support for this application. We open sourced it as a resource to make wallet development easier for the Zcash ecosystem.
-
-# Disclaimers
-There are some known areas for improvement:
-
-- This app is mainly intended for learning and improving the related libraries that it uses. There may be bugs.
-- Traffic analysis, like in other cryptocurrency wallets, can leak some privacy of the user.
-- The wallet requires a trust in the server to display accurate transaction information. 
-
-See the [Wallet App Threat Model](https://zcash.readthedocs.io/en/latest/rtd_pages/wallet_threat_model.html)
-for more information about the security and privacy limitations of the wallet.
-
-If you'd like to sign up to help us test, reach out on discord and let us know! We're always happy to get feedback!
+### Download
+<a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
 # Description
 
-iOS wallet using the Zcash iOS SDK that is maintained by core developers.
+Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support and optional T-addresses support with Auto-Shielding technology.
+As a non-custodial wallet for Zcash, users have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet. Nighthawk utilizes ZcashLightClientKit SDK that is maintained by ECC core developers.
 
 This a reference wallet for the following set of features:
+- unified address support
+- spend before sync feature
 - z2z transactions w/ encrypted memos
 - reply-to formatted memos
-- z2t transactions
 - transparent receive-only
 - autoshielding on threshold from receive only t-address
+- backup wallet
+- sync notifications
 
 note: z means sapling shielded addresses.
+
+## Disclosure Policy
+Do not disclose any bug or vulnerability on public forums, message boards, mailing lists, etc. prior to responsibly disclosing to Nighthawk Wallet and giving sufficient time for the issue to be fixed and deployed. Do not execute on or exploit any vulnerability.
+
+### Reporting a Bug or Vulnerability
+When reporting a bug or vulnerability, please provide the following to nighthawkwallet@protonmail.com
+
+A short summary of the potential impact of the issue (if known).
+Details explaining how to reproduce the issue or how an exploit may be formed.
+Your name (optional). If provided, we will provide credit for disclosure. Otherwise, you will be treated anonymously and your privacy will be respected.
+Your email or other means of contacting you.
+A PGP key/fingerprint for us to provide encrypted responses to your disclosure. If this is not provided, we cannot guarantee that you will receive a response prior to a fix being made and deployed.
+
+## Encrypting the Disclosure
+We highly encourage all disclosures to be encrypted to prevent interception and exploitation by third-parties prior to a fix being developed and deployed.  Please encrypt using the PGP public key with fingerprint: `8c07e1261c5d9330287f4ec35aff0fd018b01972`
+
+## Disclaimers
+There are some known areas for improvement:
+
+- This app depends upon related libraries that it uses. There may be bugs.
+- This wallet currently only supports transacting between shielded addresses, which makes it incompatible with wallets that do not support sending to shielded addresses. 
+- Traffic analysis, like in other cryptocurrency wallets, can leak some privacy of the user.
+- The wallet requires a trust in the lightwalletd server to display accurate transaction information. 
+- This app has been developed and run exclusively on `mainnet` it might not work on `testnet`.  
+
+See the [Wallet App Threat Model](https://zcash.readthedocs.io/en/latest/rtd_pages/wallet_threat_model.html)
+for more information about the security and privacy limitations of the wallet.
 
 # Installation of Swiftgen & Swiftlint on Apple Silicon chip
 
@@ -59,10 +74,14 @@ Secant Wallet uses [SwiftLint](https://github.com/realm/SwiftLint) and [SwiftGen
   
 # Reporting an issue
 
-If you wish to report a security issue, please follow our [Responsible Disclosure guidelines](https://github.com/zcash/ZcashLightClientKit/blob/master/responsible_disclosure.md).
+If you wish to report a security issue, please follow our [Wallet Issue Disclosure Policy](https://github.com/nighthawk-apps/nighthawk-ios-wallet/edit/main/README.md#disclosure-policy) and [ZcashLightClientKit Responsible Disclosure guidelines](https://github.com/zcash/ZcashLightClientKit/blob/master/responsible_disclosure.md).
 
  For other kind of inquiries, feel welcome to open an Issue if you encounter a bug or would like to request a feature.
 
- # License
+## Donate to Nighthawk Devs
 
- MIT
+zs1nhawkewaslscuey9qhnv9e4wpx77sp73kfu0l8wh9vhna7puazvfnutyq5ymg830hn5u2dmr0sf
+
+### License
+
+MIT
