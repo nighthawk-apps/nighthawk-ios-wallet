@@ -7,7 +7,6 @@
 
 import Addresses
 import Autoshield
-import Combine
 import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
@@ -21,7 +20,7 @@ import ZcashLightClientKit
 public struct Home: Reducer {
     let zcashNetwork: ZcashNetwork
     
-    private enum CancelId { case timer }
+    enum CancelId { case timer }
     
     public struct State: Equatable {
         public enum Tab: Equatable, Hashable {
@@ -230,22 +229,6 @@ public struct Home: Reducer {
     
     public init(zcashNetwork: ZcashNetwork) {
         self.zcashNetwork = zcashNetwork
-    }
-}
-
-// MARK: - Rewind
-extension Home {
-    func rescan() -> Effect<Action> {
-        .publisher {
-            sdkSynchronizer.rewind(.birthday)
-                .replaceEmpty(with: Void())
-                .map { _ in return Home.Action.rescanDone() }
-                .catch { error in
-                    return Just(Home.Action.rescanDone(error.toZcashError())).eraseToAnyPublisher()
-                }
-                .receive(on: mainQueue)
-        }
-        .cancellable(id: CancelId.timer, cancelInFlight: true)
     }
 }
 

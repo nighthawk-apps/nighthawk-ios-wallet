@@ -72,16 +72,6 @@ private extension WalletView {
         }
     }
     
-//    func header(with viewStore: ViewStoreOf<Wallet>) -> some View {
-//        Group {
-//            if viewStore.isSyncingForFirstTime {
-//                SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-//            } else {
-//                balanceTabsView(with: viewStore)
-//            }
-//        }
-//    }
-    
     func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
         VStack {
             tabs(with: viewStore)

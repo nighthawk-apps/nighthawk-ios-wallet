@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 9/28/23.
 //
 
+import Combine
 import ComposableArchitecture
 
 extension Home {
@@ -39,5 +40,18 @@ extension Home {
                 return .none
             }
         }
+    }
+    
+    func rescan() -> Effect<Action> {
+        .publisher {
+            sdkSynchronizer.rewind(.birthday)
+                .replaceEmpty(with: Void())
+                .map { _ in return Home.Action.rescanDone() }
+                .catch { error in
+                    return Just(Home.Action.rescanDone(error.toZcashError())).eraseToAnyPublisher()
+                }
+                .receive(on: mainQueue)
+        }
+        .cancellable(id: CancelId.timer, cancelInFlight: true)
     }
 }
