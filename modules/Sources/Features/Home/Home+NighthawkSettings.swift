@@ -42,7 +42,7 @@ extension Home {
         }
     }
     
-    func rescan() -> Effect<Action> {
+    private func rescan() -> Effect<Action> {
         .publisher {
             sdkSynchronizer.rewind(.birthday)
                 .replaceEmpty(with: Void())
