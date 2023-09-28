@@ -18,21 +18,24 @@ public struct NotificationsView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.SyncNotifications.title)
-                    .paragraphMedium()
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 
                 Text(L10n.Nighthawk.SettingsTab.SyncNotifications.description)
-                    .caption()
+                    .paragraphMedium(color: .white)
                     .multilineTextAlignment(.leading)
+                    .lineSpacing(6)
                 
                 switch viewStore.selectedSyncNotificationFrequency {
                 case .weekly:
                     Text(L10n.Nighthawk.SettingsTab.SyncNotifications.weeklyDescription)
-                        .caption()
+                        .paragraphMedium(color: .white)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(6)
                 case .monthly:
                     Text(L10n.Nighthawk.SettingsTab.SyncNotifications.monthlyDescription)
-                        .caption()
+                        .paragraphMedium(color: .white)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(6)
                 case .off:
                     EmptyView()
                 }
@@ -45,13 +48,13 @@ public struct NotificationsView: View {
                         switch option {
                         case .weekly:
                             Text(L10n.Nighthawk.SettingsTab.SyncNotifications.weeklyOption)
-                                .paragraph()
+                                .paragraphMedium(color: .white)
                         case .monthly:
                             Text(L10n.Nighthawk.SettingsTab.SyncNotifications.monthlyOption)
-                                .paragraph()
+                                .paragraphMedium(color: .white)
                         case .off:
                             Text(L10n.Nighthawk.SettingsTab.SyncNotifications.offOption)
-                                .paragraph()
+                                .paragraphMedium(color: .white)
                         }
 
                         Spacer()

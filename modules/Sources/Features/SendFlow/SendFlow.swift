@@ -159,7 +159,7 @@ public struct SendFlow: Reducer {
                 state.path.append(
                     Path.State.review(
                         .init(
-                            subtotal: state.amountToSend,
+                            zecAmount: state.amountToSend,
                             memo: state.memo,
                             recipient: state.recipient!
                         )
@@ -279,7 +279,7 @@ extension SendFlow {
                         state.path.append(
                             Path.State.review(
                                 .init(
-                                    subtotal: state.amountToSend,
+                                    zecAmount: state.amountToSend,
                                     memo: state.memo,
                                     recipient: recipient
                                 )
@@ -333,7 +333,7 @@ extension SendFlow {
                         state.path.append(
                             Path.State.review(
                                 .init(
-                                    subtotal: state.amountToSend,
+                                    zecAmount: state.amountToSend,
                                     memo: state.memo,
                                     recipient: recipient
                                 )
@@ -406,7 +406,7 @@ extension SendFlow {
                         state.path.append(
                             .review(
                                 .init(
-                                    subtotal: state.amountToSend,
+                                    zecAmount: state.amountToSend,
                                     memo: state.memo,
                                     recipient: address
                                 )

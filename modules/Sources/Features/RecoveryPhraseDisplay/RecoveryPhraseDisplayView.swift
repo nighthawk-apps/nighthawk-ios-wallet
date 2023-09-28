@@ -67,18 +67,18 @@ private extension RecoveryPhraseDisplayView {
     @ViewBuilder
     var instructions: some View {
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.title)
-            .paragraph(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 12)
         
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
-            .caption()
+            .paragraphMedium(color: .white)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 18)
         
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions2)
-            .caption()
+            .paragraphMedium(color: .white)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 18)

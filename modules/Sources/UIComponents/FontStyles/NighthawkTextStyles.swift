@@ -17,12 +17,20 @@ public extension Text {
         self.modifier(SubtitleTextStyle(color: color))
     }
     
+    func subtitleMedium(color: Color = .white) -> some View {
+        self.modifier(SubtitleMediumTextStyle(color: color))
+    }
+    
     func paragraph(color: Color = .white) -> some View {
         self.modifier(ParagraphTextStyle(color: color))
     }
     
     func paragraphMedium(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
         self.modifier(ParagraphMediumTextStyle(color: color))
+    }
+    
+    func paragraphBold(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
+        self.modifier(ParagraphBoldTextStyle(color: color))
     }
     
     func caption(color: Color = .white) -> some View {
@@ -53,6 +61,16 @@ public extension Text {
         }
     }
     
+    private struct SubtitleMediumTextStyle: ViewModifier {
+        var color: Color
+        
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(color)
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+        }
+    }
+    
     private struct ParagraphTextStyle: ViewModifier {
         var color: Color
         
@@ -70,6 +88,16 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+        }
+    }
+    
+    private struct ParagraphBoldTextStyle: ViewModifier {
+        var color: Color
+        
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(color)
+                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
         }
     }
     

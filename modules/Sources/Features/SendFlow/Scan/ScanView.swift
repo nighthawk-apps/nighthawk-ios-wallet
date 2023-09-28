@@ -55,7 +55,6 @@ public struct ScanView: View {
                 )
             }
             .onAppear { viewStore.send(.onAppear) }
-            .onDisappear { viewStore.send(.onDisappear) }
         }
         .applyNighthawkBackground()
     }

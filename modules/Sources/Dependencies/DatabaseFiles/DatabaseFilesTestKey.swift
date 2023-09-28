@@ -12,13 +12,13 @@ import Utils
 
 extension DatabaseFilesClient: TestDependencyKey {
     public static let testValue = Self(
-        documentsDirectory: XCTUnimplemented("\(Self.self).documentsDirectory", placeholder: .emptyURL),
-        fsBlockDbRootFor: XCTUnimplemented("\(Self.self).fsBlockDbRootFor", placeholder: .emptyURL),
-        cacheDbURLFor: XCTUnimplemented("\(Self.self).cacheDbURLFor", placeholder: .emptyURL),
-        dataDbURLFor: XCTUnimplemented("\(Self.self).dataDbURLFor", placeholder: .emptyURL),
-        outputParamsURLFor: XCTUnimplemented("\(Self.self).outputParamsURLFor", placeholder: .emptyURL),
-        pendingDbURLFor: XCTUnimplemented("\(Self.self).pendingDbURLFor", placeholder: .emptyURL),
-        spendParamsURLFor: XCTUnimplemented("\(Self.self).spendParamsURLFor", placeholder: .emptyURL),
+        documentsDirectory: XCTUnimplemented("\(Self.self).documentsDirectory", placeholder: .empty),
+        fsBlockDbRootFor: XCTUnimplemented("\(Self.self).fsBlockDbRootFor", placeholder: .empty),
+        cacheDbURLFor: XCTUnimplemented("\(Self.self).cacheDbURLFor", placeholder: .empty),
+        dataDbURLFor: XCTUnimplemented("\(Self.self).dataDbURLFor", placeholder: .empty),
+        outputParamsURLFor: XCTUnimplemented("\(Self.self).outputParamsURLFor", placeholder: .empty),
+        pendingDbURLFor: XCTUnimplemented("\(Self.self).pendingDbURLFor", placeholder: .empty),
+        spendParamsURLFor: XCTUnimplemented("\(Self.self).spendParamsURLFor", placeholder: .empty),
         areDbFilesPresentFor: XCTUnimplemented("\(Self.self).areDbFilesPresentFor", placeholder: false),
         nukeDbFilesFor: XCTUnimplemented("\(Self.self).nukeDbFilesFor")
     )
@@ -26,13 +26,13 @@ extension DatabaseFilesClient: TestDependencyKey {
 
 extension DatabaseFilesClient {
     public static let noOp = Self(
-        documentsDirectory: { .emptyURL },
-        fsBlockDbRootFor: { _ in .emptyURL },
-        cacheDbURLFor: { _ in .emptyURL },
-        dataDbURLFor: { _ in .emptyURL },
-        outputParamsURLFor: { _ in .emptyURL },
-        pendingDbURLFor: { _ in .emptyURL },
-        spendParamsURLFor: { _ in .emptyURL },
+        documentsDirectory: { .empty },
+        fsBlockDbRootFor: { _ in .empty },
+        cacheDbURLFor: { _ in .empty },
+        dataDbURLFor: { _ in .empty },
+        outputParamsURLFor: { _ in .empty },
+        pendingDbURLFor: { _ in .empty },
+        spendParamsURLFor: { _ in .empty },
         areDbFilesPresentFor: { _ in false },
         nukeDbFilesFor: { _ in }
     )

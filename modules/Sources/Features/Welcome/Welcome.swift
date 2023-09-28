@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import Generated
 import ImportWarning
+import UIKit
 
 public struct Welcome: Reducer {
     public struct State: Equatable {
@@ -61,7 +62,7 @@ public struct Welcome: Reducer {
                 state.destination = .importSeedWarningAlert(.init())
                 return .none
             case .termsAndConditionsTapped:
-                // TODO: Open terms
+                UIApplication.shared.open(.terms, options: [:], completionHandler: nil)
                 return .none
             }
         }

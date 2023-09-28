@@ -51,6 +51,8 @@ public enum L10n {
     public static let skip = L10n.tr("Localizable", "general.skip", fallback: "Skip")
     /// Success
     public static let success = L10n.tr("Localizable", "general.success", fallback: "Success")
+    /// Terms and Conditions
+    public static let termsAndConditions = L10n.tr("Localizable", "general.termsAndConditions", fallback: "Terms and Conditions")
     /// Unknown
     public static let unknown = L10n.tr("Localizable", "general.unknown", fallback: "Unknown")
     /// Yes
@@ -61,6 +63,22 @@ public enum L10n {
     public static let message = L10n.tr("Localizable", "nefs.message", fallback: "Not enough space on disk to do synchronisation!")
   }
   public enum Nighthawk {
+    public enum About {
+      /// Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.
+      /// 
+      /// As a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.
+      /// 
+      /// Zcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.
+      /// 
+      /// Nighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided "as is", without warranty of any kind, express or implied.
+      public static let message = L10n.tr("Localizable", "nighthawk.about.message", fallback: "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.")
+      /// About
+      public static let title = L10n.tr("Localizable", "nighthawk.about.title", fallback: "About")
+      /// View licenses
+      public static let viewLicenses = L10n.tr("Localizable", "nighthawk.about.viewLicenses", fallback: "View licenses")
+      /// View Source
+      public static let viewSource = L10n.tr("Localizable", "nighthawk.about.viewSource", fallback: "View Source")
+    }
     public enum App {
       public enum Launch {
         public enum Alert {
@@ -183,6 +201,10 @@ public enum L10n {
       /// Before you continue
       public static let title = L10n.tr("Localizable", "nighthawk.importWarning.title", fallback: "Before you continue")
     }
+    public enum Licenses {
+      /// OSS Licenses
+      public static let title = L10n.tr("Localizable", "nighthawk.licenses.title", fallback: "OSS Licenses")
+    }
     public enum LocalAuthentication {
       /// You must authenticate to access your Nighthawk wallet.
       public static let accessWalletReason = L10n.tr("Localizable", "nighthawk.localAuthentication.accessWalletReason", fallback: "You must authenticate to access your Nighthawk wallet.")
@@ -296,6 +318,32 @@ public enum L10n {
           public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.subtitle", fallback: "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.")
           /// Keep screen on
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
+        }
+      }
+      public enum Alert {
+        public enum Rescan {
+          /// Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?
+          public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.message", fallback: "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?")
+          /// Rescan this wallet?
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.title", fallback: "Rescan this wallet?")
+          /// Wipe
+          public static let wipe = L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.wipe", fallback: "Wipe")
+          public enum CantStartSync {
+            /// Error: %@ (code: %@)
+            public static func message(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.cantStartSync.message", String(describing: p1), String(describing: p2), fallback: "Error: %@ (code: %@)")
+            }
+            /// Can't start sync process after rewind
+            public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.cantStartSync.title", fallback: "Can't start sync process after rewind")
+          }
+          public enum Failed {
+            /// Error: %@ (code: %@)
+            public static func message(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.failed.message", String(describing: p1), String(describing: p2), fallback: "Error: %@ (code: %@)")
+            }
+            /// Rescan failed
+            public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.alert.rescan.failed.title", fallback: "Rescan failed")
+          }
         }
       }
       public enum Backup {
@@ -446,8 +494,6 @@ public enum L10n {
       public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Transparent")
       /// Sapling
       public static let sapling = L10n.tr("Localizable", "nighthawk.transactionDetails.sapling", fallback: "Sapling")
-      /// Subtotal
-      public static let subtotal = L10n.tr("Localizable", "nighthawk.transactionDetails.subtotal", fallback: "Subtotal")
       /// Time (UTC)
       public static let time = L10n.tr("Localizable", "nighthawk.transactionDetails.time", fallback: "Time (UTC)")
       /// Transaction details
@@ -654,8 +700,6 @@ public enum L10n {
       public static let subtitle = L10n.tr("Localizable", "nighthawk.welcome.subtitle", fallback: "Get started")
       /// By using this app you accept our
       public static let terms1 = L10n.tr("Localizable", "nighthawk.welcome.terms1", fallback: "By using this app you accept our")
-      /// Terms and Conditions
-      public static let terms2 = L10n.tr("Localizable", "nighthawk.welcome.terms2", fallback: "Terms and Conditions")
       public enum Initialization {
         public enum Alert {
           public enum CantCreateNewWallet {

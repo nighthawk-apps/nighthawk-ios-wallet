@@ -31,6 +31,9 @@ public struct UserPreferencesStorageClient {
     
     public var areBiometricsEnabled: () -> Bool
     public var setAreBiometricsEnabled: (Bool) -> Void
+    
+    public var isFirstSync: () -> Bool
+    public var setIsFirstSync: (Bool) -> Void
 
     public var removeAll: () -> Void
 }

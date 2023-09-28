@@ -27,7 +27,7 @@ public struct WalletView: View {
             VStack {
                 qrCodeButtons(with: viewStore)
                 
-                header(with: viewStore)
+                balanceTabsView(with: viewStore)
                 
                 if viewStore.transparentBalance.data.verified >= viewStore.autoShieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
@@ -72,16 +72,6 @@ private extension WalletView {
         }
     }
     
-    func header(with viewStore: ViewStoreOf<Wallet>) -> some View {
-        Group {
-            if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed || viewStore.isSyncingStopped {
-                SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-            } else if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
-                balanceTabsView(with: viewStore)
-            }
-        }
-    }
-    
     func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
         VStack {
             tabs(with: viewStore)
@@ -93,40 +83,51 @@ private extension WalletView {
     
     func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
         TabView(selection: viewStore.$balanceViewType) {
-            BalanceView(
-                balance: viewStore.totalBalance,
-                type: .hidden,
-                tokenName: tokenName,
-                synchronizerState: viewStore.synchronizerState
-            )
-            .tag(BalanceView.ViewType.hidden)
-            
-            BalanceView(
-                balance: viewStore.totalBalance,
-                type: .total,
-                tokenName: tokenName,
-                synchronizerState: viewStore.synchronizerState
-            )
-            .tag(BalanceView.ViewType.total)
-            .padding(.top, 32)
-            
-            BalanceView(
-                balance: viewStore.shieldedBalance.data.verified,
-                type: .shielded,
-                tokenName: tokenName,
-                synchronizerState: viewStore.synchronizerState
-            )
-            .tag(BalanceView.ViewType.shielded)
-            .padding(.top, 32)
-            
-            BalanceView(
-                balance: viewStore.transparentBalance.data.verified,
-                type: .transparent,
-                tokenName: tokenName,
-                synchronizerState: viewStore.synchronizerState
-            )
-            .tag(BalanceView.ViewType.transparent)
-            .padding(.top, 32)
+            if viewStore.isSyncingForFirstTime {
+                SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
+                    .tag(BalanceView.ViewType.hidden)
+            } else {
+                Group {
+                    if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed || viewStore.isSyncingStopped {
+                        SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
+                    } else {
+                        BalanceView(
+                            balance: viewStore.totalBalance,
+                            type: .hidden,
+                            tokenName: tokenName,
+                            synchronizerState: viewStore.synchronizerState
+                        )
+                    }
+                }
+                .tag(BalanceView.ViewType.hidden)
+                
+                BalanceView(
+                    balance: viewStore.totalBalance,
+                    type: .total,
+                    tokenName: tokenName,
+                    synchronizerState: viewStore.synchronizerState
+                )
+                .tag(BalanceView.ViewType.total)
+                .padding(.top, 32)
+                
+                BalanceView(
+                    balance: viewStore.shieldedBalance.data.verified,
+                    type: .shielded,
+                    tokenName: tokenName,
+                    synchronizerState: viewStore.synchronizerState
+                )
+                .tag(BalanceView.ViewType.shielded)
+                .padding(.top, 32)
+                
+                BalanceView(
+                    balance: viewStore.transparentBalance.data.verified,
+                    type: .transparent,
+                    tokenName: tokenName,
+                    synchronizerState: viewStore.synchronizerState
+                )
+                .tag(BalanceView.ViewType.transparent)
+                .padding(.top, 32)
+            }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
@@ -177,7 +178,7 @@ private extension WalletView {
     
     func latestWalletEvents(with viewStore: ViewStoreOf<Wallet>) -> some View {
         Group {
-            if viewStore.synchronizerStatusSnapshot.syncStatus.isSynced && !viewStore.walletEvents.isEmpty {
+            if !viewStore.isSyncingForFirstTime && !viewStore.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)

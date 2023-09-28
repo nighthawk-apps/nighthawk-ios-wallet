@@ -19,6 +19,7 @@ public struct UserPreferencesStorage {
         case zcashScreenMode
         case zcashSyncNotificationFrequency
         case zcashBiometricsEnabled
+        case zcashIsFirstSync
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
@@ -27,6 +28,7 @@ public struct UserPreferencesStorage {
     private let selectedScreenMode: NighthawkSetting.ScreenMode
     private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
     private let biometricsEnabled: Bool
+    private let firstSync: Bool
     
     private let userDefaults: UserDefaultsClient
     
@@ -36,7 +38,8 @@ public struct UserPreferencesStorage {
         selectedScreenMode: NighthawkSetting.ScreenMode,
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         biometricsEnabled: Bool,
-        userDefaults: UserDefaultsClient
+        userDefaults: UserDefaultsClient,
+        firstSync: Bool
     ) {
         self.convertedCurrency = convertedCurrency
         self.fiatConversion = fiatConversion
@@ -44,6 +47,7 @@ public struct UserPreferencesStorage {
         self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
         self.biometricsEnabled = biometricsEnabled
         self.userDefaults = userDefaults
+        self.firstSync = firstSync
     }
 
     public var currency: String {
@@ -89,6 +93,14 @@ public struct UserPreferencesStorage {
     
     public func setAreBiometricsEnabled(_ bool: Bool) {
         setValue(bool, forKey: Constants.zcashBiometricsEnabled.rawValue)
+    }
+    
+    public var isFirstSync: Bool {
+        getValue(forKey: Constants.zcashIsFirstSync.rawValue, default: firstSync)
+    }
+    
+    public func setIsFirstSync(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashIsFirstSync.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults

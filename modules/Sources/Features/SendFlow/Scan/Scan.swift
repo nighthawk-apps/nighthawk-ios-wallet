@@ -40,7 +40,6 @@ public struct Scan: Reducer {
         case backButtonTapped
         case delegate(Delegate)
         case onAppear
-        case onDisappear
         case scan(RedactableString)
         case scanFailed
         
@@ -75,9 +74,6 @@ public struct Scan: Reducer {
                 // reset the values
                 state.scanStatus = .unknown
                 return .none
-                
-            case .onDisappear:
-                return .cancel(id: CancelId.timer)
                 
             case .scanFailed:
                 state.scanStatus = .failed

@@ -119,14 +119,14 @@ struct SeedBirthdayView: View {
         HStack(alignment: .lastTextBaseline) {
             Group {
                 Text(L10n.Nighthawk.RecoveryPhraseDisplay.birthday)
-                    .paragraph(
+                    .paragraphMedium(
                         color: forPdf
                         ? .black
                         : Asset.Colors.Nighthawk.parmaviolet.color
                     )
                 
                 Text("\(birthday)")
-                    .paragraph(
+                    .paragraphMedium(
                         color: forPdf
                         ? .black
                         : .white
