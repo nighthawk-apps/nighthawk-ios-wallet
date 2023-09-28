@@ -7,7 +7,6 @@
 
 import App
 import ComposableArchitecture
-import Dependencies
 import Foundation
 import Generated
 import SDKSynchronizer

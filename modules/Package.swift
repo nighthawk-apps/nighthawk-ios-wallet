@@ -63,8 +63,7 @@ let package = Package(
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
         .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9"),
-        .package(url: "https://github.com/cybozu/LicenseList.git", from: "0.3.1")
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9")
     ],
     targets: [
         .target(
@@ -98,8 +97,7 @@ let package = Package(
                 "WalletCreated",
                 "Welcome",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit"),
-                .product(name: "LicenseList", package: "LicenseList")
+                .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Features/App"
         ),
