@@ -65,7 +65,6 @@ public struct AppReducer: Reducer {
             case home(Home.State = .init())
             case importWallet(ImportWallet.State = .init())
             case importWalletSuccess(ImportWalletSuccess.State = .init())
-            case licenses
             case migrate(Migrate.State = .init())
             case notifications(Notifications.State = .init())
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
@@ -86,7 +85,6 @@ public struct AppReducer: Reducer {
             case home(Home.Action)
             case importWallet(ImportWallet.Action)
             case importWalletSuccess(ImportWalletSuccess.Action)
-            case licenses(Never)
             case migrate(Migrate.Action)
             case notifications(Notifications.Action)
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.Action)

@@ -53,7 +53,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .about(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .showLicensesList:
-                    state.path.append(.licenses)
+                    // TODO: Show license list
                     return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:

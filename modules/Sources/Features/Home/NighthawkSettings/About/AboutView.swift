@@ -37,13 +37,14 @@ public struct AboutView: View {
                     
                     Spacer()
                     
-                    VStack {
-                        Button(L10n.Nighthawk.About.viewLicenses) {
-                            viewStore.send(.viewLicensesTapped)
-                        }
-                        .buttonStyle(.nighthawkPrimary())
-                    }
-                    .frame(maxWidth: .infinity)
+                    // TODO: Add licenses list
+//                    VStack {
+//                        Button(L10n.Nighthawk.About.viewLicenses) {
+//                            viewStore.send(.viewLicensesTapped)
+//                        }
+//                        .buttonStyle(.nighthawkPrimary())
+//                    }
+//                    .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical, 25)
             }
