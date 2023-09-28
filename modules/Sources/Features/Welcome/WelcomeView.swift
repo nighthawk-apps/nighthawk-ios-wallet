@@ -79,7 +79,7 @@ private extension WelcomeView {
                 .caption()
                 .padding(.bottom, 4)
             
-            Button(L10n.Nighthawk.Welcome.terms2, action: onTermsLinkTapped)
+            Button(L10n.General.termsAndConditions, action: onTermsLinkTapped)
                 .buttonStyle(.nighthawkLink())
         }
     }

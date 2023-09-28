@@ -20,6 +20,7 @@
 "balance.available" = "%@ %@ Available";
 "qrCodeFor" = "QR Code for %@";
 "general.dateNotAvailable" = "date not available";
+"general.termsAndConditions" = "Terms and Conditions";
 
 //==========================================================
 // NIGHTHAWK
@@ -29,6 +30,15 @@
 // MARK: - Local authentication
 "nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
 "nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+
+// MARK: - About screen
+"nighthawk.about.title" = "About";
+"nighthawk.about.message" = "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
+"nighthawk.about.viewSource" = "View Source";
+"nighthawk.about.viewLicenses" = "View licenses";
+
+// MARK: - Licenses Screen
+"nighthawk.licenses.title" = "OSS Licenses";
 
 // MARK: - App
 "nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
@@ -71,7 +81,6 @@
 "nighthawk.welcome.subtitle" = "Get started";
 "nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
 "nighthawk.welcome.terms1" = "By using this app you accept our";
-"nighthawk.welcome.terms2" = "Terms and Conditions";
 "nighthawk.welcome.create" = "Create Wallet";
 "nighthawk.welcome.restore" = "Restore From Backup";
 "nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
@@ -246,6 +255,13 @@
 "nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
 "nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
 "nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
+"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
+"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
 "nighthawk.settingsTab.changeServerTitle" = "Change server";
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
 "nighthawk.settingsTab.externalServicesTitle" = "External services";
@@ -310,7 +326,6 @@
 "nighthawk.transactionDetails.recipientShielded" = "Shielded";
 "nighthawk.transactionDetails.recipientTransparent" = "Transparent";
 "nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.subtotal" = "Subtotal";
 "nighthawk.transactionDetails.networkFee" = "Network fee";
 "nighthawk.transactionDetails.totalAmount" = "Total amount";
 "nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";

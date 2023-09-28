@@ -59,13 +59,12 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rowTapped(.backup)) }
                     )
                     
-                    // TODO
-//                    settingRow(
-//                        title: L10n.Nighthawk.SettingsTab.rescanTitle,
-//                        subtitle: L10n.Nighthawk.SettingsTab.rescanTitle,
-//                        icon: Asset.Assets.Icons.Nighthawk.rescan.image,
-//                        action: { viewStore.send(.rowTapped(.rescan)) }
-//                    )
+                    settingRow(
+                        title: L10n.Nighthawk.SettingsTab.rescanTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.rescanSubtitle,
+                        icon: Asset.Assets.Icons.Nighthawk.rescan.image,
+                        action: { viewStore.send(.rescanTapped) }
+                    )
                     
                     // TODO
 //                    settingRow(
@@ -82,13 +81,12 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rowTapped(.advanced)) }
                     )
                     
-                    // TODO
-//                    settingRow(
-//                        title: L10n.Nighthawk.SettingsTab.aboutTitle,
-//                        subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(viewStore.appVersion),
-//                        icon: Asset.Assets.Icons.Nighthawk.about.image,
-//                        action: { viewStore.send(.rowTapped(.about))}
-//                    )
+                    settingRow(
+                        title: L10n.Nighthawk.SettingsTab.aboutTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(viewStore.appVersion),
+                        icon: Asset.Assets.Icons.Nighthawk.about.image,
+                        action: { viewStore.send(.rowTapped(.about))}
+                    )
                 }
             }
             .padding(.horizontal, 25)

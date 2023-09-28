@@ -20,19 +20,19 @@ public struct Review: Reducer {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         
-        public var subtotal: Zatoshi
+        public var zecAmount: Zatoshi
         public var fee = Zatoshi(10_000) // TODO: [#1186] Show ZIP-317 fees when SDK supports it (https://github.com/zcash/ZcashLightClientKit/issues/1186)
         public var memo: RedactableString?
         public var recipient: RedactableString
         public var recipientIsTransparent = false
-        public var total: Zatoshi { subtotal + fee }
+        public var total: Zatoshi { zecAmount + fee }
         
         public init(
-            subtotal: Zatoshi,
+            zecAmount: Zatoshi,
             memo: RedactableString?,
             recipient: RedactableString
         ) {
-            self.subtotal = subtotal
+            self.zecAmount = zecAmount
             self.memo = memo
             self.recipient = recipient
         }

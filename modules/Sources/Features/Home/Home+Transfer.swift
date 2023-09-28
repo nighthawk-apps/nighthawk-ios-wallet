@@ -30,10 +30,13 @@ extension Home {
                     }
                 }
             case .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
                  .delegate,
                  .destination,
+                 .listenForSynchronizerUpdates,
                  .onAppear,
-                 .onDisappear,
+                 .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
                  .transfer,

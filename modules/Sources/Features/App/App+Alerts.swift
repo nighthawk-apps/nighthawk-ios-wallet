@@ -26,6 +26,12 @@ extension AlertState where Action == AppReducer.Destination.Action.Alert {
         }
     }
     
+    public static func notEnoughFreeDiskSpace() -> AlertState {
+        AlertState {
+            TextState(L10n.Nefs.message)
+        }
+    }
+    
     public static func nukeFailed() -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.App.Nuke.Alert.NukeFailed.title)

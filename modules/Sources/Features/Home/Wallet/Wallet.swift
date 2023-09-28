@@ -25,6 +25,12 @@ public struct Wallet: Reducer {
         public var expectingZatoshi: Zatoshi = .zero
         @BindingState public var balanceViewType: BalanceView.ViewType = .hidden
         public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
+        
+        public var isSyncingForFirstTime: Bool {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return synchronizerStatusSnapshot.syncStatus.isSyncing && userStoredPreferences.isFirstSync()
+        }
+        
         public var isSyncingFailed: Bool {
             if case .error = synchronizerStatusSnapshot.syncStatus {
                 return true

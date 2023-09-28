@@ -26,7 +26,7 @@ public struct TransactionDetail: Reducer {
         public var walletEvent: WalletEvent
         public var networkType: NetworkType
         
-        public var address: String { walletEvent.transaction.address }
+        public var address: String? { walletEvent.transaction.address }
         public var confirmations: BlockHeight { walletEvent.transaction.confirmationsWith(latestMinedHeight) }
         public var date: Date? {
             guard let timestamp = walletEvent.timestamp else { return nil }
@@ -40,7 +40,6 @@ public struct TransactionDetail: Reducer {
         public var minedHeight: BlockHeight? { walletEvent.transaction.minedHeight }
         public var shielded: Bool { walletEvent.transaction.shielded }
         public var status: TransactionState.Status { walletEvent.transaction.status }
-        public var totalAmount: Zatoshi { walletEvent.transaction.totalAmount }
         public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
         public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
         public var zecAmount: Zatoshi { walletEvent.transaction.zecAmount }
@@ -55,7 +54,6 @@ public struct TransactionDetail: Reducer {
         case alert(PresentationAction<Alert>)
         case delegate(Delegate)
         case onAppear
-        case onDisappear
         case synchronizerStateChanged(SynchronizerState)
         case warnBeforeLeavingApp(URL?)
         
@@ -101,8 +99,6 @@ public struct TransactionDetail: Reducer {
                         await self.dismiss()
                     }
                 }
-            case .onDisappear:
-                return .cancel(id: CancelId.timer)
             case .synchronizerStateChanged(let latestState):
                 if latestState.syncStatus == .upToDate {
                     state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight

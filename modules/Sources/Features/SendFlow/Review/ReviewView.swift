@@ -59,7 +59,7 @@ private extension ReviewView {
         VStack {
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.subtotal.decimalString())")
+                    Text("\(viewStore.zecAmount.decimalString())")
                         .foregroundColor(.white)
                     
                     Text(tokenName)
@@ -114,11 +114,6 @@ private extension ViewStoreOf<Review> {
         
         result.append(
             contentsOf: [
-                TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.subtotal,
-                    value: "\(self.subtotal.decimalString()) \(tokenName)",
-                    showBorder: false
-                ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.networkFee,
                     value: "\(self.fee.decimalString()) \(tokenName)"

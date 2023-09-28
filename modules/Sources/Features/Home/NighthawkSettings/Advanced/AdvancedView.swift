@@ -23,14 +23,15 @@ public struct AdvancedView: View {
             ScrollView([.vertical], showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(L10n.Nighthawk.SettingsTab.advancedTitle)
-                        .paragraphMedium()
+                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
                     Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.title)
-                        .paragraphMedium()
+                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
                     Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.subtitle)
-                        .caption()
+                        .paragraphMedium(color: .white)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(6)
                     
                     
                     RadioSelectionList(
@@ -41,10 +42,10 @@ public struct AdvancedView: View {
                             switch option {
                             case .keepOn:
                                 Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.keepOn)
-                                    .paragraph()
+                                    .paragraphMedium(color: .white)
                             case .off:
                                 Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.off)
-                                    .paragraph()
+                                    .paragraphMedium(color: .white)
                             }
                             
                             Spacer()
@@ -53,11 +54,12 @@ public struct AdvancedView: View {
                     }
                     
                     Text(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.title)
-                        .paragraphMedium()
+                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
                     Text(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.subtitle)
-                        .captionBold(color: Asset.Colors.Nighthawk.error.color)
+                        .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(6)
                     
                     Button(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.title) {
                         viewStore.send(.nukeWalletTapped)

@@ -24,6 +24,8 @@
 		45263C412ABC9F27008F6D86 /* lottie_auto_shield_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */; };
 		452657032ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */ = {isa = PBXBuildFile; fileRef = 452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */; };
 		452657042ABCA16400F7A6F7 /* lottie_auto_shield_failed.json in Resources */ = {isa = PBXBuildFile; fileRef = 452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */; };
+		452908C62AC4BDA900DA414F /* LicenseList in Frameworks */ = {isa = PBXBuildFile; productRef = 452908C52AC4BDA900DA414F /* LicenseList */; };
+		452908C82AC4BDB000DA414F /* LicenseList in Frameworks */ = {isa = PBXBuildFile; productRef = 452908C72AC4BDB000DA414F /* LicenseList */; };
 		4542DCCB2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
 		4542DCCC2AAF446B0063EF26 /* NighthawkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */; };
 		4542DCCE2AAF46A80063EF26 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 4542DCCD2AAF46A80063EF26 /* App */; };
@@ -93,6 +95,7 @@
 		45263C392ABC66CB008F6D86 /* lottie_shielding.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_shielding.json; sourceTree = "<group>"; };
 		45263C3F2ABC9F27008F6D86 /* lottie_auto_shield_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_auto_shield_success.json; sourceTree = "<group>"; };
 		452657022ABCA16400F7A6F7 /* lottie_auto_shield_failed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = lottie_auto_shield_failed.json; sourceTree = "<group>"; };
+		452908C32AC4BD4500DA414F /* LicenseList */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LicenseList; path = "/Users/twopoint/Library/Developer/Xcode/DerivedData/secant-clnhpqmvulsvrjdwxxxtixaoaqrg/SourcePackages/checkouts/LicenseList"; sourceTree = "<absolute>"; };
 		4542DCCA2AAF446B0063EF26 /* NighthawkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkApp.swift; sourceTree = "<group>"; };
 		9E01F8272833CDA0000EFC57 /* ScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTests.swift; sourceTree = "<group>"; };
 		9E02B56B27FED475005B809B /* DatabaseFilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseFilesTests.swift; sourceTree = "<group>"; };
@@ -128,6 +131,7 @@
 			files = (
 				4542DCD02AAF46B20063EF26 /* App in Frameworks */,
 				45876BCA2A50964B00380FFF /* Utils in Frameworks */,
+				452908C62AC4BDA900DA414F /* LicenseList in Frameworks */,
 				45CA1CE32AAF488100D4CA8F /* SDKSynchronizer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -138,6 +142,7 @@
 			files = (
 				4542DCCE2AAF46A80063EF26 /* App in Frameworks */,
 				459EE8F72A912C550076EFDF /* Utils in Frameworks */,
+				452908C82AC4BDB000DA414F /* LicenseList in Frameworks */,
 				45CA1CE12AAF487800D4CA8F /* SDKSynchronizer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -159,6 +164,7 @@
 				0D4E7A0726B364170058B01E /* secant */,
 				0D4E7A1926B364180058B01E /* secantTests */,
 				0D4E7A0626B364170058B01E /* Products */,
+				452908C22AC4BD4500DA414F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -243,6 +249,14 @@
 				4502345C2A1095B10026F4C7 /* sound_receive_small.mp3 */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		452908C22AC4BD4500DA414F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				452908C32AC4BD4500DA414F /* LicenseList */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		9E01F8262833CD84000EFC57 /* ScanTests */ = {
@@ -402,12 +416,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				452908CC2AC4BDC400DA414F /* PBXTargetDependency */,
 			);
 			name = "secant-mainnet";
 			packageProductDependencies = (
 				45876BC92A50964B00380FFF /* Utils */,
 				4542DCCF2AAF46B20063EF26 /* App */,
 				45CA1CE22AAF488100D4CA8F /* SDKSynchronizer */,
+				452908C52AC4BDA900DA414F /* LicenseList */,
 			);
 			productName = secant;
 			productReference = 0D26AF94299E8196005260EE /* secant-mainnet.app */;
@@ -424,12 +440,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				452908CA2AC4BDC000DA414F /* PBXTargetDependency */,
 			);
 			name = "secant-testnet";
 			packageProductDependencies = (
 				459EE8F62A912C550076EFDF /* Utils */,
 				4542DCCD2AAF46A80063EF26 /* App */,
 				45CA1CE02AAF487800D4CA8F /* SDKSynchronizer */,
+				452908C72AC4BDB000DA414F /* LicenseList */,
 			);
 			productName = secant;
 			productReference = 0D4E7A0526B364170058B01E /* secant-testnet.app */;
@@ -484,6 +502,7 @@
 			);
 			mainGroup = 0D4E79FC26B364170058B01E;
 			packageReferences = (
+				452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */,
 			);
 			productRefGroup = 0D4E7A0626B364170058B01E /* Products */;
 			projectDirPath = "";
@@ -597,6 +616,14 @@
 			isa = PBXTargetDependency;
 			target = 0D4E7A0426B364170058B01E /* secant-testnet */;
 			targetProxy = 0D4E7A1726B364180058B01E /* PBXContainerItemProxy */;
+		};
+		452908CA2AC4BDC000DA414F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 452908C92AC4BDC000DA414F /* PrepareLicenseList */;
+		};
+		452908CC2AC4BDC400DA414F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 452908CB2AC4BDC400DA414F /* PrepareLicenseList */;
 		};
 /* End PBXTargetDependency section */
 
@@ -925,7 +952,38 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cybozu/LicenseList.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		452908C52AC4BDA900DA414F /* LicenseList */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */;
+			productName = LicenseList;
+		};
+		452908C72AC4BDB000DA414F /* LicenseList */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */;
+			productName = LicenseList;
+		};
+		452908C92AC4BDC000DA414F /* PrepareLicenseList */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */;
+			productName = "plugin:PrepareLicenseList";
+		};
+		452908CB2AC4BDC400DA414F /* PrepareLicenseList */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 452908C42AC4BD9C00DA414F /* XCRemoteSwiftPackageReference "LicenseList" */;
+			productName = "plugin:PrepareLicenseList";
+		};
 		4542DCCD2AAF46A80063EF26 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = App;

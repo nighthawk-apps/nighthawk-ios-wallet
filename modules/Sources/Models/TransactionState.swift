@@ -32,9 +32,7 @@ public struct TransactionState: Equatable, Identifiable {
     public var timestamp: TimeInterval?
     public var zecAmount: Zatoshi
     
-    public var address: String {
-        zAddress ?? tAddress ?? ""
-    }
+    public var address: String? { zAddress ?? tAddress }
     
     public var unarySymbol: String {
         switch status {
@@ -60,10 +58,6 @@ public struct TransactionState: Equatable, Identifiable {
         default:
             return false
         }
-    }
-    
-    public var totalAmount: Zatoshi {
-        Zatoshi(zecAmount.amount + fee.amount)
     }
     
     public func viewOnlineURL(for networkType: NetworkType) -> URL? {

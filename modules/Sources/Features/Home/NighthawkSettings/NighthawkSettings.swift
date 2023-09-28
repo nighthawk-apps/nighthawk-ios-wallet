@@ -46,9 +46,11 @@ public struct NighthawkSettings: Reducer {
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case onAppear
+        case rescanTapped
         case rowTapped(NighthawkSettings.State.Screen)
         
         public enum Delegate: Equatable {
+            case rescan
             case goTo(NighthawkSettings.State.Screen)
         }
     }
@@ -63,6 +65,7 @@ public struct NighthawkSettings: Reducer {
             
             public enum Alert: Equatable {
                 case viewSeed
+                case wipe
             }
         }
         
@@ -88,6 +91,8 @@ public struct NighthawkSettings: Reducer {
                 return .none
             case .destination(.presented(.alert(.viewSeed))):
                 return .send(.delegate(.goTo(.backup)))
+            case .destination(.presented(.alert(.wipe))):
+                return .send(.delegate(.rescan))
             case .onAppear:
                 state.appVersion = appVersion.appVersion()
                 let context = localAuthenticationContext()
@@ -95,6 +100,9 @@ public struct NighthawkSettings: Reducer {
                 // So call it before trying to fetch the biometryType.
                 _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
                 state.biometryType = context.biometryType()
+                return .none
+            case .rescanTapped:
+                state.destination = .alert(.confirmRescan())
                 return .none
             case .rowTapped(.backup):
                 state.destination = .alert(AlertState.confirmViewSeedWords())
@@ -128,6 +136,22 @@ extension AlertState where Action == NighthawkSettings.Destination.Action.Alert 
             }
         } message: {
             TextState(L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertMessage)
+        }
+    }
+    
+    public static func confirmRescan() -> AlertState {
+        AlertState {
+            TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.title)
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(L10n.General.cancel)
+            }
+            
+            ButtonState(role: .destructive, action: .wipe) {
+                TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.wipe)
+            }
+        } message: {
+            TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.message)
         }
     }
 }

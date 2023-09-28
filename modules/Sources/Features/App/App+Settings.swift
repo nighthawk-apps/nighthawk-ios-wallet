@@ -14,6 +14,7 @@ extension AppReducer {
     func settingsReducer() -> some ReducerOf<Self> {
         nighthawkSettingsDelegateReducer()
         advancedSettingsDelegateReducer()
+        aboutDelegateReducer()
     }
     
     private func nighthawkSettingsDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
@@ -23,6 +24,8 @@ extension AppReducer {
                 switch delegateAction {
                 case let .goTo(screen):
                     return goTo(screen: screen, state: &state)
+                case .rescan:
+                    return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none
@@ -37,6 +40,21 @@ extension AppReducer {
                 switch delegateAction {
                 case .nukeWallet:
                     return nukeWallet()
+                }
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
+                return .none
+            }
+        }
+    }
+    
+    private func aboutDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .about(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .showLicensesList:
+                    state.path.append(.licenses)
+                    return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
                 return .none

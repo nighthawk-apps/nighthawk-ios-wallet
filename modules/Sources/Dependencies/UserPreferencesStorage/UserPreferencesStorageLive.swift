@@ -23,6 +23,8 @@ extension UserPreferencesStorageClient: DependencyKey {
             setSyncNotificationFrequency: live.setSyncNotificationFrequency(_:),
             areBiometricsEnabled: { live.areBiometricsEnabled },
             setAreBiometricsEnabled: live.setAreBiometricsEnabled(_:),
+            isFirstSync: { live.isFirstSync },
+            setIsFirstSync: live.setIsFirstSync(_:),
             removeAll: live.removeAll
         )
     }()
@@ -35,6 +37,7 @@ extension UserPreferencesStorage {
         selectedScreenMode: .off,
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,
-        userDefaults: .live()
+        userDefaults: .live(),
+        firstSync: true
     )
 }

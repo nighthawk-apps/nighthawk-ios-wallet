@@ -28,7 +28,6 @@ struct SyncStatusView: View {
                 .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 .padding(.horizontal, 25)
         }
-        .padding(.top, 96)
     }
 }
 

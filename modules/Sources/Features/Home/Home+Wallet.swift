@@ -39,10 +39,13 @@ extension Home {
                     return .none
                 }
             case .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
                  .delegate,
                  .destination,
+                 .listenForSynchronizerUpdates,
                  .onAppear,
-                 .onDisappear,
+                 .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
                  .transfer,
@@ -66,10 +69,13 @@ extension Home {
                     return .none
                 }
             case .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
                  .delegate,
                  .destination,
+                 .listenForSynchronizerUpdates,
                  .onAppear,
-                 .onDisappear,
+                 .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
                  .transfer,

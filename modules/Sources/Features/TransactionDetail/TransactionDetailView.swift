@@ -25,7 +25,6 @@ public struct TransactionDetailView: View {
                 TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
             }
             .onAppear { viewStore.send(.onAppear) }
-            .onDisappear { viewStore.send(.onDisappear) }
         }
         .applyNighthawkBackground()
         .alert(
@@ -100,7 +99,7 @@ private extension ViewStoreOf<TransactionDetail> {
             ]
         )
         
-        if self.isSending {
+        if self.isSending, let address = self.address {
             result.append(
                 contentsOf: [
                     TransactionLineItem(
@@ -112,7 +111,7 @@ private extension ViewStoreOf<TransactionDetail> {
                     ),
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
-                        value: self.address,
+                        value: address,
                         action: .init(
                             title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                             action: {
@@ -128,11 +127,6 @@ private extension ViewStoreOf<TransactionDetail> {
             result.append(
                 contentsOf: [
                     TransactionLineItem(
-                        name: L10n.Nighthawk.TransactionDetails.subtotal,
-                        value: "\(self.zecAmount.decimalString()) \(tokenName)",
-                        showBorder: false
-                    ),
-                    TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.networkFee,
                         value: "\(self.fee.decimalString()) \(tokenName)"
                     )
@@ -144,7 +138,7 @@ private extension ViewStoreOf<TransactionDetail> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.totalAmount.decimalString()) \(tokenName)"
+                    value: "\(self.zecAmount.decimalString()) \(tokenName)"
                 )
             ]
         )
@@ -165,7 +159,7 @@ private extension TransactionDetailView {
             
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.totalAmount.decimalString())")
+                    Text("\(viewStore.zecAmount.decimalString())")
                         .foregroundColor(.white)
                     
                     Text(tokenName)

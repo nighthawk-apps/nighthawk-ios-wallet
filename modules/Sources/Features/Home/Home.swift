@@ -7,6 +7,7 @@
 
 import Addresses
 import Autoshield
+import Combine
 import ComposableArchitecture
 import DiskSpaceChecker
 import Foundation
@@ -51,7 +52,7 @@ public struct Home: Reducer {
         public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
-
+        
         // Tab states
         public var walletState: Wallet.State = .init()
         public var transferState: Transfer.State = .init()
@@ -62,10 +63,13 @@ public struct Home: Reducer {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case cancelSynchronizerUpdates
+        case cantStartSync(ZcashError)
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
+        case listenForSynchronizerUpdates
         case onAppear
-        case onDisappear
+        case rescanDone(ZcashError? = nil)
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
         case transfer(Transfer.Action)
@@ -133,10 +137,32 @@ public struct Home: Reducer {
         
         Reduce { state, action in
             switch action {
+            case .cancelSynchronizerUpdates:
+                return .cancel(id: CancelId.timer)
+            case let .cantStartSync(error):
+                state.destination = .alert(.cantStartSync(error))
+                return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
-                
+                return .send(.listenForSynchronizerUpdates)
+            case let .rescanDone(error):
+                userStoredPreferences.setIsFirstSync(true)
+                if let error {
+                    state.destination = .alert(.rescanFailed(error.toZcashError()))
+                    return .none
+                } else {
+                    return .run { send in
+                        do {
+                            try await sdkSynchronizer.start(false)
+                            await send(.cancelSynchronizerUpdates)
+                            await send(.listenForSynchronizerUpdates)
+                        } catch {
+                            await send(.cantStartSync(error.toZcashError()))
+                        }
+                    }
+                }
+            case .listenForSynchronizerUpdates:
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     return .publisher {
                         sdkSynchronizer.stateStream()
@@ -148,8 +174,6 @@ public struct Home: Reducer {
                     state.destination = .alert(.notEnoughFreeDiskSpace())
                     return .none
                 }
-            case .onDisappear:
-                return .cancel(id: CancelId.timer)
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState.syncStatus)
                 guard snapshot != state.synchronizerStatusSnapshot else {
@@ -161,6 +185,7 @@ public struct Home: Reducer {
                 state.transparentBalance = latestState.transparentBalance.redacted
                 
                 if latestState.syncStatus == .upToDate {
+                    userStoredPreferences.setIsFirstSync(false)
                     state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                     
                     // Detect if there are any expected funds
@@ -200,10 +225,27 @@ public struct Home: Reducer {
         addressesDelegateReducer()
         transferReducer()
         walletReducer()
+        nighthawkSettingsReducer()
     }
     
     public init(zcashNetwork: ZcashNetwork) {
         self.zcashNetwork = zcashNetwork
+    }
+}
+
+// MARK: - Rewind
+extension Home {
+    func rescan() -> Effect<Action> {
+        .publisher {
+            sdkSynchronizer.rewind(.birthday)
+                .replaceEmpty(with: Void())
+                .map { _ in return Home.Action.rescanDone() }
+                .catch { error in
+                    return Just(Home.Action.rescanDone(error.toZcashError())).eraseToAnyPublisher()
+                }
+                .receive(on: mainQueue)
+        }
+        .cancellable(id: CancelId.timer, cancelInFlight: true)
     }
 }
 
@@ -224,10 +266,13 @@ extension Home {
                     }
                 }
             case .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
                  .delegate,
                  .destination,
+                 .listenForSynchronizerUpdates,
                  .onAppear,
-                 .onDisappear,
+                 .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
                  .transfer,

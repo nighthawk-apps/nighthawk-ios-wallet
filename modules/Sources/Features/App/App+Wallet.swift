@@ -46,7 +46,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .transactionHistory(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .handleDiskFull:
-                    // TODO: Handle disk full
+                    state.destination = .alert(.notEnoughFreeDiskSpace())
                     return .none
                 case let .showTransactionDetail(walletEvent):
                     state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))

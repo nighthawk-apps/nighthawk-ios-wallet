@@ -1,6 +1,6 @@
 //
 //  AppView.swift
-//  
+//
 //
 //  Created by Matthew Watt on 9/11/23.
 //
@@ -10,6 +10,7 @@ import Generated
 import Home
 import ImportWallet
 import ImportWalletSuccess
+import LicenseList
 import Migrate
 import RecoveryPhraseDisplay
 import Splash
@@ -116,6 +117,9 @@ public struct AppView: View {
                      }
                 )
                 .toolbar(.hidden, for: .navigationBar)
+            case .licenses:
+                LicenseListView()
+                    .navigationTitle(L10n.Nighthawk.Licenses.title)
             case .migrate:
                 CaseLet(
                     /AppReducer.Path.State.migrate,

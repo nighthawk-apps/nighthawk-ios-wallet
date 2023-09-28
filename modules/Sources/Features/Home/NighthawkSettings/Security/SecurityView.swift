@@ -17,13 +17,13 @@ public struct SecurityView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.securityTitle)
-                    .paragraphMedium()
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 
                 Toggle(
                     toggleTitle(with: viewStore),
                     isOn: viewStore.$areBiometricsEnabled
                 )
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                 .lineSpacing(6)
                 .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
                 
