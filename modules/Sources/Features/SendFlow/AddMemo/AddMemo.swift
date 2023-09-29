@@ -13,19 +13,15 @@ import ZcashLightClientKit
 
 public struct AddMemo: Reducer {
     public struct State: Equatable {
-        public var internalMemo = "".redacted
+        @BindingState public var memo = ""
+        @BindingState public var isIncludeReplyToChecked = false
         public var memoCharLimit = 0
         public var unifiedAddress: UnifiedAddress?
-        
-        public var hasEnteredMemo: Bool { !internalMemo.data.isEmpty }
-        public var memo: RedactableString {
-            if isIncludeReplyToChecked, !internalMemo.data.isEmpty, let sapling = (try? unifiedAddress?.saplingReceiver().stringEncoded) {
-                "\(internalMemo.data)\nReply-To: \(sapling)".redacted
-            } else {
-                internalMemo
-            }
+        public var hasEnteredMemo: Bool { !memo.isEmpty }
+        public var canIncludeReplyTo: Bool {
+            guard let ua = unifiedAddress?.stringEncoded else { return false }
+            return hasEnteredMemo && "\(memo)\nReply to: \(ua)".count <= memoCharLimit
         }
-        @BindingState public var isIncludeReplyToChecked = false
         
         public init(unifiedAddress: UnifiedAddress?) {
             self.unifiedAddress = unifiedAddress
@@ -37,7 +33,6 @@ public struct AddMemo: Reducer {
         case binding(BindingAction<State>)
         case continueOrSkipTapped
         case delegate(Delegate)
-        case memoInputChanged(RedactableString)
         
         public enum Delegate: Equatable {
             case goBack
@@ -54,29 +49,20 @@ public struct AddMemo: Reducer {
             switch action {
             case .backButtonTapped:
                 return .send(.delegate(.goBack))
+            case .binding(\.$memo):
+                if state.memo.count >= state.memoCharLimit {
+                    state.memo = String(state.memo.prefix(state.memoCharLimit))
+                }
+                return .none
             case .binding:
                 return .none
             case .continueOrSkipTapped:
                 return .send(.delegate(.nextScreen))
             case .delegate:
                 return .none
-            case .memoInputChanged(let redactedmemo):
-                guard redactedmemo.data.count <= state.memoCharLimit else { return .none }
-                state.internalMemo = redactedmemo
-                return .none
             }
         }
     }
     
     public init() {}
-}
-
-// MARK: - ViewStore
-extension ViewStoreOf<AddMemo> {
-    func bindingForRedactableMemo(_ memo: RedactableString) -> Binding<String> {
-        self.binding(
-            get: { _ in memo.data },
-            send: { .memoInputChanged($0.redacted) }
-        )
-    }
 }

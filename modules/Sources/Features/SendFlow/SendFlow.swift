@@ -274,7 +274,11 @@ extension SendFlow {
                 case .nextScreen:
                     guard case let .addMemo(addMemoState) = state.path[id: id]
                     else { return .none }
-                    state.memo = addMemoState.memo
+                    state.memo = if addMemoState.isIncludeReplyToChecked, let ua = state.unifiedAddress?.stringEncoded {
+                        "\(addMemoState.memo)\nReply to: \(ua)".redacted
+                    } else {
+                        addMemoState.memo.redacted
+                    }
                     
                     if let recipient = state.recipient {
                         state.path.append(
