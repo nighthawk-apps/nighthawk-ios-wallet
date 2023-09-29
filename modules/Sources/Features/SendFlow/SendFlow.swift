@@ -60,7 +60,7 @@ public struct SendFlow: Reducer {
             }
             
             Scope(state: /State.recipient, action: /Action.recipient) {
-                Recipient(networkType: networkType)
+                Recipient(networkType: networkType)._printChanges()
             }
             
             Scope(state: /State.review, action: /Action.review) {

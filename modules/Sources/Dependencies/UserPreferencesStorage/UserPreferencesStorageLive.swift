@@ -25,6 +25,8 @@ extension UserPreferencesStorageClient: DependencyKey {
             setAreBiometricsEnabled: live.setAreBiometricsEnabled(_:),
             isFirstSync: { live.isFirstSync },
             setIsFirstSync: live.setIsFirstSync(_:),
+            isUnstoppableDomainsEnabled: { live.isUnstoppableDomainsEnabled },
+            setIsUnstoppableDomainsEnabled: live.setIsUnstoppableDomainsEnabled(_:),
             removeAll: live.removeAll
         )
     }()
@@ -38,6 +40,7 @@ extension UserPreferencesStorage {
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,
         userDefaults: .live(),
-        firstSync: true
+        firstSync: true,
+        unstoppableDomainsEnabled: false
     )
 }

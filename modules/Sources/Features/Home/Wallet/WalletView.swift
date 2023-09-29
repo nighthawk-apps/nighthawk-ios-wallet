@@ -27,6 +27,8 @@ public struct WalletView: View {
             VStack {
                 qrCodeButtons(with: viewStore)
                 
+                Spacer()
+                
                 balanceTabsView(with: viewStore)
                 
                 if viewStore.transparentBalance.data.verified >= viewStore.autoShieldingThreshold &&

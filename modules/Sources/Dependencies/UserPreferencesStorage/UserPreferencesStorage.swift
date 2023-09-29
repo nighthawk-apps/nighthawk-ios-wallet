@@ -20,6 +20,7 @@ public struct UserPreferencesStorage {
         case zcashSyncNotificationFrequency
         case zcashBiometricsEnabled
         case zcashIsFirstSync
+        case zcashIsUnstoppableDomainsEnabled
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
@@ -29,6 +30,7 @@ public struct UserPreferencesStorage {
     private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
     private let biometricsEnabled: Bool
     private let firstSync: Bool
+    private let unstoppableDomainsEnabled: Bool
     
     private let userDefaults: UserDefaultsClient
     
@@ -39,7 +41,8 @@ public struct UserPreferencesStorage {
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         biometricsEnabled: Bool,
         userDefaults: UserDefaultsClient,
-        firstSync: Bool
+        firstSync: Bool,
+        unstoppableDomainsEnabled: Bool
     ) {
         self.convertedCurrency = convertedCurrency
         self.fiatConversion = fiatConversion
@@ -48,6 +51,7 @@ public struct UserPreferencesStorage {
         self.biometricsEnabled = biometricsEnabled
         self.userDefaults = userDefaults
         self.firstSync = firstSync
+        self.unstoppableDomainsEnabled = unstoppableDomainsEnabled
     }
 
     public var currency: String {
@@ -101,6 +105,14 @@ public struct UserPreferencesStorage {
     
     public func setIsFirstSync(_ bool: Bool) {
         setValue(bool, forKey: Constants.zcashIsFirstSync.rawValue)
+    }
+    
+    public var isUnstoppableDomainsEnabled: Bool {
+        getValue(forKey: Constants.zcashIsUnstoppableDomainsEnabled.rawValue, default: unstoppableDomainsEnabled)
+    }
+    
+    public func setIsUnstoppableDomainsEnabled(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashIsUnstoppableDomainsEnabled.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults

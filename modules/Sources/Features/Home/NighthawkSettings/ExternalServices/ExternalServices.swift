@@ -6,21 +6,36 @@
 //
 
 import ComposableArchitecture
+import UserPreferencesStorage
 
 public struct ExternalServices: Reducer {
     public struct State: Equatable {
-        public init() {}
+        @BindingState public var isUnstoppableDomainsEnabled = false
+        
+        public init() {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            isUnstoppableDomainsEnabled = userStoredPreferences.isUnstoppableDomainsEnabled()
+        }
     }
-    public enum Action: Equatable {}
+    public enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+    }
+    
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
-        Reduce { _, _ in .none }
+        BindingReducer()
+        
+        Reduce { state, action in
+            switch action {
+            case .binding(\.$isUnstoppableDomainsEnabled):
+                userStoredPreferences.setIsUnstoppableDomainsEnabled(state.isUnstoppableDomainsEnabled)
+                return .none
+            case .binding:
+                return .none
+            }
+        }
     }
     
     public init() {}
-}
-
-// MARK: - Placeholder
-extension ExternalServices.State {
-    public static let placeholder = Self()
 }

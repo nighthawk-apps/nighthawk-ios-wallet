@@ -25,6 +25,8 @@ extension UserPreferencesStorageClient: TestDependencyKey {
             setAreBiometricsEnabled: mock.setAreBiometricsEnabled(_:),
             isFirstSync: { mock.isFirstSync },
             setIsFirstSync: mock.setIsFirstSync(_:),
+            isUnstoppableDomainsEnabled: { mock.isUnstoppableDomainsEnabled },
+            setIsUnstoppableDomainsEnabled: mock.setIsUnstoppableDomainsEnabled(_:),
             removeAll: mock.removeAll
         )
     }()
@@ -38,6 +40,7 @@ extension UserPreferencesStorage {
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,
         userDefaults: .noOp,
-        firstSync: true
+        firstSync: true,
+        unstoppableDomainsEnabled: false
     )
 }

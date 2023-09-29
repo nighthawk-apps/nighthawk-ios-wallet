@@ -86,7 +86,6 @@ extension AppReducer {
             state.path.append(.notifications())
             return .none
         case .rescan:
-            // TODO
             return .none
         case .security:
             state.path.append(.security())

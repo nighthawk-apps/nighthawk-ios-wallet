@@ -354,6 +354,12 @@ public enum L10n {
         /// View seed words?
         public static let viewSeedWarningAlertTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle", fallback: "View seed words?")
       }
+      public enum ExternalServices {
+        /// External services
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.externalServices.title", fallback: "External services")
+        /// Enable Unstoppable Domain Service
+        public static let unstoppableDomainsToggle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServices.unstoppableDomainsToggle", fallback: "Enable Unstoppable Domain Service")
+      }
       public enum Security {
         /// %@ disabled
         public static func biometricsDisabled(_ p1: Any) -> String {

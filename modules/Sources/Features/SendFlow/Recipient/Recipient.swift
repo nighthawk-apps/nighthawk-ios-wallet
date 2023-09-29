@@ -10,6 +10,8 @@ import Generated
 import Pasteboard
 import SwiftUI
 import UIComponents
+import UNSClient
+import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
 
@@ -22,6 +24,7 @@ public struct Recipient: Reducer {
         public var pasteboardContainsZAddress = false
         public var canPasteAddress: Bool { pasteboardContainsZAddress && !hasEnteredRecipient }
         public var isRecipientValid = false
+        public var isResolvingUNS = false
         
         public init() {}
     }
@@ -34,6 +37,9 @@ public struct Recipient: Reducer {
         case onAppear
         case pasteFromClipboardTapped
         case recipientInputChanged(RedactableString)
+        case resolveUNSFinished
+        case resolveUNSRequest
+        case resolveUNSSuccess(String)
         case scanQRCodeTapped
         
         public enum Delegate: Equatable {
@@ -47,8 +53,11 @@ public struct Recipient: Reducer {
         self.networkType = networkType
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.unsClient) var unsClient
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -76,7 +85,35 @@ public struct Recipient: Reducer {
                 return .none
             case let .recipientInputChanged(redactedRecipient):
                 state.recipient = redactedRecipient
-                state.isRecipientValid = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
+                let validZcash = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
+                state.isRecipientValid = validZcash
+                if !validZcash && !redactedRecipient.data.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
+                    return .run { send in
+                        enum CancelID { case resolveUNSDebounce }
+                        try await withTaskCancellation(id: CancelID.resolveUNSDebounce, cancelInFlight: true) {
+                            try await clock.sleep(for: .seconds(1))
+                            await send(.resolveUNSRequest)
+                            if let resolved = try? await unsClient.resolveUNSAddress(redactedRecipient.data) {
+                                await send(.resolveUNSSuccess(resolved))
+                                return
+                            }
+                            
+                            await send(.resolveUNSFinished)
+                        }
+                    }
+                }
+                
+                return .none
+            case .resolveUNSFinished:
+                state.isResolvingUNS = false
+                return .none
+            case .resolveUNSRequest:
+                state.isResolvingUNS = true
+                return .none
+            case let .resolveUNSSuccess(resolved):
+                state.recipient = resolved.redacted
+                state.isRecipientValid = derivationTool.isZcashAddress(resolved, networkType)
+                state.isResolvingUNS = false
                 return .none
             case .scanQRCodeTapped:
                 return .send(.delegate(.scanCode))

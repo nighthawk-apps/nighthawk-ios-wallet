@@ -9,13 +9,16 @@ import CaptureDevice
 import ComposableArchitecture
 import DerivationTool
 import UIComponents
+import UNSClient
 import URIParser
+import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
 
 public struct Scan: Reducer {
     public struct State: Equatable {
         public var backButtonType: NighthawkBackButtonType
+        public var isResolvingUNS = false
         public var scanStatus: ScanStatus = .unknown
         public var scannedValue: String? {
             guard case let .value(scannedValue) = scanStatus else {
@@ -40,6 +43,9 @@ public struct Scan: Reducer {
         case backButtonTapped
         case delegate(Delegate)
         case onAppear
+        case resolveUNSFinished
+        case resolveUNSRequest
+        case resolveUNSSuccess(String)
         case scan(RedactableString)
         case scanFailed
         
@@ -57,7 +63,9 @@ public struct Scan: Reducer {
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.unsClient) var unsClient
     @Dependency(\.uriParser) var uriParser
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -75,6 +83,32 @@ public struct Scan: Reducer {
                 state.scanStatus = .unknown
                 return .none
                 
+            case .resolveUNSFinished:
+                state.isResolvingUNS = false
+                state.scanStatus = .failed
+                return .none
+            case .resolveUNSRequest:
+                state.isResolvingUNS = true
+                return .none
+            case let .resolveUNSSuccess(resolved):
+                state.isResolvingUNS = false
+                if derivationTool.isZcashAddress(resolved, networkType) {
+                    state.scanStatus = .value(resolved.redacted)
+                    let result = QRCodeParseResult(memo: nil, amount: nil, address: resolved)
+                    // once valid URI is scanned *and* resolved we want to start the timer to deliver the code
+                    // any new code cancels the schedule and fires new one
+                    return .concatenate(
+                        .cancel(id: CancelId.timer),
+                        .run { send in
+                            try await clock.sleep(for: .seconds(1))
+                            await send(.delegate(.handleParseResult(result)))
+                        }
+                        .cancellable(id: CancelId.timer, cancelInFlight: true)
+                    )
+                } else {
+                    state.scanStatus = .failed
+                }
+                return .none
             case .scanFailed:
                 state.scanStatus = .failed
                 return .none
@@ -103,9 +137,25 @@ public struct Scan: Reducer {
                         .cancellable(id: CancelId.timer, cancelInFlight: true)
                     )
                 } else {
-                    state.scanStatus = .failed
+                    if userStoredPreferences.isUnstoppableDomainsEnabled() {
+                        return .run { send in
+                            enum CancelID { case resolveUNSDebounce }
+                            try await withTaskCancellation(id: CancelID.resolveUNSDebounce, cancelInFlight: true) {
+                                try await clock.sleep(for: .seconds(1))
+                                await send(.resolveUNSRequest)
+                                if let resolved = try? await unsClient.resolveUNSAddress(code.data) {
+                                    await send(.resolveUNSSuccess(resolved))
+                                    return
+                                }
+                                
+                                await send(.resolveUNSFinished)
+                            }
+                        }
+                    } else {
+                        state.scanStatus = .failed
+                        return .none
+                    }
                 }
-                return .cancel(id: CancelId.timer)
             }
         }
     }

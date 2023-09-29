@@ -5,6 +5,7 @@
 //  Created by Lukáš Korba on 07.04.2022.
 //
 
+import Dependencies
 import Foundation
 
 public struct FileManagerClient {
@@ -20,5 +21,12 @@ public struct FileManagerClient {
         self.url = url
         self.fileExists = fileExists
         self.removeItem = removeItem
+    }
+}
+
+extension DependencyValues {
+    public var fileManager: FileManagerClient {
+        get { self[FileManagerClient.self] }
+        set { self[FileManagerClient.self] = newValue }
     }
 }

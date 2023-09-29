@@ -13,7 +13,7 @@ import Utils
 
 // MARK: - Model
 
-public struct WalletEvent: Equatable, Identifiable, Redactable {
+public struct WalletEvent: Codable, Equatable, Identifiable, Redactable {
     public let transaction: TransactionState
     public let id: String
     public let timestamp: TimeInterval?

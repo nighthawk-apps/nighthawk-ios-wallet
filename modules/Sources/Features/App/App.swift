@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import DatabaseFiles
 import DerivationTool
+import FileManager
 import Generated
 import Home
 import ImportWallet
@@ -62,7 +63,7 @@ public struct AppReducer: Reducer {
             case changeServer(ChangeServer.State = .init())
             case externalServices(ExternalServices.State = .init())
             case fiat(Fiat.State = .init())
-            case home(Home.State = .init())
+            case home(Home.State)
             case importWallet(ImportWallet.State = .init())
             case importWalletSuccess(ImportWalletSuccess.State = .init())
             case migrate(Migrate.State = .init())
@@ -190,6 +191,7 @@ public struct AppReducer: Reducer {
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.date) var date
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -212,7 +214,7 @@ public struct AppReducer: Reducer {
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
                 if shouldResetStack {
-                    state.path = StackState([.home()])
+                    state.path = StackState([.home(.init(networkType: zcashNetwork.networkType))])
                 }
                 return .none
             case .nukeWalletFailed:
@@ -220,6 +222,10 @@ public struct AppReducer: Reducer {
             case .nukeWalletSuccess:
                 walletStorage.nukeWallet()
                 try? databaseFiles.nukeDbFilesFor(zcashNetwork)
+                if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                    try? fileManager.removeItem(eventsCache)
+                }
+                
                 state.path = StackState([.welcome(.init())])
                 return .none
             case .path:

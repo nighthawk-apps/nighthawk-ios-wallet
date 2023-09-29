@@ -310,6 +310,10 @@
 "nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle" = "ARE YOU SURE?";
 "nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
 
+// MARK: - Home Screen - Settings tab - External services
+"nighthawk.settingsTab.externalServices.title" = "External services";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+
 // MARK: - Transaction details
 "nighthawk.transactionDetails.title" = "Transaction details";
 "nighthawk.transactionDetails.memo" = "Memo";

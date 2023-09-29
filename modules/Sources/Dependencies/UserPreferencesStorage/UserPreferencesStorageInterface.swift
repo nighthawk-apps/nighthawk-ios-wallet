@@ -34,6 +34,9 @@ public struct UserPreferencesStorageClient {
     
     public var isFirstSync: () -> Bool
     public var setIsFirstSync: (Bool) -> Void
+    
+    public var isUnstoppableDomainsEnabled: () -> Bool
+    public var setIsUnstoppableDomainsEnabled: (Bool) -> Void
 
     public var removeAll: () -> Void
 }
