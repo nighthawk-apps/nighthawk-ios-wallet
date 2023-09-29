@@ -490,6 +490,8 @@ public enum L10n {
       public static let memo = L10n.tr("Localizable", "nighthawk.transactionDetails.memo", fallback: "Memo")
       /// Network fee
       public static let networkFee = L10n.tr("Localizable", "nighthawk.transactionDetails.networkFee", fallback: "Network fee")
+      /// Transaction details are not available, please wait until scanning is finished
+      public static let notAvailable = L10n.tr("Localizable", "nighthawk.transactionDetails.notAvailable", fallback: "Transaction details are not available, please wait until scanning is finished")
       /// Pool
       public static let pool = L10n.tr("Localizable", "nighthawk.transactionDetails.pool", fallback: "Pool")
       /// Recipient

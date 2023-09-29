@@ -20,11 +20,20 @@ public struct TransactionDetailView: View {
                 NighthawkHeading(title: L10n.Nighthawk.TransactionDetails.title)
                     .padding(.bottom, 24)
                 
-                transactionSummary(with: viewStore)
-                
-                TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
+                if !viewStore.isLoaded {
+                    Text(L10n.Nighthawk.TransactionDetails.notAvailable)
+                        .caption()
+                        .multilineTextAlignment(.center)
+                } else {
+                    Group {
+                        transactionSummary(with: viewStore)
+                        
+                        TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
+                    }
+                }
             }
             .onAppear { viewStore.send(.onAppear) }
+            .padding(.horizontal, 40)
         }
         .applyNighthawkBackground()
         .alert(

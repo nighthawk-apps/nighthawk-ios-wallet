@@ -317,6 +317,7 @@
 
 // MARK: - Transaction details
 "nighthawk.transactionDetails.title" = "Transaction details";
+"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
 "nighthawk.transactionDetails.memo" = "Memo";
 "nighthawk.transactionDetails.time" = "Time (UTC)";
 "nighthawk.transactionDetails.pool" = "Pool";

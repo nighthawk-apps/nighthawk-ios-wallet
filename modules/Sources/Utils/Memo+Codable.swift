@@ -16,7 +16,7 @@ extension Memo: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .empty:
-            break
+            try container.encode([UInt8](), forKey: .bytes)
         case let .text(string):
             try container.encode(Array(string.string.utf8), forKey: .bytes)
         case let .future(bytes):
