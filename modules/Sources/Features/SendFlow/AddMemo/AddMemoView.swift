@@ -54,7 +54,6 @@ public struct AddMemoView: View {
             .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
             .onAppear {
                 isMemoEditorFocused = true
-                viewStore.send(.onAppear)
             }
         }
         .applyNighthawkBackground()

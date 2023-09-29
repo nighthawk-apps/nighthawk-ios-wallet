@@ -161,6 +161,7 @@
 "nighthawk.walletTab.addresses.copy" = "Copy";
 "nighthawk.walletTab.addresses.seeMore" = "See more";
 "nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
+"nighthawk.walletTab.addresses.loading" = "Loading…";
 
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.title" = "Transaction History";

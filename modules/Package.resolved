@@ -10,12 +10,30 @@
       }
     },
     {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/attaswift/BigInt.git",
+      "state" : {
+        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+        "version" : "5.3.0"
+      }
+    },
+    {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
         "revision" : "9dc9cbe4bc45c65164fa653a563d8d8db61b09bb",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "cryptoswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
+      "state" : {
+        "revision" : "db51c407d3be4a051484a141bf0bff36c43d3b1e",
+        "version" : "1.8.0"
       }
     },
     {
@@ -51,6 +69,15 @@
       "state" : {
         "revision" : "716a2c32ac2bbd8a1499ac834077df42b75edc85",
         "version" : "2.2.4"
+      }
+    },
+    {
+      "identity" : "resolution-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/unstoppabledomains/resolution-swift",
+      "state" : {
+        "revision" : "548d91e6038d4d6ab9daecf0fb0e83096a2a17e5",
+        "version" : "5.2.1"
       }
     },
     {

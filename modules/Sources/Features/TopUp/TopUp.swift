@@ -19,22 +19,22 @@ public struct TopUp: Reducer {
         @PresentationState public var alert: AlertState<Action.Alert>?
 
         public var transparentAddress: String {
-            (try? uAddress?.transparentReceiver().stringEncoded) ?? "-"
+            (try? unifiedAddress?.transparentReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
 
         public var saplingAddress: String {
-            (try? uAddress?.saplingReceiver().stringEncoded) ?? "-"
+            (try? unifiedAddress?.saplingReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
         
-        var uAddress: UnifiedAddress?
+        var unifiedAddress: UnifiedAddress?
         
-        public init() {}
+        public init(unifiedAddress: UnifiedAddress?) {
+            self.unifiedAddress = unifiedAddress
+        }
     }
     
     public enum Action: Equatable {
         case alert(PresentationAction<Alert>)
-        case onAppear
-        case uAddressChanged(UnifiedAddress?)
         case showSideShiftInstructions
         case showStealthExInstructions
         
@@ -57,11 +57,6 @@ public struct TopUp: Reducer {
                 return .none
             case .alert(.dismiss):
                 return .none
-            case .onAppear:
-                return .run { send in
-                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
-                    await send(.uAddressChanged(ua))
-                }
             case .showSideShiftInstructions:
                 pasteboard.setString(state.saplingAddress.redacted)
                 state.alert = AlertState.showPartnerInstructions(
@@ -79,9 +74,6 @@ public struct TopUp: Reducer {
                     addressType: "T-Address",
                     receivingCoin: "Zcash"
                 )
-                return .none
-            case .uAddressChanged(let uAddress):
-                state.uAddress = uAddress
                 return .none
             }
         }

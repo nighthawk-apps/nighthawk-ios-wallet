@@ -38,6 +38,7 @@ public struct AppReducer: Reducer {
         public var path = StackState<Path.State>()
         public var splash = Splash.State()
         public var synchronizerStopped = false
+        public var unifiedAddress: UnifiedAddress?
         
         public init() {}
     }
@@ -51,6 +52,7 @@ public struct AppReducer: Reducer {
         case path(StackAction<Path.State, Path.Action>)
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
+        case unifiedAddressResponse(UnifiedAddress?)
     }
     
     public struct Path: Reducer {
@@ -214,7 +216,14 @@ public struct AppReducer: Reducer {
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
                 if shouldResetStack {
-                    state.path = StackState([.home(.init(networkType: zcashNetwork.networkType))])
+                    state.path = StackState([
+                        .home(
+                            .init(
+                                networkType: zcashNetwork.networkType,
+                                unifiedAddress: state.unifiedAddress
+                            )
+                        )
+                    ])
                 }
                 return .none
             case .nukeWalletFailed:
@@ -256,6 +265,11 @@ public struct AppReducer: Reducer {
                 }
             case .splash:
                 return .none
+            case let .unifiedAddressResponse(unifiedAddress):
+                if state.unifiedAddress == nil {
+                    state.unifiedAddress = unifiedAddress
+                }
+                return .none
             }
         }
         .ifLet(\.$destination, action: /Action.destination) {
@@ -296,6 +310,8 @@ extension AppReducer {
                     }
                     
                     // Start synchronizer
+                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                    await send(.unifiedAddressResponse(ua))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
                 } catch {
@@ -324,7 +340,7 @@ private extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

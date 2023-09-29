@@ -54,6 +54,7 @@ public struct Home: Reducer {
         public var expectingZatoshi: Zatoshi = .zero
         public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
+        public var unifiedAddress: UnifiedAddress?
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
         
         // Tab states
@@ -61,8 +62,9 @@ public struct Home: Reducer {
         public var transferState: Transfer.State = .init()
         public var settings: NighthawkSettings.State = .init()
         
-        public init(networkType: NetworkType) {
+        public init(networkType: NetworkType, unifiedAddress: UnifiedAddress?) {
             self.networkType = networkType
+            self.unifiedAddress = unifiedAddress
             self.walletEvents = loadCachedEvents()
         }
         
@@ -333,12 +335,14 @@ extension Home.State {
         get {
             var state = transferState
             state.shieldedBalance = shieldedBalance
+            state.unifiedAddress = unifiedAddress
             return state
         }
         
         set {
             self.transferState = newValue
             self.shieldedBalance = newValue.shieldedBalance
+            self.unifiedAddress = newValue.unifiedAddress
         }
     }
 }

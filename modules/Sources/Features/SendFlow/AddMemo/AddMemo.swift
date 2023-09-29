@@ -15,11 +15,11 @@ public struct AddMemo: Reducer {
     public struct State: Equatable {
         public var internalMemo = "".redacted
         public var memoCharLimit = 0
-        public var uAddress: UnifiedAddress?
+        public var unifiedAddress: UnifiedAddress?
         
         public var hasEnteredMemo: Bool { !internalMemo.data.isEmpty }
         public var memo: RedactableString {
-            if isIncludeReplyToChecked, !internalMemo.data.isEmpty, let sapling = (try? uAddress?.saplingReceiver().stringEncoded) {
+            if isIncludeReplyToChecked, !internalMemo.data.isEmpty, let sapling = (try? unifiedAddress?.saplingReceiver().stringEncoded) {
                 "\(internalMemo.data)\nReply-To: \(sapling)".redacted
             } else {
                 internalMemo
@@ -27,7 +27,9 @@ public struct AddMemo: Reducer {
         }
         @BindingState public var isIncludeReplyToChecked = false
         
-        public init() {}
+        public init(unifiedAddress: UnifiedAddress?) {
+            self.unifiedAddress = unifiedAddress
+        }
     }
     
     public enum Action: BindableAction, Equatable {
@@ -36,8 +38,6 @@ public struct AddMemo: Reducer {
         case continueOrSkipTapped
         case delegate(Delegate)
         case memoInputChanged(RedactableString)
-        case onAppear
-        case uAddressChanged(UnifiedAddress?)
         
         public enum Delegate: Equatable {
             case goBack
@@ -63,14 +63,6 @@ public struct AddMemo: Reducer {
             case .memoInputChanged(let redactedmemo):
                 guard redactedmemo.data.count <= state.memoCharLimit else { return .none }
                 state.internalMemo = redactedmemo
-                return .none
-            case .onAppear:
-                return .run { send in
-                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
-                    await send(.uAddressChanged(ua))
-                }
-            case let .uAddressChanged(uAddress):
-                state.uAddress = uAddress
                 return .none
             }
         }

@@ -82,6 +82,7 @@ public struct SendFlow: Reducer {
         public var path: StackState<Path.State>
         @BindingState public var toast: Toast?
 
+        public var unifiedAddress: UnifiedAddress?
         public var shieldedBalance = Balance.zero
         public var memoCharLimit = 0
         public var maxAmount = Zatoshi.zero
@@ -150,7 +151,7 @@ public struct SendFlow: Reducer {
                 }
                 
                 if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!.data, networkType) {
-                    var addMemoState = AddMemo.State()
+                    var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
                     return .none
@@ -340,7 +341,7 @@ extension SendFlow {
                             )
                         )
                     } else {
-                        var addMemoState = AddMemo.State()
+                        var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                         addMemoState.memoCharLimit = state.memoCharLimit
                         state.path.append(Path.State.addMemo(addMemoState))
                     }
@@ -397,7 +398,7 @@ extension SendFlow {
                         }
                         
                         if state.memo == nil && derivationTool.isSaplingAddress(address.data, networkType) {
-                            var addMemoState = AddMemo.State()
+                            var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))
                             return .none
