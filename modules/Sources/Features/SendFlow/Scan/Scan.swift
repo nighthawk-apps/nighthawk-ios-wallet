@@ -120,7 +120,7 @@ public struct Scan: Reducer {
                 }
                 
                 var parseResult = uriParser.parseZaddrOrZIP321(code.data, networkType)
-                if derivationTool.isTransparentAddress(code.data, networkType) {
+                if derivationTool.isZcashAddress(code.data, networkType) {
                     parseResult.address = code.data
                 }
                 
