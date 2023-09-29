@@ -35,7 +35,7 @@ public struct ImportWalletView: View {
                 
                 NighthawkTextEditor(
                     placeholder: L10n.Nighthawk.ImportWallet.yourSeedPhrase,
-                    text: viewStore.bindingForRedactableSeedPhrase(viewStore.importedSeedPhrase),
+                    text: viewStore.$importedSeedPhrase,
                     isValid: viewStore.validateMnemonic()
                 )
                 .frame(width: nil, height: 120, alignment: .center)
@@ -44,7 +44,7 @@ public struct ImportWalletView: View {
                 
                 NighthawkTextField(
                     placeholder: L10n.Nighthawk.ImportWallet.birthdayHeight,
-                    text: viewStore.bindingForRedactableBirthday(viewStore.birthdayHeight),
+                    text: viewStore.$birthdayHeight,
                     isValid: viewStore.validateBirthday()
                 )
                 .frame(maxWidth: .infinity)
@@ -63,7 +63,6 @@ public struct ImportWalletView: View {
             .applyNighthawkBackground()
             .scrollableWhenScaledUp()
             .onAppear {
-                viewStore.send(.onAppear)
                 isSeedEditorFocused = true
             }
             .alert(
