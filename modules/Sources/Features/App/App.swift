@@ -73,7 +73,7 @@ public struct AppReducer: Reducer {
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
             case security(Security.State = .init())
             case transactionDetail(TransactionDetail.State)
-            case transactionHistory(TransactionHistory.State = .init())
+            case transactionHistory(TransactionHistory.State)
             case walletCreated(WalletCreated.State = .init())
             case welcome(Welcome.State = .init())
         }

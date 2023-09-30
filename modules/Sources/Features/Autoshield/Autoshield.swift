@@ -12,6 +12,7 @@ import Generated
 import MnemonicClient
 import SDKSynchronizer
 import UIKit
+import UserPreferencesStorage
 import WalletStorage
 import ZcashLightClientKit
 
@@ -67,6 +68,7 @@ public struct Autoshield: Reducer {
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     
     public var body: some ReducerOf<Self> {
@@ -88,6 +90,7 @@ public struct Autoshield: Reducer {
                 return .none
             case .autoshieldSuccess:
                 state.isShielding = false
+                userStoredPreferences.setHasShownAutoshielding(false)
                 state.path.append(.success())
                 return .none
             case .path:

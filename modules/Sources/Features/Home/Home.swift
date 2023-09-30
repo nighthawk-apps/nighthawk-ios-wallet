@@ -220,6 +220,12 @@ public struct Home: Reducer {
                         state.toast = .expectingFunds
                     }
                     
+                    // Show autoshield, if needed
+                    if !userStoredPreferences.hasShownAutoshielding() && state.transparentBalance.data.verified >= .autoshieldingThreshold {
+                        userStoredPreferences.setHasShownAutoshielding(true)
+                        state.destination = .autoshield(.init())
+                    }
+                    
                     return .run { send in
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
                             await send(.updateWalletEvents(events))

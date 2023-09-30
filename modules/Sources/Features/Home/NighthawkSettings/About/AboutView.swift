@@ -30,6 +30,11 @@ public struct AboutView: View {
                     }
                     .buttonStyle(.nighthawkLink())
                     
+                    Button(L10n.Nighthawk.About.nighthawkFriends) {
+                        viewStore.send(.nighthawkFriendsTapped)
+                    }
+                    .buttonStyle(.nighthawkLink())
+                    
                     Button(L10n.General.termsAndConditions) {
                         viewStore.send(.termsAndConditionsTapped)
                     }

@@ -11,6 +11,8 @@ import Generated
 import SwiftUI
 import TransactionDetail
 import UIComponents
+import Utils
+import ZcashLightClientKit
 
 @MainActor
 public struct WalletView: View {
@@ -31,7 +33,7 @@ public struct WalletView: View {
                 
                 balanceTabsView(with: viewStore)
                 
-                if viewStore.transparentBalance.data.verified >= viewStore.autoShieldingThreshold &&
+                if viewStore.transparentBalance.data.verified >= .autoshieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
                     viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
                     Button(L10n.Nighthawk.WalletTab.shieldNow) {

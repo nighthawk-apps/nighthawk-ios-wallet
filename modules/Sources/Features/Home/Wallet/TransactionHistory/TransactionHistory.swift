@@ -16,9 +16,12 @@ public struct TransactionHistory: Reducer {
     private enum CancelId { case timer }
     
     public struct State: Equatable {
-        public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
+        public var walletEvents: IdentifiedArrayOf<WalletEvent>
+        public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
         
-        public init() {}
+        public init(initialEvents: IdentifiedArrayOf<WalletEvent> = []) {
+            self.walletEvents = initialEvents
+        }
     }
     
     public enum Action: Equatable {
@@ -56,6 +59,12 @@ public struct TransactionHistory: Reducer {
                     return .send(.delegate(.handleDiskFull))
                 }
             case .synchronizerStateChanged(let latestState):
+                let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState.syncStatus)
+                guard snapshot != state.synchronizerStatusSnapshot else {
+                    return .none
+                }
+                
+                state.synchronizerStatusSnapshot = snapshot
                 if latestState.syncStatus == .upToDate {
                     return .run { send in
                         if let events = try? await sdkSynchronizer.getAllTransactions() {

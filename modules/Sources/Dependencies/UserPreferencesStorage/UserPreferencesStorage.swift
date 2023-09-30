@@ -21,6 +21,7 @@ public struct UserPreferencesStorage {
         case zcashBiometricsEnabled
         case zcashIsFirstSync
         case zcashIsUnstoppableDomainsEnabled
+        case zcashHasShownAutoshielding
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
@@ -31,6 +32,7 @@ public struct UserPreferencesStorage {
     private let biometricsEnabled: Bool
     private let firstSync: Bool
     private let unstoppableDomainsEnabled: Bool
+    private let shownAutoshielding: Bool
     
     private let userDefaults: UserDefaultsClient
     
@@ -40,18 +42,20 @@ public struct UserPreferencesStorage {
         selectedScreenMode: NighthawkSetting.ScreenMode,
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         biometricsEnabled: Bool,
-        userDefaults: UserDefaultsClient,
         firstSync: Bool,
-        unstoppableDomainsEnabled: Bool
+        unstoppableDomainsEnabled: Bool,
+        shownAutoshielding: Bool,
+        userDefaults: UserDefaultsClient
     ) {
         self.convertedCurrency = convertedCurrency
         self.fiatConversion = fiatConversion
         self.selectedScreenMode = selectedScreenMode
         self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
         self.biometricsEnabled = biometricsEnabled
-        self.userDefaults = userDefaults
         self.firstSync = firstSync
         self.unstoppableDomainsEnabled = unstoppableDomainsEnabled
+        self.shownAutoshielding = shownAutoshielding
+        self.userDefaults = userDefaults
     }
 
     public var currency: String {
@@ -114,6 +118,15 @@ public struct UserPreferencesStorage {
     public func setIsUnstoppableDomainsEnabled(_ bool: Bool) {
         setValue(bool, forKey: Constants.zcashIsUnstoppableDomainsEnabled.rawValue)
     }
+    
+    public var hasShownAutoshielding: Bool {
+        getValue(forKey: Constants.zcashHasShownAutoshielding.rawValue, default: shownAutoshielding)
+    }
+    
+    public func setHasShownAutoshielding(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashHasShownAutoshielding.rawValue)
+    }
+
 
     /// Use carefully: Deletes all user preferences from the User Defaults
     public func removeAll() {
@@ -121,6 +134,20 @@ public struct UserPreferencesStorage {
             userDefaults.remove(key.rawValue)
         }
     }
+}
+
+extension UserPreferencesStorage {
+    public static let live = UserPreferencesStorage(
+        convertedCurrency: "USD",
+        fiatConversion: true,
+        selectedScreenMode: .off,
+        selectedSyncNotificationFrequency: .off,
+        biometricsEnabled: false,
+        firstSync: true,
+        unstoppableDomainsEnabled: false,
+        shownAutoshielding: false,
+        userDefaults: .live()
+    )
 }
 
 private extension UserPreferencesStorage {

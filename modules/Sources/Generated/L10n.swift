@@ -72,6 +72,8 @@ public enum L10n {
       /// 
       /// Nighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided "as is", without warranty of any kind, express or implied.
       public static let message = L10n.tr("Localizable", "nighthawk.about.message", fallback: "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.")
+      /// Nighthawk friends
+      public static let nighthawkFriends = L10n.tr("Localizable", "nighthawk.about.nighthawkFriends", fallback: "Nighthawk friends")
       /// About
       public static let title = L10n.tr("Localizable", "nighthawk.about.title", fallback: "About")
       /// View licenses
@@ -514,8 +516,8 @@ public enum L10n {
       public static let transparent = L10n.tr("Localizable", "nighthawk.transactionDetails.transparent", fallback: "Transparent")
       /// Unconfirmed
       public static let unconfirmed = L10n.tr("Localizable", "nighthawk.transactionDetails.unconfirmed", fallback: "Unconfirmed")
-      /// view on Block Explorer
-      public static let viewOnBlockExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnBlockExplorer", fallback: "view on Block Explorer")
+      /// View on Block Explorer
+      public static let viewOnBlockExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnBlockExplorer", fallback: "View on Block Explorer")
       /// View on explorer
       public static let viewOnExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnExplorer", fallback: "View on explorer")
       /// View TX details

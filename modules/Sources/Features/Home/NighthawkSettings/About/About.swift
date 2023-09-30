@@ -16,6 +16,7 @@ public struct About: Reducer {
     
     public enum Action: Equatable {
         case delegate(Delegate)
+        case nighthawkFriendsTapped
         case viewLicensesTapped
         case viewSourceTapped
         case termsAndConditionsTapped
@@ -29,6 +30,9 @@ public struct About: Reducer {
         Reduce { _, action in
             switch action {
             case .delegate:
+                return .none
+            case .nighthawkFriendsTapped:
+                UIApplication.shared.open(.friends, options: [:], completionHandler: nil)
                 return .none
             case .viewLicensesTapped:
                 return .send(.delegate(.showLicensesList))

@@ -126,6 +126,7 @@ let package = Package(
                 "MnemonicClient",
                 "SDKSynchronizer",
                 "UIComponents",
+                "UserPreferencesStorage",
                 "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
