@@ -10,11 +10,8 @@ import ComposableArchitecture
 import Models
 
 public struct UserPreferencesStorageClient {
-    public var currency: () -> String
-    public var setCurrency: (String) -> Void
-    
-    public var isFiatConverted: () -> Bool
-    public var setIsFiatConverted: (Bool) -> Void
+    public var fiatCurrency: () -> NighthawkSetting.FiatCurrency
+    public var setFiatCurrency: (NighthawkSetting.FiatCurrency) -> Void
     
     public var screenMode: () -> NighthawkSetting.ScreenMode
     public var setScreenMode: (NighthawkSetting.ScreenMode) -> Void
@@ -39,10 +36,8 @@ public struct UserPreferencesStorageClient {
 
 extension UserPreferencesStorageClient: DependencyKey {
     public static let liveValue = Self(
-        currency: { UserPreferencesStorage.live.currency },
-        setCurrency: UserPreferencesStorage.live.setCurrency(_:),
-        isFiatConverted: { UserPreferencesStorage.live.isFiatConverted },
-        setIsFiatConverted: UserPreferencesStorage.live.setIsFiatConverted(_:),
+        fiatCurrency: { UserPreferencesStorage.live.fiatCurrency },
+        setFiatCurrency: UserPreferencesStorage.live.setFiatCurrency(_:),
         screenMode: { UserPreferencesStorage.live.screenMode },
         setScreenMode: UserPreferencesStorage.live.setScreenMode(_:),
         syncNotificationFrequency: { UserPreferencesStorage.live.syncNotificationFrequency },

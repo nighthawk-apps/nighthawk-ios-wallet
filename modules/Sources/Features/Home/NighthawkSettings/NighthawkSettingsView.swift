@@ -39,6 +39,13 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rowTapped(.notifications)) }
                     )
                     
+                    settingRow(
+                        title: L10n.Nighthawk.SettingsTab.fiatTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
+                        icon:  Asset.Assets.Icons.Nighthawk.fiat.image,
+                        action: { viewStore.send(.rowTapped(.fiat)) }
+                    )
+                    
                     if viewStore.biometryType != .none {
                         settingRow(
                             title: L10n.Nighthawk.SettingsTab.securityTitle,

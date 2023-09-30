@@ -289,6 +289,24 @@
 "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
 "nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
 
+// MARK: - Home Screen - Settings tab - Fiat currency
+"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
+"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
+"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
+"nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
+"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
+"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
+"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
+"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
+"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
+"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
+"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+
+
 // MARK: - Home Screen - Settings tab - Security
 "nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
 "nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";

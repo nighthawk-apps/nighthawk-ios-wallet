@@ -362,6 +362,42 @@ public enum L10n {
         /// Enable Unstoppable Domain Service
         public static let unstoppableDomainsToggle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServices.unstoppableDomainsToggle", fallback: "Enable Unstoppable Domain Service")
       }
+      public enum FiatCurrency {
+        /// Australian Dollar
+        public static let aud = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.aud", fallback: "Australian Dollar")
+        /// Canadian Dollar
+        public static let cad = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.cad", fallback: "Canadian Dollar")
+        /// Swiss Franc
+        public static let chf = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.chf", fallback: "Swiss Franc")
+        /// Chinese Yuan
+        public static let cny = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.cny", fallback: "Chinese Yuan")
+        /// Choose your local currency so that we can show you a close estimate of how much your %@ is worth.
+        /// 
+        /// When you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.
+        public static func description(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.description", String(describing: p1), fallback: "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.")
+        }
+        /// Euro
+        public static let eur = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.eur", fallback: "Euro")
+        /// British Pound
+        public static let gbp = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.gbp", fallback: "British Pound")
+        /// Hong Kong Dollar
+        public static let hkd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.hkd", fallback: "Hong Kong Dollar")
+        /// Indian Rupee
+        public static let inr = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.inr", fallback: "Indian Rupee")
+        /// Japanese Yen
+        public static let jpy = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.jpy", fallback: "Japanese Yen")
+        /// Korean Won
+        public static let krw = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.krw", fallback: "Korean Won")
+        /// Off
+        public static let off = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.off", fallback: "Off")
+        /// Singapore Dollar
+        public static let sgd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.sgd", fallback: "Singapore Dollar")
+        /// Fiat Currency
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.title", fallback: "Fiat Currency")
+        /// United States Dollar
+        public static let usd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.usd", fallback: "United States Dollar")
+      }
       public enum Security {
         /// %@ disabled
         public static func biometricsDisabled(_ p1: Any) -> String {

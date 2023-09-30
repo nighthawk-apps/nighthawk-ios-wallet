@@ -22,4 +22,22 @@ public enum NighthawkSetting {
         
         public var id: String { rawValue }
     }
+    
+    public enum FiatCurrency: String, CaseIterable, Identifiable, Hashable {
+        case usd
+        case eur
+        case inr
+        case jpy
+        case gbp
+        case cad
+        case aud
+        case hkd
+        case sgd
+        case chf
+        case cny
+        case krw
+        case off
+        
+        public var id: String { rawValue }
+    }
 }

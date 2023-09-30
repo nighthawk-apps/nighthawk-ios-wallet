@@ -86,7 +86,7 @@ public struct AppView: View {
                     /AppReducer.Path.State.fiat,
                      action: AppReducer.Path.Action.fiat,
                      then: { store in
-                         FiatView(store: store)
+                         FiatView(store: store, tokenName: tokenName)
                      }
                 )
             case .home:
