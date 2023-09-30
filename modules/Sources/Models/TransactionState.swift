@@ -9,8 +9,8 @@ import Foundation
 import ZcashLightClientKit
 
 /// Representation of the transaction on the SDK side, used as a bridge to the TCA wallet side. 
-public struct TransactionState: Equatable, Identifiable {
-    public enum Status: Equatable {
+public struct TransactionState: Codable, Equatable, Identifiable {
+    public enum Status: Codable, Equatable {
         case paid(success: Bool)
         case received
         case failed
@@ -79,7 +79,11 @@ public struct TransactionState: Equatable, Identifiable {
             "testnet."
         }
         
-        return URL(string: "https://\(subdomain)zcashblockexplorer.com/address/\(address)")
+        if let address {
+            return URL(string: "https://\(subdomain)zcashblockexplorer.com/address/\(address)")
+        }
+        
+        return nil
     }
     
     public var textMemo: Memo? {

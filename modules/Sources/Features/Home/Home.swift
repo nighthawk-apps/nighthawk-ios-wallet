@@ -8,7 +8,9 @@
 import Addresses
 import Autoshield
 import ComposableArchitecture
+import DataManager
 import DiskSpaceChecker
+import FileManager
 import Foundation
 import Models
 import UserPreferencesStorage
@@ -23,6 +25,8 @@ public struct Home: Reducer {
     enum CancelId { case timer }
     
     public struct State: Equatable {
+        let networkType: NetworkType
+        
         public enum Tab: Equatable, Hashable {
             case wallet
             case transfer
@@ -50,6 +54,7 @@ public struct Home: Reducer {
         public var expectingZatoshi: Zatoshi = .zero
         public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
+        public var unifiedAddress: UnifiedAddress?
         public var walletEvents = IdentifiedArrayOf<WalletEvent>()
         
         // Tab states
@@ -57,7 +62,22 @@ public struct Home: Reducer {
         public var transferState: Transfer.State = .init()
         public var settings: NighthawkSettings.State = .init()
         
-        public init() {}
+        public init(networkType: NetworkType, unifiedAddress: UnifiedAddress?) {
+            self.networkType = networkType
+            self.unifiedAddress = unifiedAddress
+            self.walletEvents = loadCachedEvents()
+        }
+        
+        func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
+            @Dependency(\.dataManager) var dataManager
+            if let latestEventsCache = URL.latestEventsCache(for: networkType),
+                let cachedData = try? dataManager.load(latestEventsCache),
+                let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
+                return IdentifiedArray(uniqueElements: events)
+            }
+            
+            return []
+        }
     }
     
     public enum Action: BindableAction, Equatable {
@@ -113,7 +133,9 @@ public struct Home: Reducer {
     }
     
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.dataManager) var dataManager
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
+    @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -151,6 +173,9 @@ public struct Home: Reducer {
                     state.destination = .alert(.rescanFailed(error.toZcashError()))
                     return .none
                 } else {
+                    if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                        try? fileManager.removeItem(eventsCache)
+                    }
                     return .run { send in
                         do {
                             try await sdkSynchronizer.start(false)
@@ -195,6 +220,12 @@ public struct Home: Reducer {
                         state.toast = .expectingFunds
                     }
                     
+                    // Show autoshield, if needed
+                    if !userStoredPreferences.hasShownAutoshielding() && state.transparentBalance.data.verified >= .autoshieldingThreshold {
+                        userStoredPreferences.setHasShownAutoshielding(true)
+                        state.destination = .autoshield(.init())
+                    }
+                    
                     return .run { send in
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
                             await send(.updateWalletEvents(events))
@@ -211,7 +242,17 @@ public struct Home: Reducer {
                         }
                         return lhsTimestamp > rhsTimestamp
                     })
-                state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
+                
+                // Cache two latest events
+                let events = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
+                if let cache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                    let latest = IdentifiedArray(events.prefix(2)).elements
+                    if let data = try? JSONEncoder().encode(latest) {
+                        try? dataManager.save(data, cache)
+                    }
+                }
+                
+                state.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
             case .binding, .delegate, .destination, .settings, .transfer, .wallet:
                 return .none
@@ -300,12 +341,14 @@ extension Home.State {
         get {
             var state = transferState
             state.shieldedBalance = shieldedBalance
+            state.unifiedAddress = unifiedAddress
             return state
         }
         
         set {
             self.transferState = newValue
             self.shieldedBalance = newValue.shieldedBalance
+            self.unifiedAddress = newValue.unifiedAddress
         }
     }
 }

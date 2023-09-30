@@ -31,7 +31,7 @@ extension Home {
                     state.destination = .autoshield(.init())
                     return .none
                 case .showAddresses:
-                    state.destination = .addresses(.init())
+                    state.destination = .addresses(.init(uAddress: state.unifiedAddress))
                     return .none
                 case .showTransactionDetail:
                     return .none

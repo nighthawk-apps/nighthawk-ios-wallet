@@ -6,14 +6,31 @@
 //
 
 import ComposableArchitecture
+import Generated
 import SwiftUI
+import UIComponents
 
 public struct ExternalServicesView: View {
     let store: StoreOf<ExternalServices>
     
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Text("External services view")
+            VStack(alignment: .leading, spacing: 16) {
+                Text(L10n.Nighthawk.SettingsTab.ExternalServices.title)
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                
+                Toggle(
+                    L10n.Nighthawk.SettingsTab.ExternalServices.unstoppableDomainsToggle,
+                    isOn: viewStore.$isUnstoppableDomainsEnabled
+                )
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .lineSpacing(6)
+                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+                
+                Spacer()
+            }
+            .padding(.top, 25)
+            .padding(.horizontal, 25)
         }
         .applyNighthawkBackground()
     }

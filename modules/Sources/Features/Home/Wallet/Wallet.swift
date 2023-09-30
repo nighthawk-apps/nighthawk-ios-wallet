@@ -15,7 +15,6 @@ import ZcashLightClientKit
 
 public struct Wallet: Reducer {
     public struct State: Equatable {
-        public var autoShieldingThreshold: Zatoshi = Zatoshi(1_000_000)
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0
         public var synchronizerState: SynchronizerState = .zero
@@ -65,7 +64,7 @@ public struct Wallet: Reducer {
             case scanPaymentRequest
             case shieldFunds
             case showAddresses
-            case showTransactionHistory
+            case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
         }
     }
@@ -88,7 +87,7 @@ public struct Wallet: Reducer {
             case let .viewTransactionDetailTapped(walletEvent):
                 return .send(.delegate(.showTransactionDetail(walletEvent)))
             case .viewTransactionHistoryTapped:
-                return .send(.delegate(.showTransactionHistory))
+                return .send(.delegate(.showTransactionHistory(state.walletEvents)))
             }
         }
     }

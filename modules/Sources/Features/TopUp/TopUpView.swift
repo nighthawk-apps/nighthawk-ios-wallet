@@ -27,7 +27,6 @@ public struct TopUpView: View {
                 
                 Spacer()
             }
-            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
         .alert(

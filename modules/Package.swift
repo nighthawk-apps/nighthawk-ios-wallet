@@ -46,6 +46,7 @@ let package = Package(
         .library(name: "TopUp", targets: ["TopUp"]),
         .library(name: "WalletCreated", targets: ["WalletCreated"]),
         .library(name: "SupportDataGenerator", targets: ["SupportDataGenerator"]),
+        .library(name: "UNSClient", targets: ["UNSClient"]),
         .library(name: "UIComponents", targets: ["UIComponents"]),
         .library(name: "URIParser", targets: ["URIParser"]),
         .library(name: "UserDefaults", targets: ["UserDefaults"]),
@@ -63,7 +64,8 @@ let package = Package(
         .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
         .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9")
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9"),
+        .package(url: "https://github.com/unstoppabledomains/resolution-swift", from: "5.2.1")
     ],
     targets: [
         .target(
@@ -84,6 +86,7 @@ let package = Package(
             name: "App",
             dependencies: [
                 "DerivationTool",
+                "FileManager",
                 "Home",
                 "ImportWallet",
                 "ImportWalletSuccess",
@@ -123,6 +126,7 @@ let package = Package(
                 "MnemonicClient",
                 "SDKSynchronizer",
                 "UIComponents",
+                "UserPreferencesStorage",
                 "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
@@ -145,6 +149,13 @@ let package = Package(
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
             path: "Sources/Dependencies/DatabaseFiles"
+        ),
+        .target(
+            name: "DataManager",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/DataManager"
         ),
         .target(
             name: "Date",
@@ -250,8 +261,10 @@ let package = Package(
                 "Addresses",
                 "AppVersion",
                 "Autoshield",
+                "DataManager",
                 "Date",
                 "DiskSpaceChecker",
+                "FileManager",
                 "Models",
                 "TransactionDetail",
                 "UserPreferencesStorage",
@@ -400,6 +413,7 @@ let package = Package(
                 "MnemonicClient",
                 "SDKSynchronizer",
                 "UIComponents",
+                "UNSClient",
                 "URIParser",
                 "Utils",
                 "WalletStorage",
@@ -459,6 +473,14 @@ let package = Package(
             path: "Sources/Dependencies/SupportDataGenerator"
         ),
         .target(
+            name: "UNSClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "UnstoppableDomainsResolution", package: "resolution-swift")
+            ],
+            path: "Sources/Dependencies/UNSClient"
+        ),
+        .target(
             name: "UIComponents",
             dependencies: [
                 "DerivationTool",
@@ -497,6 +519,8 @@ let package = Package(
         .target(
             name: "Utils",
             dependencies: [
+                "FileManager",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit"),
                 .product(name: "Lottie", package: "lottie-spm")
             ],

@@ -42,9 +42,6 @@ public struct ReceiveView: View {
                     )
                 }
             )
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
         }
         .applyNighthawkBackground()
     }

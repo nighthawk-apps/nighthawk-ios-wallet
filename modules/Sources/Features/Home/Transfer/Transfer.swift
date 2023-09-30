@@ -52,6 +52,7 @@ public struct Transfer: Reducer {
     public struct State: Equatable {
         @PresentationState public var destination: Destination.State?
         public var shieldedBalance: Balance = .zero
+        public var unifiedAddress: UnifiedAddress?
         
         public init () {}
     }
@@ -73,15 +74,16 @@ public struct Transfer: Reducer {
             case .destination:
                 return .none
             case .receiveMoneyTapped:
-                state.destination = .receive(.init())
+                state.destination = .receive(.init(uAddress: state.unifiedAddress))
                 return .none
             case .sendMoneyTapped:
                 var sendState = SendFlow.State()
                 sendState.shieldedBalance = state.shieldedBalance
+                sendState.unifiedAddress = state.unifiedAddress
                 state.destination = .send(sendState)
                 return .none
             case .topUpWalletTapped:
-                state.destination = .topUp(.init())
+                state.destination = .topUp(.init(unifiedAddress: state.unifiedAddress))
                 return .none
             }
         }

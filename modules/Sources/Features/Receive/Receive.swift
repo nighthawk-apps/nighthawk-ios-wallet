@@ -33,7 +33,9 @@ public struct Receive: Reducer {
         
         var uAddress: UnifiedAddress?
         
-        public init() {}
+        public init(uAddress: UnifiedAddress?) {
+            self.uAddress = uAddress
+        }
     }
     
     public enum Action: BindableAction, Equatable {
@@ -41,10 +43,8 @@ public struct Receive: Reducer {
         case copyTransparentAddressTapped
         case copyUnifiedAddressTapped
         case delegate(Delegate)
-        case onAppear
         case showQrCodeTapped
         case topUpWalletTapped
-        case uAddressChanged(UnifiedAddress?)
         
         public enum Delegate: Equatable {
             case showAddresses
@@ -72,18 +72,10 @@ public struct Receive: Reducer {
                 pasteboard.setString(state.unifiedAddress.redacted)
                 state.toast = .copiedToClipboard
                 return .none
-            case .onAppear:
-                return .run { send in
-                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
-                    await send(.uAddressChanged(ua))
-                }
             case .showQrCodeTapped:
                 return .send(.delegate(.showAddresses))
             case .topUpWalletTapped:
                 return .send(.delegate(.showPartners))
-            case .uAddressChanged(let uAddress):
-                state.uAddress = uAddress
-                return .none
             }
         }
     }

@@ -39,6 +39,11 @@ public struct TransactionHistoryView: View {
             }
             .padding(.horizontal, 25)
             .onAppear { viewStore.send(.onAppear) }
+            .overlay(alignment: .top) {
+                if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                    IndeterminateProgress()
+                }
+            }
         }
         .applyNighthawkBackground()
     }

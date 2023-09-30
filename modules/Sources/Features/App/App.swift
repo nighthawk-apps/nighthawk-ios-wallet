@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import DatabaseFiles
 import DerivationTool
+import FileManager
 import Generated
 import Home
 import ImportWallet
@@ -37,6 +38,7 @@ public struct AppReducer: Reducer {
         public var path = StackState<Path.State>()
         public var splash = Splash.State()
         public var synchronizerStopped = false
+        public var unifiedAddress: UnifiedAddress?
         
         public init() {}
     }
@@ -50,6 +52,7 @@ public struct AppReducer: Reducer {
         case path(StackAction<Path.State, Path.Action>)
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
+        case unifiedAddressResponse(UnifiedAddress?)
     }
     
     public struct Path: Reducer {
@@ -62,15 +65,15 @@ public struct AppReducer: Reducer {
             case changeServer(ChangeServer.State = .init())
             case externalServices(ExternalServices.State = .init())
             case fiat(Fiat.State = .init())
-            case home(Home.State = .init())
-            case importWallet(ImportWallet.State = .init())
+            case home(Home.State)
+            case importWallet(ImportWallet.State)
             case importWalletSuccess(ImportWalletSuccess.State = .init())
             case migrate(Migrate.State = .init())
             case notifications(Notifications.State = .init())
             case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
             case security(Security.State = .init())
             case transactionDetail(TransactionDetail.State)
-            case transactionHistory(TransactionHistory.State = .init())
+            case transactionHistory(TransactionHistory.State)
             case walletCreated(WalletCreated.State = .init())
             case welcome(Welcome.State = .init())
         }
@@ -190,6 +193,7 @@ public struct AppReducer: Reducer {
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.date) var date
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -212,7 +216,14 @@ public struct AppReducer: Reducer {
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
                 if shouldResetStack {
-                    state.path = StackState([.home()])
+                    state.path = StackState([
+                        .home(
+                            .init(
+                                networkType: zcashNetwork.networkType,
+                                unifiedAddress: state.unifiedAddress
+                            )
+                        )
+                    ])
                 }
                 return .none
             case .nukeWalletFailed:
@@ -220,6 +231,10 @@ public struct AppReducer: Reducer {
             case .nukeWalletSuccess:
                 walletStorage.nukeWallet()
                 try? databaseFiles.nukeDbFilesFor(zcashNetwork)
+                if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                    try? fileManager.removeItem(eventsCache)
+                }
+                
                 state.path = StackState([.welcome(.init())])
                 return .none
             case .path:
@@ -249,6 +264,11 @@ public struct AppReducer: Reducer {
                     return .none
                 }
             case .splash:
+                return .none
+            case let .unifiedAddressResponse(unifiedAddress):
+                if state.unifiedAddress == nil {
+                    state.unifiedAddress = unifiedAddress
+                }
                 return .none
             }
         }
@@ -290,6 +310,8 @@ extension AppReducer {
                     }
                     
                     // Start synchronizer
+                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                    await send(.unifiedAddressResponse(ua))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
                 } catch {
@@ -318,7 +340,7 @@ private extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

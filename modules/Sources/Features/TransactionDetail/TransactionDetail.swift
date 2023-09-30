@@ -25,6 +25,7 @@ public struct TransactionDetail: Reducer {
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
         public var networkType: NetworkType
+        public var isLoaded = false
         
         public var address: String? { walletEvent.transaction.address }
         public var confirmations: BlockHeight { walletEvent.transaction.confirmationsWith(latestMinedHeight) }
@@ -85,6 +86,8 @@ public struct TransactionDetail: Reducer {
             case .delegate:
                 return .none
             case .onAppear:
+                state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced
+                state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     return .publisher {
@@ -101,6 +104,7 @@ public struct TransactionDetail: Reducer {
                 }
             case .synchronizerStateChanged(let latestState):
                 if latestState.syncStatus == .upToDate {
+                    state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced
                     state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                 }
                 return .none

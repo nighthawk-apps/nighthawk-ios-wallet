@@ -35,9 +35,6 @@ public struct AddressesView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
             .toast(
                 unwrapping: viewStore.$toast,
                 case: /Addresses.State.Toast.copiedToClipboard,

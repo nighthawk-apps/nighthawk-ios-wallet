@@ -66,7 +66,7 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rescanTapped) }
                     )
                     
-                    // TODO
+                    // TODO: Enable once we can actually test this.
 //                    settingRow(
 //                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
 //                        subtitle: L10n.Nighthawk.SettingsTab.externalServicesSubtitle,

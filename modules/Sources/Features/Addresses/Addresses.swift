@@ -29,18 +29,18 @@ public struct Addresses: Reducer {
         public var uAddress: UnifiedAddress?
         
         public var unifiedAddress: String {
-            uAddress?.stringEncoded ?? "-"
+            uAddress?.stringEncoded ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
         
         public var transparentAddress: String {
-            (try? uAddress?.transparentReceiver().stringEncoded) ?? "-"
+            (try? uAddress?.transparentReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
         
         public var saplingAddress: String {
-            (try? uAddress?.saplingReceiver().stringEncoded) ?? "-"
+            (try? uAddress?.saplingReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
         
-        public init(uAddress: UnifiedAddress? = nil) {
+        public init(uAddress: UnifiedAddress?) {
             self.uAddress = uAddress
         }
     }
@@ -49,9 +49,7 @@ public struct Addresses: Reducer {
         case binding(BindingAction<State>)
         case copyTapped(State.Destination)
         case delegate(Delegate)
-        case onAppear
         case topUpWalletTapped
-        case uAddressChanged(UnifiedAddress?)
         
         public enum Delegate: Equatable {
             case showPartners
@@ -86,17 +84,8 @@ public struct Addresses: Reducer {
                 return .none
             case .delegate:
                 return .none
-            case .onAppear:
-                return .run { send in
-                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
-                    await send(.uAddressChanged(ua))
-                }
-                
             case .topUpWalletTapped:
                 return .send(.delegate(.showPartners))
-            case .uAddressChanged(let uAddress):
-                state.uAddress = uAddress
-                return .none
             }
         }
     }

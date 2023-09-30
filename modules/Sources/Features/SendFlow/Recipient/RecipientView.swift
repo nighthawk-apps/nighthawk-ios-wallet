@@ -58,7 +58,7 @@ public struct RecipientView: View {
                     action: { viewStore.send(.continueTapped) }
                 )
                 .buttonStyle(.nighthawkPrimary())
-                .disabled(!viewStore.isRecipientValid)
+                .disabled(!viewStore.isRecipientValid || viewStore.isResolvingUNS)
                 .padding(.bottom, 28)
             }
             .showNighthawkBackButton(
