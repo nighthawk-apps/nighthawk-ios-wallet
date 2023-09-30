@@ -19,23 +19,37 @@ public struct ImportWallet: Reducer {
     let saplingActivationHeight: BlockHeight
     
     public struct State: Equatable {
+        let saplingActivationHeight: BlockHeight
         @PresentationState public var alert: AlertState<Action.Alert>?
         @BindingState public var importedSeedPhrase = ""
         @BindingState public var birthdayHeight = ""
-        public var birthdayHeightValue: RedactableBlockHeight?
-        public var isValidMnemonic = false
-        public var wordsCount = 0
-        public var isValidNumberOfWords = false
         public var maxWordsCount = 0
-        public var isValidForm: Bool {
-            isValidMnemonic &&
-            (birthdayHeight.isEmpty ||
-            (!birthdayHeight.isEmpty && birthdayHeightValue != nil))
+        public var birthdayHeightValue: RedactableBlockHeight? { BlockHeight(birthdayHeight)?.redacted }
+        public var formattedPhrase: String {
+            let trimmedPhraseWords = importedSeedPhrase.split(separator: " ")
+                .filter { !$0.isEmpty }
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+            return trimmedPhraseWords.joined(separator: " ")
         }
+        public var isValidMnemonic: Bool {
+            @Dependency(\.mnemonic) var mnemonic
+            return mnemonic.isValid(formattedPhrase)
+        }
+        
+        public var isValidBirthday: Bool {
+            if let birthdayHeightValue {
+                return birthdayHeightValue.data >= saplingActivationHeight
+            }
+                        
+            return true
+        }
+        
+        public var isValidForm: Bool { isValidBirthday && isValidMnemonic }
                 
-        public init() {
+        public init(saplingActivationHeight: BlockHeight) {
             @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
             maxWordsCount = zcashSDKEnvironment.mnemonicWordsMaxCount
+            self.saplingActivationHeight = saplingActivationHeight
         }
     }
     
@@ -67,47 +81,15 @@ public struct ImportWallet: Reducer {
             switch action {
             case .alert(.dismiss):
                 return .none
-            case .binding(\.$birthdayHeight):
-                let saplingActivation = saplingActivationHeight
-                if let birthdayHeight = BlockHeight(state.birthdayHeight), birthdayHeight >= saplingActivation {
-                    state.birthdayHeightValue = birthdayHeight.redacted
-                } else {
-                    state.birthdayHeightValue = nil
-                }
-                return .none
-            case .binding(\.$importedSeedPhrase):
-                let trimmedPhraseWords = state.importedSeedPhrase.split(separator: " ")
-                    .filter { !$0.isEmpty }
-                    .map { $0.trimmingCharacters(in: .whitespaces) }
-                state.wordsCount = trimmedPhraseWords.count
-                state.isValidNumberOfWords = state.wordsCount == state.maxWordsCount
-                // is the mnemonic valid one?
-                do {
-                    try mnemonic.isValid(trimmedPhraseWords.joined(separator: " "))
-                } catch {
-                    state.isValidMnemonic = false
-                    return .none
-                }
-                state.isValidMnemonic = true
-                return .none
             case .binding:
                 return .none
             case .continueTapped:
+                guard state.isValidForm else { return .none }
                 do {
-                    let trimmedPhraseWords = state.importedSeedPhrase.split(separator: " ")
-                        .filter { !$0.isEmpty }
-                        .map { $0.trimmingCharacters(in: .whitespaces) }
-                    
-                    // validate the seed
-                    let cleanedPhrase = trimmedPhraseWords.joined(separator: " ")
-                    try mnemonic.isValid(cleanedPhrase)
-                    
-                    // store it to the keychain, if the user did not input a height,
+                    // if the user did not input a height,
                     // fall back to sapling activation
                     let birthday = state.birthdayHeightValue ?? saplingActivationHeight.redacted
-                    
-                    try walletStorage.importWallet(cleanedPhrase, birthday.data, .english)
-                    
+                    try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
                     return .send(.delegate(.showImportSuccess))
                 } catch {
                     state.alert = AlertState.importWalletFailed(error.toZcashError())
@@ -137,9 +119,6 @@ extension ViewStoreOf<ImportWallet> {
     }
     
     func validateBirthday() -> NighthawkTextFieldValidationState {
-        (self.birthdayHeight.isEmpty ||
-        (!self.birthdayHeight.isEmpty && self.birthdayHeightValue != nil))
-        ? .valid
-        : .invalid(error: L10n.Nighthawk.ImportWallet.invalidBirthday)
+        self.isValidBirthday ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidBirthday)
     }
 }

@@ -66,7 +66,7 @@ public struct AppReducer: Reducer {
             case externalServices(ExternalServices.State = .init())
             case fiat(Fiat.State = .init())
             case home(Home.State)
-            case importWallet(ImportWallet.State = .init())
+            case importWallet(ImportWallet.State)
             case importWalletSuccess(ImportWalletSuccess.State = .init())
             case migrate(Migrate.State = .init())
             case notifications(Notifications.State = .init())

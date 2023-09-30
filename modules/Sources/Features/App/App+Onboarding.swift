@@ -40,7 +40,11 @@ extension AppReducer {
                     }
                     return .none
                 case .importExistingWallet:
-                    state.path.append(.importWallet())
+                    state.path.append(
+                        .importWallet(
+                            .init(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
+                        )
+                    )
                     return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:

@@ -24,6 +24,7 @@ public struct TransactionDetailView: View {
                     Text(L10n.Nighthawk.TransactionDetails.notAvailable)
                         .caption()
                         .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 } else {
                     Group {
                         transactionSummary(with: viewStore)
@@ -33,7 +34,6 @@ public struct TransactionDetailView: View {
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
-            .padding(.horizontal, 40)
         }
         .applyNighthawkBackground()
         .alert(
