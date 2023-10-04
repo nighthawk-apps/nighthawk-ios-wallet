@@ -14,6 +14,7 @@ import FiatPriceClient
 import FileManager
 import Foundation
 import Models
+import ProcessInfoClient
 import UserPreferencesStorage
 import SDKSynchronizer
 import UIKit
@@ -152,6 +153,7 @@ public struct Home: Reducer {
     @Dependency(\.fiatPriceClient) var fiatPriceClient
     @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment

@@ -31,7 +31,12 @@ extension Home {
                     state.destination = .autoshield(.init())
                     return .none
                 case .showAddresses:
-                    state.destination = .addresses(.init(uAddress: state.unifiedAddress))
+                    state.destination = .addresses(
+                        .init(
+                            uAddress: state.unifiedAddress,
+                            showCloseButton: processInfo.isiOSAppOnMac()
+                        )
+                    )
                     return .none
                 case .showTransactionDetail:
                     return .none

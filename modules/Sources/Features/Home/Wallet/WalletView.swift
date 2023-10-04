@@ -66,13 +66,15 @@ private extension WalletView {
             
             Spacer()
             
-            Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
-                Asset.Assets.Icons.Nighthawk.boxedQrCode.image
-                    .resizable()
-                    .frame(width: 22, height: 22)
-                    .aspectRatio(contentMode: .fit)
+            if viewStore.showScanButton {
+                Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
+                    Asset.Assets.Icons.Nighthawk.boxedQrCode.image
+                        .resizable()
+                        .frame(width: 22, height: 22)
+                        .aspectRatio(contentMode: .fit)
+                }
+                .padding([.top, .trailing], 25)
             }
-            .padding([.top, .trailing], 25)
         }
     }
     

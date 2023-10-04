@@ -27,14 +27,17 @@ public struct TopUp: Reducer {
         }
         
         var unifiedAddress: UnifiedAddress?
+        var showCloseButton: Bool
         
-        public init(unifiedAddress: UnifiedAddress?) {
+        public init(unifiedAddress: UnifiedAddress?, showCloseButton: Bool = false) {
             self.unifiedAddress = unifiedAddress
+            self.showCloseButton = showCloseButton
         }
     }
     
     public enum Action: Equatable {
         case alert(PresentationAction<Alert>)
+        case closeButtonTapped
         case showSideShiftInstructions
         case showStealthExInstructions
         
@@ -43,6 +46,7 @@ public struct TopUp: Reducer {
         }
     }
     
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.partners) var partners
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -57,6 +61,8 @@ public struct TopUp: Reducer {
                 return .none
             case .alert(.dismiss):
                 return .none
+            case .closeButtonTapped:
+                return .run { _ in await self.dismiss() }
             case .showSideShiftInstructions:
                 pasteboard.setString(state.saplingAddress.redacted)
                 state.alert = AlertState.showPartnerInstructions(

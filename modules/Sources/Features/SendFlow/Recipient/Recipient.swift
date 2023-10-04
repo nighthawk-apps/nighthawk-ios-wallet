@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Generated
 import Pasteboard
+import ProcessInfoClient
 import SwiftUI
 import UIComponents
 import UNSClient
@@ -25,6 +26,10 @@ public struct Recipient: Reducer {
         public var canPasteAddress: Bool { pasteboardContainsZAddress && !hasEnteredRecipient }
         public var isRecipientValid = false
         public var isResolvingUNS = false
+        public var showScanButton: Bool {
+            @Dependency(\.processInfo) var processInfo
+            return !processInfo.isiOSAppOnMac()
+        }
         
         public init() {}
     }

@@ -12,6 +12,7 @@ import LocalAuthenticationClient
 import UserPreferencesStorage
 import MnemonicClient
 import Models
+import ProcessInfoClient
 import SDKSynchronizer
 import SwiftUI
 import UserPreferencesStorage
@@ -81,6 +82,7 @@ public struct SendFlow: Reducer {
     
     public struct State: Equatable {
         public var path: StackState<Path.State>
+        public var showCloseButton: Bool
         @BindingState public var toast: Toast?
 
         public var unifiedAddress: UnifiedAddress?
@@ -119,18 +121,25 @@ public struct SendFlow: Reducer {
             }
         }
         
+        public var showScanButton: Bool {
+            @Dependency(\.processInfo) var processInfo
+            return !processInfo.isiOSAppOnMac()
+        }
+        
         public enum Toast {
             case notEnoughZcash
         }
 
-        public init(path: StackState<Path.State> = .init()) {
+        public init(path: StackState<Path.State> = .init(), showCloseButton: Bool = false) {
             self.path = path
+            self.showCloseButton = showCloseButton
         }
     }
     
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
+        case closeButtonTapped
         case continueTapped
         case onAppear
         case scanCodeTapped
@@ -147,6 +156,7 @@ public struct SendFlow: Reducer {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
@@ -160,6 +170,8 @@ public struct SendFlow: Reducer {
         
         Reduce { state, action in
             switch action {
+            case .closeButtonTapped:
+                return .run { _ in await self.dismiss() }
             case .continueTapped:
                 if state.recipient == nil {
                     state.path.append(Path.State.recipient(.init()))
@@ -313,6 +325,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -371,6 +384,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -439,6 +453,7 @@ extension SendFlow {
                 }
                 
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -477,6 +492,7 @@ extension SendFlow {
                     return .send(.sendTransaction)
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,

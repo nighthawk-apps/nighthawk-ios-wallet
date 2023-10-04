@@ -10,6 +10,7 @@ import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
 import Models
+import ProcessInfoClient
 import SwiftUI
 import UserPreferencesStorage
 import Utils
@@ -61,6 +62,7 @@ public struct Splash: Reducer {
     @Dependency(\.date) var date
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     
@@ -124,14 +126,22 @@ public struct Splash: Reducer {
             case .onAppear:
                 defer { state.isFirstLaunch = false }
                 state.isVisible = true
-                if !state.isFirstLaunch && state.shouldHandleScenePhaseChange {
+                if processInfo.isiOSAppOnMac() && state.isFirstLaunch {
                     return .run { send in
                         /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
                         try await clock.sleep(for: .seconds(0.5))
                         await send(.checkWalletInitialization)
                     }
+                } else {
+                    if !state.isFirstLaunch && state.shouldHandleScenePhaseChange {
+                        return .run { send in
+                            /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
+                            try await clock.sleep(for: .seconds(0.5))
+                            await send(.checkWalletInitialization)
+                        }
+                    }
+                    return .none
                 }
-                return .none
             case .onDisappear:
                 state.isVisible = false
                 return .none

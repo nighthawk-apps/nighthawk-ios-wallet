@@ -32,14 +32,17 @@ public struct Receive: Reducer {
         }
         
         var uAddress: UnifiedAddress?
+        var showCloseButton: Bool
         
-        public init(uAddress: UnifiedAddress?) {
+        public init(uAddress: UnifiedAddress?, showCloseButton: Bool = false) {
             self.uAddress = uAddress
+            self.showCloseButton = showCloseButton
         }
     }
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case closeButtonTapped
         case copyTransparentAddressTapped
         case copyUnifiedAddressTapped
         case delegate(Delegate)
@@ -52,6 +55,7 @@ public struct Receive: Reducer {
         }
     }
     
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
@@ -64,6 +68,8 @@ public struct Receive: Reducer {
                 return .none
             case .delegate:
                 return .none
+            case .closeButtonTapped:
+                return .run { _ in await self.dismiss() }
             case .copyTransparentAddressTapped:
                 pasteboard.setString(state.transparentAddress.redacted)
                 state.toast = .copiedToClipboard

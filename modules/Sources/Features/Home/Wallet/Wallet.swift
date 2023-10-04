@@ -8,6 +8,7 @@
 import Addresses
 import ComposableArchitecture
 import Models
+import ProcessInfoClient
 import SwiftUI
 import TransactionDetail
 import Utils
@@ -63,6 +64,11 @@ public struct Wallet: Reducer {
             } else {
                 nil
             }
+        }
+        
+        public var showScanButton: Bool {
+            @Dependency(\.processInfo) var processInfo
+            return !processInfo.isiOSAppOnMac()
         }
         
         public init() {}
