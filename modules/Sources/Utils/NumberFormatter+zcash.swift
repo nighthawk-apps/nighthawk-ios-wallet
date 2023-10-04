@@ -8,6 +8,14 @@
 import Foundation
 
 extension NumberFormatter {
+    public static let currencyFormatter: NumberFormatter = {
+        var formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = true
+        return formatter
+    }()
+    
     public static let zcashNumberFormatter: NumberFormatter = {
         var formatter = NumberFormatter()
         formatter.maximumFractionDigits = 8

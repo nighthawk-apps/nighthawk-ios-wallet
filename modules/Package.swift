@@ -21,6 +21,7 @@ let package = Package(
         .library(name: "DiskSpaceChecker", targets: ["DiskSpaceChecker"]),
         .library(name: "ExportSeed", targets: ["ExportSeed"]),
         .library(name: "FeedbackGenerator", targets: ["FeedbackGenerator"]),
+        .library(name: "FiatPriceClient", targets: ["FiatPriceClient"]),
         .library(name: "FileManager", targets: ["FileManager"]),
         .library(name: "Generated", targets: ["Generated"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
@@ -201,6 +202,15 @@ let package = Package(
             path: "Sources/Dependencies/FeedbackGenerator"
         ),
         .target(
+            name: "FiatPriceClient",
+            dependencies: [
+                "Models",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/FiatPriceClient"
+        ),
+        .target(
             name: "FileManager",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -264,6 +274,7 @@ let package = Package(
                 "DataManager",
                 "Date",
                 "DiskSpaceChecker",
+                "FiatPriceClient",
                 "FileManager",
                 "Models",
                 "TransactionDetail",
@@ -322,6 +333,7 @@ let package = Package(
         .target(
             name: "Models",
             dependencies: [
+                "Generated",
                 "Utils",
                 .product(name: "MnemonicSwift", package: "MnemonicSwift"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
@@ -415,6 +427,7 @@ let package = Package(
                 "UIComponents",
                 "UNSClient",
                 "URIParser",
+                "UserPreferencesStorage",
                 "Utils",
                 "WalletStorage",
                 "ZcashSDKEnvironment",

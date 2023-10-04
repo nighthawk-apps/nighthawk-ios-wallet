@@ -126,6 +126,16 @@ private extension SendFlowView {
                 tokenName: tokenName
             )
             .frame(maxWidth: .infinity)
+            
+            if let (currency, price) = viewStore.fiatConversion, viewStore.hasEnteredAmount {
+                Text(
+                    L10n.Nighthawk.TransferTab.Send.around(
+                        (price * viewStore.amountToSend.decimalValue.doubleValue).currencyString,
+                        currency.rawValue.uppercased()
+                    )
+                )
+                .paragraphMedium()
+            }
         }
     }
     

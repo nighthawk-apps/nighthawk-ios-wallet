@@ -48,6 +48,23 @@ public struct Wallet: Reducer {
             shieldedBalance.data.verified + transparentBalance.data.verified
         }
         
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double? {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.latestFiatPrice()
+        }
+        
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice, preferredCurrency != .off {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
+        
         public init() {}
     }
     

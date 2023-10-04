@@ -29,6 +29,8 @@ extension Home {
                  .cantStartSync,
                  .delegate,
                  .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
                  .rescanDone,

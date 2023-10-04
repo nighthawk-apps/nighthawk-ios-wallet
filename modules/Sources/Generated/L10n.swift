@@ -639,6 +639,10 @@ public enum L10n {
         public static let scanPaymentRequestDetails = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequestDetails", fallback: "If you have a payment request, you can scan the QR code here to auto-fill all the details.")
       }
       public enum Send {
+        /// around %@ %@
+        public static func around(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.send.around", String(describing: p1), String(describing: p2), fallback: "around %@ %@")
+        }
         /// Choose how much to send
         public static let chooseHowMuch = L10n.tr("Localizable", "nighthawk.transferTab.send.chooseHowMuch", fallback: "Choose how much to send")
         /// Continue

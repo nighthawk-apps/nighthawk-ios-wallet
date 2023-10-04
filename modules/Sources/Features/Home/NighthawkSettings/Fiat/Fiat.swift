@@ -11,7 +11,7 @@ import UserPreferencesStorage
 
 public struct Fiat: Reducer {
     public struct State: Equatable {
-        @BindingState public var selectedFiatCurrency: NighthawkSetting.FiatCurrency = .off
+        @BindingState public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
         
         public init() {
             @Dependency(\.userStoredPreferences) var userStoredPreferences

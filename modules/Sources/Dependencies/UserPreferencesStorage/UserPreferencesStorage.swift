@@ -15,6 +15,7 @@ import UserDefaults
 public struct UserPreferencesStorage {
     public enum Constants: String, CaseIterable {
         case zcashFiatCurrency
+        case zcashLatestFiatPrice
         case zcashScreenMode
         case zcashSyncNotificationFrequency
         case zcashBiometricsEnabled
@@ -25,6 +26,7 @@ public struct UserPreferencesStorage {
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
     private let currency: NighthawkSetting.FiatCurrency
+    private let latestPrice: Double?
     private let selectedScreenMode: NighthawkSetting.ScreenMode
     private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
     private let biometricsEnabled: Bool
@@ -36,6 +38,7 @@ public struct UserPreferencesStorage {
     
     public init(
         currency: NighthawkSetting.FiatCurrency,
+        latestPrice: Double?,
         selectedScreenMode: NighthawkSetting.ScreenMode,
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         biometricsEnabled: Bool,
@@ -45,6 +48,7 @@ public struct UserPreferencesStorage {
         userDefaults: UserDefaultsClient
     ) {
         self.currency = currency
+        self.latestPrice = latestPrice
         self.selectedScreenMode = selectedScreenMode
         self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
         self.biometricsEnabled = biometricsEnabled
@@ -55,11 +59,24 @@ public struct UserPreferencesStorage {
     }
 
     public var fiatCurrency: NighthawkSetting.FiatCurrency {
-        getValue(forKey: Constants.zcashFiatCurrency.rawValue, default: currency)
+        let rawValue = getValue(forKey: Constants.zcashFiatCurrency.rawValue, default: currency.rawValue)
+        return NighthawkSetting.FiatCurrency(rawValue: rawValue) ?? .off
     }
     
-    public func setFiatCurrency(_ string: NighthawkSetting.FiatCurrency) {
-        setValue(string, forKey: Constants.zcashFiatCurrency.rawValue)
+    public func setFiatCurrency(_ currency: NighthawkSetting.FiatCurrency) {
+        setValue(currency.rawValue, forKey: Constants.zcashFiatCurrency.rawValue)
+    }
+    
+    public var latestFiatPrice: Double? {
+        getValue(forKey: Constants.zcashLatestFiatPrice.rawValue, default: latestPrice)
+    }
+    
+    public func setLatestFiatPrice(_ price: Double?) {
+        if let price {
+            setValue(price, forKey: Constants.zcashLatestFiatPrice.rawValue)
+        } else {
+            userDefaults.remove(Constants.zcashLatestFiatPrice.rawValue)
+        }
     }
 
     public var screenMode: NighthawkSetting.ScreenMode {
@@ -127,6 +144,7 @@ public struct UserPreferencesStorage {
 extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
         currency: .off,
+        latestPrice: nil,
         selectedScreenMode: .off,
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,

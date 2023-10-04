@@ -10,6 +10,7 @@ import Autoshield
 import ComposableArchitecture
 import DataManager
 import DiskSpaceChecker
+import FiatPriceClient
 import FileManager
 import Foundation
 import Models
@@ -46,6 +47,16 @@ public struct Home: Reducer {
             synchronizerFailedToStart || synchronizerStatusSnapshot.isSyncFailed
         }
         
+        public var isFiatLoaded = false
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double? {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.latestFiatPrice()
+        }
+        
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
@@ -63,6 +74,7 @@ public struct Home: Reducer {
         public var settings: NighthawkSettings.State = .init()
         
         public init(networkType: NetworkType, unifiedAddress: UnifiedAddress?) {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
             self.networkType = networkType
             self.unifiedAddress = unifiedAddress
             self.walletEvents = loadCachedEvents()
@@ -86,6 +98,8 @@ public struct Home: Reducer {
         case cantStartSync(ZcashError)
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
+        case fetchLatestFiatPrice
+        case latestFiatResponse(Double?)
         case listenForSynchronizerUpdates
         case onAppear
         case rescanDone(ZcashError? = nil)
@@ -135,6 +149,7 @@ public struct Home: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.dataManager) var dataManager
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
+    @Dependency(\.fiatPriceClient) var fiatPriceClient
     @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -163,10 +178,22 @@ public struct Home: Reducer {
             case let .cantStartSync(error):
                 state.destination = .alert(.cantStartSync(error))
                 return .none
+            case .fetchLatestFiatPrice:
+                guard !state.isFiatLoaded, state.preferredCurrency != . off else { return .none }
+                state.isFiatLoaded = true
+                return .run { [preferredCurrency = state.preferredCurrency] send in
+                    try? await send(.latestFiatResponse(fiatPriceClient.getZcashPrice(preferredCurrency)))
+                }
+            case let .latestFiatResponse(price):
+                userStoredPreferences.setLatestFiatPrice(price)
+                return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
-                return .send(.listenForSynchronizerUpdates)
+                return .concatenate(
+                    .send(.fetchLatestFiatPrice),
+                    .send(.listenForSynchronizerUpdates)
+                )
             case let .rescanDone(error):
                 userStoredPreferences.setIsFirstSync(true)
                 if let error {
@@ -294,6 +321,8 @@ extension Home {
                  .cantStartSync,
                  .delegate,
                  .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
                  .rescanDone,

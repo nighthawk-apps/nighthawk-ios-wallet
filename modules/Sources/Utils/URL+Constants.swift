@@ -21,6 +21,8 @@ extension URL {
     
     public static let terms = URL(string: "https://nighthawkwallet.com/termsconditions")!
     
+    public static let coinGeckoApi = URL(string: "https://api.coingecko.com/api/v3/")!
+    
     public static func latestEventsCache(for networkType: NetworkType) -> URL? {
         @Dependency(\.fileManager) var fileManager
         return try? fileManager.url(

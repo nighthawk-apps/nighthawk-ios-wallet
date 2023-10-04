@@ -14,6 +14,7 @@ import MnemonicClient
 import Models
 import SDKSynchronizer
 import SwiftUI
+import UserPreferencesStorage
 import Utils
 import WalletStorage
 import ZcashLightClientKit
@@ -101,6 +102,21 @@ public struct SendFlow: Reducer {
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
              amountToSend <= maxAmount
+        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double? {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.latestFiatPrice()
+        }
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
         }
         
         public enum Toast {
