@@ -29,7 +29,7 @@ extension SDKSynchronizerClient {
             spendParamsURL: databaseFiles.spendParamsURLFor(network),
             outputParamsURL: databaseFiles.outputParamsURLFor(network),
             saplingParamsSourceURL: SaplingParamsSourceURL.default,
-            loggingPolicy: .noLogging
+            loggingPolicy: .default(.debug)
         )
         
         let synchronizer = SDKSynchronizer(initializer: initializer)

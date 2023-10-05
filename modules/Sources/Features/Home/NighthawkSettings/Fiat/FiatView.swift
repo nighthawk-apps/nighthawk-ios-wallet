@@ -32,47 +32,8 @@ public struct FiatView: View {
                         selection: viewStore.$selectedFiatCurrency.animation(.none)
                     ) { option in
                         HStack {
-                            switch option {
-                            case .usd:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.usd)
-                                    .paragraphMedium(color: .white)
-                            case .eur:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.eur)
-                                    .paragraphMedium(color: .white)
-                            case .inr:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.inr)
-                                    .paragraphMedium(color: .white)
-                            case .jpy:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.jpy)
-                                    .paragraphMedium(color: .white)
-                            case .gbp:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.gbp)
-                                    .paragraphMedium(color: .white)
-                            case .cad:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.cad)
-                                    .paragraphMedium(color: .white)
-                            case .aud:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.aud)
-                                    .paragraphMedium(color: .white)
-                            case .hkd:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.hkd)
-                                    .paragraphMedium(color: .white)
-                            case .sgd:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.sgd)
-                                    .paragraphMedium(color: .white)
-                            case .chf:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.chf)
-                                    .paragraphMedium(color: .white)
-                            case .cny:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.cny)
-                                    .paragraphMedium(color: .white)
-                            case .krw:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.krw)
-                                    .paragraphMedium(color: .white)
-                            case .off:
-                                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.off)
-                                    .paragraphMedium(color: .white)
-                            }
+                            Text(label(for: option))
+                                .paragraphMedium(color: .white)
                             
                             Spacer()
                         }
@@ -91,5 +52,39 @@ public struct FiatView: View {
     public init(store: StoreOf<Fiat>, tokenName: String) {
         self.store = store
         self.tokenName = tokenName
+    }
+}
+
+// MARK: - Private
+private extension FiatView {
+    func label(for fiat: NighthawkSetting.FiatCurrency) -> String {
+        switch fiat {
+        case .usd:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.usd
+        case .eur:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.eur
+        case .inr:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.inr
+        case .jpy:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.jpy
+        case .gbp:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.gbp
+        case .cad:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.cad
+        case .aud:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.aud
+        case .hkd:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.hkd
+        case .sgd:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.sgd
+        case .chf:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.chf
+        case .cny:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.cny
+        case .krw:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.krw
+        case .off:
+            L10n.Nighthawk.SettingsTab.FiatCurrency.off
+        }
     }
 }
