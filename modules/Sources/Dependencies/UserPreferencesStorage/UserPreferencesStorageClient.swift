@@ -13,9 +13,6 @@ public struct UserPreferencesStorageClient {
     public var fiatCurrency: () -> NighthawkSetting.FiatCurrency
     public var setFiatCurrency: (NighthawkSetting.FiatCurrency) -> Void
     
-    public var latestFiatPrice: () -> Double?
-    public var setLatestFiatPrice: (Double?) -> Void
-    
     public var screenMode: () -> NighthawkSetting.ScreenMode
     public var setScreenMode: (NighthawkSetting.ScreenMode) -> Void
     
@@ -41,8 +38,6 @@ extension UserPreferencesStorageClient: DependencyKey {
     public static let liveValue = Self(
         fiatCurrency: { UserPreferencesStorage.live.fiatCurrency },
         setFiatCurrency: UserPreferencesStorage.live.setFiatCurrency(_:),
-        latestFiatPrice: { UserPreferencesStorage.live.latestFiatPrice },
-        setLatestFiatPrice: UserPreferencesStorage.live.setLatestFiatPrice(_:),
         screenMode: { UserPreferencesStorage.live.screenMode },
         setScreenMode: UserPreferencesStorage.live.setScreenMode(_:),
         syncNotificationFrequency: { UserPreferencesStorage.live.syncNotificationFrequency },

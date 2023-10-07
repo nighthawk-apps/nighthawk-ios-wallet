@@ -39,6 +39,7 @@ public struct AppReducer: Reducer {
         public var splash = Splash.State()
         public var synchronizerStopped = false
         public var unifiedAddress: UnifiedAddress?
+        public var latestFiatPrice: Double?
         
         public init() {}
     }
@@ -281,6 +282,7 @@ public struct AppReducer: Reducer {
         
         splashDelegateReducer()
         onboardingReducer()
+        homeDelegateReducer()
         walletReducer()
         transferReducer()
         settingsReducer()
@@ -298,8 +300,6 @@ extension AppReducer {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
             let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
-            
-            try mnemonic.isValid(storedWallet.seedPhrase.value())
             let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
             
             return .run { send in

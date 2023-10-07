@@ -48,15 +48,11 @@ public struct Home: Reducer {
             synchronizerFailedToStart || synchronizerStatusSnapshot.isSyncFailed
         }
         
-        public var isFiatLoaded = false
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double? {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.latestFiatPrice()
-        }
+        public var latestFiatPrice: Double?
         
         // Shared state
         public var requiredTransactionConfirmations = 0
@@ -111,7 +107,7 @@ public struct Home: Reducer {
         case wallet(Wallet.Action)
         
         public enum Delegate: Equatable {
-            case showTransactionHistory
+            case setLatestFiatPrice(Double?)
         }
     }
     
@@ -181,13 +177,14 @@ public struct Home: Reducer {
                 state.destination = .alert(.cantStartSync(error))
                 return .none
             case .fetchLatestFiatPrice:
-                guard !state.isFiatLoaded, state.preferredCurrency != . off else { return .none }
-                state.isFiatLoaded = true
+                guard state.latestFiatPrice == nil, state.preferredCurrency != . off else { return .none }
                 return .run { [preferredCurrency = state.preferredCurrency] send in
-                    try? await send(.latestFiatResponse(fiatPriceClient.getZcashPrice(preferredCurrency)))
+                    let price = try? await fiatPriceClient.getZcashPrice(preferredCurrency)
+                    await send(.latestFiatResponse(price))
+                    await send(.delegate(.setLatestFiatPrice(price)))
                 }
             case let .latestFiatResponse(price):
-                userStoredPreferences.setLatestFiatPrice(price)
+                state.latestFiatPrice = price
                 return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
@@ -348,6 +345,7 @@ extension Home.State {
             state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
             state.shieldedBalance = shieldedBalance
             state.transparentBalance = transparentBalance
+            state.latestFiatPrice = latestFiatPrice
             state.latestMinedHeight = latestMinedHeight
             state.expectingZatoshi = expectingZatoshi
             state.requiredTransactionConfirmations = requiredTransactionConfirmations
@@ -361,6 +359,7 @@ extension Home.State {
             self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
             self.shieldedBalance = newValue.shieldedBalance
             self.transparentBalance = newValue.transparentBalance
+            self.latestFiatPrice = newValue.latestFiatPrice
             self.latestMinedHeight = newValue.latestMinedHeight
             self.expectingZatoshi = newValue.expectingZatoshi
             self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
@@ -373,6 +372,7 @@ extension Home.State {
             var state = transferState
             state.shieldedBalance = shieldedBalance
             state.unifiedAddress = unifiedAddress
+            state.latestFiatPrice = latestFiatPrice
             return state
         }
         
@@ -380,6 +380,7 @@ extension Home.State {
             self.transferState = newValue
             self.shieldedBalance = newValue.shieldedBalance
             self.unifiedAddress = newValue.unifiedAddress
+            self.latestFiatPrice = newValue.latestFiatPrice
         }
     }
 }

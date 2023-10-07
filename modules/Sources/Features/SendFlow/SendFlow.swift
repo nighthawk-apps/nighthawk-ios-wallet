@@ -109,10 +109,7 @@ public struct SendFlow: Reducer {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double? {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.latestFiatPrice()
-        }
+        public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice {
                 (preferredCurrency, latestFiatPrice)
@@ -130,8 +127,13 @@ public struct SendFlow: Reducer {
             case notEnoughZcash
         }
 
-        public init(path: StackState<Path.State> = .init(), showCloseButton: Bool = false) {
+        public init(
+            path: StackState<Path.State> = .init(),
+            latestFiatPrice: Double?,
+            showCloseButton: Bool = false
+        ) {
             self.path = path
+            self.latestFiatPrice = latestFiatPrice
             self.showCloseButton = showCloseButton
         }
     }
@@ -190,7 +192,8 @@ public struct SendFlow: Reducer {
                         .init(
                             zecAmount: state.amountToSend,
                             memo: state.memo,
-                            recipient: state.recipient!
+                            recipient: state.recipient!,
+                            latestFiatPrice: state.latestFiatPrice
                         )
                     )
                 )
@@ -314,7 +317,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: recipient
+                                    recipient: recipient,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )
@@ -369,7 +373,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: recipient
+                                    recipient: recipient,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )
@@ -443,7 +448,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: address
+                                    recipient: address,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )

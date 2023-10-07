@@ -23,10 +23,7 @@ public struct TransactionHistory: Reducer {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double? {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.latestFiatPrice()
-        }
+        public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice {
                 (preferredCurrency, latestFiatPrice)
@@ -35,7 +32,11 @@ public struct TransactionHistory: Reducer {
             }
         }
         
-        public init(initialEvents: IdentifiedArrayOf<WalletEvent> = []) {
+        public init(
+            latestFiatPrice: Double?,
+            initialEvents: IdentifiedArrayOf<WalletEvent> = []
+        ) {
+            self.latestFiatPrice = latestFiatPrice
             self.walletEvents = initialEvents
         }
     }

@@ -166,15 +166,27 @@ private extension TransactionDetailView {
                 .foregroundColor(.white)
                 .frame(width: 24, height: 24)
             
-            HStack(alignment: .center) {
-                Group {
-                    Text("\(viewStore.zecAmount.decimalString())")
-                        .foregroundColor(.white)
-                    
-                    Text(tokenName)
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            VStack {
+                HStack(alignment: .center) {
+                    Group {
+                        Text("\(viewStore.zecAmount.decimalString())")
+                            .foregroundColor(.white)
+                        
+                        Text(tokenName)
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    }
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
                 }
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
+                
+                if let (currency, price) = viewStore.fiatConversion {
+                    Text(
+                        L10n.Nighthawk.TransactionDetails.Fiat.around(
+                            (price * viewStore.zecAmount.decimalValue.doubleValue).currencyString,
+                            currency.rawValue.uppercased()
+                        )
+                    )
+                    .paragraphMedium()
+                }
             }
             
             TransactionStatusView(status: viewStore.status)

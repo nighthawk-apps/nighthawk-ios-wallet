@@ -28,10 +28,25 @@ extension AppReducer {
                 case .showAddresses:
                     return .none
                 case let .showTransactionHistory(walletEvents):
-                    state.path.append(.transactionHistory(.init(initialEvents: walletEvents)))
+                    state.path.append(
+                        .transactionHistory(
+                            .init(
+                                latestFiatPrice: state.latestFiatPrice,
+                                initialEvents: walletEvents
+                            )
+                        )
+                    )
                     return .none
                 case let .showTransactionDetail(walletEvent):
-                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))
+                    state.path.append(
+                        .transactionDetail(
+                            .init(
+                                walletEvent: walletEvent,
+                                networkType: zcashNetwork.networkType,
+                                latestFiatPrice: state.latestFiatPrice
+                            )
+                        )
+                    )
                     return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
@@ -49,7 +64,15 @@ extension AppReducer {
                     state.destination = .alert(.notEnoughFreeDiskSpace())
                     return .none
                 case let .showTransactionDetail(walletEvent):
-                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))
+                    state.path.append(
+                        .transactionDetail(
+                            .init(
+                                walletEvent: walletEvent, 
+                                networkType: zcashNetwork.networkType,
+                                latestFiatPrice: state.latestFiatPrice
+                            )
+                        )
+                    )
                     return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:

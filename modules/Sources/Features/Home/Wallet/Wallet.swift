@@ -53,10 +53,8 @@ public struct Wallet: Reducer {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double? {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.latestFiatPrice()
-        }
+        
+        public var latestFiatPrice: Double?
         
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {

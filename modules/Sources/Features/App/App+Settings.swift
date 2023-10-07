@@ -13,6 +13,7 @@ extension AppReducer {
     @ReducerBuilder<State, Action>
     func settingsReducer() -> some ReducerOf<Self> {
         nighthawkSettingsDelegateReducer()
+        fiatDelegateReducer()
         advancedSettingsDelegateReducer()
         aboutDelegateReducer()
     }
@@ -25,6 +26,30 @@ extension AppReducer {
                 case let .goTo(screen):
                     return goTo(screen: screen, state: &state)
                 case .rescan:
+                    return .none
+                }
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+                return .none
+            }
+        }
+    }
+    
+    private func fiatDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .fiat(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .fetchLatestFiatCurrency:
+                    state.path =  StackState(
+                        state.path.map { state in
+                            if case var .home(homeState) = state {
+                                homeState.latestFiatPrice = nil
+                                return Path.State.home(homeState)
+                            }
+
+                            return state
+                        }
+                    )
                     return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:

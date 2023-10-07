@@ -558,6 +558,12 @@ public enum L10n {
       public static let viewOnExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnExplorer", fallback: "View on explorer")
       /// View TX details
       public static let viewTxDetails = L10n.tr("Localizable", "nighthawk.transactionDetails.viewTxDetails", fallback: "View TX details")
+      public enum Fiat {
+        /// around %@ %@
+        public static func around(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transactionDetails.fiat.around", String(describing: p1), String(describing: p2), fallback: "around %@ %@")
+        }
+      }
     }
     public enum TransactionHistory {
       /// Auto-shielded funds

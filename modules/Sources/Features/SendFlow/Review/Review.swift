@@ -30,10 +30,7 @@ public struct Review: Reducer {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double? {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.latestFiatPrice()
-        }
+        public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice {
                 (preferredCurrency, latestFiatPrice)
@@ -45,11 +42,13 @@ public struct Review: Reducer {
         public init(
             zecAmount: Zatoshi,
             memo: RedactableString?,
-            recipient: RedactableString
+            recipient: RedactableString,
+            latestFiatPrice: Double?
         ) {
             self.zecAmount = zecAmount
             self.memo = memo
             self.recipient = recipient
+            self.latestFiatPrice = latestFiatPrice
         }
     }
     

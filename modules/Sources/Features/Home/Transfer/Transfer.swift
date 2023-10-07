@@ -54,6 +54,7 @@ public struct Transfer: Reducer {
         @PresentationState public var destination: Destination.State?
         public var shieldedBalance: Balance = .zero
         public var unifiedAddress: UnifiedAddress?
+        public var latestFiatPrice: Double?
         
         public init () {}
     }
@@ -86,6 +87,7 @@ public struct Transfer: Reducer {
                 return .none
             case .sendMoneyTapped:
                 var sendState = SendFlow.State(
+                    latestFiatPrice: state.latestFiatPrice, 
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
                 sendState.shieldedBalance = state.shieldedBalance

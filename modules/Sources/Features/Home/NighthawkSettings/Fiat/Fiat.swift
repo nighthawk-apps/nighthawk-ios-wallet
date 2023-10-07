@@ -21,6 +21,11 @@ public struct Fiat: Reducer {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case delegate(Delegate)
+        
+        public enum Delegate: Equatable {
+            case fetchLatestFiatCurrency
+        }
     }
     
     @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -32,8 +37,10 @@ public struct Fiat: Reducer {
             switch action {
             case .binding(\.$selectedFiatCurrency):
                 userStoredPreferences.setFiatCurrency(state.selectedFiatCurrency)
-                return .none
+                return .send(.delegate(.fetchLatestFiatCurrency))
             case .binding:
+                return .none
+            case .delegate:
                 return .none
             }
         }
