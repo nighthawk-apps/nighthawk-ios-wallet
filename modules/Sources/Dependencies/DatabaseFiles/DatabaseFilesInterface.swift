@@ -25,5 +25,4 @@ public struct DatabaseFilesClient {
     public let pendingDbURLFor: (ZcashNetwork) -> URL
     public let spendParamsURLFor: (ZcashNetwork) -> URL
     public var areDbFilesPresentFor: (ZcashNetwork) -> Bool
-    public var nukeDbFilesFor: (ZcashNetwork) throws -> Void
 }

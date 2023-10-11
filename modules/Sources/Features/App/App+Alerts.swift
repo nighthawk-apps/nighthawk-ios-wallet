@@ -32,9 +32,9 @@ extension AlertState where Action == AppReducer.Destination.Action.Alert {
         }
     }
     
-    public static func nukeFailed() -> AlertState {
+    public static func deleteWalletFailed() -> AlertState {
         AlertState {
-            TextState(L10n.Nighthawk.App.Nuke.Alert.NukeFailed.title)
+            TextState(L10n.Nighthawk.App.DeleteWallet.Alert.Failed.title)
         }
     }
 }

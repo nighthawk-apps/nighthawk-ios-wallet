@@ -48,8 +48,8 @@ public struct AppReducer: Reducer {
         case destination(PresentationAction<Destination.Action>)
         case initializeSDKFailed(ZcashError)
         case initializeSDKSuccess(shouldResetStack: Bool)
-        case nukeWalletSuccess
-        case nukeWalletFailed
+        case deleteWalletSuccess
+        case deleteWalletFailed
         case path(StackAction<Path.State, Path.Action>)
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
@@ -227,11 +227,10 @@ public struct AppReducer: Reducer {
                     ])
                 }
                 return .none
-            case .nukeWalletFailed:
+            case .deleteWalletFailed:
                 return .none
-            case .nukeWalletSuccess:
-                walletStorage.nukeWallet()
-                try? databaseFiles.nukeDbFilesFor(zcashNetwork)
+            case .deleteWalletSuccess:
+                walletStorage.deleteWallet()
                 if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
                     try? fileManager.removeItem(eventsCache)
                 }
@@ -340,7 +339,7 @@ private extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

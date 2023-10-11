@@ -18,7 +18,7 @@ extension AppReducer {
                     state.latestFiatPrice = latest
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

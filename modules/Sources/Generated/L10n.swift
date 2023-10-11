@@ -82,6 +82,14 @@ public enum L10n {
       public static let viewSource = L10n.tr("Localizable", "nighthawk.about.viewSource", fallback: "View Source")
     }
     public enum App {
+      public enum DeleteWallet {
+        public enum Alert {
+          public enum Failed {
+            /// Wallet deletion failed
+            public static let title = L10n.tr("Localizable", "nighthawk.app.deleteWallet.alert.failed.title", fallback: "Wallet deletion failed")
+          }
+        }
+      }
       public enum Launch {
         public enum Alert {
           public enum Error {
@@ -93,14 +101,6 @@ public enum L10n {
           public enum SdkInitFailed {
             /// Failed to initialize the SDK
             public static let title = L10n.tr("Localizable", "nighthawk.app.launch.alert.sdkInitFailed.title", fallback: "Failed to initialize the SDK")
-          }
-        }
-      }
-      public enum Nuke {
-        public enum Alert {
-          public enum NukeFailed {
-            /// Nuke of the wallet failed
-            public static let title = L10n.tr("Localizable", "nighthawk.app.nuke.alert.nukeFailed.title", fallback: "Nuke of the wallet failed")
           }
         }
       }
@@ -301,15 +301,15 @@ public enum L10n {
       public enum Advanced {
         /// Advanced settings
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.title", fallback: "Advanced settings")
-        public enum NukeWallet {
+        public enum DeleteWallet {
           /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
-          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
+          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
           /// ARE YOU SURE?
-          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
+          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
           /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.
-          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
-          /// Nuke wallet
-          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.title", fallback: "Nuke wallet")
+          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
+          /// Delete wallet
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.title", fallback: "Delete wallet")
         }
         public enum ScreenMode {
           /// Keep on

@@ -142,11 +142,11 @@ public struct WalletStorage {
         }
     }
     
-    public func nukeWallet() {
+    public func deleteWallet() {
         deleteData(forKey: Constants.zcashStoredWallet)
     }
     
-    public func nukeLegacyWallet() {
+    public func deleteLegacyWallet() {
         keychain.delete(Constants.zcashLegacyKeys)
         keychain.delete(Constants.zcashLegacySeedKey)
         keychain.delete(Constants.zcashLegacyPhrase)

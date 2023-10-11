@@ -48,7 +48,7 @@ class SettingsTests: XCTestCase {
             markUserPassedPhraseBackupTest: { _ in
                 throw WalletStorage.KeychainError.encoding
             },
-            nukeWallet: { }
+            deleteWallet: { }
         )
         
         let store = TestStore(

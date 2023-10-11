@@ -114,7 +114,7 @@ class WalletStorageTests: XCTestCase {
                 XCTFail("`testDeleteWallet` storing `walletData` failed.")
             }
 
-            storage.nukeWallet()
+            storage.deleteWallet()
             
             let data = data(forKey: WalletStorage.Constants.zcashStoredWallet)
             

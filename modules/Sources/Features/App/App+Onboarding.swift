@@ -47,7 +47,7 @@ extension AppReducer {
                     )
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -62,7 +62,7 @@ extension AppReducer {
                     state.path.append(.importWalletSuccess())
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -76,7 +76,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.restoreWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -93,7 +93,7 @@ extension AppReducer {
                     state.path = StackState([.welcome()])
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -110,7 +110,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.newWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -124,7 +124,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.newWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

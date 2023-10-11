@@ -44,7 +44,7 @@
 // MARK: - App
 "nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
 "nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.nuke.alert.nukeFailed.title" = "Nuke of the wallet failed";
+"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
 
 // MARK: - Autoshield
 "nighthawk.autoshield.title1" = "Nighthawk is now";
@@ -327,10 +327,10 @@
 "nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
 "nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
 "nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.nukeWallet.title" = "Nuke wallet";
-"nighthawk.settingsTab.advanced.nukeWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.";
-"nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.";
+"nighthawk.settingsTab.advanced.deleteWallet.lastWarningTitle" = "ARE YOU SURE?";
+"nighthawk.settingsTab.advanced.deleteWallet.lastWarningMessage" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
 
 // MARK: - Home Screen - Settings tab - External services
 "nighthawk.settingsTab.externalServices.title" = "External services";

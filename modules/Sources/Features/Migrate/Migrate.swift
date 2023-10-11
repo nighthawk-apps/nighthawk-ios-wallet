@@ -55,7 +55,7 @@ public struct Migrate: Reducer {
                     // once we are sure that the values were stored under the new format,
                     // Delete legacy wallet storage and all the remaining values that don't
                     // be used anymore.
-                    walletStorage.nukeLegacyWallet()
+                    walletStorage.deleteLegacyWallet()
                     
                     return .send(.delegate(.initializeSDKAndLaunchWallet))
                 } catch {

@@ -53,24 +53,23 @@ public struct AdvancedView: View {
                         .padding(.vertical, 12)
                     }
                     
-                    // TODO: Temp disable until we have a solution for: https://github.com/zcash/ZcashLightClientKit/issues/1297
-//                    Text(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.title)
-//                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
-//                    
-//                    Text(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.subtitle)
-//                        .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
-//                        .multilineTextAlignment(.leading)
-//                        .lineSpacing(6)
-//                    
-//                    Button(L10n.Nighthawk.SettingsTab.Advanced.NukeWallet.title) {
-//                        viewStore.send(.nukeWalletTapped)
-//                    }
-//                    .buttonStyle(
-//                        .nighthawkPrimary(
-//                            backgroundColor: Asset.Colors.Nighthawk.error.color,
-//                            foregroundColor: .white
-//                        )
-//                    )
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.title)
+                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.subtitle)
+                        .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
+                        .multilineTextAlignment(.leading)
+                        .lineSpacing(6)
+                    
+                    Button(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.title) {
+                        viewStore.send(.deleteWalletTapped)
+                    }
+                    .buttonStyle(
+                        .nighthawkPrimary(
+                            backgroundColor: Asset.Colors.Nighthawk.error.color,
+                            foregroundColor: .white
+                        )
+                    )
                 }
                 .padding(.vertical, 25)
             }
