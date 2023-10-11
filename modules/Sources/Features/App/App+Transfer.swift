@@ -21,10 +21,18 @@ extension AppReducer {
                 case .goHome:
                     return .none
                 case let .showTransactionDetails(walletEvent):
-                    state.path.append(.transactionDetail(.init(walletEvent: walletEvent, networkType: zcashNetwork.networkType)))
+                    state.path.append(
+                        .transactionDetail(
+                            .init(
+                                walletEvent: walletEvent,
+                                networkType: zcashNetwork.networkType,
+                                latestFiatPrice: state.latestFiatPrice
+                            )
+                        )
+                    )
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 
@@ -28,7 +29,12 @@ public struct TransactionHistoryView: View {
                 LazyVStack {
                     ForEach(viewStore.walletEvents) { walletEvent in
                         Button(action: { viewStore.send(.viewTransactionDetailTapped(walletEvent)) }) {
-                            TransactionRowView(transaction: walletEvent.transaction, showAmount: true, tokenName: tokenName)
+                            TransactionRowView(
+                                transaction: walletEvent.transaction,
+                                showAmount: true,
+                                tokenName: tokenName,
+                                fiatConversion: viewStore.fiatConversion
+                            )
                         }
                         
                         Divider()

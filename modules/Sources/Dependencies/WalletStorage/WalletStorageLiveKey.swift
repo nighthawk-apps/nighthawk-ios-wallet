@@ -41,11 +41,11 @@ extension WalletStorageClient: DependencyKey {
             updateBirthday: { birthday in
                 try walletStorage.updateBirthday(birthday)
             },
-            nukeWallet: {
-                walletStorage.nukeWallet()
+            deleteWallet: {
+                walletStorage.deleteWallet()
             },
-            nukeLegacyWallet: {
-                walletStorage.nukeLegacyWallet()
+            deleteLegacyWallet: {
+                walletStorage.deleteLegacyWallet()
             }
         )
     }

@@ -8,6 +8,7 @@
 import Addresses
 import ComposableArchitecture
 import Models
+import ProcessInfoClient
 import SwiftUI
 import TransactionDetail
 import Utils
@@ -46,6 +47,26 @@ public struct Wallet: Reducer {
         
         public var totalBalance: Zatoshi {
             shieldedBalance.data.verified + transparentBalance.data.verified
+        }
+        
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        
+        public var latestFiatPrice: Double?
+        
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice, preferredCurrency != .off {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
+        
+        public var showScanButton: Bool {
+            @Dependency(\.processInfo) var processInfo
+            return !processInfo.isiOSAppOnMac()
         }
         
         public init() {}

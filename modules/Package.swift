@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "modules",
     platforms: [
-      .iOS(.v16)
+        .iOS(.v16)
     ],
     products: [
         .library(name: "Addresses", targets: ["Addresses"]),
@@ -21,6 +21,7 @@ let package = Package(
         .library(name: "DiskSpaceChecker", targets: ["DiskSpaceChecker"]),
         .library(name: "ExportSeed", targets: ["ExportSeed"]),
         .library(name: "FeedbackGenerator", targets: ["FeedbackGenerator"]),
+        .library(name: "FiatPriceClient", targets: ["FiatPriceClient"]),
         .library(name: "FileManager", targets: ["FileManager"]),
         .library(name: "Generated", targets: ["Generated"]),
         .library(name: "ImportWallet", targets: ["ImportWallet"]),
@@ -36,6 +37,7 @@ let package = Package(
         .library(name: "NumberFormatter", targets: ["NumberFormatter"]),
         .library(name: "Partners", targets: ["Partners"]),
         .library(name: "Pasteboard", targets: ["Pasteboard"]),
+        .library(name: "ProcessInfoClient", targets: ["ProcessInfoClient"]),
         .library(name: "Receive", targets: ["Receive"]),
         .library(name: "RecoveryPhraseDisplay", targets: ["RecoveryPhraseDisplay"]),
         .library(name: "SDKSynchronizer", targets: ["SDKSynchronizer"]),
@@ -201,6 +203,15 @@ let package = Package(
             path: "Sources/Dependencies/FeedbackGenerator"
         ),
         .target(
+            name: "FiatPriceClient",
+            dependencies: [
+                "Models",
+                "Utils",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/FiatPriceClient"
+        ),
+        .target(
             name: "FileManager",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -264,10 +275,12 @@ let package = Package(
                 "DataManager",
                 "Date",
                 "DiskSpaceChecker",
+                "FiatPriceClient",
                 "FileManager",
                 "Models",
                 "TransactionDetail",
                 "UserPreferencesStorage",
+                "ProcessInfoClient",
                 "Receive",
                 "RecoveryPhraseDisplay",
                 "LocalAuthenticationClient",
@@ -289,6 +302,7 @@ let package = Package(
                 "Models",
                 "SDKSynchronizer",
                 "UIComponents",
+                "UserPreferencesStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
             ],
@@ -322,6 +336,7 @@ let package = Package(
         .target(
             name: "Models",
             dependencies: [
+                "Generated",
                 "Utils",
                 .product(name: "MnemonicSwift", package: "MnemonicSwift"),
                 .product(name: "ZcashLightClientKit", package: "ZcashLightClientKit")
@@ -350,6 +365,13 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/Pasteboard"
+        ),
+        .target(
+            name: "ProcessInfoClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/ProcessInfoClient"
         ),
         .target(
             name: "Receive",
@@ -415,6 +437,7 @@ let package = Package(
                 "UIComponents",
                 "UNSClient",
                 "URIParser",
+                "UserPreferencesStorage",
                 "Utils",
                 "WalletStorage",
                 "ZcashSDKEnvironment",
@@ -430,6 +453,7 @@ let package = Package(
                 "Generated",
                 "LocalAuthenticationClient",
                 "Models",
+                "ProcessInfoClient",
                 "UserPreferencesStorage",
                 "UIComponents",
                 "Utils",

@@ -26,15 +26,29 @@ public struct Review: Reducer {
         public var recipient: RedactableString
         public var recipientIsTransparent = false
         public var total: Zatoshi { zecAmount + fee }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double?
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
         
         public init(
             zecAmount: Zatoshi,
             memo: RedactableString?,
-            recipient: RedactableString
+            recipient: RedactableString,
+            latestFiatPrice: Double?
         ) {
             self.zecAmount = zecAmount
             self.memo = memo
             self.recipient = recipient
+            self.latestFiatPrice = latestFiatPrice
         }
     }
     

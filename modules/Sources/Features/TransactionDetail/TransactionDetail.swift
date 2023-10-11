@@ -13,6 +13,7 @@ import Models
 import SDKSynchronizer
 import UIComponents
 import UIKit
+import UserPreferencesStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
@@ -25,6 +26,7 @@ public struct TransactionDetail: Reducer {
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
         public var networkType: NetworkType
+        public var latestFiatPrice: Double?
         public var isLoaded = false
         
         public var address: String? { walletEvent.transaction.address }
@@ -44,10 +46,26 @@ public struct TransactionDetail: Reducer {
         public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
         public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
         public var zecAmount: Zatoshi { walletEvent.transaction.zecAmount }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
                 
-        public init(walletEvent: WalletEvent, networkType: NetworkType) {
+        public init(
+            walletEvent: WalletEvent,
+            networkType: NetworkType,
+            latestFiatPrice: Double?
+        ) {
             self.walletEvent = walletEvent
             self.networkType = networkType
+            self.latestFiatPrice = latestFiatPrice
         }
     }
     

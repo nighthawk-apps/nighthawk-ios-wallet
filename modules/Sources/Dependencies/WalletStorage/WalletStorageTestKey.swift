@@ -17,8 +17,8 @@ extension WalletStorageClient: TestDependencyKey {
         exportLegacyPhrase: XCTUnimplemented("\(Self.self).exportLegacyPhrase"),
         exportLegacyBirthday: XCTUnimplemented("\(Self.self).exportLegacyBirthday"),
         updateBirthday: XCTUnimplemented("\(Self.self).updateBirthday"),
-        nukeWallet: XCTUnimplemented("\(Self.self).nukeWallet"),
-        nukeLegacyWallet: XCTUnimplemented("\(Self.self).nukeLegacyWallet")
+        deleteWallet: XCTUnimplemented("\(Self.self).deleteWallet"),
+        deleteLegacyWallet: XCTUnimplemented("\(Self.self).deleteLegacyWallet")
     )
 }
 
@@ -31,7 +31,7 @@ extension WalletStorageClient {
         exportLegacyPhrase: { "" },
         exportLegacyBirthday: { .zero },
         updateBirthday: { _ in },
-        nukeWallet: { },
-        nukeLegacyWallet: { }
+        deleteWallet: { },
+        deleteLegacyWallet: { }
     )
 }

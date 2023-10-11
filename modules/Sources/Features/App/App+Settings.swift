@@ -13,6 +13,7 @@ extension AppReducer {
     @ReducerBuilder<State, Action>
     func settingsReducer() -> some ReducerOf<Self> {
         nighthawkSettingsDelegateReducer()
+        fiatDelegateReducer()
         advancedSettingsDelegateReducer()
         aboutDelegateReducer()
     }
@@ -27,7 +28,31 @@ extension AppReducer {
                 case .rescan:
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+                return .none
+            }
+        }
+    }
+    
+    private func fiatDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: _, action: .fiat(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .fetchLatestFiatCurrency:
+                    state.path =  StackState(
+                        state.path.map { state in
+                            if case var .home(homeState) = state {
+                                homeState.latestFiatPrice = nil
+                                return Path.State.home(homeState)
+                            }
+
+                            return state
+                        }
+                    )
+                    return .none
+                }
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -38,10 +63,10 @@ extension AppReducer {
             switch action {
             case let .path(.element(id: _, action: .advanced(.delegate(delegateAction)))):
                 switch delegateAction {
-                case .nukeWallet:
-                    return nukeWallet()
+                case .deleteWallet:
+                    return deleteWallet()
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -56,7 +81,7 @@ extension AppReducer {
                     // TODO: Show license list
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .nukeWalletFailed, .nukeWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -93,16 +118,16 @@ extension AppReducer {
         }
     }
     
-    private func nukeWallet() -> Effect<Action> {
+    private func deleteWallet() -> Effect<Action> {
         guard let wipePublisher = sdkSynchronizer.wipe() else {
-            return .send(.nukeWalletFailed)
+            return .send(.deleteWalletFailed)
         }
         
         return .publisher {
             wipePublisher
                 .replaceEmpty(with: Void())
-                .map { _ in return AppReducer.Action.nukeWalletSuccess }
-                .replaceError(with: AppReducer.Action.nukeWalletFailed)
+                .map { _ in return AppReducer.Action.deleteWalletSuccess }
+                .replaceError(with: AppReducer.Action.deleteWalletFailed)
                 .receive(on: mainQueue)
         }
         .cancellable(id: CancelId.timer, cancelInFlight: true)

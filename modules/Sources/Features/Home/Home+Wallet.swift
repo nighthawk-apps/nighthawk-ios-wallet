@@ -23,7 +23,8 @@ extension Home {
                     state.selectedTab = .transfer
                     state.transfer.destination = .send(
                         .init(
-                            path: StackState([.scan(.init(backButtonType: .close))])
+                            path: StackState([.scan(.init(backButtonType: .close))]),
+                            latestFiatPrice: state.latestFiatPrice
                         )
                     )
                     return .none
@@ -31,7 +32,12 @@ extension Home {
                     state.destination = .autoshield(.init())
                     return .none
                 case .showAddresses:
-                    state.destination = .addresses(.init(uAddress: state.unifiedAddress))
+                    state.destination = .addresses(
+                        .init(
+                            uAddress: state.unifiedAddress,
+                            showCloseButton: processInfo.isiOSAppOnMac()
+                        )
+                    )
                     return .none
                 case .showTransactionDetail:
                     return .none
@@ -43,6 +49,8 @@ extension Home {
                  .cantStartSync,
                  .delegate,
                  .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
                  .rescanDone,
@@ -73,6 +81,8 @@ extension Home {
                  .cantStartSync,
                  .delegate,
                  .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
                  .rescanDone,

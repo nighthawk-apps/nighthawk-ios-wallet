@@ -10,9 +10,11 @@ import Autoshield
 import ComposableArchitecture
 import DataManager
 import DiskSpaceChecker
+import FiatPriceClient
 import FileManager
 import Foundation
 import Models
+import ProcessInfoClient
 import UserPreferencesStorage
 import SDKSynchronizer
 import UIKit
@@ -46,6 +48,12 @@ public struct Home: Reducer {
             synchronizerFailedToStart || synchronizerStatusSnapshot.isSyncFailed
         }
         
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double?
+        
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
@@ -63,6 +71,7 @@ public struct Home: Reducer {
         public var settings: NighthawkSettings.State = .init()
         
         public init(networkType: NetworkType, unifiedAddress: UnifiedAddress?) {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
             self.networkType = networkType
             self.unifiedAddress = unifiedAddress
             self.walletEvents = loadCachedEvents()
@@ -86,6 +95,8 @@ public struct Home: Reducer {
         case cantStartSync(ZcashError)
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
+        case fetchLatestFiatPrice
+        case latestFiatResponse(Double?)
         case listenForSynchronizerUpdates
         case onAppear
         case rescanDone(ZcashError? = nil)
@@ -96,7 +107,7 @@ public struct Home: Reducer {
         case wallet(Wallet.Action)
         
         public enum Delegate: Equatable {
-            case showTransactionHistory
+            case setLatestFiatPrice(Double?)
         }
     }
     
@@ -135,8 +146,10 @@ public struct Home: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.dataManager) var dataManager
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
+    @Dependency(\.fiatPriceClient) var fiatPriceClient
     @Dependency(\.fileManager) var fileManager
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
@@ -163,10 +176,23 @@ public struct Home: Reducer {
             case let .cantStartSync(error):
                 state.destination = .alert(.cantStartSync(error))
                 return .none
+            case .fetchLatestFiatPrice:
+                guard state.latestFiatPrice == nil, state.preferredCurrency != . off else { return .none }
+                return .run { [preferredCurrency = state.preferredCurrency] send in
+                    let price = try? await fiatPriceClient.getZcashPrice(preferredCurrency)
+                    await send(.latestFiatResponse(price))
+                    await send(.delegate(.setLatestFiatPrice(price)))
+                }
+            case let .latestFiatResponse(price):
+                state.latestFiatPrice = price
+                return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
-                return .send(.listenForSynchronizerUpdates)
+                return .concatenate(
+                    .send(.fetchLatestFiatPrice),
+                    .send(.listenForSynchronizerUpdates)
+                )
             case let .rescanDone(error):
                 userStoredPreferences.setIsFirstSync(true)
                 if let error {
@@ -294,6 +320,8 @@ extension Home {
                  .cantStartSync,
                  .delegate,
                  .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
                  .rescanDone,
@@ -317,6 +345,7 @@ extension Home.State {
             state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
             state.shieldedBalance = shieldedBalance
             state.transparentBalance = transparentBalance
+            state.latestFiatPrice = latestFiatPrice
             state.latestMinedHeight = latestMinedHeight
             state.expectingZatoshi = expectingZatoshi
             state.requiredTransactionConfirmations = requiredTransactionConfirmations
@@ -330,6 +359,7 @@ extension Home.State {
             self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
             self.shieldedBalance = newValue.shieldedBalance
             self.transparentBalance = newValue.transparentBalance
+            self.latestFiatPrice = newValue.latestFiatPrice
             self.latestMinedHeight = newValue.latestMinedHeight
             self.expectingZatoshi = newValue.expectingZatoshi
             self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
@@ -342,6 +372,7 @@ extension Home.State {
             var state = transferState
             state.shieldedBalance = shieldedBalance
             state.unifiedAddress = unifiedAddress
+            state.latestFiatPrice = latestFiatPrice
             return state
         }
         
@@ -349,6 +380,7 @@ extension Home.State {
             self.transferState = newValue
             self.shieldedBalance = newValue.shieldedBalance
             self.unifiedAddress = newValue.unifiedAddress
+            self.latestFiatPrice = newValue.latestFiatPrice
         }
     }
 }

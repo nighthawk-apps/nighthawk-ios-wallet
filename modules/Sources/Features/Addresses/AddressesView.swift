@@ -35,6 +35,15 @@ public struct AddressesView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
+            .modify {
+                if viewStore.showCloseButton {
+                    $0.showNighthawkBackButton(type: .close) {
+                        viewStore.send(.closeButtonTapped)
+                    }
+                } else {
+                    $0
+                }
+            }
             .toast(
                 unwrapping: viewStore.$toast,
                 case: /Addresses.State.Toast.copiedToClipboard,

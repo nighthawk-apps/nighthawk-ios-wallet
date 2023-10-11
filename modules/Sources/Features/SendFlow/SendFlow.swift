@@ -12,8 +12,10 @@ import LocalAuthenticationClient
 import UserPreferencesStorage
 import MnemonicClient
 import Models
+import ProcessInfoClient
 import SDKSynchronizer
 import SwiftUI
+import UserPreferencesStorage
 import Utils
 import WalletStorage
 import ZcashLightClientKit
@@ -80,6 +82,7 @@ public struct SendFlow: Reducer {
     
     public struct State: Equatable {
         public var path: StackState<Path.State>
+        public var showCloseButton: Bool
         @BindingState public var toast: Toast?
 
         public var unifiedAddress: UnifiedAddress?
@@ -100,21 +103,46 @@ public struct SendFlow: Reducer {
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-             amountToSend <= maxAmount
+            true
+//             amountToSend <= maxAmount
+        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double?
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
+        
+        public var showScanButton: Bool {
+            @Dependency(\.processInfo) var processInfo
+            return !processInfo.isiOSAppOnMac()
         }
         
         public enum Toast {
             case notEnoughZcash
         }
 
-        public init(path: StackState<Path.State> = .init()) {
+        public init(
+            path: StackState<Path.State> = .init(),
+            latestFiatPrice: Double?,
+            showCloseButton: Bool = false
+        ) {
             self.path = path
+            self.latestFiatPrice = latestFiatPrice
+            self.showCloseButton = showCloseButton
         }
     }
     
     public enum Action: BindableAction, Equatable {
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
+        case closeButtonTapped
         case continueTapped
         case onAppear
         case scanCodeTapped
@@ -131,6 +159,7 @@ public struct SendFlow: Reducer {
     }
     
     @Dependency(\.derivationTool) var derivationTool
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
@@ -144,6 +173,8 @@ public struct SendFlow: Reducer {
         
         Reduce { state, action in
             switch action {
+            case .closeButtonTapped:
+                return .run { _ in await self.dismiss() }
             case .continueTapped:
                 if state.recipient == nil {
                     state.path.append(Path.State.recipient(.init()))
@@ -162,7 +193,8 @@ public struct SendFlow: Reducer {
                         .init(
                             zecAmount: state.amountToSend,
                             memo: state.memo,
-                            recipient: state.recipient!
+                            recipient: state.recipient!,
+                            latestFiatPrice: state.latestFiatPrice
                         )
                     )
                 )
@@ -286,7 +318,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: recipient
+                                    recipient: recipient,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )
@@ -297,6 +330,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -340,7 +374,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: recipient
+                                    recipient: recipient,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )
@@ -355,6 +390,7 @@ extension SendFlow {
                     return .none
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -413,7 +449,8 @@ extension SendFlow {
                                 .init(
                                     zecAmount: state.amountToSend,
                                     memo: state.memo,
-                                    recipient: address
+                                    recipient: address,
+                                    latestFiatPrice: state.latestFiatPrice
                                 )
                             )
                         )
@@ -423,6 +460,7 @@ extension SendFlow {
                 }
                 
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
@@ -461,6 +499,7 @@ extension SendFlow {
                     return .send(.sendTransaction)
                 }
             case .binding,
+                 .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,

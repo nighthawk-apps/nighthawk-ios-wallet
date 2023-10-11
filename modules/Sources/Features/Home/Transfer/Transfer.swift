@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProcessInfoClient
 import Receive
 import SendFlow
 import TopUp
@@ -53,6 +54,7 @@ public struct Transfer: Reducer {
         @PresentationState public var destination: Destination.State?
         public var shieldedBalance: Balance = .zero
         public var unifiedAddress: UnifiedAddress?
+        public var latestFiatPrice: Double?
         
         public init () {}
     }
@@ -68,22 +70,37 @@ public struct Transfer: Reducer {
         self.networkType = networkType
     }
     
+    @Dependency(\.processInfo) var processInfo
+    
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .destination:
                 return .none
             case .receiveMoneyTapped:
-                state.destination = .receive(.init(uAddress: state.unifiedAddress))
+                state.destination = .receive(
+                    .init(
+                        uAddress: state.unifiedAddress,
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                )
                 return .none
             case .sendMoneyTapped:
-                var sendState = SendFlow.State()
+                var sendState = SendFlow.State(
+                    latestFiatPrice: state.latestFiatPrice, 
+                    showCloseButton: processInfo.isiOSAppOnMac()
+                )
                 sendState.shieldedBalance = state.shieldedBalance
                 sendState.unifiedAddress = state.unifiedAddress
                 state.destination = .send(sendState)
                 return .none
             case .topUpWalletTapped:
-                state.destination = .topUp(.init(unifiedAddress: state.unifiedAddress))
+                state.destination = .topUp(
+                    .init(
+                        unifiedAddress: state.unifiedAddress,
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                )
                 return .none
             }
         }

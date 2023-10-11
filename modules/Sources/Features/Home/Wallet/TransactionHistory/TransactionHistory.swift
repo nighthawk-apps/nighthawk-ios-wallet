@@ -9,6 +9,7 @@ import ComposableArchitecture
 import DiskSpaceChecker
 import Models
 import SDKSynchronizer
+import UserPreferencesStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
@@ -18,8 +19,24 @@ public struct TransactionHistory: Reducer {
     public struct State: Equatable {
         public var walletEvents: IdentifiedArrayOf<WalletEvent>
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
+        public var preferredCurrency: NighthawkSetting.FiatCurrency {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.fiatCurrency()
+        }
+        public var latestFiatPrice: Double?
+        public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            if let latestFiatPrice {
+                (preferredCurrency, latestFiatPrice)
+            } else {
+                nil
+            }
+        }
         
-        public init(initialEvents: IdentifiedArrayOf<WalletEvent> = []) {
+        public init(
+            latestFiatPrice: Double?,
+            initialEvents: IdentifiedArrayOf<WalletEvent> = []
+        ) {
+            self.latestFiatPrice = latestFiatPrice
             self.walletEvents = initialEvents
         }
     }

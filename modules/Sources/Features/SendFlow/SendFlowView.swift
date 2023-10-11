@@ -50,6 +50,15 @@ public struct SendFlowView: View {
                     availableActions(with: viewStore)
                 }
                 .onAppear { viewStore.send(.onAppear) }
+                .modify {
+                    if viewStore.showCloseButton {
+                        $0.showNighthawkBackButton(type: .close) {
+                            viewStore.send(.closeButtonTapped)
+                        }
+                    } else {
+                        $0
+                    }
+                }
                 .toast(
                     unwrapping: viewStore.$toast,
                     case: /SendFlow.State.Toast.notEnoughZcash,
@@ -126,6 +135,16 @@ private extension SendFlowView {
                 tokenName: tokenName
             )
             .frame(maxWidth: .infinity)
+            
+            if let (currency, price) = viewStore.fiatConversion, viewStore.hasEnteredAmount {
+                Text(
+                    L10n.Nighthawk.TransferTab.Send.around(
+                        (price * viewStore.amountToSend.decimalValue.doubleValue).currencyString,
+                        currency.rawValue.uppercased()
+                    )
+                )
+                .paragraphMedium()
+            }
         }
     }
     
@@ -146,7 +165,7 @@ private extension SendFlowView {
                 )
                 .buttonStyle(.nighthawkPrimary())
                 .padding(.bottom, 28)
-            } else {
+            } else if viewStore.showScanButton {
                 Button(
                     L10n.Nighthawk.TransferTab.Send.scanCode,
                     action: { viewStore.send(.scanCodeTapped) }

@@ -67,6 +67,16 @@ private extension ReviewView {
                 }
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
+            
+            if let (currency, price) = viewStore.fiatConversion {
+                Text(
+                    L10n.Nighthawk.TransferTab.Send.around(
+                        (price * viewStore.zecAmount.decimalValue.doubleValue).currencyString,
+                        currency.rawValue.uppercased()
+                    )
+                )
+                .paragraphMedium()
+            }
         }
     }
 }

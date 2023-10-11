@@ -1,6 +1,6 @@
 //
 //  RecipientView.swift
-//  
+//
 //
 //  Created by Matthew Watt on 7/23/23.
 //
@@ -78,18 +78,29 @@ public struct RecipientView: View {
 
 // MARK: - Subviews
 private extension RecipientView {
-    func addressFieldAccessoryView(with viewStore: ViewStoreOf<Recipient>) -> some View {
-        Button(action: { viewStore.send(viewStore.hasEnteredRecipient ? .clearRecipientTapped : .scanQRCodeTapped) }) {
-            (
-                viewStore.hasEnteredRecipient
-                ? Asset.Assets.Icons.Nighthawk.failed.image
-                : Asset.Assets.Icons.Nighthawk.boxedQrCode.image
-            )
-            .resizable()
-            .renderingMode(.template)
-            .frame(width: 24, height: 24)
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(.white)
+    @ViewBuilder func addressFieldAccessoryView(with viewStore: ViewStoreOf<Recipient>) -> some View {
+        if viewStore.showScanButton {
+            Button(action: { viewStore.send(viewStore.hasEnteredRecipient ? .clearRecipientTapped : .scanQRCodeTapped) }) {
+                (
+                    viewStore.hasEnteredRecipient
+                    ? Asset.Assets.Icons.Nighthawk.failed.image
+                    : Asset.Assets.Icons.Nighthawk.boxedQrCode.image
+                )
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: 24, height: 24)
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(.white)
+            }
+        } else if viewStore.hasEnteredRecipient {
+            Button(action: { viewStore.send(.clearRecipientTapped) }) {
+                Asset.Assets.Icons.Nighthawk.failed.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 24, height: 24)
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(.white)
+            }
         }
     }
 }

@@ -45,7 +45,9 @@ public struct SplashView: View {
                     .frame(width: 131, height: 20)
                     .padding(.bottom, 44)
             }
-            .onChange(of: scenePhase) { newPhase in viewStore.send(.scenePhaseChanged(newPhase)) }
+            .onChange(of: scenePhase) { newPhase in
+                viewStore.send(.scenePhaseChanged(newPhase))
+            }
             .onAppear {
                 viewStore.send(.onAppear)
             }

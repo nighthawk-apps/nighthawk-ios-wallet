@@ -66,31 +66,35 @@ private extension WalletView {
             
             Spacer()
             
-            Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
-                Asset.Assets.Icons.Nighthawk.boxedQrCode.image
-                    .resizable()
-                    .frame(width: 22, height: 22)
-                    .aspectRatio(contentMode: .fit)
+            if viewStore.showScanButton {
+                Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
+                    Asset.Assets.Icons.Nighthawk.boxedQrCode.image
+                        .resizable()
+                        .frame(width: 22, height: 22)
+                        .aspectRatio(contentMode: .fit)
+                }
+                .padding([.top, .trailing], 25)
             }
-            .padding([.top, .trailing], 25)
         }
     }
     
     func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
         VStack {
             tabs(with: viewStore)
+                .transaction { transaction in
+                    transaction.animation = nil
+                }
             tabIndicators(with: viewStore)
         }
         .frame(maxHeight: 180)
         .padding(.top, 58)
     }
     
-    func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
-        TabView(selection: viewStore.$balanceViewType) {
-            if viewStore.isSyncingForFirstTime {
-                SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
-                    .tag(BalanceView.ViewType.hidden)
-            } else {
+    @ViewBuilder func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
+        if viewStore.isSyncingForFirstTime {
+            SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
+        } else {
+            TabView(selection: viewStore.$balanceViewType) {
                 Group {
                     if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed || viewStore.isSyncingStopped {
                         SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
@@ -132,8 +136,8 @@ private extension WalletView {
                 .tag(BalanceView.ViewType.transparent)
                 .padding(.top, 32)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
     func tabIndicators(with viewStore: ViewStoreOf<Wallet>) -> some View {
@@ -197,7 +201,8 @@ private extension WalletView {
                             TransactionRowView(
                                 transaction: walletEvent.transaction,
                                 showAmount: viewStore.balanceViewType != .hidden,
-                                tokenName: tokenName
+                                tokenName: tokenName,
+                                fiatConversion: viewStore.fiatConversion
                             )
                         }
                         

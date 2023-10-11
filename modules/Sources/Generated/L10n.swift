@@ -82,6 +82,14 @@ public enum L10n {
       public static let viewSource = L10n.tr("Localizable", "nighthawk.about.viewSource", fallback: "View Source")
     }
     public enum App {
+      public enum DeleteWallet {
+        public enum Alert {
+          public enum Failed {
+            /// Wallet deletion failed
+            public static let title = L10n.tr("Localizable", "nighthawk.app.deleteWallet.alert.failed.title", fallback: "Wallet deletion failed")
+          }
+        }
+      }
       public enum Launch {
         public enum Alert {
           public enum Error {
@@ -93,14 +101,6 @@ public enum L10n {
           public enum SdkInitFailed {
             /// Failed to initialize the SDK
             public static let title = L10n.tr("Localizable", "nighthawk.app.launch.alert.sdkInitFailed.title", fallback: "Failed to initialize the SDK")
-          }
-        }
-      }
-      public enum Nuke {
-        public enum Alert {
-          public enum NukeFailed {
-            /// Nuke of the wallet failed
-            public static let title = L10n.tr("Localizable", "nighthawk.app.nuke.alert.nukeFailed.title", fallback: "Nuke of the wallet failed")
           }
         }
       }
@@ -301,15 +301,15 @@ public enum L10n {
       public enum Advanced {
         /// Advanced settings
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.title", fallback: "Advanced settings")
-        public enum NukeWallet {
+        public enum DeleteWallet {
           /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
-          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
+          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
           /// ARE YOU SURE?
-          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
+          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
           /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.
-          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
-          /// Nuke wallet
-          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.nukeWallet.title", fallback: "Nuke wallet")
+          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
+          /// Delete wallet
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.title", fallback: "Delete wallet")
         }
         public enum ScreenMode {
           /// Keep on
@@ -361,6 +361,42 @@ public enum L10n {
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.externalServices.title", fallback: "External services")
         /// Enable Unstoppable Domain Service
         public static let unstoppableDomainsToggle = L10n.tr("Localizable", "nighthawk.settingsTab.externalServices.unstoppableDomainsToggle", fallback: "Enable Unstoppable Domain Service")
+      }
+      public enum FiatCurrency {
+        /// Australian Dollar
+        public static let aud = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.aud", fallback: "Australian Dollar")
+        /// Canadian Dollar
+        public static let cad = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.cad", fallback: "Canadian Dollar")
+        /// Swiss Franc
+        public static let chf = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.chf", fallback: "Swiss Franc")
+        /// Chinese Yuan
+        public static let cny = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.cny", fallback: "Chinese Yuan")
+        /// Choose your local currency so that we can show you a close estimate of how much your %@ is worth.
+        /// 
+        /// When you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.
+        public static func description(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.description", String(describing: p1), fallback: "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.")
+        }
+        /// Euro
+        public static let eur = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.eur", fallback: "Euro")
+        /// British Pound
+        public static let gbp = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.gbp", fallback: "British Pound")
+        /// Hong Kong Dollar
+        public static let hkd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.hkd", fallback: "Hong Kong Dollar")
+        /// Indian Rupee
+        public static let inr = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.inr", fallback: "Indian Rupee")
+        /// Japanese Yen
+        public static let jpy = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.jpy", fallback: "Japanese Yen")
+        /// Korean Won
+        public static let krw = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.krw", fallback: "Korean Won")
+        /// Off
+        public static let off = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.off", fallback: "Off")
+        /// Singapore Dollar
+        public static let sgd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.sgd", fallback: "Singapore Dollar")
+        /// Fiat Currency
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.title", fallback: "Fiat Currency")
+        /// United States Dollar
+        public static let usd = L10n.tr("Localizable", "nighthawk.settingsTab.fiatCurrency.usd", fallback: "United States Dollar")
       }
       public enum Security {
         /// %@ disabled
@@ -522,6 +558,12 @@ public enum L10n {
       public static let viewOnExplorer = L10n.tr("Localizable", "nighthawk.transactionDetails.viewOnExplorer", fallback: "View on explorer")
       /// View TX details
       public static let viewTxDetails = L10n.tr("Localizable", "nighthawk.transactionDetails.viewTxDetails", fallback: "View TX details")
+      public enum Fiat {
+        /// around %@ %@
+        public static func around(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transactionDetails.fiat.around", String(describing: p1), String(describing: p2), fallback: "around %@ %@")
+        }
+      }
     }
     public enum TransactionHistory {
       /// Auto-shielded funds
@@ -585,6 +627,8 @@ public enum L10n {
         public static let chooseRecipient = L10n.tr("Localizable", "nighthawk.transferTab.recipient.chooseRecipient", fallback: "Choose who to send it to")
         /// Continue
         public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.recipient.continue", fallback: "Continue")
+        /// Sending to this recipient is currently not possible
+        public static let currentlyUnsupported = L10n.tr("Localizable", "nighthawk.transferTab.recipient.currentlyUnsupported", fallback: "Sending to this recipient is currently not possible")
         /// Please enter a valid recipient
         public static let invalid = L10n.tr("Localizable", "nighthawk.transferTab.recipient.invalid", fallback: "Please enter a valid recipient")
         /// Paste from clipboard
@@ -603,6 +647,10 @@ public enum L10n {
         public static let scanPaymentRequestDetails = L10n.tr("Localizable", "nighthawk.transferTab.scan.scanPaymentRequestDetails", fallback: "If you have a payment request, you can scan the QR code here to auto-fill all the details.")
       }
       public enum Send {
+        /// around %@ %@
+        public static func around(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.send.around", String(describing: p1), String(describing: p2), fallback: "around %@ %@")
+        }
         /// Choose how much to send
         public static let chooseHowMuch = L10n.tr("Localizable", "nighthawk.transferTab.send.chooseHowMuch", fallback: "Choose how much to send")
         /// Continue

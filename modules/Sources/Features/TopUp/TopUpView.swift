@@ -27,6 +27,15 @@ public struct TopUpView: View {
                 
                 Spacer()
             }
+            .modify {
+                if viewStore.showCloseButton {
+                    $0.showNighthawkBackButton(type: .close) {
+                        viewStore.send(.closeButtonTapped)
+                    }
+                } else {
+                    $0
+                }
+            }
         }
         .applyNighthawkBackground()
         .alert(

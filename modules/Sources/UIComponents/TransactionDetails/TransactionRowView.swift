@@ -8,17 +8,25 @@
 import Generated
 import Models
 import SwiftUI
+import Utils
 import ZcashLightClientKit
 
 public struct TransactionRowView: View {
     let transaction: TransactionState
     let showAmount: Bool
     let tokenName: String
+    let fiatConversion: (NighthawkSetting.FiatCurrency, Double)?
     
-    public init(transaction: TransactionState, showAmount: Bool = false, tokenName: String) {
+    public init(
+        transaction: TransactionState,
+        showAmount: Bool = false,
+        tokenName: String,
+        fiatConversion: (NighthawkSetting.FiatCurrency, Double)?
+    ) {
         self.transaction = transaction
         self.showAmount = showAmount
         self.tokenName = tokenName
+        self.fiatConversion = fiatConversion
     }
     
     public var body: some View {
@@ -49,15 +57,32 @@ public struct TransactionRowView: View {
             
             Spacer()
             
-            Group {
+            VStack(alignment: .trailing, spacing: 5) {
                 if showAmount {
                     Text(L10n.balance(transaction.zecAmount.decimalString(), tokenName))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                        
+                    if let (currency, price) = fiatConversion {
+                        Text(
+                            L10n.balance(
+                                (price * transaction.zecAmount.decimalValue.doubleValue).currencyString,
+                                currency.rawValue.uppercased()
+                            )
+                        )
+                        .caption()
+                    }
                 } else {
                     Text(L10n.balance("---", tokenName))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    
+                    if let (currency, _) = fiatConversion {
+                        Text(L10n.balance("---", currency.rawValue.uppercased()))
+                            .caption()
+                    }
                 }
             }
-            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
         }
         .padding(.vertical)
     }

@@ -73,11 +73,11 @@ public struct WalletStorageClient {
 
     /// Use carefully: deletes the stored wallet.
     /// There's no fate but what we make for ourselves - Sarah Connor.
-    public let nukeWallet: () -> Void
+    public let deleteWallet: () -> Void
     
     /// Use carefully: deletes the legacy stored wallet.
     /// There's no fate but what we make for ourselves - Sarah Connor.
-    public let nukeLegacyWallet: () -> Void
+    public let deleteLegacyWallet: () -> Void
     
     public init(
         importWallet: @escaping (String, BlockHeight?, MnemonicLanguageType) throws -> Void,
@@ -87,8 +87,8 @@ public struct WalletStorageClient {
         exportLegacyPhrase: @escaping () throws -> String,
         exportLegacyBirthday: @escaping () throws -> BlockHeight,
         updateBirthday: @escaping (BlockHeight) throws -> Void,
-        nukeWallet: @escaping () -> Void,
-        nukeLegacyWallet: @escaping () -> Void
+        deleteWallet: @escaping () -> Void,
+        deleteLegacyWallet: @escaping () -> Void
     ) {
         self.importWallet = importWallet
         self.exportWallet = exportWallet
@@ -97,7 +97,7 @@ public struct WalletStorageClient {
         self.exportLegacyPhrase = exportLegacyPhrase
         self.exportLegacyBirthday = exportLegacyBirthday
         self.updateBirthday = updateBirthday
-        self.nukeWallet = nukeWallet
-        self.nukeLegacyWallet = nukeLegacyWallet
+        self.deleteWallet = deleteWallet
+        self.deleteLegacyWallet = deleteLegacyWallet
     }
 }

@@ -18,7 +18,6 @@ public struct DatabaseFiles {
         case getOutputParamsURL
         case getPendingURL
         case getSpendParamsURL
-        case nukeFiles
         case filesPresentCheck
     }
     
@@ -80,10 +79,5 @@ public struct DatabaseFiles {
     func areDbFilesPresent(for network: ZcashNetwork) -> Bool {
         let dataDbURL = dataDbURL(for: network)
         return fileManager.fileExists(dataDbURL.path)
-    }
-    
-    func nukeDbFiles(for network: ZcashNetwork) throws {
-        let dataDbUrl = dataDbURL(for: network)
-        return try fileManager.removeItem(dataDbUrl)
     }
 }
