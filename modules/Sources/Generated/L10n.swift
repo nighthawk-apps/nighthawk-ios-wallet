@@ -627,6 +627,8 @@ public enum L10n {
         public static let chooseRecipient = L10n.tr("Localizable", "nighthawk.transferTab.recipient.chooseRecipient", fallback: "Choose who to send it to")
         /// Continue
         public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.recipient.continue", fallback: "Continue")
+        /// Sending to this recipient is currently not possible
+        public static let currentlyUnsupported = L10n.tr("Localizable", "nighthawk.transferTab.recipient.currentlyUnsupported", fallback: "Sending to this recipient is currently not possible")
         /// Please enter a valid recipient
         public static let invalid = L10n.tr("Localizable", "nighthawk.transferTab.recipient.invalid", fallback: "Please enter a valid recipient")
         /// Paste from clipboard

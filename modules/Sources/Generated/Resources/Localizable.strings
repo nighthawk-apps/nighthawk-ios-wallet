@@ -226,6 +226,7 @@
 "nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
 "nighthawk.transferTab.recipient.addAddress" = "Add address here";
 "nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to this recipient is currently not possible";
 "nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
 "nighthawk.transferTab.recipient.continue" = "Continue";
 

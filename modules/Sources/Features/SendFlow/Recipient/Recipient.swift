@@ -1,6 +1,6 @@
 //
 //  Recipient.swift
-//  
+//
 //
 //  Created by Matthew watt on 7/23/23.
 //
@@ -24,6 +24,7 @@ public struct Recipient: Reducer {
         public var hasEnteredRecipient: Bool { recipient.data.isEmpty == false }
         public var pasteboardContainsZAddress = false
         public var canPasteAddress: Bool { pasteboardContainsZAddress && !hasEnteredRecipient }
+        public var specificValidationError: NighthawkTextFieldValidationState?
         public var isRecipientValid = false
         public var isResolvingUNS = false
         public var showScanButton: Bool {
@@ -83,13 +84,20 @@ public struct Recipient: Reducer {
                 return .none
             case .pasteFromClipboardTapped:
                 guard let contents = pasteboard.getString(),
-                    derivationTool.isZcashAddress(contents.data, networkType) else { return .none }
-                
-                state.recipient = contents
-                state.isRecipientValid = true
-                return .none
+                      derivationTool.isZcashAddress(contents.data, networkType) else { return .none }
+                return .send(.recipientInputChanged(contents))
             case let .recipientInputChanged(redactedRecipient):
                 state.recipient = redactedRecipient
+                // Check the UA to make sure it encodes a Sapling or Transparent address
+                if let ua = try? UnifiedAddress(encoding: redactedRecipient.data, network: networkType),
+                   let availableTypecodes = try? ua.availableReceiverTypecodes(),
+                   availableTypecodes.count == 1 && availableTypecodes.contains(where: { $0 == .orchard }) {
+                    // Orchard-only UA is currently unsupported
+                    state.isRecipientValid = false
+                    state.specificValidationError = .invalid(error: L10n.Nighthawk.TransferTab.Recipient.currentlyUnsupported)
+                    return .none
+                }
+                
                 let validZcash = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
                 state.isRecipientValid = validZcash
                 if !validZcash && !redactedRecipient.data.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
@@ -137,6 +145,12 @@ extension ViewStoreOf<Recipient> {
     }
     
     func validateRecipient() -> NighthawkTextFieldValidationState {
-        self.isRecipientValid ? .valid : .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)
+        return if self.isRecipientValid {
+            .valid
+        } else if let specific = self.specificValidationError  {
+            specific
+        } else {
+            .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)
+        }
     }
 }

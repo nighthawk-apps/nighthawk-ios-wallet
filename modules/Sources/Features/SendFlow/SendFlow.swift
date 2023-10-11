@@ -103,7 +103,8 @@ public struct SendFlow: Reducer {
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-             amountToSend <= maxAmount
+            true
+//             amountToSend <= maxAmount
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
