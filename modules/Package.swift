@@ -47,7 +47,6 @@ let package = Package(
         .library(name: "Splash", targets: ["Splash"]),
         .library(name: "TopUp", targets: ["TopUp"]),
         .library(name: "WalletCreated", targets: ["WalletCreated"]),
-        .library(name: "SupportDataGenerator", targets: ["SupportDataGenerator"]),
         .library(name: "UNSClient", targets: ["UNSClient"]),
         .library(name: "UIComponents", targets: ["UIComponents"]),
         .library(name: "URIParser", targets: ["URIParser"]),
@@ -486,15 +485,6 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ],
             path: "Sources/Features/WalletCreated"
-        ),
-        .target(
-            name: "SupportDataGenerator",
-            dependencies: [
-                "Generated",
-                "Utils",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-            ],
-            path: "Sources/Dependencies/SupportDataGenerator"
         ),
         .target(
             name: "UNSClient",
