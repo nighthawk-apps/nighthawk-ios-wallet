@@ -301,6 +301,18 @@ public enum L10n {
       public enum Advanced {
         /// Advanced settings
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.title", fallback: "Advanced settings")
+        public enum AppIcon {
+          /// Default
+          public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.appIcon.default", fallback: "Default")
+          /// Retro
+          public static let retro = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.appIcon.retro", fallback: "Retro")
+          /// App icon
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.appIcon.title", fallback: "App icon")
+          public enum Toast {
+            /// App icon updated!
+            public static let updated = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.appIcon.toast.updated", fallback: "App icon updated!")
+          }
+        }
         public enum DeleteWallet {
           /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
           public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
@@ -355,6 +367,28 @@ public enum L10n {
         public static let viewSeedWarningAlertMessage = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertMessage", fallback: "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.")
         /// View seed words?
         public static let viewSeedWarningAlertTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle", fallback: "View seed words?")
+      }
+      public enum ChangeServer {
+        /// Asia & Oceania
+        public static let asiaOceania = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.asiaOceania", fallback: "Asia & Oceania")
+        /// Default
+        public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.default", fallback: "Default")
+        /// Europe & Africa
+        public static let europeAfrica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.europeAfrica", fallback: "Europe & Africa")
+        /// North America
+        public static let northAmerica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.northAmerica", fallback: "North America")
+        /// South America
+        public static let southAmerica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.southAmerica", fallback: "South America")
+        /// Change server
+        public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.title", fallback: "Change server")
+        public enum Alert {
+          public enum RelaunchNeeded {
+            /// Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app
+            public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message", fallback: "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app")
+            /// Re-launch required
+            public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title", fallback: "Re-launch required")
+          }
+        }
       }
       public enum ExternalServices {
         /// External services

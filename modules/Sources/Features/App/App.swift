@@ -231,6 +231,7 @@ public struct AppReducer: Reducer {
                 return .none
             case .deleteWalletSuccess:
                 walletStorage.deleteWallet()
+                userStoredPreferences.removeAll()
                 if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
                     try? fileManager.removeItem(eventsCache)
                 }

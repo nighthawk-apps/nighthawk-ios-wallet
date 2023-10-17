@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import UserPreferencesStorage
 import ZcashLightClientKit
 
 extension DependencyValues {
@@ -17,20 +18,42 @@ extension DependencyValues {
 
 extension ZcashSDKEnvironment {
     public enum ZcashSDKConstants {
-        static let endpointMainnetAddress = "mainnet.lightwalletd.com"
         static let endpointTestnetAddress = "testnet.lightwalletd.com"
-        static let endpointPort = 9067
+        static let endpointTestnetPort = 9067
         static let mnemonicWordsMaxCount = 24
         static let requiredTransactionConfirmations = 10
         static let streamingCallTimeoutInMillis = Int64(10 * 60 * 60 * 1000) // ten hours
     }
 
     public static func endpoint(for network: ZcashNetwork) -> String {
+        @Dependency(\.userStoredPreferences) var userStoredPreferences
+        
         switch network.networkType {
         case .testnet:
             return ZcashSDKConstants.endpointTestnetAddress
         case .mainnet:
-            return ZcashSDKConstants.endpointMainnetAddress
+            return userStoredPreferences.lightwalletdServer().host
+        }
+    }
+    
+    public static func port(for network: ZcashNetwork) -> Int {
+        @Dependency(\.userStoredPreferences) var userStoredPreferences
+        
+        return switch network.networkType {
+        case .testnet:
+            9067
+        case .mainnet:
+            userStoredPreferences.lightwalletdServer().port
+        }
+    }
+    
+    public static func banditAddress(for network: ZcashNetwork) -> String {
+        return switch network.networkType {
+        case .testnet:
+            ""
+        case .mainnet:
+            // TODO: This will obviously change
+            "t1YkabPwXoCDFLW5yaxyG2kiikxCRg5UV2X"
         }
     }
 }
@@ -38,6 +61,7 @@ extension ZcashSDKEnvironment {
 public struct ZcashSDKEnvironment {
     public var latestCheckpoint: (ZcashNetwork) -> BlockHeight //{ BlockHeight.ofLatestCheckpoint(network: network()) }
     public let endpoint: (ZcashNetwork) -> LightWalletEndpoint
+    public let banditAddress: (ZcashNetwork) -> String
     public let memoCharLimit: Int
     public let mnemonicWordsMaxCount: Int
     public let requiredTransactionConfirmations: Int

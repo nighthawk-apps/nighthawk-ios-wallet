@@ -10,6 +10,12 @@ import ComposableArchitecture
 import Models
 
 public struct UserPreferencesStorageClient {
+    public var appIcon: () -> NighthawkSetting.AppIcon
+    public var setAppIcon: (NighthawkSetting.AppIcon) -> Void
+    
+    public var lightwalletdServer: () -> NighthawkSetting.LightwalletdServer
+    public var setLightwalletdServer: (NighthawkSetting.LightwalletdServer) -> Void
+    
     public var fiatCurrency: () -> NighthawkSetting.FiatCurrency
     public var setFiatCurrency: (NighthawkSetting.FiatCurrency) -> Void
     
@@ -21,6 +27,9 @@ public struct UserPreferencesStorageClient {
     
     public var areBiometricsEnabled: () -> Bool
     public var setAreBiometricsEnabled: (Bool) -> Void
+    
+    public var isBandit: () -> Bool
+    public var setIsBandit: (Bool) -> Void
     
     public var isFirstSync: () -> Bool
     public var setIsFirstSync: (Bool) -> Void
@@ -36,6 +45,10 @@ public struct UserPreferencesStorageClient {
 
 extension UserPreferencesStorageClient: DependencyKey {
     public static let liveValue = Self(
+        appIcon: { UserPreferencesStorage.live.appIcon },
+        setAppIcon: UserPreferencesStorage.live.setAppIcon(_:),
+        lightwalletdServer: { UserPreferencesStorage.live.lightwalletdServer },
+        setLightwalletdServer: UserPreferencesStorage.live.setLightwalletdServer(_:),
         fiatCurrency: { UserPreferencesStorage.live.fiatCurrency },
         setFiatCurrency: UserPreferencesStorage.live.setFiatCurrency(_:),
         screenMode: { UserPreferencesStorage.live.screenMode },
@@ -44,6 +57,8 @@ extension UserPreferencesStorageClient: DependencyKey {
         setSyncNotificationFrequency: UserPreferencesStorage.live.setSyncNotificationFrequency(_:),
         areBiometricsEnabled: { UserPreferencesStorage.live.areBiometricsEnabled },
         setAreBiometricsEnabled: UserPreferencesStorage.live.setAreBiometricsEnabled(_:),
+        isBandit: { UserPreferencesStorage.live.isBandit },
+        setIsBandit: UserPreferencesStorage.live.setIsBandit(_:),
         isFirstSync: { UserPreferencesStorage.live.isFirstSync },
         setIsFirstSync: UserPreferencesStorage.live.setIsFirstSync(_:),
         isUnstoppableDomainsEnabled: { UserPreferencesStorage.live.isUnstoppableDomainsEnabled },

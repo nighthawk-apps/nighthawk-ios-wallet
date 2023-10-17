@@ -14,14 +14,15 @@ extension ZcashSDKEnvironment: DependencyKey {
         endpoint: { network in
             LightWalletEndpoint(
                 address: Self.endpoint(for: network),
-                port: ZcashSDKConstants.endpointPort,
+                port: Self.port(for: network),
                 secure: true,
                 streamingCallTimeoutInMillis: ZcashSDKConstants.streamingCallTimeoutInMillis
             )
         },
+        banditAddress: { Self.banditAddress(for: $0) },
         memoCharLimit: MemoBytes.capacity,
         mnemonicWordsMaxCount: ZcashSDKConstants.mnemonicWordsMaxCount,
         requiredTransactionConfirmations: ZcashSDKConstants.requiredTransactionConfirmations,
-        sdkVersion: "0.18.1-beta"
+        sdkVersion: "2.0.0"
     )
 }

@@ -73,6 +73,13 @@ struct NighthawkSettingsView: View {
                         action: { viewStore.send(.rescanTapped) }
                     )
                     
+                    settingRow(
+                        title: L10n.Nighthawk.SettingsTab.changeServerTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.changeServerSubtitle,
+                        icon: Asset.Assets.Icons.Nighthawk.server.image,
+                        action: { viewStore.send(.rowTapped(.changeServer)) }
+                    )
+                    
                     // TODO: Enable once we can actually test this.
 //                    settingRow(
 //                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,

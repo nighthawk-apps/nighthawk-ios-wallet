@@ -1,10 +1,11 @@
 //
 //  AdvancedView.swift
-//  
+//
 //
 //  Created by Matthew Watt on 8/3/23.
 //
 
+import AlertToast
 import ComposableArchitecture
 import Generated
 import Models
@@ -53,6 +54,8 @@ public struct AdvancedView: View {
                         .padding(.vertical, 12)
                     }
                     
+                    banditSettings(with: viewStore)
+                    
                     Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.title)
                         .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
@@ -74,7 +77,6 @@ public struct AdvancedView: View {
                 .padding(.vertical, 25)
             }
             .padding(.horizontal, 25)
-            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
         .alert(
@@ -83,5 +85,42 @@ public struct AdvancedView: View {
                 action: { .alert($0) }
             )
         )
+    }
+}
+
+// MARK: - Subviews
+private extension AdvancedView {
+    @MainActor 
+    @ViewBuilder
+    func banditSettings(with viewStore: ViewStoreOf<Advanced>) -> some View {
+        if viewStore.showBanditSettings {
+            if viewStore.supportsAlternateIcons {
+                Text(L10n.Nighthawk.SettingsTab.Advanced.AppIcon.title)
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                
+                RadioSelectionList(
+                    options: NighthawkSetting.AppIcon.allCases,
+                    selection: viewStore.$selectedAppIcon
+                ) { option in
+                    HStack(alignment: .center) {
+                        option.preview
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 72, height: 72)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(.tertiary, lineWidth: 2)
+                            )
+                        
+                        Text(option.label)
+                            .paragraphMedium(color: .white)
+                        
+                        Spacer()
+                    }
+                    .padding(.vertical, 12)
+                }
+            }
+        }
     }
 }
