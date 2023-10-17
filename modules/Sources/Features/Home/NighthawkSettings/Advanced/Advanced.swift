@@ -21,8 +21,10 @@ public struct Advanced: Reducer {
             return userStoredPreferences.isBandit()
         }
         
-        public var supportsAlternateIcons: Bool { UIApplication.shared.supportsAlternateIcons }
-        
+        public var supportsAlternateIcons: Bool {
+            UIApplication.shared.supportsAlternateIcons
+        }
+
         public init() {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             self.selectedScreenMode = userStoredPreferences.screenMode()
