@@ -51,7 +51,7 @@ public struct TransactionDetail: Reducer {
             return userStoredPreferences.fiatCurrency()
         }
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
-            if let latestFiatPrice {
+            if let latestFiatPrice, preferredCurrency != .off {
                 (preferredCurrency, latestFiatPrice)
             } else {
                 nil
