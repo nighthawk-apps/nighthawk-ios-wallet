@@ -260,7 +260,7 @@ public struct Home: Reducer {
                                     event.transaction.zecAmount >= zcashSDKEnvironment.banditAmount
                                 }
                             )
-                            userStoredPreferences.setIsBandit(isBandit)
+                            userStoredPreferences.setIsBandit(true)
                             await send(.updateWalletEvents(events))
                         }
                     }
