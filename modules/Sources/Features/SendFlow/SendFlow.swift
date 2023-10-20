@@ -94,9 +94,7 @@ public struct SendFlow: Reducer {
         // Inputs
         @BindingState public var amountToSendInput = "0"
         public var amountToSend: Zatoshi {
-            let zats = Zatoshi.from(decimalString: amountToSendInput) ?? .zero
-            print(zats)
-            return zats
+            Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
         public var recipient: RedactableString?
         public var memo: RedactableString?
@@ -105,8 +103,7 @@ public struct SendFlow: Reducer {
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-            true
-//             amountToSend <= maxAmount
+             amountToSend <= maxAmount
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
