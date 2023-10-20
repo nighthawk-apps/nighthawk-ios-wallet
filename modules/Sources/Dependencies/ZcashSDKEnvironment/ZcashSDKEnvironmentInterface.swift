@@ -29,11 +29,11 @@ extension ZcashSDKEnvironment {
     public static func endpoint(for network: ZcashNetwork) -> String {
         @Dependency(\.userStoredPreferences) var userStoredPreferences
         
-        switch network.networkType {
+        return switch network.networkType {
         case .testnet:
-            return ZcashSDKConstants.endpointTestnetAddress
+            ZcashSDKConstants.endpointTestnetAddress
         case .mainnet:
-            return userStoredPreferences.lightwalletdServer().host
+            userStoredPreferences.lightwalletdServer().host
         }
     }
     
@@ -42,7 +42,7 @@ extension ZcashSDKEnvironment {
         
         return switch network.networkType {
         case .testnet:
-            9067
+            ZcashSDKConstants.endpointTestnetPort
         case .mainnet:
             userStoredPreferences.lightwalletdServer().port
         }
