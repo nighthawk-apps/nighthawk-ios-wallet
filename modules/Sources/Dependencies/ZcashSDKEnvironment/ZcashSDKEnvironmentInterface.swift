@@ -18,7 +18,7 @@ extension DependencyValues {
 
 extension ZcashSDKEnvironment {
     public enum ZcashSDKConstants {
-        static let endpointTestnetAddress = "testnet.lightwalletd.com"
+        static let endpointTestnetAddress = "lightwalletd.testnet.electriccoin.co"
         static let endpointTestnetPort = 9067
         static let mnemonicWordsMaxCount = 24
         static let requiredTransactionConfirmations = 10
