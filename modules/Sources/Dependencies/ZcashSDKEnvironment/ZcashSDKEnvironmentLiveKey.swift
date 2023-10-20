@@ -19,10 +19,10 @@ extension ZcashSDKEnvironment: DependencyKey {
                 streamingCallTimeoutInMillis: ZcashSDKConstants.streamingCallTimeoutInMillis
             )
         },
-        banditAddress: { Self.banditAddress(for: $0) },
+        banditThreshold: ZcashSDKConstants.banditThreshold,
         memoCharLimit: MemoBytes.capacity,
         mnemonicWordsMaxCount: ZcashSDKConstants.mnemonicWordsMaxCount,
         requiredTransactionConfirmations: ZcashSDKConstants.requiredTransactionConfirmations,
-        sdkVersion: "2.0.0"
+        sdkVersion: "2.0.2"
     )
 }

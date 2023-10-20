@@ -94,7 +94,9 @@ public struct SendFlow: Reducer {
         // Inputs
         @BindingState public var amountToSendInput = "0"
         public var amountToSend: Zatoshi {
-            Zatoshi.from(decimalString: amountToSendInput) ?? .zero
+            let zats = Zatoshi.from(decimalString: amountToSendInput) ?? .zero
+            print(zats)
+            return zats
         }
         public var recipient: RedactableString?
         public var memo: RedactableString?

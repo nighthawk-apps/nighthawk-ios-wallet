@@ -22,10 +22,10 @@ extension ZcashSDKEnvironment: TestDependencyKey {
                 streamingCallTimeoutInMillis: ZcashSDKConstants.streamingCallTimeoutInMillis
             )
         },
-        banditAddress: { Self.banditAddress(for: $0) },
+        banditThreshold: ZcashSDKConstants.banditThreshold,
         memoCharLimit: MemoBytes.capacity,
         mnemonicWordsMaxCount: ZcashSDKConstants.mnemonicWordsMaxCount,
         requiredTransactionConfirmations: ZcashSDKConstants.requiredTransactionConfirmations,
-        sdkVersion: "0.18.1-beta"
+        sdkVersion: "2.0.2"
     )
 }

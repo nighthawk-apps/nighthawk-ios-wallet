@@ -254,11 +254,7 @@ public struct Home: Reducer {
                     
                     return .run { send in
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
-                            let isBandit = events.contains(
-                                where: { event in
-                                    event.transaction.address == zcashSDKEnvironment.banditAddress(zcashNetwork)
-                                }
-                            )
+                            let isBandit = true /*events.count >= zcashSDKEnvironment.banditThreshold*/
                             userStoredPreferences.setIsBandit(isBandit)
                             await send(.updateWalletEvents(events))
                         }

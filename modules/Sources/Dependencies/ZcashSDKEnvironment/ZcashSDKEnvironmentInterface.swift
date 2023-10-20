@@ -23,6 +23,7 @@ extension ZcashSDKEnvironment {
         static let mnemonicWordsMaxCount = 24
         static let requiredTransactionConfirmations = 10
         static let streamingCallTimeoutInMillis = Int64(10 * 60 * 60 * 1000) // ten hours
+        static let banditThreshold = 117
     }
 
     public static func endpoint(for network: ZcashNetwork) -> String {
@@ -46,22 +47,12 @@ extension ZcashSDKEnvironment {
             userStoredPreferences.lightwalletdServer().port
         }
     }
-    
-    public static func banditAddress(for network: ZcashNetwork) -> String {
-        return switch network.networkType {
-        case .testnet:
-            ""
-        case .mainnet:
-            // TODO: This will obviously change
-            "t1YkabPwXoCDFLW5yaxyG2kiikxCRg5UV2X"
-        }
-    }
 }
 
 public struct ZcashSDKEnvironment {
     public var latestCheckpoint: (ZcashNetwork) -> BlockHeight //{ BlockHeight.ofLatestCheckpoint(network: network()) }
     public let endpoint: (ZcashNetwork) -> LightWalletEndpoint
-    public let banditAddress: (ZcashNetwork) -> String
+    public let banditThreshold: Int
     public let memoCharLimit: Int
     public let mnemonicWordsMaxCount: Int
     public let requiredTransactionConfirmations: Int
