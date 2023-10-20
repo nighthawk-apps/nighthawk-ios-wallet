@@ -14,18 +14,30 @@ import UIKit
 public struct Advanced: Reducer {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
-        
         @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
+        @BindingState public var selectedAppIcon: NighthawkSetting.AppIcon = .default
+        public var showBanditSettings: Bool {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return userStoredPreferences.isBandit()
+        }
         
-        public init() {}
+        public var supportsAlternateIcons: Bool {
+            UIApplication.shared.supportsAlternateIcons
+        }
+
+        public init() {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            self.selectedScreenMode = userStoredPreferences.screenMode()
+            self.selectedAppIcon = userStoredPreferences.appIcon()
+        }
     }
     
     public enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Alert>)
+        case appIconResponse(success: Bool)
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case deleteWalletTapped
-        case onAppear
         
         public enum Alert: Equatable {
             case deleteWalletConfirmed
@@ -47,14 +59,32 @@ public struct Advanced: Reducer {
                 return .none
             case .alert(.presented(.deleteWalletConfirmed)):
                 return .send(.delegate(.deleteWallet))
+            case .appIconResponse(success: true):
+                userStoredPreferences.setAppIcon(state.selectedAppIcon)
+                return .none
+            case .appIconResponse(success: false):
+                state.selectedAppIcon = userStoredPreferences.appIcon()
+                return .none
             case .delegate:
                 return .none
             case .deleteWalletTapped:
                 state.alert = AlertState.warnBeforeDeletingWallet
                 return .none
-            case .onAppear:
-                state.selectedScreenMode = userStoredPreferences.screenMode()
-                return .none
+            case .binding(\.$selectedAppIcon):
+                return .run { @MainActor [selectedIcon = state.selectedAppIcon] send in
+                    do {
+                        let iconName: String? = if selectedIcon == .default {
+                            nil
+                        } else {
+                            selectedIcon.rawValue
+                        }
+                        
+                        try await UIApplication.shared.setAlternateIconName(iconName)
+                        send(.appIconResponse(success: true))
+                    } catch {
+                        send(.appIconResponse(success: false))
+                    }
+                }
             case .binding(\.$selectedScreenMode):
                 userStoredPreferences.setScreenMode(state.selectedScreenMode)
                 UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn

@@ -17,14 +17,16 @@ extension ZcashSDKEnvironment: TestDependencyKey {
         endpoint: { _ in
             LightWalletEndpoint(
                 address: ZcashSDKConstants.endpointTestnetAddress,
-                port: ZcashSDKConstants.endpointPort,
+                port: ZcashSDKConstants.endpointTestnetPort,
                 secure: true,
                 streamingCallTimeoutInMillis: ZcashSDKConstants.streamingCallTimeoutInMillis
             )
         },
+        banditAddress: { Self.banditAddress(for: $0) },
+        banditAmount: ZcashSDKConstants.banditAmount,
         memoCharLimit: MemoBytes.capacity,
         mnemonicWordsMaxCount: ZcashSDKConstants.mnemonicWordsMaxCount,
         requiredTransactionConfirmations: ZcashSDKConstants.requiredTransactionConfirmations,
-        sdkVersion: "0.18.1-beta"
+        sdkVersion: "2.0.3"
     )
 }

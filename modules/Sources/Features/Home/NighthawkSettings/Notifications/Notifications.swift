@@ -109,6 +109,7 @@ public struct Notifications: Reducer {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: /Action.alert)
     }
     
     public init() {}

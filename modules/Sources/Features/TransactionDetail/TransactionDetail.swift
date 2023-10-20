@@ -101,6 +101,8 @@ public struct TransactionDetail: Reducer {
                 return .none
             case .alert(.dismiss):
                 return .none
+            case .alert:
+                return .none
             case .delegate:
                 return .none
             case .onAppear:
@@ -131,6 +133,7 @@ public struct TransactionDetail: Reducer {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: /Action.alert)
     }
     
     public init () {}

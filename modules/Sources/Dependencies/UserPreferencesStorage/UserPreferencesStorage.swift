@@ -14,20 +14,26 @@ import UserDefaults
 /// the UserDefaults class is thread-safe.
 public struct UserPreferencesStorage {
     public enum Constants: String, CaseIterable {
+        case zcashAppIcon
+        case zcashLightwalletdServer
         case zcashFiatCurrency
         case zcashScreenMode
         case zcashSyncNotificationFrequency
         case zcashBiometricsEnabled
+        case zcashIsBandit
         case zcashIsFirstSync
         case zcashIsUnstoppableDomainsEnabled
         case zcashHasShownAutoshielding
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
+    private let icon: NighthawkSetting.AppIcon
+    private let lightwalletd: NighthawkSetting.LightwalletdServer
     private let currency: NighthawkSetting.FiatCurrency
     private let selectedScreenMode: NighthawkSetting.ScreenMode
     private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
     private let biometricsEnabled: Bool
+    private let bandit: Bool
     private let firstSync: Bool
     private let unstoppableDomainsEnabled: Bool
     private let shownAutoshielding: Bool
@@ -35,23 +41,47 @@ public struct UserPreferencesStorage {
     private let userDefaults: UserDefaultsClient
     
     public init(
+        icon: NighthawkSetting.AppIcon,
+        lightwalletd: NighthawkSetting.LightwalletdServer,
         currency: NighthawkSetting.FiatCurrency,
         selectedScreenMode: NighthawkSetting.ScreenMode,
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
         biometricsEnabled: Bool,
+        bandit: Bool,
         firstSync: Bool,
         unstoppableDomainsEnabled: Bool,
         shownAutoshielding: Bool,
         userDefaults: UserDefaultsClient
     ) {
+        self.icon = icon
+        self.lightwalletd = lightwalletd
         self.currency = currency
         self.selectedScreenMode = selectedScreenMode
         self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
         self.biometricsEnabled = biometricsEnabled
+        self.bandit = bandit
         self.firstSync = firstSync
         self.unstoppableDomainsEnabled = unstoppableDomainsEnabled
         self.shownAutoshielding = shownAutoshielding
         self.userDefaults = userDefaults
+    }
+    
+    public var appIcon: NighthawkSetting.AppIcon {
+        let rawValue = getValue(forKey: Constants.zcashAppIcon.rawValue, default: icon.rawValue)
+        return NighthawkSetting.AppIcon(rawValue: rawValue) ?? .default
+    }
+    
+    public func setAppIcon(_ icon: NighthawkSetting.AppIcon) {
+        setValue(icon.rawValue, forKey: Constants.zcashAppIcon.rawValue)
+    }
+    
+    public var lightwalletdServer: NighthawkSetting.LightwalletdServer {
+        let rawValue = getValue(forKey: Constants.zcashLightwalletdServer.rawValue, default: lightwalletd.rawValue)
+        return NighthawkSetting.LightwalletdServer(rawValue: rawValue) ?? .default
+    }
+    
+    public func setLightwalletdServer(_ server: NighthawkSetting.LightwalletdServer) {
+        setValue(server.rawValue, forKey: Constants.zcashLightwalletdServer.rawValue)
     }
 
     public var fiatCurrency: NighthawkSetting.FiatCurrency {
@@ -92,6 +122,14 @@ public struct UserPreferencesStorage {
         setValue(bool, forKey: Constants.zcashBiometricsEnabled.rawValue)
     }
     
+    public var isBandit: Bool {
+        getValue(forKey: Constants.zcashIsBandit.rawValue, default: bandit)
+    }
+    
+    public func setIsBandit(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashIsBandit.rawValue)
+    }
+    
     public var isFirstSync: Bool {
         getValue(forKey: Constants.zcashIsFirstSync.rawValue, default: firstSync)
     }
@@ -127,10 +165,13 @@ public struct UserPreferencesStorage {
 
 extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
+        icon: .default,
+        lightwalletd: .default,
         currency: .off,
         selectedScreenMode: .off,
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,
+        bandit: false,
         firstSync: true,
         unstoppableDomainsEnabled: false,
         shownAutoshielding: false,

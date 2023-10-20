@@ -315,6 +315,16 @@
 "nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
 "nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
 
+// MARK: - Home Screen - Settings tab - Change server
+"nighthawk.settingsTab.changeServer.title" = "Change server";
+"nighthawk.settingsTab.changeServer.default" = "Default";
+"nighthawk.settingsTab.changeServer.asiaOceania" = "Asia & Oceania";
+"nighthawk.settingsTab.changeServer.europeAfrica" = "Europe & Africa";
+"nighthawk.settingsTab.changeServer.northAmerica" = "North America";
+"nighthawk.settingsTab.changeServer.southAmerica" = "South America";
+"nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title" = "Re-launch required";
+"nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message" = "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app";
+
 // MARK: - Home Screen - Settings tab - Backup
 "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
 "nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
@@ -327,6 +337,10 @@
 "nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
 "nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
 "nighthawk.settingsTab.advanced.screenMode.off" = "Off";
+"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
+"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
+"nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
 "nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
 "nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.";
 "nighthawk.settingsTab.advanced.deleteWallet.lastWarningTitle" = "ARE YOU SURE?";

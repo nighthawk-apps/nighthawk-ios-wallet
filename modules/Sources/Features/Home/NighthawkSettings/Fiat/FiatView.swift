@@ -32,7 +32,7 @@ public struct FiatView: View {
                         selection: viewStore.$selectedFiatCurrency.animation(.none)
                     ) { option in
                         HStack {
-                            Text(label(for: option))
+                            Text(option.label)
                                 .paragraphMedium(color: .white)
                             
                             Spacer()
@@ -52,39 +52,5 @@ public struct FiatView: View {
     public init(store: StoreOf<Fiat>, tokenName: String) {
         self.store = store
         self.tokenName = tokenName
-    }
-}
-
-// MARK: - Private
-private extension FiatView {
-    func label(for fiat: NighthawkSetting.FiatCurrency) -> String {
-        switch fiat {
-        case .usd:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.usd
-        case .eur:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.eur
-        case .inr:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.inr
-        case .jpy:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.jpy
-        case .gbp:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.gbp
-        case .cad:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.cad
-        case .aud:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.aud
-        case .hkd:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.hkd
-        case .sgd:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.sgd
-        case .chf:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.chf
-        case .cny:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.cny
-        case .krw:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.krw
-        case .off:
-            L10n.Nighthawk.SettingsTab.FiatCurrency.off
-        }
     }
 }
