@@ -168,7 +168,7 @@ extension UserPreferencesStorage {
         icon: .default,
         lightwalletd: .default,
         currency: .off,
-        selectedScreenMode: .off,
+        selectedScreenMode: .keepOn,
         selectedSyncNotificationFrequency: .off,
         biometricsEnabled: false,
         bandit: false,
