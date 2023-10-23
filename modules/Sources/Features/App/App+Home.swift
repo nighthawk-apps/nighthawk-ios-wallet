@@ -17,6 +17,11 @@ extension AppReducer {
                 case let .setLatestFiatPrice(latest):
                     state.latestFiatPrice = latest
                     return .none
+                case let .unifiedAddressResponse(unifiedAddress):
+                    if let unifiedAddress {
+                        state.unifiedAddress = unifiedAddress
+                    }
+                    return .none
                 }
             case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none

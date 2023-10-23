@@ -314,14 +314,26 @@ public enum L10n {
           }
         }
         public enum DeleteWallet {
-          /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
-          public static let lastWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningMessage", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
-          /// ARE YOU SURE?
-          public static let lastWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.lastWarningTitle", fallback: "ARE YOU SURE?")
-          /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.
-          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding.")
+          /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.
+          public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.")
           /// Delete wallet
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.title", fallback: "Delete wallet")
+          public enum Alert {
+            public enum LastWarning {
+              /// This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?
+              public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message", fallback: "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?")
+              /// ARE YOU SURE?
+              public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title", fallback: "ARE YOU SURE?")
+            }
+            public enum RelaunchRequired {
+              /// I confirm, delete wallet
+              public static let confirm = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm", fallback: "I confirm, delete wallet")
+              /// Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.
+              public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message", fallback: "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.")
+              /// FINAL WARNING
+              public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title", fallback: "FINAL WARNING")
+            }
+          }
         }
         public enum ScreenMode {
           /// Keep on
@@ -740,6 +752,8 @@ public enum L10n {
     public enum WalletCreated {
       /// Backup your wallet
       public static let backup = L10n.tr("Localizable", "nighthawk.walletCreated.backup", fallback: "Backup your wallet")
+      /// For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.
+      public static let backupImmediately = L10n.tr("Localizable", "nighthawk.walletCreated.backupImmediately", fallback: "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.")
       /// Skip for now
       public static let skip = L10n.tr("Localizable", "nighthawk.walletCreated.skip", fallback: "Skip for now")
       /// Wallet created! Congratulations!
