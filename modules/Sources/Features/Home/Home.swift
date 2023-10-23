@@ -252,7 +252,7 @@ public struct Home: Reducer {
                         userStoredPreferences.setHasShownAutoshielding(true)
                         state.destination = .autoshield(.init())
                     }
-                                        
+                    
                     return .run { send in
                         // Re-fetch the UA, as sometimes it is unavailable when synchronizer first starts
                         let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
