@@ -108,6 +108,7 @@ public struct Home: Reducer {
         
         public enum Delegate: Equatable {
             case setLatestFiatPrice(Double?)
+            case unifiedAddressResponse(UnifiedAddress?)
         }
     }
     
@@ -251,8 +252,13 @@ public struct Home: Reducer {
                         userStoredPreferences.setHasShownAutoshielding(true)
                         state.destination = .autoshield(.init())
                     }
-                    
+                                        
                     return .run { send in
+                        // Re-fetch the UA, as sometimes it is unavailable when synchronizer first starts
+                        let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                        await send(.delegate(.unifiedAddressResponse(ua)))
+                        
+                        // Populate wallet events
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
                             let isBandit = events.contains(
                                 where: { event in

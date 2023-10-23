@@ -20,14 +20,19 @@ public struct WalletCreatedView: View {
     
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
+            VStack(spacing: 32) {
                 NighthawkHeading(title: L10n.Nighthawk.WalletCreated.title)
+                
+                Text(L10n.Nighthawk.WalletCreated.backupImmediately)
+                    .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(6)
+                
                 Spacer()
                 actions(viewStore: viewStore)
             }
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
+            .padding(.horizontal, 25)
+            .onAppear { viewStore.send(.onAppear) }
         }
         .applyNighthawkBackground()
     }

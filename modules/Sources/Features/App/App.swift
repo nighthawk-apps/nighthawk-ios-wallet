@@ -232,6 +232,8 @@ public struct AppReducer: Reducer {
             case .deleteWalletSuccess:
                 walletStorage.deleteWallet()
                 userStoredPreferences.removeAll()
+                state.unifiedAddress = nil
+                state.latestFiatPrice = nil
                 if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
                     try? fileManager.removeItem(eventsCache)
                 }
@@ -254,7 +256,7 @@ public struct AppReducer: Reducer {
                         state.splash.hasAttemptedAuthentication = false
                         state.splash.isAuthenticating = false
                         state.path = StackState()
-                    } else if !state.path.isEmpty && state.synchronizerStopped {
+                    } else if !state.path.isEmpty && state.synchronizerStopped && !state.isWelcomeScreenShown {
                         return initializeSDK(.existingWallet, shouldResetStack: false)
                     }
                     return .none
@@ -267,7 +269,7 @@ public struct AppReducer: Reducer {
             case .splash:
                 return .none
             case let .unifiedAddressResponse(unifiedAddress):
-                if state.unifiedAddress == nil {
+                if let unifiedAddress {
                     state.unifiedAddress = unifiedAddress
                 }
                 return .none
@@ -383,5 +385,13 @@ private extension AppReducer.State {
         }
         
         return true
+    }
+    
+    var isWelcomeScreenShown: Bool {
+        if let currentScreen = path.last {
+            return (/AppReducer.Path.State.welcome).extract(from: currentScreen) != nil
+        }
+        
+        return false
     }
 }

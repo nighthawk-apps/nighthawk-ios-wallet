@@ -41,6 +41,7 @@ public struct Advanced: Reducer {
         
         public enum Alert: Equatable {
             case deleteWalletConfirmed
+            case notifyAppRelaunchNeeded
         }
         
         public enum Delegate: Equatable {
@@ -59,6 +60,9 @@ public struct Advanced: Reducer {
                 return .none
             case .alert(.presented(.deleteWalletConfirmed)):
                 return .send(.delegate(.deleteWallet))
+            case .alert(.presented(.notifyAppRelaunchNeeded)):
+                state.alert = .notifyAppRelaunchNeeded
+                return .none
             case .appIconResponse(success: true):
                 userStoredPreferences.setAppIcon(state.selectedAppIcon)
                 return .none
@@ -103,16 +107,31 @@ public struct Advanced: Reducer {
 extension AlertState where Action == Advanced.Action.Alert {
     public static var warnBeforeDeletingWallet: AlertState {
         AlertState {
-            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.lastWarningTitle)
+            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.Alert.LastWarning.title)
         } actions: {
-            ButtonState(role: .destructive, action: .deleteWalletConfirmed) {
+            ButtonState(role: .destructive, action: .notifyAppRelaunchNeeded) {
                 TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.title)
             }
             ButtonState(role: .cancel) {
                 TextState(L10n.General.cancel)
             }
         } message: {
-            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.lastWarningMessage)
+            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.Alert.LastWarning.message)
+        }
+    }
+    
+    public static var notifyAppRelaunchNeeded: AlertState {
+        AlertState {
+            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.Alert.RelaunchRequired.title)
+        } actions: {
+            ButtonState(role: .destructive, action: .deleteWalletConfirmed) {
+                TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.Alert.RelaunchRequired.confirm)
+            }
+            ButtonState(role: .cancel) {
+                TextState(L10n.General.cancel)
+            }
+        } message: {
+            TextState(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.Alert.RelaunchRequired.message)
         }
     }
 }
