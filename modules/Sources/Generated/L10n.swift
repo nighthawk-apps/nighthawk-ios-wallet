@@ -326,12 +326,12 @@ public enum L10n {
               public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title", fallback: "ARE YOU SURE?")
             }
             public enum RelaunchRequired {
-              /// I understand, delete the wallet
-              public static let confirm = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm", fallback: "I understand, delete the wallet")
+              /// I confirm, delete wallet
+              public static let confirm = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm", fallback: "I confirm, delete wallet")
               /// Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.
               public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message", fallback: "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.")
-              /// WARNING
-              public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title", fallback: "WARNING")
+              /// FINAL WARNING
+              public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title", fallback: "FINAL WARNING")
             }
           }
         }

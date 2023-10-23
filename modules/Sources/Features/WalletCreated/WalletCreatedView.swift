@@ -24,9 +24,9 @@ public struct WalletCreatedView: View {
                 NighthawkHeading(title: L10n.Nighthawk.WalletCreated.title)
                 
                 Text(L10n.Nighthawk.WalletCreated.backupImmediately)
-                    .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
-                    .multilineTextAlignment(.leading)
+                    .paragraphBold(color: .white)
                     .lineSpacing(6)
+                    .multilineTextAlignment(.center)
                 
                 Spacer()
                 actions(viewStore: viewStore)
