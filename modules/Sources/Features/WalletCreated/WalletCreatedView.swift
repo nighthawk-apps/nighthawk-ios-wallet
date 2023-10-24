@@ -21,7 +21,17 @@ public struct WalletCreatedView: View {
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 32) {
-                NighthawkHeading(title: L10n.Nighthawk.WalletCreated.title)
+                Asset.Assets.Icons.Nighthawk.nighthawkSymbolPeach
+                    .image
+                    .resizable()
+                    .frame(width: 35, height: 35)
+                    .padding(.bottom, 22)
+                    .padding(.top, 44)
+                
+                Spacer()
+                
+                Text(L10n.Nighthawk.WalletCreated.title)
+                    .paragraphMedium()
                 
                 Text(L10n.Nighthawk.WalletCreated.backupImmediately)
                     .paragraphBold(color: .white)
