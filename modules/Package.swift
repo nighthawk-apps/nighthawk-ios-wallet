@@ -58,7 +58,7 @@ let package = Package(
         .library(name: "ZcashSDKEnvironment", targets: ["ZcashSDKEnvironment"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.2.0"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.3.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
         .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.3"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),

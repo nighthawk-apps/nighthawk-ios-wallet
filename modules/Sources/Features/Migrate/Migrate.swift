@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import UserPreferencesStorage
 import WalletStorage
 
 public struct Migrate: Reducer {
@@ -33,6 +34,7 @@ public struct Migrate: Reducer {
         }
     }
     
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
     
     public var body: some ReducerOf<Self> {
@@ -56,6 +58,9 @@ public struct Migrate: Reducer {
                     // Delete legacy wallet storage and all the remaining values that don't
                     // be used anymore.
                     walletStorage.deleteLegacyWallet()
+                    
+                    // Don't block spends on sync after migration
+                    userStoredPreferences.setIsFirstSync(false)
                     
                     return .send(.delegate(.initializeSDKAndLaunchWallet))
                 } catch {
