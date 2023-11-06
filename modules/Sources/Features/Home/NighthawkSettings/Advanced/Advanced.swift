@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 8/3/23.
 //
 
+import ApplicationClient
 import ComposableArchitecture
 import Generated
 import Models
@@ -22,7 +23,8 @@ public struct Advanced: Reducer {
         }
         
         public var supportsAlternateIcons: Bool {
-            UIApplication.shared.supportsAlternateIcons
+            @Dependency(\.application) var application
+            return application.supportsAlternateIcons()
         }
 
         public init() {
@@ -49,6 +51,7 @@ public struct Advanced: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
@@ -83,7 +86,7 @@ public struct Advanced: Reducer {
                             selectedIcon.rawValue
                         }
                         
-                        try await UIApplication.shared.setAlternateIconName(iconName)
+                        try await application.setAlternateIconName(iconName)
                         send(.appIconResponse(success: true))
                     } catch {
                         send(.appIconResponse(success: false))
@@ -91,7 +94,7 @@ public struct Advanced: Reducer {
                 }
             case .binding(\.$selectedScreenMode):
                 userStoredPreferences.setScreenMode(state.selectedScreenMode)
-                UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
+                application.setIsIdleTimerDisabled(state.selectedScreenMode == .keepOn)
                 return .none
             case .alert, .binding:
                 return .none

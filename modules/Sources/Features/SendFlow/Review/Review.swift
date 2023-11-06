@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 7/22/23.
 //
 
+import ApplicationClient
 import ComposableArchitecture
 import DerivationTool
 import Generated
@@ -71,6 +72,7 @@ public struct Review: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -80,7 +82,9 @@ public struct Review: Reducer {
             switch action {
             case let .alert(.presented(.openBlockExplorer(blockExplorerURL))):
                 if let url = blockExplorerURL {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    return .run { _ in
+                        await application.open(url, [:])
+                    }
                 }
                 return .none
             case .alert(.dismiss):

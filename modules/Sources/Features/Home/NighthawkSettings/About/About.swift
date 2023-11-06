@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/22/23.
 //
 
+import ApplicationClient
 import ComposableArchitecture
 import UIKit
 import Utils
@@ -26,22 +27,21 @@ public struct About: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
+    
     public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
             case .delegate:
                 return .none
             case .nighthawkFriendsTapped:
-                UIApplication.shared.open(.friends, options: [:], completionHandler: nil)
-                return .none
+                return .run { _ in await application.open(.friends, [:]) }
             case .viewLicensesTapped:
                 return .send(.delegate(.showLicensesList))
             case .viewSourceTapped:
-                UIApplication.shared.open(.source, options: [:], completionHandler: nil)
-                return .none
+                return .run { _ in await application.open(.source, [:]) }
             case .termsAndConditionsTapped:
-                UIApplication.shared.open(.terms, options: [:], completionHandler: nil)
-                return .none
+                return .run { _ in await application.open(.terms, [:]) }
             }
         }
     }

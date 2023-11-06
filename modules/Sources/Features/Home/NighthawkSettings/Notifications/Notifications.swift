@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/14/23.
 //
 
+import ApplicationClient
 import ComposableArchitecture
 import Date
 import Generated
@@ -37,6 +38,7 @@ public struct Notifications: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
     @Dependency(\.dateClient) var dateClient
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.userNotificationCenter) var userNotificationCenter
@@ -47,8 +49,10 @@ public struct Notifications: Reducer {
         Reduce { state, action in
             switch action {
             case .alert(.presented(.openSettings)):
-                if let appSettings = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(appSettings) {
-                    UIApplication.shared.open(appSettings)
+                if let appSettings = URL(string: UIApplication.openSettingsURLString), application.canOpenURL(appSettings) {
+                    return .run { _ in
+                        await application.open(appSettings, [:])
+                    }
                 }
                 return .none
                 

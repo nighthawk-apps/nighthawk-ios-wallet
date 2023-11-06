@@ -11,6 +11,7 @@ let package = Package(
     products: [
         .library(name: "Addresses", targets: ["Addresses"]),
         .library(name: "App", targets: ["App"]),
+        .library(name: "ApplicationClient", targets: ["ApplicationClient"]),
         .library(name: "AppVersion", targets: ["AppVersion"]),
         .library(name: "AudioServices", targets: ["AudioServices"]),
         .library(name: "Autoshield", targets: ["Autoshield"]),
@@ -106,6 +107,13 @@ let package = Package(
             path: "Sources/Features/App"
         ),
         .target(
+            name: "ApplicationClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Dependencies/ApplicationClient"
+        ),
+        .target(
             name: "AppVersion",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -122,6 +130,7 @@ let package = Package(
         .target(
             name: "Autoshield",
             dependencies: [
+                "ApplicationClient",
                 "DerivationTool",
                 "Generated",
                 "MnemonicClient",
@@ -268,6 +277,7 @@ let package = Package(
         .target(
             name: "Home",
             dependencies: [
+                "ApplicationClient",
                 "Addresses",
                 "AppVersion",
                 "Autoshield",
@@ -427,6 +437,7 @@ let package = Package(
         .target(
             name: "SendFlow",
             dependencies: [
+                "ApplicationClient",
                 "AudioServices",
                 "CaptureDevice",
                 "Generated",
@@ -562,6 +573,13 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/Welcome"
+        ),
+        .testTarget(
+            name: "WelcomeTests",
+            dependencies: [
+                "Welcome"
+            ],
+            path: "Tests/WelcomeTests"
         ),
         .target(
             name: "ZcashSDKEnvironment",

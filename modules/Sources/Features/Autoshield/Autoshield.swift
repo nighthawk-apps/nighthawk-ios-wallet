@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 9/18/23.
 //
 
+import ApplicationClient
 import ComposableArchitecture
 import DerivationTool
 import Foundation
@@ -65,6 +66,7 @@ public struct Autoshield: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -78,7 +80,9 @@ public struct Autoshield: Reducer {
                 return .none
             case let .alert(.presented(.openURL(url))):
                 if let url {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    return .run { _ in
+                        await application.open(url, [:])
+                    }
                 }
                 return .none
             case .autoshieldFailed:

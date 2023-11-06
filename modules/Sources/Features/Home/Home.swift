@@ -5,6 +5,7 @@
 //  Created by Matthew Watt on 5/5/23.
 //
 
+import ApplicationClient
 import Addresses
 import Autoshield
 import ComposableArchitecture
@@ -144,6 +145,7 @@ public struct Home: Reducer {
         }
     }
     
+    @Dependency(\.application) var application
     @Dependency(\.continuousClock) var clock
     @Dependency(\.dataManager) var dataManager
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
@@ -189,7 +191,7 @@ public struct Home: Reducer {
                 return .none
             case .onAppear:
                 state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
-                UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
+                application.setIsIdleTimerDisabled(userStoredPreferences.screenMode() == .keepOn)
                 return .concatenate(
                     .send(.fetchLatestFiatPrice),
                     .send(.listenForSynchronizerUpdates)
