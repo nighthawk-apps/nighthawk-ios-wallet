@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import FileManager
 import Generated
 import Models
 import PDFKit
@@ -94,10 +95,11 @@ private extension ExportSeedView {
         
         let url = URL.documentsDirectory.appending(path: "encrypted_seed.pdf")
         renderer.render { size, context in
+            guard let pdfData = CFDataCreateMutable(nil, 0) else { return }
             var box = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-            guard let pdf = CGContext(url as CFURL, mediaBox: &box, nil) else {
-                return
-            }
+            guard let pdfDataConsumer = CGDataConsumer(data: pdfData),
+                  let pdf = CGContext(consumer: pdfDataConsumer, mediaBox: &box, nil)
+            else { return }
             
             pdf.beginPDFPage(nil)
             context(pdf)
@@ -105,7 +107,7 @@ private extension ExportSeedView {
             pdf.closePDF()
             
             // Read as a PDF document and encrypt with the provided password
-            guard let pdfDocument = PDFDocument(url: url) else { return }
+            guard let pdfDocument = PDFDocument(data: pdfData as Data) else { return }
             pdfDocument.write(
                 to: url,
                 withOptions: [
