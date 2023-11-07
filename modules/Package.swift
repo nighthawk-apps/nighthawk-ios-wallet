@@ -184,6 +184,7 @@ let package = Package(
         .target(
             name: "ExportSeed",
             dependencies: [
+                "FileManager",
                 "MnemonicClient",
                 "Models",
                 "UIComponents",
