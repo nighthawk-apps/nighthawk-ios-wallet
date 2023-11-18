@@ -5,7 +5,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/elai950/AlertToast.git",
       "state" : {
-        "branch" : "master",
         "revision" : "638f38f9daf08e17b7caea22d2fcb9c0a418d1b6"
       }
     },
@@ -58,8 +57,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/airbnb/lottie-spm.git",
       "state" : {
-        "revision" : "60ea4f82fba8b4cb21a75665a889e86ed4d81c6e",
-        "version" : "4.2.0"
+        "revision" : "2ae19d3c4f1603b45e551e6bebf02f523ca22a2e",
+        "version" : "4.3.0"
       }
     },
     {
