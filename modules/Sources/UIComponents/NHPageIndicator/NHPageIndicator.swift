@@ -33,7 +33,6 @@ public struct NHPageIndicator<Page: NHPage>: View where Page.AllCases == Array<P
                     .frame(width: 16, height: 16)
             }
         }
-        .environment(\.locale, Locale(identifier: "en_US"))
     }
 }
 
