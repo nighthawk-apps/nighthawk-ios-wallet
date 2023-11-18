@@ -50,6 +50,7 @@ struct NighthawkTabBar: View {
         .frame(maxWidth: .infinity, maxHeight: 54)
         .edgesIgnoringSafeArea([.bottom])
         .background(Asset.Colors.Nighthawk.navy.color)
+        .environment(\.layoutDirection, .leftToRight)
     }
 }
 
