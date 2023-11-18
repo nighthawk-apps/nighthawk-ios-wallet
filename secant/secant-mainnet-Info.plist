@@ -7,6 +7,8 @@
 		<string>co.electriccoin.backgroundProcessingTask</string>
 		<string>co.electriccoin.backgroundAppRefreshTask</string>
 	</array>
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
