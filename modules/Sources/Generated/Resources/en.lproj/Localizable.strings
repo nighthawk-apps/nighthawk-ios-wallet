@@ -342,6 +342,9 @@
 "nighthawk.settingsTab.advanced.appIcon.default" = "Default";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
 "nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
+"nighthawk.settingsTab.advanced.theme.title" = "Theme";
+"nighthawk.settingsTab.advanced.theme.default" = "Default";
+"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
 "nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
 "nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";

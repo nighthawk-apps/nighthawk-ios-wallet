@@ -13,6 +13,9 @@ public struct UserPreferencesStorageClient {
     public var appIcon: () -> NighthawkSetting.AppIcon
     public var setAppIcon: (NighthawkSetting.AppIcon) -> Void
     
+    public var theme: () -> NighthawkSetting.Theme
+    public var setTheme: (NighthawkSetting.Theme) -> Void
+    
     public var lightwalletdServer: () -> NighthawkSetting.LightwalletdServer
     public var setLightwalletdServer: (NighthawkSetting.LightwalletdServer) -> Void
     
@@ -47,6 +50,8 @@ extension UserPreferencesStorageClient: DependencyKey {
     public static let liveValue = Self(
         appIcon: { UserPreferencesStorage.live.appIcon },
         setAppIcon: UserPreferencesStorage.live.setAppIcon(_:),
+        theme: { UserPreferencesStorage.live.theme },
+        setTheme: UserPreferencesStorage.live.setTheme(_:),
         lightwalletdServer: { UserPreferencesStorage.live.lightwalletdServer },
         setLightwalletdServer: UserPreferencesStorage.live.setLightwalletdServer(_:),
         fiatCurrency: { UserPreferencesStorage.live.fiatCurrency },
