@@ -42,7 +42,7 @@ public struct AppReducer: Reducer {
         public var latestFiatPrice: Double?
         public var nighthawkColorScheme: ColorScheme {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return if /*userStoredPreferences.isBandit()*/true {
+            return if userStoredPreferences.isBandit() {
                 userStoredPreferences.theme().colorScheme
             } else {
                 .light
