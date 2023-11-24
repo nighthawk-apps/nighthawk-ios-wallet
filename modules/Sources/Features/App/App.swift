@@ -40,6 +40,14 @@ public struct AppReducer: Reducer {
         public var synchronizerStopped = false
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
+        public var nighthawkColorScheme: ColorScheme {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            return if /*userStoredPreferences.isBandit()*/true {
+                userStoredPreferences.theme().colorScheme
+            } else {
+                .light
+            }
+        }
         
         public init() {}
     }

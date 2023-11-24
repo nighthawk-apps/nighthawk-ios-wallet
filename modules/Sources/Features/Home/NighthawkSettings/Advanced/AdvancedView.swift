@@ -121,6 +121,28 @@ private extension AdvancedView {
                     .padding(.vertical, 12)
                 }
             }
+            
+            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
+                .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            
+            RadioSelectionList(
+                options: NighthawkSetting.Theme.allCases,
+                selection: viewStore.$theme
+            ) { option in
+                HStack {
+                    switch option {
+                    case .`default`:
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.default)
+                            .paragraphMedium(color: .white)
+                    case .dark:
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
+                            .paragraphMedium(color: .white)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+            }
         }
     }
 }

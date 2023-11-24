@@ -25,9 +25,7 @@ struct NighthawkApp: App {
                 },
                 tokenName: TargetConstants.tokenName,
                 networkType: TargetConstants.zcashNetwork.networkType
-            )
-            .preferredColorScheme(.dark)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            )            
         }
     }
     

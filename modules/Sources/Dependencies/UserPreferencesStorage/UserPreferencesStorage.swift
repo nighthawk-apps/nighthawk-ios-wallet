@@ -15,6 +15,7 @@ import UserDefaults
 public struct UserPreferencesStorage {
     public enum Constants: String, CaseIterable {
         case zcashAppIcon
+        case zcashTheme
         case zcashLightwalletdServer
         case zcashFiatCurrency
         case zcashScreenMode
@@ -28,6 +29,7 @@ public struct UserPreferencesStorage {
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
     private let icon: NighthawkSetting.AppIcon
+    private let defaultTheme: NighthawkSetting.Theme
     private let lightwalletd: NighthawkSetting.LightwalletdServer
     private let currency: NighthawkSetting.FiatCurrency
     private let selectedScreenMode: NighthawkSetting.ScreenMode
@@ -42,6 +44,7 @@ public struct UserPreferencesStorage {
     
     public init(
         icon: NighthawkSetting.AppIcon,
+        defaultTheme: NighthawkSetting.Theme,
         lightwalletd: NighthawkSetting.LightwalletdServer,
         currency: NighthawkSetting.FiatCurrency,
         selectedScreenMode: NighthawkSetting.ScreenMode,
@@ -54,6 +57,7 @@ public struct UserPreferencesStorage {
         userDefaults: UserDefaultsClient
     ) {
         self.icon = icon
+        self.defaultTheme = defaultTheme
         self.lightwalletd = lightwalletd
         self.currency = currency
         self.selectedScreenMode = selectedScreenMode
@@ -73,6 +77,15 @@ public struct UserPreferencesStorage {
     
     public func setAppIcon(_ icon: NighthawkSetting.AppIcon) {
         setValue(icon.rawValue, forKey: Constants.zcashAppIcon.rawValue)
+    }
+    
+    public var theme: NighthawkSetting.Theme {
+        let rawValue = getValue(forKey: Constants.zcashTheme.rawValue, default: defaultTheme.rawValue)
+        return NighthawkSetting.Theme(rawValue: rawValue) ?? .default
+    }
+    
+    public func setTheme(_ theme: NighthawkSetting.Theme) {
+        setValue(theme.rawValue, forKey: Constants.zcashTheme.rawValue)
     }
     
     public var lightwalletdServer: NighthawkSetting.LightwalletdServer {
@@ -166,6 +179,7 @@ public struct UserPreferencesStorage {
 extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
         icon: .default,
+        defaultTheme: .default,
         lightwalletd: .default,
         currency: .off,
         selectedScreenMode: .keepOn,

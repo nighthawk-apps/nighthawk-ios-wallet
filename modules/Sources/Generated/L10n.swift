@@ -345,6 +345,14 @@ public enum L10n {
           /// Keep screen on
           public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
         }
+        public enum Theme {
+          /// Dark
+          public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")
+          /// Default
+          public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "Default")
+          /// Theme
+          public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.title", fallback: "Theme")
+        }
       }
       public enum Alert {
         public enum Rescan {

@@ -150,4 +150,29 @@ public enum NighthawkSetting {
             }
         }
     }
+    
+    public enum Theme: String, CaseIterable, Equatable, Identifiable, Hashable {
+        case `default`
+        case dark
+        
+        public var id: String { rawValue }
+        
+        public var label: String {
+            switch self {
+            case .`default`:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.default
+            case .dark:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
+            }
+        }
+        
+        public var colorScheme: ColorScheme {
+            switch self {
+            case .`default`:
+                .light
+            case .dark:
+                .dark
+            }
+        }
+    }
 }
