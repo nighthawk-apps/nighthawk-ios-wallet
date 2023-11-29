@@ -57,7 +57,6 @@ public enum Asset {
         public static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
         public static let notifications = ImageAsset(name: "notifications")
         public static let piggy = ImageAsset(name: "piggy")
-        public static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
         public static let preparing = ImageAsset(name: "preparing")
         public static let receive = ImageAsset(name: "receive")
         public static let received = ImageAsset(name: "received")

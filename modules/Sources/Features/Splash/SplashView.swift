@@ -38,12 +38,6 @@ public struct SplashView: View {
                 }
 
                 Spacer()
-                
-                Asset.Assets.Icons.Nighthawk.poweredByZcash
-                    .image
-                    .resizable()
-                    .frame(width: 131, height: 20)
-                    .padding(.bottom, 44)
             }
             .onChange(of: scenePhase) { newPhase in
                 viewStore.send(.scenePhaseChanged(newPhase))
