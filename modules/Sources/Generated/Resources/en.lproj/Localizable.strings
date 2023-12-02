@@ -381,6 +381,7 @@
 "nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
 "nighthawk.transactionDetails.viewTxDetails" = "View TX details";
 "nighthawk.transactionDetails.fiat.around" = "around %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
 
 
 // MARK: - Transaction

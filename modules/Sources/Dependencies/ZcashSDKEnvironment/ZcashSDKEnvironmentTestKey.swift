@@ -23,7 +23,8 @@ extension ZcashSDKEnvironment: TestDependencyKey {
             )
         },
         banditAddress: { Self.banditAddress(for: $0) },
-        banditAmount: ZcashSDKConstants.banditAmount,
+        banditAmount: ZcashSDKConstants.banditAmount, 
+        replyToPrefix: ZcashSDKConstants.replyToPrefix,
         memoCharLimit: MemoBytes.capacity,
         mnemonicWordsMaxCount: ZcashSDKConstants.mnemonicWordsMaxCount,
         requiredTransactionConfirmations: ZcashSDKConstants.requiredTransactionConfirmations,

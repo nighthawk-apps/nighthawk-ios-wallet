@@ -112,7 +112,7 @@ private extension ViewStoreOf<Review> {
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.address,
                     value: self.recipient.data,
-                    action: .init(
+                    action: .button(
                         title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                         action: {
                             self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))

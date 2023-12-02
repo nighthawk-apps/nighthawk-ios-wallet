@@ -12,12 +12,20 @@ public struct TransactionBasicDetailRow: View {
     let name: String
     let value: String
     let isMemo: Bool
+    let tapAction: (() -> Void)?
     let showBorder: Bool
     
-    public init(name: String, value: String, isMemo: Bool, showBorder: Bool) {
+    public init(
+        name: String,
+        value: String,
+        isMemo: Bool,
+        tapAction: (() -> Void)? = nil,
+        showBorder: Bool
+    ) {
         self.name = name
         self.value = value
         self.isMemo = isMemo
+        self.tapAction = tapAction
         self.showBorder = showBorder
     }
     
@@ -58,6 +66,9 @@ public struct TransactionBasicDetailRow: View {
                     }
                 }
             }
+        }
+        .onTapGesture {
+            tapAction?()
         }
     }
 }
