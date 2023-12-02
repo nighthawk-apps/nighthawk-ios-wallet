@@ -1,3 +1,4 @@
+import AlertToast
 import ComposableArchitecture
 import Generated
 import Models
@@ -34,6 +35,16 @@ public struct TransactionDetailView: View {
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
+            .toast(
+                unwrapping: viewStore.$toast,
+                case: /TransactionDetail.State.Toast.replyToCopied,
+                alert: {
+                    AlertToast(
+                        type: .regular,
+                        title: L10n.Nighthawk.TransactionDetails.replyToCopied
+                    )
+                }
+            )
         }
         .applyNighthawkBackground()
         .alert(
@@ -55,7 +66,12 @@ private extension ViewStoreOf<TransactionDetail> {
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.memo,
                     value: memoText,
-                    isMemo: true
+                    isMemo: true,
+                    action: .tap(
+                        action: {
+                            self.send(.copyReplyTo)
+                        }
+                    )
                 )
             )
         }
@@ -98,7 +114,7 @@ private extension ViewStoreOf<TransactionDetail> {
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.transactionId,
                     value: self.id,
-                    action: .init(
+                    action: .button(
                         title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                         action: {
                             self.send(.warnBeforeLeavingApp(self.viewOnlineURL))
@@ -121,7 +137,7 @@ private extension ViewStoreOf<TransactionDetail> {
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
                         value: address,
-                        action: .init(
+                        action: .button(
                             title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                             action: {
                                 self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))

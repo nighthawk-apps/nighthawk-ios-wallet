@@ -6,10 +6,12 @@
 //
 
 import ComposableArchitecture
+import DerivationTool
 import DiskSpaceChecker
 import Foundation
 import Generated
 import Models
+import Pasteboard
 import SDKSynchronizer
 import UIComponents
 import UIKit
@@ -21,7 +23,12 @@ public struct TransactionDetail: Reducer {
     private enum CancelId { case timer }
     
     public struct State: Equatable {
+        public enum Toast: Equatable {
+            case replyToCopied
+        }
+        
         @PresentationState public var alert: AlertState<Action.Alert>?
+        @BindingState public var toast: Toast?
         public var latestMinedHeight: BlockHeight? = .zero
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
@@ -69,8 +76,10 @@ public struct TransactionDetail: Reducer {
         }
     }
     
-    public enum Action: Equatable {
+    public enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Alert>)
+        case binding(BindingAction<State>)
+        case copyReplyTo
         case delegate(Delegate)
         case onAppear
         case synchronizerStateChanged(SynchronizerState)
@@ -85,13 +94,17 @@ public struct TransactionDetail: Reducer {
         }
     }
     
+    @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
             case let .alert(.presented(.openBlockExplorer(blockExplorerURL))):
@@ -102,6 +115,18 @@ public struct TransactionDetail: Reducer {
             case .alert(.dismiss):
                 return .none
             case .alert:
+                return .none
+            case .binding:
+                return .none
+            case .copyReplyTo:
+                if !state.isSending, let memo = state.memo?.toString(), !memo.isEmpty {
+                    let prefix = zcashSDKEnvironment.replyToPrefix
+                    let components = memo.split(separator: prefix)
+                    if components.count == 2 && derivationTool.isZcashAddress(String(components[1]), state.networkType) {
+                        pasteboard.setString(String(components[1]).redacted)
+                        state.toast = .replyToCopied
+                    }
+                }
                 return .none
             case .delegate:
                 return .none
