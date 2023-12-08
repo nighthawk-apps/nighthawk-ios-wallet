@@ -2,13 +2,13 @@
 "nefs.message" = "Not enough space on disk to do synchronisation!";
 
 // MARK: - Common & Shared
-"general.back" = "Back";
+"general.back" = "Indietro";
 "general.done" = "Done";
 "general.skip" = "Skip";
 "general.next" = "Next";
 "general.send" = "Send";
-"general.clear" = "Clear";
-"general.close" = "Close";
+"general.clear" = "Cancella";
+"general.close" = "Chiudi";
 "general.max" = "Max";
 "general.ok" = "Ok";
 "general.yes" = "Yes";
@@ -26,8 +26,8 @@
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-
 // MARK: - Local authentication
+
 "nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
 "nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
 
@@ -35,11 +35,11 @@
 "nighthawk.about.title" = "About";
 "nighthawk.about.message" = "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
 "nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
+"nighthawk.about.nighthawkFriends" = "Amici di Nighthawk";
 "nighthawk.about.viewLicenses" = "View licenses";
 
 // MARK: - Licenses Screen
-"nighthawk.licenses.title" = "OSS Licenses";
+"nighthawk.licenses.title" = "Licenze OSS";
 
 // MARK: - App
 "nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
@@ -53,12 +53,12 @@
 "nighthawk.autoshield.autoshielding" = "Autoshielding";
 "nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your shielded address.";
 "nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "Great!";
-"nighthawk.autoshield.buttonNeutral" = "Learn more";
+"nighthawk.autoshield.buttonPositive" = "Fantastico!";
+"nighthawk.autoshield.buttonNeutral" = "Ulteriori informazioni";
 "nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
 "nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
 "nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "Shielding…";
+"nighthawk.autoshield.shielding" = "Schermatura…";
 "nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
 "nighthawk.autoshield.shieldingSuccess" = "Success";
 "nighthawk.autoshield.shieldingFailed" = "Failed";
@@ -81,7 +81,7 @@
 // MARK: - Welcome
 "nighthawk.welcome.subtitle" = "Get started";
 "nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "By using this app you accept our";
+"nighthawk.welcome.terms1" = "Utilizzando questa app accetti la nostra";
 "nighthawk.welcome.create" = "Create Wallet";
 "nighthawk.welcome.restore" = "Restore From Backup";
 "nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
@@ -100,27 +100,27 @@
 "nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
 "nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
 "nighthawk.recoveryPhraseDisplay.continue" = "Continue";
-"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Esporta come PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
 "nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your Zcash in Nighthawk Wallet:";
 "nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
 
 // MARK: - Export seed
-"nighthawk.exportSeed.title" = "Export as PDF";
+"nighthawk.exportSeed.title" = "Esporta come PDF";
 "nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
 "nighthawk.exportSeed.export" = "Export PDF";
 "nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
 
 // MARK: - Import warning
-"nighthawk.importWarning.title" = "Before you continue";
-"nighthawk.importWarning.description" = "Please only import a seed phrase that was initially generated by Nighthawk. Other wallets operate differently, which may lead to inaccurate reporting of funds for your transactions.";
-"nighthawk.importWarning.proceed" = "Proceed";
+"nighthawk.importWarning.title" = "Prima di continuare";
+"nighthawk.importWarning.description" = "Per favore, importa solo una frase seed generata inizialmente da Nighthawk. Altri portafogli operano in modo diverso, il che potrebbe portare a segnalazioni inaccurate dei fondi per le tue transazioni.";
+"nighthawk.importWarning.proceed" = "Procedi";
 
 // MARK: - Import Wallet Screen
 "nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
 "nighthawk.importWallet.enterSeedPhrase" = "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
 "nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (optional)";
+"nighthawk.importWallet.birthdayHeight" = "Blocco di creazione (facoltativo)";
 "nighthawk.importWallet.continue" = "Continue";
 "nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
 "nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
@@ -133,7 +133,7 @@
 
 // MARK: - Transactions
 "nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "Receiving";
+"nighthawk.transaction.receiving" = "Ricezione in corso";
 "nighthawk.transaction.failed" = "Failed";
 "nighthawk.transaction.received" = "Received";
 "nighthawk.transaction.sent" = "Sent";
@@ -155,8 +155,8 @@
 "nighthawk.walletTab.shieldNow" = "Shield now";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Unified address";
-"nighthawk.walletTab.addresses.saplingAddress" = "Legacy shielded address";
+"nighthawk.walletTab.addresses.unifiedAddress" = "Indirizzo unificato";
+"nighthawk.walletTab.addresses.saplingAddress" = "Indirizzo schermato legacy";
 "nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade Zcash through our specially selected partners.";
@@ -166,7 +166,7 @@
 "nighthawk.walletTab.addresses.loading" = "Loading…";
 
 // MARK: - Home Screen - Transaction history
-"nighthawk.transactionHistory.title" = "Transaction History";
+"nighthawk.transactionHistory.title" = "Cronologia delle transazioni";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
 "nighthawk.transactionHistory.autoshieldedFunds" = "Auto-shielded funds";
 
@@ -269,10 +269,10 @@
 "nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
 "nighthawk.settingsTab.changeServerTitle" = "Change server";
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "External services";
+"nighthawk.settingsTab.externalServicesTitle" = "Servizi Esterni";
 "nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "Advanced";
-"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
+"nighthawk.settingsTab.advancedTitle" = "Avanzate";
+"nighthawk.settingsTab.advancedSubtitle" = "Impostazioni meno comuni";
 "nighthawk.settingsTab.aboutTitle" = "About";
 "nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
 
@@ -342,6 +342,9 @@
 "nighthawk.settingsTab.advanced.appIcon.default" = "Default";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
 "nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
+"nighthawk.settingsTab.advanced.theme.title" = "Theme";
+"nighthawk.settingsTab.advanced.theme.default" = "Default";
+"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
 "nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
 "nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
@@ -351,8 +354,8 @@
 "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "External services";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "Servizi Esterni";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Abilita Unstoppable Domain Service";
 
 // MARK: - Transaction details
 "nighthawk.transactionDetails.title" = "Transaction details";
@@ -378,6 +381,7 @@
 "nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
 "nighthawk.transactionDetails.viewTxDetails" = "View TX details";
 "nighthawk.transactionDetails.fiat.around" = "around %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
 
 
 // MARK: - Transaction
