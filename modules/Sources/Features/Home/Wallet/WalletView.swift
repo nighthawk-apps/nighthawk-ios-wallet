@@ -76,6 +76,7 @@ private extension WalletView {
                 .padding([.top, .trailing], 25)
             }
         }
+        .environment(\.layoutDirection, .leftToRight)
     }
     
     func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
@@ -88,6 +89,7 @@ private extension WalletView {
         }
         .frame(maxHeight: 180)
         .padding(.top, 58)
+        .environment(\.layoutDirection, .leftToRight)
     }
     
     @ViewBuilder func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {

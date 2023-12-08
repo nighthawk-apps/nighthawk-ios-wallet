@@ -18,12 +18,13 @@ extension DependencyValues {
 
 extension ZcashSDKEnvironment {
     public enum ZcashSDKConstants {
-        static let endpointTestnetAddress = "testnet.lightwalletd.com"
+        static let endpointTestnetAddress = "lightwalletd.testnet.electriccoin.co"
         static let endpointTestnetPort = 9067
         static let mnemonicWordsMaxCount = 24
         static let requiredTransactionConfirmations = 10
         static let streamingCallTimeoutInMillis = Int64(10 * 60 * 60 * 1000) // ten hours
         static let banditAmount = Zatoshi(11_700_000)
+        static let replyToPrefix = "Reply to:"
     }
 
     public static func endpoint(for network: ZcashNetwork) -> String {
@@ -63,6 +64,7 @@ public struct ZcashSDKEnvironment {
     public let endpoint: (ZcashNetwork) -> LightWalletEndpoint
     public let banditAddress: (ZcashNetwork) -> String
     public let banditAmount: Zatoshi
+    public let replyToPrefix: String
     public let memoCharLimit: Int
     public let mnemonicWordsMaxCount: Int
     public let requiredTransactionConfirmations: Int

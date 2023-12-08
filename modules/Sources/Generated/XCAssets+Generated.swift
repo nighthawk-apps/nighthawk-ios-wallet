@@ -57,7 +57,6 @@ public enum Asset {
         public static let nighthawkSymbolPeach = ImageAsset(name: "nighthawk_symbol_peach")
         public static let notifications = ImageAsset(name: "notifications")
         public static let piggy = ImageAsset(name: "piggy")
-        public static let poweredByZcash = ImageAsset(name: "powered_by_zcash")
         public static let preparing = ImageAsset(name: "preparing")
         public static let receive = ImageAsset(name: "receive")
         public static let received = ImageAsset(name: "received")
@@ -87,40 +86,6 @@ public enum Asset {
     }
   }
   public enum Colors {
-    public enum BackgroundColors {
-      public static let numberedChip = ColorAsset(name: "numberedChip")
-      public static let phraseGridDarkGray = ColorAsset(name: "phraseGridDarkGray")
-      public static let red = ColorAsset(name: "red")
-      public static let staticWelcomeScreen = ColorAsset(name: "staticWelcomeScreen")
-    }
-    public enum Buttons {
-      public static let activeButton = ColorAsset(name: "ActiveButton")
-      public static let activeButtonDisabled = ColorAsset(name: "ActiveButtonDisabled")
-      public static let activeButtonPressed = ColorAsset(name: "ActiveButtonPressed")
-      public static let buttonsTitleShadow = ColorAsset(name: "ButtonsTitleShadow")
-      public static let neumorphicButtonDarkSide = ColorAsset(name: "NeumorphicButtonDarkSide")
-      public static let neumorphicButtonLightSide = ColorAsset(name: "NeumorphicButtonLightSide")
-      public static let onboardingNavigation = ColorAsset(name: "OnboardingNavigation")
-      public static let onboardingNavigationPressed = ColorAsset(name: "OnboardingNavigationPressed")
-      public static let primaryButton = ColorAsset(name: "PrimaryButton")
-      public static let primaryButtonDisabled = ColorAsset(name: "PrimaryButtonDisabled")
-      public static let primaryButtonPressed = ColorAsset(name: "PrimaryButtonPressed")
-      public static let secondaryButton = ColorAsset(name: "SecondaryButton")
-      public static let secondaryButtonPressed = ColorAsset(name: "SecondaryButtonPressed")
-    }
-    public enum CheckCircle {
-      public static let externalRing = ColorAsset(name: "externalRing")
-      public static let internalRing = ColorAsset(name: "internalRing")
-    }
-    public enum Cursor {
-      public static let bar = ColorAsset(name: "Bar")
-    }
-    public enum Mfp {
-      public static let background = ColorAsset(name: "background")
-      public static let fontDark = ColorAsset(name: "fontDark")
-      public static let fontLight = ColorAsset(name: "fontLight")
-      public static let primary = ColorAsset(name: "primary")
-    }
     public enum Nighthawk {
       public static let darkNavy = ColorAsset(name: "darkNavy")
       public static let error = ColorAsset(name: "error")
@@ -128,96 +93,6 @@ public enum Asset {
       public static let parmaviolet = ColorAsset(name: "parmaviolet")
       public static let peach = ColorAsset(name: "peach")
       public static let richBlack = ColorAsset(name: "richBlack")
-    }
-    public enum Onboarding {
-      public static let badgeShadow = ColorAsset(name: "BadgeShadow")
-      public static let circularFrameDarkOutlineGradientEnd = ColorAsset(name: "CircularFrameDarkOutlineGradientEnd")
-      public static let circularFrameDarkOutlineGradientStart = ColorAsset(name: "CircularFrameDarkOutlineGradientStart")
-      public static let circularFrameGradientEnd = ColorAsset(name: "CircularFrameGradientEnd")
-      public static let circularFrameGradientStart = ColorAsset(name: "CircularFrameGradientStart")
-      public static let navigationButtonDisabled = ColorAsset(name: "NavigationButtonDisabled")
-      public static let navigationButtonEnabled = ColorAsset(name: "NavigationButtonEnabled")
-      public static let neumorphicDarkSide = ColorAsset(name: "NeumorphicDarkSide")
-      public static let neumorphicLightSide = ColorAsset(name: "NeumorphicLightSide")
-      public static let badgeBackground = ColorAsset(name: "badgeBackground")
-    }
-    public enum ProgressIndicator {
-      public static let gradientLeft = ColorAsset(name: "GradientLeft")
-      public static let gradientRight = ColorAsset(name: "GradientRight")
-      public static let negativeSpace = ColorAsset(name: "NegativeSpace")
-      public static let holdToSendButton = ColorAsset(name: "holdToSendButton")
-    }
-    public enum QRScan {
-      public static let frame = ColorAsset(name: "frame")
-    }
-    public enum ScreenBackground {
-      public static let amberGradientEnd = ColorAsset(name: "amberGradientEnd")
-      public static let amberGradientMiddle = ColorAsset(name: "amberGradientMiddle")
-      public static let amberGradientStart = ColorAsset(name: "amberGradientStart")
-      public static let gradientDarkEnd = ColorAsset(name: "gradientDarkEnd")
-      public static let gradientDarkStart = ColorAsset(name: "gradientDarkStart")
-      public static let gradientEnd = ColorAsset(name: "gradientEnd")
-      public static let gradientStart = ColorAsset(name: "gradientStart")
-      public static let greenGradientEnd = ColorAsset(name: "greenGradientEnd")
-      public static let greenGradientStart = ColorAsset(name: "greenGradientStart")
-      public static let modalDialog = ColorAsset(name: "modalDialog")
-      public static let redGradientEnd = ColorAsset(name: "redGradientEnd")
-      public static let redGradientStart = ColorAsset(name: "redGradientStart")
-      public static let semiTransparentGradientEnd = ColorAsset(name: "semiTransparentGradientEnd")
-      public static let semiTransparentGradientStart = ColorAsset(name: "semiTransparentGradientStart")
-    }
-    public enum Shadow {
-      public static let drawerShadow = ColorAsset(name: "drawerShadow")
-      public static let emptyChipInnerShadow = ColorAsset(name: "emptyChipInnerShadow")
-      public static let holdToSendButtonShadow = ColorAsset(name: "holdToSendButtonShadow")
-      public static let numberedTextShadow = ColorAsset(name: "numberedTextShadow")
-    }
-    public enum Text {
-      public static let activeButtonText = ColorAsset(name: "ActiveButtonText")
-      public static let body = ColorAsset(name: "Body")
-      public static let button = ColorAsset(name: "Button")
-      public static let drawerTabsText = ColorAsset(name: "DrawerTabsText")
-      public static let heading = ColorAsset(name: "Heading")
-      public static let importSeedEditor = ColorAsset(name: "ImportSeedEditor")
-      public static let invalidEntry = ColorAsset(name: "InvalidEntry")
-      public static let medium = ColorAsset(name: "Medium")
-      public static let regular = ColorAsset(name: "Regular")
-      public static let secondaryButtonText = ColorAsset(name: "SecondaryButtonText")
-      public static let titleText = ColorAsset(name: "TitleText")
-      public static let transactionDetailText = ColorAsset(name: "TransactionDetailText")
-      public static let transactionRowSubtitle = ColorAsset(name: "TransactionRowSubtitle")
-      public static let validMnemonic = ColorAsset(name: "ValidMnemonic")
-      public static let balanceText = ColorAsset(name: "balanceText")
-      public static let captionText = ColorAsset(name: "captionText")
-      public static let captionTextShadow = ColorAsset(name: "captionTextShadow")
-      public static let forDarkBackground = ColorAsset(name: "forDarkBackground")
-      public static let highlightedSuperscriptText = ColorAsset(name: "highlightedSuperscriptText")
-      public static let moreInfoText = ColorAsset(name: "moreInfoText")
-    }
-    public enum TextField {
-      public static let multilineOutline = ColorAsset(name: "MultilineOutline")
-      public static let titleAccessoryButton = ColorAsset(name: "TitleAccessoryButton")
-      public static let titleAccessoryButtonPressed = ColorAsset(name: "TitleAccessoryButtonPressed")
-      public enum Underline {
-        public static let gray = ColorAsset(name: "Gray")
-        public static let purple = ColorAsset(name: "Purple")
-      }
-    }
-    public enum TransactionDetail {
-      public static let failedMark = ColorAsset(name: "FailedMark")
-      public static let highlightMark = ColorAsset(name: "HighlightMark")
-      public static let inactiveMark = ColorAsset(name: "InactiveMark")
-      public static let neutralMark = ColorAsset(name: "NeutralMark")
-      public static let succeededMark = ColorAsset(name: "SucceededMark")
-    }
-    public enum ZcashBadge {
-      public static let zcashLogoFill = ColorAsset(name: "ZcashLogoFill")
-      public static let innerCircle = ColorAsset(name: "innerCircle")
-      public static let outerRingGradientEnd = ColorAsset(name: "outerRingGradientEnd")
-      public static let outerRingGradientStart = ColorAsset(name: "outerRingGradientStart")
-      public static let shadowColor = ColorAsset(name: "shadowColor")
-      public static let thickRing = ColorAsset(name: "thickRing")
-      public static let thinRing = ColorAsset(name: "thinRing")
     }
   }
 }

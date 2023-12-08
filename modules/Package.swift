@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "modules",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v16)
     ],
@@ -58,15 +59,15 @@ let package = Package(
         .library(name: "ZcashSDKEnvironment", targets: ["ZcashSDKEnvironment"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.3.0"),
-        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0"),
-        .package(url: "https://github.com/zcash/ZcashLightClientKit", from: "2.0.3"),
-        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", from: "2.2.4"),
-        .package(url: "https://github.com/twostraws/Subsonic", from: "0.2.0"),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.2.0"),
-        .package(url: "https://github.com/elai950/AlertToast.git", branch: "master"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.3.0"),
+        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", exact: "6.6.2"),
+        .package(url: "https://github.com/zcash/ZcashLightClientKit", exact: "2.0.3"),
+        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", exact: "2.2.4"),
+        .package(url: "https://github.com/twostraws/Subsonic", exact: "0.2.0"),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.3.0"),
+        .package(url: "https://github.com/elai950/AlertToast.git", revision: "638f38f9daf08e17b7caea22d2fcb9c0a418d1b6"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9"),
-        .package(url: "https://github.com/unstoppabledomains/resolution-swift", from: "5.2.1")
+        .package(url: "https://github.com/unstoppabledomains/resolution-swift", exact: "5.2.1")
     ],
     targets: [
         .target(

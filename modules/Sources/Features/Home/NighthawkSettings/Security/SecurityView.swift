@@ -24,6 +24,7 @@ public struct SecurityView: View {
                     isOn: viewStore.$areBiometricsEnabled
                 )
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .foregroundColor(.white)
                 .lineSpacing(6)
                 .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
                 

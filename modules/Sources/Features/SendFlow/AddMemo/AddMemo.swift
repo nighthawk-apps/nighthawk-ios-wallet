@@ -10,6 +10,7 @@ import SDKSynchronizer
 import SwiftUI
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 public struct AddMemo: Reducer {
     public struct State: Equatable {
@@ -19,8 +20,10 @@ public struct AddMemo: Reducer {
         public var unifiedAddress: UnifiedAddress?
         public var hasEnteredMemo: Bool { !memo.isEmpty }
         public var canIncludeReplyTo: Bool {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
             guard let ua = unifiedAddress?.stringEncoded else { return false }
-            return hasEnteredMemo && "\(memo)\nReply to: \(ua)".count <= memoCharLimit
+            let prefix = zcashSDKEnvironment.replyToPrefix
+            return hasEnteredMemo && "\(memo)\n\(prefix)\(ua)".count <= memoCharLimit
         }
         
         public init(unifiedAddress: UnifiedAddress?) {

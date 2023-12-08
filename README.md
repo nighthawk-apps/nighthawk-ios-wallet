@@ -1,5 +1,7 @@
 # Nighthawk for iOS and Apple Silicon
 
+Privacy-preserving wallet maintained by [nighthawk apps](https://nighthawkapps.com)
+
 ### Download
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 

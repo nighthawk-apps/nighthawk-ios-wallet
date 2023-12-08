@@ -10,14 +10,10 @@ import SwiftUI
 import ZcashLightClientKit
 
 public struct TransactionLineItem: Identifiable {
-    public struct Action {
-        let title: String
-        let action: () -> Void
-        
-        public init(title: String, action: @escaping () -> Void) {
-            self.title = title
-            self.action = action
-        }
+    
+    public enum Action {
+        case tap(action: () -> Void)
+        case button(title: String, action: () -> Void)
     }
     
     let name: String
@@ -52,14 +48,25 @@ public struct TransactionDetailsTable: View {
     public var body: some View {
         VStack {
             ForEach(lineItems) { lineItem in
-                if let action = lineItem.action {
-                    TransactionActionableDetailRow(
-                        name: lineItem.name,
-                        value: lineItem.value,
-                        actionTitle: action.title,
-                        action: action.action,
-                        showBorder: lineItem.showBorder
-                    )
+                if let itemAction = lineItem.action {
+                    switch itemAction {
+                    case let .button(title, action):
+                        TransactionActionableDetailRow(
+                            name: lineItem.name,
+                            value: lineItem.value,
+                            actionTitle: title,
+                            action: action,
+                            showBorder: lineItem.showBorder
+                        )
+                    case let .tap(action):
+                        TransactionBasicDetailRow(
+                            name: lineItem.name,
+                            value: lineItem.value,
+                            isMemo: lineItem.isMemo,
+                            tapAction: action,
+                            showBorder: lineItem.showBorder
+                        )
+                    }
                 } else {
                     TransactionBasicDetailRow(
                         name: lineItem.name,

@@ -16,6 +16,7 @@ public struct Advanced: Reducer {
         @PresentationState public var alert: AlertState<Action.Alert>?
         @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         @BindingState public var selectedAppIcon: NighthawkSetting.AppIcon = .default
+        @BindingState public var theme: NighthawkSetting.Theme = .default
         public var showBanditSettings: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.isBandit()
@@ -29,6 +30,7 @@ public struct Advanced: Reducer {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             self.selectedScreenMode = userStoredPreferences.screenMode()
             self.selectedAppIcon = userStoredPreferences.appIcon()
+            self.theme = userStoredPreferences.theme()
         }
     }
     
@@ -92,6 +94,9 @@ public struct Advanced: Reducer {
             case .binding(\.$selectedScreenMode):
                 userStoredPreferences.setScreenMode(state.selectedScreenMode)
                 UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
+                return .none
+            case .binding(\.$theme):
+                userStoredPreferences.setTheme(state.theme)
                 return .none
             case .alert, .binding:
                 return .none
