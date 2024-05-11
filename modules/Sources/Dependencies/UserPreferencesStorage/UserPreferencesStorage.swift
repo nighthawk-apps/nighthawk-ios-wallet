@@ -16,7 +16,6 @@ public struct UserPreferencesStorage {
     public enum Constants: String, CaseIterable {
         case zcashAppIcon
         case zcashTheme
-        case zcashLightwalletdServer
         case zcashFiatCurrency
         case zcashScreenMode
         case zcashSyncNotificationFrequency
@@ -25,12 +24,13 @@ public struct UserPreferencesStorage {
         case zcashIsFirstSync
         case zcashIsUnstoppableDomainsEnabled
         case zcashHasShownAutoshielding
+        case zcashUseCustomLightwalletd
+        case zcashCustomLightwalletdServer
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
     private let icon: NighthawkSetting.AppIcon
     private let defaultTheme: NighthawkSetting.Theme
-    private let lightwalletd: NighthawkSetting.LightwalletdServer
     private let currency: NighthawkSetting.FiatCurrency
     private let selectedScreenMode: NighthawkSetting.ScreenMode
     private let selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency
@@ -39,13 +39,14 @@ public struct UserPreferencesStorage {
     private let firstSync: Bool
     private let unstoppableDomainsEnabled: Bool
     private let shownAutoshielding: Bool
+    private let useCustomLightwalletd: Bool
+    private let selectedCustomLightwalletdServer: String?
     
     private let userDefaults: UserDefaultsClient
     
     public init(
         icon: NighthawkSetting.AppIcon,
         defaultTheme: NighthawkSetting.Theme,
-        lightwalletd: NighthawkSetting.LightwalletdServer,
         currency: NighthawkSetting.FiatCurrency,
         selectedScreenMode: NighthawkSetting.ScreenMode,
         selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency,
@@ -54,11 +55,12 @@ public struct UserPreferencesStorage {
         firstSync: Bool,
         unstoppableDomainsEnabled: Bool,
         shownAutoshielding: Bool,
+        useCustomLightwalletd: Bool,
+        selectedCustomLightwalletdServer: String?,
         userDefaults: UserDefaultsClient
     ) {
         self.icon = icon
         self.defaultTheme = defaultTheme
-        self.lightwalletd = lightwalletd
         self.currency = currency
         self.selectedScreenMode = selectedScreenMode
         self.selectedSyncNotificationFrequency = selectedSyncNotificationFrequency
@@ -67,6 +69,8 @@ public struct UserPreferencesStorage {
         self.firstSync = firstSync
         self.unstoppableDomainsEnabled = unstoppableDomainsEnabled
         self.shownAutoshielding = shownAutoshielding
+        self.useCustomLightwalletd = useCustomLightwalletd
+        self.selectedCustomLightwalletdServer = selectedCustomLightwalletdServer
         self.userDefaults = userDefaults
     }
     
@@ -86,15 +90,6 @@ public struct UserPreferencesStorage {
     
     public func setTheme(_ theme: NighthawkSetting.Theme) {
         setValue(theme.rawValue, forKey: Constants.zcashTheme.rawValue)
-    }
-    
-    public var lightwalletdServer: NighthawkSetting.LightwalletdServer {
-        let rawValue = getValue(forKey: Constants.zcashLightwalletdServer.rawValue, default: lightwalletd.rawValue)
-        return NighthawkSetting.LightwalletdServer(rawValue: rawValue) ?? .default
-    }
-    
-    public func setLightwalletdServer(_ server: NighthawkSetting.LightwalletdServer) {
-        setValue(server.rawValue, forKey: Constants.zcashLightwalletdServer.rawValue)
     }
 
     public var fiatCurrency: NighthawkSetting.FiatCurrency {
@@ -166,6 +161,26 @@ public struct UserPreferencesStorage {
     public func setHasShownAutoshielding(_ bool: Bool) {
         setValue(bool, forKey: Constants.zcashHasShownAutoshielding.rawValue)
     }
+    
+    public var isUsingCustomLightwalletd: Bool {
+        getValue(forKey: Constants.zcashUseCustomLightwalletd.rawValue, default: useCustomLightwalletd)
+    }
+    
+    public func setIsUsingCustomLightwalletd(_ bool: Bool) {
+        setValue(bool, forKey: Constants.zcashUseCustomLightwalletd.rawValue)
+    }
+    
+    public var customLightwalletdServer: String? {
+        getValue(forKey: Constants.zcashCustomLightwalletdServer.rawValue, default: selectedCustomLightwalletdServer)
+    }
+    
+    public func setCustomLightwalletdServer(_ string: String?) {
+        if let string {
+            setValue(string, forKey: Constants.zcashCustomLightwalletdServer.rawValue)
+        } else {
+            userDefaults.remove(Constants.zcashCustomLightwalletdServer.rawValue)
+        }
+    }
 
 
     /// Use carefully: Deletes all user preferences from the User Defaults
@@ -180,7 +195,6 @@ extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
         icon: .default,
         defaultTheme: .default,
-        lightwalletd: .default,
         currency: .off,
         selectedScreenMode: .keepOn,
         selectedSyncNotificationFrequency: .off,
@@ -189,6 +203,8 @@ extension UserPreferencesStorage {
         firstSync: true,
         unstoppableDomainsEnabled: false,
         shownAutoshielding: false,
+        useCustomLightwalletd: false,
+        selectedCustomLightwalletdServer: nil,
         userDefaults: .live()
     )
 }

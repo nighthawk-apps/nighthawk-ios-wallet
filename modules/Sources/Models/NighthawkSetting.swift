@@ -74,58 +74,6 @@ public enum NighthawkSetting {
         }
     }
     
-    public enum LightwalletdServer: String, CaseIterable, Equatable, Identifiable, Hashable {
-        case `default`
-        case asiaOceania
-        case europeAfrica
-        case northAmerica
-        case southAmerica
-        
-        public var id: String { rawValue }
-        
-        public var label: String {
-            switch self {
-            case .`default`:
-                return L10n.Nighthawk.SettingsTab.ChangeServer.default
-            case .asiaOceania:
-                return L10n.Nighthawk.SettingsTab.ChangeServer.asiaOceania
-            case .europeAfrica:
-                return L10n.Nighthawk.SettingsTab.ChangeServer.europeAfrica
-            case .northAmerica:
-                return L10n.Nighthawk.SettingsTab.ChangeServer.northAmerica
-            case .southAmerica:
-                return L10n.Nighthawk.SettingsTab.ChangeServer.southAmerica
-            }
-        }
-        
-        public var host: String {
-            switch self {
-            case .`default`:
-                return "mainnet.lightwalletd.com"
-            case .asiaOceania:
-                return "ai.lightwalletd.com"
-            case .europeAfrica:
-                return "eu.lightwalletd.com"
-            case .northAmerica:
-                return "na.lightwalletd.com"
-            case .southAmerica:
-                return "sa.lightwalletd.com"
-            }
-        }
-        
-        public var port: Int {
-            switch self {
-            case .`default`:
-                9067
-            case .asiaOceania,
-                 .europeAfrica,
-                 .northAmerica,
-                 .southAmerica:
-                443
-            }
-        }
-    }
-    
     public enum AppIcon: String, CaseIterable, Equatable, Identifiable, Hashable {
         case `default` = "AppIcon"
         case retro = "RetroAppIcon"

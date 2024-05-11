@@ -10,9 +10,12 @@ import Generated
 import Models
 import SwiftUI
 import UIComponents
+import ZcashSDKEnvironment
 
 public struct ChangeServerView: View {
     let store: StoreOf<ChangeServer>
+    
+    @FocusState private var isCustomLightwalletdServerEditorFocused: Bool
     
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -22,22 +25,55 @@ public struct ChangeServerView: View {
                         .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
                     RadioSelectionList(
-                        options: NighthawkSetting.LightwalletdServer.allCases,
-                        selection: viewStore.$lightwalletdServer.animation(.none)
+                        options: ChangeServer.State.LightwalletdOption.allCases,
+                        selection: viewStore.$lightwalletdOption.animation(.none)
                     ) { option in
                         HStack {
-                            Text(option.label)
-                                .paragraphMedium(color: .white)
+                            if option == .default {
+                                Text("Default (\(viewStore.defaultLightwalletdServer))")
+                                    .paragraphMedium(color: .white)
+                            } else {
+                                Text("Custom")
+                                    .paragraphMedium(color: .white)
+                            }
                             
                             Spacer()
                         }
                         .padding(.vertical, 12)
                     }
                     
+                    NighthawkTextField(
+                        placeholder: viewStore.defaultLightwalletdServer,
+                        text: viewStore.$customLightwalletdServer,
+                        isValid: viewStore.validateCustomLightwalletdServer()
+                    )
+                    .frame(maxWidth: .infinity)
+                    .keyboardType(.URL)
+                    .disabled(viewStore.lightwalletdOption != .custom)
+                    .opacity(viewStore.lightwalletdOption != .custom ? 0.5 : 1.0)
+                    .focused($isCustomLightwalletdServerEditorFocused)
+                    
+                    VStack(alignment: .center) {
+                        Button(
+                            L10n.Nighthawk.SettingsTab.ChangeServer.save,
+                            action: { viewStore.send(.saveTapped) }
+                        )
+                        .buttonStyle(.nighthawkPrimary(width: 156))
+                        .disabled(!viewStore.canSave)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    
                     Spacer()
                 }
                 .padding(.top, 25)
                 .padding(.horizontal, 25)
+            }
+            .onAppear { viewStore.send(.onAppear) }
+            .onChange(of: viewStore.lightwalletdOption) { value in
+                if value == .custom {
+                    isCustomLightwalletdServerEditorFocused = true
+                }
             }
         }
         .applyNighthawkBackground()
