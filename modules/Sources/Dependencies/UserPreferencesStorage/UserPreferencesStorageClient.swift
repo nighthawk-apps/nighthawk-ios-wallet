@@ -16,9 +16,6 @@ public struct UserPreferencesStorageClient {
     public var theme: () -> NighthawkSetting.Theme
     public var setTheme: (NighthawkSetting.Theme) -> Void
     
-    public var lightwalletdServer: () -> NighthawkSetting.LightwalletdServer
-    public var setLightwalletdServer: (NighthawkSetting.LightwalletdServer) -> Void
-    
     public var fiatCurrency: () -> NighthawkSetting.FiatCurrency
     public var setFiatCurrency: (NighthawkSetting.FiatCurrency) -> Void
     
@@ -43,6 +40,12 @@ public struct UserPreferencesStorageClient {
     public var hasShownAutoshielding: () -> Bool
     public var setHasShownAutoshielding: (Bool) -> Void
     
+    public var isUsingCustomLightwalletd: () -> Bool
+    public var setIsUsingCustomLightwalletd: (Bool) -> Void
+    
+    public var customLightwalletdServer: () -> String?
+    public var setCustomLightwalletdServer: (String?) -> Void
+    
     public var removeAll: () -> Void
 }
 
@@ -52,8 +55,6 @@ extension UserPreferencesStorageClient: DependencyKey {
         setAppIcon: UserPreferencesStorage.live.setAppIcon(_:),
         theme: { UserPreferencesStorage.live.theme },
         setTheme: UserPreferencesStorage.live.setTheme(_:),
-        lightwalletdServer: { UserPreferencesStorage.live.lightwalletdServer },
-        setLightwalletdServer: UserPreferencesStorage.live.setLightwalletdServer(_:),
         fiatCurrency: { UserPreferencesStorage.live.fiatCurrency },
         setFiatCurrency: UserPreferencesStorage.live.setFiatCurrency(_:),
         screenMode: { UserPreferencesStorage.live.screenMode },
@@ -70,6 +71,10 @@ extension UserPreferencesStorageClient: DependencyKey {
         setIsUnstoppableDomainsEnabled: UserPreferencesStorage.live.setIsUnstoppableDomainsEnabled(_:),
         hasShownAutoshielding: { UserPreferencesStorage.live.hasShownAutoshielding },
         setHasShownAutoshielding: UserPreferencesStorage.live.setHasShownAutoshielding(_:),
+        isUsingCustomLightwalletd: { UserPreferencesStorage.live.isUsingCustomLightwalletd },
+        setIsUsingCustomLightwalletd: UserPreferencesStorage.live.setIsUsingCustomLightwalletd(_:),
+        customLightwalletdServer: { UserPreferencesStorage.live.customLightwalletdServer },
+        setCustomLightwalletdServer: UserPreferencesStorage.live.setCustomLightwalletdServer(_:),
         removeAll: UserPreferencesStorage.live.removeAll
     )
 }

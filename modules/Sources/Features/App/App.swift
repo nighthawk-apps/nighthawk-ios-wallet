@@ -121,7 +121,7 @@ public struct AppReducer: Reducer {
             }
             
             Scope(state: /State.changeServer, action: /Action.changeServer) {
-                ChangeServer()
+                ChangeServer(zcashNetwork: zcashNetwork)
             }
             
             Scope(state: /State.externalServices, action: /Action.externalServices) {

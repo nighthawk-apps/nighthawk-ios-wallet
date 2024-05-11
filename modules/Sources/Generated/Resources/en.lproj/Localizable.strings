@@ -318,11 +318,10 @@
 
 // MARK: - Home Screen - Settings tab - Change server
 "nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default";
-"nighthawk.settingsTab.changeServer.asiaOceania" = "Asia & Oceania";
-"nighthawk.settingsTab.changeServer.europeAfrica" = "Europe & Africa";
-"nighthawk.settingsTab.changeServer.northAmerica" = "North America";
-"nighthawk.settingsTab.changeServer.southAmerica" = "South America";
+"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "Custom";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
+"nighthawk.settingsTab.changeServer.save" = "Save";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title" = "Re-launch required";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message" = "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app";
 

@@ -389,16 +389,14 @@ public enum L10n {
         public static let viewSeedWarningAlertTitle = L10n.tr("Localizable", "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle", fallback: "View seed words?")
       }
       public enum ChangeServer {
-        /// Asia & Oceania
-        public static let asiaOceania = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.asiaOceania", fallback: "Asia & Oceania")
-        /// Default
-        public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.default", fallback: "Default")
-        /// Europe & Africa
-        public static let europeAfrica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.europeAfrica", fallback: "Europe & Africa")
-        /// North America
-        public static let northAmerica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.northAmerica", fallback: "North America")
-        /// South America
-        public static let southAmerica = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.southAmerica", fallback: "South America")
+        /// Custom
+        public static let custom = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.custom", fallback: "Custom")
+        /// Default (%@)
+        public static func `default`(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.default", String(describing: p1), fallback: "Default (%@)")
+        }
+        /// Save
+        public static let save = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.save", fallback: "Save")
         /// Change server
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.title", fallback: "Change server")
         public enum Alert {
@@ -408,6 +406,10 @@ public enum L10n {
             /// Re-launch required
             public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title", fallback: "Re-launch required")
           }
+        }
+        public enum Custom {
+          /// Error ⸱ This doesn't look like a valid lightwalletd server
+          public static let invalidLightwalletd = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.custom.invalidLightwalletd", fallback: "Error ⸱ This doesn't look like a valid lightwalletd server")
         }
       }
       public enum ExternalServices {

@@ -20,6 +20,8 @@ extension ZcashSDKEnvironment {
     public enum ZcashSDKConstants {
         static let endpointTestnetAddress = "lightwalletd.testnet.electriccoin.co"
         static let endpointTestnetPort = 9067
+        static let endpointMainnetDefaultAddress = "zec.rocks"
+        static let endpointMainnetDefaultPort = 443
         static let mnemonicWordsMaxCount = 24
         static let requiredTransactionConfirmations = 10
         static let streamingCallTimeoutInMillis = Int64(10 * 60 * 60 * 1000) // ten hours
@@ -34,7 +36,12 @@ extension ZcashSDKEnvironment {
         case .testnet:
             ZcashSDKConstants.endpointTestnetAddress
         case .mainnet:
-            userStoredPreferences.lightwalletdServer().host
+            if userStoredPreferences.isUsingCustomLightwalletd(),
+               let customServer = userStoredPreferences.customLightwalletdServer() {
+                String(customServer.split(separator: ":")[0])
+            } else {
+                ZcashSDKConstants.endpointMainnetDefaultAddress
+            }
         }
     }
     
@@ -45,7 +52,13 @@ extension ZcashSDKEnvironment {
         case .testnet:
             ZcashSDKConstants.endpointTestnetPort
         case .mainnet:
-            userStoredPreferences.lightwalletdServer().port
+            if userStoredPreferences.isUsingCustomLightwalletd(),
+               let customServer = userStoredPreferences.customLightwalletdServer(),
+               let port = Int(String(customServer.split(separator: ":")[1])) {
+                port
+            } else {
+                ZcashSDKConstants.endpointMainnetDefaultPort
+            }
         }
     }
     
@@ -61,6 +74,7 @@ extension ZcashSDKEnvironment {
 
 public struct ZcashSDKEnvironment {
     public var latestCheckpoint: (ZcashNetwork) -> BlockHeight //{ BlockHeight.ofLatestCheckpoint(network: network()) }
+    public let defaultEndpoint: () -> LightWalletEndpoint
     public let endpoint: (ZcashNetwork) -> LightWalletEndpoint
     public let banditAddress: (ZcashNetwork) -> String
     public let banditAmount: Zatoshi
