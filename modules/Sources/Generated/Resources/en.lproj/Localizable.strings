@@ -182,16 +182,17 @@
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";
 "nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money.";
+"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard.";
+"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
 "nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
 "nighthawk.transferTab.topUpWalletDescription" = "Securely buy Zcash through our partners.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money securely";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
 "nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
+"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Your wallet address will be copied to the clipboard.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
