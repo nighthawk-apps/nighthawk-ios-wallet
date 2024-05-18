@@ -77,7 +77,7 @@ private extension ReceiveView {
             Button(action: { viewStore.send(.copyUnifiedAddressTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressTitle,
-                    description: L10n.Nighthawk.TransferTab.receiveMoneyDescription,
+                    description: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressDescription,
                     icon: Asset.Assets.Icons.Nighthawk.copy.image
                 )
             }

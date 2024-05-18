@@ -634,8 +634,8 @@ public enum L10n {
       }
     }
     public enum TransferTab {
-      /// Your wallet address will be copied to the clipboard.
-      public static let receiveMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyDescription", fallback: "Your wallet address will be copied to the clipboard.")
+      /// Display your QR code or copy your address.
+      public static let receiveMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyDescription", fallback: "Display your QR code or copy your address.")
       /// Receive money
       public static let receiveMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyTitle", fallback: "Receive money")
       /// Send and receive Zcash
@@ -669,12 +669,14 @@ public enum L10n {
         public static let copyNonPrivateAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressDescription", fallback: "This will copy your t-address.")
         /// Copy a non-private address
         public static let copyNonPrivateAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressTitle", fallback: "Copy a non-private address")
+        /// Your wallet address will be copied to the clipboard.
+        public static let copyUnifiedAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressDescription", fallback: "Your wallet address will be copied to the clipboard.")
         /// Copy unified address
         public static let copyUnifiedAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressTitle", fallback: "Copy unified address")
         /// Receive money publicly
         public static let receiveMoneyPublicly = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneyPublicly", fallback: "Receive money publicly")
-        /// Receive money securely
-        public static let receiveMoneySecurely = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneySecurely", fallback: "Receive money securely")
+        /// Receive money privately
+        public static let receiveMoneySecurely = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneySecurely", fallback: "Receive money privately")
         /// Show QR Code
         public static let showQrCodeTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.showQrCodeTitle", fallback: "Show QR Code")
       }
