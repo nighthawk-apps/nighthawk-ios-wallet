@@ -61,14 +61,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
     }
     
     public func viewOnlineURL(for networkType: NetworkType) -> URL? {
-        let subdomain = switch networkType {
-        case .mainnet:
-            ""
-        case .testnet:
-            "testnet."
-        }
-        
-        return URL(string: "https://\(subdomain)zcashblockexplorer.com/transactions/\(id)")
+        return URL(string: "https://3xpl.com/zcash/transaction/\(id)")
     }
     
     public func viewRecipientOnlineURL(for networkType: NetworkType) -> URL? {
@@ -80,7 +73,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         }
         
         if let address {
-            return URL(string: "https://\(subdomain)zcashblockexplorer.com/address/\(address)")
+            return URL(string: "https://3xpl.com/zcash/address/\(address)")
         }
         
         return nil

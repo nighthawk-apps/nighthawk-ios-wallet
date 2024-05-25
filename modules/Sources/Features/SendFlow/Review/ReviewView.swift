@@ -139,6 +139,6 @@ private extension ViewStoreOf<Review> {
     }
     
     var viewRecipientOnlineURL: URL? {
-        URL(string: "https://zcashblockexplorer.com/address/\(self.recipient.data)")
+        URL(string: "https://3xpl.com/zcash/address/\(self.recipient.data)")
     }
 }
