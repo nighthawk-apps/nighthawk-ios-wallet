@@ -182,16 +182,17 @@
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveZcash" = "Enviar y recibir Zcash";
 "nighthawk.transferTab.sendMoneyTitle" = "Enviar dinero";
-"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money.";
+"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Recibir dinero";
-"nighthawk.transferTab.receiveMoneyDescription" = "La dirección de su billetera se copiará al portapapeles.";
+"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
 "nighthawk.transferTab.topUpWalletTitle" = "Recarga tu billetera";
 "nighthawk.transferTab.topUpWalletDescription" = "Comprar Zcash de forma segura a través de nuestros socios.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Recibir dinero de forma segura";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Mostrar código QR";
 "nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
+"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "La dirección de su billetera se copiará al portapapeles.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "Recibir dinero públicamente";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copiar una dirección no privada";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "Esto copiará su dirección t.";
@@ -318,11 +319,10 @@
 
 // MARK: - Home Screen - Settings tab - Change server
 "nighthawk.settingsTab.changeServer.title" = "Cambiar de servidor";
-"nighthawk.settingsTab.changeServer.default" = "Default";
-"nighthawk.settingsTab.changeServer.asiaOceania" = "Asia & Oceania";
-"nighthawk.settingsTab.changeServer.europeAfrica" = "Europe & Africa";
-"nighthawk.settingsTab.changeServer.northAmerica" = "North America";
-"nighthawk.settingsTab.changeServer.southAmerica" = "South America";
+"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "Custom";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
+"nighthawk.settingsTab.changeServer.save" = "Save";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title" = "Re-launch required";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message" = "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app";
 
