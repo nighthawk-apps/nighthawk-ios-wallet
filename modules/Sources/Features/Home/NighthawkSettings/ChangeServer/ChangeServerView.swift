@@ -62,6 +62,10 @@ public struct ChangeServerView: View {
                         .disabled(!viewStore.canSave)
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.bottom, 20)
+                    
+                    Text(L10n.Nighthawk.SettingsTab.ChangeServer.disclaimer)
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     
                     
                     Spacer()

@@ -395,6 +395,8 @@ public enum L10n {
         public static func `default`(_ p1: Any) -> String {
           return L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.default", String(describing: p1), fallback: "Default (%@)")
         }
+        /// The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.
+        public static let disclaimer = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.disclaimer", fallback: "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.")
         /// Save
         public static let save = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.save", fallback: "Save")
         /// Change server
@@ -640,8 +642,8 @@ public enum L10n {
       public static let receiveMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyTitle", fallback: "Receive money")
       /// Send and receive Zcash
       public static let sendAndReceiveZcash = L10n.tr("Localizable", "nighthawk.transferTab.sendAndReceiveZcash", fallback: "Send and receive Zcash")
-      /// Allow someone to scan the code to send money.
-      public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Allow someone to scan the code to send money.")
+      /// Let someone scan to send you money.
+      public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Let someone scan to send you money.")
       /// Send money
       public static let sendMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyTitle", fallback: "Send money")
       /// Securely buy Zcash through our partners.
