@@ -323,6 +323,7 @@
 "nighthawk.settingsTab.changeServer.custom" = "Custom";
 "nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
 "nighthawk.settingsTab.changeServer.save" = "Save";
+"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title" = "Re-launch required";
 "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message" = "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app";
 
