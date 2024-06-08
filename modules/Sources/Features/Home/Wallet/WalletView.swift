@@ -33,7 +33,7 @@ public struct WalletView: View {
                 
                 balanceTabsView(with: viewStore)
                 
-                if viewStore.transparentBalance.data.verified >= .autoshieldingThreshold &&
+                if viewStore.transparentBalance >= .autoshieldingThreshold &&
                     viewStore.balanceViewType == .transparent &&
                     viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
                     Button(L10n.Nighthawk.WalletTab.shieldNow) {
@@ -121,7 +121,7 @@ private extension WalletView {
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: viewStore.shieldedBalance.data.verified,
+                    balance: viewStore.shieldedBalance,
                     type: .shielded,
                     tokenName: tokenName,
                     synchronizerState: viewStore.synchronizerState
@@ -130,7 +130,7 @@ private extension WalletView {
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: viewStore.transparentBalance.data.verified,
+                    balance: viewStore.transparentBalance,
                     type: .transparent,
                     tokenName: tokenName,
                     synchronizerState: viewStore.synchronizerState

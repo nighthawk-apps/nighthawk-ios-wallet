@@ -402,11 +402,13 @@ public enum L10n {
         /// Change server
         public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.title", fallback: "Change server")
         public enum Alert {
-          public enum RelaunchNeeded {
-            /// Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app
-            public static let message = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message", fallback: "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app")
-            /// Re-launch required
-            public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title", fallback: "Re-launch required")
+          public enum ChangeServerFailed {
+            /// Error: %@ (code: %@)
+            public static func message(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.changeServerFailed.message", String(describing: p1), String(describing: p2), fallback: "Error: %@ (code: %@)")
+            }
+            /// Unable to change lightwalletd servers
+            public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.alert.changeServerFailed.title", fallback: "Unable to change lightwalletd servers")
           }
         }
         public enum Custom {

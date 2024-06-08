@@ -28,6 +28,7 @@ public struct ChangeServer: Reducer {
         @BindingState public var lightwalletdOption: LightwalletdOption = .default
         @BindingState public var customLightwalletdServer: String = ""
         public var defaultLightwalletdServer = ""
+        public var isChangingServer = false
         
         public var isValidHostAndPort: Bool {
             if lightwalletdOption == .default { return true }
@@ -43,7 +44,7 @@ public struct ChangeServer: Reducer {
             || !userStoredPreferences.isUsingCustomLightwalletd() && lightwalletdOption == .custom
             || (lightwalletdOption == .custom && userStoredPreferences.customLightwalletdServer() != customLightwalletdServer)
             
-            return isChanged && (lightwalletdOption == .default || isValidHostAndPort)
+            return isChanged && (lightwalletdOption == .default || isValidHostAndPort) && !isChangingServer
         }
         
         public init() {}
@@ -54,12 +55,16 @@ public struct ChangeServer: Reducer {
         case binding(BindingAction<State>)
         case onAppear
         case saveTapped
+        case changeFailed(error: ZcashError, previousIsUsingCustomLightwalletd: Bool, previousCustomLightwalletd: String?)
+        case changeSucceeded
         
         public enum Alert: Equatable {}
     }
     
+    @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.zcashSDKEnvironment) var zcashSdkEnvironment
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -80,9 +85,40 @@ public struct ChangeServer: Reducer {
                 }
                 return .none
             case .saveTapped:
+                guard state.canSave else { return .none }
+                
+                state.isChangingServer = true
+                
+                let oldIsUsingCustomLightwalletd = userStoredPreferences.isUsingCustomLightwalletd()
+                let oldCustomLightwalletdServer = userStoredPreferences.customLightwalletdServer()
+                
                 userStoredPreferences.setIsUsingCustomLightwalletd(state.lightwalletdOption == .custom)
                 userStoredPreferences.setCustomLightwalletdServer(state.lightwalletdOption == .custom ? state.customLightwalletdServer : nil)
-                state.alert = .relaunchRequired()
+                
+                return .run { send in
+                    do {
+                        let lightWalletEndpoint = zcashSdkEnvironment.endpoint(zcashNetwork)
+                        try await sdkSynchronizer.switchToEndpoint(lightWalletEndpoint)
+                        try await mainQueue.sleep(for: .seconds(1))
+                        await send(.changeSucceeded)
+                    } catch {
+                        await send(
+                            .changeFailed(
+                                error: error.toZcashError(),
+                                previousIsUsingCustomLightwalletd: oldIsUsingCustomLightwalletd,
+                                previousCustomLightwalletd: oldCustomLightwalletdServer
+                            )
+                        )
+                    }
+                }
+            case let .changeFailed(error, previousIsUsingCustom, previousCustomLightwalletd):
+                state.isChangingServer = false
+                userStoredPreferences.setIsUsingCustomLightwalletd(previousIsUsingCustom)
+                userStoredPreferences.setCustomLightwalletdServer(previousCustomLightwalletd)
+                state.alert = AlertState.serverChangeFailed(error)
+                return .none
+            case .changeSucceeded:
+                state.isChangingServer = false
                 return .none
             case .binding:
                 return .none
@@ -98,15 +134,15 @@ public struct ChangeServer: Reducer {
 
 // MARK: - Alerts
 extension AlertState where Action == ChangeServer.Action.Alert {
-    public static func relaunchRequired() -> AlertState {
+    public static func serverChangeFailed(_ error: ZcashError) -> AlertState {
         AlertState {
-            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.RelaunchNeeded.title)
+            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.title)
         } actions: {
             ButtonState {
                 TextState(L10n.General.ok)
             }
         } message: {
-            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.RelaunchNeeded.message)
+            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.message(error.message, error.code.rawValue))
         }
     }
 }
