@@ -57,8 +57,9 @@ public struct Home: Reducer {
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?
-        public var shieldedBalance: Balance = .init()
-        public var transparentBalance: Balance = .init()
+        public var shieldedBalance: Zatoshi = .init()
+        public var transparentBalance: Zatoshi = .init()
+        public var totalBalance: Zatoshi = .init()
         public var expectingZatoshi: Zatoshi = .zero
         public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
@@ -232,23 +233,23 @@ public struct Home: Reducer {
                 }
                 state.synchronizerState = latestState
                 state.synchronizerStatusSnapshot = snapshot
-                state.shieldedBalance = latestState.shieldedBalance.redacted
-                state.transparentBalance = latestState.transparentBalance.redacted
+                state.shieldedBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
+                state.transparentBalance = latestState.accountBalance?.unshielded ?? .zero
+                state.totalBalance = (state.synchronizerState.accountBalance?.saplingBalance.total() ?? .zero) + (state.synchronizerState.accountBalance?.unshielded ?? .zero)
                 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
                     state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                     
                     // Detect if there are any expected funds
-                    let totalBalance = state.shieldedBalance.data.total + state.transparentBalance.data.total
-                    let availableBalance = state.shieldedBalance.data.verified + state.transparentBalance.data.verified
-                    if totalBalance != availableBalance && (totalBalance - availableBalance) != state.expectingZatoshi {
-                        state.expectingZatoshi = totalBalance - availableBalance
+                    let availableBalance = state.shieldedBalance + state.transparentBalance
+                    if state.totalBalance != availableBalance && (state.totalBalance - availableBalance) != state.expectingZatoshi {
+                        state.expectingZatoshi = state.totalBalance - availableBalance
                         state.toast = .expectingFunds
                     }
                     
                     // Show autoshield, if needed
-                    if !userStoredPreferences.hasShownAutoshielding() && state.transparentBalance.data.verified >= .autoshieldingThreshold {
+                    if !userStoredPreferences.hasShownAutoshielding() && state.transparentBalance >= .autoshieldingThreshold {
                         userStoredPreferences.setHasShownAutoshielding(true)
                         state.destination = .autoshield(.init())
                     }
@@ -274,12 +275,26 @@ public struct Home: Reducer {
                 
                 return .none
             case let .updateWalletEvents(walletEvents):
+                let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
+                
                 let sortedWalletEvents = walletEvents
                     .sorted(by: { lhs, rhs in
-                        guard let lhsTimestamp = lhs.timestamp, let rhsTimestamp = rhs.timestamp else {
-                            return false
+                        var lhsHeight = chainTip
+                        
+                        if let lhsMinedHeight = lhs.transaction.minedHeight {
+                            lhsHeight = lhsMinedHeight
+                        } else if let lhsExpiredHeight = lhs.transaction.expiryHeight, lhsExpiredHeight > 0 {
+                            lhsHeight = lhsExpiredHeight
                         }
-                        return lhsTimestamp > rhsTimestamp
+                        
+                        var rhsHeight = chainTip
+                        if let rhsMinedHeight = rhs.transaction.minedHeight {
+                            rhsHeight = rhsMinedHeight
+                        } else if let rhsExpiredHeight = rhs.transaction.expiryHeight, rhsExpiredHeight > 0 {
+                            rhsHeight = rhsExpiredHeight
+                        }
+                        
+                        return lhsHeight > rhsHeight
                     })
                 
                 // Cache two latest events
@@ -358,6 +373,7 @@ extension Home.State {
             state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
             state.shieldedBalance = shieldedBalance
             state.transparentBalance = transparentBalance
+            state.totalBalance = totalBalance
             state.latestFiatPrice = latestFiatPrice
             state.latestMinedHeight = latestMinedHeight
             state.expectingZatoshi = expectingZatoshi

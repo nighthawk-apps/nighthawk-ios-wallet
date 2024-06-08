@@ -20,8 +20,9 @@ public struct Wallet: Reducer {
         public var requiredTransactionConfirmations = 0
         public var synchronizerState: SynchronizerState = .zero
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
-        public var shieldedBalance: Balance = .zero
-        public var transparentBalance: Balance = .zero
+        public var shieldedBalance: Zatoshi = .zero
+        public var transparentBalance: Zatoshi = .zero
+        public var totalBalance: Zatoshi = .zero
         public var expectingZatoshi: Zatoshi = .zero
         @BindingState public var balanceViewType: BalanceView.ViewType = .hidden
         public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
@@ -43,10 +44,6 @@ public struct Wallet: Reducer {
                 return true
             }
             return false
-        }
-        
-        public var totalBalance: Zatoshi {
-            shieldedBalance.data.verified + transparentBalance.data.verified
         }
         
         public var preferredCurrency: NighthawkSetting.FiatCurrency {

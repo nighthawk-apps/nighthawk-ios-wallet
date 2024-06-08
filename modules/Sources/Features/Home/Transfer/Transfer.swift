@@ -52,7 +52,7 @@ public struct Transfer: Reducer {
     
     public struct State: Equatable {
         @PresentationState public var destination: Destination.State?
-        public var shieldedBalance: Balance = .zero
+        public var shieldedBalance: Zatoshi = .zero
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
         

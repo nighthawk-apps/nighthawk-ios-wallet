@@ -23,15 +23,14 @@ extension SDKSynchronizerClient: TestDependencyKey {
         isSyncing: XCTUnimplemented("\(Self.self).isSyncing", placeholder: false),
         isInitialized: XCTUnimplemented("\(Self.self).isInitialized", placeholder: false),
         rewind: XCTUnimplemented("\(Self.self).rewind", placeholder: Fail(error: "Error").eraseToAnyPublisher()),
-        getShieldedBalance: XCTUnimplemented("\(Self.self).getShieldedBalance", placeholder: WalletBalance.zero),
-        getTransparentBalance: XCTUnimplemented("\(Self.self).getTransparentBalance", placeholder: WalletBalance.zero),
         getAllTransactions: XCTUnimplemented("\(Self.self).getAllTransactions", placeholder: []),
         getUnifiedAddress: XCTUnimplemented("\(Self.self).getUnifiedAddress", placeholder: nil),
         getTransparentAddress: XCTUnimplemented("\(Self.self).getTransparentAddress", placeholder: nil),
         getSaplingAddress: XCTUnimplemented("\(Self.self).getSaplingAddress", placeholder: nil),
         sendTransaction: XCTUnimplemented("\(Self.self).sendTransaction", placeholder: .placeholder()),
         shieldFunds: XCTUnimplemented("\(Self.self).shieldFunds", placeholder: .placeholder()),
-        wipe: XCTUnimplemented("\(Self.self).wipe")
+        wipe: XCTUnimplemented("\(Self.self).wipe"),
+        switchToEndpoint: XCTUnimplemented("\(Self.self).switchToEndpoint")
     )
 }
 
@@ -46,15 +45,14 @@ extension SDKSynchronizerClient {
         isSyncing: { false },
         isInitialized: { false },
         rewind: { _ in return Empty<Void, Error>().eraseToAnyPublisher() },
-        getShieldedBalance: { .zero },
-        getTransparentBalance: { .zero },
         getAllTransactions: { [] },
         getUnifiedAddress: { _ in return nil },
         getTransparentAddress: { _ in return nil },
         getSaplingAddress: { _ in return nil },
         sendTransaction: { _, _, _, _ in return .placeholder() },
         shieldFunds: { _, _, _ in return .placeholder() },
-        wipe: { Empty<Void, Error>().eraseToAnyPublisher() }
+        wipe: { Empty<Void, Error>().eraseToAnyPublisher() },
+        switchToEndpoint: { _ in }
     )
 
     public static let mock = Self.mocked()
@@ -72,8 +70,6 @@ extension SDKSynchronizerClient {
         isSyncing: @escaping () -> Bool = { false },
         isInitialized: @escaping () -> Bool = { false },
         rewind: @escaping (RewindPolicy) -> AnyPublisher<Void, Error> = { _ in return Empty<Void, Error>().eraseToAnyPublisher() },
-        getShieldedBalance: @escaping () -> WalletBalance? = { WalletBalance(verified: Zatoshi(12345000), total: Zatoshi(12345000)) },
-        getTransparentBalance: @escaping () -> WalletBalance? = { WalletBalance(verified: Zatoshi(12345000), total: Zatoshi(12345000)) },
         getAllTransactions: @escaping () -> [WalletEvent] = {
             let mockedCleared: [TransactionStateMockHelper] = [
                 TransactionStateMockHelper(date: 1651039202, amount: Zatoshi(1), status: .paid(success: false), uuid: "aa11"),
@@ -175,7 +171,8 @@ extension SDKSynchronizerClient {
                 zecAmount: Zatoshi(10)
             )
         },
-        wipe: @escaping () -> AnyPublisher<Void, Error>? = { Fail(error: "Error").eraseToAnyPublisher() }
+        wipe: @escaping () -> AnyPublisher<Void, Error>? = { Fail(error: "Error").eraseToAnyPublisher() },
+        switchToEndpoint: @escaping (LightWalletEndpoint) async throws -> Void = { _ in }
     ) -> SDKSynchronizerClient {
         SDKSynchronizerClient(
             stateStream: stateStream,
@@ -187,15 +184,14 @@ extension SDKSynchronizerClient {
             isSyncing: isSyncing,
             isInitialized: isInitialized,
             rewind: rewind,
-            getShieldedBalance: getShieldedBalance,
-            getTransparentBalance: getTransparentBalance,
             getAllTransactions: getAllTransactions,
             getUnifiedAddress: getUnifiedAddress,
             getTransparentAddress: getTransparentAddress,
             getSaplingAddress: getSaplingAddress,
             sendTransaction: sendTransaction,
             shieldFunds: shieldFunds,
-            wipe: wipe
+            wipe: wipe,
+            switchToEndpoint: switchToEndpoint
         )
     }
 }

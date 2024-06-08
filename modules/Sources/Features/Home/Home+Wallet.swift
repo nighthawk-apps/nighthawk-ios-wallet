@@ -73,7 +73,7 @@ extension Home {
                     state.destination = nil
                     return .none
                 case .updateTransparentBalance:
-                    state.transparentBalance = sdkSynchronizer.getTransparentBalance()?.redacted ?? .zero
+                    state.transparentBalance = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero
                     return .none
                 }
             case .binding,

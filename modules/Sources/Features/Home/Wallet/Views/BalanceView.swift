@@ -97,11 +97,11 @@ private extension BalanceView {
     func expectingFundsText(for state: SynchronizerState, type: ViewType) -> some View {
         var expectingFundsString: String?
         switch type {
-        case .hidden:
+        case .hidden, .transparent:
             break
         case .shielded:
-            let totalBalance = state.shieldedBalance.total
-            let availableBalance = state.shieldedBalance.verified
+            let totalBalance = state.accountBalance?.saplingBalance.total() ?? .zero
+            let availableBalance = state.accountBalance?.saplingBalance.spendableValue ?? .zero
             if totalBalance > availableBalance {
                 expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
                     (totalBalance - availableBalance).decimalString(),
@@ -109,17 +109,8 @@ private extension BalanceView {
                 )
             }
         case .total:
-            let totalBalance = state.shieldedBalance.total + state.transparentBalance.total
-            let availableBalance = state.shieldedBalance.verified + state.transparentBalance.verified
-            if totalBalance > availableBalance {
-                expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
-                    (totalBalance - availableBalance).decimalString(),
-                    tokenName
-                )
-            }
-        case .transparent:
-            let totalBalance = state.transparentBalance.total
-            let availableBalance = state.transparentBalance.verified
+            let totalBalance = (state.accountBalance?.saplingBalance.total() ?? .zero) + (state.accountBalance?.unshielded ?? .zero)
+            let availableBalance = (state.accountBalance?.saplingBalance.spendableValue ?? .zero) + (state.accountBalance?.unshielded ?? .zero)
             if totalBalance > availableBalance {
                 expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
                     (totalBalance - availableBalance).decimalString(),

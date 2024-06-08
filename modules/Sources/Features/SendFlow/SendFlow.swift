@@ -86,7 +86,7 @@ public struct SendFlow: Reducer {
         @BindingState public var toast: Toast?
 
         public var unifiedAddress: UnifiedAddress?
-        public var shieldedBalance = Balance.zero
+        public var shieldedBalance = Zatoshi.zero
         public var memoCharLimit = 0
         public var maxAmount = Zatoshi.zero
         public var isSendingTransaction = false
@@ -262,10 +262,10 @@ public struct SendFlow: Reducer {
                 state.path.append(SendFlow.Path.State.success(.init(transaction: transaction)))
                 return .none
             case let .synchronizerStateChanged(latestState):
-                let shieldedBalance = latestState.shieldedBalance
-                state.shieldedBalance = shieldedBalance.redacted
+                let shieldedBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
+                state.shieldedBalance = shieldedBalance
                 // TODO: [#1186] Use ZIP-317 fees when SDK supports it
-                state.maxAmount = max(shieldedBalance.verified - Zatoshi(10_000), .zero)
+                state.maxAmount = max(shieldedBalance - Zatoshi(10_000), .zero)
                 return .none
             case .topUpWalletTapped:
                 return .none

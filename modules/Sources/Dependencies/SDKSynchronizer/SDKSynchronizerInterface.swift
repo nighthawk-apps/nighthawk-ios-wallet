@@ -31,8 +31,6 @@ public struct SDKSynchronizerClient {
 
     public let rewind: (RewindPolicy) -> AnyPublisher<Void, Error>
 
-    public let getShieldedBalance: () -> WalletBalance?
-    public let getTransparentBalance: () -> WalletBalance?
     public let getAllTransactions: () async throws -> [WalletEvent]
 
     public let getUnifiedAddress: (_ account: Int) async throws -> UnifiedAddress?
@@ -43,4 +41,6 @@ public struct SDKSynchronizerClient {
     public let shieldFunds: (UnifiedSpendingKey, Memo, Zatoshi) async throws -> TransactionState
 
     public let wipe: () -> AnyPublisher<Void, Error>?
+    
+    public var switchToEndpoint: (LightWalletEndpoint) async throws -> Void
 }

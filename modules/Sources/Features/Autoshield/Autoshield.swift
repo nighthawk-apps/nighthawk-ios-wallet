@@ -103,7 +103,7 @@ public struct Autoshield: Reducer {
                     let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, networkType)
                     
                     state.isShielding = true
-                    return .run { [amount = sdkSynchronizer.latestState().transparentBalance.verified] send in
+                    return .run { [amount = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero] send in
                         do {
                             await send(Autoshield.Action.autoshieldInProgress)
                             _ = try await sdkSynchronizer.shieldFunds(
