@@ -103,15 +103,25 @@ public struct Autoshield: Reducer {
                     let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, networkType)
                     
                     state.isShielding = true
-                    return .run { [amount = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero] send in
+                    return .run { send in
                         do {
                             await send(Autoshield.Action.autoshieldInProgress)
-                            _ = try await sdkSynchronizer.shieldFunds(
-                                spendingKey,
-                                .init(string: L10n.Nighthawk.Autoshield.shieldingMemo),
-                                amount
-                            )
-                            await send(Autoshield.Action.autoshieldSuccess)
+                            
+                            guard let uAddress = try await sdkSynchronizer.getUnifiedAddress(0) else { throw "sdkSynchronizer.getUnifiedAddress" }
+                            
+                            let address = try uAddress.transparentReceiver()
+                            let proposal = try await sdkSynchronizer.proposeShielding(0, .autoshieldingThreshold, .empty, address)
+                            
+                            guard let proposal else { throw "sdkSynchronizer.proposeShielding" }
+                            
+                            let result = try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
+                            
+                            switch result {
+                            case .failure:
+                                await send(Autoshield.Action.autoshieldFailed)
+                            case .success, .partial:
+                                await send(Autoshield.Action.autoshieldSuccess)
+                            }
                         } catch {
                             await send(Autoshield.Action.autoshieldFailed)
                         }
