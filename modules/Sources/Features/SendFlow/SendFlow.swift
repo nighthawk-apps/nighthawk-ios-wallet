@@ -84,11 +84,11 @@ public struct SendFlow: Reducer {
         public var path: StackState<Path.State>
         public var showCloseButton: Bool
         @BindingState public var toast: Toast?
+        @PresentationState public var alert: AlertState<Action.Alert>?
 
         public var unifiedAddress: UnifiedAddress?
-        public var shieldedBalance = Zatoshi.zero
+        public var spendableBalance = Zatoshi.zero
         public var memoCharLimit = 0
-        public var maxAmount = Zatoshi.zero
         public var isSendingTransaction = false
         
         // Inputs
@@ -98,12 +98,16 @@ public struct SendFlow: Reducer {
         }
         public var recipient: RedactableString?
         public var memo: RedactableString?
+        public var proposal: Proposal?
+        public var feeRequired: Zatoshi {
+            proposal?.totalFeeRequired() ?? Zatoshi(0)
+        }
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-             amountToSend <= maxAmount
+            amountToSend.amount < spendableBalance.amount
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -139,18 +143,26 @@ public struct SendFlow: Reducer {
     }
     
     public enum Action: BindableAction, Equatable {
+        case alert(PresentationAction<Alert>)
         case path(StackAction<Path.State, Path.Action>)
         case binding(BindingAction<State>)
         case closeButtonTapped
         case continueTapped
         case onAppear
+        case proposeSendTransactionFailure(ZcashError)
+        case review(Review.State)
         case scanCodeTapped
         case sendTransaction
         case sendTransactionFailure
         case sendTransactionInProgress
         case sendTransactionSuccess(TransactionState)
+        case setProposal(Proposal)
         case synchronizerStateChanged(SynchronizerState)
         case topUpWalletTapped
+        
+        public enum Alert: Equatable {
+            case proposeTransactionFailed(ZcashError)
+        }
     }
     
     public init(networkType: NetworkType) {
@@ -172,6 +184,8 @@ public struct SendFlow: Reducer {
         
         Reduce { state, action in
             switch action {
+            case .alert:
+                return .none
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .continueTapped:
@@ -187,18 +201,35 @@ public struct SendFlow: Reducer {
                     return .none
                 }
                 
-                state.path.append(
-                    Path.State.review(
-                        .init(
-                            zecAmount: state.amountToSend,
-                            memo: state.memo,
-                            recipient: state.recipient!,
-                            latestFiatPrice: state.latestFiatPrice
+                return .run { [state] send in
+                    do {
+                        let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                        
+                        let memo: Memo?
+                        if let memoText = state.memo?.data {
+                            memo = memoText.isEmpty ? nil : try Memo(string: memoText)
+                        } else {
+                            memo = nil
+                        }
+                        
+                        let proposal = try await sdkSynchronizer.proposeTransfer(0, recipient, state.amountToSend, memo)
+                        
+                        await send(.setProposal(proposal))
+                        await send(
+                            .review(
+                                .init(
+                                    zecAmount: state.amountToSend,
+                                    memo: state.memo,
+                                    recipient: state.recipient!,
+                                    latestFiatPrice: state.latestFiatPrice,
+                                    proposal: proposal
+                                )
+                            )
                         )
-                    )
-                )
-                
-                return .none
+                    } catch {
+                        await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                    }
+                }
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
                 return .publisher {
@@ -207,6 +238,16 @@ public struct SendFlow: Reducer {
                         .map(SendFlow.Action.synchronizerStateChanged)
                 }
                 .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
+            case let .proposeSendTransactionFailure(error):
+                if case let .rustCreateToAddress(message) = error {
+                    state.alert = AlertState.proposeTransferFailed(message)
+                } else {
+                    state.alert = AlertState.proposeTransferFailed(error.message)
+                }
+                return .none
+            case let .review(reviewState):
+                state.path.append(Path.State.review(reviewState))
+                return .none
             case .scanCodeTapped:
                 state.path.append(.scan(.init()))
                 return .none
@@ -261,11 +302,11 @@ public struct SendFlow: Reducer {
                 state.isSendingTransaction = false
                 state.path.append(SendFlow.Path.State.success(.init(transaction: transaction)))
                 return .none
+            case let .setProposal(proposal):
+                state.proposal = proposal
+                return .none
             case let .synchronizerStateChanged(latestState):
-                let shieldedBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
-                state.shieldedBalance = shieldedBalance
-                // TODO: [#1186] Use ZIP-317 fees when SDK supports it
-                state.maxAmount = max(shieldedBalance - Zatoshi(10_000), .zero)
+                state.spendableBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
                 return .none
             case .topUpWalletTapped:
                 return .none
@@ -273,6 +314,7 @@ public struct SendFlow: Reducer {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: /Action.alert)
         .forEach(\.path, action: /Action.path) {
             Path(networkType: networkType)
         }
@@ -281,6 +323,21 @@ public struct SendFlow: Reducer {
         recipientDelegateReducer()
         scanDelegateReducer()
         reviewDelegateReducer()
+    }
+}
+
+// MARK: Alerts
+extension AlertState where Action == SendFlow.Action.Alert {
+    public static func proposeTransferFailed(_ message: String) -> AlertState {
+        AlertState {
+            TextState(L10n.Nighthawk.TransactionDetails.leavingWallet)
+        } actions: {
+            ButtonState {
+                TextState(L10n.General.ok)
+            }
+        } message: {
+            TextState(L10n.Nighthawk.TransferTab.Send.proposalFailed(message))
+        }
     }
 }
 
@@ -298,6 +355,7 @@ extension SendFlow {
                         state.amountToSendInput = "0"
                         state.recipient = nil
                         state.memo = nil
+                        state.proposal = nil
                     }
                     
                     let _ = state.path.popLast()
@@ -311,33 +369,56 @@ extension SendFlow {
                         addMemoState.memo.redacted
                     }
                     
-                    if let recipient = state.recipient {
-                        state.path.append(
-                            Path.State.review(
-                                .init(
-                                    zecAmount: state.amountToSend,
-                                    memo: state.memo,
-                                    recipient: recipient,
-                                    latestFiatPrice: state.latestFiatPrice
+                    if let recipientString = state.recipient {
+                        return .run { [state] send in
+                            do {
+                                let recipient = try ZcashLightClientKit.Recipient(recipientString.data, network: networkType)
+                                
+                                let memo: Memo?
+                                if let memoText = state.memo?.data {
+                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
+                                } else {
+                                    memo = nil
+                                }
+                                
+                                let proposal = try await sdkSynchronizer.proposeTransfer(0, recipient, state.amountToSend, memo)
+                                
+                                await send(.setProposal(proposal))
+                                await send(
+                                    .review(
+                                        .init(
+                                            zecAmount: state.amountToSend,
+                                            memo: state.memo,
+                                            recipient: state.recipient!,
+                                            latestFiatPrice: state.latestFiatPrice,
+                                            proposal: proposal
+                                        )
+                                    )
                                 )
-                            )
-                        )
+                            } catch {
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                            }
+                        }
                     } else {
                         state.path.append(.recipient(.init()))
                     }
                     
                     return .none
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
+                 .proposeSendTransactionFailure,
+                 .review,
                  .scanCodeTapped,
                  .sendTransaction,
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
+                 .setProposal,
                  .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
@@ -360,6 +441,7 @@ extension SendFlow {
                         state.amountToSendInput = "0"
                         state.recipient = nil
                         state.memo = nil
+                        state.proposal = nil
                     }
                     
                     let _ = state.path.popLast()
@@ -368,16 +450,35 @@ extension SendFlow {
                     guard derivationTool.isZcashAddress(recipient.data, networkType) else { return .none }
                     state.recipient = recipient
                     if derivationTool.isTransparentAddress(recipient.data, networkType) {
-                        state.path.append(
-                            Path.State.review(
-                                .init(
-                                    zecAmount: state.amountToSend,
-                                    memo: state.memo,
-                                    recipient: recipient,
-                                    latestFiatPrice: state.latestFiatPrice
+                        return .run { [state] send in
+                            do {
+                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                                
+                                let memo: Memo?
+                                if let memoText = state.memo?.data {
+                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
+                                } else {
+                                    memo = nil
+                                }
+                                
+                                let proposal = try await sdkSynchronizer.proposeTransfer(0, recipient, state.amountToSend, memo)
+                                
+                                await send(.setProposal(proposal))
+                                await send(
+                                    .review(
+                                        .init(
+                                            zecAmount: state.amountToSend,
+                                            memo: state.memo,
+                                            recipient: state.recipient!,
+                                            latestFiatPrice: state.latestFiatPrice,
+                                            proposal: proposal
+                                        )
+                                    )
                                 )
-                            )
-                        )
+                            } catch {
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                            }
+                        }
                     } else {
                         var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                         addMemoState.memoCharLimit = state.memoCharLimit
@@ -388,16 +489,20 @@ extension SendFlow {
                     state.path.append(Path.State.scan(.init()))
                     return .none
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
+                 .proposeSendTransactionFailure,
+                 .review,
                  .scanCodeTapped,
                  .sendTransaction,
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
+                 .setProposal,
                  .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
@@ -427,10 +532,11 @@ extension SendFlow {
                             return .none
                         }
                         
-                        if state.amountToSend > (state.maxAmount - Zatoshi(10_000)) {
+                        if state.amountToSend.amount > state.spendableBalance.amount {
                             state.amountToSendInput = "0"
                             state.recipient = nil
                             state.memo = nil
+                            state.proposal = nil
                             state.path = StackState()
                             state.toast = .notEnoughZcash
                             return .none
@@ -443,31 +549,54 @@ extension SendFlow {
                             return .none
                         }
                         
-                        state.path.append(
-                            .review(
-                                .init(
-                                    zecAmount: state.amountToSend,
-                                    memo: state.memo,
-                                    recipient: address,
-                                    latestFiatPrice: state.latestFiatPrice
+                        return .run { [state] send in
+                            do {
+                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                                
+                                let memo: Memo?
+                                if let memoText = state.memo?.data {
+                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
+                                } else {
+                                    memo = nil
+                                }
+                                
+                                let proposal = try await sdkSynchronizer.proposeTransfer(0, recipient, state.amountToSend, memo)
+                                
+                                await send(.setProposal(proposal))
+                                await send(
+                                    .review(
+                                        .init(
+                                            zecAmount: state.amountToSend,
+                                            memo: state.memo,
+                                            recipient: state.recipient!,
+                                            latestFiatPrice: state.latestFiatPrice,
+                                            proposal: proposal
+                                        )
+                                    )
                                 )
-                            )
-                        )
+                            } catch {
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                            }
+                        }
                     }
                     
                     return .none
                 }
                 
-            case .binding,
+            case .alert,
+                 .binding,
                  .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
+                 .proposeSendTransactionFailure,
+                 .review,
                  .scanCodeTapped,
                  .sendTransaction,
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
+                 .setProposal,
                  .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none
@@ -490,6 +619,7 @@ extension SendFlow {
                         state.amountToSendInput = "0"
                         state.recipient = nil
                         state.memo = nil
+                        state.proposal = nil
                     }
                     
                     let _ = state.path.popLast()
@@ -497,16 +627,20 @@ extension SendFlow {
                 case .sendZcash:
                     return .send(.sendTransaction)
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .closeButtonTapped,
                  .continueTapped,
                  .onAppear,
                  .path,
+                 .proposeSendTransactionFailure,
+                 .review,
                  .scanCodeTapped,
                  .sendTransaction,
                  .sendTransactionFailure,
                  .sendTransactionInProgress,
                  .sendTransactionSuccess,
+                 .setProposal,
                  .synchronizerStateChanged,
                  .topUpWalletTapped:
                 return .none

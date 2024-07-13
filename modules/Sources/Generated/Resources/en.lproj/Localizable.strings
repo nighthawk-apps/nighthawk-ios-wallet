@@ -214,6 +214,8 @@
 "nighthawk.transferTab.send.scanCode" = "Scan a payment code";
 "nighthawk.transferTab.send.toast.notEnoughZcash" = "Not enough Zcash!";
 "nighthawk.transferTab.send.around" = "around %@ %@";
+"nighthawk.transferTab.send.error" = "Error";
+"nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
 "nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";

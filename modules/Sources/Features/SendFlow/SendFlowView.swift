@@ -34,7 +34,7 @@ public struct SendFlowView: View {
                     
                     Text(
                         L10n.Nighthawk.TransferTab.Send.spendableBalance(
-                            viewStore.maxAmount.decimalString(
+                            viewStore.spendableBalance.decimalString(
                                 formatter: NumberFormatter.zcashNumberFormatter
                             ),
                             tokenName
@@ -59,6 +59,12 @@ public struct SendFlowView: View {
                         $0
                     }
                 }
+                .alert(
+                    store: store.scope(
+                        state: \.$alert,
+                        action: { .alert($0) }
+                    )
+                )
                 .toast(
                     unwrapping: viewStore.$toast,
                     case: /SendFlow.State.Toast.notEnoughZcash,

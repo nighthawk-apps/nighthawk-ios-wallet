@@ -21,7 +21,8 @@ public struct Review: Reducer {
         @PresentationState public var alert: AlertState<Action.Alert>?
         
         public var zecAmount: Zatoshi
-        public var fee = Zatoshi(10_000) // TODO: [#1186] Show ZIP-317 fees when SDK supports it (https://github.com/zcash/ZcashLightClientKit/issues/1186)
+        public var proposal: Proposal
+        public var fee: Zatoshi { proposal.totalFeeRequired() }
         public var memo: RedactableString?
         public var recipient: RedactableString
         public var recipientIsTransparent = false
@@ -43,12 +44,14 @@ public struct Review: Reducer {
             zecAmount: Zatoshi,
             memo: RedactableString?,
             recipient: RedactableString,
-            latestFiatPrice: Double?
+            latestFiatPrice: Double?,
+            proposal: Proposal
         ) {
             self.zecAmount = zecAmount
             self.memo = memo
             self.recipient = recipient
             self.latestFiatPrice = latestFiatPrice
+            self.proposal = proposal
         }
     }
     
