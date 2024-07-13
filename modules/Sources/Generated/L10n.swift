@@ -719,6 +719,12 @@ public enum L10n {
         public static let chooseHowMuch = L10n.tr("Localizable", "nighthawk.transferTab.send.chooseHowMuch", fallback: "Choose how much to send")
         /// Continue
         public static let `continue` = L10n.tr("Localizable", "nighthawk.transferTab.send.continue", fallback: "Continue")
+        /// Error
+        public static let error = L10n.tr("Localizable", "nighthawk.transferTab.send.error", fallback: "Error")
+        /// %@
+        public static func proposalFailed(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "nighthawk.transferTab.send.proposalFailed", String(describing: p1), fallback: "%@")
+        }
         /// Scan a payment code
         public static let scanCode = L10n.tr("Localizable", "nighthawk.transferTab.send.scanCode", fallback: "Scan a payment code")
         /// Spendable balance (incl. tx fee) is %@ %@

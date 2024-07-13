@@ -90,7 +90,7 @@ public struct Transfer: Reducer {
                     latestFiatPrice: state.latestFiatPrice, 
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
-                sendState.shieldedBalance = state.shieldedBalance
+                sendState.spendableBalance = state.shieldedBalance
                 sendState.unifiedAddress = state.unifiedAddress
                 state.destination = .send(sendState)
                 return .none
