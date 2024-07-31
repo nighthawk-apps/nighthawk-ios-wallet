@@ -233,9 +233,12 @@ public struct Home: Reducer {
                 }
                 state.synchronizerState = latestState
                 state.synchronizerStatusSnapshot = snapshot
-                state.shieldedBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
+                state.shieldedBalance = (latestState.accountBalance?.saplingBalance.spendableValue ?? .zero) +
+                    (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero)
                 state.transparentBalance = latestState.accountBalance?.unshielded ?? .zero
-                state.totalBalance = (state.synchronizerState.accountBalance?.saplingBalance.total() ?? .zero) + (state.synchronizerState.accountBalance?.unshielded ?? .zero)
+                state.totalBalance = (state.synchronizerState.accountBalance?.saplingBalance.total() ?? .zero) +
+                    (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero) +
+                    (state.synchronizerState.accountBalance?.unshielded ?? .zero)
                 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
