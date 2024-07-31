@@ -306,7 +306,7 @@ public struct SendFlow: Reducer {
                 state.proposal = proposal
                 return .none
             case let .synchronizerStateChanged(latestState):
-                state.spendableBalance = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
+                state.spendableBalance = (latestState.accountBalance?.saplingBalance.spendableValue ?? .zero) + (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero)
                 return .none
             case .topUpWalletTapped:
                 return .none

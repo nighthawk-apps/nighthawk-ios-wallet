@@ -100,8 +100,10 @@ private extension BalanceView {
         case .hidden, .transparent:
             break
         case .shielded:
-            let totalBalance = state.accountBalance?.saplingBalance.total() ?? .zero
-            let availableBalance = state.accountBalance?.saplingBalance.spendableValue ?? .zero
+            let totalBalance = (state.accountBalance?.orchardBalance.total() ?? .zero) +
+                (state.accountBalance?.saplingBalance.total() ?? .zero)
+            let availableBalance = (state.accountBalance?.orchardBalance.spendableValue ?? .zero) +
+                (state.accountBalance?.saplingBalance.spendableValue ?? .zero)
             if totalBalance > availableBalance {
                 expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
                     (totalBalance - availableBalance).decimalString(),
@@ -109,8 +111,12 @@ private extension BalanceView {
                 )
             }
         case .total:
-            let totalBalance = (state.accountBalance?.saplingBalance.total() ?? .zero) + (state.accountBalance?.unshielded ?? .zero)
-            let availableBalance = (state.accountBalance?.saplingBalance.spendableValue ?? .zero) + (state.accountBalance?.unshielded ?? .zero)
+            let totalBalance = (state.accountBalance?.orchardBalance.total() ?? .zero) +
+                (state.accountBalance?.saplingBalance.total() ?? .zero) +
+                (state.accountBalance?.unshielded ?? .zero)
+            let availableBalance = (state.accountBalance?.orchardBalance.spendableValue ?? .zero) +
+                (state.accountBalance?.saplingBalance.spendableValue ?? .zero) +
+                (state.accountBalance?.unshielded ?? .zero)
             if totalBalance > availableBalance {
                 expectingFundsString = L10n.Nighthawk.HomeScreen.expectingFunds(
                     (totalBalance - availableBalance).decimalString(),
