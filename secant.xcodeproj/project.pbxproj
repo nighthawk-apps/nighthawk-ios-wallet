@@ -955,7 +955,7 @@
 			repositoryURL = "https://github.com/Electric-Coin-Company/zcash-swift-wallet-sdk";
 			requirement = {
 				kind = exactVersion;
-				version = 2.0.11;
+				version = 2.1.12;
 			};
 		};
 		4562B35D2AC5EEF3007F48A5 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
