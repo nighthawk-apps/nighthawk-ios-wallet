@@ -28,7 +28,8 @@ import Welcome
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct AppReducer: Reducer {
+@Reducer
+public struct AppReducer {
     let zcashNetwork: ZcashNetwork
     
     enum CancelId { case timer }
@@ -47,6 +48,51 @@ public struct AppReducer: Reducer {
             } else {
                 .light
             }
+        }
+        
+        var shouldResetToSplash: Bool {
+            @Dependency(\.userStoredPreferences) var userStoredPreferences
+            guard !path.isEmpty, userStoredPreferences.areBiometricsEnabled(), splash.lastInactiveTime != nil else { return false }
+            
+            // Don't reset if user was inactive less than 10 minutes
+            @Dependency(\.date) var date
+            if let lastInactiveTime = splash.lastInactiveTime {
+                let tenMinutesAgo = date().addingTimeInterval(-(10 * 60))
+                if tenMinutesAgo < lastInactiveTime {
+                    return false
+                }
+            }
+            
+            // Reset to splash
+            // Any system prompt causes a scene phase change to .inactive,
+            // so don't stop synchronizer if the app is on screens where that happens:
+            // - Security screen (Face ID enable / disable)
+            // - Notification screen (system permission alert)
+            // - Transfer tab (send flow pasteboard permission alert)
+            
+            if let currentScreen = path.last {
+                if let home = (/AppReducer.Path.State.home).extract(from: currentScreen) {
+                    return home.selectedTab != .transfer
+                }
+                
+                if let _ = (/AppReducer.Path.State.security).extract(from: currentScreen) {
+                    return false
+                }
+                
+                if let _ = (/AppReducer.Path.State.notifications).extract(from: currentScreen) {
+                    return false
+                }
+            }
+            
+            return true
+        }
+        
+        var isWelcomeScreenShown: Bool {
+            if let currentScreen = path.last {
+                return (/AppReducer.Path.State.welcome).extract(from: currentScreen) != nil
+            }
+            
+            return false
         }
         
         public init() {}
@@ -354,52 +400,5 @@ private extension AppReducer {
                 return .none
             }
         }
-    }
-}
-
-private extension AppReducer.State {
-    var shouldResetToSplash: Bool {
-        @Dependency(\.userStoredPreferences) var userStoredPreferences
-        guard !path.isEmpty, userStoredPreferences.areBiometricsEnabled(), splash.lastInactiveTime != nil else { return false }
-        
-        // Don't reset if user was inactive less than 10 minutes
-        @Dependency(\.date) var date
-        if let lastInactiveTime = splash.lastInactiveTime {
-            let tenMinutesAgo = date().addingTimeInterval(-(10 * 60))
-            if tenMinutesAgo < lastInactiveTime {
-                return false
-            }
-        }
-        
-        // Reset to splash
-        // Any system prompt causes a scene phase change to .inactive,
-        // so don't stop synchronizer if the app is on screens where that happens:
-        // - Security screen (Face ID enable / disable)
-        // - Notification screen (system permission alert)
-        // - Transfer tab (send flow pasteboard permission alert)
-        
-        if let currentScreen = path.last {
-            if let home = (/AppReducer.Path.State.home).extract(from: currentScreen) {
-                return home.selectedTab != .transfer
-            }
-            
-            if let _ = (/AppReducer.Path.State.security).extract(from: currentScreen) {
-                return false
-            }
-            
-            if let _ = (/AppReducer.Path.State.notifications).extract(from: currentScreen) {
-                return false
-            }
-        }
-        
-        return true
-    }
-    
-    var isWelcomeScreenShown: Bool {
-        if let currentScreen = path.last {
-            return (/AppReducer.Path.State.welcome).extract(from: currentScreen) != nil
-        }
-        
-        return false
     }
 }

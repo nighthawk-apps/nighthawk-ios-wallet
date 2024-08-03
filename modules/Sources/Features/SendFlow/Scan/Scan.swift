@@ -15,7 +15,8 @@ import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
 
-public struct Scan: Reducer {
+@Reducer
+public struct Scan {
     public struct State: Equatable {
         public var backButtonType: NighthawkBackButtonType
         public var isResolvingUNS = false

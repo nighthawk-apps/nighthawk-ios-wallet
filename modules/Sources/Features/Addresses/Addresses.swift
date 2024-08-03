@@ -12,7 +12,8 @@ import SDKSynchronizer
 import UIComponents
 import ZcashLightClientKit
 
-public struct Addresses: Reducer {
+@Reducer
+public struct Addresses {
     public struct State: Equatable {
         public enum Destination: String, CaseIterable, Equatable, Hashable {
             case topUp

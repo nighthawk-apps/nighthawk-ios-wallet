@@ -16,7 +16,8 @@ import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
 
-public struct Recipient: Reducer {
+@Reducer
+public struct Recipient {
     let networkType: NetworkType
     
     public struct State: Equatable {
@@ -121,26 +122,6 @@ public struct Recipient: Reducer {
             case .scanQRCodeTapped:
                 return .send(.delegate(.scanCode))
             }
-        }
-    }
-}
-
-// MARK: - ViewStore
-extension ViewStoreOf<Recipient> {
-    func bindingForRedactableRecipient(_ recipient: RedactableString) -> Binding<String> {
-        self.binding(
-            get: { _ in recipient.data },
-            send: { .recipientInputChanged($0.redacted) }
-        )
-    }
-    
-    func validateRecipient() -> NighthawkTextFieldValidationState {
-        return if self.isRecipientValid {
-            .valid
-        } else if let specific = self.specificValidationError  {
-            specific
-        } else {
-            .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)
         }
     }
 }

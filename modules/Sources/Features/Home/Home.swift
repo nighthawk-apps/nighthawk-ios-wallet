@@ -21,7 +21,8 @@ import UIKit
 import Utils
 import ZcashLightClientKit
 
-public struct Home: Reducer {
+@Reducer
+public struct Home {
     let zcashNetwork: ZcashNetwork
     
     enum CancelId { case timer }
@@ -87,6 +88,54 @@ public struct Home: Reducer {
             }
             
             return []
+        }
+        
+        // MARK: - Shared state synchronization
+        var wallet: Wallet.State {
+            get {
+                var state = walletState
+                state.synchronizerState = synchronizerState
+                state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
+                state.shieldedBalance = shieldedBalance
+                state.transparentBalance = transparentBalance
+                state.totalBalance = totalBalance
+                state.latestFiatPrice = latestFiatPrice
+                state.latestMinedHeight = latestMinedHeight
+                state.expectingZatoshi = expectingZatoshi
+                state.requiredTransactionConfirmations = requiredTransactionConfirmations
+                state.walletEvents = walletEvents
+                return state
+            }
+            
+            set {
+                self.walletState = newValue
+                self.synchronizerState = newValue.synchronizerState
+                self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
+                self.shieldedBalance = newValue.shieldedBalance
+                self.transparentBalance = newValue.transparentBalance
+                self.latestFiatPrice = newValue.latestFiatPrice
+                self.latestMinedHeight = newValue.latestMinedHeight
+                self.expectingZatoshi = newValue.expectingZatoshi
+                self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
+                self.walletEvents = newValue.walletEvents
+            }
+        }
+        
+        var transfer: Transfer.State {
+            get {
+                var state = transferState
+                state.shieldedBalance = shieldedBalance
+                state.unifiedAddress = unifiedAddress
+                state.latestFiatPrice = latestFiatPrice
+                return state
+            }
+            
+            set {
+                self.transferState = newValue
+                self.shieldedBalance = newValue.shieldedBalance
+                self.unifiedAddress = newValue.unifiedAddress
+                self.latestFiatPrice = newValue.latestFiatPrice
+            }
         }
     }
     
@@ -345,56 +394,6 @@ extension Home {
                  .wallet:
                 return .none
             }
-        }
-    }
-}
-
-// MARK: - Shared state synchronization
-extension Home.State {
-    var wallet: Wallet.State {
-        get {
-            var state = walletState
-            state.synchronizerState = synchronizerState
-            state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
-            state.shieldedBalance = shieldedBalance
-            state.transparentBalance = transparentBalance
-            state.totalBalance = totalBalance
-            state.latestFiatPrice = latestFiatPrice
-            state.latestMinedHeight = latestMinedHeight
-            state.expectingZatoshi = expectingZatoshi
-            state.requiredTransactionConfirmations = requiredTransactionConfirmations
-            state.walletEvents = walletEvents
-            return state
-        }
-        
-        set {
-            self.walletState = newValue
-            self.synchronizerState = newValue.synchronizerState
-            self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
-            self.shieldedBalance = newValue.shieldedBalance
-            self.transparentBalance = newValue.transparentBalance
-            self.latestFiatPrice = newValue.latestFiatPrice
-            self.latestMinedHeight = newValue.latestMinedHeight
-            self.expectingZatoshi = newValue.expectingZatoshi
-            self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
-            self.walletEvents = newValue.walletEvents
-        }
-    }
-    
-    var transfer: Transfer.State {
-        get {
-            var state = transferState
-            state.shieldedBalance = shieldedBalance
-            state.unifiedAddress = unifiedAddress
-            state.latestFiatPrice = latestFiatPrice
-            return state
-        }
-        
-        set {
-            self.transferState = newValue
-            self.shieldedBalance = newValue.shieldedBalance
-            self.unifiedAddress = newValue.unifiedAddress
-            self.latestFiatPrice = newValue.latestFiatPrice
         }
     }
 }

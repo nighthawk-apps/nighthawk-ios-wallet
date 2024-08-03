@@ -10,7 +10,8 @@ import Generated
 import UserPreferencesStorage
 import WalletStorage
 
-public struct Migrate: Reducer {
+@Reducer
+public struct Migrate {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         public var isLoading = false

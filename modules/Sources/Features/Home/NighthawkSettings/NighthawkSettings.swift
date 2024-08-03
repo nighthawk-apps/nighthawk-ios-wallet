@@ -18,7 +18,8 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct NighthawkSettings: Reducer {
+@Reducer
+public struct NighthawkSettings {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {

@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-public struct AutoshieldFailed: Reducer {
+@Reducer
+public struct AutoshieldFailed {
     public struct State: Equatable {
         public init() {}
     }

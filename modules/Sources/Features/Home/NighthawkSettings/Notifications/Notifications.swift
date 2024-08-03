@@ -15,7 +15,8 @@ import UserNotifications
 import UserNotificationCenter
 import Utils
 
-public struct Notifications: Reducer {
+@Reducer
+public struct Notifications {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         @BindingState public var selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency = .off
@@ -188,9 +189,4 @@ extension AlertState where Action == Notifications.Action.Alert {
             TextState(L10n.Nighthawk.SettingsTab.SyncNotifications.ScheduleNotificationFailedAlert.details)
         }
     }
-}
-
-// MARK: - Placeholder
-extension Notifications.State {
-    public static let placeholder = Self()
 }

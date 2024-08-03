@@ -14,7 +14,8 @@ import SDKSynchronizer
 import UIKit
 import ZcashLightClientKit
 
-public struct TopUp: Reducer {
+@Reducer
+public struct TopUp {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
 

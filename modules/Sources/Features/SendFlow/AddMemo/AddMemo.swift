@@ -12,7 +12,8 @@ import Utils
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct AddMemo: Reducer {
+@Reducer
+public struct AddMemo {
     public struct State: Equatable {
         @BindingState public var memo = ""
         @BindingState public var isIncludeReplyToChecked = false

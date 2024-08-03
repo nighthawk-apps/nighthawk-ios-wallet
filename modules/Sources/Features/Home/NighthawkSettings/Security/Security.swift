@@ -11,7 +11,8 @@ import LocalAuthentication
 import LocalAuthenticationClient
 import UserPreferencesStorage
 
-public struct Security: Reducer {
+@Reducer
+public struct Security {
     public struct State: Equatable {
         @BindingState public var areBiometricsEnabled = false
         public var biometryType: LABiometryType = .none
@@ -84,9 +85,4 @@ public struct Security: Reducer {
     }
     
     public init() {}
-}
-
-// MARK: - Placeholder
-extension Security.State {
-    public static var placeholder = Self()
 }

@@ -10,8 +10,8 @@ import XCTestDynamicOverlay
 
 extension CaptureDeviceClient: TestDependencyKey {
     public static let testValue = Self(
-        isTorchAvailable: XCTUnimplemented("\(Self.self).isTorchAvailable", placeholder: false),
-        torch: XCTUnimplemented("\(Self.self).torch")
+        isTorchAvailable: unimplemented("\(Self.self).isTorchAvailable", placeholder: false),
+        torch: unimplemented("\(Self.self).torch")
     )
 }
 

@@ -19,7 +19,8 @@ import UserPreferencesStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct TransactionDetail: Reducer {
+@Reducer
+public struct TransactionDetail {
     private enum CancelId { case timer }
     
     public struct State: Equatable {

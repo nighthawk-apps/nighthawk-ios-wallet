@@ -10,7 +10,7 @@ import XCTestDynamicOverlay
 
 extension AppVersionClient: TestDependencyKey {
     public static let testValue = Self(
-        appVersion: XCTUnimplemented("\(Self.self).appVersion", placeholder: ""),
-        appBuild: XCTUnimplemented("\(Self.self).appBuild", placeholder: "")
+        appVersion: unimplemented("\(Self.self).appVersion", placeholder: ""),
+        appBuild: unimplemented("\(Self.self).appBuild", placeholder: "")
     )
 }

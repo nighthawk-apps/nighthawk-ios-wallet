@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-public struct ImportWarning: Reducer {
+@Reducer
+public struct ImportWarning {
     public struct State: Equatable {
         public init() {}
     }

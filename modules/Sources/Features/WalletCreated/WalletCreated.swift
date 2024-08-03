@@ -9,7 +9,8 @@ import ComposableArchitecture
 import FeedbackGenerator
 import SubsonicClient
 
-public struct WalletCreated: Reducer {
+@Reducer
+public struct WalletCreated {
     public struct State: Equatable {
         public init() {}
     }

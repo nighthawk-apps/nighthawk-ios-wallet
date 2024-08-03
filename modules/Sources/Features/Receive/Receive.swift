@@ -11,7 +11,8 @@ import Pasteboard
 import SDKSynchronizer
 import ZcashLightClientKit
 
-public struct Receive: Reducer {
+@Reducer
+public struct Receive {
     public struct State: Equatable {
         public enum Toast {
             case copiedToClipboard

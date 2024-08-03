@@ -16,7 +16,8 @@ import UserPreferencesStorage
 import WalletStorage
 import ZcashLightClientKit
 
-public struct Autoshield: Reducer {
+@Reducer
+public struct Autoshield {
     let networkType: NetworkType
     
     public struct Path: Reducer {

@@ -8,7 +8,8 @@
 import ComposableArchitecture
 import Models
 
-public struct SendSuccess: Reducer {
+@Reducer
+public struct SendSuccess {
     public struct State: Equatable {
         public var transaction: TransactionState
         
