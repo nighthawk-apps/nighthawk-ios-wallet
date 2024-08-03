@@ -21,7 +21,8 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct SendFlow: Reducer {
+@Reducer
+public struct SendFlow {
     private enum SyncStatusUpdatesID { case timer }
     let networkType: NetworkType
     

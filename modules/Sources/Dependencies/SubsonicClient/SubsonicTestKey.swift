@@ -9,6 +9,6 @@ import ComposableArchitecture
 
 extension SubsonicClient: TestDependencyKey {
     public static let testValue = Self(
-        play: XCTUnimplemented("\(Self.self).play")
+        play: unimplemented("\(Self.self).play")
     )
 }

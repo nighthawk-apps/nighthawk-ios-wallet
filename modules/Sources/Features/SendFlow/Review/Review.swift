@@ -15,7 +15,8 @@ import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
 
-public struct Review: Reducer {
+@Reducer
+public struct Review {
     let networkType: NetworkType
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?

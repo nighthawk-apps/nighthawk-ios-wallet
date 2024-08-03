@@ -9,7 +9,8 @@ import ComposableArchitecture
 import Models
 import UserPreferencesStorage
 
-public struct Fiat: Reducer {
+@Reducer
+public struct Fiat {
     public struct State: Equatable {
         @BindingState public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
         

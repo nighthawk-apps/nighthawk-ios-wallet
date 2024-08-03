@@ -15,7 +15,8 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct RecoveryPhraseDisplay: Reducer {
+@Reducer
+public struct RecoveryPhraseDisplay {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {

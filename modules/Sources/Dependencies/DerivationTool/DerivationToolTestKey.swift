@@ -12,12 +12,12 @@ import Utils
 
 extension DerivationToolClient: TestDependencyKey {
     public static let testValue = Self(
-        deriveSpendingKey: XCTUnimplemented("\(Self.self).deriveSpendingKey"),
-        deriveUnifiedFullViewingKey: XCTUnimplemented("\(Self.self).deriveUnifiedFullViewingKey"),
-        isUnifiedAddress: XCTUnimplemented("\(Self.self).isUnifiedAddress", placeholder: false),
-        isSaplingAddress: XCTUnimplemented("\(Self.self).isSaplingAddress", placeholder: false),
-        isTransparentAddress: XCTUnimplemented("\(Self.self).isTransparentAddress", placeholder: false),
-        isZcashAddress: XCTUnimplemented("\(Self.self).isZcashAddress", placeholder: false)
+        deriveSpendingKey: unimplemented("\(Self.self).deriveSpendingKey"),
+        deriveUnifiedFullViewingKey: unimplemented("\(Self.self).deriveUnifiedFullViewingKey"),
+        isUnifiedAddress: unimplemented("\(Self.self).isUnifiedAddress", placeholder: false),
+        isSaplingAddress: unimplemented("\(Self.self).isSaplingAddress", placeholder: false),
+        isTransparentAddress: unimplemented("\(Self.self).isTransparentAddress", placeholder: false),
+        isZcashAddress: unimplemented("\(Self.self).isZcashAddress", placeholder: false)
     )
 }
 

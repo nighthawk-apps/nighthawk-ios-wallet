@@ -94,3 +94,9 @@ public struct ChangeServerView: View {
     }
 }
 
+// MARK: - ViewStore
+extension ViewStoreOf<ChangeServer> {
+    func validateCustomLightwalletdServer() -> NighthawkTextFieldValidationState {
+        self.isValidHostAndPort ? .valid : .invalid(error: L10n.Nighthawk.SettingsTab.ChangeServer.Custom.invalidLightwalletd)
+    }
+}

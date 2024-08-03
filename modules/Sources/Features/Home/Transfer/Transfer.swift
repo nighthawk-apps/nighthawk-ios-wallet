@@ -13,7 +13,8 @@ import TopUp
 import Utils
 import ZcashLightClientKit
 
-public struct Transfer: Reducer {
+@Reducer
+public struct Transfer {
     let networkType: NetworkType
     
     public struct Destination: Reducer {

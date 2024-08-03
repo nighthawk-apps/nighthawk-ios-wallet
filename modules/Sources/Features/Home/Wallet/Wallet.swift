@@ -14,7 +14,8 @@ import TransactionDetail
 import Utils
 import ZcashLightClientKit
 
-public struct Wallet: Reducer {
+@Reducer
+public struct Wallet {
     public struct State: Equatable {
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0

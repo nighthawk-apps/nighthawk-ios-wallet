@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-public struct SendFailed: Reducer {
+@Reducer
+public struct SendFailed {
     public struct State: Equatable {
         public init() {}
     }

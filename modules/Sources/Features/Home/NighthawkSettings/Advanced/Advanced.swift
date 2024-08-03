@@ -11,7 +11,8 @@ import Models
 import UserPreferencesStorage
 import UIKit
 
-public struct Advanced: Reducer {
+@Reducer
+public struct Advanced {
     public struct State: Equatable {
         @PresentationState public var alert: AlertState<Action.Alert>?
         @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode = .off

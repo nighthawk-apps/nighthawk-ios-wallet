@@ -11,10 +11,10 @@ import XCTestDynamicOverlay
 
 extension UserNotificationCenterClient: TestDependencyKey {
     public static let testValue = Self(
-        requestAuthorization: XCTUnimplemented("\(Self.self).requestAuthorization"),
-        notificationSettings: XCTUnimplemented("\(Self.self).notificationSettings"),
-        add: XCTUnimplemented("\(Self.self).add"),
-        removeAllPendingNotificationRequests: XCTUnimplemented("\(Self.self).removeAllPendingNotificationRequests")
+        requestAuthorization: unimplemented("\(Self.self).requestAuthorization", placeholder: true),
+        notificationSettings: unimplemented("\(Self.self).notificationSettings", placeholder: .init()),
+        add: unimplemented("\(Self.self).add"),
+        removeAllPendingNotificationRequests: unimplemented("\(Self.self).removeAllPendingNotificationRequests")
     )
 }
 

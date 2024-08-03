@@ -15,7 +15,8 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct ImportWallet: Reducer {
+@Reducer
+public struct ImportWallet {
     let saplingActivationHeight: BlockHeight
     
     public struct State: Equatable {
@@ -99,7 +100,7 @@ public struct ImportWallet: Reducer {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 
@@ -110,15 +111,5 @@ extension AlertState where Action == ImportWallet.Action.Alert {
         } message: {
             TextState(L10n.Nighthawk.ImportWallet.Alert.Failed.message(error.message, error.code.rawValue))
         }
-    }
-}
-
-extension ViewStoreOf<ImportWallet> {
-    func validateMnemonic() -> NighthawkTextEditor.ValidationState {
-        self.isValidMnemonic ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidMnemonic)
-    }
-    
-    func validateBirthday() -> NighthawkTextFieldValidationState {
-        self.isValidBirthday ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidBirthday)
     }
 }

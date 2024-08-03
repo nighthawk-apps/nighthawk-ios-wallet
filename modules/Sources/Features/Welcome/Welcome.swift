@@ -11,7 +11,8 @@ import Generated
 import ImportWarning
 import UIKit
 
-public struct Welcome: Reducer {
+@Reducer
+public struct Welcome {
     public struct State: Equatable {
         @PresentationState public var destination: Destination.State?
         

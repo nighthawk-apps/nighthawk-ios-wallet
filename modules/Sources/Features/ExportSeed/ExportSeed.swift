@@ -13,7 +13,8 @@ import WalletStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct ExportSeed: Reducer {
+@Reducer
+public struct ExportSeed {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {

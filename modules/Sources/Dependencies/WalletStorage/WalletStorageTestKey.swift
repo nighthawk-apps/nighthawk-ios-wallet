@@ -10,15 +10,15 @@ import XCTestDynamicOverlay
 
 extension WalletStorageClient: TestDependencyKey {
     public static let testValue = Self(
-        importWallet: XCTUnimplemented("\(Self.self).importWallet"),
-        exportWallet: XCTUnimplemented("\(Self.self).exportWallet", placeholder: .placeholder),
-        areKeysPresent: XCTUnimplemented("\(Self.self).areKeysPresent", placeholder: false),
-        areLegacyKeysPresent: XCTUnimplemented("\(Self.self).areLegacyKeysPresent", placeholder: false),
-        exportLegacyPhrase: XCTUnimplemented("\(Self.self).exportLegacyPhrase"),
-        exportLegacyBirthday: XCTUnimplemented("\(Self.self).exportLegacyBirthday"),
-        updateBirthday: XCTUnimplemented("\(Self.self).updateBirthday"),
-        deleteWallet: XCTUnimplemented("\(Self.self).deleteWallet"),
-        deleteLegacyWallet: XCTUnimplemented("\(Self.self).deleteLegacyWallet")
+        importWallet: unimplemented("\(Self.self).importWallet"),
+        exportWallet: unimplemented("\(Self.self).exportWallet", placeholder: .placeholder),
+        areKeysPresent: unimplemented("\(Self.self).areKeysPresent", placeholder: false),
+        areLegacyKeysPresent: unimplemented("\(Self.self).areLegacyKeysPresent", placeholder: false),
+        exportLegacyPhrase: unimplemented("\(Self.self).exportLegacyPhrase"),
+        exportLegacyBirthday: unimplemented("\(Self.self).exportLegacyBirthday"),
+        updateBirthday: unimplemented("\(Self.self).updateBirthday"),
+        deleteWallet: unimplemented("\(Self.self).deleteWallet"),
+        deleteLegacyWallet: unimplemented("\(Self.self).deleteLegacyWallet")
     )
 }
 

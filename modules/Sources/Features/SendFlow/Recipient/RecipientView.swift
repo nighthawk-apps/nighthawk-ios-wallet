@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Generated
 import SwiftUI
 import UIComponents
+import Utils
 
 public struct RecipientView: View {
     let store: StoreOf<Recipient>
@@ -101,6 +102,26 @@ private extension RecipientView {
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(.white)
             }
+        }
+    }
+}
+
+// MARK: - ViewStore
+extension ViewStoreOf<Recipient> {
+    func bindingForRedactableRecipient(_ recipient: RedactableString) -> Binding<String> {
+        self.binding(
+            get: { _ in recipient.data },
+            send: { .recipientInputChanged($0.redacted) }
+        )
+    }
+    
+    func validateRecipient() -> NighthawkTextFieldValidationState {
+        return if self.isRecipientValid {
+            .valid
+        } else if let specific = self.specificValidationError  {
+            specific
+        } else {
+            .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)
         }
     }
 }

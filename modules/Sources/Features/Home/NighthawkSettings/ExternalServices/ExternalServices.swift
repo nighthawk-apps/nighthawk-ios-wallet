@@ -8,7 +8,8 @@
 import ComposableArchitecture
 import UserPreferencesStorage
 
-public struct ExternalServices: Reducer {
+@Reducer
+public struct ExternalServices {
     public struct State: Equatable {
         @BindingState public var isUnstoppableDomainsEnabled = false
         

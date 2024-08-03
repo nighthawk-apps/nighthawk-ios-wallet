@@ -9,7 +9,8 @@ import ComposableArchitecture
 import UIKit
 import Utils
 
-public struct About: Reducer {
+@Reducer
+public struct About {
     public struct State: Equatable {
         public init() {}
     }

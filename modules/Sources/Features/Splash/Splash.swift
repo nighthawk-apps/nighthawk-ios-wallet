@@ -17,7 +17,8 @@ import Utils
 import WalletStorage
 import ZcashLightClientKit
 
-public struct Splash: Reducer {
+@Reducer
+public struct Splash {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {

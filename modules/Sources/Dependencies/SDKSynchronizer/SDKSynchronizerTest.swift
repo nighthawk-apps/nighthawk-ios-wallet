@@ -14,26 +14,26 @@ import Utils
 
 extension SDKSynchronizerClient: TestDependencyKey {
     public static let testValue = Self(
-        stateStream: XCTUnimplemented("\(Self.self).stateStream", placeholder: Empty().eraseToAnyPublisher()),
-        eventStream: XCTUnimplemented("\(Self.self).eventStream", placeholder: Empty().eraseToAnyPublisher()),
-        latestState: XCTUnimplemented("\(Self.self).latestState", placeholder: .zero),
-        prepareWith: XCTUnimplemented("\(Self.self).prepareWith"),
-        start: XCTUnimplemented("\(Self.self).start"),
-        stop: XCTUnimplemented("\(Self.self).stop"),
-        isSyncing: XCTUnimplemented("\(Self.self).isSyncing", placeholder: false),
-        isInitialized: XCTUnimplemented("\(Self.self).isInitialized", placeholder: false),
-        rewind: XCTUnimplemented("\(Self.self).rewind", placeholder: Fail(error: "Error").eraseToAnyPublisher()),
-        getAllTransactions: XCTUnimplemented("\(Self.self).getAllTransactions", placeholder: []),
-        getUnifiedAddress: XCTUnimplemented("\(Self.self).getUnifiedAddress", placeholder: nil),
-        getTransparentAddress: XCTUnimplemented("\(Self.self).getTransparentAddress", placeholder: nil),
-        getSaplingAddress: XCTUnimplemented("\(Self.self).getSaplingAddress", placeholder: nil),
-        sendTransaction: XCTUnimplemented("\(Self.self).sendTransaction", placeholder: .placeholder()),
-        shieldFunds: XCTUnimplemented("\(Self.self).shieldFunds", placeholder: .placeholder()),
-        wipe: XCTUnimplemented("\(Self.self).wipe"),
-        switchToEndpoint: XCTUnimplemented("\(Self.self).switchToEndpoint"),
-        proposeTransfer: XCTUnimplemented("\(Self.self).proposeTransfer", placeholder: .testOnlyFakeProposal(totalFee: 0)),
-        createProposedTransactions: XCTUnimplemented("\(Self.self).createProposedTransactions", placeholder: .success),
-        proposeShielding: XCTUnimplemented("\(Self.self).proposeShielding", placeholder: nil)
+        stateStream: unimplemented("\(Self.self).stateStream", placeholder: Empty().eraseToAnyPublisher()),
+        eventStream: unimplemented("\(Self.self).eventStream", placeholder: Empty().eraseToAnyPublisher()),
+        latestState: unimplemented("\(Self.self).latestState", placeholder: .zero),
+        prepareWith: unimplemented("\(Self.self).prepareWith"),
+        start: unimplemented("\(Self.self).start"),
+        stop: unimplemented("\(Self.self).stop"),
+        isSyncing: unimplemented("\(Self.self).isSyncing", placeholder: false),
+        isInitialized: unimplemented("\(Self.self).isInitialized", placeholder: false),
+        rewind: unimplemented("\(Self.self).rewind", placeholder: Fail(error: "Error").eraseToAnyPublisher()),
+        getAllTransactions: unimplemented("\(Self.self).getAllTransactions", placeholder: []),
+        getUnifiedAddress: unimplemented("\(Self.self).getUnifiedAddress", placeholder: nil),
+        getTransparentAddress: unimplemented("\(Self.self).getTransparentAddress", placeholder: nil),
+        getSaplingAddress: unimplemented("\(Self.self).getSaplingAddress", placeholder: nil),
+        sendTransaction: unimplemented("\(Self.self).sendTransaction", placeholder: .placeholder()),
+        shieldFunds: unimplemented("\(Self.self).shieldFunds", placeholder: .placeholder()),
+        wipe: unimplemented("\(Self.self).wipe", placeholder: Empty().eraseToAnyPublisher()),
+        switchToEndpoint: unimplemented("\(Self.self).switchToEndpoint"),
+        proposeTransfer: unimplemented("\(Self.self).proposeTransfer", placeholder: .testOnlyFakeProposal(totalFee: 0)),
+        createProposedTransactions: unimplemented("\(Self.self).createProposedTransactions", placeholder: .success),
+        proposeShielding: unimplemented("\(Self.self).proposeShielding", placeholder: nil)
     )
 }
 

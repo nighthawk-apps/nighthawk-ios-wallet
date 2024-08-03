@@ -90,3 +90,14 @@ private extension ImportWalletView {
             .padding(.horizontal, 58)
     }
 }
+
+// MARK: - ViewStore
+extension ViewStoreOf<ImportWallet> {
+    func validateMnemonic() -> NighthawkTextEditor.ValidationState {
+        self.isValidMnemonic ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidMnemonic)
+    }
+    
+    func validateBirthday() -> NighthawkTextFieldValidationState {
+        self.isValidBirthday ? .valid : .invalid(error: L10n.Nighthawk.ImportWallet.invalidBirthday)
+    }
+}

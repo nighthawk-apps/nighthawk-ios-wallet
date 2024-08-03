@@ -13,7 +13,8 @@ import UserPreferencesStorage
 import ZcashLightClientKit
 import ZcashSDKEnvironment
 
-public struct ChangeServer: Reducer {
+@Reducer
+public struct ChangeServer {
     let zcashNetwork: ZcashNetwork
     
     public struct State: Equatable {
@@ -144,12 +145,6 @@ extension AlertState where Action == ChangeServer.Action.Alert {
         } message: {
             TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.message(error.message, error.code.rawValue))
         }
-    }
-}
-
-extension ViewStoreOf<ChangeServer> {
-    func validateCustomLightwalletdServer() -> NighthawkTextFieldValidationState {
-        self.isValidHostAndPort ? .valid : .invalid(error: L10n.Nighthawk.SettingsTab.ChangeServer.Custom.invalidLightwalletd)
     }
 }
 
