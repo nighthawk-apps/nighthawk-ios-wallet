@@ -24,3 +24,26 @@ public struct WalletEvent: Codable, Equatable, Identifiable, Redactable {
         self.timestamp = transaction.timestamp
     }
 }
+
+public extension Array where Element == WalletEvent {
+    func sortedEvents(with chainTip: BlockHeight) -> [WalletEvent] {
+        sorted(by: { lhs, rhs in
+            var lhsHeight = chainTip
+            
+            if let lhsMinedHeight = lhs.transaction.minedHeight {
+                lhsHeight = lhsMinedHeight
+            } else if let lhsExpiredHeight = lhs.transaction.expiryHeight, lhsExpiredHeight > 0 {
+                lhsHeight = lhsExpiredHeight
+            }
+            
+            var rhsHeight = chainTip
+            if let rhsMinedHeight = rhs.transaction.minedHeight {
+                rhsHeight = rhsMinedHeight
+            } else if let rhsExpiredHeight = rhs.transaction.expiryHeight, rhsExpiredHeight > 0 {
+                rhsHeight = rhsExpiredHeight
+            }
+            
+            return lhsHeight > rhsHeight
+        })
+    }
+}
