@@ -233,12 +233,14 @@ public struct Home: Reducer {
                 }
                 state.synchronizerState = latestState
                 state.synchronizerStatusSnapshot = snapshot
-                state.shieldedBalance = (latestState.accountBalance?.saplingBalance.spendableValue ?? .zero) +
-                    (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero)
-                state.transparentBalance = latestState.accountBalance?.unshielded ?? .zero
-                state.totalBalance = (state.synchronizerState.accountBalance?.saplingBalance.total() ?? .zero) +
-                    (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero) +
-                    (state.synchronizerState.accountBalance?.unshielded ?? .zero)
+                let spendableSapling = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
+                let spendableOrchard = latestState.accountBalance?.orchardBalance.spendableValue ?? .zero
+                let transparentBalance = latestState.accountBalance?.unshielded ?? .zero
+                state.shieldedBalance = spendableSapling + spendableOrchard
+                state.transparentBalance = transparentBalance
+                let totalSapling = latestState.accountBalance?.saplingBalance.total() ?? .zero
+                let totalOrchard = latestState.accountBalance?.orchardBalance.total() ?? .zero
+                state.totalBalance = totalSapling + totalOrchard + transparentBalance
                 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
@@ -280,28 +282,8 @@ public struct Home: Reducer {
             case let .updateWalletEvents(walletEvents):
                 let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
                 
-                let sortedWalletEvents = walletEvents
-                    .sorted(by: { lhs, rhs in
-                        var lhsHeight = chainTip
-                        
-                        if let lhsMinedHeight = lhs.transaction.minedHeight {
-                            lhsHeight = lhsMinedHeight
-                        } else if let lhsExpiredHeight = lhs.transaction.expiryHeight, lhsExpiredHeight > 0 {
-                            lhsHeight = lhsExpiredHeight
-                        }
-                        
-                        var rhsHeight = chainTip
-                        if let rhsMinedHeight = rhs.transaction.minedHeight {
-                            rhsHeight = rhsMinedHeight
-                        } else if let rhsExpiredHeight = rhs.transaction.expiryHeight, rhsExpiredHeight > 0 {
-                            rhsHeight = rhsExpiredHeight
-                        }
-                        
-                        return lhsHeight > rhsHeight
-                    })
-                
                 // Cache two latest events
-                let events = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
+                let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
                 if let cache = URL.latestEventsCache(for: zcashNetwork.networkType) {
                     let latest = IdentifiedArray(events.prefix(2)).elements
                     if let data = try? JSONEncoder().encode(latest) {

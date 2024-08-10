@@ -93,27 +93,7 @@ public struct TransactionHistory: Reducer {
                 return .none
             case let .updateWalletEvents(events):
                 let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
-                
-                let sortedWalletEvents = events
-                    .sorted(by: { lhs, rhs in
-                        var lhsHeight = chainTip
-                        
-                        if let lhsMinedHeight = lhs.transaction.minedHeight {
-                            lhsHeight = lhsMinedHeight
-                        } else if let lhsExpiredHeight = lhs.transaction.expiryHeight, lhsExpiredHeight > 0 {
-                            lhsHeight = lhsExpiredHeight
-                        }
-                        
-                        var rhsHeight = chainTip
-                        if let rhsMinedHeight = rhs.transaction.minedHeight {
-                            rhsHeight = rhsMinedHeight
-                        } else if let rhsExpiredHeight = rhs.transaction.expiryHeight, rhsExpiredHeight > 0 {
-                            rhsHeight = rhsExpiredHeight
-                        }
-                        
-                        return lhsHeight > rhsHeight
-                    })
-                state.walletEvents = IdentifiedArrayOf(uniqueElements: sortedWalletEvents)
+                state.walletEvents = IdentifiedArrayOf(uniqueElements: events.sortedEvents(with: chainTip))
                 return .none
             case let .viewTransactionDetailTapped(walletEvent):
                 return .send(.delegate(.showTransactionDetail(walletEvent)))
