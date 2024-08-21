@@ -11,37 +11,35 @@ import SwiftUI
 import UIComponents
 
 public struct TopUpView: View {
-    let store: StoreOf<TopUp>
+    @Bindable var store: StoreOf<TopUp>
     
     public init(store: StoreOf<TopUp>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkHeading(title: L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
-                    .padding(.bottom, 40)
-                
-                partnersList(with: viewStore)
-                
-                Spacer()
-            }
-            .modify {
-                if viewStore.showCloseButton {
-                    $0.showNighthawkBackButton(type: .close) {
-                        viewStore.send(.closeButtonTapped)
-                    }
-                } else {
-                    $0
+        VStack {
+            NighthawkHeading(title: L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
+                .padding(.bottom, 40)
+            
+            partnersList
+            
+            Spacer()
+        }
+        .modify {
+            if store.showCloseButton {
+                $0.showNighthawkBackButton(type: .close) {
+                    store.send(.closeButtonTapped)
                 }
+            } else {
+                $0
             }
         }
         .applyNighthawkBackground()
         .alert(
-            store: store.scope(
-                state: \.$alert,
-                action: { .alert($0) }
+            $store.scope(
+                state: \.alert,
+                action: \.alert
             )
         )
     }
@@ -49,7 +47,7 @@ public struct TopUpView: View {
 
 // MARK: - Subviews
 private extension TopUpView {
-    func partnersList(with viewStore: ViewStoreOf<TopUp>) -> some View {
+    var partnersList: some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneySecurely)
@@ -58,7 +56,7 @@ private extension TopUpView {
                 Spacer()
             }
             
-            Button(action: { viewStore.send(.showStealthExInstructions) }) {
+            Button(action: { store.send(.showStealthExInstructions) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.TopUpWallet.stealthExIoTitle,
                     description: L10n.Nighthawk.TransferTab.TopUpWallet.stealthExIoDescription,

@@ -16,13 +16,13 @@ import UserPreferencesStorage
 import Utils
 import WalletStorage
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Splash {
-    let zcashNetwork: ZcashNetwork
-    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Action.Alert>?
         public var authenticated: Bool { lastAuthenticatedTime != nil }
         public var isFirstLaunch = true
         public var hasAttemptedAuthentication = false
@@ -66,6 +66,7 @@ public struct Splash {
     @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -101,7 +102,7 @@ public struct Splash {
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
-                    zcashNetwork: zcashNetwork
+                    zcashNetwork: zcashSDKEnvironment.network
                 )
                 
                 switch state.initializationState {
@@ -157,12 +158,10 @@ public struct Splash {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }
 
 // MARK: - Alerts

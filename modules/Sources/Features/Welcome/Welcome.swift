@@ -13,8 +13,10 @@ import UIKit
 
 @Reducer
 public struct Welcome {
+    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var destination: Destination.State?
+        @Presents public var destination: Destination.State?
         
         public init() {}
     }
@@ -32,22 +34,9 @@ public struct Welcome {
         }
     }
     
-    public struct Destination: Reducer {
-        public enum State: Equatable {
-            case importSeedWarningAlert(ImportWarning.State)
-        }
-        
-        public enum Action: Equatable {
-            case importSeedWarningAlert(ImportWarning.Action)
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.importSeedWarningAlert, action: /Action.importSeedWarningAlert) {
-                ImportWarning()
-            }
-        }
-        
-        public init() {}
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Destination {
+        case importSeedWarningAlert(ImportWarning)
     }
     
     public var body: some ReducerOf<Self> {
@@ -67,9 +56,7 @@ public struct Welcome {
                 return .none
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
-        }
+        .ifLet(\.$destination, action: \.destination)
         
         importWarningDelegateReducer()
     }

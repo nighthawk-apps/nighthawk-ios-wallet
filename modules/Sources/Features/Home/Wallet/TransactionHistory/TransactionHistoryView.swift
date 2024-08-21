@@ -12,7 +12,7 @@ import SwiftUI
 import UIComponents
 
 public struct TransactionHistoryView: View {
-    let store: StoreOf<TransactionHistory>
+    @Bindable var store: StoreOf<TransactionHistory>
     let tokenName: String
     
     public init(
@@ -24,31 +24,29 @@ public struct TransactionHistoryView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView([.vertical], showsIndicators: false) {
-                LazyVStack {
-                    ForEach(viewStore.walletEvents) { walletEvent in
-                        Button(action: { viewStore.send(.viewTransactionDetailTapped(walletEvent)) }) {
-                            TransactionRowView(
-                                transaction: walletEvent.transaction,
-                                showAmount: true,
-                                tokenName: tokenName,
-                                fiatConversion: viewStore.fiatConversion
-                            )
-                        }
-                        
-                        Divider()
-                            .frame(height: 2)
-                            .overlay(Asset.Colors.Nighthawk.navy.color)
+        ScrollView([.vertical], showsIndicators: false) {
+            LazyVStack {
+                ForEach(store.walletEvents) { walletEvent in
+                    Button(action: { store.send(.viewTransactionDetailTapped(walletEvent)) }) {
+                        TransactionRowView(
+                            transaction: walletEvent.transaction,
+                            showAmount: true,
+                            tokenName: tokenName,
+                            fiatConversion: store.fiatConversion
+                        )
                     }
+                    
+                    Divider()
+                        .frame(height: 2)
+                        .overlay(Asset.Colors.Nighthawk.navy.color)
                 }
             }
-            .padding(.horizontal, 25)
-            .onAppear { viewStore.send(.onAppear) }
-            .overlay(alignment: .top) {
-                if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing {
-                    IndeterminateProgress()
-                }
+        }
+        .padding(.horizontal, 25)
+        .onAppear { store.send(.onAppear) }
+        .overlay(alignment: .top) {
+            if store.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                IndeterminateProgress()
             }
         }
         .applyNighthawkBackground()

@@ -17,103 +17,99 @@ struct NighthawkSettingsView: View {
         static let touchId = "Touch ID"
     }
     
-    let store: StoreOf<NighthawkSettings>
+    @Bindable var store: StoreOf<NighthawkSettings>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView([.vertical], showsIndicators: false) {
-                NighthawkLogo(spacing: .compact)
-                    .padding(.vertical, 40)
+        ScrollView([.vertical], showsIndicators: false) {
+            NighthawkLogo(spacing: .compact)
+                .padding(.vertical, 40)
+            
+            HStack {
+                Text(L10n.Nighthawk.SettingsTab.settings)
+                    .paragraphMedium()
+                Spacer()
+            }
+            
+            VStack {
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.notificationsTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
+                    icon:  Asset.Assets.Icons.Nighthawk.notifications.image,
+                    action: { store.send(.rowTapped(.notifications)) }
+                )
                 
-                HStack {
-                    Text(L10n.Nighthawk.SettingsTab.settings)
-                        .paragraphMedium()
-                    Spacer()
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.fiatTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
+                    icon:  Asset.Assets.Icons.Nighthawk.fiat.image,
+                    action: { store.send(.rowTapped(.fiat)) }
+                )
+                
+                if store.biometryType != .none {
+                    settingRow(
+                        title: L10n.Nighthawk.SettingsTab.securityTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle(
+                            store.biometryType == .faceID
+                            ? Constants.faceId
+                            : Constants.touchId
+                        ),
+                        icon: Asset.Assets.Icons.Nighthawk.security.image,
+                        action: { store.send(.rowTapped(.security)) }
+                    )
                 }
                 
-                VStack {
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.notificationsTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
-                        icon:  Asset.Assets.Icons.Nighthawk.notifications.image,
-                        action: { viewStore.send(.rowTapped(.notifications)) }
-                    )
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.fiatTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
-                        icon:  Asset.Assets.Icons.Nighthawk.fiat.image,
-                        action: { viewStore.send(.rowTapped(.fiat)) }
-                    )
-                    
-                    if viewStore.biometryType != .none {
-                        settingRow(
-                            title: L10n.Nighthawk.SettingsTab.securityTitle,
-                            subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle(
-                                viewStore.biometryType == .faceID
-                                ? Constants.faceId
-                                : Constants.touchId
-                            ),
-                            icon: Asset.Assets.Icons.Nighthawk.security.image,
-                            action: { viewStore.send(.rowTapped(.security)) }
-                        )
-                    }
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.backupTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.backupSubtitle,
-                        icon: Asset.Assets.Icons.Nighthawk.backup.image,
-                        action: { viewStore.send(.rowTapped(.backup)) }
-                    )
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.rescanTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.rescanSubtitle,
-                        icon: Asset.Assets.Icons.Nighthawk.rescan.image,
-                        action: { viewStore.send(.rescanTapped) }
-                    )
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.changeServerTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.changeServerSubtitle,
-                        icon: Asset.Assets.Icons.Nighthawk.server.image,
-                        action: { viewStore.send(.rowTapped(.changeServer)) }
-                    )
-                    
-                    // TODO: Enable once we can actually test this.
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.backupTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.backupSubtitle,
+                    icon: Asset.Assets.Icons.Nighthawk.backup.image,
+                    action: { store.send(.rowTapped(.backup)) }
+                )
+                
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.rescanTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.rescanSubtitle,
+                    icon: Asset.Assets.Icons.Nighthawk.rescan.image,
+                    action: { store.send(.rescanTapped) }
+                )
+                
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.changeServerTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.changeServerSubtitle,
+                    icon: Asset.Assets.Icons.Nighthawk.server.image,
+                    action: { store.send(.rowTapped(.changeServer)) }
+                )
+                
+                // TODO: Enable once we can actually test this.
 //                    settingRow(
 //                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
 //                        subtitle: L10n.Nighthawk.SettingsTab.externalServicesSubtitle,
 //                        icon: Asset.Assets.Icons.Nighthawk.services.image,
 //                        action: { viewStore.send(.rowTapped(.externalServices)) }
 //                    )
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.advancedTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
-                        icon:  Asset.Assets.Icons.Nighthawk.settings.image,
-                        action: { viewStore.send(.rowTapped(.advanced)) }
-                    )
-                    
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.aboutTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(viewStore.appVersion),
-                        icon: Asset.Assets.Icons.Nighthawk.about.image,
-                        action: { viewStore.send(.rowTapped(.about))}
-                    )
-                }
+                
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.advancedTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
+                    icon:  Asset.Assets.Icons.Nighthawk.settings.image,
+                    action: { store.send(.rowTapped(.advanced)) }
+                )
+                
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.aboutTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion),
+                    icon: Asset.Assets.Icons.Nighthawk.about.image,
+                    action: { store.send(.rowTapped(.about))}
+                )
             }
-            .padding(.horizontal, 25)
-            .onAppear { viewStore.send(.onAppear) }
         }
+        .padding(.horizontal, 25)
+        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
         .alert(
-            store: store.scope(
-                state: \.$destination,
-                action: { .destination($0) }
-            ),
-            state: /NighthawkSettings.Destination.State.alert,
-            action: NighthawkSettings.Destination.Action.alert
+            $store.scope(
+                state: \.alert,
+                action: \.alert
+            )
         )
     }
 }

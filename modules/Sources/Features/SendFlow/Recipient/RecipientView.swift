@@ -12,7 +12,7 @@ import UIComponents
 import Utils
 
 public struct RecipientView: View {
-    let store: StoreOf<Recipient>
+    @Bindable var store: StoreOf<Recipient>
     
     public init(store: StoreOf<Recipient>) {
         self.store = store
@@ -21,57 +21,55 @@ public struct RecipientView: View {
     @FocusState private var isRecipientEditorFocused: Bool
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkHeading(
-                    title: L10n.Nighthawk.TransferTab.Recipient.chooseRecipient
-                )
-                .padding(.bottom, 40)
-                .onTapGesture {
-                    isRecipientEditorFocused = false
-                }
-                
-                NighthawkTextField(
-                    placeholder: L10n.Nighthawk.TransferTab.Recipient.addAddress,
-                    text: viewStore.bindingForRedactableRecipient(viewStore.recipient),
-                    isValid: viewStore.validateRecipient(),
-                    foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color,
-                    inputAccessoryView: {
-                        addressFieldAccessoryView(with: viewStore)
-                    }
-                )
-                .padding(.horizontal, 24)
-                .foregroundColor(.green)
-                .focused($isRecipientEditorFocused)
-                
-                if viewStore.canPasteAddress {
-                    Button(
-                        L10n.Nighthawk.TransferTab.Recipient.pasteFromClipboard,
-                        action: { viewStore.send(.pasteFromClipboardTapped) }
-                    )
-                    .buttonStyle(.nighthawkDashed())
-                }
-                
-                Spacer()
-                
-                Button(
-                    L10n.Nighthawk.TransferTab.Recipient.continue,
-                    action: { viewStore.send(.continueTapped) }
-                )
-                .buttonStyle(.nighthawkPrimary())
-                .disabled(!viewStore.isRecipientValid || viewStore.isResolvingUNS)
-                .padding(.bottom, 28)
+        VStack {
+            NighthawkHeading(
+                title: L10n.Nighthawk.TransferTab.Recipient.chooseRecipient
+            )
+            .padding(.bottom, 40)
+            .onTapGesture {
+                isRecipientEditorFocused = false
             }
-            .showNighthawkBackButton(
-                action: {
-                    isRecipientEditorFocused = false
-                    viewStore.send(.backButtonTapped)
+            
+            NighthawkTextField(
+                placeholder: L10n.Nighthawk.TransferTab.Recipient.addAddress,
+                text: $store.recipient.sending(\.recipientInputChanged),
+                isValid: store.validateRecipient(),
+                foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color,
+                inputAccessoryView: {
+                    addressFieldAccessoryView
                 }
             )
-            .onAppear {
-                isRecipientEditorFocused = true
-                viewStore.send(.onAppear)
+            .padding(.horizontal, 24)
+            .foregroundColor(.green)
+            .focused($isRecipientEditorFocused)
+            
+            if store.canPasteAddress {
+                Button(
+                    L10n.Nighthawk.TransferTab.Recipient.pasteFromClipboard,
+                    action: { store.send(.pasteFromClipboardTapped) }
+                )
+                .buttonStyle(.nighthawkDashed())
             }
+            
+            Spacer()
+            
+            Button(
+                L10n.Nighthawk.TransferTab.Recipient.continue,
+                action: { store.send(.continueTapped) }
+            )
+            .buttonStyle(.nighthawkPrimary())
+            .disabled(!store.isRecipientValid || store.isResolvingUNS)
+            .padding(.bottom, 28)
+        }
+        .showNighthawkBackButton(
+            action: {
+                isRecipientEditorFocused = false
+                store.send(.backButtonTapped)
+            }
+        )
+        .onAppear {
+            isRecipientEditorFocused = true
+            store.send(.onAppear)
         }
         .applyNighthawkBackground()
     }
@@ -79,11 +77,11 @@ public struct RecipientView: View {
 
 // MARK: - Subviews
 private extension RecipientView {
-    @ViewBuilder func addressFieldAccessoryView(with viewStore: ViewStoreOf<Recipient>) -> some View {
-        if viewStore.showScanButton {
-            Button(action: { viewStore.send(viewStore.hasEnteredRecipient ? .clearRecipientTapped : .scanQRCodeTapped) }) {
+    @ViewBuilder var addressFieldAccessoryView: some View {
+        if store.showScanButton {
+            Button(action: { store.send(store.hasEnteredRecipient ? .clearRecipientTapped : .scanQRCodeTapped) }) {
                 (
-                    viewStore.hasEnteredRecipient
+                    store.hasEnteredRecipient
                     ? Asset.Assets.Icons.Nighthawk.failed.image
                     : Asset.Assets.Icons.Nighthawk.boxedQrCode.image
                 )
@@ -93,8 +91,8 @@ private extension RecipientView {
                 .aspectRatio(contentMode: .fit)
                 .foregroundColor(.white)
             }
-        } else if viewStore.hasEnteredRecipient {
-            Button(action: { viewStore.send(.clearRecipientTapped) }) {
+        } else if store.hasEnteredRecipient {
+            Button(action: { store.send(.clearRecipientTapped) }) {
                 Asset.Assets.Icons.Nighthawk.failed.image
                     .resizable()
                     .renderingMode(.template)
@@ -107,14 +105,7 @@ private extension RecipientView {
 }
 
 // MARK: - ViewStore
-extension ViewStoreOf<Recipient> {
-    func bindingForRedactableRecipient(_ recipient: RedactableString) -> Binding<String> {
-        self.binding(
-            get: { _ in recipient.data },
-            send: { .recipientInputChanged($0.redacted) }
-        )
-    }
-    
+extension StoreOf<Recipient> {    
     func validateRecipient() -> NighthawkTextFieldValidationState {
         return if self.isRecipientValid {
             .valid

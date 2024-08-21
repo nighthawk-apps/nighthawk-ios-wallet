@@ -16,6 +16,8 @@ import ZcashLightClientKit
 
 @Reducer
 public struct Wallet {
+    
+    @ObservableState
     public struct State: Equatable {
         public var latestMinedHeight: BlockHeight?
         public var requiredTransactionConfirmations = 0
@@ -25,7 +27,7 @@ public struct Wallet {
         public var transparentBalance: Zatoshi = .zero
         public var totalBalance: Zatoshi = .zero
         public var expectingZatoshi: Zatoshi = .zero
-        @BindingState public var balanceViewType: BalanceView.ViewType = .hidden
+        public var balanceViewType: BalanceView.ViewType = .hidden
         public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
         
         public var isSyncingForFirstTime: Bool {

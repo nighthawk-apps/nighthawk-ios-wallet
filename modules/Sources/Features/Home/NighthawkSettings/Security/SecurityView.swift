@@ -11,29 +11,27 @@ import SwiftUI
 import UIComponents
 
 public struct SecurityView: View {
-    var store: StoreOf<Security>
+    @Bindable var store: StoreOf<Security>
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(alignment: .leading, spacing: 16) {
-                Text(L10n.Nighthawk.SettingsTab.securityTitle)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                
-                Toggle(
-                    toggleTitle(with: viewStore),
-                    isOn: viewStore.$areBiometricsEnabled
-                )
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(.white)
-                .lineSpacing(6)
-                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
-                
-                Spacer()
-            }
-            .padding(.top, 25)
-            .padding(.horizontal, 25)
-            .onAppear { viewStore.send(.onAppear) }
+        VStack(alignment: .leading, spacing: 16) {
+            Text(L10n.Nighthawk.SettingsTab.securityTitle)
+                .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            
+            Toggle(
+                toggleTitle,
+                isOn: $store.areBiometricsEnabled
+            )
+            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+            .foregroundColor(.white)
+            .lineSpacing(6)
+            .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+            
+            Spacer()
         }
+        .padding(.top, 25)
+        .padding(.horizontal, 25)
+        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
     }
     
@@ -44,14 +42,14 @@ public struct SecurityView: View {
 
 // MARK: - Private
 private extension SecurityView {
-    func toggleTitle(with viewStore: ViewStoreOf<Security>) -> String {
-        switch viewStore.biometryType {
+    var toggleTitle: String {
+        switch store.biometryType {
         case .faceID:
-            return viewStore.areBiometricsEnabled
+            return store.areBiometricsEnabled
                 ? L10n.Nighthawk.SettingsTab.Security.biometricsEnabled("Face ID")
                 : L10n.Nighthawk.SettingsTab.Security.biometricsDisabled("Face ID")
         case .touchID:
-            return viewStore.areBiometricsEnabled
+            return store.areBiometricsEnabled
                 ? L10n.Nighthawk.SettingsTab.Security.biometricsEnabled("Touch ID")
                 : L10n.Nighthawk.SettingsTab.Security.biometricsDisabled("Touch ID")
         case .none, .opticID:

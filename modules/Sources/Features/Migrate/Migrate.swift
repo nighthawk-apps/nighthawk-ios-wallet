@@ -12,8 +12,10 @@ import WalletStorage
 
 @Reducer
 public struct Migrate {
+    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Action.Alert>?
         public var isLoading = false
         
         public init() {}
@@ -75,7 +77,7 @@ public struct Migrate {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
     public init() {}

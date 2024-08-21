@@ -9,6 +9,7 @@ import CasePaths
 import Generated
 import SwiftUI
 
+@CasePathable
 public enum NighthawkTextFieldValidationState: Equatable {
     case valid
     case invalid(error: String)
@@ -42,7 +43,7 @@ public struct NighthawkTextField<InputAccessoryContent>: View where InputAccesso
     @State private var _dirty = false
     
     public var body: some View {
-        let errorMessage = (/NighthawkTextFieldValidationState.invalid).extract(from: isValid)
+        let errorMessage = isValid[case: \.invalid]
         let isError = errorMessage != nil
         let showError = isError && _dirty && !_focusState
         

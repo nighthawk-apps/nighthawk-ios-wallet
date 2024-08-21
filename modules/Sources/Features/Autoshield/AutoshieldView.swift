@@ -11,45 +11,35 @@ import SwiftUI
 import UIComponents
 
 public struct AutoshieldView: View {
-    let store: StoreOf<Autoshield>
+    @Bindable var store: StoreOf<Autoshield>
     
     public var body: some View {
-        NavigationStackStore(
-            store.scope(
+        NavigationStack(
+            path: $store.scope(
                 state: \.path,
-                action: { .path($0) }
+                action: \.path
             )
         ) {
-            WithViewStore(store, observe: { $0 }) { viewStore in
-                AutoshieldRootView(viewStore: viewStore)
-            }
-            .applyNighthawkBackground()
-            .alert(
-                store: store.scope(
-                    state: \.$alert,
-                    action: { .alert($0) }
+            AutoshieldRootView(store: store)
+                .applyNighthawkBackground()
+                .alert(
+                    $store.scope(
+                        state: \.alert,
+                        action: \.alert
+                    )
                 )
-            )
-            .navigationTitle("")
-        } destination: { state in
-            switch state {
+                .navigationTitle("")
+        } destination: { store in
+            switch store.case {
             case .inProgress:
                 AutoshieldInProgressView()
                     .toolbar(.hidden, for: .navigationBar)
-            case .success:
-                CaseLet(
-                    /Autoshield.Path.State.success,
-                     action: Autoshield.Path.Action.success,
-                     then: AutoshieldSuccessView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
-            case .failed:
-                CaseLet(
-                    /Autoshield.Path.State.failed,
-                     action: Autoshield.Path.Action.failed,
-                     then: AutoshieldFailedView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
+            case let .success(store):
+                AutoshieldSuccessView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
+            case let .failed(store):
+                AutoshieldFailedView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
             }
         }
     }
@@ -61,7 +51,7 @@ public struct AutoshieldView: View {
 
 // MARK: - Subviews
 private struct AutoshieldRootView: View {
-    let viewStore: ViewStoreOf<Autoshield>
+    let store: StoreOf<Autoshield>
     
     private enum Constants {
         static let imageSizeRatio = 0.25
@@ -119,12 +109,12 @@ private struct AutoshieldRootView: View {
                                 
                 VStack(spacing: 8) {
                     Button(L10n.Nighthawk.Autoshield.buttonPositive) {
-                        viewStore.send(.positiveButtonTapped)
+                        store.send(.positiveButtonTapped)
                     }
                     .buttonStyle(.largePrimary)
                     
                     Button(L10n.Nighthawk.Autoshield.buttonNeutral) {
-                        viewStore.send(.warnBeforeLeavingApp(eccURL))
+                        store.send(.warnBeforeLeavingApp(eccURL))
                     }
                     .buttonStyle(.largeOutlined)
                 }

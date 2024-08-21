@@ -28,7 +28,7 @@ extension AppReducer {
                 case .rescan:
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -52,7 +52,7 @@ extension AppReducer {
                     )
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -66,7 +66,7 @@ extension AppReducer {
                 case .deleteWallet:
                     return deleteWallet()
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -81,7 +81,7 @@ extension AppReducer {
                     // TODO: Show license list
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -90,30 +90,30 @@ extension AppReducer {
     private func goTo(screen: NighthawkSettings.State.Screen, state: inout State) -> Effect<Action> {
         switch screen {
         case .about:
-            state.path.append(.about())
+            state.path.append(.about(.init()))
             return .none
         case .advanced:
-            state.path.append(.advanced())
+            state.path.append(.advanced(.init()))
             return .none
         case .backup:
             state.path.append(.backup(.init(flow: .settings)))
             return .none
         case .changeServer:
-            state.path.append(.changeServer())
+            state.path.append(.changeServer(.init()))
             return .none
         case .externalServices:
-            state.path.append(.externalServices())
+            state.path.append(.externalServices(.init()))
             return .none
         case .fiat:
-            state.path.append(.fiat())
+            state.path.append(.fiat(.init()))
             return .none
         case .notifications:
-            state.path.append(.notifications())
+            state.path.append(.notifications(.init()))
             return .none
         case .rescan:
             return .none
         case .security:
-            state.path.append(.security())
+            state.path.append(.security(.init()))
             return .none
         }
     }

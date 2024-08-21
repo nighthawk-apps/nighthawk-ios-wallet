@@ -17,9 +17,11 @@ import Utils
 
 @Reducer
 public struct Notifications {
+    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
-        @BindingState public var selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency = .off
+        @Presents public var alert: AlertState<Action.Alert>?
+        public var selectedSyncNotificationFrequency: NighthawkSetting.SyncNotificationFrequency = .off
         public var authorizationStatus: UNAuthorizationStatus = .notDetermined
         
         public init() {}
@@ -66,7 +68,7 @@ public struct Notifications {
                     state.alert = AlertState.notifyAppNeedsNotificationPermission()
                 }
                 return .none
-            case .binding(\.$selectedSyncNotificationFrequency):
+            case .binding(\.selectedSyncNotificationFrequency):
                 if state.authorizationStatus.isAuthorized {
                     userStoredPreferences.setSyncNotificationFrequency(state.selectedSyncNotificationFrequency)
                     return scheduleNotification(with: state.selectedSyncNotificationFrequency)
@@ -110,7 +112,7 @@ public struct Notifications {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
     public init() {}

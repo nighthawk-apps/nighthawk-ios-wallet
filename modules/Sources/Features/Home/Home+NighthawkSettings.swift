@@ -24,7 +24,8 @@ extension Home {
                 case .rescan:
                     return rescan()
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .delegate,

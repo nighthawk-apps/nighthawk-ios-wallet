@@ -11,6 +11,8 @@ import SubsonicClient
 
 @Reducer
 public struct WalletCreated {
+    
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }

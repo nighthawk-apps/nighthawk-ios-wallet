@@ -13,11 +13,13 @@ import UIKit
 
 @Reducer
 public struct Advanced {
+    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
-        @BindingState public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
-        @BindingState public var selectedAppIcon: NighthawkSetting.AppIcon = .default
-        @BindingState public var theme: NighthawkSetting.Theme = .default
+        @Presents public var alert: AlertState<Action.Alert>?
+        public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
+        public var selectedAppIcon: NighthawkSetting.AppIcon = .default
+        public var theme: NighthawkSetting.Theme = .default
         public var showBanditSettings: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.isBandit()
@@ -77,7 +79,7 @@ public struct Advanced {
             case .deleteWalletTapped:
                 state.alert = AlertState.warnBeforeDeletingWallet
                 return .none
-            case .binding(\.$selectedAppIcon):
+            case .binding(\.selectedAppIcon):
                 return .run { @MainActor [selectedIcon = state.selectedAppIcon] send in
                     do {
                         let iconName: String? = if selectedIcon == .default {
@@ -92,18 +94,18 @@ public struct Advanced {
                         send(.appIconResponse(success: false))
                     }
                 }
-            case .binding(\.$selectedScreenMode):
+            case .binding(\.selectedScreenMode):
                 userStoredPreferences.setScreenMode(state.selectedScreenMode)
                 UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
                 return .none
-            case .binding(\.$theme):
+            case .binding(\.theme):
                 userStoredPreferences.setTheme(state.theme)
                 return .none
             case .alert, .binding:
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
     public init() {}

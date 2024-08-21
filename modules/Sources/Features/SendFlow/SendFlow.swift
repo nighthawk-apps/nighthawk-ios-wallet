@@ -24,68 +24,24 @@ import ZcashSDKEnvironment
 @Reducer
 public struct SendFlow {
     private enum SyncStatusUpdatesID { case timer }
-    let networkType: NetworkType
     
-    public struct Path: Reducer {
-        let networkType: NetworkType
-        
-        public enum State: Equatable {
-            case addMemo(AddMemo.State)
-            case failed(SendFailed.State)
-            case recipient(Recipient.State)
-            case review(Review.State)
-            case scan(Scan.State)
-            case sending
-            case success(SendSuccess.State)
-        }
-        
-        public enum Action: Equatable {
-            case addMemo(AddMemo.Action)
-            case failed(SendFailed.Action)
-            case recipient(Recipient.Action)
-            case review(Review.Action)
-            case scan(Scan.Action)
-            case sending(Never)
-            case success(SendSuccess.Action)
-        }
-        
-        public init(networkType: NetworkType) {
-            self.networkType = networkType
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.addMemo, action: /Action.addMemo) {
-                AddMemo()
-            }
-            
-            Scope(state: /State.failed, action: /Action.failed) {
-                SendFailed()
-            }
-            
-            Scope(state: /State.recipient, action: /Action.recipient) {
-                Recipient(networkType: networkType)
-            }
-            
-            Scope(state: /State.review, action: /Action.review) {
-                Review(networkType: networkType)
-            }
-            
-            Scope(state: /State.scan, action: /Action.scan) {
-                Scan(networkType: networkType)
-            }
-            
-            Scope(state: /State.success, action: /Action.success) {
-                SendSuccess()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Path {
+        case addMemo(AddMemo)
+        case failed(SendFailed)
+        case recipient(Recipient)
+        case review(Review)
+        case scan(Scan)
+        case sending
+        case success(SendSuccess)
     }
     
-    
+    @ObservableState
     public struct State: Equatable {
         public var path: StackState<Path.State>
         public var showCloseButton: Bool
-        @BindingState public var toast: Toast?
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        public var toast: Toast?
+        @Presents public var alert: AlertState<Action.Alert>?
 
         public var unifiedAddress: UnifiedAddress?
         public var spendableBalance = Zatoshi.zero
@@ -93,11 +49,11 @@ public struct SendFlow {
         public var isSendingTransaction = false
         
         // Inputs
-        @BindingState public var amountToSendInput = "0"
+        public var amountToSendInput = "0"
         public var amountToSend: Zatoshi {
             Zatoshi.from(decimalString: amountToSendInput) ?? .zero
         }
-        public var recipient: RedactableString?
+        public var recipient: String?
         public var memo: RedactableString?
         public var proposal: Proposal?
         public var feeRequired: Zatoshi {
@@ -106,7 +62,7 @@ public struct SendFlow {
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
-        public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
+        public var hasEnteredRecipient: Bool { recipient?.isEmpty != true }
         public var canSendEnteredAmount: Bool {
             amountToSend.amount < spendableBalance.amount
         }
@@ -171,9 +127,6 @@ public struct SendFlow {
         }
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
     
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.dismiss) var dismiss
@@ -200,7 +153,7 @@ public struct SendFlow {
                     return .none
                 }
                 
-                if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!.data, networkType) {
+                if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!, zcashSDKEnvironment.network.networkType) {
                     var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
@@ -209,7 +162,7 @@ public struct SendFlow {
                 
                 return .run { [state] send in
                     do {
-                        let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                        let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
                         
                         let memo: Memo?
                         if let memoText = state.memo?.data {
@@ -260,19 +213,19 @@ public struct SendFlow {
                 state.path.append(.scan(.init()))
                 return .none
             case .sendTransaction:
-                guard !state.isSendingTransaction, 
-                    let recipientStr = state.recipient?.data else { return .none }
+                guard !state.isSendingTransaction,
+                    let recipientStr = state.recipient else { return .none }
                 
                 do {
                     let storedWallet = try walletStorage.exportWallet()
                     let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, networkType)
+                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, zcashSDKEnvironment.network.networkType)
                     
                     state.isSendingTransaction = true
                     
-                    let recipient = try ZcashLightClientKit.Recipient(recipientStr, network: networkType)
+                    let recipient = try ZcashLightClientKit.Recipient(recipientStr, network: zcashSDKEnvironment.network.networkType)
                     var memo: Memo?
-                    if (/ZcashLightClientKit.Recipient.transparent).extract(from: recipient) == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
+                    if recipient[case: \.transparent] == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
                         memo = try Memo(string: memoStr)
                     }
                     return .run { [state, memo] send in
@@ -322,16 +275,16 @@ public struct SendFlow {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
-        .forEach(\.path, action: /Action.path) {
-            Path(networkType: networkType)
-        }
+        .ifLet(\.$alert, action: \.alert)
+        .forEach(\.path, action: \.path)
         
         addMemoDelegateReducer()
         recipientDelegateReducer()
         scanDelegateReducer()
         reviewDelegateReducer()
     }
+    
+    public init() {}
 }
 
 // MARK: Alerts
@@ -380,7 +333,7 @@ extension SendFlow {
                     if let recipientString = state.recipient {
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(recipientString.data, network: networkType)
+                                let recipient = try ZcashLightClientKit.Recipient(recipientString, network: zcashSDKEnvironment.network.networkType)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {
@@ -456,12 +409,12 @@ extension SendFlow {
                     let _ = state.path.popLast()
                     return .none
                 case let .proceedWithRecipient(recipient):
-                    guard derivationTool.isZcashAddress(recipient.data, networkType) else { return .none }
+                    guard derivationTool.isZcashAddress(recipient, zcashSDKEnvironment.network.networkType) else { return .none }
                     state.recipient = recipient
-                    if derivationTool.isTransparentAddress(recipient.data, networkType) {
+                    if derivationTool.isTransparentAddress(recipient, zcashSDKEnvironment.network.networkType) {
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {
@@ -531,12 +484,12 @@ extension SendFlow {
                 case .goHome:
                     return .none
                 case let .handleParseResult(result):
-                    state.recipient = result.address.redacted
+                    state.recipient = result.address
                     state.amountToSendInput = result.amount ?? state.amountToSendInput
                     state.memo = result.memo?.redacted
                     let _ = state.path.popLast()
                     
-                    if let address = state.recipient, !address.data.isEmpty {
+                    if let address = state.recipient, !address.isEmpty {
                         if !state.hasEnteredAmount {
                             state.path = StackState()
                             return .none
@@ -552,7 +505,7 @@ extension SendFlow {
                             return .none
                         }
                         
-                        if state.memo == nil && derivationTool.isSaplingAddress(address.data, networkType) {
+                        if state.memo == nil && derivationTool.isSaplingAddress(address, zcashSDKEnvironment.network.networkType) {
                             var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))
@@ -561,7 +514,7 @@ extension SendFlow {
                         
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!.data, network: networkType)
+                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {

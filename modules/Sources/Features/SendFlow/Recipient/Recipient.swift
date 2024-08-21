@@ -15,14 +15,14 @@ import UNSClient
 import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Recipient {
-    let networkType: NetworkType
-    
+    @ObservableState
     public struct State: Equatable {
-        public var recipient = "".redacted
-        public var hasEnteredRecipient: Bool { recipient.data.isEmpty == false }
+        public var recipient = ""
+        public var hasEnteredRecipient: Bool { recipient.isEmpty == false }
         public var pasteboardContainsZAddress = false
         public var canPasteAddress: Bool { pasteboardContainsZAddress && !hasEnteredRecipient }
         public var specificValidationError: NighthawkTextFieldValidationState?
@@ -43,7 +43,7 @@ public struct Recipient {
         case delegate(Delegate)
         case onAppear
         case pasteFromClipboardTapped
-        case recipientInputChanged(RedactableString)
+        case recipientInputChanged(String)
         case resolveUNSFinished
         case resolveUNSRequest
         case resolveUNSSuccess(String)
@@ -51,20 +51,18 @@ public struct Recipient {
         
         public enum Delegate: Equatable {
             case goBack
-            case proceedWithRecipient(RedactableString)
+            case proceedWithRecipient(String)
             case scanCode
         }
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.unsClient) var unsClient
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -72,7 +70,7 @@ public struct Recipient {
             case .backButtonTapped:
                 return .send(.delegate(.goBack))
             case .clearRecipientTapped:
-                state.recipient = "".redacted
+                state.recipient = ""
                 return .none
             case .continueTapped:
                 return .send(.delegate(.proceedWithRecipient(state.recipient)))
@@ -80,24 +78,24 @@ public struct Recipient {
                 return .none
             case .onAppear:
                 if let contents = pasteboard.getString() {
-                    state.pasteboardContainsZAddress = derivationTool.isZcashAddress(contents.data, networkType)
+                    state.pasteboardContainsZAddress = derivationTool.isZcashAddress(contents.data, zcashSDKEnvironment.network.networkType)
                 }
                 return .none
             case .pasteFromClipboardTapped:
                 guard let contents = pasteboard.getString(),
-                      derivationTool.isZcashAddress(contents.data, networkType) else { return .none }
-                return .send(.recipientInputChanged(contents))
-            case let .recipientInputChanged(redactedRecipient):
-                state.recipient = redactedRecipient
-                let validZcash = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
+                      derivationTool.isZcashAddress(contents.data, zcashSDKEnvironment.network.networkType) else { return .none }
+                return .send(.recipientInputChanged(contents.data))
+            case let .recipientInputChanged(recipient):
+                state.recipient = recipient
+                let validZcash = derivationTool.isZcashAddress(recipient, zcashSDKEnvironment.network.networkType)
                 state.isRecipientValid = validZcash
-                if !validZcash && !redactedRecipient.data.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
+                if !validZcash && !recipient.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
                     return .run { send in
                         enum CancelID { case resolveUNSDebounce }
                         try await withTaskCancellation(id: CancelID.resolveUNSDebounce, cancelInFlight: true) {
                             try await clock.sleep(for: .seconds(1))
                             await send(.resolveUNSRequest)
-                            if let resolved = try? await unsClient.resolveUNSAddress(redactedRecipient.data) {
+                            if let resolved = try? await unsClient.resolveUNSAddress(recipient) {
                                 await send(.resolveUNSSuccess(resolved))
                                 return
                             }
@@ -115,8 +113,8 @@ public struct Recipient {
                 state.isResolvingUNS = true
                 return .none
             case let .resolveUNSSuccess(resolved):
-                state.recipient = resolved.redacted
-                state.isRecipientValid = derivationTool.isZcashAddress(resolved, networkType)
+                state.recipient = resolved
+                state.isRecipientValid = derivationTool.isZcashAddress(resolved, zcashSDKEnvironment.network.networkType)
                 state.isResolvingUNS = false
                 return .none
             case .scanQRCodeTapped:
@@ -124,4 +122,6 @@ public struct Recipient {
             }
         }
     }
+    
+    public init() {}
 }

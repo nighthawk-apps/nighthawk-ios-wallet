@@ -11,6 +11,8 @@ import Utils
 
 @Reducer
 public struct About {
+    
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }

@@ -14,52 +14,50 @@ import UIComponents
 import ZcashLightClientKit
 
 public struct ExportSeedView: View {
-    let store: StoreOf<ExportSeed>
+    @Bindable var store: StoreOf<ExportSeed>
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 16) {
-                HStack {
-                    Text(L10n.Nighthawk.ExportSeed.title)
-                        .title(color: .white)
-                    
-                    Spacer()
-                }
+        VStack(spacing: 16) {
+            HStack {
+                Text(L10n.Nighthawk.ExportSeed.title)
+                    .title(color: .white)
                 
-                HStack {
-                    Text(L10n.Nighthawk.ExportSeed.description)
-                        .subtitle(color: .white)
-                        .lineSpacing(4)
-                    
-                    Spacer()
-                }
-                
-                NighthawkTextField(
-                    placeholder: L10n.Nighthawk.ExportSeed.passwordPlaceholder,
-                    text: viewStore.$password,
-                    isSecure: !viewStore.isPasswordVisible,
-                    inputAccessoryView: {
-                        VisibilityToggle(isVisible: viewStore.$isPasswordVisible)
-                            .foregroundColor(.secondary)
-                    }
-                )
-                .frame(maxWidth: .infinity)
-                
-                HStack {
-                    Button(L10n.General.cancel) {
-                        viewStore.send(.cancelTapped)
-                    }
-                    .buttonStyle(.nighthawkSecondary(width: 110))
-                    let groups = viewStore.phrase.toGroups(groupSizeOverride: 3)
-                    ShareLink(item: render(groups: groups, blockHeight: viewStore.state.birthday, password: viewStore.password)) {
-                        Text(L10n.Nighthawk.ExportSeed.export)
-                    }
-                    .buttonStyle(.nighthawkPrimary(width: 110))
-                    .disabled(viewStore.password.isEmpty)
-                }
+                Spacer()
             }
-            .onAppear { viewStore.send(.onAppear) }
+            
+            HStack {
+                Text(L10n.Nighthawk.ExportSeed.description)
+                    .subtitle(color: .white)
+                    .lineSpacing(4)
+                
+                Spacer()
+            }
+            
+            NighthawkTextField(
+                placeholder: L10n.Nighthawk.ExportSeed.passwordPlaceholder,
+                text: $store.password,
+                isSecure: !store.isPasswordVisible,
+                inputAccessoryView: {
+                    VisibilityToggle(isVisible: $store.isPasswordVisible)
+                        .foregroundColor(.secondary)
+                }
+            )
+            .frame(maxWidth: .infinity)
+            
+            HStack {
+                Button(L10n.General.cancel) {
+                    store.send(.cancelTapped)
+                }
+                .buttonStyle(.nighthawkSecondary(width: 110))
+                let groups = store.phrase.toGroups(groupSizeOverride: 3)
+                ShareLink(item: render(groups: groups, blockHeight: store.state.birthday, password: store.password)) {
+                    Text(L10n.Nighthawk.ExportSeed.export)
+                }
+                .buttonStyle(.nighthawkPrimary(width: 110))
+                .disabled(store.password.isEmpty)
+            }
         }
+        .onAppear { store.send(.onAppear) }
     }
     
     public init(store: StoreOf<ExportSeed>) {

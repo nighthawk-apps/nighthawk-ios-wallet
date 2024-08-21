@@ -13,7 +13,7 @@ import UIComponents
 import ZcashLightClientKit
 
 public struct ReviewView: View {
-    let store: StoreOf<Review>
+    @Bindable var store: StoreOf<Review>
     let tokenName: String
     
     public init(store: StoreOf<Review>, tokenName: String) {
@@ -22,32 +22,30 @@ public struct ReviewView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView([.vertical]) {
-                NighthawkHeading(title: L10n.Nighthawk.TransferTab.Review.title)
-                    .padding(.bottom, 44)
+        ScrollView([.vertical]) {
+            NighthawkHeading(title: L10n.Nighthawk.TransferTab.Review.title)
+                .padding(.bottom, 44)
 
-                transactionSummary(with: viewStore)
+            transactionSummary
 
-                TransactionDetailsTable(
-                    lineItems: viewStore.transactionLineItems(with: tokenName)
-                )
-                
-                Button(
-                    L10n.Nighthawk.TransferTab.Review.send,
-                    action: { viewStore.send(.sendZcashTapped) }
-                )
-                .buttonStyle(.nighthawkPrimary())
-                .padding(.bottom, 28)
-            }
-            .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
-            .onAppear { viewStore.send(.onAppear) }
+            TransactionDetailsTable(
+                lineItems: store.transactionLineItems(with: tokenName)
+            )
+            
+            Button(
+                L10n.Nighthawk.TransferTab.Review.send,
+                action: { store.send(.sendZcashTapped) }
+            )
+            .buttonStyle(.nighthawkPrimary())
+            .padding(.bottom, 28)
         }
+        .showNighthawkBackButton(action: { store.send(.backButtonTapped) })
+        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
         .alert(
-            store: store.scope(
-                state: \.$alert,
-                action: { .alert($0) }
+            $store.scope(
+                state: \.alert,
+                action: \.alert
             )
         )
     }
@@ -55,11 +53,11 @@ public struct ReviewView: View {
 
 // MARK: - Subviews
 private extension ReviewView {
-    func transactionSummary(with viewStore: ViewStoreOf<Review>) -> some View {
+    var transactionSummary: some View {
         VStack {
             HStack(alignment: .center) {
                 Group {
-                    Text("\(viewStore.zecAmount.decimalString())")
+                    Text("\(store.zecAmount.decimalString())")
                         .foregroundColor(.white)
                     
                     Text(tokenName)
@@ -68,10 +66,10 @@ private extension ReviewView {
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
             
-            if let (currency, price) = viewStore.fiatConversion {
+            if let (currency, price) = store.fiatConversion {
                 Text(
                     L10n.Nighthawk.TransferTab.Send.around(
-                        (price * viewStore.zecAmount.decimalValue.doubleValue).currencyString,
+                        (price * store.zecAmount.decimalValue.doubleValue).currencyString,
                         currency.rawValue.uppercased()
                     )
                 )
@@ -82,7 +80,7 @@ private extension ReviewView {
 }
 
 // MARK: - Transaction Line Items
-private extension ViewStoreOf<Review> {
+private extension StoreOf<Review> {
     // TODO: Consider using ResultBuilder for this.
     func transactionLineItems(with tokenName: String) -> [TransactionLineItem] {
         var result: [TransactionLineItem] = []
@@ -107,7 +105,7 @@ private extension ViewStoreOf<Review> {
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.address,
-                    value: self.recipient.data,
+                    value: self.recipient,
                     action: .button(
                         title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
                         action: {

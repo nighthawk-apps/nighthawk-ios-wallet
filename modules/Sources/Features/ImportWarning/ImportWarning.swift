@@ -9,6 +9,8 @@ import ComposableArchitecture
 
 @Reducer
 public struct ImportWarning {
+    
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }

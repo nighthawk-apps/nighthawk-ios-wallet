@@ -15,47 +15,43 @@ import UIComponents
 import ZcashLightClientKit
 
 public struct RecoveryPhraseDisplayView: View {
-    let store: StoreOf<RecoveryPhraseDisplay>
+    @Bindable var store: StoreOf<RecoveryPhraseDisplay>
     
     public init(store: StoreOf<RecoveryPhraseDisplay>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                Group {
-                    let groups = viewStore.phrase.toGroups(groupSizeOverride: 3)
-                    
-                    instructions
-                    
-                    SeedView(groups: groups, birthday: viewStore.birthday)
-                    
-                    if viewStore.flow == .onboarding {
-                        confirmPhrase(isChecked: viewStore.$isConfirmSeedPhraseWrittenChecked)
-                    }
-                    
-                    Spacer()
-                    
-                    actions(groups: groups, viewStore: viewStore)
+        VStack {
+            Group {
+                let groups = store.phrase.toGroups(groupSizeOverride: 3)
+                
+                instructions
+                
+                SeedView(groups: groups, birthday: store.birthday)
+                
+                if store.flow == .onboarding {
+                    confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
                 }
+                
+                Spacer()
+                
+                actions(groups: groups)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 25)
-            .padding(.horizontal, 25)
-            .padding(.bottom, 66)
-            .onAppear { viewStore.send(.onAppear) }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 25)
+        .padding(.horizontal, 25)
+        .padding(.bottom, 66)
+        .onAppear { store.send(.onAppear) }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .applyNighthawkBackground()
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .nighthawkAlert(
             store: store.scope(
-                state: \.$destination,
-                action: { .destination($0) }
-            ),
-            state: /RecoveryPhraseDisplay.Destination.State.exportSeedAlert,
-            action: RecoveryPhraseDisplay.Destination.Action.exportSeedAlert
+                state: \.$destination.exportSeedAlert,
+                action: \.destination.exportSeedAlert
+            )
         ) { store in
             ExportSeedView(store: store)
         }
@@ -93,19 +89,19 @@ private extension RecoveryPhraseDisplayView {
     }
     
     @MainActor
-    func actions(groups: [RecoveryPhrase.Group], viewStore: ViewStoreOf<RecoveryPhraseDisplay>) -> some View {
+    func actions(groups: [RecoveryPhrase.Group]) -> some View {
         Group {
-            if viewStore.flow == .settings {
+            if store.flow == .settings {
                 Button(L10n.Nighthawk.RecoveryPhraseDisplay.exportAsPdf) {
-                    viewStore.send(.exportAsPdfPressed, animation: .easeInOut)
+                    store.send(.exportAsPdfPressed, animation: .easeInOut)
                 }
                 .buttonStyle(.nighthawkPrimary(width: 218))
             } else {
                 Button(L10n.Nighthawk.RecoveryPhraseDisplay.continue) {
-                    viewStore.send(.continuePressed)
+                    store.send(.continuePressed)
                 }
                 .buttonStyle(.nighthawkPrimary(width: 152))
-                .disabled(!viewStore.state.isConfirmSeedPhraseWrittenChecked)
+                .disabled(!store.state.isConfirmSeedPhraseWrittenChecked)
             }
         }
         .frame(maxWidth: .infinity)

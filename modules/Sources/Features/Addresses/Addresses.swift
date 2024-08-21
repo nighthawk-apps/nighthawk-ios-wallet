@@ -14,6 +14,8 @@ import ZcashLightClientKit
 
 @Reducer
 public struct Addresses {
+    
+    @ObservableState
     public struct State: Equatable {
         public enum Destination: String, CaseIterable, Equatable, Hashable {
             case topUp
@@ -22,12 +24,13 @@ public struct Addresses {
             case transparent
         }
         
+        @CasePathable
         public enum Toast {
             case copiedToClipboard
         }
         
-        @BindingState public var toast: Toast?
-        @BindingState public var destination: Destination = .unified
+        public var toast: Toast?
+        public var destination: Destination = .unified
         public var uAddress: UnifiedAddress?
         public var showCloseButton: Bool
         

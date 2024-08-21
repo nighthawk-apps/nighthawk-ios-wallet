@@ -11,8 +11,10 @@ import UserPreferencesStorage
 
 @Reducer
 public struct Fiat {
+    
+    @ObservableState
     public struct State: Equatable {
-        @BindingState public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
+        public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
         
         public init() {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -36,7 +38,7 @@ public struct Fiat {
         
         Reduce { state, action in
             switch action {
-            case .binding(\.$selectedFiatCurrency):
+            case .binding(\.selectedFiatCurrency):
                 userStoredPreferences.setFiatCurrency(state.selectedFiatCurrency)
                 return .send(.delegate(.fetchLatestFiatCurrency))
             case .binding:

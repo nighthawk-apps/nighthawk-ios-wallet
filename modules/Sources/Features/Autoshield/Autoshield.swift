@@ -15,37 +15,21 @@ import UIKit
 import UserPreferencesStorage
 import WalletStorage
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Autoshield {
-    let networkType: NetworkType
     
-    public struct Path: Reducer {
-        public enum State: Equatable {
-            case inProgress
-            case success(AutoshieldSuccess.State = .init())
-            case failed(AutoshieldFailed.State = .init())
-        }
-        
-        public enum Action: Equatable {
-            case inProgress(Never)
-            case success(AutoshieldSuccess.Action)
-            case failed(AutoshieldFailed.Action)
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.success, action: /Action.success) {
-                AutoshieldSuccess()
-            }
-            
-            Scope(state: /State.failed, action: /Action.failed) {
-                AutoshieldFailed()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Path {
+        case inProgress
+        case success(AutoshieldSuccess)
+        case failed(AutoshieldFailed)
     }
     
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Action.Alert>?
         public var isShielding = false
         public var path = StackState<Path.State>()
         
@@ -71,6 +55,7 @@ public struct Autoshield {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -84,7 +69,7 @@ public struct Autoshield {
                 return .none
             case .autoshieldFailed:
                 state.isShielding = false
-                state.path.append(.failed())
+                state.path.append(.failed(.init()))
                 return .none
             case .autoshieldInProgress:
                 state.path.append(.inProgress)
@@ -92,7 +77,7 @@ public struct Autoshield {
             case .autoshieldSuccess:
                 state.isShielding = false
                 userStoredPreferences.setHasShownAutoshielding(false)
-                state.path.append(.success())
+                state.path.append(.success(.init()))
                 return .none
             case .path:
                 return .none
@@ -101,7 +86,7 @@ public struct Autoshield {
                 do {
                     let storedWallet = try walletStorage.exportWallet()
                     let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, networkType)
+                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, zcashSDKEnvironment.network.networkType)
                     
                     state.isShielding = true
                     return .run { send in
@@ -135,15 +120,11 @@ public struct Autoshield {
                 return .none
             }
         }
-        .forEach(\.path, action: /Action.path) {
-            Path()
-        }
-        .ifLet(\.$alert, action: /Action.alert)
+        .forEach(\.path, action: \.path)
+        .ifLet(\.$alert, action: \.alert)
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
+    public init() {}
 }
 
 // MARK: - Alerts

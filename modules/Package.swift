@@ -7,7 +7,7 @@ let package = Package(
     name: "modules",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v17)
     ],
     products: [
         .library(name: "Addresses", targets: ["Addresses"]),
@@ -60,7 +60,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.3.2"),
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.4.0"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.8.0"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", exact: "6.6.2"),
         .package(url: "https://github.com/Electric-Coin-Company/zcash-swift-wallet-sdk", exact: "2.2.1"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", exact: "2.2.4"),

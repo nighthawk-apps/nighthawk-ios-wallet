@@ -14,9 +14,11 @@ import ZcashSDKEnvironment
 
 @Reducer
 public struct AddMemo {
+    
+    @ObservableState
     public struct State: Equatable {
-        @BindingState public var memo = ""
-        @BindingState public var isIncludeReplyToChecked = false
+        public var memo = ""
+        public var isIncludeReplyToChecked = false
         public var memoCharLimit = 0
         public var unifiedAddress: UnifiedAddress?
         public var hasEnteredMemo: Bool { !memo.isEmpty }
@@ -53,7 +55,7 @@ public struct AddMemo {
             switch action {
             case .backButtonTapped:
                 return .send(.delegate(.goBack))
-            case .binding(\.$memo):
+            case .binding(\.memo):
                 if state.memo.count >= state.memoCharLimit {
                     state.memo = String(state.memo.prefix(state.memoCharLimit))
                 }

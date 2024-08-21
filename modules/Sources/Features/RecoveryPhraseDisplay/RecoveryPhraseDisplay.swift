@@ -17,19 +17,18 @@ import ZcashSDKEnvironment
 
 @Reducer
 public struct RecoveryPhraseDisplay {
-    let zcashNetwork: ZcashNetwork
-    
+    @ObservableState
     public struct State: Equatable {
         public enum RecoveryPhraseDisplayFlow {
             case onboarding
             case settings
         }
         
-        @PresentationState public var destination: Destination.State?
+        @Presents public var destination: Destination.State?
         public var flow: RecoveryPhraseDisplayFlow
         public var phrase: RecoveryPhrase = .empty
         public var birthday: BlockHeight = .zero
-        @BindingState public var isConfirmSeedPhraseWrittenChecked = false
+        public var isConfirmSeedPhraseWrittenChecked = false
         
         public init(flow: RecoveryPhraseDisplayFlow) {
             self.flow = flow
@@ -49,26 +48,9 @@ public struct RecoveryPhraseDisplay {
         }
     }
     
-    public struct Destination: Reducer {
-        let zcashNetwork: ZcashNetwork
-        
-        public enum State: Equatable {
-            case exportSeedAlert(ExportSeed.State)
-        }
-        
-        public enum Action: Equatable {
-            case exportSeedAlert(ExportSeed.Action)
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.exportSeedAlert, action: /Action.exportSeedAlert) {
-                ExportSeed(zcashNetwork: zcashNetwork)
-            }
-        }
-        
-        public init(zcashNetwork: ZcashNetwork) {
-            self.zcashNetwork = zcashNetwork
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Destination {
+        case exportSeedAlert(ExportSeed)
     }
     
     @Dependency(\.mnemonic) var mnemonic
@@ -99,19 +81,15 @@ public struct RecoveryPhraseDisplay {
                     let storedWallet = try walletStorage.exportWallet()
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
                     state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
                     return .none
                 } catch {
                     return .none
                 }
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination(zcashNetwork: zcashNetwork)
-        }
+        .ifLet(\.$destination, action: \.destination)
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }

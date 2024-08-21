@@ -7,7 +7,7 @@ import UIComponents
 import ZcashLightClientKit
 
 public struct TransactionDetailView: View {
-    let store: StoreOf<TransactionDetail>
+    @Bindable var store: StoreOf<TransactionDetail>
     let tokenName: String
     
     public init(store: StoreOf<TransactionDetail>, tokenName: String) {
@@ -16,48 +16,46 @@ public struct TransactionDetailView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView([.vertical]) {
-                NighthawkHeading(title: L10n.Nighthawk.TransactionDetails.title)
-                    .padding(.bottom, 24)
-                
-                if !viewStore.isLoaded {
-                    Text(L10n.Nighthawk.TransactionDetails.notAvailable)
-                        .caption()
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                } else {
-                    Group {
-                        transactionSummary(with: viewStore)
-                        
-                        TransactionDetailsTable(lineItems: viewStore.transactionLineItems(with: tokenName))
-                    }
+        ScrollView([.vertical]) {
+            NighthawkHeading(title: L10n.Nighthawk.TransactionDetails.title)
+                .padding(.bottom, 24)
+            
+            if !store.isLoaded {
+                Text(L10n.Nighthawk.TransactionDetails.notAvailable)
+                    .caption()
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            } else {
+                Group {
+                    transactionSummary
+                    
+                    TransactionDetailsTable(lineItems: store.transactionLineItems(with: tokenName))
                 }
             }
-            .onAppear { viewStore.send(.onAppear) }
-            .toast(
-                unwrapping: viewStore.$toast,
-                case: /TransactionDetail.State.Toast.replyToCopied,
-                alert: {
-                    AlertToast(
-                        type: .regular,
-                        title: L10n.Nighthawk.TransactionDetails.replyToCopied
-                    )
-                }
-            )
         }
+        .onAppear { store.send(.onAppear) }
+        .toast(
+            unwrapping: $store.toast,
+            case: /TransactionDetail.State.Toast.replyToCopied,
+            alert: {
+                AlertToast(
+                    type: .regular,
+                    title: L10n.Nighthawk.TransactionDetails.replyToCopied
+                )
+            }
+        )
         .applyNighthawkBackground()
         .alert(
-            store: store.scope(
-                state: \.$alert,
-                action: { .alert($0) }
+            $store.scope(
+                state: \.alert,
+                action: \.alert
             )
         )
     }
 }
 
 // MARK: - Transaction Line Items
-private extension ViewStoreOf<TransactionDetail> {
+private extension StoreOf<TransactionDetail> {
     // TODO: Consider using ResultBuilder for this.
     func transactionLineItems(with tokenName: String) -> [TransactionLineItem] {
         var result: [TransactionLineItem] = []
@@ -170,9 +168,9 @@ private extension ViewStoreOf<TransactionDetail> {
 
 // MARK: - Sections
 private extension TransactionDetailView {
-    func transactionSummary(with viewStore: ViewStoreOf<TransactionDetail>) -> some View {
+    var transactionSummary: some View {
         VStack {
-            summaryIcon(for: viewStore.status)
+            summaryIcon(for: store.status)
                 .resizable()
                 .renderingMode(.template)
                 .foregroundColor(.white)
@@ -181,7 +179,7 @@ private extension TransactionDetailView {
             VStack {
                 HStack(alignment: .center) {
                     Group {
-                        Text("\(viewStore.zecAmount.decimalString())")
+                        Text("\(store.zecAmount.decimalString())")
                             .foregroundColor(.white)
                         
                         Text(tokenName)
@@ -190,10 +188,10 @@ private extension TransactionDetailView {
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
                 }
                 
-                if let (currency, price) = viewStore.fiatConversion {
+                if let (currency, price) = store.fiatConversion {
                     Text(
                         L10n.Nighthawk.TransactionDetails.Fiat.around(
-                            (price * viewStore.zecAmount.decimalValue.doubleValue).currencyString,
+                            (price * store.zecAmount.decimalValue.doubleValue).currencyString,
                             currency.rawValue.uppercased()
                         )
                     )
@@ -201,7 +199,7 @@ private extension TransactionDetailView {
                 }
             }
             
-            TransactionStatusView(status: viewStore.status)
+            TransactionStatusView(status: store.status)
                 .padding(.top, 22)
         }
     }

@@ -17,6 +17,7 @@ import ZcashSDKEnvironment
 public struct TransactionHistory {
     private enum CancelId { case timer }
     
+    @ObservableState
     public struct State: Equatable {
         public var walletEvents: IdentifiedArrayOf<WalletEvent>
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
