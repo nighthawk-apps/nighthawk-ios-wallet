@@ -44,7 +44,8 @@ extension Home {
                 case .showTransactionHistory:
                     return .none
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .delegate,
@@ -76,7 +77,8 @@ extension Home {
                     state.transparentBalance = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero
                     return .none
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .delegate,

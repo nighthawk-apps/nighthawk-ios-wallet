@@ -11,7 +11,7 @@ import SwiftUI
 import UIComponents
 
 public struct AddMemoView: View {
-    let store: StoreOf<AddMemo>
+    @Bindable var store: StoreOf<AddMemo>
     
     public init(store: StoreOf<AddMemo>) {
         self.store = store
@@ -20,41 +20,39 @@ public struct AddMemoView: View {
     @FocusState private var isMemoEditorFocused: Bool
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkHeading(
-                    title: L10n.Nighthawk.TransferTab.AddMemo.addMessageToPayment
-                )
-                .padding(.bottom, 40)
-                .onTapGesture {
-                    isMemoEditorFocused = false
-                }
-                
-                NighthawkTextEditor(
-                    placeholder: L10n.Nighthawk.TransferTab.AddMemo.writeSomething,
-                    text: viewStore.$memo,
-                    foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color
-                )
-                .frame(width: nil, height: 120, alignment: .center)
-                .padding(.horizontal, 24)
-                .focused($isMemoEditorFocused)
-                
-                CheckBox(isChecked: viewStore.$isIncludeReplyToChecked) {
-                    Text(L10n.Nighthawk.TransferTab.AddMemo.includeReplyTo)
-                        .caption()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 24)
-                .disable(when: !viewStore.canIncludeReplyTo, dimmingOpacity: 0.3)
-                
-                Spacer()
-                
-                availableActions(with: viewStore)
+        VStack {
+            NighthawkHeading(
+                title: L10n.Nighthawk.TransferTab.AddMemo.addMessageToPayment
+            )
+            .padding(.bottom, 40)
+            .onTapGesture {
+                isMemoEditorFocused = false
             }
-            .showNighthawkBackButton(action: { viewStore.send(.backButtonTapped) })
-            .onAppear {
-                isMemoEditorFocused = true
+            
+            NighthawkTextEditor(
+                placeholder: L10n.Nighthawk.TransferTab.AddMemo.writeSomething,
+                text: $store.memo,
+                foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color
+            )
+            .frame(width: nil, height: 120, alignment: .center)
+            .padding(.horizontal, 24)
+            .focused($isMemoEditorFocused)
+            
+            CheckBox(isChecked: $store.isIncludeReplyToChecked) {
+                Text(L10n.Nighthawk.TransferTab.AddMemo.includeReplyTo)
+                    .caption()
             }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 24)
+            .disable(when: !store.canIncludeReplyTo, dimmingOpacity: 0.3)
+            
+            Spacer()
+            
+            availableActions
+        }
+        .showNighthawkBackButton(action: { store.send(.backButtonTapped) })
+        .onAppear {
+            isMemoEditorFocused = true
         }
         .applyNighthawkBackground()
     }
@@ -62,13 +60,13 @@ public struct AddMemoView: View {
 
 // MARK: - Subviews
 private extension AddMemoView {
-    func availableActions(with viewStore: ViewStoreOf<AddMemo>) -> some View {
+    var availableActions: some View {
         Button(
-            viewStore.hasEnteredMemo
+            store.hasEnteredMemo
                 ? L10n.Nighthawk.TransferTab.Send.continue
                 : L10n.General.skip,
             action: {
-                viewStore.send(.continueOrSkipTapped)
+                store.send(.continueOrSkipTapped)
             }
         )
         .buttonStyle(.nighthawkPrimary())

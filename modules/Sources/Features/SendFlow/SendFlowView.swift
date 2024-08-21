@@ -13,7 +13,7 @@ import UIComponents
 
 @MainActor
 public struct SendFlowView: View {
-    let store: StoreOf<SendFlow>
+    @Bindable var store: StoreOf<SendFlow>
     let tokenName: String
     
     public init(store: StoreOf<SendFlow>, tokenName: String) {
@@ -22,110 +22,87 @@ public struct SendFlowView: View {
     }
     
     public var body: some View {
-        NavigationStackStore(
-            store.scope(
+        NavigationStack(
+            path: $store.scope(
                 state: \.path,
-                action: { .path($0) }
+                action: \.path
             )
         ) {
-            WithViewStore(store, observe: { $0 }) { viewStore in
-                VStack {
-                    NighthawkHeading(title: L10n.Nighthawk.TransferTab.Send.chooseHowMuch)
-                    
-                    Text(
-                        L10n.Nighthawk.TransferTab.Send.spendableBalance(
-                            viewStore.spendableBalance.decimalString(
-                                formatter: NumberFormatter.zcashNumberFormatter
-                            ),
-                            tokenName
-                        )
-                    )
-                    .paragraphMedium()
-                    .padding(.bottom, 40)
-                    
-                    amountToSend(with: viewStore)
-                    
-                    Spacer()
-                    
-                    availableActions(with: viewStore)
-                }
-                .onAppear { viewStore.send(.onAppear) }
-                .modify {
-                    if viewStore.showCloseButton {
-                        $0.showNighthawkBackButton(type: .close) {
-                            viewStore.send(.closeButtonTapped)
-                        }
-                    } else {
-                        $0
-                    }
-                }
-                .alert(
-                    store: store.scope(
-                        state: \.$alert,
-                        action: { .alert($0) }
+            VStack {
+                NighthawkHeading(title: L10n.Nighthawk.TransferTab.Send.chooseHowMuch)
+                
+                Text(
+                    L10n.Nighthawk.TransferTab.Send.spendableBalance(
+                        store.spendableBalance.decimalString(
+                            formatter: NumberFormatter.zcashNumberFormatter
+                        ),
+                        tokenName
                     )
                 )
-                .toast(
-                    unwrapping: viewStore.$toast,
-                    case: /SendFlow.State.Toast.notEnoughZcash,
-                    alert: {
-                        AlertToast(
-                            type: .regular,
-                            title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughZcash
-                        )
-                    }
-                )
+                .paragraphMedium()
+                .padding(.bottom, 40)
+                
+                amountToSend
+                
+                Spacer()
+                
+                availableActions
             }
-            .applyNighthawkBackground()
-        } destination: { state in
-            switch state {
-            case .addMemo:
-                CaseLet(
-                    /SendFlow.Path.State.addMemo,
-                    action: SendFlow.Path.Action.addMemo,
-                    then: AddMemoView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
-            case .failed:
-                CaseLet(
-                    /SendFlow.Path.State.failed,
-                    action: SendFlow.Path.Action.failed,
-                    then: SendFailedView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
-            case .recipient:
-                CaseLet(
-                    /SendFlow.Path.State.recipient,
-                    action: SendFlow.Path.Action.recipient,
-                    then: RecipientView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
-            case .review:
-                CaseLet(
-                    /SendFlow.Path.State.review,
-                    action: SendFlow.Path.Action.review,
-                    then: { store in
-                        ReviewView(store: store, tokenName: tokenName)
+            .onAppear { store.send(.onAppear) }
+            .modify {
+                if store.showCloseButton {
+                    $0.showNighthawkBackButton(type: .close) {
+                        store.send(.closeButtonTapped)
                     }
+                } else {
+                    $0
+                }
+            }
+            .alert(
+                $store.scope(
+                    state: \.alert,
+                    action: \.alert
                 )
-                .toolbar(.hidden, for: .navigationBar)
-            case .scan:
-                CaseLet(
-                    /SendFlow.Path.State.scan,
-                    action: SendFlow.Path.Action.scan,
-                    then: ScanView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
+            )
+            .toast(
+                unwrapping: $store.toast,
+                case: /SendFlow.State.Toast.notEnoughZcash,
+                alert: {
+                    AlertToast(
+                        type: .regular,
+                        title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughZcash
+                    )
+                }
+            )
+            .applyNighthawkBackground()
+        } destination: { store in
+            switch store.case {
+            case let .addMemo(store):
+                AddMemoView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
+                
+            case let .failed(store):
+                SendFailedView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
+                
+            case let .recipient(store):
+                RecipientView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
+                
+            case let .review(store):
+                ReviewView(store: store, tokenName: tokenName)
+                    .toolbar(.hidden, for: .navigationBar)
+                
+            case let .scan(store):
+                ScanView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
+                
             case .sending:
                 SendingView()
                     .toolbar(.hidden, for: .navigationBar)
-            case .success:
-                CaseLet(
-                    /SendFlow.Path.State.success,
-                    action: SendFlow.Path.Action.success,
-                    then: SendSuccessView.init(store:)
-                )
-                .toolbar(.hidden, for: .navigationBar)
+            case let .success(store):
+                SendSuccessView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
             }
         }
         .applyNighthawkBackground()
@@ -134,18 +111,18 @@ public struct SendFlowView: View {
 
 // MARK: - Subviews
 private extension SendFlowView {
-    func amountToSend(with viewStore: ViewStoreOf<SendFlow>) -> some View {
+    var amountToSend: some View {
         VStack {
             NighthawkTransactionAmountTextField(
-                text: viewStore.$amountToSendInput.animation(),
+                text: $store.amountToSendInput.animation(),
                 tokenName: tokenName
             )
             .frame(maxWidth: .infinity)
             
-            if let (currency, price) = viewStore.fiatConversion, viewStore.hasEnteredAmount {
+            if let (currency, price) = store.fiatConversion, store.hasEnteredAmount {
                 Text(
                     L10n.Nighthawk.TransferTab.Send.around(
-                        (price * viewStore.amountToSend.decimalValue.doubleValue).currencyString,
+                        (price * store.amountToSend.decimalValue.doubleValue).currencyString,
                         currency.rawValue.uppercased()
                     )
                 )
@@ -154,16 +131,16 @@ private extension SendFlowView {
         }
     }
     
-    func availableActions(with viewStore: ViewStoreOf<SendFlow>) -> some View {
+    var availableActions: some View {
         Group {
-            if viewStore.amountToSend > .zero {
+            if store.amountToSend > .zero {
                 Button(
-                    viewStore.canSendEnteredAmount
+                    store.canSendEnteredAmount
                     ? L10n.Nighthawk.TransferTab.Send.continue
                     : L10n.Nighthawk.TransferTab.Send.topUpWallet,
                     action: {
-                        viewStore.send(
-                            viewStore.canSendEnteredAmount
+                        store.send(
+                            store.canSendEnteredAmount
                             ? .continueTapped
                             : .topUpWalletTapped
                         )
@@ -171,10 +148,10 @@ private extension SendFlowView {
                 )
                 .buttonStyle(.nighthawkPrimary())
                 .padding(.bottom, 28)
-            } else if viewStore.showScanButton {
+            } else if store.showScanButton {
                 Button(
                     L10n.Nighthawk.TransferTab.Send.scanCode,
-                    action: { viewStore.send(.scanCodeTapped) }
+                    action: { store.send(.scanCodeTapped) }
                 )
                 .buttonStyle(.nighthawkDashed())
                 .padding(.bottom, 28)

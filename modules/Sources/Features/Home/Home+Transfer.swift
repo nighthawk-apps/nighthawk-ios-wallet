@@ -29,7 +29,8 @@ extension Home {
                         await send(.transfer(.topUpWalletTapped))
                     }
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .delegate,

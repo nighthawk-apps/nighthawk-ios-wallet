@@ -11,49 +11,47 @@ import SwiftUI
 import UIComponents
 
 public struct SplashView: View {
-    let store: StoreOf<Splash>
+    @Bindable var store: StoreOf<Splash>
     
     @Environment(\.scenePhase) var scenePhase
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        VStack {
+            Spacer()
+            
             VStack {
-                Spacer()
+                NighthawkLogo()
+                    .padding(.bottom, 10)
                 
-                VStack {
-                    NighthawkLogo()
-                        .padding(.bottom, 10)
-                    
-                    Text(L10n.Nighthawk.Splash.subtitle)
-                        .paragraph()
-                }
-                
-                if viewStore.hasAttemptedAuthentication && !viewStore.authenticated {
-                    Button(
-                        L10n.Nighthawk.Splash.retry,
-                        action: { viewStore.send(.retryTapped) }
-                    )
-                    .buttonStyle(.nighthawkPrimary())
-                    .padding(.top, 8)
-                }
+                Text(L10n.Nighthawk.Splash.subtitle)
+                    .paragraph()
+            }
+            
+            if store.hasAttemptedAuthentication && !store.authenticated {
+                Button(
+                    L10n.Nighthawk.Splash.retry,
+                    action: { store.send(.retryTapped) }
+                )
+                .buttonStyle(.nighthawkPrimary())
+                .padding(.top, 8)
+            }
 
-                Spacer()
-            }
-            .onChange(of: scenePhase) { newPhase in
-                viewStore.send(.scenePhaseChanged(newPhase))
-            }
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
-            .onDisappear {
-                viewStore.send(.onDisappear)
-            }
+            Spacer()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            store.send(.scenePhaseChanged(newPhase))
+        }
+        .onAppear {
+            store.send(.onAppear)
+        }
+        .onDisappear {
+            store.send(.onDisappear)
         }
         .applyNighthawkBackground()
         .alert(
-            store: store.scope(
-                state: \.$alert,
-                action: { .alert($0) }
+            $store.scope(
+                state: \.alert,
+                action: \.alert
             )
         )
     }

@@ -12,44 +12,42 @@ import SwiftUI
 import UIComponents
 
 public struct ReceiveView: View {
-    let store: StoreOf<Receive>
+    @Bindable var store: StoreOf<Receive>
     
     public init(store: StoreOf<Receive>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkLogo(spacing: .compact)
-                    .padding(.vertical, 40)
+        VStack {
+            NighthawkLogo(spacing: .compact)
+                .padding(.vertical, 40)
+            
+            VStack(spacing: 10) {
+                secureOptionsList
                 
-                VStack(spacing: 10) {
-                    secureOptionsList(with: viewStore)
-                    
-                    publicOptionsList(with: viewStore)
-                }
-                
-                Spacer()
+                publicOptionsList
             }
-            .toast(
-                unwrapping: viewStore.$toast,
-                case: /Receive.State.Toast.copiedToClipboard,
-                alert: {
-                    AlertToast(
-                        type: .regular,
-                        title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
-                    )
+            
+            Spacer()
+        }
+        .toast(
+            unwrapping: $store.toast,
+            case: /Receive.State.Toast.copiedToClipboard,
+            alert: {
+                AlertToast(
+                    type: .regular,
+                    title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
+                )
+            }
+        )
+        .modify {
+            if store.showCloseButton {
+                $0.showNighthawkBackButton(type: .close) {
+                    store.send(.closeButtonTapped)
                 }
-            )
-            .modify {
-                if viewStore.showCloseButton {
-                    $0.showNighthawkBackButton(type: .close) {
-                        viewStore.send(.closeButtonTapped)
-                    }
-                } else {
-                    $0
-                }
+            } else {
+                $0
             }
         }
         .applyNighthawkBackground()
@@ -58,7 +56,7 @@ public struct ReceiveView: View {
 
 // MARK: - Subviews
 private extension ReceiveView {
-    func secureOptionsList(with viewStore: ViewStoreOf<Receive>) -> some View {
+    var secureOptionsList: some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneySecurely)
@@ -66,7 +64,7 @@ private extension ReceiveView {
                 Spacer()
             }
             
-            Button(action: { viewStore.send(.showQrCodeTapped) }) {
+            Button(action: { store.send(.showQrCodeTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.Receive.showQrCodeTitle,
                     description: L10n.Nighthawk.TransferTab.sendMoneyDescription,
@@ -74,7 +72,7 @@ private extension ReceiveView {
                 )
             }
             
-            Button(action: { viewStore.send(.copyUnifiedAddressTapped) }) {
+            Button(action: { store.send(.copyUnifiedAddressTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressTitle,
                     description: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressDescription,
@@ -82,7 +80,7 @@ private extension ReceiveView {
                 )
             }
             
-            Button(action: { viewStore.send(.topUpWalletTapped) }) {
+            Button(action: { store.send(.topUpWalletTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.topUpWalletTitle,
                     description: L10n.Nighthawk.TransferTab.topUpWalletDescription,
@@ -93,7 +91,7 @@ private extension ReceiveView {
         .padding(.horizontal, 25)
     }
     
-    func publicOptionsList(with viewStore: ViewStoreOf<Receive>) -> some View {
+    var publicOptionsList: some View {
         VStack(spacing: 10) {
             HStack {
                 Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneyPublicly)
@@ -102,7 +100,7 @@ private extension ReceiveView {
                 Spacer()
             }
             
-            Button(action: { viewStore.send(.copyTransparentAddressTapped) }) {
+            Button(action: { store.send(.copyTransparentAddressTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.Receive.copyNonPrivateAddressTitle,
                     description: L10n.Nighthawk.TransferTab.Receive.copyNonPrivateAddressDescription,

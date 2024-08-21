@@ -16,8 +16,10 @@ import ZcashLightClientKit
 
 @Reducer
 public struct TopUp {
+    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Action.Alert>?
 
         public var transparentAddress: String {
             (try? unifiedAddress?.transparentReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
@@ -74,7 +76,7 @@ public struct TopUp {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
     public init() {}

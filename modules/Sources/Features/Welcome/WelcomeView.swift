@@ -19,38 +19,34 @@ public struct WelcomeView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkLogo()
-                    .padding(.top, 44)
-                Spacer()
-                mainContent()
-                Spacer()
-                terms {
-                    viewStore.send(.termsAndConditionsTapped)
-                }
-                Spacer()
-                actions {
-                    viewStore.send(
-                        .createNewWalletTapped,
-                        animation: .easeInOut(duration: 0.8)
-                    )
-                } onRestore: {
-                    viewStore.send(
-                        .importExistingWalletTapped,
-                        animation: .easeInOut
-                    )
-                }
+        VStack {
+            NighthawkLogo()
+                .padding(.top, 44)
+            Spacer()
+            mainContent()
+            Spacer()
+            terms {
+                store.send(.termsAndConditionsTapped)
             }
-            .applyNighthawkBackground()
+            Spacer()
+            actions {
+                store.send(
+                    .createNewWalletTapped,
+                    animation: .easeInOut(duration: 0.8)
+                )
+            } onRestore: {
+                store.send(
+                    .importExistingWalletTapped,
+                    animation: .easeInOut
+                )
+            }
         }
+        .applyNighthawkBackground()
         .nighthawkAlert(
             store: store.scope(
-                state: \.$destination,
-                action: { .destination($0) }
-            ),
-            state: /Welcome.Destination.State.importSeedWarningAlert,
-            action: Welcome.Destination.Action.importSeedWarningAlert
+                state: \.$destination.importSeedWarningAlert,
+                action: \.destination.importSeedWarningAlert
+            )
         ) { store in
             ImportWarningView(store: store)
         }

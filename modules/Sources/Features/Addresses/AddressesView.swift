@@ -18,43 +18,41 @@ public struct AddressesView: View {
         static let qrSize: CGFloat = 180
     }
     
-    let store: StoreOf<Addresses>
+    @Bindable var store: StoreOf<Addresses>
     
     public init(store: StoreOf<Addresses>) {
         self.store = store
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkLogo(spacing: .compact)
-                    .padding(.top, 44)
-                
-                actionsCarousel(with: viewStore)
-                
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-            .modify {
-                if viewStore.showCloseButton {
-                    $0.showNighthawkBackButton(type: .close) {
-                        viewStore.send(.closeButtonTapped)
-                    }
-                } else {
-                    $0
-                }
-            }
-            .toast(
-                unwrapping: viewStore.$toast,
-                case: /Addresses.State.Toast.copiedToClipboard,
-                alert: {
-                    AlertToast(
-                        type: .regular,
-                        title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
-                    )
-                }
-            )
+        VStack {
+            NighthawkLogo(spacing: .compact)
+                .padding(.top, 44)
+            
+            actionsCarousel
+            
+            Spacer()
         }
+        .frame(maxWidth: .infinity)
+        .modify {
+            if store.showCloseButton {
+                $0.showNighthawkBackButton(type: .close) {
+                    store.send(.closeButtonTapped)
+                }
+            } else {
+                $0
+            }
+        }
+        .toast(
+            unwrapping: $store.toast,
+            case: /Addresses.State.Toast.copiedToClipboard,
+            alert: {
+                AlertToast(
+                    type: .regular,
+                    title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
+                )
+            }
+        )
         .applyNighthawkBackground()
     }
 }
@@ -64,12 +62,12 @@ extension Addresses.State.Destination: NHPage {}
 
 // MARK: - Subviews
 private extension AddressesView {
-    func actionsCarousel(with viewStore: ViewStoreOf<Addresses>) -> some View {
+    var actionsCarousel: some View {
         GeometryReader { geometry in
             VStack {
-                tabs(with: viewStore, geometry: geometry)
+                tabs(geometry: geometry)
                 
-                NHPageIndicator(selection: viewStore.$destination)
+                NHPageIndicator(selection: $store.destination)
             }
             .padding(.top, 16)
             .padding(.bottom, 64)
@@ -77,35 +75,35 @@ private extension AddressesView {
         }
     }
     
-    func tabs(with viewStore: ViewStoreOf<Addresses>, geometry: GeometryProxy) -> some View {
-        TabView(selection: viewStore.$destination) {
-            topUpView(seeMoreAction: { viewStore.send(.topUpWalletTapped) })
+    func tabs(geometry: GeometryProxy) -> some View {
+        TabView(selection: $store.destination) {
+            topUpView(seeMoreAction: { store.send(.topUpWalletTapped) })
             .frame(maxWidth: geometry.size.width * 0.68)
             .tag(Addresses.State.Destination.topUp)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
-                address: viewStore.unifiedAddress,
+                address: store.unifiedAddress,
                 badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
-                copyAction: { viewStore.send(.copyTapped(.unified)) }
+                copyAction: { store.send(.copyTapped(.unified)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
             .tag(Addresses.State.Destination.unified)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
-                address: viewStore.saplingAddress,
+                address: store.saplingAddress,
                 badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
-                copyAction: { viewStore.send(.copyTapped(.sapling)) }
+                copyAction: { store.send(.copyTapped(.sapling)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
             .tag(Addresses.State.Destination.sapling)
             
             addressView(
                 title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
-                address: viewStore.transparentAddress,
+                address: store.transparentAddress,
                 badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
-                copyAction: { viewStore.send(.copyTapped(.transparent)) }
+                copyAction: { store.send(.copyTapped(.transparent)) }
             )
             .frame(maxWidth: geometry.size.width * 0.68)
             .tag(Addresses.State.Destination.transparent)

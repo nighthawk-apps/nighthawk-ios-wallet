@@ -16,7 +16,7 @@ import ZcashLightClientKit
 
 @MainActor
 public struct WalletView: View {
-    let store: StoreOf<Wallet>
+    @Bindable var store: StoreOf<Wallet>
     let tokenName: String
     
     public init(store: StoreOf<Wallet>, tokenName: String) {
@@ -25,28 +25,26 @@ public struct WalletView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                qrCodeButtons(with: viewStore)
-                
-                Spacer()
-                
-                balanceTabsView(with: viewStore)
-                
-                if viewStore.transparentBalance >= .autoshieldingThreshold &&
-                    viewStore.balanceViewType == .transparent &&
-                    viewStore.synchronizerStatusSnapshot.syncStatus.isSynced {
-                    Button(L10n.Nighthawk.WalletTab.shieldNow) {
-                        viewStore.send(.shieldNowTapped)
-                    }
-                    .buttonStyle(.nighthawkPrimary())
-                    .padding(.top, 16)
+        VStack {
+            qrCodeButtons
+            
+            Spacer()
+            
+            balanceTabsView
+            
+            if store.transparentBalance >= .autoshieldingThreshold &&
+                store.balanceViewType == .transparent &&
+                store.synchronizerStatusSnapshot.syncStatus.isSynced {
+                Button(L10n.Nighthawk.WalletTab.shieldNow) {
+                    store.send(.shieldNowTapped)
                 }
-                
-                Spacer()
-                
-                latestWalletEvents(with: viewStore)
+                .buttonStyle(.nighthawkPrimary())
+                .padding(.top, 16)
             }
+            
+            Spacer()
+            
+            latestWalletEvents
         }
         .applyNighthawkBackground()
     }
@@ -54,9 +52,9 @@ public struct WalletView: View {
 
 // MARK: - Subviews
 private extension WalletView {
-    func qrCodeButtons(with viewStore: ViewStoreOf<Wallet>) -> some View {
+    var qrCodeButtons: some View {
         HStack {
-            Button(action: { viewStore.send(.viewAddressesTapped) }) {
+            Button(action: { store.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     .resizable()
                     .frame(width: 22, height: 22)
@@ -66,8 +64,8 @@ private extension WalletView {
             
             Spacer()
             
-            if viewStore.showScanButton {
-                Button(action: { viewStore.send(.scanPaymentRequestTapped) }) {
+            if store.showScanButton {
+                Button(action: { store.send(.scanPaymentRequestTapped) }) {
                     Asset.Assets.Icons.Nighthawk.boxedQrCode.image
                         .resizable()
                         .frame(width: 22, height: 22)
@@ -79,61 +77,61 @@ private extension WalletView {
         .environment(\.layoutDirection, .leftToRight)
     }
     
-    func balanceTabsView(with viewStore: ViewStoreOf<Wallet>) -> some View {
+    var balanceTabsView: some View {
         VStack {
-            tabs(with: viewStore)
+            tabs
                 .transaction { transaction in
                     transaction.animation = nil
                 }
-            tabIndicators(with: viewStore)
+            tabIndicators
         }
         .frame(maxHeight: 180)
         .padding(.top, 58)
         .environment(\.layoutDirection, .leftToRight)
     }
     
-    @ViewBuilder func tabs(with viewStore: ViewStoreOf<Wallet>) -> some View {
-        if viewStore.isSyncingForFirstTime {
-            SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
+    @ViewBuilder var tabs: some View {
+        if store.isSyncingForFirstTime {
+            SyncStatusView(status: store.synchronizerStatusSnapshot)
         } else {
-            TabView(selection: viewStore.$balanceViewType) {
+            TabView(selection: $store.balanceViewType) {
                 Group {
-                    if viewStore.synchronizerStatusSnapshot.syncStatus.isSyncing || viewStore.isSyncingFailed || viewStore.isSyncingStopped {
-                        SyncStatusView(status: viewStore.synchronizerStatusSnapshot)
+                    if store.synchronizerStatusSnapshot.syncStatus.isSyncing || store.isSyncingFailed || store.isSyncingStopped {
+                        SyncStatusView(status: store.synchronizerStatusSnapshot)
                     } else {
                         BalanceView(
-                            balance: viewStore.totalBalance,
+                            balance: store.totalBalance,
                             type: .hidden,
                             tokenName: tokenName,
-                            synchronizerState: viewStore.synchronizerState
+                            synchronizerState: store.synchronizerState
                         )
                     }
                 }
                 .tag(BalanceView.ViewType.hidden)
                 
                 BalanceView(
-                    balance: viewStore.totalBalance,
+                    balance: store.totalBalance,
                     type: .total,
                     tokenName: tokenName,
-                    synchronizerState: viewStore.synchronizerState
+                    synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.total)
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: viewStore.shieldedBalance,
+                    balance: store.shieldedBalance,
                     type: .shielded,
                     tokenName: tokenName,
-                    synchronizerState: viewStore.synchronizerState
+                    synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.shielded)
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: viewStore.transparentBalance,
+                    balance: store.transparentBalance,
                     type: .transparent,
                     tokenName: tokenName,
-                    synchronizerState: viewStore.synchronizerState
+                    synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.transparent)
                 .padding(.top, 32)
@@ -142,14 +140,14 @@ private extension WalletView {
         }
     }
     
-    func tabIndicators(with viewStore: ViewStoreOf<Wallet>) -> some View {
+    var tabIndicators: some View {
         HStack {
             ForEach(BalanceView.ViewType.allCases, id: \.self) { viewType in
                 Circle()
                     .strokeBorder(
                         strokeColor(
-                            for: viewStore.balanceViewType,
-                            isSelected: viewType == viewStore.balanceViewType
+                            for: store.balanceViewType,
+                            isSelected: viewType == store.balanceViewType
                         ),
                         lineWidth: 3
                     )
@@ -157,8 +155,8 @@ private extension WalletView {
                         Circle()
                             .fill(
                                 fillColor(
-                                    for: viewStore.balanceViewType,
-                                    isSelected: viewType == viewStore.balanceViewType
+                                    for: store.balanceViewType,
+                                    isSelected: viewType == store.balanceViewType
                                 )
                             )
                             .frame(width: 10, height: 10)
@@ -186,9 +184,9 @@ private extension WalletView {
         }
     }
     
-    func latestWalletEvents(with viewStore: ViewStoreOf<Wallet>) -> some View {
+    var latestWalletEvents: some View {
         Group {
-            if !viewStore.isSyncingForFirstTime && !viewStore.walletEvents.isEmpty {
+            if !store.isSyncingForFirstTime && !store.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
@@ -196,15 +194,15 @@ private extension WalletView {
                         Spacer()
                     }
                     
-                    ForEach(viewStore.walletEvents.prefix(2)) { walletEvent in
+                    ForEach(store.walletEvents.prefix(2)) { walletEvent in
                         Button {
-                            viewStore.send(.viewTransactionDetailTapped(walletEvent))
+                            store.send(.viewTransactionDetailTapped(walletEvent))
                         } label: {
                             TransactionRowView(
                                 transaction: walletEvent.transaction,
-                                showAmount: viewStore.balanceViewType != .hidden,
+                                showAmount: store.balanceViewType != .hidden,
                                 tokenName: tokenName,
-                                fiatConversion: viewStore.fiatConversion
+                                fiatConversion: store.fiatConversion
                             )
                         }
                         
@@ -213,7 +211,7 @@ private extension WalletView {
                             .overlay(Asset.Colors.Nighthawk.navy.color)
                     }
                     
-                    Button(action: { viewStore.send(.viewTransactionHistoryTapped) }) {
+                    Button(action: { store.send(.viewTransactionHistoryTapped) }) {
                         HStack(alignment: .center) {
                             Text(L10n.Nighthawk.WalletTab.viewTransactionHistory)
                                 .foregroundColor(Asset.Colors.Nighthawk.peach.color)

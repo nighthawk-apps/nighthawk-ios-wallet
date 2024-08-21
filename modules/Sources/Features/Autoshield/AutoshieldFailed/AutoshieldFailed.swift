@@ -9,6 +9,8 @@ import ComposableArchitecture
 
 @Reducer
 public struct AutoshieldFailed {
+    
+    @ObservableState
     public struct State: Equatable {
         public init() {}
     }

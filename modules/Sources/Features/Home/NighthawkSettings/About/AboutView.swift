@@ -14,35 +14,34 @@ public struct AboutView: View {
     let store: StoreOf<About>
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView([.vertical], showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text(L10n.Nighthawk.About.title)
-                        .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                    
-                    Text(L10n.Nighthawk.About.message)
-                        .paragraphMedium(color: .white)
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(6)
-                    
-                    Button(L10n.Nighthawk.About.viewSource) {
-                        viewStore.send(.viewSourceTapped)
-                    }
-                    .buttonStyle(.nighthawkLink())
-                    
-                    Button(L10n.Nighthawk.About.nighthawkFriends) {
-                        viewStore.send(.nighthawkFriendsTapped)
-                    }
-                    .buttonStyle(.nighthawkLink())
-                    
-                    Button(L10n.General.termsAndConditions) {
-                        viewStore.send(.termsAndConditionsTapped)
-                    }
-                    .buttonStyle(.nighthawkLink())
-                    
-                    Spacer()
-                    
-                    // TODO: Add licenses list
+        ScrollView([.vertical], showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(L10n.Nighthawk.About.title)
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                
+                Text(L10n.Nighthawk.About.message)
+                    .paragraphMedium(color: .white)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(6)
+                
+                Button(L10n.Nighthawk.About.viewSource) {
+                    store.send(.viewSourceTapped)
+                }
+                .buttonStyle(.nighthawkLink())
+                
+                Button(L10n.Nighthawk.About.nighthawkFriends) {
+                    store.send(.nighthawkFriendsTapped)
+                }
+                .buttonStyle(.nighthawkLink())
+                
+                Button(L10n.General.termsAndConditions) {
+                    store.send(.termsAndConditionsTapped)
+                }
+                .buttonStyle(.nighthawkLink())
+                
+                Spacer()
+                
+                // TODO: Add licenses list
 //                    VStack {
 //                        Button(L10n.Nighthawk.About.viewLicenses) {
 //                            viewStore.send(.viewLicensesTapped)
@@ -50,11 +49,10 @@ public struct AboutView: View {
 //                        .buttonStyle(.nighthawkPrimary())
 //                    }
 //                    .frame(maxWidth: .infinity)
-                }
-                .padding(.vertical, 25)
             }
-            .padding(.horizontal, 25)
+            .padding(.vertical, 25)
         }
+        .padding(.horizontal, 25)
         .applyNighthawkBackground()
     }
     

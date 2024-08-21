@@ -20,170 +20,86 @@ import Welcome
 import ZcashLightClientKit
 
 public struct AppView: View {
-    let store: StoreOf<AppReducer>
+    @Bindable var store: StoreOf<AppReducer>
     let tokenName: String
     let networkType: NetworkType
     @Environment(\.scenePhase) var scenePhase
-    
-    struct ViewState: Equatable {
-        let nighthawkColorScheme: ColorScheme
-        
-        init(state: AppReducer.State) {
-            self.nighthawkColorScheme = state.nighthawkColorScheme
-        }
-    }
+
     
     public var body: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            NavigationStackStore(
-                store.scope(
-                    state: \.path,
-                    action: { .path($0) }
+        NavigationStack(
+            path: $store.scope(
+                state: \.path,
+                action: \.path
+            )
+        ) {
+            SplashView(
+                store: store.scope(
+                    state: \.splash,
+                    action: \.splash
                 )
-            ) {
-                SplashView(
-                    store: store.scope(
-                        state: \.splash,
-                        action: { .splash($0) }
-                    )
-                )
-            } destination: { state in
-                switch state {
-                case .about:
-                    CaseLet(
-                        /AppReducer.Path.State.about,
-                         action: AppReducer.Path.Action.about,
-                         then: { store in
-                             AboutView(store: store)
-                         }
-                    )
+            )
+        } destination: { store in
+            switch store.case {
+            case let .about(store):
+                AboutView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .advanced:
-                    CaseLet(
-                        /AppReducer.Path.State.advanced,
-                         action: AppReducer.Path.Action.advanced,
-                         then: { store in
-                             AdvancedView(store: store)
-                         }
-                    )
+                
+            case let .advanced(store):
+                AdvancedView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .backup:
-                    CaseLet(
-                        /AppReducer.Path.State.backup,
-                         action: AppReducer.Path.Action.backup,
-                         then: { store in
-                             RecoveryPhraseDisplayView(store: store)
-                         }
-                    )
+                
+            case let .backup(store):
+                RecoveryPhraseDisplayView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .changeServer:
-                    CaseLet(
-                        /AppReducer.Path.State.changeServer,
-                         action: AppReducer.Path.Action.changeServer,
-                         then: { store in
-                             ChangeServerView(store: store)
-                         }
-                    )
+                
+            case let .changeServer(store):
+                ChangeServerView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .externalServices:
-                    CaseLet(
-                        /AppReducer.Path.State.externalServices,
-                         action: AppReducer.Path.Action.externalServices,
-                         then: { store in
-                             ExternalServicesView(store: store)
-                         }
-                    )
+                
+            case let .externalServices(store):
+                ExternalServicesView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .fiat:
-                    CaseLet(
-                        /AppReducer.Path.State.fiat,
-                         action: AppReducer.Path.Action.fiat,
-                         then: { store in
-                             FiatView(store: store, tokenName: tokenName)
-                         }
-                    )
+                
+            case let .fiat(store):
+                FiatView(store: store, tokenName: tokenName)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .home:
-                    CaseLet(
-                        /AppReducer.Path.State.home,
-                         action: AppReducer.Path.Action.home,
-                         then: { store in
-                             HomeView(store: store, tokenName: tokenName)
-                         }
-                    )
+                
+            case let .home(store):
+                HomeView(store: store, tokenName: tokenName)
                     .navigationTitle("")
                     .toolbar(.hidden, for: .navigationBar)
-                case .importWallet:
-                    CaseLet(
-                        /AppReducer.Path.State.importWallet,
-                         action: AppReducer.Path.Action.importWallet,
-                         then: { store in
-                             ImportWalletView(store: store)
-                         }
-                    )
+                
+            case let .importWallet(store):
+                ImportWalletView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .importWalletSuccess:
-                    CaseLet(
-                        /AppReducer.Path.State.importWalletSuccess,
-                         action: AppReducer.Path.Action.importWalletSuccess,
-                         then: { store in
-                             ImportWalletSuccessView(store: store)
-                         }
-                    )
+                
+            case let .importWalletSuccess(store):
+                ImportWalletSuccessView(store: store)
                     .toolbar(.hidden, for: .navigationBar)
-                case .migrate:
-                    CaseLet(
-                        /AppReducer.Path.State.migrate,
-                         action: AppReducer.Path.Action.migrate,
-                         then: { store in
-                             MigrateView(store: store)
-                         }
-                    )
+                
+            case let .migrate(store):
+                MigrateView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .notifications:
-                    CaseLet(
-                        /AppReducer.Path.State.notifications,
-                         action: AppReducer.Path.Action.notifications,
-                         then: { store in
-                             NotificationsView(store: store)
-                         }
-                    )
+                
+            case let .notifications(store):
+                NotificationsView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .recoveryPhraseDisplay:
-                    CaseLet(
-                        /AppReducer.Path.State.recoveryPhraseDisplay,
-                         action: AppReducer.Path.Action.recoveryPhraseDisplay,
-                         then: { store in
-                             RecoveryPhraseDisplayView(store: store)
-                         }
-                    )
+                
+            case let .recoveryPhraseDisplay(store):
+                RecoveryPhraseDisplayView(store: store)
                     .toolbar(.hidden, for: .navigationBar)
-                case .security:
-                    CaseLet(
-                        /AppReducer.Path.State.security,
-                         action: AppReducer.Path.Action.security,
-                         then: { store in
-                             SecurityView(store: store)
-                         }
-                    )
+                
+            case let .security(store):
+                SecurityView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .transactionDetail:
-                    CaseLet(
-                        /AppReducer.Path.State.transactionDetail,
-                         action: AppReducer.Path.Action.transactionDetail,
-                         then: { store in
-                             TransactionDetailView(store: store, tokenName: tokenName)
-                         }
-                    )
+                
+            case let .transactionDetail(store):
+                TransactionDetailView(store: store, tokenName: tokenName)
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .transactionHistory:
-                    CaseLet(
-                        /AppReducer.Path.State.transactionHistory,
-                         action: AppReducer.Path.Action.transactionHistory,
-                         then: { store in
-                             TransactionHistoryView(store: store, tokenName: tokenName)
-                         }
-                    )
+                
+            case let .transactionHistory(store):
+                TransactionHistoryView(store: store, tokenName: tokenName)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             VStack {
@@ -193,41 +109,28 @@ public struct AppView: View {
                         }
                     }
                     .toolbarColorScheme(.dark, for: .navigationBar)
-                case .walletCreated:
-                    CaseLet(
-                        /AppReducer.Path.State.walletCreated,
-                         action: AppReducer.Path.Action.walletCreated,
-                         then: { store in
-                             WalletCreatedView(store: store)
-                         }
-                    )
+                
+            case let .walletCreated(store):
+                WalletCreatedView(store: store)
                     .toolbar(.hidden, for: .navigationBar)
-                case .welcome:
-                    CaseLet(
-                        /AppReducer.Path.State.welcome,
-                         action: AppReducer.Path.Action.welcome,
-                         then: { store in
-                             WelcomeView(store: store)
-                         }
-                    )
+                
+            case let .welcome(store):
+                WelcomeView(store: store)
                     .navigationTitle("")
                     .toolbar(.hidden, for: .navigationBar)
-                }
             }
-            .tint(.white)
-            .alert(
-                store: store.scope(
-                    state: \.$destination,
-                    action: { .destination($0) }
-                ),
-                state: /AppReducer.Destination.State.alert,
-                action: AppReducer.Destination.Action.alert
-            )
-            .onChange(of: scenePhase) { newPhase in
-                store.send(.scenePhaseChanged(newPhase))
-            }
-            .preferredColorScheme(viewStore.nighthawkColorScheme)
         }
+        .tint(.white)
+        .alert(
+            $store.scope(
+                state: \.alert,
+                action: \.alert
+            )
+        )
+        .onChange(of: scenePhase) { newPhase in
+            store.send(.scenePhaseChanged(newPhase))
+        }
+        .preferredColorScheme(store.nighthawkColorScheme)
     }
     
     public init(store: StoreOf<AppReducer>, tokenName: String, networkType: NetworkType) {

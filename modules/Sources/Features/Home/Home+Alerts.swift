@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Generated
 import ZcashLightClientKit
 
-extension AlertState where Action == Home.Destination.Action.Alert {
+extension AlertState where Action == Home.Action.Alert {
     public static func cantStartSync(_ error: ZcashError) -> AlertState {
             AlertState {
                 TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.CantStartSync.title)

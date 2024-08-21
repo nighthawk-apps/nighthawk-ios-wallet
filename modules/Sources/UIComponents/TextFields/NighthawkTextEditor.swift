@@ -10,6 +10,8 @@ import Generated
 import SwiftUI
 
 public struct NighthawkTextEditor: View {
+    
+    @CasePathable
     public enum ValidationState: Equatable {
         case valid
         case invalid(error: String)
@@ -36,7 +38,7 @@ public struct NighthawkTextEditor: View {
     @State private var _dirty = false
     
     public var body: some View {
-        let errorMessage = (/NighthawkTextEditor.ValidationState.invalid).extract(from: isValid)
+        let errorMessage = isValid[case: \.invalid]
         let isError = errorMessage != nil
         let showError = isError && _dirty && !_focusState
         

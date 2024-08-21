@@ -12,7 +12,8 @@ import UIComponents
 import Utils
 
 public struct ScanView: View {
-    let store: StoreOf<Scan>
+    @Bindable var store: StoreOf<Scan>
+    
     let normalizedRectOfInterest: CGRect = CGRect(
         x: 0.25,
         y: 0.25,
@@ -21,41 +22,39 @@ public struct ScanView: View {
     )
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            GeometryReader { geometry in
-                VStack {
-                    NighthawkHeading(
-                        title: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequest,
-                        subtitle: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequestDetails
-                    )
-                    .padding(.bottom, 40)
-                    
-                    QRCodeScanView(
-                        rectOfInterest: normalizedRectOfInterest,
-                        onQRScanningDidFail: { viewStore.send(.scanFailed) },
-                        onQRScanningSucceededWithCode: { viewStore.send(.scan($0.redacted)) }
-                    )
-                    .frame(
-                        width: geometry.size.width * 0.7,
-                        height: geometry.size.width * 0.7
-                    )
-                    .cornerRadius(8)
-                    .overlay(
-                        CornerStrokeSquare()
-                            .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 5)
-                            .cornerRadius(2)
-                            .padding(18)
-                    )
-                    
-                    Spacer()
-                }
-                .showNighthawkBackButton(
-                    type: viewStore.backButtonType,
-                    action: { viewStore.send(.backButtonTapped) }
+        GeometryReader { geometry in
+            VStack {
+                NighthawkHeading(
+                    title: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequest,
+                    subtitle: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequestDetails
                 )
+                .padding(.bottom, 40)
+                
+                QRCodeScanView(
+                    rectOfInterest: normalizedRectOfInterest,
+                    onQRScanningDidFail: { store.send(.scanFailed) },
+                    onQRScanningSucceededWithCode: { store.send(.scan($0.redacted)) }
+                )
+                .frame(
+                    width: geometry.size.width * 0.7,
+                    height: geometry.size.width * 0.7
+                )
+                .cornerRadius(8)
+                .overlay(
+                    CornerStrokeSquare()
+                        .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 5)
+                        .cornerRadius(2)
+                        .padding(18)
+                )
+                
+                Spacer()
             }
-            .onAppear { viewStore.send(.onAppear) }
+            .showNighthawkBackButton(
+                type: store.backButtonType,
+                action: { store.send(.backButtonTapped) }
+            )
         }
+        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
     }
     

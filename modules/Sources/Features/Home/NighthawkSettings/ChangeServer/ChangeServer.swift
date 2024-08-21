@@ -14,9 +14,8 @@ import ZcashLightClientKit
 import ZcashSDKEnvironment
 
 @Reducer
-public struct ChangeServer {
-    let zcashNetwork: ZcashNetwork
-    
+public struct ChangeServer {    
+    @ObservableState
     public struct State: Equatable {
         public enum LightwalletdOption: String, Equatable, CaseIterable, Identifiable, Hashable {
             case `default`
@@ -25,9 +24,9 @@ public struct ChangeServer {
             public var id: String { rawValue }
         }
         
-        @PresentationState public var alert: AlertState<Action.Alert>?
-        @BindingState public var lightwalletdOption: LightwalletdOption = .default
-        @BindingState public var customLightwalletdServer: String = ""
+        @Presents public var alert: AlertState<Action.Alert>?
+        public var lightwalletdOption: LightwalletdOption = .default
+        public var customLightwalletdServer: String = ""
         public var defaultLightwalletdServer = ""
         public var isChangingServer = false
         
@@ -75,7 +74,7 @@ public struct ChangeServer {
             case .alert:
                 return .none
             case .onAppear:
-                let defaultEndpoint = zcashSdkEnvironment.defaultEndpoint()
+                let defaultEndpoint = zcashSdkEnvironment.defaultEndpoint
                 state.defaultLightwalletdServer = "\(defaultEndpoint.host):\(defaultEndpoint.port)"
                 if userStoredPreferences.isUsingCustomLightwalletd(),
                    let customServer = userStoredPreferences.customLightwalletdServer() {
@@ -98,7 +97,7 @@ public struct ChangeServer {
                 
                 return .run { send in
                     do {
-                        let lightWalletEndpoint = zcashSdkEnvironment.endpoint(zcashNetwork)
+                        let lightWalletEndpoint = zcashSdkEnvironment.endpoint
                         try await sdkSynchronizer.switchToEndpoint(lightWalletEndpoint)
                         try await mainQueue.sleep(for: .seconds(1))
                         await send(.changeSucceeded)
@@ -125,12 +124,10 @@ public struct ChangeServer {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }
 
 // MARK: - Alerts

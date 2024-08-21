@@ -6,7 +6,7 @@
 //
 
 // NOTE: This is internal API to TCA, so it could break in the future unexpectedly
-//       It seems that this is the only option (and sanctioned by the authors) for hooking custom views into the TCA @PresentationState mechanism
+//       It seems that this is the only option (and sanctioned by the authors) for hooking custom views into the TCA @Presents mechanism
 //       See this discussion for more info (https://github.com/pointfreeco/swift-composable-architecture/discussions/2007#discussioncomment-6286992)
 @_spi(Presentation) import ComposableArchitecture
 import SwiftUI

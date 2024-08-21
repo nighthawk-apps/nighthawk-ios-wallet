@@ -28,26 +28,26 @@ extension AppReducer {
                     do {
                         // get the random english mnemonic
                         let newRandomPhrase = try mnemonic.randomMnemonic()
-                        let birthday = zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+                        let birthday = zcashSDKEnvironment.latestCheckpoint
                         
                         // store the wallet to the keychain
                         try walletStorage.importWallet(newRandomPhrase, birthday, .english)
                         
-                        state.path.append(.walletCreated())
+                        state.path.append(.walletCreated(.init()))
                         return .none
                     } catch {
-                        state.destination = .alert(.cantCreateNewWallet(error.toZcashError()))
+                        state.alert = .cantCreateNewWallet(error.toZcashError())
                     }
                     return .none
                 case .importExistingWallet:
                     state.path.append(
                         .importWallet(
-                            .init(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
+                            .init(saplingActivationHeight: zcashSDKEnvironment.network.constants.saplingActivationHeight)
                         )
                     )
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -59,10 +59,10 @@ extension AppReducer {
             case let .path(.element(id: _, action: .importWallet(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .showImportSuccess:
-                    state.path.append(.importWalletSuccess())
+                    state.path.append(.importWalletSuccess(.init()))
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -76,7 +76,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.restoreWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -90,10 +90,10 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 case .importManually:
-                    state.path = StackState([.welcome()])
+                    state.path = StackState([.welcome(.init())])
                     return .none
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -110,7 +110,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.newWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -124,7 +124,7 @@ extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.newWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

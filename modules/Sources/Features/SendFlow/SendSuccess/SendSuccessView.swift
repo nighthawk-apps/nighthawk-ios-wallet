@@ -19,46 +19,44 @@ public struct SendSuccessView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                GeometryReader { geometry in
-                    VStack {
-                        NighthawkHeading(title: L10n.Nighthawk.TransferTab.Success.title)
-                        
-                        Spacer()
-                        
-                        LottieAnimation(
-                            isPlaying: true,
-                            filename: "lottie_send_success",
-                            animationType: .playOnce
+        VStack {
+            GeometryReader { geometry in
+                VStack {
+                    NighthawkHeading(title: L10n.Nighthawk.TransferTab.Success.title)
+                    
+                    Spacer()
+                    
+                    LottieAnimation(
+                        isPlaying: true,
+                        filename: "lottie_send_success",
+                        animationType: .playOnce
+                    )
+                    .frame(
+                        width: geometry.size.width * 0.8,
+                        height: geometry.size.width * 0.8
+                    )
+                    
+                    Spacer()
+                                            
+                    VStack(spacing: 20) {
+                        Button(
+                            L10n.Nighthawk.TransferTab.Success.done,
+                            action: { store.send(.doneTapped) }
                         )
-                        .frame(
-                            width: geometry.size.width * 0.8,
-                            height: geometry.size.width * 0.8
-                        )
+                        .buttonStyle(.nighthawkPrimary())
                         
-                        Spacer()
-                                                
-                        VStack(spacing: 20) {
-                            Button(
-                                L10n.Nighthawk.TransferTab.Success.done,
-                                action: { viewStore.send(.doneTapped) }
-                            )
-                            .buttonStyle(.nighthawkPrimary())
-                            
-                            Button(
-                                L10n.Nighthawk.TransferTab.Success.moreDetails,
-                                action: { viewStore.send(.moreDetailsTapped) }
-                            )
-                            .buttonStyle(.nighthawkSecondary())
-                        }
-                        .padding(.bottom, 28)
+                        Button(
+                            L10n.Nighthawk.TransferTab.Success.moreDetails,
+                            action: { store.send(.moreDetailsTapped) }
+                        )
+                        .buttonStyle(.nighthawkSecondary())
                     }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .padding(.bottom, 28)
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .applyNighthawkBackground()
     }
 }

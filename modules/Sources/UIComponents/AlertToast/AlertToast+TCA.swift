@@ -18,7 +18,14 @@ extension View {
         alert: @escaping (Value) -> AlertToast
     ) -> some View {
         self.toast(
-            isPresenting: value.isPresent(),
+            isPresenting: Binding(
+                get: { value.wrappedValue != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        value.wrappedValue = nil
+                    }
+                }
+            ),
             duration: duration,
             tapToDismiss: tapToDismiss,
             offsetY: offsetY,
@@ -33,7 +40,7 @@ extension View {
     
     public func toast<Enum, Case>(
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         duration: Double = 2,
         tapToDismiss: Bool = true,
         offsetY: CGFloat = 0,

@@ -23,13 +23,14 @@ import ZcashSDKEnvironment
 public struct TransactionDetail {
     private enum CancelId { case timer }
     
+    @ObservableState
     public struct State: Equatable {
         public enum Toast: Equatable {
             case replyToCopied
         }
         
-        @PresentationState public var alert: AlertState<Action.Alert>?
-        @BindingState public var toast: Toast?
+        @Presents public var alert: AlertState<Action.Alert>?
+        public var toast: Toast?
         public var latestMinedHeight: BlockHeight? = .zero
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
@@ -159,7 +160,7 @@ public struct TransactionDetail {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
     public init () {}

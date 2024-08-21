@@ -13,8 +13,10 @@ import UserPreferencesStorage
 
 @Reducer
 public struct Security {
+    
+    @ObservableState
     public struct State: Equatable {
-        @BindingState public var areBiometricsEnabled = false
+        public var areBiometricsEnabled = false
         public var biometryType: LABiometryType = .none
         
         public init() {}
@@ -41,7 +43,7 @@ public struct Security {
                     state.areBiometricsEnabled = !state.areBiometricsEnabled
                 }
                 return .none
-            case .binding(\.$areBiometricsEnabled):
+            case .binding(\.areBiometricsEnabled):
                 return .run { [state] send in
                     let reason: String
                     let context = localAuthenticationContext()

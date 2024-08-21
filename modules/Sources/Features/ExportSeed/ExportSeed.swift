@@ -15,11 +15,10 @@ import ZcashSDKEnvironment
 
 @Reducer
 public struct ExportSeed {
-    let zcashNetwork: ZcashNetwork
-    
+    @ObservableState
     public struct State: Equatable {
-        @BindingState public var password = ""
-        @BindingState public var isPasswordVisible = false
+        public var password = ""
+        public var isPasswordVisible = false
         public var phrase: RecoveryPhrase = .empty
         public var birthday: BlockHeight = .zero
         
@@ -51,7 +50,7 @@ public struct ExportSeed {
                     let storedWallet = try walletStorage.exportWallet()
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
                     state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
                     return .none
                 } catch {
                     return .none
@@ -60,7 +59,5 @@ public struct ExportSeed {
         }
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }

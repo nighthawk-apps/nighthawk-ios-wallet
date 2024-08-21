@@ -73,14 +73,16 @@ extension ZcashSDKEnvironment {
 }
 
 public struct ZcashSDKEnvironment {
-    public var latestCheckpoint: (ZcashNetwork) -> BlockHeight //{ BlockHeight.ofLatestCheckpoint(network: network()) }
-    public let defaultEndpoint: () -> LightWalletEndpoint
-    public let endpoint: (ZcashNetwork) -> LightWalletEndpoint
-    public let banditAddress: (ZcashNetwork) -> String
+    public var latestCheckpoint: BlockHeight //{ BlockHeight.ofLatestCheckpoint(network: network()) }
+    public let defaultEndpoint: LightWalletEndpoint
+    public let endpoint: LightWalletEndpoint
+    public let banditAddress: String
     public let banditAmount: Zatoshi
     public let replyToPrefix: String
     public let memoCharLimit: Int
     public let mnemonicWordsMaxCount: Int
+    public let network: ZcashNetwork
     public let requiredTransactionConfirmations: Int
     public let sdkVersion: String
+    public let tokenName: String
 }

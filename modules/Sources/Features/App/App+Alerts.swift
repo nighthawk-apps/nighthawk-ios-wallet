@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Generated
 import ZcashLightClientKit
 
-extension AlertState where Action == AppReducer.Destination.Action.Alert {
+extension AlertState where Action == AppReducer.Action.Alert {
     public static func cantCreateNewWallet(_ error: ZcashError) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.Welcome.Initialization.Alert.Failed.title)

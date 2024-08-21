@@ -10,6 +10,8 @@ import Models
 
 @Reducer
 public struct SendSuccess {
+    
+    @ObservableState
     public struct State: Equatable {
         public var transaction: TransactionState
         

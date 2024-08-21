@@ -17,13 +17,12 @@ import ZcashSDKEnvironment
 
 @Reducer
 public struct ImportWallet {
-    let saplingActivationHeight: BlockHeight
-    
+    @ObservableState
     public struct State: Equatable {
         let saplingActivationHeight: BlockHeight
-        @PresentationState public var alert: AlertState<Action.Alert>?
-        @BindingState public var importedSeedPhrase = ""
-        @BindingState public var birthdayHeight = ""
+        @Presents public var alert: AlertState<Action.Alert>?
+        public var importedSeedPhrase = ""
+        public var birthdayHeight = ""
         public var maxWordsCount = 0
         public var birthdayHeightValue: RedactableBlockHeight? { BlockHeight(birthdayHeight)?.redacted }
         public var formattedPhrase: String {
@@ -38,8 +37,10 @@ public struct ImportWallet {
         }
         
         public var isValidBirthday: Bool {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            
             if let birthdayHeightValue {
-                return birthdayHeightValue.data >= saplingActivationHeight
+                return birthdayHeightValue.data >= zcashSDKEnvironment.network.constants.saplingActivationHeight
             }
                         
             return true
@@ -71,9 +72,6 @@ public struct ImportWallet {
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
-    public init(saplingActivationHeight: BlockHeight) {
-        self.saplingActivationHeight = saplingActivationHeight
-    }
     
     public var body: some ReducerOf<ImportWallet> {
         BindingReducer()
@@ -89,7 +87,7 @@ public struct ImportWallet {
                 do {
                     // if the user did not input a height,
                     // fall back to sapling activation
-                    let birthday = state.birthdayHeightValue ?? saplingActivationHeight.redacted
+                    let birthday = state.birthdayHeightValue ?? zcashSDKEnvironment.network.constants.saplingActivationHeight.redacted
                     try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
                     return .send(.delegate(.showImportSuccess))
                 } catch {
@@ -102,6 +100,8 @@ public struct ImportWallet {
         }
         .ifLet(\.$alert, action: \.alert)
     }
+    
+    public init() {}
 }
 
 extension AlertState where Action == ImportWallet.Action.Alert {

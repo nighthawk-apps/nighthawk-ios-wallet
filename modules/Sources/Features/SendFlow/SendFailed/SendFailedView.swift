@@ -18,30 +18,28 @@ public struct SendFailedView: View {
     }
     
     public var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                NighthawkHeading(title: L10n.Nighthawk.TransferTab.Failed.title)
-                    .padding(.bottom, 44)
+        VStack {
+            NighthawkHeading(title: L10n.Nighthawk.TransferTab.Failed.title)
+                .padding(.bottom, 44)
+            
+            Spacer()
+            
+            VStack(spacing: 20) {
+                Button(
+                    L10n.Nighthawk.TransferTab.Failed.tryAgain,
+                    action: { store.send(.tryAgainTapped) }
+                )
+                .buttonStyle(.nighthawkPrimary())
                 
-                Spacer()
-                
-                VStack(spacing: 20) {
-                    Button(
-                        L10n.Nighthawk.TransferTab.Failed.tryAgain,
-                        action: { viewStore.send(.tryAgainTapped) }
-                    )
-                    .buttonStyle(.nighthawkPrimary())
-                    
-                    Button(
-                        L10n.Nighthawk.TransferTab.Failed.cancel,
-                        action: { viewStore.send(.cancelTapped) }
-                    )
-                    .buttonStyle(.nighthawkSecondary())
-                }
-                .padding(.bottom, 28)
+                Button(
+                    L10n.Nighthawk.TransferTab.Failed.cancel,
+                    action: { store.send(.cancelTapped) }
+                )
+                .buttonStyle(.nighthawkSecondary())
             }
-            .showNighthawkBackButton { viewStore.send(.backButtonTapped) }
+            .padding(.bottom, 28)
         }
+        .showNighthawkBackButton { store.send(.backButtonTapped) }
         .applyNighthawkBackground()
     }
 }

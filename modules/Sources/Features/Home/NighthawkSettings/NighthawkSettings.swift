@@ -19,11 +19,10 @@ import ZcashLightClientKit
 import ZcashSDKEnvironment
 
 @Reducer
-public struct NighthawkSettings {
-    let zcashNetwork: ZcashNetwork
-    
+public struct NighthawkSettings {    
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var destination: Destination.State?
+        @Presents public var alert: AlertState<Action.Alert>?
         
         public var appVersion: String = "1.0.0"
         public var biometryType: LABiometryType = .none
@@ -44,37 +43,21 @@ public struct NighthawkSettings {
     }
     
     public enum Action: Equatable {
+        case alert(PresentationAction<Alert>)
         case delegate(Delegate)
-        case destination(PresentationAction<Destination.Action>)
         case onAppear
         case rescanTapped
         case rowTapped(NighthawkSettings.State.Screen)
+        
+        public enum Alert: Equatable {
+            case viewSeed
+            case wipe
+        }
         
         public enum Delegate: Equatable {
             case rescan
             case goTo(NighthawkSettings.State.Screen)
         }
-    }
-    
-    public struct Destination: Reducer {
-        public enum State: Equatable {
-            case alert(AlertState<Action.Alert>)
-        }
-        
-        public enum Action: Equatable {
-            case alert(Alert)
-            
-            public enum Alert: Equatable {
-                case viewSeed
-                case wipe
-            }
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Reduce { _, _ in .none }
-        }
-        
-        public init() {}
     }
     
     @Dependency(\.appVersion) var appVersion
@@ -88,11 +71,11 @@ public struct NighthawkSettings {
             switch action {
             case .delegate:
                 return .none
-            case .destination(.dismiss):
+            case .alert(.dismiss):
                 return .none
-            case .destination(.presented(.alert(.viewSeed))):
+            case .alert(.presented(.viewSeed)):
                 return .send(.delegate(.goTo(.backup)))
-            case .destination(.presented(.alert(.wipe))):
+            case .alert(.presented(.wipe)):
                 return .send(.delegate(.rescan))
             case .onAppear:
                 state.appVersion = appVersion.appVersion()
@@ -103,27 +86,23 @@ public struct NighthawkSettings {
                 state.biometryType = context.biometryType()
                 return .none
             case .rescanTapped:
-                state.destination = .alert(.confirmRescan())
+                state.alert = .confirmRescan()
                 return .none
             case .rowTapped(.backup):
-                state.destination = .alert(AlertState.confirmViewSeedWords())
+                state.alert = .confirmViewSeedWords()
                 return .none
             case let .rowTapped(screen):
                 return .send(.delegate(.goTo(screen)))
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
-        }
+        .ifLet(\.$alert, action: \.alert)
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }
 
 // MARK: Alerts
-extension AlertState where Action == NighthawkSettings.Destination.Action.Alert {
+extension AlertState where Action == NighthawkSettings.Action.Alert {
     public static func confirmViewSeedWords() -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertTitle)

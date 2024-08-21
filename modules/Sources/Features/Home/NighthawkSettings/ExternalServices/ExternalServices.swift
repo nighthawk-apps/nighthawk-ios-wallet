@@ -10,8 +10,10 @@ import UserPreferencesStorage
 
 @Reducer
 public struct ExternalServices {
+    
+    @ObservableState
     public struct State: Equatable {
-        @BindingState public var isUnstoppableDomainsEnabled = false
+        public var isUnstoppableDomainsEnabled = false
         
         public init() {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -29,7 +31,7 @@ public struct ExternalServices {
         
         Reduce { state, action in
             switch action {
-            case .binding(\.$isUnstoppableDomainsEnabled):
+            case .binding(\.isUnstoppableDomainsEnabled):
                 userStoredPreferences.setIsUnstoppableDomainsEnabled(state.isUnstoppableDomainsEnabled)
                 return .none
             case .binding:

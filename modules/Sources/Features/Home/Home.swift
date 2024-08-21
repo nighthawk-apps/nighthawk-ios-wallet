@@ -20,16 +20,14 @@ import SDKSynchronizer
 import UIKit
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
-public struct Home {
-    let zcashNetwork: ZcashNetwork
-    
+public struct Home {    
     enum CancelId { case timer }
     
+    @ObservableState
     public struct State: Equatable {
-        let networkType: NetworkType
-        
         public enum Tab: Equatable, Hashable {
             case wallet
             case transfer
@@ -40,9 +38,10 @@ public struct Home {
             case expectingFunds
         }
         
-        @PresentationState public var destination: Destination.State?
-        @BindingState public var selectedTab = Tab.wallet
-        @BindingState public var toast: Toast?
+        @Presents public var alert: AlertState<Action.Alert>?
+        @Presents public var destination: Destination.State?
+        public var selectedTab = Tab.wallet
+        public var toast: Toast?
         
         public var synchronizerFailedToStart = false
         public var synchronizerFailed: Bool {
@@ -72,16 +71,15 @@ public struct Home {
         public var transferState: Transfer.State = .init()
         public var settings: NighthawkSettings.State = .init()
         
-        public init(networkType: NetworkType, unifiedAddress: UnifiedAddress?) {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            self.networkType = networkType
+        public init(unifiedAddress: UnifiedAddress?) {
             self.unifiedAddress = unifiedAddress
             self.walletEvents = loadCachedEvents()
         }
         
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
             @Dependency(\.dataManager) var dataManager
-            if let latestEventsCache = URL.latestEventsCache(for: networkType),
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            if let latestEventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType),
                 let cachedData = try? dataManager.load(latestEventsCache),
                 let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
                 return IdentifiedArray(uniqueElements: events)
@@ -140,6 +138,7 @@ public struct Home {
     }
     
     public enum Action: BindableAction, Equatable {
+        case alert(PresentationAction<Alert>)
         case binding(BindingAction<State>)
         case cancelSynchronizerUpdates
         case cantStartSync(ZcashError)
@@ -156,42 +155,18 @@ public struct Home {
         case updateWalletEvents([WalletEvent])
         case wallet(Wallet.Action)
         
+        public enum Alert: Equatable {}
+        
         public enum Delegate: Equatable {
             case setLatestFiatPrice(Double?)
             case unifiedAddressResponse(UnifiedAddress?)
         }
     }
     
-    public struct Destination: Reducer {
-        let networkType: NetworkType
-        
-        public enum State:  Equatable {
-            case addresses(Addresses.State)
-            case alert(AlertState<Action.Alert>)
-            case autoshield(Autoshield.State)
-        }
-        
-        public enum Action: Equatable {
-            case addresses(Addresses.Action)
-            case alert(Alert)
-            case autoshield(Autoshield.Action)
-            
-            public enum Alert: Equatable {}
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.addresses, action: /Action.addresses) {
-                Addresses()
-            }
-            
-            Scope(state: /State.autoshield, action: /Action.autoshield) {
-                Autoshield(networkType: networkType)
-            }
-        }
-        
-        public init(networkType: NetworkType) {
-            self.networkType = networkType
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Destination {
+        case addresses(Addresses)
+        case autoshield(Autoshield)
     }
     
     @Dependency(\.continuousClock) var clock
@@ -208,16 +183,16 @@ public struct Home {
     public var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Scope(state: \.wallet, action: /Action.wallet) {
+        Scope(state: \.wallet, action: \.wallet) {
             Wallet()
         }
         
-        Scope(state: \.transfer, action: /Action.transfer) {
-            Transfer(networkType: zcashNetwork.networkType)
+        Scope(state: \.transfer, action: \.transfer) {
+            Transfer()
         }
         
-        Scope(state: \.settings, action: /Action.settings) {
-            NighthawkSettings(zcashNetwork: zcashNetwork)
+        Scope(state: \.settings, action: \.settings) {
+            NighthawkSettings()
         }
         
         Reduce { state, action in
@@ -225,7 +200,7 @@ public struct Home {
             case .cancelSynchronizerUpdates:
                 return .cancel(id: CancelId.timer)
             case let .cantStartSync(error):
-                state.destination = .alert(.cantStartSync(error))
+                state.alert = .cantStartSync(error)
                 return .none
             case .fetchLatestFiatPrice:
                 guard state.latestFiatPrice == nil, state.preferredCurrency != . off else { return .none }
@@ -247,10 +222,10 @@ public struct Home {
             case let .rescanDone(error):
                 userStoredPreferences.setIsFirstSync(true)
                 if let error {
-                    state.destination = .alert(.rescanFailed(error.toZcashError()))
+                    state.alert = .rescanFailed(error.toZcashError())
                     return .none
                 } else {
-                    if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                    if let eventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
                         try? fileManager.removeItem(eventsCache)
                     }
                     return .run { send in
@@ -272,7 +247,7 @@ public struct Home {
                     }
                     .cancellable(id: CancelId.timer, cancelInFlight: true)
                 } else {
-                    state.destination = .alert(.notEnoughFreeDiskSpace())
+                    state.alert = .notEnoughFreeDiskSpace()
                     return .none
                 }
             case .synchronizerStateChanged(let latestState):
@@ -317,7 +292,7 @@ public struct Home {
                         if let events = try? await sdkSynchronizer.getAllTransactions() {
                             let isBandit = events.contains(
                                 where: { event in
-                                    event.transaction.address == zcashSDKEnvironment.banditAddress(zcashNetwork) &&
+                                    event.transaction.address == zcashSDKEnvironment.banditAddress &&
                                     event.transaction.zecAmount >= zcashSDKEnvironment.banditAmount
                                 }
                             )
@@ -333,7 +308,7 @@ public struct Home {
                 
                 // Cache two latest events
                 let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
-                if let cache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                if let cache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
                     let latest = IdentifiedArray(events.prefix(2)).elements
                     if let data = try? JSONEncoder().encode(latest) {
                         try? dataManager.save(data, cache)
@@ -342,13 +317,11 @@ public struct Home {
                 
                 state.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .binding, .delegate, .destination, .settings, .transfer, .wallet:
+            case .alert, .binding, .delegate, .destination, .settings, .transfer, .wallet:
                 return .none
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination(networkType: zcashNetwork.networkType)
-        }
+        .ifLet(\.$destination, action: \.destination)
         
         addressesDelegateReducer()
         transferReducer()
@@ -356,9 +329,7 @@ public struct Home {
         nighthawkSettingsReducer()
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }
 
 // MARK: - Addresses delegate
@@ -377,7 +348,8 @@ extension Home {
                         await send(.transfer(.topUpWalletTapped))
                     }
                 }
-            case .binding,
+            case .alert,
+                 .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .delegate,

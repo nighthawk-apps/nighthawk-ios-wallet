@@ -13,12 +13,14 @@ import ZcashLightClientKit
 
 @Reducer
 public struct Receive {
+    
+    @ObservableState
     public struct State: Equatable {
         public enum Toast {
             case copiedToClipboard
         }
         
-        @BindingState public var toast: Toast?
+        public var toast: Toast?
         
         public var unifiedAddress: String {
             uAddress?.stringEncoded ?? "-"

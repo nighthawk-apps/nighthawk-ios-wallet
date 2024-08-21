@@ -30,12 +30,11 @@ import ZcashSDKEnvironment
 
 @Reducer
 public struct AppReducer {
-    let zcashNetwork: ZcashNetwork
-    
     enum CancelId { case timer }
     
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var destination: Destination.State?
+        @Presents public var alert: AlertState<Action.Alert>?
         public var path = StackState<Path.State>()
         public var splash = Splash.State()
         public var synchronizerStopped = false
@@ -71,15 +70,15 @@ public struct AppReducer {
             // - Transfer tab (send flow pasteboard permission alert)
             
             if let currentScreen = path.last {
-                if let home = (/AppReducer.Path.State.home).extract(from: currentScreen) {
+                if let home = currentScreen[case: \.home] {
                     return home.selectedTab != .transfer
                 }
                 
-                if let _ = (/AppReducer.Path.State.security).extract(from: currentScreen) {
+                if let _ = currentScreen[case: \.security] {
                     return false
                 }
                 
-                if let _ = (/AppReducer.Path.State.notifications).extract(from: currentScreen) {
+                if let _ = currentScreen[case: \.notifications] {
                     return false
                 }
             }
@@ -89,7 +88,7 @@ public struct AppReducer {
         
         var isWelcomeScreenShown: Bool {
             if let currentScreen = path.last {
-                return (/AppReducer.Path.State.welcome).extract(from: currentScreen) != nil
+                return currentScreen[case: \.welcome] != nil
             }
             
             return false
@@ -98,8 +97,8 @@ public struct AppReducer {
         public init() {}
     }
     
-    public enum Action: Equatable {
-        case destination(PresentationAction<Destination.Action>)
+    public enum Action {
+        case alert(PresentationAction<Alert>)
         case initializeSDKFailed(ZcashError)
         case initializeSDKSuccess(shouldResetStack: Bool)
         case deleteWalletSuccess
@@ -108,140 +107,29 @@ public struct AppReducer {
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
         case unifiedAddressResponse(UnifiedAddress?)
+        
+        public enum Alert: Equatable {}
     }
     
-    public struct Path: Reducer {
-        let zcashNetwork: ZcashNetwork
-        
-        public enum State: Equatable {
-            case about(About.State = .init())
-            case advanced(Advanced.State = .init())
-            case backup(RecoveryPhraseDisplay.State)
-            case changeServer(ChangeServer.State = .init())
-            case externalServices(ExternalServices.State = .init())
-            case fiat(Fiat.State = .init())
-            case home(Home.State)
-            case importWallet(ImportWallet.State)
-            case importWalletSuccess(ImportWalletSuccess.State = .init())
-            case migrate(Migrate.State = .init())
-            case notifications(Notifications.State = .init())
-            case recoveryPhraseDisplay(RecoveryPhraseDisplay.State)
-            case security(Security.State = .init())
-            case transactionDetail(TransactionDetail.State)
-            case transactionHistory(TransactionHistory.State)
-            case walletCreated(WalletCreated.State = .init())
-            case welcome(Welcome.State = .init())
-        }
-        
-        public enum Action: Equatable {
-            case about(About.Action)
-            case advanced(Advanced.Action)
-            case backup(RecoveryPhraseDisplay.Action)
-            case changeServer(ChangeServer.Action)
-            case externalServices(ExternalServices.Action)
-            case fiat(Fiat.Action)
-            case home(Home.Action)
-            case importWallet(ImportWallet.Action)
-            case importWalletSuccess(ImportWalletSuccess.Action)
-            case migrate(Migrate.Action)
-            case notifications(Notifications.Action)
-            case recoveryPhraseDisplay(RecoveryPhraseDisplay.Action)
-            case security(Security.Action)
-            case transactionDetail(TransactionDetail.Action)
-            case transactionHistory(TransactionHistory.Action)
-            case walletCreated(WalletCreated.Action)
-            case welcome(Welcome.Action)
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.about, action: /Action.about) {
-                About()
-            }
-            
-            Scope(state: /State.advanced, action: /Action.advanced) {
-                Advanced()
-            }
-            
-            Scope(state: /State.backup, action: /Action.backup) {
-                RecoveryPhraseDisplay(zcashNetwork: zcashNetwork)
-            }
-            
-            Scope(state: /State.changeServer, action: /Action.changeServer) {
-                ChangeServer(zcashNetwork: zcashNetwork)
-            }
-            
-            Scope(state: /State.externalServices, action: /Action.externalServices) {
-                ExternalServices()
-            }
-            
-            Scope(state: /State.fiat, action: /Action.fiat) {
-                Fiat()
-            }
-            
-            Scope(state: /State.home, action: /Action.home) {
-                Home(zcashNetwork: zcashNetwork)
-            }
-            
-            Scope(state: /State.importWallet, action: /Action.importWallet) {
-                ImportWallet(saplingActivationHeight: zcashNetwork.constants.saplingActivationHeight)
-            }
-            
-            Scope(state: /State.importWalletSuccess, action: /Action.importWalletSuccess) {
-                ImportWalletSuccess()
-            }
-            
-            Scope(state: /State.migrate, action: /Action.migrate) {
-                Migrate()
-            }
-            
-            Scope(state: /State.notifications, action: /Action.notifications) {
-                Notifications()
-            }
-            
-            Scope(state: /State.recoveryPhraseDisplay, action: /Action.recoveryPhraseDisplay) {
-                RecoveryPhraseDisplay(zcashNetwork: zcashNetwork)
-            }
-            
-            Scope(state: /State.security, action: /Action.security) {
-                Security()
-            }
-            
-            Scope(state: /State.transactionDetail, action: /Action.transactionDetail) {
-                TransactionDetail()
-            }
-            
-            Scope(state: /State.transactionHistory, action: /Action.transactionHistory) {
-                TransactionHistory()
-            }
-            
-            Scope(state: /State.walletCreated, action: /Action.walletCreated) {
-                WalletCreated()
-            }
-            
-            Scope(state: /State.welcome, action: /Action.welcome) {
-                Welcome()
-            }
-        }
-        
-        public init(zcashNetwork: ZcashNetwork) {
-            self.zcashNetwork = zcashNetwork
-        }
-    }
-    
-    public struct Destination: Reducer {
-        public enum State: Equatable {
-            case alert(AlertState<Action.Alert>)
-        }
-        
-        public enum Action: Equatable {
-            case alert(Alert)
-            
-            public enum Alert: Equatable {}
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Reduce { _, _ in .none }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Path {
+        case about(About)
+        case advanced(Advanced)
+        case backup(RecoveryPhraseDisplay)
+        case changeServer(ChangeServer)
+        case externalServices(ExternalServices)
+        case fiat(Fiat)
+        case home(Home)
+        case importWallet(ImportWallet)
+        case importWalletSuccess(ImportWalletSuccess)
+        case migrate(Migrate)
+        case notifications(Notifications)
+        case recoveryPhraseDisplay(RecoveryPhraseDisplay)
+        case security(Security)
+        case transactionDetail(TransactionDetail)
+        case transactionHistory(TransactionHistory)
+        case walletCreated(WalletCreated)
+        case welcome(Welcome)
     }
     
     @Dependency(\.continuousClock) var clock
@@ -257,26 +145,23 @@ public struct AppReducer {
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
-        Scope(state: \.splash, action: /Action.splash) {
-            Splash(zcashNetwork: zcashNetwork)
+        Scope(state: \.splash, action: \.splash) {
+            Splash()
         }
         
         Reduce { state, action in
             switch action {
-            case .destination:
+            case .alert:
                 return .none
             case let .initializeSDKFailed(error):
-                state.destination = .alert(.sdkInitFailed(error))
+                state.alert = .sdkInitFailed(error)
                 return .none
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
                 if shouldResetStack {
                     state.path = StackState([
                         .home(
-                            .init(
-                                networkType: zcashNetwork.networkType,
-                                unifiedAddress: state.unifiedAddress
-                            )
+                            .init(unifiedAddress: state.unifiedAddress)
                         )
                     ])
                 }
@@ -288,7 +173,7 @@ public struct AppReducer {
                 userStoredPreferences.removeAll()
                 state.unifiedAddress = nil
                 state.latestFiatPrice = nil
-                if let eventsCache = URL.latestEventsCache(for: zcashNetwork.networkType) {
+                if let eventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
                     try? fileManager.removeItem(eventsCache)
                 }
                 
@@ -329,12 +214,8 @@ public struct AppReducer {
                 return .none
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
-        }
-        .forEach(\.path, action: /Action.path) {
-            Path(zcashNetwork: zcashNetwork)
-        }
+        .ifLet(\.$alert, action: \.alert)
+        .forEach(\.path, action: \.path)
         
         splashDelegateReducer()
         onboardingReducer()
@@ -344,9 +225,7 @@ public struct AppReducer {
         settingsReducer()
     }
     
-    public init(zcashNetwork: ZcashNetwork) {
-        self.zcashNetwork = zcashNetwork
-    }
+    public init() {}
 }
 
 // MARK: - Initialize SDK
@@ -355,7 +234,7 @@ extension AppReducer {
         do {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
-            let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint(zcashNetwork)
+            let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
             let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
             
             return .run { send in
@@ -388,15 +267,15 @@ private extension AppReducer {
             case let .splash(.delegate(action)):
                 switch action {
                 case .handleNewUser:
-                    state.path.append(.welcome())
+                    state.path.append(.welcome(.init()))
                     return .none
                 case .handleMigration:
-                    state.path.append(.migrate())
+                    state.path.append(.migrate(.init()))
                     return .none
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .destination, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

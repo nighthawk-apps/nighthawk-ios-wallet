@@ -15,44 +15,16 @@ import ZcashLightClientKit
 
 @Reducer
 public struct Transfer {
-    let networkType: NetworkType
-    
-    public struct Destination: Reducer {
-        let networkType: NetworkType
-        
-        public enum State: Equatable {
-            case receive(Receive.State)
-            case topUp(TopUp.State)
-            case send(SendFlow.State)
-        }
-        
-        public enum Action: Equatable {
-            case receive(Receive.Action)
-            case topUp(TopUp.Action)
-            case send(SendFlow.Action)
-        }
-        
-        public init(networkType: NetworkType) {
-            self.networkType = networkType
-        }
-        
-        public var body: some ReducerOf<Self> {
-            Scope(state: /State.receive, action: /Action.receive) {
-                Receive()
-            }
-            
-            Scope(state: /State.topUp, action: /Action.topUp) {
-                TopUp()
-            }
-            
-            Scope(state: /State.send, action: /Action.send) {
-                SendFlow(networkType: networkType)
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Destination {
+        case receive(Receive)
+        case topUp(TopUp)
+        case send(SendFlow)
     }
     
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var destination: Destination.State?
+        @Presents public var destination: Destination.State?
         public var shieldedBalance: Zatoshi = .zero
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
@@ -67,9 +39,6 @@ public struct Transfer {
         case topUpWalletTapped
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.processInfo) var processInfo
@@ -89,7 +58,7 @@ public struct Transfer {
                 return .none
             case .sendMoneyTapped:
                 var sendState = SendFlow.State(
-                    latestFiatPrice: state.latestFiatPrice, 
+                    latestFiatPrice: state.latestFiatPrice,
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
                 sendState.spendableBalance = state.shieldedBalance
@@ -106,11 +75,11 @@ public struct Transfer {
                 return .none
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination(networkType: networkType)
-        }
+        .ifLet(\.$destination, action: \.destination)
         
         sendFlowReducer()
     }
+    
+    public init() {}
 }
 

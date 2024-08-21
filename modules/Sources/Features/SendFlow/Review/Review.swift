@@ -14,18 +14,19 @@ import UIKit
 import UserPreferencesStorage
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Review {
-    let networkType: NetworkType
+    @ObservableState
     public struct State: Equatable {
-        @PresentationState public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Action.Alert>?
         
         public var zecAmount: Zatoshi
         public var proposal: Proposal
         public var fee: Zatoshi { proposal.totalFeeRequired() }
         public var memo: RedactableString?
-        public var recipient: RedactableString
+        public var recipient: String
         public var recipientIsTransparent = false
         public var total: Zatoshi { zecAmount + fee }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
@@ -44,7 +45,7 @@ public struct Review {
         public init(
             zecAmount: Zatoshi,
             memo: RedactableString?,
-            recipient: RedactableString,
+            recipient: String,
             latestFiatPrice: Double?,
             proposal: Proposal
         ) {
@@ -78,6 +79,7 @@ public struct Review {
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -99,7 +101,7 @@ public struct Review {
             case .delegate:
                 return .none
             case .onAppear:
-                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient.data, networkType)
+                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, zcashSDKEnvironment.network.networkType)
                 return .none
             case .sendZcashTapped:
                 if userStoredPreferences.areBiometricsEnabled() {
@@ -128,12 +130,10 @@ public struct Review {
                 return .none
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
     
-    public init(networkType: NetworkType) {
-        self.networkType = networkType
-    }
+    public init() {}
 }
 
 // MARK: Alerts
