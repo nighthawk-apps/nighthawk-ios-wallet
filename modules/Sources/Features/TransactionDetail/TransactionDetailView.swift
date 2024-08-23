@@ -8,12 +8,6 @@ import ZcashLightClientKit
 
 public struct TransactionDetailView: View {
     @Bindable var store: StoreOf<TransactionDetail>
-    let tokenName: String
-    
-    public init(store: StoreOf<TransactionDetail>, tokenName: String) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         ScrollView([.vertical]) {
@@ -29,7 +23,7 @@ public struct TransactionDetailView: View {
                 Group {
                     transactionSummary
                     
-                    TransactionDetailsTable(lineItems: store.transactionLineItems(with: tokenName))
+                    TransactionDetailsTable(lineItems: store.transactionLineItems(with: store.tokenName))
                 }
             }
         }
@@ -51,6 +45,10 @@ public struct TransactionDetailView: View {
                 action: \.alert
             )
         )
+    }
+    
+    public init(store: StoreOf<TransactionDetail>) {
+        self.store = store
     }
 }
 

@@ -15,12 +15,6 @@ import UIComponents
 
 public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
-    let tokenName: String
-    
-    public init(store: StoreOf<Home>, tokenName: String) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         VStack(spacing: 0) {
@@ -29,8 +23,7 @@ public struct HomeView: View {
                     store: store.scope(
                         state: \.wallet,
                         action: \.wallet
-                    ),
-                    tokenName: tokenName
+                    )
                 )
                 .tag(Home.State.Tab.wallet)
                 .overlay(alignment: .top) {
@@ -43,8 +36,7 @@ public struct HomeView: View {
                     store: store.scope(
                         state: \.transfer,
                         action: \.transfer
-                    ),
-                    tokenName: tokenName
+                    )
                 )
                 .tag(Home.State.Tab.transfer)
                 
@@ -77,7 +69,7 @@ public struct HomeView: View {
                     type: .regular,
                     title: L10n.Nighthawk.HomeScreen.expectingFunds(
                         store.expectingZatoshi.decimalString(),
-                        tokenName
+                        store.tokenName
                     )
                 )
             }
@@ -105,5 +97,9 @@ public struct HomeView: View {
         ) { store in
             AutoshieldView(store: store)
         }
+    }
+    
+    public init(store: StoreOf<Home>) {
+        self.store = store
     }
 }

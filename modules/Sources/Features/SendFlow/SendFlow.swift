@@ -84,6 +84,11 @@ public struct SendFlow {
             return !processInfo.isiOSAppOnMac()
         }
         
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
+        }
+        
         public enum Toast {
             case notEnoughZcash
         }

@@ -38,8 +38,8 @@ public struct SplashView: View {
 
             Spacer()
         }
-        .onChange(of: scenePhase) { newPhase in
-            store.send(.scenePhaseChanged(newPhase))
+        .onChange(of: scenePhase) {
+            store.send(.scenePhaseChanged(scenePhase))
         }
         .onAppear {
             store.send(.onAppear)

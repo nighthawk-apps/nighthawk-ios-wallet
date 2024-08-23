@@ -66,6 +66,11 @@ public struct TransactionDetail {
                 nil
             }
         }
+        
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
+        }
                 
         public init(
             walletEvent: WalletEvent,

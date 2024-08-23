@@ -81,7 +81,7 @@ public struct NighthawkTextField<InputAccessoryContent>: View where InputAccesso
                         .padding(.leading, 16)
                 }
             }
-            .onChange(of: _focusState) { _ in
+            .onChange(of: _focusState) {
                 _dirty = true
             }
             

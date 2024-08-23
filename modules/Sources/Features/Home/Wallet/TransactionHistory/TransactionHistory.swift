@@ -34,6 +34,11 @@ public struct TransactionHistory {
             }
         }
         
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironement
+            return zcashSDKEnvironement.tokenName
+        }
+        
         public init(
             latestFiatPrice: Double?,
             initialEvents: IdentifiedArrayOf<WalletEvent> = []

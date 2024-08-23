@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Models
 import UserPreferencesStorage
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Fiat {
@@ -15,6 +16,10 @@ public struct Fiat {
     @ObservableState
     public struct State: Equatable {
         public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
+        }
         
         public init() {
             @Dependency(\.userStoredPreferences) var userStoredPreferences

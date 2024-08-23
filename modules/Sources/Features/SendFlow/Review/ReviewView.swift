@@ -14,12 +14,6 @@ import ZcashLightClientKit
 
 public struct ReviewView: View {
     @Bindable var store: StoreOf<Review>
-    let tokenName: String
-    
-    public init(store: StoreOf<Review>, tokenName: String) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         ScrollView([.vertical]) {
@@ -29,7 +23,7 @@ public struct ReviewView: View {
             transactionSummary
 
             TransactionDetailsTable(
-                lineItems: store.transactionLineItems(with: tokenName)
+                lineItems: store.transactionLineItems(with: store.tokenName)
             )
             
             Button(
@@ -49,6 +43,10 @@ public struct ReviewView: View {
             )
         )
     }
+    
+    public init(store: StoreOf<Review>) {
+        self.store = store
+    }
 }
 
 // MARK: - Subviews
@@ -60,7 +58,7 @@ private extension ReviewView {
                     Text("\(store.zecAmount.decimalString())")
                         .foregroundColor(.white)
                     
-                    Text(tokenName)
+                    Text(store.tokenName)
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 }
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
@@ -133,6 +131,6 @@ private extension StoreOf<Review> {
     }
     
     var viewRecipientOnlineURL: URL? {
-        URL(string: "https://3xpl.com/zcash/address/\(self.recipient.data)")
+        URL(string: "https://3xpl.com/zcash/address/\(self.recipient)")
     }
 }
