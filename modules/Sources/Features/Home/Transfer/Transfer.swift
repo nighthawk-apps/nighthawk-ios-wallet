@@ -12,6 +12,7 @@ import SendFlow
 import TopUp
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Transfer {
@@ -28,6 +29,10 @@ public struct Transfer {
         public var shieldedBalance: Zatoshi = .zero
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
+        }
         
         public init () {}
     }

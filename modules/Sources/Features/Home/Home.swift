@@ -54,6 +54,11 @@ public struct Home {
         }
         public var latestFiatPrice: Double?
         
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
+        }
+        
         // Shared state
         public var requiredTransactionConfirmations = 0
         public var latestMinedHeight: BlockHeight?

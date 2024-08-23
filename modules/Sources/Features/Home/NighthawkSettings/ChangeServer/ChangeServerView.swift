@@ -73,8 +73,8 @@ public struct ChangeServerView: View {
             .padding(.horizontal, 25)
         }
         .onAppear { store.send(.onAppear) }
-        .onChange(of: store.lightwalletdOption) { value in
-            if value == .custom {
+        .onChange(of: store.lightwalletdOption) {
+            if store.lightwalletdOption == .custom {
                 isCustomLightwalletdServerEditorFocused = true
             }
         }

@@ -14,12 +14,6 @@ import UIComponents
 @MainActor
 public struct SendFlowView: View {
     @Bindable var store: StoreOf<SendFlow>
-    let tokenName: String
-    
-    public init(store: StoreOf<SendFlow>, tokenName: String) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         NavigationStack(
@@ -36,7 +30,7 @@ public struct SendFlowView: View {
                         store.spendableBalance.decimalString(
                             formatter: NumberFormatter.zcashNumberFormatter
                         ),
-                        tokenName
+                        store.tokenName
                     )
                 )
                 .paragraphMedium()
@@ -90,7 +84,7 @@ public struct SendFlowView: View {
                     .toolbar(.hidden, for: .navigationBar)
                 
             case let .review(store):
-                ReviewView(store: store, tokenName: tokenName)
+                ReviewView(store: store)
                     .toolbar(.hidden, for: .navigationBar)
                 
             case let .scan(store):
@@ -107,6 +101,10 @@ public struct SendFlowView: View {
         }
         .applyNighthawkBackground()
     }
+    
+    public init(store: StoreOf<SendFlow>) {
+        self.store = store
+    }
 }
 
 // MARK: - Subviews
@@ -115,7 +113,7 @@ private extension SendFlowView {
         VStack {
             NighthawkTransactionAmountTextField(
                 text: $store.amountToSendInput.animation(),
-                tokenName: tokenName
+                tokenName: store.tokenName
             )
             .frame(maxWidth: .infinity)
             

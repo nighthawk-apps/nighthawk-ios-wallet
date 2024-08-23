@@ -74,7 +74,7 @@ public struct NighthawkTextEditor: View {
                         .padding(.top, 18)
                 }
             }
-            .onChange(of: _focusState) { _ in
+            .onChange(of: _focusState) {
                 _dirty = true
             }
             

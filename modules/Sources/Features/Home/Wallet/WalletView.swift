@@ -17,12 +17,6 @@ import ZcashLightClientKit
 @MainActor
 public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
-    let tokenName: String
-    
-    public init(store: StoreOf<Wallet>, tokenName: String) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         VStack {
@@ -47,6 +41,10 @@ public struct WalletView: View {
             latestWalletEvents
         }
         .applyNighthawkBackground()
+    }
+    
+    public init(store: StoreOf<Wallet>) {
+        self.store = store
     }
 }
 
@@ -102,7 +100,7 @@ private extension WalletView {
                         BalanceView(
                             balance: store.totalBalance,
                             type: .hidden,
-                            tokenName: tokenName,
+                            tokenName: store.tokenName,
                             synchronizerState: store.synchronizerState
                         )
                     }
@@ -112,7 +110,7 @@ private extension WalletView {
                 BalanceView(
                     balance: store.totalBalance,
                     type: .total,
-                    tokenName: tokenName,
+                    tokenName: store.tokenName,
                     synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.total)
@@ -121,7 +119,7 @@ private extension WalletView {
                 BalanceView(
                     balance: store.shieldedBalance,
                     type: .shielded,
-                    tokenName: tokenName,
+                    tokenName: store.tokenName,
                     synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.shielded)
@@ -130,7 +128,7 @@ private extension WalletView {
                 BalanceView(
                     balance: store.transparentBalance,
                     type: .transparent,
-                    tokenName: tokenName,
+                    tokenName: store.tokenName,
                     synchronizerState: store.synchronizerState
                 )
                 .tag(BalanceView.ViewType.transparent)
@@ -201,7 +199,7 @@ private extension WalletView {
                             TransactionRowView(
                                 transaction: walletEvent.transaction,
                                 showAmount: store.balanceViewType != .hidden,
-                                tokenName: tokenName,
+                                tokenName: store.tokenName,
                                 fiatConversion: store.fiatConversion
                             )
                         }

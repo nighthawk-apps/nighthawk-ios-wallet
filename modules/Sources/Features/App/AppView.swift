@@ -21,10 +21,7 @@ import ZcashLightClientKit
 
 public struct AppView: View {
     @Bindable var store: StoreOf<AppReducer>
-    let tokenName: String
-    let networkType: NetworkType
     @Environment(\.scenePhase) var scenePhase
-
     
     public var body: some View {
         NavigationStack(
@@ -62,11 +59,11 @@ public struct AppView: View {
                     .toolbarColorScheme(.dark, for: .navigationBar)
                 
             case let .fiat(store):
-                FiatView(store: store, tokenName: tokenName)
+                FiatView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
                 
             case let .home(store):
-                HomeView(store: store, tokenName: tokenName)
+                HomeView(store: store)
                     .navigationTitle("")
                     .toolbar(.hidden, for: .navigationBar)
                 
@@ -95,11 +92,11 @@ public struct AppView: View {
                     .toolbarColorScheme(.dark, for: .navigationBar)
                 
             case let .transactionDetail(store):
-                TransactionDetailView(store: store, tokenName: tokenName)
+                TransactionDetailView(store: store)
                     .toolbarColorScheme(.dark, for: .navigationBar)
                 
             case let .transactionHistory(store):
-                TransactionHistoryView(store: store, tokenName: tokenName)
+                TransactionHistoryView(store: store)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             VStack {
@@ -127,8 +124,8 @@ public struct AppView: View {
                 action: \.alert
             )
         )
-        .onChange(of: scenePhase) { newPhase in
-            store.send(.scenePhaseChanged(newPhase))
+        .onChange(of: scenePhase) {
+            store.send(.scenePhaseChanged(scenePhase))
         }
         .preferredColorScheme(store.nighthawkColorScheme)
     }

@@ -13,6 +13,7 @@ import SwiftUI
 import TransactionDetail
 import Utils
 import ZcashLightClientKit
+import ZcashSDKEnvironment
 
 @Reducer
 public struct Wallet {
@@ -67,6 +68,11 @@ public struct Wallet {
         public var showScanButton: Bool {
             @Dependency(\.processInfo) var processInfo
             return !processInfo.isiOSAppOnMac()
+        }
+        
+        public var tokenName: String {
+            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+            return zcashSDKEnvironment.tokenName
         }
         
         public init() {}

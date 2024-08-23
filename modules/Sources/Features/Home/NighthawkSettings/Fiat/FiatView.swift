@@ -13,7 +13,6 @@ import UIComponents
 
 public struct FiatView: View {
     @Bindable var store: StoreOf<Fiat>
-    let tokenName: String
     
     public var body: some View {
         ScrollView([.vertical], showsIndicators: false) {
@@ -21,7 +20,7 @@ public struct FiatView: View {
                 Text(L10n.Nighthawk.SettingsTab.FiatCurrency.title)
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 
-                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.description(tokenName))
+                Text(L10n.Nighthawk.SettingsTab.FiatCurrency.description(store.tokenName))
                     .paragraphMedium(color: .white)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
@@ -46,8 +45,7 @@ public struct FiatView: View {
         }
     }
     
-    public init(store: StoreOf<Fiat>, tokenName: String) {
+    public init(store: StoreOf<Fiat>) {
         self.store = store
-        self.tokenName = tokenName
     }
 }

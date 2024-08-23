@@ -13,15 +13,6 @@ import UIComponents
 
 public struct TransactionHistoryView: View {
     @Bindable var store: StoreOf<TransactionHistory>
-    let tokenName: String
-    
-    public init(
-        store: StoreOf<TransactionHistory>,
-        tokenName: String
-    ) {
-        self.store = store
-        self.tokenName = tokenName
-    }
     
     public var body: some View {
         ScrollView([.vertical], showsIndicators: false) {
@@ -31,7 +22,7 @@ public struct TransactionHistoryView: View {
                         TransactionRowView(
                             transaction: walletEvent.transaction,
                             showAmount: true,
-                            tokenName: tokenName,
+                            tokenName: store.tokenName,
                             fiatConversion: store.fiatConversion
                         )
                     }
@@ -50,5 +41,9 @@ public struct TransactionHistoryView: View {
             }
         }
         .applyNighthawkBackground()
+    }
+    
+    public init(store: StoreOf<TransactionHistory>) {
+        self.store = store
     }
 }

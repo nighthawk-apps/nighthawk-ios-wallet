@@ -15,7 +15,6 @@ import UIComponents
 
 struct TransferView: View {
     @Bindable var store: StoreOf<Transfer>
-    let tokenName: String
     
     var body: some View {
         VStack {
@@ -48,7 +47,7 @@ struct TransferView: View {
                 action: \.destination.send
             )
         ) { store in
-            SendFlowView(store: store, tokenName: tokenName)
+            SendFlowView(store: store)
         }
     }
 }
