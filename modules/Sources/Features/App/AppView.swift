@@ -130,9 +130,7 @@ public struct AppView: View {
         .preferredColorScheme(store.nighthawkColorScheme)
     }
     
-    public init(store: StoreOf<AppReducer>, tokenName: String, networkType: NetworkType) {
+    public init(store: StoreOf<AppReducer>) {
         self.store = store
-        self.tokenName = tokenName
-        self.networkType = networkType
     }
 }

@@ -23,9 +23,7 @@ struct NighthawkApp: App {
                     initialState: AppReducer.State()
                 ) {
                     AppReducer()
-                },
-                tokenName: TargetConstants.tokenName,
-                networkType: TargetConstants.zcashNetwork.networkType
+                }
             )            
         }
     }
@@ -37,27 +35,12 @@ struct NighthawkApp: App {
     }
 }
 
-// TODO: Refactor this
-// MARK: Zcash Network global type
-/// Whenever the ZcashNetwork is required use this var to determine which is the
-/// network type suitable for the present target.
-
 public enum TargetConstants {
     public static var zcashNetwork: ZcashNetwork {
 #if SECANT_MAINNET
     return ZcashNetworkBuilder.network(for: .mainnet)
 #elseif SECANT_TESTNET
     return ZcashNetworkBuilder.network(for: .testnet)
-#else
-    fatalError("SECANT_MAINNET or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
-#endif
-    }
-    
-    public static var tokenName: String {
-#if SECANT_MAINNET
-    return "ZEC"
-#elseif SECANT_TESTNET
-    return "TAZ"
 #else
     fatalError("SECANT_MAINNET or SECANT_TESTNET flags not defined on Swift Compiler custom flags of your build target.")
 #endif

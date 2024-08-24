@@ -180,7 +180,7 @@ private extension TransactionDetailView {
                         Text("\(store.zecAmount.decimalString())")
                             .foregroundColor(.white)
                         
-                        Text(tokenName)
+                        Text(store.tokenName)
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
