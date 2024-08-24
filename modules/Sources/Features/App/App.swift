@@ -103,7 +103,7 @@ public struct AppReducer {
         case initializeSDKSuccess(shouldResetStack: Bool)
         case deleteWalletSuccess
         case deleteWalletFailed
-        case path(StackAction<Path.State, Path.Action>)
+        case path(StackActionOf<Path>)
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
         case unifiedAddressResponse(UnifiedAddress?)
