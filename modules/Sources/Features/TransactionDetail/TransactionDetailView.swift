@@ -81,10 +81,6 @@ private extension ViewStoreOf<TransactionDetail> {
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.time,
                     value: "\(self.date?.timestamp() ?? L10n.General.dateNotAvailable)"
-                ),
-                TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.pool,
-                    value: "\(self.shielded ? L10n.Nighthawk.TransactionDetails.sapling : L10n.Nighthawk.TransactionDetails.transparent)"
                 )
             ]
         )

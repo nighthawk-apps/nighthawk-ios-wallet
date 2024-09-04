@@ -590,8 +590,6 @@ public enum L10n {
       public static let networkFee = L10n.tr("Localizable", "nighthawk.transactionDetails.networkFee", fallback: "Network fee")
       /// Transaction details are not available, please wait until scanning is finished
       public static let notAvailable = L10n.tr("Localizable", "nighthawk.transactionDetails.notAvailable", fallback: "Transaction details are not available, please wait until scanning is finished")
-      /// Pool
-      public static let pool = L10n.tr("Localizable", "nighthawk.transactionDetails.pool", fallback: "Pool")
       /// Recipient
       public static let recipient = L10n.tr("Localizable", "nighthawk.transactionDetails.recipient", fallback: "Recipient")
       /// Shielded
@@ -600,8 +598,6 @@ public enum L10n {
       public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Transparent")
       /// Reply-to address copied!
       public static let replyToCopied = L10n.tr("Localizable", "nighthawk.transactionDetails.replyToCopied", fallback: "Reply-to address copied!")
-      /// Sapling
-      public static let sapling = L10n.tr("Localizable", "nighthawk.transactionDetails.sapling", fallback: "Sapling")
       /// Time (UTC)
       public static let time = L10n.tr("Localizable", "nighthawk.transactionDetails.time", fallback: "Time (UTC)")
       /// Transaction details
@@ -763,10 +759,6 @@ public enum L10n {
         }
         /// Open Browser
         public static let openBrowser = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.openBrowser", fallback: "Open Browser")
-        /// Swap between 30+ coins. No sign-up required.
-        public static let sideshiftDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.sideshiftDescription", fallback: "Swap between 30+ coins. No sign-up required.")
-        /// Swap with SideShift.ai
-        public static let sideshiftTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.sideshiftTitle", fallback: "Swap with SideShift.ai")
         /// Swap transparent coins without limits.
         public static let stealthExIoDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWallet.stealthExIoDescription", fallback: "Swap transparent coins without limits.")
         /// Swap with StealthEx.io

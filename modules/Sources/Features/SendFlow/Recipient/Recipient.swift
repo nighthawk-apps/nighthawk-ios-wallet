@@ -88,16 +88,6 @@ public struct Recipient: Reducer {
                 return .send(.recipientInputChanged(contents))
             case let .recipientInputChanged(redactedRecipient):
                 state.recipient = redactedRecipient
-                // Check the UA to make sure it encodes a Sapling or Transparent address
-                if let ua = try? UnifiedAddress(encoding: redactedRecipient.data, network: networkType),
-                   let availableTypecodes = try? ua.availableReceiverTypecodes(),
-                   availableTypecodes.count == 1 && availableTypecodes.contains(where: { $0 == .orchard }) {
-                    // Orchard-only UA is currently unsupported
-                    state.isRecipientValid = false
-                    state.specificValidationError = .invalid(error: L10n.Nighthawk.TransferTab.Recipient.currentlyUnsupported)
-                    return .none
-                }
-                
                 let validZcash = derivationTool.isZcashAddress(redactedRecipient.data, networkType)
                 state.isRecipientValid = validZcash
                 if !validZcash && !redactedRecipient.data.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {

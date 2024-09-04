@@ -38,7 +38,6 @@ public struct TopUp: Reducer {
     public enum Action: Equatable {
         case alert(PresentationAction<Alert>)
         case closeButtonTapped
-        case showSideShiftInstructions
         case showStealthExInstructions
         
         public enum Alert: Equatable {
@@ -63,15 +62,6 @@ public struct TopUp: Reducer {
                 return .none
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
-            case .showSideShiftInstructions:
-                pasteboard.setString(state.saplingAddress.redacted)
-                state.alert = AlertState.showPartnerInstructions(
-                    url: partners.sideshiftURL(),
-                    partnerName: "SideShift.ai",
-                    addressType: "Z-Address",
-                    receivingCoin: "Zcash (Shielded)"
-                )
-                return .none
             case .showStealthExInstructions:
                 pasteboard.setString(state.transparentAddress.redacted)
                 state.alert = AlertState.showPartnerInstructions(
