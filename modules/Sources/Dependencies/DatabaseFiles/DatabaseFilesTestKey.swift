@@ -19,7 +19,7 @@ extension DatabaseFilesClient: TestDependencyKey {
         outputParamsURLFor: unimplemented("\(Self.self).outputParamsURLFor", placeholder: .empty),
         pendingDbURLFor: unimplemented("\(Self.self).pendingDbURLFor", placeholder: .empty),
         spendParamsURLFor: unimplemented("\(Self.self).spendParamsURLFor", placeholder: .empty),
-        toDirURLFor: unimplemented("\(Self.self).toDirURLFor", placeholder: .empty),
+        torDirURLFor: unimplemented("\(Self.self).torDirURLFor", placeholder: .empty),
         areDbFilesPresentFor: unimplemented("\(Self.self).areDbFilesPresentFor", placeholder: false)
     )
 }
@@ -33,7 +33,7 @@ extension DatabaseFilesClient {
         outputParamsURLFor: { _ in .empty },
         pendingDbURLFor: { _ in .empty },
         spendParamsURLFor: { _ in .empty },
-        toDirURLFor: { _ in .empty },
+        torDirURLFor: { _ in .empty },
         areDbFilesPresentFor: { _ in false }
     )
 }

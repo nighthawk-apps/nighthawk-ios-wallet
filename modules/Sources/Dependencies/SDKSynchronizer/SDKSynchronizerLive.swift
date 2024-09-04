@@ -24,7 +24,7 @@ extension SDKSynchronizerClient {
             fsBlockDbRoot: databaseFiles.fsBlockDbRootFor(network),
             generalStorageURL: databaseFiles.documentsDirectory(),
             dataDbURL: databaseFiles.dataDbURLFor(network), 
-            torDirURL: databaseFiles.toDirURLFor(network),
+            torDirURL: databaseFiles.torDirURLFor(network),
             endpoint: environment.endpoint(network),
             network: network,
             spendParamsURL: databaseFiles.spendParamsURLFor(network),
