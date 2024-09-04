@@ -70,7 +70,6 @@ public enum Asset {
         public static let services = ImageAsset(name: "services")
         public static let settings = ImageAsset(name: "settings")
         public static let shielded = ImageAsset(name: "shielded")
-        public static let sideshift = ImageAsset(name: "sideshift")
         public static let stealthex = ImageAsset(name: "stealthex")
         public static let swipe = ImageAsset(name: "swipe")
         public static let syncing = ImageAsset(name: "syncing")

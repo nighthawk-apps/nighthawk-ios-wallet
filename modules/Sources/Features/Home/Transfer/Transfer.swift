@@ -70,6 +70,7 @@ public struct Transfer: Reducer {
         self.networkType = networkType
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.processInfo) var processInfo
     
     public var body: some ReducerOf<Self> {

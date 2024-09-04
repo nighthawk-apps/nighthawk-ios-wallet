@@ -165,8 +165,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump",
       "state" : {
-        "revision" : "edd66cace818e1b1c6f1b3349bb1d8e00d6f8b01",
-        "version" : "1.0.0"
+        "revision" : "82645ec760917961cfa08c9c0c7104a57a0fa4b1",
+        "version" : "1.3.3"
       }
     },
     {
@@ -300,8 +300,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "23cbf2294e350076ea4dbd7d5d047c1e76b03631",
-        "version" : "1.0.2"
+        "revision" : "96beb108a57f24c8476ae1f309239270772b2940",
+        "version" : "1.2.5"
       }
     },
     {
@@ -309,8 +309,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zcash-hackworks/zcash-light-client-ffi",
       "state" : {
-        "revision" : "7c801be1f445402a433b32835a50d832e8a50437",
-        "version" : "0.6.0"
+        "revision" : "8ed5b08d59ff5e7e11240be29b084dedbdf2f268",
+        "version" : "0.9.1"
       }
     },
     {
@@ -318,8 +318,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Electric-Coin-Company/zcash-swift-wallet-sdk",
       "state" : {
-        "revision" : "6c9b7a91d6b9ec4f3b8cb699a558eac1178ba837",
-        "version" : "2.0.11"
+        "revision" : "ff70d8924c241ce11cf0c458af96e1967f56e19d",
+        "version" : "2.2.1"
       }
     }
   ],

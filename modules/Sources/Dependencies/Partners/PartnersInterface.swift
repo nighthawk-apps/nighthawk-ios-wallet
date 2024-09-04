@@ -16,6 +16,5 @@ extension DependencyValues {
 }
 
 public struct PartnersClient {
-    public var sideshiftURL: () -> URL?
     public var stealthexURL: () -> URL?
 }

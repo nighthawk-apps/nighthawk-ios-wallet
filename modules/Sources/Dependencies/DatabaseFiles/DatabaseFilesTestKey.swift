@@ -12,14 +12,15 @@ import Utils
 
 extension DatabaseFilesClient: TestDependencyKey {
     public static let testValue = Self(
-        documentsDirectory: XCTUnimplemented("\(Self.self).documentsDirectory", placeholder: .empty),
-        fsBlockDbRootFor: XCTUnimplemented("\(Self.self).fsBlockDbRootFor", placeholder: .empty),
-        cacheDbURLFor: XCTUnimplemented("\(Self.self).cacheDbURLFor", placeholder: .empty),
-        dataDbURLFor: XCTUnimplemented("\(Self.self).dataDbURLFor", placeholder: .empty),
-        outputParamsURLFor: XCTUnimplemented("\(Self.self).outputParamsURLFor", placeholder: .empty),
-        pendingDbURLFor: XCTUnimplemented("\(Self.self).pendingDbURLFor", placeholder: .empty),
-        spendParamsURLFor: XCTUnimplemented("\(Self.self).spendParamsURLFor", placeholder: .empty),
-        areDbFilesPresentFor: XCTUnimplemented("\(Self.self).areDbFilesPresentFor", placeholder: false)
+        documentsDirectory: unimplemented("\(Self.self).documentsDirectory", placeholder: .empty),
+        fsBlockDbRootFor: unimplemented("\(Self.self).fsBlockDbRootFor", placeholder: .empty),
+        cacheDbURLFor: unimplemented("\(Self.self).cacheDbURLFor", placeholder: .empty),
+        dataDbURLFor: unimplemented("\(Self.self).dataDbURLFor", placeholder: .empty),
+        outputParamsURLFor: unimplemented("\(Self.self).outputParamsURLFor", placeholder: .empty),
+        pendingDbURLFor: unimplemented("\(Self.self).pendingDbURLFor", placeholder: .empty),
+        spendParamsURLFor: unimplemented("\(Self.self).spendParamsURLFor", placeholder: .empty),
+        toDirURLFor: unimplemented("\(Self.self).toDirURLFor", placeholder: .empty),
+        areDbFilesPresentFor: unimplemented("\(Self.self).areDbFilesPresentFor", placeholder: false)
     )
 }
 
@@ -32,6 +33,7 @@ extension DatabaseFilesClient {
         outputParamsURLFor: { _ in .empty },
         pendingDbURLFor: { _ in .empty },
         spendParamsURLFor: { _ in .empty },
+        toDirURLFor: { _ in .empty },
         areDbFilesPresentFor: { _ in false }
     )
 }

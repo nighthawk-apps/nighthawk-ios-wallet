@@ -99,10 +99,6 @@ private extension ViewStoreOf<Review> {
         result.append(
             contentsOf: [
                 TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.pool,
-                    value: L10n.Nighthawk.TransactionDetails.sapling
-                ),
-                TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.recipient,
                     value: self.recipientIsTransparent
                         ? L10n.Nighthawk.TransactionDetails.recipientTransparent

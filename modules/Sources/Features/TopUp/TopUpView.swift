@@ -58,14 +58,6 @@ private extension TopUpView {
                 Spacer()
             }
             
-            Button(action: { viewStore.send(.showSideShiftInstructions) }) {
-                optionRow(
-                    title: L10n.Nighthawk.TransferTab.TopUpWallet.sideshiftTitle,
-                    description: L10n.Nighthawk.TransferTab.TopUpWallet.sideshiftTitle,
-                    icon: Asset.Assets.Icons.Nighthawk.sideshift.image
-                )
-            }
-            
             Button(action: { viewStore.send(.showStealthExInstructions) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.TopUpWallet.stealthExIoTitle,

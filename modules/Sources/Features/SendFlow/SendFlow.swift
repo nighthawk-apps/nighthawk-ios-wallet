@@ -107,7 +107,8 @@ public struct SendFlow: Reducer {
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.data.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-            amountToSend.amount < spendableBalance.amount
+            true
+//            amountToSend.amount < spendableBalance.amount
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -148,6 +149,7 @@ public struct SendFlow: Reducer {
         case binding(BindingAction<State>)
         case closeButtonTapped
         case continueTapped
+        case delegate(Delegate)
         case onAppear
         case proposeSendTransactionFailure(ZcashError)
         case review(Review.State)
@@ -162,6 +164,10 @@ public struct SendFlow: Reducer {
         
         public enum Alert: Equatable {
             case proposeTransactionFailed(ZcashError)
+        }
+        
+        public enum Delegate: Equatable {
+            case showPartners
         }
     }
     
@@ -230,6 +236,8 @@ public struct SendFlow: Reducer {
                         await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
                     }
                 }
+            case .delegate:
+                return .none
             case .onAppear:
                 state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
                 return .publisher {
@@ -309,7 +317,7 @@ public struct SendFlow: Reducer {
                 state.spendableBalance = (latestState.accountBalance?.saplingBalance.spendableValue ?? .zero) + (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero)
                 return .none
             case .topUpWalletTapped:
-                return .none
+                return .send(.delegate(.showPartners))
             case .binding, .path:
                 return .none
             }
@@ -409,6 +417,7 @@ extension SendFlow {
                  .binding,
                  .closeButtonTapped,
                  .continueTapped,
+                 .delegate,
                  .onAppear,
                  .path,
                  .proposeSendTransactionFailure,
@@ -493,6 +502,7 @@ extension SendFlow {
                  .binding,
                  .closeButtonTapped,
                  .continueTapped,
+                 .delegate,
                  .onAppear,
                  .path,
                  .proposeSendTransactionFailure,
@@ -587,6 +597,7 @@ extension SendFlow {
                  .binding,
                  .closeButtonTapped,
                  .continueTapped,
+                 .delegate,
                  .onAppear,
                  .path,
                  .proposeSendTransactionFailure,
@@ -631,6 +642,7 @@ extension SendFlow {
                  .binding,
                  .closeButtonTapped,
                  .continueTapped,
+                 .delegate,
                  .onAppear,
                  .path,
                  .proposeSendTransactionFailure,
