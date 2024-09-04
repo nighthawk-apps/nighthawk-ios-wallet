@@ -198,8 +198,6 @@
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "Esto copiará su dirección t.";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.sideshiftTitle" = "Intercambiar con SideShift.ai";
-"nighthawk.transferTab.topUpWallet.sideshiftDescription" = "Swap between 30+ coins. No sign-up required.";
 "nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Intercambiar con StealthEx.io";
 "nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Intercambiar monedas transparentes sin límites.";
 "nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
@@ -365,8 +363,6 @@
 "nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
 "nighthawk.transactionDetails.memo" = "Memo";
 "nighthawk.transactionDetails.time" = "Tiempo (UTC)";
-"nighthawk.transactionDetails.pool" = "Pool";
-"nighthawk.transactionDetails.sapling" = "Sapling";
 "nighthawk.transactionDetails.transparent" = "Transparente";
 "nighthawk.transactionDetails.blockId" = "Bloque ID";
 "nighthawk.transactionDetails.confirmations" = "Confirmaciones";
