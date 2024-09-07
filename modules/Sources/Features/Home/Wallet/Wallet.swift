@@ -20,31 +20,24 @@ public struct Wallet {
     
     @ObservableState
     public struct State: Equatable {
-        public var latestMinedHeight: BlockHeight?
-        public var requiredTransactionConfirmations = 0
-        public var synchronizerState: SynchronizerState = .zero
-        public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
-        public var shieldedBalance: Zatoshi = .zero
-        public var transparentBalance: Zatoshi = .zero
-        public var totalBalance: Zatoshi = .zero
-        public var expectingZatoshi: Zatoshi = .zero
+        @Shared(.walletInfo) public var walletInfo = Home.State.WalletInfo()
+        
         public var balanceViewType: BalanceView.ViewType = .hidden
-        public var walletEvents: IdentifiedArrayOf<WalletEvent> = []
         
         public var isSyncingForFirstTime: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return synchronizerStatusSnapshot.syncStatus.isSyncing && userStoredPreferences.isFirstSync()
+            return walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing && userStoredPreferences.isFirstSync()
         }
         
         public var isSyncingFailed: Bool {
-            if case .error = synchronizerStatusSnapshot.syncStatus {
+            if case .error = walletInfo.synchronizerStatusSnapshot.syncStatus {
                 return true
             }
             return false
         }
         
         public var isSyncingStopped: Bool {
-            if case .stopped = synchronizerStatusSnapshot.syncStatus {
+            if case .stopped = walletInfo.synchronizerStatusSnapshot.syncStatus {
                 return true
             }
             return false
@@ -114,7 +107,7 @@ public struct Wallet {
             case let .viewTransactionDetailTapped(walletEvent):
                 return .send(.delegate(.showTransactionDetail(walletEvent)))
             case .viewTransactionHistoryTapped:
-                return .send(.delegate(.showTransactionHistory(state.walletEvents)))
+                return .send(.delegate(.showTransactionHistory(state.walletInfo.walletEvents)))
             }
         }
     }

@@ -640,8 +640,8 @@ public enum L10n {
       public static let receiveMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyTitle", fallback: "Receive money")
       /// Send and receive Zcash
       public static let sendAndReceiveZcash = L10n.tr("Localizable", "nighthawk.transferTab.sendAndReceiveZcash", fallback: "Send and receive Zcash")
-      /// Let someone scan to send you money.
-      public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Let someone scan to send you money.")
+      /// Scan someone's QR code to send them money.
+      public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Scan someone's QR code to send them money.")
       /// Send money
       public static let sendMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyTitle", fallback: "Send money")
       /// Securely buy Zcash through our partners.

@@ -43,7 +43,9 @@ public struct Advanced {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case deleteWalletTapped
+        case notifyAppRelaunchNeeded
         
+        @CasePathable
         public enum Alert: Equatable {
             case deleteWalletConfirmed
             case notifyAppRelaunchNeeded
@@ -54,6 +56,7 @@ public struct Advanced {
         }
     }
     
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
@@ -66,8 +69,12 @@ public struct Advanced {
             case .alert(.presented(.deleteWalletConfirmed)):
                 return .send(.delegate(.deleteWallet))
             case .alert(.presented(.notifyAppRelaunchNeeded)):
-                state.alert = .notifyAppRelaunchNeeded
-                return .none
+                state.alert = nil
+                return .run { send in
+                    // Slight delay to allow previous alert to dismiss before presenting
+                    try await clock.sleep(for: .seconds(0.005))
+                    await send(.notifyAppRelaunchNeeded)
+                }
             case .appIconResponse(success: true):
                 userStoredPreferences.setAppIcon(state.selectedAppIcon)
                 return .none
@@ -78,6 +85,9 @@ public struct Advanced {
                 return .none
             case .deleteWalletTapped:
                 state.alert = AlertState.warnBeforeDeletingWallet
+                return .none
+            case .notifyAppRelaunchNeeded:
+                state.alert = AlertState.notifyAppRelaunchNeeded
                 return .none
             case .binding(\.selectedAppIcon):
                 return .run { @MainActor [selectedIcon = state.selectedAppIcon] send in

@@ -42,8 +42,8 @@ extension AppReducer {
                 case .fetchLatestFiatCurrency:
                     state.path =  StackState(
                         state.path.map { state in
-                            if case var .home(homeState) = state {
-                                homeState.latestFiatPrice = nil
+                            if case let .home(homeState) = state {
+                                homeState.walletInfo.latestFiatPrice = nil
                                 return Path.State.home(homeState)
                             }
 

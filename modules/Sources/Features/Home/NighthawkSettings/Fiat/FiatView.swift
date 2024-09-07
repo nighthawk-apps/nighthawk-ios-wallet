@@ -43,6 +43,7 @@ public struct FiatView: View {
             .padding(.top, 25)
             .padding(.horizontal, 25)
         }
+        .applyNighthawkBackground()
     }
     
     public init(store: StoreOf<Fiat>) {

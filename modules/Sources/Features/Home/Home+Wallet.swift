@@ -24,7 +24,7 @@ extension Home {
                     state.transfer.destination = .send(
                         .init(
                             path: StackState([.scan(.init(backButtonType: .close))]),
-                            latestFiatPrice: state.latestFiatPrice
+                            latestFiatPrice: state.walletInfo.latestFiatPrice
                         )
                     )
                     return .none
@@ -34,7 +34,7 @@ extension Home {
                 case .showAddresses:
                     state.destination = .addresses(
                         .init(
-                            uAddress: state.unifiedAddress,
+                            uAddress: state.walletInfo.unifiedAddress,
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )
@@ -74,7 +74,7 @@ extension Home {
                     state.destination = nil
                     return .none
                 case .updateTransparentBalance:
-                    state.transparentBalance = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero
+                    state.walletInfo.transparentBalance = sdkSynchronizer.latestState().accountBalance?.unshielded ?? .zero
                     return .none
                 }
             case .alert,
