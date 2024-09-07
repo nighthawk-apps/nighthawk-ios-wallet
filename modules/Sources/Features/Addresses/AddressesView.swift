@@ -57,58 +57,69 @@ public struct AddressesView: View {
     }
 }
 
-// MARK: - NHPage
-extension Addresses.State.Destination: NHPage {}
-
 // MARK: - Subviews
 private extension AddressesView {
     var actionsCarousel: some View {
         GeometryReader { geometry in
-            VStack {
-                tabs(geometry: geometry)
-                
-                NHPageIndicator(selection: $store.destination)
-            }
-            .padding(.top, 16)
-            .padding(.bottom, 64)
-            .frame(maxHeight: geometry.size.width * 1.35)
+            tabs(geometry: geometry)
+                .padding(.top, 16)
+                .padding(.bottom, 64)
+                .frame(maxHeight: geometry.size.width * 1.35)
         }
     }
     
     func tabs(geometry: GeometryProxy) -> some View {
-        TabView(selection: $store.destination) {
-            topUpView(seeMoreAction: { store.send(.topUpWalletTapped) })
-            .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(Addresses.State.Destination.topUp)
-            
-            addressView(
-                title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
-                address: store.unifiedAddress,
-                badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
-                copyAction: { store.send(.copyTapped(.unified)) }
-            )
-            .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(Addresses.State.Destination.unified)
-            
-            addressView(
-                title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
-                address: store.saplingAddress,
-                badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
-                copyAction: { store.send(.copyTapped(.sapling)) }
-            )
-            .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(Addresses.State.Destination.sapling)
-            
-            addressView(
-                title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
-                address: store.transparentAddress,
-                badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
-                copyAction: { store.send(.copyTapped(.transparent)) }
-            )
-            .frame(maxWidth: geometry.size.width * 0.68)
-            .tag(Addresses.State.Destination.transparent)
+        ScrollView(.horizontal, showsIndicators: false) {
+            ScrollViewReader { scrollView in
+                HStack {
+                    topUpView(seeMoreAction: { store.send(.topUpWalletTapped) })
+                        .frame(width: geometry.size.width * 0.68)
+                        .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
+                            effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+                        }
+                    
+                    addressView(
+                        title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
+                        address: store.unifiedAddress,
+                        badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
+                        copyAction: { store.send(.copyTapped(.unified)) }
+                    )
+                    .id("unified")
+                    .frame(width: geometry.size.width * 0.68)
+                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
+                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+                    }
+                    
+                    addressView(
+                        title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
+                        address: store.saplingAddress,
+                        badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
+                        copyAction: { store.send(.copyTapped(.sapling)) }
+                    )
+                    .frame(width: geometry.size.width * 0.68)
+                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
+                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+                    }
+                    
+                    addressView(
+                        title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
+                        address: store.transparentAddress,
+                        badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
+                        copyAction: { store.send(.copyTapped(.transparent)) }
+                    )
+                    .frame(width: geometry.size.width * 0.68)
+                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
+                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+                    }
+                }
+                .scrollTargetLayout()
+                .onAppear {
+                    scrollView.scrollTo("unified", anchor: .center)
+                }
+            }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .scrollTargetBehavior(.viewAligned)
+        .safeAreaPadding(.horizontal, geometry.size.width * 0.16)
     }
     
     func addressView(
