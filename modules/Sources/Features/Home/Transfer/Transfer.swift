@@ -26,9 +26,8 @@ public struct Transfer {
     @ObservableState
     public struct State: Equatable {
         @Presents public var destination: Destination.State?
-        public var shieldedBalance: Zatoshi = .zero
-        public var unifiedAddress: UnifiedAddress?
-        public var latestFiatPrice: Double?
+        @Shared(.walletInfo) var walletInfo = Home.State.WalletInfo()
+        
         public var tokenName: String {
             @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
             return zcashSDKEnvironment.tokenName
@@ -56,24 +55,24 @@ public struct Transfer {
             case .receiveMoneyTapped:
                 state.destination = .receive(
                     .init(
-                        uAddress: state.unifiedAddress,
+                        uAddress: state.walletInfo.unifiedAddress,
                         showCloseButton: processInfo.isiOSAppOnMac()
                     )
                 )
                 return .none
             case .sendMoneyTapped:
                 var sendState = SendFlow.State(
-                    latestFiatPrice: state.latestFiatPrice,
+                    latestFiatPrice: state.walletInfo.latestFiatPrice,
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
-                sendState.spendableBalance = state.shieldedBalance
-                sendState.unifiedAddress = state.unifiedAddress
+                sendState.spendableBalance = state.walletInfo.shieldedBalance
+                sendState.unifiedAddress = state.walletInfo.unifiedAddress
                 state.destination = .send(sendState)
                 return .none
             case .topUpWalletTapped:
                 state.destination = .topUp(
                     .init(
-                        unifiedAddress: state.unifiedAddress,
+                        unifiedAddress: state.walletInfo.unifiedAddress,
                         showCloseButton: processInfo.isiOSAppOnMac()
                     )
                 )

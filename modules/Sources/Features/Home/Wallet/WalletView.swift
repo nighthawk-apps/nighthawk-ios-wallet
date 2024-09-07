@@ -26,9 +26,9 @@ public struct WalletView: View {
             
             balanceTabsView
             
-            if store.transparentBalance >= .autoshieldingThreshold &&
+            if store.walletInfo.transparentBalance >= .autoshieldingThreshold &&
                 store.balanceViewType == .transparent &&
-                store.synchronizerStatusSnapshot.syncStatus.isSynced {
+                store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSynced {
                 Button(L10n.Nighthawk.WalletTab.shieldNow) {
                     store.send(.shieldNowTapped)
                 }
@@ -90,46 +90,46 @@ private extension WalletView {
     
     @ViewBuilder var tabs: some View {
         if store.isSyncingForFirstTime {
-            SyncStatusView(status: store.synchronizerStatusSnapshot)
+            SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
         } else {
             TabView(selection: $store.balanceViewType) {
                 Group {
-                    if store.synchronizerStatusSnapshot.syncStatus.isSyncing || store.isSyncingFailed || store.isSyncingStopped {
-                        SyncStatusView(status: store.synchronizerStatusSnapshot)
+                    if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing || store.isSyncingFailed || store.isSyncingStopped {
+                        SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
                     } else {
                         BalanceView(
-                            balance: store.totalBalance,
+                            balance: store.walletInfo.totalBalance,
                             type: .hidden,
                             tokenName: store.tokenName,
-                            synchronizerState: store.synchronizerState
+                            synchronizerState: store.walletInfo.synchronizerState
                         )
                     }
                 }
                 .tag(BalanceView.ViewType.hidden)
                 
                 BalanceView(
-                    balance: store.totalBalance,
+                    balance: store.walletInfo.totalBalance,
                     type: .total,
                     tokenName: store.tokenName,
-                    synchronizerState: store.synchronizerState
+                    synchronizerState: store.walletInfo.synchronizerState
                 )
                 .tag(BalanceView.ViewType.total)
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: store.shieldedBalance,
+                    balance: store.walletInfo.shieldedBalance,
                     type: .shielded,
                     tokenName: store.tokenName,
-                    synchronizerState: store.synchronizerState
+                    synchronizerState: store.walletInfo.synchronizerState
                 )
                 .tag(BalanceView.ViewType.shielded)
                 .padding(.top, 32)
                 
                 BalanceView(
-                    balance: store.transparentBalance,
+                    balance: store.walletInfo.transparentBalance,
                     type: .transparent,
                     tokenName: store.tokenName,
-                    synchronizerState: store.synchronizerState
+                    synchronizerState: store.walletInfo.synchronizerState
                 )
                 .tag(BalanceView.ViewType.transparent)
                 .padding(.top, 32)
@@ -184,7 +184,7 @@ private extension WalletView {
     
     var latestWalletEvents: some View {
         Group {
-            if !store.isSyncingForFirstTime && !store.walletEvents.isEmpty {
+            if !store.isSyncingForFirstTime && !store.walletInfo.walletEvents.isEmpty {
                 VStack(spacing: 0) {
                     HStack {
                         Text(L10n.Nighthawk.WalletTab.recentActivity)
@@ -192,7 +192,7 @@ private extension WalletView {
                         Spacer()
                     }
                     
-                    ForEach(store.walletEvents.prefix(2)) { walletEvent in
+                    ForEach(store.walletInfo.walletEvents.prefix(2)) { walletEvent in
                         Button {
                             store.send(.viewTransactionDetailTapped(walletEvent))
                         } label: {

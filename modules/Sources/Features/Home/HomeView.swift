@@ -27,7 +27,7 @@ public struct HomeView: View {
                 )
                 .tag(Home.State.Tab.wallet)
                 .overlay(alignment: .top) {
-                    if store.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                    if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
                         IndeterminateProgress()
                     }
                 }
@@ -68,7 +68,7 @@ public struct HomeView: View {
                 AlertToast(
                     type: .regular,
                     title: L10n.Nighthawk.HomeScreen.expectingFunds(
-                        store.expectingZatoshi.decimalString(),
+                        store.walletInfo.expectingZatoshi.decimalString(),
                         store.tokenName
                     )
                 )

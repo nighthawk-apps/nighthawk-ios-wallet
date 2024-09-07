@@ -38,6 +38,28 @@ public struct Home {
             case expectingFunds
         }
         
+        public struct WalletInfo: Equatable {
+            public var requiredTransactionConfirmations = 0
+            public var latestMinedHeight: BlockHeight?
+            public var latestFiatPrice: Double?
+            public var shieldedBalance: Zatoshi = .init()
+            public var transparentBalance: Zatoshi = .init()
+            public var totalBalance: Zatoshi = .init()
+            public var expectingZatoshi: Zatoshi = .zero
+            public var synchronizerState: SynchronizerState = .zero
+            public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
+            public var unifiedAddress: UnifiedAddress?
+            public var walletEvents: IdentifiedArrayOf<WalletEvent>
+            
+            public init(
+                unifiedAddress: UnifiedAddress? = nil,
+                walletEvents: IdentifiedArrayOf<WalletEvent> = IdentifiedArrayOf<WalletEvent>()
+            ) {
+                self.unifiedAddress = unifiedAddress
+                self.walletEvents = walletEvents
+            }
+        }
+        
         @Presents public var alert: AlertState<Action.Alert>?
         @Presents public var destination: Destination.State?
         public var selectedTab = Tab.wallet
@@ -45,14 +67,13 @@ public struct Home {
         
         public var synchronizerFailedToStart = false
         public var synchronizerFailed: Bool {
-            synchronizerFailedToStart || synchronizerStatusSnapshot.isSyncFailed
+            synchronizerFailedToStart || walletInfo.synchronizerStatusSnapshot.isSyncFailed
         }
         
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
         }
-        public var latestFiatPrice: Double?
         
         public var tokenName: String {
             @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
@@ -60,25 +81,18 @@ public struct Home {
         }
         
         // Shared state
-        public var requiredTransactionConfirmations = 0
-        public var latestMinedHeight: BlockHeight?
-        public var shieldedBalance: Zatoshi = .init()
-        public var transparentBalance: Zatoshi = .init()
-        public var totalBalance: Zatoshi = .init()
-        public var expectingZatoshi: Zatoshi = .zero
-        public var synchronizerState: SynchronizerState = .zero
-        public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
-        public var unifiedAddress: UnifiedAddress?
-        public var walletEvents = IdentifiedArrayOf<WalletEvent>()
+        @Shared public var walletInfo: WalletInfo
         
         // Tab states
-        public var walletState: Wallet.State = .init()
-        public var transferState: Transfer.State = .init()
+        public var wallet: Wallet.State = .init()
+        public var transfer: Transfer.State = .init()
         public var settings: NighthawkSettings.State = .init()
         
         public init(unifiedAddress: UnifiedAddress?) {
-            self.unifiedAddress = unifiedAddress
-            self.walletEvents = loadCachedEvents()
+            self._walletInfo = Shared(wrappedValue: WalletInfo(), .walletInfo)
+            let events = loadCachedEvents()
+            let walletInfo = WalletInfo(unifiedAddress: unifiedAddress, walletEvents: events)
+            self.walletInfo = walletInfo
         }
         
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
@@ -91,54 +105,6 @@ public struct Home {
             }
             
             return []
-        }
-        
-        // MARK: - Shared state synchronization
-        var wallet: Wallet.State {
-            get {
-                var state = walletState
-                state.synchronizerState = synchronizerState
-                state.synchronizerStatusSnapshot = synchronizerStatusSnapshot
-                state.shieldedBalance = shieldedBalance
-                state.transparentBalance = transparentBalance
-                state.totalBalance = totalBalance
-                state.latestFiatPrice = latestFiatPrice
-                state.latestMinedHeight = latestMinedHeight
-                state.expectingZatoshi = expectingZatoshi
-                state.requiredTransactionConfirmations = requiredTransactionConfirmations
-                state.walletEvents = walletEvents
-                return state
-            }
-            
-            set {
-                self.walletState = newValue
-                self.synchronizerState = newValue.synchronizerState
-                self.synchronizerStatusSnapshot = newValue.synchronizerStatusSnapshot
-                self.shieldedBalance = newValue.shieldedBalance
-                self.transparentBalance = newValue.transparentBalance
-                self.latestFiatPrice = newValue.latestFiatPrice
-                self.latestMinedHeight = newValue.latestMinedHeight
-                self.expectingZatoshi = newValue.expectingZatoshi
-                self.requiredTransactionConfirmations = newValue.requiredTransactionConfirmations
-                self.walletEvents = newValue.walletEvents
-            }
-        }
-        
-        var transfer: Transfer.State {
-            get {
-                var state = transferState
-                state.shieldedBalance = shieldedBalance
-                state.unifiedAddress = unifiedAddress
-                state.latestFiatPrice = latestFiatPrice
-                return state
-            }
-            
-            set {
-                self.transferState = newValue
-                self.shieldedBalance = newValue.shieldedBalance
-                self.unifiedAddress = newValue.unifiedAddress
-                self.latestFiatPrice = newValue.latestFiatPrice
-            }
         }
     }
     
@@ -208,17 +174,17 @@ public struct Home {
                 state.alert = .cantStartSync(error)
                 return .none
             case .fetchLatestFiatPrice:
-                guard state.latestFiatPrice == nil, state.preferredCurrency != . off else { return .none }
+                guard state.walletInfo.latestFiatPrice == nil, state.preferredCurrency != .off else { return .none }
                 return .run { [preferredCurrency = state.preferredCurrency] send in
                     let price = try? await fiatPriceClient.getZcashPrice(preferredCurrency)
                     await send(.latestFiatResponse(price))
                     await send(.delegate(.setLatestFiatPrice(price)))
                 }
             case let .latestFiatResponse(price):
-                state.latestFiatPrice = price
+                state.walletInfo.latestFiatPrice = price
                 return .none
             case .onAppear:
-                state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
+                state.walletInfo.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 return .concatenate(
                     .send(.fetchLatestFiatPrice),
@@ -257,33 +223,33 @@ public struct Home {
                 }
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState.syncStatus)
-                guard snapshot != state.synchronizerStatusSnapshot else {
+                guard snapshot != state.walletInfo.synchronizerStatusSnapshot else {
                     return .none
                 }
-                state.synchronizerState = latestState
-                state.synchronizerStatusSnapshot = snapshot
+                state.walletInfo.synchronizerState = latestState
+                state.walletInfo.synchronizerStatusSnapshot = snapshot
                 let spendableSapling = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
                 let spendableOrchard = latestState.accountBalance?.orchardBalance.spendableValue ?? .zero
                 let transparentBalance = latestState.accountBalance?.unshielded ?? .zero
-                state.shieldedBalance = spendableSapling + spendableOrchard
-                state.transparentBalance = transparentBalance
+                state.walletInfo.shieldedBalance = spendableSapling + spendableOrchard
+                state.walletInfo.transparentBalance = transparentBalance
                 let totalSapling = latestState.accountBalance?.saplingBalance.total() ?? .zero
                 let totalOrchard = latestState.accountBalance?.orchardBalance.total() ?? .zero
-                state.totalBalance = totalSapling + totalOrchard + transparentBalance
+                state.walletInfo.totalBalance = totalSapling + totalOrchard + transparentBalance
                 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
-                    state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
+                    state.walletInfo.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                     
                     // Detect if there are any expected funds
-                    let availableBalance = state.shieldedBalance + state.transparentBalance
-                    if state.totalBalance != availableBalance && (state.totalBalance - availableBalance) != state.expectingZatoshi {
-                        state.expectingZatoshi = state.totalBalance - availableBalance
+                    let availableBalance = state.walletInfo.shieldedBalance + state.walletInfo.transparentBalance
+                    if state.walletInfo.totalBalance != availableBalance && (state.walletInfo.totalBalance - availableBalance) != state.walletInfo.expectingZatoshi {
+                        state.walletInfo.expectingZatoshi = state.walletInfo.totalBalance - availableBalance
                         state.toast = .expectingFunds
                     }
                     
                     // Show autoshield, if needed
-                    if !userStoredPreferences.hasShownAutoshielding() && state.transparentBalance >= .autoshieldingThreshold {
+                    if !userStoredPreferences.hasShownAutoshielding() && state.walletInfo.transparentBalance >= .autoshieldingThreshold {
                         userStoredPreferences.setHasShownAutoshielding(true)
                         state.destination = .autoshield(.init())
                     }
@@ -320,7 +286,7 @@ public struct Home {
                     }
                 }
                 
-                state.walletEvents = IdentifiedArrayOf(uniqueElements: events)
+                state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
             case .alert, .binding, .delegate, .destination, .settings, .transfer, .wallet:
                 return .none
@@ -372,5 +338,12 @@ extension Home {
                 return .none
             }
         }
+    }
+}
+
+// MARK: - Shared state
+extension PersistenceReaderKey where Self == InMemoryKey<Home.State.WalletInfo> {
+    public static var walletInfo: Self {
+        inMemory(String(describing: Home.State.WalletInfo.self))
     }
 }
