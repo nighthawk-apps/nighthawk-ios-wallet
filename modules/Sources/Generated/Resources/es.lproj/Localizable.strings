@@ -228,7 +228,7 @@
 "nighthawk.transferTab.recipient.chooseRecipient" = "Elige a quién enviarlo";
 "nighthawk.transferTab.recipient.addAddress" = "Añadir la dirección aquí";
 "nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to this recipient is currently not possible";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
 "nighthawk.transferTab.recipient.pasteFromClipboard" = "Pegar desde el portapapeles";
 "nighthawk.transferTab.recipient.continue" = "Continuar";
 
