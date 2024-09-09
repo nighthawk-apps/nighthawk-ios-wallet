@@ -87,6 +87,13 @@ public struct Recipient {
                 return .send(.recipientInputChanged(contents.data))
             case let .recipientInputChanged(recipient):
                 state.recipient = recipient
+                if let _ = try? TexAddress(encoding: recipient, network: zcashSDKEnvironment.network.networkType) {
+                    // TEX addresses unsupported
+                    state.isRecipientValid = false
+                    state.specificValidationError = .invalid(error: L10n.Nighthawk.TransferTab.Recipient.currentlyUnsupported)
+                    return .none
+                }
+                
                 let validZcash = derivationTool.isZcashAddress(recipient, zcashSDKEnvironment.network.networkType)
                 state.isRecipientValid = validZcash
                 if !validZcash && !recipient.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
