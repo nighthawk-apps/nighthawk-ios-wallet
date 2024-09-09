@@ -182,7 +182,7 @@
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveZcash" = "Send and receive Zcash";
 "nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
+"nighthawk.transferTab.sendMoneyDescription" = "Scan someone's QR code to send them money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
 "nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
 "nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
