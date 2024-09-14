@@ -510,7 +510,7 @@ extension SendFlow {
                             return .none
                         }
                         
-                        if state.memo == nil && derivationTool.isSaplingAddress(address, zcashSDKEnvironment.network.networkType) {
+                        if state.memo == nil && !derivationTool.isTransparentAddress(address, zcashSDKEnvironment.network.networkType) {
                             var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))
