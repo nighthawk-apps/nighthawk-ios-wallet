@@ -7,20 +7,8 @@ Privacy-preserving wallet maintained by [nighthawk apps](https://nighthawkapps.c
 
 # Description
 
-Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support and optional T-addresses support with Auto-Shielding technology.
-As a non-custodial wallet for Zcash, users have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet. Nighthawk utilizes ZcashLightClientKit SDK that is maintained by ECC core developers.
-
-This a reference wallet for the following set of features:
-- unified address support
-- spend before sync feature
-- z2z transactions w/ encrypted memos
-- reply-to formatted memos
-- transparent receive-only
-- autoshielding on threshold from receive only t-address
-- backup wallet
-- sync notifications
-
-note: z means sapling shielded addresses.
+Nighthawk is an open source wallet for privacy preserving money.
+As a non-custodial wallet, users have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet. Nighthawk utilizes ZcashLightClientKit SDK that is maintained by ECC core developers.
 
 ## Disclosure Policy
 Do not disclose any bug or vulnerability on public forums, message boards, mailing lists, etc. prior to responsibly disclosing to Nighthawk Wallet and giving sufficient time for the issue to be fixed and deployed. Do not execute on or exploit any vulnerability.
