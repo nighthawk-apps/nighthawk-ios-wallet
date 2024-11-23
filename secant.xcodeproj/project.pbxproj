@@ -955,7 +955,7 @@
 			repositoryURL = "https://github.com/Electric-Coin-Company/zcash-swift-wallet-sdk";
 			requirement = {
 				kind = exactVersion;
-				version = 2.2.1;
+				version = 2.2.7;
 			};
 		};
 		4562B35D2AC5EEF3007F48A5 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
@@ -963,7 +963,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = exactVersion;
-				version = 1.14.0;
+				version = 1.16.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
