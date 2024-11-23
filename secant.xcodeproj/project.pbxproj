@@ -634,7 +634,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.15;
+				MARKETING_VERSION = 2.2.16;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -665,7 +665,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.15;
+				MARKETING_VERSION = 2.2.16;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -817,7 +817,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.15;
+				MARKETING_VERSION = 2.2.16;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -848,7 +848,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.15;
+				MARKETING_VERSION = 2.2.16;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
