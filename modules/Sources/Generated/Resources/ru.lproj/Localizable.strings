@@ -1,5 +1,5 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "Недостаточно места на диске для синхронизации!";
 
 // MARK: - Common & Shared
 "general.back" = "Назад";
@@ -9,17 +9,17 @@
 "general.send" = "Send";
 "general.clear" = "Очистить";
 "general.close" = "Закрыть";
-"general.max" = "Max";
+"general.max" = "Макс.";
 "general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
+"general.yes" = "Да";
+"general.no" = "Нет";
 "general.cancel" = "Cancel";
 "general.success" = "Success";
 "general.unknown" = "Unknown";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "Доступно %@ %@";
+"qrCodeFor" = "QR-код для %@";
+"general.dateNotAvailable" = "дата недоступна";
 "general.termsAndConditions" = "Terms and Conditions";
 
 //==========================================================
@@ -28,27 +28,27 @@
 // MARK: - Nighthawk
 // MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+"nighthawk.localAuthentication.accessWalletReason" = "Вы должны авторизоваться, чтобы получить доступ к вашему кошельку Nighthawk.";
+"nighthawk.localAuthentication.sendFundsReason" = "Вы должны авторизоваться, чтобы отправить средства из вашего кошелька.";
 
 // MARK: - About screen
 "nighthawk.about.title" = "About";
 "nighthawk.about.message" = "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
 "nighthawk.about.viewSource" = "View Source";
 "nighthawk.about.nighthawkFriends" = "Друзья Nighthawk";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.viewLicenses" = "Показать лицензии";
 
 // MARK: - Licenses Screen
 "nighthawk.licenses.title" = "Лицензии на ПО";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "Не удалось инициализировать SDK";
+"nighthawk.app.launch.alert.error.message" = "Ошибка: %@ (код: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "Не удалось удалить кошелек";
 
 // MARK: - Autoshield
 "nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Shielded-by-Default.";
+"nighthawk.autoshield.shieldedByDefault" = "Прикрыто по умолчанию.";
 "nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
 "nighthawk.autoshield.autoshielding" = "Autoshielding";
 "nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your shielded address.";
@@ -65,30 +65,30 @@
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
+"nighthawk.splash.retry" = "Повторить";
 "nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.initialization.alert.failed.title" = "Ошибка инициализации кошелька.";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "Состояние инициализации приложения: %@.";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
+"nighthawk.migrateScreen.title" = "Миграция со старой версии приложения";
+"nighthawk.migrateScreen.explanation" = "У нас новый безопасный способ хранения данных локально, поэтому мы должны перенести ваши ключи для восстановления вашего кошелька. Если вы не хотите мигрировать автоматически, то вам придется восстановить ваш кошелёк, добавив сид-фразу вручную.\n\nВы хотите продолжить автоматически?";
 "nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
+"nighthawk.migrateScreen.restoreManually" = "Восстановить вручную";
+"nighthawk.migrateScreen.migrationFailed.title" = "Сбой миграции";
 "nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
+"nighthawk.welcome.subtitle" = "Начало работы";
 "nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
 "nighthawk.welcome.terms1" = "Вы согласны с условиями использования этого приложения";
 "nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
+"nighthawk.welcome.restore" = "Восстановить из резервной копии";
+"nighthawk.welcome.initialization.alert.failed.title" = "Ошибка инициализации кошелька.";
 "nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
+"nighthawk.walletCreated.title" = "Кошелёк создан! Поздравляем!";
 "nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
 "nighthawk.walletCreated.backup" = "Backup your wallet";
 "nighthawk.walletCreated.skip" = "Skip for now";
@@ -97,8 +97,8 @@
 "nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
 "nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.";
 "nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "День рождения кошелька:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "Подтверждаю, что я сохранил свою сид-фразу.";
 "nighthawk.recoveryPhraseDisplay.continue" = "Continue";
 "nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as Pdf";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
@@ -117,15 +117,15 @@
 "nighthawk.importWarning.proceed" = "Продолжить";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
+"nighthawk.importWallet.restoreFromBackup" = "Восстановить из резервной копии";
+"nighthawk.importWallet.enterSeedPhrase" = "Введите ваш сид-фразу из 24 слов ниже. Если у вас нет этой фразы, вам нужно создать новый кошелёк.";
 "nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
 "nighthawk.importWallet.birthdayHeight" = "Блок создания (необязательно)";
 "nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
+"nighthawk.importWallet.invalidMnemonic" = "Ошибка ⸱ Это не похоже на правильную сид-фразу";
 "nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
 "nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.alert.failed.message" = "Ошибка: %@ (код: %@)";
 
 // MARK: - Import Wallet Success Screen
 "nighthawk.importWalletSuccess.success" = "Success";
@@ -265,9 +265,9 @@
 "nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
 "nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
 "nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "Ошибка: %@ (код: %@)";
 "nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Ошибка: %@ (код: %@)";
 "nighthawk.settingsTab.changeServerTitle" = "Change server";
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
 "nighthawk.settingsTab.externalServicesTitle" = "Внешние сервисы";
@@ -325,7 +325,7 @@
 "nighthawk.settingsTab.changeServer.save" = "Save";
 "nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
 "nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Ошибка: %@ (код: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
 "nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
@@ -337,16 +337,16 @@
 "nighthawk.settingsTab.advanced.title" = "Advanced settings";
 "nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
 "nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Продолжить";
 "nighthawk.settingsTab.advanced.screenMode.off" = "Off";
 "nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
 "nighthawk.settingsTab.advanced.appIcon.default" = "По умолчанию";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Ретро";
 "nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
+"nighthawk.settingsTab.advanced.theme.title" = "Тема оформления";
 "nighthawk.settingsTab.advanced.theme.default" = "По умолчанию";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
+"nighthawk.settingsTab.advanced.theme.dark" = "Тёмная";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "Удалить кошелёк";
 "nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
@@ -373,7 +373,7 @@
 "nighthawk.transactionDetails.recipientShielded" = "Shielded";
 "nighthawk.transactionDetails.recipientTransparent" = "Transparent";
 "nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
+"nighthawk.transactionDetails.networkFee" = "Комиссия сети";
 "nighthawk.transactionDetails.totalAmount" = "Total amount";
 "nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
 "nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
