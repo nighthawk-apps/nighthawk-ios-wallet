@@ -2,11 +2,10 @@
 # https://github.com/raywenderlich/swift-style-guide
 
 included:
-  - secantTests/
-  - secantUITests/
+  - stealthTests/
 
 excluded:
-  - secant/
+  - stealth/
   - xctemplates/
 
 disabled_rules:

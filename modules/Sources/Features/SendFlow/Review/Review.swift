@@ -13,8 +13,6 @@ import Models
 import UIKit
 import UserPreferencesStorage
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Review {
@@ -22,13 +20,13 @@ public struct Review {
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?
         
-        public var zecAmount: Zatoshi
+        public var zecAmount: DrkAmount
         public var proposal: Proposal
-        public var fee: Zatoshi { proposal.totalFeeRequired() }
+        public var fee: DrkAmount { proposal.totalFeeRequired() }
         public var memo: RedactableString?
         public var recipient: String
         public var recipientIsTransparent = false
-        public var total: Zatoshi { zecAmount + fee }
+        public var total: DrkAmount { zecAmount + fee }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
@@ -43,12 +41,11 @@ public struct Review {
         }
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            return "DRK"
         }
         
         public init(
-            zecAmount: Zatoshi,
+            zecAmount: DrkAmount,
             memo: RedactableString?,
             recipient: String,
             latestFiatPrice: Double?,
@@ -68,7 +65,7 @@ public struct Review {
         case backButtonTapped
         case delegate(Delegate)
         case onAppear
-        case sendZcashTapped
+        case sendDrkTapped
         case warnBeforeLeavingApp(URL?)
         
         public enum Alert: Equatable {
@@ -77,14 +74,13 @@ public struct Review {
         
         public enum Delegate: Equatable {
             case goBack
-            case sendZcash
+            case sendDrk
         }
     }
     
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -98,7 +94,7 @@ public struct Review {
                 return .none
             case let .authenticationResponse(authenticated):
                 if authenticated {
-                    return .send(.delegate(.sendZcash))
+                    return .send(.delegate(.sendDrk))
                 }
                 return .none
             case .backButtonTapped:
@@ -106,9 +102,9 @@ public struct Review {
             case .delegate:
                 return .none
             case .onAppear:
-                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, zcashSDKEnvironment.network.networkType)
+                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, "testnet")
                 return .none
-            case .sendZcashTapped:
+            case .sendDrkTapped:
                 if userStoredPreferences.areBiometricsEnabled() {
                     return .run { send in
                         let context = localAuthenticationContext()
@@ -128,7 +124,7 @@ public struct Review {
                         }
                     }
                 } else {
-                    return .send(.delegate(.sendZcash))
+                    return .send(.delegate(.sendDrk))
                 }
             case let .warnBeforeLeavingApp(blockExplorerURL):
                 state.alert = AlertState.warnBeforeLeavingApp(blockExplorerURL)

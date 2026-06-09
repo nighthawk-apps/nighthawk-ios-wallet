@@ -1,15 +1,15 @@
 //
 //  WalletStorageLiveKey.swift
-//  secant-testnet
+//  stealth
 //
-//  Created by Lukáš Korba on 15.11.2022.
+//  DarkFi wallet storage — no legacy Zcash migration needed.
 //
 
 import ComposableArchitecture
 import Foundation
 import MnemonicSwift
 import SecItem
-import ZcashLightClientKit
+import Utils
 
 extension WalletStorageClient: DependencyKey {
     public static let liveValue = WalletStorageClient.live()
@@ -30,13 +30,16 @@ extension WalletStorageClient: DependencyKey {
                 try walletStorage.areKeysPresent()
             },
             areLegacyKeysPresent: {
-                walletStorage.areLegacyKeysPresent()
+                // DarkFi: No legacy Zcash keys to migrate
+                false
             },
             exportLegacyPhrase: {
-                try walletStorage.exportLegacyPhrase()
+                // DarkFi: No legacy Zcash phrase
+                throw WalletStorage.WalletStorageError.uninitializedWallet
             },
             exportLegacyBirthday: {
-                try walletStorage.exportLegacyBirthday()
+                // DarkFi: No legacy Zcash birthday
+                throw WalletStorage.WalletStorageError.uninitializedWallet
             },
             updateBirthday: { birthday in
                 try walletStorage.updateBirthday(birthday)
@@ -45,7 +48,7 @@ extension WalletStorageClient: DependencyKey {
                 walletStorage.deleteWallet()
             },
             deleteLegacyWallet: {
-                walletStorage.deleteLegacyWallet()
+                // DarkFi: No legacy wallet to delete — no-op
             }
         )
     }

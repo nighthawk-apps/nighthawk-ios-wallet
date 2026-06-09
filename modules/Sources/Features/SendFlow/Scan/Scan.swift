@@ -13,8 +13,6 @@ import UNSClient
 import URIParser
 import UserPreferencesStorage
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Scan {
@@ -68,7 +66,6 @@ public struct Scan {
     @Dependency(\.unsClient) var unsClient
     @Dependency(\.uriParser) var uriParser
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -95,7 +92,7 @@ public struct Scan {
                 return .none
             case let .resolveUNSSuccess(resolved):
                 state.isResolvingUNS = false
-                if derivationTool.isZcashAddress(resolved, zcashSDKEnvironment.network.networkType) {
+                if derivationTool.isDarkFiAddress(resolved, "testnet") {
                     state.scanStatus = .value(resolved.redacted)
                     let result = QRCodeParseResult(memo: nil, amount: nil, address: resolved)
                     // once valid URI is scanned *and* resolved we want to start the timer to deliver the code
@@ -122,8 +119,8 @@ public struct Scan {
                     return .none
                 }
                 
-                var parseResult = uriParser.parseZaddrOrZIP321(code.data, zcashSDKEnvironment.network.networkType)
-                if derivationTool.isZcashAddress(code.data, zcashSDKEnvironment.network.networkType) {
+                var parseResult = uriParser.parseZaddrOrZIP321(code.data, "testnet")
+                if derivationTool.isDarkFiAddress(code.data, "testnet") {
                     parseResult.address = code.data
                 }
                 

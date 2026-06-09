@@ -1,6 +1,6 @@
 //
 //  ExternalServices.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/22/23.
 //
@@ -10,7 +10,6 @@ import UserPreferencesStorage
 
 @Reducer
 public struct ExternalServices {
-    
     @ObservableState
     public struct State: Equatable {
         public var isUnstoppableDomainsEnabled = false

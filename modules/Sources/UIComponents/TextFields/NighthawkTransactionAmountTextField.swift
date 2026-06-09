@@ -133,7 +133,6 @@ private extension ZecAmountRenderingView {
 
 private extension UILabel {
     func set(color: UIColor, on substrings: [String]) {
-        
         guard let text = self.text else {
             return
         }
@@ -154,4 +153,3 @@ private extension UILabel {
         attributedText = styledText
     }
 }
-

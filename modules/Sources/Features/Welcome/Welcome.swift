@@ -1,6 +1,6 @@
 //
 //  Welcome.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Matthew Watt on 9/11/23.
 //
@@ -13,7 +13,6 @@ import UIKit
 
 @Reducer
 public struct Welcome {
-    
     @ObservableState
     public struct State: Equatable {
         @Presents public var destination: Destination.State?
@@ -43,7 +42,8 @@ public struct Welcome {
         Reduce { state, action in
             switch action {
             case .createNewWalletTapped:
-                return .send(.delegate(.createNewWallet))
+                // Parent AppReducer handles wallet creation and navigation.
+                return .none
             case .delegate:
                 return .none
             case .destination:

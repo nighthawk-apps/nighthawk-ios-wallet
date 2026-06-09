@@ -64,14 +64,14 @@ public enum L10n {
   }
   public enum Nighthawk {
     public enum About {
-      /// Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.
+      /// Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.
       /// 
-      /// As a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.
+      /// As a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.
       /// 
-      /// Zcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.
+      /// DarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.
       /// 
       /// Nighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided "as is", without warranty of any kind, express or implied.
-      public static let message = L10n.tr("Localizable", "nighthawk.about.message", fallback: "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.")
+      public static let message = L10n.tr("Localizable", "nighthawk.about.message", fallback: "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.")
       /// Nighthawk friends
       public static let nighthawkFriends = L10n.tr("Localizable", "nighthawk.about.nighthawkFriends", fallback: "Nighthawk friends")
       /// About
@@ -112,12 +112,12 @@ public enum L10n {
       public static let buttonNeutral = L10n.tr("Localizable", "nighthawk.autoshield.buttonNeutral", fallback: "Learn more")
       /// Great!
       public static let buttonPositive = L10n.tr("Localizable", "nighthawk.autoshield.buttonPositive", fallback: "Great!")
-      /// means any funds coming into your transparent address will automatically be moved to your shielded address.
-      public static let detail1 = L10n.tr("Localizable", "nighthawk.autoshield.detail1", fallback: "means any funds coming into your transparent address will automatically be moved to your shielded address.")
+      /// means any funds coming into your transparent address will automatically be moved to your private address.
+      public static let detail1 = L10n.tr("Localizable", "nighthawk.autoshield.detail1", fallback: "means any funds coming into your transparent address will automatically be moved to your private address.")
       /// We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.
       public static let detail2 = L10n.tr("Localizable", "nighthawk.autoshield.detail2", fallback: "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.")
-      /// Shielded-by-Default.
-      public static let shieldedByDefault = L10n.tr("Localizable", "nighthawk.autoshield.shieldedByDefault", fallback: "Shielded-by-Default.")
+      /// Private-by-Default.
+      public static let shieldedByDefault = L10n.tr("Localizable", "nighthawk.autoshield.shieldedByDefault", fallback: "Private-by-Default.")
       /// Shielding…
       public static let shielding = L10n.tr("Localizable", "nighthawk.autoshield.shielding", fallback: "Shielding…")
       /// Failed
@@ -168,8 +168,8 @@ public enum L10n {
       public static let birthdayHeight = L10n.tr("Localizable", "nighthawk.importWallet.birthdayHeight", fallback: "Birthday Height (optional)")
       /// Continue
       public static let `continue` = L10n.tr("Localizable", "nighthawk.importWallet.continue", fallback: "Continue")
-      /// Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
-      public static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
+      /// Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
+      public static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
       /// Error ⸱ This doesn't look like a valid birthday height
       public static let invalidBirthday = L10n.tr("Localizable", "nighthawk.importWallet.invalidBirthday", fallback: "Error ⸱ This doesn't look like a valid birthday height")
       /// Error ⸱ This doesn't look like a valid seed phrase
@@ -242,12 +242,12 @@ public enum L10n {
       public static let exportAppName = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAppName", fallback: "Nighthawk Wallet")
       /// Export as PDF
       public static let exportAsPdf = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAsPdf", fallback: "Export as PDF")
-      /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.
-      public static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.")
+      /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.
+      public static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.")
       /// Write it down on paper and store it somewhere safe.
       public static let instructions2 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions2", fallback: "Write it down on paper and store it somewhere safe.")
-      /// These are seed words used to restore your Zcash in Nighthawk Wallet:
-      public static let pdfHeader = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfHeader", fallback: "These are seed words used to restore your Zcash in Nighthawk Wallet:")
+      /// These are seed words used to restore your DarkFi in Nighthawk Wallet:
+      public static let pdfHeader = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfHeader", fallback: "These are seed words used to restore your DarkFi in Nighthawk Wallet:")
       /// Backup PDF generated at %@
       public static func pdfTimestamp(_ p1: Any) -> String {
         return L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.pdfTimestamp", String(describing: p1), fallback: "Backup PDF generated at %@")
@@ -592,8 +592,8 @@ public enum L10n {
       public static let notAvailable = L10n.tr("Localizable", "nighthawk.transactionDetails.notAvailable", fallback: "Transaction details are not available, please wait until scanning is finished")
       /// Recipient
       public static let recipient = L10n.tr("Localizable", "nighthawk.transactionDetails.recipient", fallback: "Recipient")
-      /// Shielded
-      public static let recipientShielded = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientShielded", fallback: "Shielded")
+      /// Private
+      public static let recipientShielded = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientShielded", fallback: "Private")
       /// Transparent
       public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Transparent")
       /// Reply-to address copied!
@@ -624,8 +624,8 @@ public enum L10n {
       }
     }
     public enum TransactionHistory {
-      /// Auto-shielded funds
-      public static let autoshieldedFunds = L10n.tr("Localizable", "nighthawk.transactionHistory.autoshieldedFunds", fallback: "Auto-shielded funds")
+      /// Auto-private funds
+      public static let autoshieldedFunds = L10n.tr("Localizable", "nighthawk.transactionHistory.autoshieldedFunds", fallback: "Auto-private funds")
       /// Transaction History
       public static let title = L10n.tr("Localizable", "nighthawk.transactionHistory.title", fallback: "Transaction History")
       /// %@ %@
@@ -638,14 +638,14 @@ public enum L10n {
       public static let receiveMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyDescription", fallback: "Display your QR code or copy your address.")
       /// Receive money
       public static let receiveMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.receiveMoneyTitle", fallback: "Receive money")
-      /// Send and receive Zcash
-      public static let sendAndReceiveZcash = L10n.tr("Localizable", "nighthawk.transferTab.sendAndReceiveZcash", fallback: "Send and receive Zcash")
+      /// Send and receive DarkFi
+      public static let sendAndReceiveDrk = L10n.tr("Localizable", "nighthawk.transferTab.sendAndReceiveDrk", fallback: "Send and receive DarkFi")
       /// Scan someone's QR code to send them money.
       public static let sendMoneyDescription = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyDescription", fallback: "Scan someone's QR code to send them money.")
       /// Send money
       public static let sendMoneyTitle = L10n.tr("Localizable", "nighthawk.transferTab.sendMoneyTitle", fallback: "Send money")
-      /// Securely buy Zcash through our partners.
-      public static let topUpWalletDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletDescription", fallback: "Securely buy Zcash through our partners.")
+      /// Securely buy DarkFi through our partners.
+      public static let topUpWalletDescription = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletDescription", fallback: "Securely buy DarkFi through our partners.")
       /// Top up your wallet
       public static let topUpWalletTitle = L10n.tr("Localizable", "nighthawk.transferTab.topUpWalletTitle", fallback: "Top up your wallet")
       public enum AddMemo {
@@ -695,8 +695,8 @@ public enum L10n {
         public static let pasteFromClipboard = L10n.tr("Localizable", "nighthawk.transferTab.recipient.pasteFromClipboard", fallback: "Paste from clipboard")
       }
       public enum Review {
-        /// Send Zcash
-        public static let send = L10n.tr("Localizable", "nighthawk.transferTab.review.send", fallback: "Send Zcash")
+        /// Send DarkFi
+        public static let send = L10n.tr("Localizable", "nighthawk.transferTab.review.send", fallback: "Send DarkFi")
         /// Review and send
         public static let title = L10n.tr("Localizable", "nighthawk.transferTab.review.title", fallback: "Review and send")
       }
@@ -730,8 +730,8 @@ public enum L10n {
         /// Top up wallet
         public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
         public enum Toast {
-          /// Not enough Zcash!
-          public static let notEnoughZcash = L10n.tr("Localizable", "nighthawk.transferTab.send.toast.notEnoughZcash", fallback: "Not enough Zcash!")
+          /// Not enough DarkFi!
+          public static let notEnoughDrk = L10n.tr("Localizable", "nighthawk.transferTab.send.toast.notEnoughDrk", fallback: "Not enough DarkFi!")
         }
       }
       public enum Sending {
@@ -778,8 +778,8 @@ public enum L10n {
     public enum WalletTab {
       /// Recent activity
       public static let recentActivity = L10n.tr("Localizable", "nighthawk.walletTab.recentActivity", fallback: "Recent activity")
-      /// Shielded balance
-      public static let shieldedBalance = L10n.tr("Localizable", "nighthawk.walletTab.shieldedBalance", fallback: "Shielded balance")
+      /// Private balance
+      public static let shieldedBalance = L10n.tr("Localizable", "nighthawk.walletTab.shieldedBalance", fallback: "Private balance")
       /// Shield now
       public static let shieldNow = L10n.tr("Localizable", "nighthawk.walletTab.shieldNow", fallback: "Shield now")
       /// Swipe left to show your balance
@@ -790,8 +790,8 @@ public enum L10n {
       public static let transparentBalance = L10n.tr("Localizable", "nighthawk.walletTab.transparentBalance", fallback: "Transparent balance")
       /// View transaction history
       public static let viewTransactionHistory = L10n.tr("Localizable", "nighthawk.walletTab.viewTransactionHistory", fallback: "View transaction history")
-      /// ZEC
-      public static let zec = L10n.tr("Localizable", "nighthawk.walletTab.zec", fallback: "ZEC")
+      /// DRK
+      public static let drk = L10n.tr("Localizable", "nighthawk.walletTab.drk", fallback: "DRK")
       public enum Addresses {
         /// Copied to clipboard!
         public static let copiedToClipboard = L10n.tr("Localizable", "nighthawk.walletTab.addresses.copiedToClipboard", fallback: "Copied to clipboard!")
@@ -799,14 +799,14 @@ public enum L10n {
         public static let copy = L10n.tr("Localizable", "nighthawk.walletTab.addresses.copy", fallback: "Copy")
         /// Loading…
         public static let loading = L10n.tr("Localizable", "nighthawk.walletTab.addresses.loading", fallback: "Loading…")
-        /// Legacy shielded address
-        public static let saplingAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.saplingAddress", fallback: "Legacy shielded address")
+        /// Legacy private address
+        public static let saplingAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.saplingAddress", fallback: "Legacy private address")
         /// See more
         public static let seeMore = L10n.tr("Localizable", "nighthawk.walletTab.addresses.seeMore", fallback: "See more")
         /// Top up your wallet
         public static let topUpYourWallet = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWallet", fallback: "Top up your wallet")
-        /// Buy or trade Zcash through our specially selected partners.
-        public static let topUpYourWalletDescription = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWalletDescription", fallback: "Buy or trade Zcash through our specially selected partners.")
+        /// Buy or trade DarkFi through our specially selected partners.
+        public static let topUpYourWalletDescription = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWalletDescription", fallback: "Buy or trade DarkFi through our specially selected partners.")
         /// Transparent address
         public static let transparentAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.transparentAddress", fallback: "Transparent address")
         /// Unified address
@@ -824,6 +824,20 @@ public enum L10n {
       public static let subtitle = L10n.tr("Localizable", "nighthawk.welcome.subtitle", fallback: "Get started")
       /// By using this app you accept our
       public static let terms1 = L10n.tr("Localizable", "nighthawk.welcome.terms1", fallback: "By using this app you accept our")
+      public enum Carousel {
+        /// Private by Default
+        public static let title1 = L10n.tr("Localizable", "nighthawk.welcome.carousel.title1", fallback: "Private by Default")
+        /// All transactions are fully private. No transparent addresses, no metadata leaks. Your financial life stays yours.
+        public static let body1 = L10n.tr("Localizable", "nighthawk.welcome.carousel.body1", fallback: "All transactions are fully private. No transparent addresses, no metadata leaks. Your financial life stays yours.")
+        /// Peer-to-Peer Network
+        public static let title2 = L10n.tr("Localizable", "nighthawk.welcome.carousel.title2", fallback: "Peer-to-Peer Network")
+        /// Connect directly to the DarkFi network via Tor. No intermediary servers. No endpoints to trust.
+        public static let body2 = L10n.tr("Localizable", "nighthawk.welcome.carousel.body2", fallback: "Connect directly to the DarkFi network via Tor. No intermediary servers. No endpoints to trust.")
+        /// Encrypted Chat
+        public static let title3 = L10n.tr("Localizable", "nighthawk.welcome.carousel.title3", fallback: "Encrypted Chat")
+        /// Send end-to-end encrypted messages via DarkIRC. Private communication built into your wallet.
+        public static let body3 = L10n.tr("Localizable", "nighthawk.welcome.carousel.body3", fallback: "Send end-to-end encrypted messages via DarkIRC. Private communication built into your wallet.")
+      }
       public enum Initialization {
         public enum Alert {
           public enum CantCreateNewWallet {

@@ -11,7 +11,7 @@ import Models
 import Utils
 
 public struct FiatPriceClient {
-    public var getZcashPrice: (NighthawkSetting.FiatCurrency) async throws -> Double?
+    public var getDrkPrice: (NighthawkSetting.FiatCurrency) async throws -> Double?
 }
 
 extension FiatPriceClient: DependencyKey {
@@ -24,7 +24,7 @@ extension FiatPriceClient: DependencyKey {
     }
     
     public static let liveValue = Self(
-        getZcashPrice: { currency in
+        getDrkPrice: { currency in
             guard currency != .off else { return nil }
                 
             let simplePriceUrl = URL.coinGeckoApi

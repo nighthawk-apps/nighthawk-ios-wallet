@@ -80,7 +80,7 @@ public struct LottieAnimation: UIViewRepresentable {
         }
     }
     
-    public final class AnimationViewProxy : UIView  {
+    public final class AnimationViewProxy: UIView {
         private let animationView = LottieAnimationView()
         var isAnimationPlaying: Bool {
             get {

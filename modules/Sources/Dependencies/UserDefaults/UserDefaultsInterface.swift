@@ -1,6 +1,6 @@
 //
 //  UserDefaultsInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 13.11.2022.
 //

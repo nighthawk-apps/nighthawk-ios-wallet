@@ -16,8 +16,7 @@ import SDKSynchronizer
 import UIComponents
 import UIKit
 import UserPreferencesStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
+import Utils
 
 @Reducer
 public struct TransactionDetail {
@@ -34,9 +33,12 @@ public struct TransactionDetail {
         public var latestMinedHeight: BlockHeight? = .zero
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
-        public var networkType: NetworkType
         public var latestFiatPrice: Double?
         public var isLoaded = false
+        /// Decrypted payment memo from Rust core (retrieved on appear)
+        public var decryptedMemo: String?
+        /// Recipient address from Rust core (retrieved on appear)
+        public var recipientAddress: String?
         
         public var address: String? { walletEvent.transaction.address }
         public var confirmations: BlockHeight { walletEvent.transaction.confirmationsWith(latestMinedHeight) }
@@ -45,16 +47,16 @@ public struct TransactionDetail {
             
             return Date(timeIntervalSince1970: timestamp)
         }
-        public var fee: Zatoshi { walletEvent.transaction.fee }
+        public var fee: DrkAmount { walletEvent.transaction.fee }
         public var id: String { walletEvent.id }
         public var isSending: Bool { walletEvent.transaction.isSending }
         public var memo: Memo? { walletEvent.transaction.textMemo }
         public var minedHeight: BlockHeight? { walletEvent.transaction.minedHeight }
         public var shielded: Bool { walletEvent.transaction.shielded }
         public var status: TransactionState.Status { walletEvent.transaction.status }
-        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
-        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
-        public var zecAmount: Zatoshi { walletEvent.transaction.zecAmount }
+        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: "testnet") }
+        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: "testnet") }
+        public var zecAmount: DrkAmount { walletEvent.transaction.zecAmount }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.fiatCurrency()
@@ -68,17 +70,15 @@ public struct TransactionDetail {
         }
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            return "DRK"
         }
                 
         public init(
             walletEvent: WalletEvent,
-            networkType: NetworkType,
+            networkType: String = "testnet",
             latestFiatPrice: Double?
         ) {
             self.walletEvent = walletEvent
-            self.networkType = networkType
             self.latestFiatPrice = latestFiatPrice
         }
     }
@@ -89,6 +89,8 @@ public struct TransactionDetail {
         case copyReplyTo
         case delegate(Delegate)
         case onAppear
+        case memoLoaded(String?)
+        case recipientLoaded(String?)
         case synchronizerStateChanged(SynchronizerState)
         case warnBeforeLeavingApp(URL?)
         
@@ -107,7 +109,6 @@ public struct TransactionDetail {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -127,9 +128,9 @@ public struct TransactionDetail {
                 return .none
             case .copyReplyTo:
                 if !state.isSending, let memo = state.memo?.toString(), !memo.isEmpty {
-                    let prefix = zcashSDKEnvironment.replyToPrefix
+                    let prefix = "Reply to:"
                     let components = memo.split(separator: prefix)
-                    if components.count == 2 && derivationTool.isZcashAddress(String(components[1]), state.networkType) {
+                    if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), "testnet") {
                         pasteboard.setString(String(components[1]).redacted)
                         state.toast = .replyToCopied
                     }
@@ -140,20 +141,38 @@ public struct TransactionDetail {
             case .onAppear:
                 state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced
                 state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
-                state.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
+                state.requiredTransactionConfirmations = 10
+                let txHash = state.id
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
-                    return .publisher {
-                        sdkSynchronizer.stateStream()
-                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                            .map(Action.synchronizerStateChanged)
-                    }
-                    .cancellable(id: CancelId.timer, cancelInFlight: true)
+                    return .merge(
+                        .publisher {
+                            sdkSynchronizer.stateStream()
+                                .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                                .map(Action.synchronizerStateChanged)
+                        }
+                        .cancellable(id: CancelId.timer, cancelInFlight: true),
+                        // Fetch memo and recipient from Rust FFI
+                        .run { send in
+                            let memo = try? await sdkSynchronizer.getTransactionMemo(txHash)
+                            await send(.memoLoaded(memo))
+                        },
+                        .run { send in
+                            let recipient = try? await sdkSynchronizer.getTransactionRecipient(txHash)
+                            await send(.recipientLoaded(recipient))
+                        }
+                    )
                 } else {
                     return .run { send in
                         await send(.delegate(.handleDiskFull))
                         await self.dismiss()
                     }
                 }
+            case let .memoLoaded(memo):
+                state.decryptedMemo = memo
+                return .none
+            case let .recipientLoaded(recipient):
+                state.recipientAddress = recipient
+                return .none
             case .synchronizerStateChanged(let latestState):
                 if latestState.syncStatus == .upToDate {
                     state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced

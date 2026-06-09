@@ -1,6 +1,6 @@
 //
 //  View+ColorScheme.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 3/17/23.
 //

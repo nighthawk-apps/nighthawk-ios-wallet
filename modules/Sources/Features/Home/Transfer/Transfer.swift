@@ -1,6 +1,6 @@
 //
 //  Transfer.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
@@ -9,17 +9,13 @@ import ComposableArchitecture
 import ProcessInfoClient
 import Receive
 import SendFlow
-import TopUp
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Transfer {
     @Reducer(state: .equatable, action: .equatable)
     public enum Destination {
         case receive(Receive)
-        case topUp(TopUp)
         case send(SendFlow)
     }
     
@@ -29,8 +25,7 @@ public struct Transfer {
         @Shared(.walletInfo) var walletInfo = Home.State.WalletInfo()
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            return "DRK"
         }
         
         public init () {}
@@ -42,7 +37,6 @@ public struct Transfer {
         case sendMoneyTapped
         case topUpWalletTapped
     }
-    
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.processInfo) var processInfo
@@ -65,17 +59,12 @@ public struct Transfer {
                     latestFiatPrice: state.walletInfo.latestFiatPrice,
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
-                sendState.spendableBalance = state.walletInfo.shieldedBalance
+                sendState.spendableBalance = state.walletInfo.balance
                 sendState.unifiedAddress = state.walletInfo.unifiedAddress
                 state.destination = .send(sendState)
                 return .none
             case .topUpWalletTapped:
-                state.destination = .topUp(
-                    .init(
-                        unifiedAddress: state.walletInfo.unifiedAddress,
-                        showCloseButton: processInfo.isiOSAppOnMac()
-                    )
-                )
+                // TODO: DarkFi: implement peer exchange / swap
                 return .none
             }
         }
@@ -86,4 +75,3 @@ public struct Transfer {
     
     public init() {}
 }
-

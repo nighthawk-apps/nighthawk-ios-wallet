@@ -12,7 +12,6 @@ import WalletStorage
 
 @Reducer
 public struct Migrate {
-    
     @ObservableState
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?

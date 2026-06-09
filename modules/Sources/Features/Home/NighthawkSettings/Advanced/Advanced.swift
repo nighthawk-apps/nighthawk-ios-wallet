@@ -13,7 +13,6 @@ import UIKit
 
 @Reducer
 public struct Advanced {
-    
     @ObservableState
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?

@@ -1,6 +1,6 @@
 //
 //  NighthawkLogo.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 3/22/23.
 //
@@ -22,10 +22,12 @@ public struct NighthawkLogo: View {
     
     public var body: some View {
         VStack {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbolPeach
+            Asset.Assets.Icons.Nighthawk.nighthawkSymbol
                 .image
+                .renderingMode(.template)
                 .resizable()
-                .frame(width: 35, height: 35)
+                .frame(width: 80, height: 80)
+                .foregroundColor(.white)
                 .padding(.bottom, spacing.rawValue)
             
             Text(L10n.Nighthawk.Splash.title)

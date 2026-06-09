@@ -8,7 +8,7 @@
 import Generated
 import Models
 import SwiftUI
-import ZcashLightClientKit
+import Utils
 
 public struct SeedView: View {
     let groups: [RecoveryPhrase.Group]
@@ -118,7 +118,7 @@ struct SeedBirthdayView: View {
     var body: some View {
         HStack(alignment: .lastTextBaseline) {
             Group {
-                Text(L10n.Nighthawk.RecoveryPhraseDisplay.birthday)
+                Text("Wallet Height")
                     .paragraphMedium(
                         color: forPdf
                         ? .black

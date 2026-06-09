@@ -1,33 +1,33 @@
 //
 //  WalletLogger.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 23.01.2023.
 //
 
 import Foundation
-import ZcashLightClientKit
-
-public var walletLogger: ZcashLightClientKit.Logger?
+import os
 
 public enum LoggerProxy {
+    private static let logger = os.Logger(subsystem: "com.nighthawkapps.wallet", category: "wallet")
+    
     public static func debug(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        walletLogger?.debug(message, file: file, function: function, line: line)
+        logger.debug("\(message)")
     }
     
     public static func info(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        walletLogger?.info(message, file: file, function: function, line: line)
+        logger.info("\(message)")
     }
     
     public static func event(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        walletLogger?.event(message, file: file, function: function, line: line)
+        logger.log("\(message)")
     }
     
     public static func warn(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        walletLogger?.warn(message, file: file, function: function, line: line)
+        logger.warning("\(message)")
     }
     
     public static func error(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        walletLogger?.error(message, file: file, function: function, line: line)
+        logger.error("\(message)")
     }
 }

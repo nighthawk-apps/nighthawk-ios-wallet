@@ -6,23 +6,23 @@
 //
 
 import ComposableArchitecture
+import Utils
 import Generated
-import ZcashLightClientKit
 
 extension AlertState where Action == AppReducer.Action.Alert {
-    public static func cantCreateNewWallet(_ error: ZcashError) -> AlertState {
+    public static func cantCreateNewWallet(_ error: DarkFiError) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.Welcome.Initialization.Alert.Failed.title)
         } message: {
-            TextState(L10n.Nighthawk.Welcome.Initialization.Alert.CantCreateNewWallet.message(error.message, error.code.rawValue))
+            TextState(L10n.Nighthawk.Welcome.Initialization.Alert.CantCreateNewWallet.message(error.message, 0))
         }
     }
     
-    public static func sdkInitFailed(_ error: ZcashError) -> AlertState {
+    public static func sdkInitFailed(_ error: DarkFiError) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.App.Launch.Alert.SdkInitFailed.title)
         } message: {
-            TextState(L10n.Nighthawk.App.Launch.Alert.Error.message(error.message, error.code.rawValue))
+            TextState(L10n.Nighthawk.App.Launch.Alert.Error.message(error.message, 0))
         }
     }
     

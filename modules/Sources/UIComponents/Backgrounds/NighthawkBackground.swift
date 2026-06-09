@@ -1,6 +1,6 @@
 //
 //  NighthawkBackground.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 3/22/23.
 //
@@ -8,13 +8,31 @@
 import Generated
 import SwiftUI
 
+private struct NighthawkSuppressNestedBackgroundKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+public extension EnvironmentValues {
+  /// When true, `applyNighthawkBackground()` is skipped so nested home tab
+  /// screens do not install full-screen backgrounds that block the tab bar.
+    var nighthawkSuppressNestedBackground: Bool {
+        get { self[NighthawkSuppressNestedBackgroundKey.self] }
+        set { self[NighthawkSuppressNestedBackgroundKey.self] = newValue }
+    }
+}
+
 public struct NighthawkBackgroundModifier: ViewModifier {
+    @Environment(\.nighthawkSuppressNestedBackground) private var suppressNestedBackground
+    
     public func body(content: Content) -> some View {
-        ZStack {
-            Asset.Colors.Nighthawk.darkNavy.color
-                .ignoresSafeArea()
-            
+        if suppressNestedBackground {
             content
+        } else {
+            ZStack {
+                Asset.Colors.Nighthawk.darkNavy.color
+                    .ignoresSafeArea(edges: [.top, .horizontal])
+                content
+            }
         }
     }
 }

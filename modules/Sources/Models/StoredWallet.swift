@@ -1,12 +1,11 @@
 //
 //  StoredWallet.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 13.05.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
 import MnemonicSwift
 import Utils
 

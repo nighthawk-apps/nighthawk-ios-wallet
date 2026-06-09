@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import FileManager
 import Foundation
-import ZcashLightClientKit
 
 extension URL {
     /// The `DatabaseFilesClient` API returns an instance of the URL or throws an error.
@@ -23,7 +22,7 @@ extension URL {
     
     public static let coinGeckoApi = URL(string: "https://api.coingecko.com/api/v3/")!
     
-    public static func latestEventsCache(for networkType: NetworkType) -> URL? {
+    public static func latestEventsCache(for networkType: String) -> URL? {
         @Dependency(\.fileManager) var fileManager
         return try? fileManager.url(
             .documentDirectory,
@@ -32,7 +31,7 @@ extension URL {
             true
         )
         .appendingPathComponent(
-            "\(networkType.chainName)-latest-wallet-events-cache.json",
+            "\(networkType)-latest-wallet-events-cache.json",
             isDirectory: false
         )
     }

@@ -1,6 +1,6 @@
 //
 //  NumberFormatterLiveKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 14.11.2022.
 //

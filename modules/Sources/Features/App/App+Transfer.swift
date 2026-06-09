@@ -25,14 +25,14 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: zcashSDKEnvironment.network.networkType,
+                                networkType: "testnet",
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
                     )
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

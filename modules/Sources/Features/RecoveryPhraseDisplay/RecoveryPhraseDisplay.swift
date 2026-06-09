@@ -1,6 +1,6 @@
 //
 //  RecoveryPhraseDisplay.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Matthew Watt on 9/11/23.
 //
@@ -11,9 +11,8 @@ import Foundation
 import MnemonicClient
 import Models
 import Pasteboard
+import Utils
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct RecoveryPhraseDisplay {
@@ -56,7 +55,6 @@ public struct RecoveryPhraseDisplay {
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
         
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -81,7 +79,7 @@ public struct RecoveryPhraseDisplay {
                     let storedWallet = try walletStorage.exportWallet()
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
                     state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
+                    state.birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
                     return .none
                 } catch {
                     return .none

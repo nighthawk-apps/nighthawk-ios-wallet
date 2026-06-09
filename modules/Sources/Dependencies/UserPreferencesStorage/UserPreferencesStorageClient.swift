@@ -1,6 +1,6 @@
 //
 //  UserPreferencesStorageInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Matthew Watt on 08/03/2023.
 //
@@ -46,6 +46,18 @@ public struct UserPreferencesStorageClient {
     public var customLightwalletdServer: () -> String?
     public var setCustomLightwalletdServer: (String?) -> Void
     
+    // Tor network
+    public var torForWalletEnabled: () -> Bool
+    public var setTorForWalletEnabled: (Bool) -> Void
+    public var torForChatEnabled: () -> Bool
+    public var setTorForChatEnabled: (Bool) -> Void
+    public var useEmbeddedTor: () -> Bool
+    public var setUseEmbeddedTor: (Bool) -> Void
+    public var torSocksHost: () -> String?
+    public var setTorSocksHost: (String) -> Void
+    public var torSocksPort: () -> String?
+    public var setTorSocksPort: (String) -> Void
+    
     public var removeAll: () -> Void
 }
 
@@ -75,6 +87,16 @@ extension UserPreferencesStorageClient: DependencyKey {
         setIsUsingCustomLightwalletd: UserPreferencesStorage.live.setIsUsingCustomLightwalletd(_:),
         customLightwalletdServer: { UserPreferencesStorage.live.customLightwalletdServer },
         setCustomLightwalletdServer: UserPreferencesStorage.live.setCustomLightwalletdServer(_:),
+        torForWalletEnabled: { UserPreferencesStorage.live.torForWalletEnabled },
+        setTorForWalletEnabled: UserPreferencesStorage.live.setTorForWalletEnabled(_:),
+        torForChatEnabled: { UserPreferencesStorage.live.torForChatEnabled },
+        setTorForChatEnabled: UserPreferencesStorage.live.setTorForChatEnabled(_:),
+        useEmbeddedTor: { UserPreferencesStorage.live.useEmbeddedTor },
+        setUseEmbeddedTor: UserPreferencesStorage.live.setUseEmbeddedTor(_:),
+        torSocksHost: { UserPreferencesStorage.live.torSocksHost },
+        setTorSocksHost: UserPreferencesStorage.live.setTorSocksHost(_:),
+        torSocksPort: { UserPreferencesStorage.live.torSocksPort },
+        setTorSocksPort: UserPreferencesStorage.live.setTorSocksPort(_:),
         removeAll: UserPreferencesStorage.live.removeAll
     )
 }

@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
-import MnemonicSwift
+import DarkfiCore
 
 public struct MnemonicClient {
     /// Random 24 words mnemonic phrase
@@ -25,28 +25,22 @@ public struct MnemonicClient {
 extension MnemonicClient: DependencyKey {
     public static let liveValue = Self(
         randomMnemonic: {
-            try Mnemonic.generateMnemonic(strength: 256)
+            generateDarkfiMnemonic().joined(separator: " ")
         },
         randomMnemonicWords: {
-            try Mnemonic.generateMnemonic(
-                strength: 256
-            ).components(separatedBy: " ")
+            generateDarkfiMnemonic()
         },
         toSeed: { mnemonic in
-            let data = try Mnemonic.deterministicSeedBytes(from: mnemonic)
-
-            return [UInt8](data)
+            // DarkFi uses the mnemonic phrase directly (not a derived seed).
+            // Encode the phrase as UTF-8 bytes so WalletHandleManager can
+            // reconstruct the word list from the stored wallet.
+            return Array(mnemonic.utf8)
         },
         asWords: { mnemonic in
             mnemonic.components(separatedBy: " ")
         },
         isValid: { mnemonic in
-            do {
-                try Mnemonic.validate(mnemonic: mnemonic)
-                return true
-            } catch {
-                return false
-            }
+            validateDarkfiMnemonic(phrase: mnemonic.components(separatedBy: " "))
         }
     )
 }

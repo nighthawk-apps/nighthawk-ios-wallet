@@ -78,3 +78,10 @@ GoogleService-info.plist
 lib
 *.a
 *.generated.swift
+
+# cargo and rust
+.cargo-home/
+rust/.cargo-home/
+rust/target/
+.cargo/
+rust/.cargo/

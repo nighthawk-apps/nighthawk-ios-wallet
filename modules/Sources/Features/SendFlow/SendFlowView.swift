@@ -8,6 +8,7 @@
 import AlertToast
 import ComposableArchitecture
 import Generated
+import SDKSynchronizer
 import SwiftUI
 import UIComponents
 
@@ -34,7 +35,13 @@ public struct SendFlowView: View {
                     )
                 )
                 .paragraphMedium()
-                .padding(.bottom, 40)
+                .padding(.bottom, store.availableTokens.count > 1 ? 16 : 40)
+                
+                // Token picker — only shown when wallet has multiple tokens
+                if store.availableTokens.count > 1 {
+                    tokenPicker
+                        .padding(.bottom, 24)
+                }
                 
                 amountToSend
                 
@@ -60,11 +67,11 @@ public struct SendFlowView: View {
             )
             .toast(
                 unwrapping: $store.toast,
-                case: /SendFlow.State.Toast.notEnoughZcash,
+                case: /SendFlow.State.Toast.notEnoughDrk,
                 alert: {
                     AlertToast(
                         type: .regular,
-                        title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughZcash
+                        title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughDrk
                     )
                 }
             )
@@ -155,5 +162,62 @@ private extension SendFlowView {
                 .padding(.bottom, 28)
             }
         }
+    }
+    
+    var tokenPicker: some View {
+        Menu {
+            // Native DRK option (nil tokenId)
+            Button {
+                store.send(.tokenSelected(nil))
+            } label: {
+                HStack {
+                    Text("DRK (native)")
+                    if store.selectedTokenId == nil {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+            
+            // Other tokens from wallet
+            ForEach(store.availableTokens, id: \.tokenId) { token in
+                Button {
+                    store.send(.tokenSelected(token.tokenId))
+                } label: {
+                    HStack {
+                        Text(token.displayLabel ?? token.tokenId.prefix(8) + "…")
+                        Spacer()
+                        Text(Self.formatAtomicBalance(token.balanceAtomic))
+                        if store.selectedTokenId == token.tokenId {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text("Token:")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                
+                Text(store.tokenName)
+                    .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
+                    .foregroundColor(.white)
+                
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.5))
+            )
+        }
+    }
+    
+    static func formatAtomicBalance(_ atomic: Int64) -> String {
+        let drk = Double(atomic) / 100_000_000.0
+        return String(format: "%.4f", drk)
     }
 }

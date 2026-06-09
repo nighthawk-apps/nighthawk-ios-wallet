@@ -1,6 +1,6 @@
 //
 //  Notifications.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/14/23.
 //
@@ -17,7 +17,6 @@ import Utils
 
 @Reducer
 public struct Notifications {
-    
     @ObservableState
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?

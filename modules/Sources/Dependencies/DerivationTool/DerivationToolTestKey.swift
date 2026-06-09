@@ -1,13 +1,12 @@
 //
 //  DerivationToolTestKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 12.11.2022.
 //
 
 import ComposableArchitecture
 import XCTestDynamicOverlay
-import ZcashLightClientKit
 import Utils
 
 extension DerivationToolClient: TestDependencyKey {
@@ -17,7 +16,7 @@ extension DerivationToolClient: TestDependencyKey {
         isUnifiedAddress: unimplemented("\(Self.self).isUnifiedAddress", placeholder: false),
         isSaplingAddress: unimplemented("\(Self.self).isSaplingAddress", placeholder: false),
         isTransparentAddress: unimplemented("\(Self.self).isTransparentAddress", placeholder: false),
-        isZcashAddress: unimplemented("\(Self.self).isZcashAddress", placeholder: false)
+        isDarkFiAddress: unimplemented("\(Self.self).isDarkFiAddress", placeholder: false)
     )
 }
 
@@ -28,6 +27,6 @@ extension DerivationToolClient {
         isUnifiedAddress: { _, _ in return false },
         isSaplingAddress: { _, _ in return false },
         isTransparentAddress: { _, _ in return false },
-        isZcashAddress: { _, _ in return false }
+        isDarkFiAddress: { _, _ in return false }
     )
 }

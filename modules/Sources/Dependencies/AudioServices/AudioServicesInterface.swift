@@ -1,6 +1,6 @@
 //
 //  AudioServicesInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 11.11.2022.
 //

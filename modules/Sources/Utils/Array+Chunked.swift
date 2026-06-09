@@ -1,6 +1,6 @@
 //
 //  Array+Chunked.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 12.05.2022.
 //

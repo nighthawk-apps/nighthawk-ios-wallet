@@ -1,12 +1,11 @@
 //
 //  URIParser.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 17.05.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
 import DerivationTool
 
 public struct QRCodeParseResult: Equatable {
@@ -26,19 +25,14 @@ public struct QRCodeParseResult: Equatable {
 }
 
 public struct URIParser {
-    func parseZaddrOrZIP321(from qrCode: String, network: NetworkType) -> QRCodeParseResult {
+    func parseZaddrOrZIP321(from qrCode: String, network: String) -> QRCodeParseResult {
         let stripped = qrCode.replacingOccurrences(of: " ", with: "")
         let nsRange = NSRange(location: 0, length: stripped.utf8.count)
         var amount: String?
         var zaddr: String?
         var memo: String?
         
-        let shieldedPrefix = switch network {
-        case .mainnet:
-            "zs"
-        case .testnet:
-            "ztestsapling"
-        }
+        let shieldedPrefix = network == "testnet" ? "zs" : "ztestsapling"
         
         guard
             let zaddrRegex = try? NSRegularExpression(pattern: "(\(shieldedPrefix)\\w{76})"),

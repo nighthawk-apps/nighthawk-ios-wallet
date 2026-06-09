@@ -175,5 +175,5 @@ All project resources should be placed in this folder. Images, fonts, generated 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
 [TCA]: <https://github.com/pointfreeco/swift-composable-architecture>
-[swiftlint]: <https://github.com/zcash/secant-ios-wallet#swiftlint>
-[here]:  <https://github.com/zcash/secant-ios-wallet/tree/main/xctemplates/TCA.xctemplate>
+[swiftlint]: <https://github.com/nighthawk-apps/nighthawk-ios-wallet#swiftlint>
+[here]:  <https://github.com/nighthawk-apps/nighthawk-ios-wallet/tree/main/xctemplates/TCA.xctemplate>

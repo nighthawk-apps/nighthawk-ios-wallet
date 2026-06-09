@@ -14,8 +14,6 @@ import UIComponents
 import UNSClient
 import UserPreferencesStorage
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Recipient {
@@ -23,8 +21,8 @@ public struct Recipient {
     public struct State: Equatable {
         public var recipient = ""
         public var hasEnteredRecipient: Bool { recipient.isEmpty == false }
-        public var pasteboardContainsZAddress = false
-        public var canPasteAddress: Bool { pasteboardContainsZAddress && !hasEnteredRecipient }
+        public var pasteboardContainsDarkFiAddress = false
+        public var canPasteAddress: Bool { pasteboardContainsDarkFiAddress && !hasEnteredRecipient }
         public var specificValidationError: NighthawkTextFieldValidationState?
         public var isRecipientValid = false
         public var isResolvingUNS = false
@@ -56,13 +54,11 @@ public struct Recipient {
         }
     }
     
-    
     @Dependency(\.continuousClock) var clock
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.unsClient) var unsClient
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -78,25 +74,20 @@ public struct Recipient {
                 return .none
             case .onAppear:
                 if let contents = pasteboard.getString() {
-                    state.pasteboardContainsZAddress = derivationTool.isZcashAddress(contents.data, zcashSDKEnvironment.network.networkType)
+                    state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(contents.data, "testnet")
                 }
                 return .none
             case .pasteFromClipboardTapped:
                 guard let contents = pasteboard.getString(),
-                      derivationTool.isZcashAddress(contents.data, zcashSDKEnvironment.network.networkType) else { return .none }
+                      derivationTool.isDarkFiAddress(contents.data, "testnet") else { return .none }
                 return .send(.recipientInputChanged(contents.data))
             case let .recipientInputChanged(recipient):
                 state.recipient = recipient
-                if let _ = try? TexAddress(encoding: recipient, network: zcashSDKEnvironment.network.networkType) {
-                    // TEX addresses unsupported
-                    state.isRecipientValid = false
-                    state.specificValidationError = .invalid(error: L10n.Nighthawk.TransferTab.Recipient.currentlyUnsupported)
-                    return .none
-                }
+                // DarkFi: no TEX address concept — all addresses are private
                 
-                let validZcash = derivationTool.isZcashAddress(recipient, zcashSDKEnvironment.network.networkType)
-                state.isRecipientValid = validZcash
-                if !validZcash && !recipient.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
+                let validDarkFi = derivationTool.isDarkFiAddress(recipient, "testnet")
+                state.isRecipientValid = validDarkFi
+                if !validDarkFi && !recipient.isEmpty && userStoredPreferences.isUnstoppableDomainsEnabled() {
                     return .run { send in
                         enum CancelID { case resolveUNSDebounce }
                         try await withTaskCancellation(id: CancelID.resolveUNSDebounce, cancelInFlight: true) {
@@ -121,7 +112,7 @@ public struct Recipient {
                 return .none
             case let .resolveUNSSuccess(resolved):
                 state.recipient = resolved
-                state.isRecipientValid = derivationTool.isZcashAddress(resolved, zcashSDKEnvironment.network.networkType)
+                state.isRecipientValid = derivationTool.isDarkFiAddress(resolved, "testnet")
                 state.isResolvingUNS = false
                 return .none
             case .scanQRCodeTapped:

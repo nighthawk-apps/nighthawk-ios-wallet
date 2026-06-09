@@ -1,12 +1,11 @@
 //
 //  Home.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
 
 import Addresses
-import Autoshield
 import ComposableArchitecture
 import DataManager
 import DiskSpaceChecker
@@ -15,15 +14,13 @@ import FileManager
 import Foundation
 import Models
 import ProcessInfoClient
-import UserPreferencesStorage
 import SDKSynchronizer
 import UIKit
+import UserPreferencesStorage
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
-public struct Home {    
+public struct Home {
     enum CancelId { case timer }
     
     @ObservableState
@@ -31,6 +28,7 @@ public struct Home {
         public enum Tab: Equatable, Hashable {
             case wallet
             case transfer
+            case chat
             case settings
         }
         
@@ -42,10 +40,9 @@ public struct Home {
             public var requiredTransactionConfirmations = 0
             public var latestMinedHeight: BlockHeight?
             public var latestFiatPrice: Double?
-            public var shieldedBalance: Zatoshi = .init()
-            public var transparentBalance: Zatoshi = .init()
-            public var totalBalance: Zatoshi = .init()
-            public var expectingZatoshi: Zatoshi = .zero
+            public var balance: DrkAmount = .init()
+            public var totalBalance: DrkAmount = .init()
+            public var expectingAmount: DrkAmount = .zero
             public var synchronizerState: SynchronizerState = .zero
             public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
             public var unifiedAddress: UnifiedAddress?
@@ -76,8 +73,7 @@ public struct Home {
         }
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            return "DRK"
         }
         
         // Shared state
@@ -86,6 +82,7 @@ public struct Home {
         // Tab states
         public var wallet: Wallet.State = .init()
         public var transfer: Transfer.State = .init()
+        public var chat: Chat.State = .init()
         public var settings: NighthawkSettings.State = .init()
         
         public init(unifiedAddress: UnifiedAddress?) {
@@ -97,8 +94,7 @@ public struct Home {
         
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
             @Dependency(\.dataManager) var dataManager
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            if let latestEventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType),
+            if let latestEventsCache = URL.latestEventsCache(for: "testnet"),
                 let cachedData = try? dataManager.load(latestEventsCache),
                 let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
                 return IdentifiedArray(uniqueElements: events)
@@ -112,16 +108,18 @@ public struct Home {
         case alert(PresentationAction<Alert>)
         case binding(BindingAction<State>)
         case cancelSynchronizerUpdates
-        case cantStartSync(ZcashError)
+        case cantStartSync(DarkFiError)
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case fetchLatestFiatPrice
         case latestFiatResponse(Double?)
         case listenForSynchronizerUpdates
         case onAppear
-        case rescanDone(ZcashError? = nil)
+        case rescanDone(DarkFiError? = nil)
+        case chat(Chat.Action)
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
+        case tabSelected(State.Tab)
         case transfer(Transfer.Action)
         case updateWalletEvents([WalletEvent])
         case wallet(Wallet.Action)
@@ -137,7 +135,6 @@ public struct Home {
     @Reducer(state: .equatable, action: .equatable)
     public enum Destination {
         case addresses(Addresses)
-        case autoshield(Autoshield)
     }
     
     @Dependency(\.continuousClock) var clock
@@ -149,7 +146,6 @@ public struct Home {
     @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -160,6 +156,10 @@ public struct Home {
         
         Scope(state: \.transfer, action: \.transfer) {
             Transfer()
+        }
+        
+        Scope(state: \.chat, action: \.chat) {
+            Chat()
         }
         
         Scope(state: \.settings, action: \.settings) {
@@ -174,17 +174,19 @@ public struct Home {
                 state.alert = .cantStartSync(error)
                 return .none
             case .fetchLatestFiatPrice:
-                guard state.walletInfo.latestFiatPrice == nil, state.preferredCurrency != .off else { return .none }
+                // DarkFi has no fiat exchange API
+                return .none
+                /* guard state.walletInfo.latestFiatPrice == nil, state.preferredCurrency != .off else { return .none }
                 return .run { [preferredCurrency = state.preferredCurrency] send in
-                    let price = try? await fiatPriceClient.getZcashPrice(preferredCurrency)
+                    let price = try? await fiatPriceClient.getDrkPrice(preferredCurrency)
                     await send(.latestFiatResponse(price))
                     await send(.delegate(.setLatestFiatPrice(price)))
-                }
+                } */
             case let .latestFiatResponse(price):
                 state.walletInfo.latestFiatPrice = price
                 return .none
             case .onAppear:
-                state.walletInfo.requiredTransactionConfirmations = zcashSDKEnvironment.requiredTransactionConfirmations
+                state.walletInfo.requiredTransactionConfirmations = 11
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 return .concatenate(
                     .send(.fetchLatestFiatPrice),
@@ -193,10 +195,10 @@ public struct Home {
             case let .rescanDone(error):
                 userStoredPreferences.setIsFirstSync(true)
                 if let error {
-                    state.alert = .rescanFailed(error.toZcashError())
+                    state.alert = .rescanFailed(error.toDarkFiError())
                     return .none
                 } else {
-                    if let eventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
+                    if let eventsCache = URL.latestEventsCache(for: "testnet") {
                         try? fileManager.removeItem(eventsCache)
                     }
                     return .run { send in
@@ -205,7 +207,7 @@ public struct Home {
                             await send(.cancelSynchronizerUpdates)
                             await send(.listenForSynchronizerUpdates)
                         } catch {
-                            await send(.cantStartSync(error.toZcashError()))
+                            await send(.cantStartSync(error.toDarkFiError()))
                         }
                     }
                 }
@@ -228,58 +230,46 @@ public struct Home {
                 }
                 state.walletInfo.synchronizerState = latestState
                 state.walletInfo.synchronizerStatusSnapshot = snapshot
-                let spendableSapling = latestState.accountBalance?.saplingBalance.spendableValue ?? .zero
-                let spendableOrchard = latestState.accountBalance?.orchardBalance.spendableValue ?? .zero
-                let transparentBalance = latestState.accountBalance?.unshielded ?? .zero
-                state.walletInfo.shieldedBalance = spendableSapling + spendableOrchard
-                state.walletInfo.transparentBalance = transparentBalance
-                let totalSapling = latestState.accountBalance?.saplingBalance.total() ?? .zero
-                let totalOrchard = latestState.accountBalance?.orchardBalance.total() ?? .zero
-                state.walletInfo.totalBalance = totalSapling + totalOrchard + transparentBalance
+                let balance = latestState.confirmedBalance
+                state.walletInfo.balance = balance
+                state.walletInfo.totalBalance = balance
                 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
                     state.walletInfo.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                     
                     // Detect if there are any expected funds
-                    let availableBalance = state.walletInfo.shieldedBalance + state.walletInfo.transparentBalance
-                    if state.walletInfo.totalBalance != availableBalance && (state.walletInfo.totalBalance - availableBalance) != state.walletInfo.expectingZatoshi {
-                        state.walletInfo.expectingZatoshi = state.walletInfo.totalBalance - availableBalance
+                    let availableBalance = state.walletInfo.balance
+                    if state.walletInfo.totalBalance != availableBalance && (state.walletInfo.totalBalance - availableBalance) != state.walletInfo.expectingAmount {
+                        state.walletInfo.expectingAmount = state.walletInfo.totalBalance - availableBalance
                         state.toast = .expectingFunds
-                    }
-                    
-                    // Show autoshield, if needed
-                    if !userStoredPreferences.hasShownAutoshielding() && state.walletInfo.transparentBalance >= .autoshieldingThreshold {
-                        userStoredPreferences.setHasShownAutoshielding(true)
-                        state.destination = .autoshield(.init())
                     }
                     
                     return .run { send in
                         // Re-fetch the UA, as sometimes it is unavailable when synchronizer first starts
-                        let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
+                        let ua = try? await sdkSynchronizer.getAddress()
                         await send(.delegate(.unifiedAddressResponse(ua)))
                         
                         // Populate wallet events
-                        if let events = try? await sdkSynchronizer.getAllTransactions() {
-                            let isBandit = events.contains(
-                                where: { event in
-                                    event.transaction.address == zcashSDKEnvironment.banditAddress &&
-                                    event.transaction.zecAmount >= zcashSDKEnvironment.banditAmount
-                                }
-                            )
-                            userStoredPreferences.setIsBandit(isBandit)
+                        if let overviews = try? await sdkSynchronizer.getAllTransactions() {
+                            let events = overviews.map { overview in
+                                WalletEvent(transaction: TransactionState(from: overview))
+                            }
                             await send(.updateWalletEvents(events))
                         }
                     }
                 }
                 
                 return .none
+            case let .tabSelected(tab):
+                state.selectedTab = tab
+                return .none
             case let .updateWalletEvents(walletEvents):
                 let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
                 
                 // Cache two latest events
                 let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
-                if let cache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
+                if let cache = URL.latestEventsCache(for: "testnet") {
                     let latest = IdentifiedArray(events.prefix(2)).elements
                     if let data = try? JSONEncoder().encode(latest) {
                         try? dataManager.save(data, cache)
@@ -288,7 +278,7 @@ public struct Home {
                 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .alert, .binding, .delegate, .destination, .settings, .transfer, .wallet:
+            case .alert, .binding, .chat, .delegate, .destination, .settings, .transfer, .wallet:
                 return .none
             }
         }
@@ -323,6 +313,7 @@ extension Home {
                  .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
+                 .chat,
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
@@ -332,6 +323,7 @@ extension Home {
                  .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
+                 .tabSelected,
                  .transfer,
                  .updateWalletEvents,
                  .wallet:
@@ -342,7 +334,7 @@ extension Home {
 }
 
 // MARK: - Shared state
-extension PersistenceReaderKey where Self == InMemoryKey<Home.State.WalletInfo> {
+extension SharedKey where Self == InMemoryKey<Home.State.WalletInfo> {
     public static var walletInfo: Self {
         inMemory(String(describing: Home.State.WalletInfo.self))
     }

@@ -1,6 +1,6 @@
 //
 //  TransactionRowView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/18/23.
 //
@@ -9,7 +9,6 @@ import Generated
 import Models
 import SwiftUI
 import Utils
-import ZcashLightClientKit
 
 public struct TransactionRowView: View {
     let transaction: TransactionState

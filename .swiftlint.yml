@@ -2,12 +2,12 @@
 # https://github.com/raywenderlich/swift-style-guide
 
 included:
-  - secant/
+  - modules/Sources/
+  - stealth/
 
 excluded:
   - xctemplates
-  - secantTests
-  - secantUITests
+  - stealthTests
 
 disabled_rules:
   - notification_center_detachment

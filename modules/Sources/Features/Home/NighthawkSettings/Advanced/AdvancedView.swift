@@ -33,7 +33,6 @@ public struct AdvancedView: View {
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
                 
-                
                 RadioSelectionList(
                     options: NighthawkSetting.ScreenMode.allCases,
                     selection: $store.selectedScreenMode
@@ -88,7 +87,7 @@ public struct AdvancedView: View {
 
 // MARK: - Subviews
 private extension AdvancedView {
-    @MainActor 
+    @MainActor
     @ViewBuilder
     var banditSettings: some View {
         if store.showBanditSettings {

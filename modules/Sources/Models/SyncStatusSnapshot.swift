@@ -1,13 +1,13 @@
 //
 //  SyncStatusSnapshot.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 07.07.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
 import Generated
+import Utils
 
 public struct SyncStatusSnapshot: Equatable {
     public let message: String

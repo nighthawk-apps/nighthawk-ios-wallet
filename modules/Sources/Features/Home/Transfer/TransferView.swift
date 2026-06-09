@@ -1,6 +1,6 @@
 //
 //  TransferView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew watt on 5/5/23.
 //
@@ -10,7 +10,7 @@ import Generated
 import Receive
 import SendFlow
 import SwiftUI
-import TopUp
+
 import UIComponents
 
 struct TransferView: View {
@@ -33,14 +33,7 @@ struct TransferView: View {
         ) { store in
             ReceiveView(store: store)
         }
-        .sheet(
-            item: $store.scope(
-                state: \.destination?.topUp,
-                action: \.destination.topUp
-            )
-        ) { store in
-            TopUpView(store: store)
-        }
+
         .sheet(
             item: $store.scope(
                 state: \.destination?.send,
@@ -59,7 +52,7 @@ private extension TransferView {
             .padding(.vertical, 40)
         
         HStack {
-            Text(L10n.Nighthawk.TransferTab.sendAndReceiveZcash)
+            Text(L10n.Nighthawk.TransferTab.sendAndReceiveDrk)
                 .paragraphMedium()
             Spacer()
         }

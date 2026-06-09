@@ -8,9 +8,9 @@
 import Generated
 import SwiftUI
 
-public protocol NHPage: Hashable, CaseIterable where AllCases == Array<Self> {}
+public protocol NHPage: Hashable, CaseIterable where AllCases == [Self] {}
 
-public struct NHPageIndicator<Page: NHPage>: View where Page.AllCases == Array<Page> {
+public struct NHPageIndicator<Page: NHPage>: View where Page.AllCases == [Page] {
     let selection: Binding<Page>
     
     public init(selection: Binding<Page>) {

@@ -4,7 +4,6 @@ import Generated
 import Models
 import SwiftUI
 import UIComponents
-import ZcashLightClientKit
 
 public struct TransactionDetailView: View {
     @Bindable var store: StoreOf<TransactionDetail>

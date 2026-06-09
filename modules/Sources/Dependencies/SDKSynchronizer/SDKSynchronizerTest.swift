@@ -1,209 +1,176 @@
 //
 //  SDKSynchronizerTest.swift
-//  secant-testnet
+//  stealth
 //
-//  Created by Lukáš Korba on 15.11.2022.
+//  Test/preview stubs for SDKSynchronizerClient.
 //
 
 import Combine
 import ComposableArchitecture
 import Foundation
-import ZcashLightClientKit
-import Models
 import Utils
 
 extension SDKSynchronizerClient: TestDependencyKey {
-    public static let testValue = Self(
-        stateStream: unimplemented("\(Self.self).stateStream", placeholder: Empty().eraseToAnyPublisher()),
-        eventStream: unimplemented("\(Self.self).eventStream", placeholder: Empty().eraseToAnyPublisher()),
+    public static let previewValue: SDKSynchronizerClient = Self.mock()
+
+    public static let testValue: SDKSynchronizerClient = Self(
+        stateStream: unimplemented("\(Self.self).stateStream"),
         latestState: unimplemented("\(Self.self).latestState", placeholder: .zero),
         prepareWith: unimplemented("\(Self.self).prepareWith"),
         start: unimplemented("\(Self.self).start"),
         stop: unimplemented("\(Self.self).stop"),
-        isSyncing: unimplemented("\(Self.self).isSyncing", placeholder: false),
-        isInitialized: unimplemented("\(Self.self).isInitialized", placeholder: false),
-        rewind: unimplemented("\(Self.self).rewind", placeholder: Fail(error: "Error").eraseToAnyPublisher()),
-        getAllTransactions: unimplemented("\(Self.self).getAllTransactions", placeholder: []),
-        getUnifiedAddress: unimplemented("\(Self.self).getUnifiedAddress", placeholder: nil),
-        getTransparentAddress: unimplemented("\(Self.self).getTransparentAddress", placeholder: nil),
-        getSaplingAddress: unimplemented("\(Self.self).getSaplingAddress", placeholder: nil),
-        sendTransaction: unimplemented("\(Self.self).sendTransaction", placeholder: .placeholder()),
-        shieldFunds: unimplemented("\(Self.self).shieldFunds", placeholder: .placeholder()),
-        wipe: unimplemented("\(Self.self).wipe", placeholder: Empty().eraseToAnyPublisher()),
-        switchToEndpoint: unimplemented("\(Self.self).switchToEndpoint"),
-        proposeTransfer: unimplemented("\(Self.self).proposeTransfer", placeholder: .testOnlyFakeProposal(totalFee: 0)),
-        createProposedTransactions: unimplemented("\(Self.self).createProposedTransactions", placeholder: .success),
-        proposeShielding: unimplemented("\(Self.self).proposeShielding", placeholder: nil)
+        getConfirmedBalance: unimplemented("\(Self.self).getConfirmedBalance", placeholder: DrkAmount(0)),
+        getUnifiedAddress: unimplemented("\(Self.self).getUnifiedAddress"),
+        getAddress: unimplemented("\(Self.self).getAddress"),
+        generateNewAddress: unimplemented("\(Self.self).generateNewAddress"),
+        getAllTransactions: unimplemented("\(Self.self).getAllTransactions"),
+        proposeTransfer: unimplemented("\(Self.self).proposeTransfer"),
+        estimateFee: unimplemented("\(Self.self).estimateFee", placeholder: DrkAmount(10_000)),
+        sendTransaction: unimplemented("\(Self.self).sendTransaction"),
+        getTransactionMemo: unimplemented("\(Self.self).getTransactionMemo"),
+        getTransactionRecipient: unimplemented("\(Self.self).getTransactionRecipient"),
+        listDaos: unimplemented("\(Self.self).listDaos"),
+        listProposals: unimplemented("\(Self.self).listProposals"),
+        getProposal: unimplemented("\(Self.self).getProposal"),
+        wipe: unimplemented("\(Self.self).wipe"),
+        rewind: unimplemented("\(Self.self).rewind"),
+        listTokenBalances: unimplemented("\(Self.self).listTokenBalances")
     )
-}
 
-extension SDKSynchronizerClient {
-    public static let noOp = Self(
+    /// Test/preview client that does not emit synchronizer stream updates.
+    public static let inert = SDKSynchronizerClient(
         stateStream: { Empty().eraseToAnyPublisher() },
-        eventStream: { Empty().eraseToAnyPublisher() },
         latestState: { .zero },
         prepareWith: { _, _, _ in },
         start: { _ in },
         stop: { },
-        isSyncing: { false },
-        isInitialized: { false },
-        rewind: { _ in return Empty<Void, Error>().eraseToAnyPublisher() },
+        getConfirmedBalance: { DrkAmount(0) },
+        getUnifiedAddress: { _ in nil },
+        getAddress: { nil },
+        generateNewAddress: { "" },
         getAllTransactions: { [] },
-        getUnifiedAddress: { _ in return nil },
-        getTransparentAddress: { _ in return nil },
-        getSaplingAddress: { _ in return nil },
-        sendTransaction: { _, _, _, _ in return .placeholder() },
-        shieldFunds: { _, _, _ in return .placeholder() },
-        wipe: { Empty<Void, Error>().eraseToAnyPublisher() },
-        switchToEndpoint: { _ in },
-        proposeTransfer: { _, _, _, _ in .testOnlyFakeProposal(totalFee: 0) },
-        createProposedTransactions: { _, _ in .success },
-        proposeShielding: { _, _, _, _ in nil }
+        proposeTransfer: { _, _, _, _ in Proposal(estimatedFee: 10_000) },
+        estimateFee: { _, _ in 10_000 },
+        sendTransaction: { _, _, _, _ in DarkfiTransactionOverview.mocks[0] },
+        getTransactionMemo: { _ in nil },
+        getTransactionRecipient: { _ in nil },
+        listDaos: { [] },
+        listProposals: { _ in [] },
+        getProposal: { _ in nil },
+        wipe: { },
+        rewind: {
+            Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+        },
+        listTokenBalances: { [] }
     )
 
-    public static let mock = Self.mocked()
-}
-
-extension SDKSynchronizerClient {
-    public static func mocked(
-        stateStream: @escaping () -> AnyPublisher<SynchronizerState, Never> = { Just(.zero).eraseToAnyPublisher() },
-        eventStream: @escaping () -> AnyPublisher<SynchronizerEvent, Never> = { Empty().eraseToAnyPublisher() },
-        latestState: @escaping () -> SynchronizerState = { .zero },
-        latestScannedHeight: @escaping () -> BlockHeight = { 0 },
-        prepareWith: @escaping ([UInt8], BlockHeight, WalletInitMode) throws -> Void = { _, _, _ in },
-        start: @escaping (_ retry: Bool) throws -> Void = { _ in },
-        stop: @escaping () -> Void = { },
-        isSyncing: @escaping () -> Bool = { false },
-        isInitialized: @escaping () -> Bool = { false },
-        rewind: @escaping (RewindPolicy) -> AnyPublisher<Void, Error> = { _ in return Empty<Void, Error>().eraseToAnyPublisher() },
-        getAllTransactions: @escaping () -> [WalletEvent] = {
-            let mockedCleared: [TransactionStateMockHelper] = [
-                TransactionStateMockHelper(date: 1651039202, amount: Zatoshi(1), status: .paid(success: false), uuid: "aa11"),
-                TransactionStateMockHelper(date: 1651039101, amount: Zatoshi(2), uuid: "bb22"),
-                TransactionStateMockHelper(date: 1651039000, amount: Zatoshi(3), status: .paid(success: true), uuid: "cc33"),
-                TransactionStateMockHelper(date: 1651039505, amount: Zatoshi(4), uuid: "dd44"),
-                TransactionStateMockHelper(date: 1651039404, amount: Zatoshi(5), uuid: "ee55")
-            ]
-
-            var clearedTransactions = mockedCleared
-                .map {
-                    let transaction = TransactionState.placeholder(
-                        amount: $0.amount,
-                        fee: Zatoshi(10),
-                        shielded: $0.shielded,
-                        status: $0.status,
-                        timestamp: $0.date,
-                        uuid: $0.uuid
-                    )
-                    return WalletEvent(transaction: transaction)
-                }
-        
-            let mockedPending: [TransactionStateMockHelper] = [
-                TransactionStateMockHelper(
-                    date: 1651039606,
-                    amount: Zatoshi(6),
-                    status: .paid(success: false),
-                    uuid: "ff66"
-                ),
-                TransactionStateMockHelper(date: 1651039303, amount: Zatoshi(7), uuid: "gg77"),
-                TransactionStateMockHelper(date: 1651039707, amount: Zatoshi(8), status: .paid(success: true), uuid: "hh88"),
-                TransactionStateMockHelper(date: 1651039808, amount: Zatoshi(9), uuid: "ii99")
-            ]
-
-            let pendingTransactions = mockedPending
-                .map {
-                    let transaction = TransactionState.placeholder(
-                        amount: $0.amount,
-                        fee: Zatoshi(10),
-                        shielded: $0.shielded,
-                        status: $0.amount.amount > 5 ? .sending : $0.status,
-                        timestamp: $0.date,
-                        uuid: $0.uuid
-                    )
-                    return WalletEvent(transaction: transaction)
-                }
-            
-            clearedTransactions.append(contentsOf: pendingTransactions)
-
-            return clearedTransactions
-        },
-        getUnifiedAddress: @escaping (_ account: Int) -> UnifiedAddress? = { _ in
-            // swiftlint:disable force_try
-            try! UnifiedAddress(
-                encoding: """
-                utest1zkkkjfxkamagznjr6ayemffj2d2gacdwpzcyw669pvg06xevzqslpmm27zjsctlkstl2vsw62xrjktmzqcu4yu9zdhdxqz3kafa4j2q85y6mv74rzjcgjg8c0ytrg7d\
-                wyzwtgnuc76h
-                """,
-                network: .testnet
-            )
-        },
-        getTransparentAddress: @escaping (_ account: Int) -> TransparentAddress? = { _ in return nil },
-        getSaplingAddress: @escaping (_ accountIndex: Int) async -> SaplingAddress? = { _ in
-            // swiftlint:disable:next force_try
-            try! SaplingAddress(
-                encoding: "ztestsapling1edm52k336nk70gxqxedd89slrrf5xwnnp5rt6gqnk0tgw4mynv6fcx42ym6x27yac5amvfvwypz",
-                network: .testnet
-            )
-        },
-        sendTransaction:
-        @escaping (UnifiedSpendingKey, Zatoshi, Recipient, Memo?) async throws -> TransactionState = { _, _, _, memo in
-            var memos: [Memo]? = []
-            if let memo { memos?.append(memo) }
-
-            return TransactionState(
-                expiryHeight: 40,
-                memos: memos,
-                minedHeight: 50,
-                shielded: true,
-                zAddress: "tteafadlamnelkqe",
-                fee: Zatoshi(10),
-                id: "id",
-                status: .paid(success: true),
-                timestamp: 1234567,
-                zecAmount: Zatoshi(10)
-            )
-        },
-        shieldFunds: @escaping (UnifiedSpendingKey, Memo, Zatoshi) async throws -> TransactionState = { _, memo, _  in
-            return TransactionState(
-                expiryHeight: 40,
-                memos: [memo],
-                minedHeight: 50,
-                shielded: true,
-                zAddress: "tteafadlamnelkqe",
-                fee: Zatoshi(10),
-                id: "id",
-                status: .paid(success: true),
-                timestamp: 1234567,
-                zecAmount: Zatoshi(10)
-            )
-        },
-        wipe: @escaping () -> AnyPublisher<Void, Error>? = { Fail(error: "Error").eraseToAnyPublisher() },
-        switchToEndpoint: @escaping (LightWalletEndpoint) async throws -> Void = { _ in },
-        proposeTransfer: @escaping (Int, Recipient, Zatoshi, Memo?) async throws -> Proposal = { _, _, _, _ in .testOnlyFakeProposal(totalFee: 0) },
-        createProposedTransactions: @escaping (Proposal, UnifiedSpendingKey) async throws -> CreateProposedTransactionsResult = { _, _ in .success },
-        proposeShielding: @escaping (Int, Zatoshi, Memo, TransparentAddress?) async throws -> Proposal? = { _, _, _, _ in nil }
+    /// Preview/mock value with sample data
+    public static func mock(
+        balance: DrkAmount = 1_2345_0000, // 1.2345 DRK
+        transactions: [DarkfiTransactionOverview] = DarkfiTransactionOverview.mocks
     ) -> SDKSynchronizerClient {
-        SDKSynchronizerClient(
-            stateStream: stateStream,
-            eventStream: eventStream,
-            latestState: latestState,
-            prepareWith: prepareWith,
-            start: start,
-            stop: stop,
-            isSyncing: isSyncing,
-            isInitialized: isInitialized,
-            rewind: rewind,
-            getAllTransactions: getAllTransactions,
-            getUnifiedAddress: getUnifiedAddress,
-            getTransparentAddress: getTransparentAddress,
-            getSaplingAddress: getSaplingAddress,
-            sendTransaction: sendTransaction,
-            shieldFunds: shieldFunds,
-            wipe: wipe,
-            switchToEndpoint: switchToEndpoint,
-            proposeTransfer: proposeTransfer,
-            createProposedTransactions: createProposedTransactions,
-            proposeShielding: proposeShielding
+        Self(
+            stateStream: {
+                Just(SynchronizerState(
+                    syncStatus: .synced,
+                    confirmedBalance: balance,
+                    latestBlockHeight: 100_000
+                ))
+                .eraseToAnyPublisher()
+            },
+            latestState: {
+                SynchronizerState(
+                    syncStatus: .synced,
+                    confirmedBalance: balance,
+                    latestBlockHeight: 100_000
+                )
+            },
+            prepareWith: { _, _, _ in },
+            start: { _ in },
+            stop: { },
+            getConfirmedBalance: { balance },
+            getUnifiedAddress: { _ in
+                DarkfiAddress(stringEncoded: "darkfi1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxpreview")
+            },
+            getAddress: {
+                DarkfiAddress(stringEncoded: "darkfi1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxpreview")
+            },
+            generateNewAddress: { "darkfi1new_preview_address" },
+            getAllTransactions: { transactions },
+            proposeTransfer: { _, _, _, _ in
+                Proposal(estimatedFee: 10_000)
+            },
+            estimateFee: { _, _ in 10_000 },
+            sendTransaction: { _, amount, recipient, memo in
+                let recipientAddr: String? = {
+                    if case let .address(addr) = recipient { return addr }
+                    return nil
+                }()
+                return DarkfiTransactionOverview(
+                    rawId: UUID().uuidString,
+                    timestampEpochSeconds: Date().timeIntervalSince1970,
+                    totalAtomicValue: amount,
+                    fee: 10_000,
+                    isSending: true,
+                    status: "Broadcasted",
+                    contractSummary: "Money::TransferV1",
+                    recipientAddress: recipientAddr,
+                    memo: memo?.text
+                )
+            },
+            getTransactionMemo: { _ in nil },
+            getTransactionRecipient: { _ in nil },
+            listDaos: { [] },
+            listProposals: { _ in [] },
+            getProposal: { _ in nil },
+            wipe: { },
+            rewind: {
+                Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+            },
+            listTokenBalances: { [] }
         )
     }
+}
+
+// MARK: - Mock data
+
+extension DarkfiTransactionOverview {
+    public static let mocks: [DarkfiTransactionOverview] = [
+        DarkfiTransactionOverview(
+            rawId: "tx_001",
+            minedHeight: 99_990,
+            timestampEpochSeconds: Date().addingTimeInterval(-3600).timeIntervalSince1970,
+            totalAtomicValue: 5000_0000,
+            fee: 10_000,
+            isSending: false,
+            status: "Confirmed",
+            contractSummary: "Money::TransferV1",
+            recipientAddress: "darkfi1...",
+            memo: "Payment received"
+        ),
+        DarkfiTransactionOverview(
+            rawId: "tx_002",
+            minedHeight: 99_985,
+            timestampEpochSeconds: Date().addingTimeInterval(-7200).timeIntervalSince1970,
+            totalAtomicValue: 2500_0000,
+            fee: 10_000,
+            isSending: true,
+            status: "Broadcasted",
+            contractSummary: "DAO::ProposeV1",
+            recipientAddress: nil,
+            memo: nil
+        ),
+        DarkfiTransactionOverview(
+            rawId: "tx_003",
+            minedHeight: 99_950,
+            timestampEpochSeconds: Date().addingTimeInterval(-86400).timeIntervalSince1970,
+            totalAtomicValue: 10_0000_0000,
+            fee: 10_000,
+            isSending: false,
+            status: "Reverted",
+            contractSummary: "Money::TransferV1",
+            recipientAddress: nil,
+            memo: "Welcome to DarkFi"
+        )
+    ]
 }

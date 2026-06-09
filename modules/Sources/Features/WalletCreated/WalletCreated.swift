@@ -1,6 +1,6 @@
 //
 //  WalletCreated.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 4/19/23.
 //
@@ -11,7 +11,6 @@ import SubsonicClient
 
 @Reducer
 public struct WalletCreated {
-    
     @ObservableState
     public struct State: Equatable {
         public init() {}

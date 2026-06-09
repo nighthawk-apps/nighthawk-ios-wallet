@@ -23,8 +23,6 @@ extension AppReducer {
                 switch delegateAction {
                 case .scanPaymentRequest:
                     return .none
-                case .shieldFunds:
-                    return .none
                 case .showAddresses:
                     return .none
                 case let .showTransactionHistory(walletEvents):
@@ -42,14 +40,14 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: zcashSDKEnvironment.network.networkType,
+                                networkType: "testnet",
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
                     )
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -67,15 +65,15 @@ extension AppReducer {
                     state.path.append(
                         .transactionDetail(
                             .init(
-                                walletEvent: walletEvent, 
-                                networkType: zcashSDKEnvironment.network.networkType,
+                                walletEvent: walletEvent,
+                                networkType: "testnet",
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
                     )
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

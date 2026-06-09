@@ -1,6 +1,6 @@
 //
 //  CheckBox.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 4/4/23.
 //

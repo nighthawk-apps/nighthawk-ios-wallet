@@ -1,12 +1,11 @@
 //
 //  DatabaseFilesLiveKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 11.11.2022.
 //
 
 import ComposableArchitecture
-import ZcashLightClientKit
 import FileManager
 
 extension DatabaseFilesClient: DependencyKey {
@@ -19,8 +18,8 @@ extension DatabaseFilesClient: DependencyKey {
             },
             fsBlockDbRootFor: { network in
                 databaseFiles.documentsDirectory()
-                    .appendingPathComponent(network.networkType.chainName)
-                    .appendingPathComponent(ZcashSDK.defaultFsCacheName, isDirectory: true)
+                    .appendingPathComponent(network)
+                    .appendingPathComponent("fs_cache", isDirectory: true)
             },
             cacheDbURLFor: { network in
                 databaseFiles.cacheDbURL(for: network)

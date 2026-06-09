@@ -105,11 +105,11 @@ private extension RecipientView {
 }
 
 // MARK: - ViewStore
-extension StoreOf<Recipient> {    
+extension StoreOf<Recipient> {
     func validateRecipient() -> NighthawkTextFieldValidationState {
         return if self.isRecipientValid {
             .valid
-        } else if let specific = self.specificValidationError  {
+        } else if let specific = self.specificValidationError {
             specific
         } else {
             .invalid(error: L10n.Nighthawk.TransferTab.Recipient.invalid)

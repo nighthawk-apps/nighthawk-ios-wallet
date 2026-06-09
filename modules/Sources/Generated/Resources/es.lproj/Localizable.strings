@@ -33,7 +33,7 @@
 
 // MARK: - About screen
 "nighthawk.about.title" = "Acerca de";
-"nighthawk.about.message" = "Nighthawk is a Shielded-by-Default wallet for Zcash with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for Zcash, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nZcash is a digital currency, or cryptocurrency, like Bitcoin. Zcash was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
+"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
 "nighthawk.about.viewSource" = "Ver código fuente";
 "nighthawk.about.nighthawkFriends" = "Amigos de Nighthawk";
 "nighthawk.about.viewLicenses" = "View licenses";
@@ -48,10 +48,10 @@
 
 // MARK: - Autoshield
 "nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Shielded-by-Default.";
+"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
 "nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
 "nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your shielded address.";
+"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
 "nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
 "nighthawk.autoshield.buttonPositive" = "¡Excelente!";
 "nighthawk.autoshield.buttonNeutral" = "Más información";
@@ -95,14 +95,14 @@
 
 // MARK: - Recovery Phrase Display
 "nighthawk.recoveryPhraseDisplay.title" = "Escribe tu semilla de respaldo";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your Zcash is if you have this 24 word phrase and wallet birthday code.";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
 "nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
 "nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
 "nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
 "nighthawk.recoveryPhraseDisplay.continue" = "Continuar";
 "nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Exportar como PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your Zcash in Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
 "nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
 
 // MARK: - Export seed
@@ -118,7 +118,7 @@
 
 // MARK: - Import Wallet Screen
 "nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
+"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
 "nighthawk.importWallet.yourSeedPhrase" = "Tu frase semilla";
 "nighthawk.importWallet.birthdayHeight" = "Altura del cumpleaños (opcional)";
 "nighthawk.importWallet.continue" = "Continuar";
@@ -149,7 +149,7 @@
 "nighthawk.walletTab.totalBalance" = "Balance total";
 "nighthawk.walletTab.shieldedBalance" = "Balance blindado";
 "nighthawk.walletTab.transparentBalance" = "Balance transparente";
-"nighthawk.walletTab.zec" = "ZEC";
+"nighthawk.walletTab.drk" = "DRK";
 "nighthawk.walletTab.recentActivity" = "Actividad reciente";
 "nighthawk.walletTab.viewTransactionHistory" = "Ver historial de transacciones";
 "nighthawk.walletTab.shieldNow" = "Shield now";
@@ -159,7 +159,7 @@
 "nighthawk.walletTab.addresses.saplingAddress" = "Dirección blindada heredada";
 "nighthawk.walletTab.addresses.transparentAddress" = "Dirección transparente";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Recarga tu billetera";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Compra o comercia con Zcash a través de nuestros socios especialmente seleccionados.";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Compra o comercia con DarkFi a través de nuestros socios especialmente seleccionados.";
 "nighthawk.walletTab.addresses.copy" = "Copiar";
 "nighthawk.walletTab.addresses.seeMore" = "See more";
 "nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
@@ -180,13 +180,13 @@
 "nighthawk.sync.message.stopped" = "Stopped";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveZcash" = "Enviar y recibir Zcash";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "Enviar y recibir DarkFi";
 "nighthawk.transferTab.sendMoneyTitle" = "Enviar dinero";
 "nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Recibir dinero";
 "nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
 "nighthawk.transferTab.topUpWalletTitle" = "Recarga tu billetera";
-"nighthawk.transferTab.topUpWalletDescription" = "Comprar Zcash de forma segura a través de nuestros socios.";
+"nighthawk.transferTab.topUpWalletDescription" = "Comprar DarkFi de forma segura a través de nuestros socios.";
 
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
@@ -210,7 +210,7 @@
 "nighthawk.transferTab.send.continue" = "Continuar";
 "nighthawk.transferTab.send.topUpWallet" = "Recarga tu billetera";
 "nighthawk.transferTab.send.scanCode" = "Escanear un código de pago";
-"nighthawk.transferTab.send.toast.notEnoughZcash" = "Not enough Zcash!";
+"nighthawk.transferTab.send.toast.notEnoughDarkFi" = "Not enough DarkFi!";
 "nighthawk.transferTab.send.around" = "around %@ %@";
 "nighthawk.transferTab.send.error" = "Error";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
@@ -234,7 +234,7 @@
 
 // MARK: - Home Screen - Transfer - Review
 "nighthawk.transferTab.review.title" = "Revisar y enviar";
-"nighthawk.transferTab.review.send" = "Enviar Zcash";
+"nighthawk.transferTab.review.send" = "Enviar DarkFi";
 
 // MARK: - Home Screen - Transfer - Sending
 "nighthawk.transferTab.sending.title" = "Enviando";

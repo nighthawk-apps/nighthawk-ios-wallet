@@ -7,10 +7,8 @@
 
 import Generated
 import SwiftUI
-import ZcashLightClientKit
 
 public struct TransactionLineItem: Identifiable {
-    
     public enum Action {
         case tap(action: () -> Void)
         case button(title: String, action: () -> Void)

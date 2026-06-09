@@ -1,8 +1,8 @@
 //
 //  Addresses.swift
+//  stealth
 //
-//
-//  Created by Matthew Watt on 7/16/23.
+//  DarkFi: Single privacy address only.
 //
 
 import ComposableArchitecture
@@ -10,11 +10,10 @@ import Generated
 import Pasteboard
 import SDKSynchronizer
 import UIComponents
-import ZcashLightClientKit
+import Utils
 
 @Reducer
 public struct Addresses {
-    
     @ObservableState
     public struct State: Equatable {
         public enum Destination: String, CaseIterable, Equatable, Hashable {
@@ -34,17 +33,15 @@ public struct Addresses {
         public var uAddress: UnifiedAddress?
         public var showCloseButton: Bool
         
-        public var unifiedAddress: String {
+        /// DarkFi privacy address — the ONLY address type.
+        public var privacyAddress: String {
             uAddress?.stringEncoded ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
         
-        public var transparentAddress: String {
-            (try? uAddress?.transparentReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
-        }
-        
-        public var saplingAddress: String {
-            (try? uAddress?.saplingReceiver().stringEncoded) ?? L10n.Nighthawk.WalletTab.Addresses.loading
-        }
+        // All address types return the same privacy address
+        public var unifiedAddress: String { privacyAddress }
+        public var transparentAddress: String { privacyAddress }
+        public var saplingAddress: String { privacyAddress }
         
         public init(uAddress: UnifiedAddress?, showCloseButton: Bool = false) {
             self.uAddress = uAddress
@@ -77,20 +74,9 @@ public struct Addresses {
                 return .none
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
-            case let .copyTapped(destination):
-                switch destination {
-                case .transparent:
-                    pasteboard.setString(state.transparentAddress.redacted)
-                    break
-                case .unified:
-                    pasteboard.setString(state.unifiedAddress.redacted)
-                    break
-                case .sapling:
-                    pasteboard.setString(state.saplingAddress.redacted)
-                    break
-                default:
-                    break
-                }
+            case .copyTapped:
+                // All address types are the same DarkFi privacy address
+                pasteboard.setString(state.privacyAddress.redacted)
                 state.toast = .copiedToClipboard
                 return .none
             case .delegate:

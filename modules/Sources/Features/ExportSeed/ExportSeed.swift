@@ -9,9 +9,8 @@ import ComposableArchitecture
 import MnemonicClient
 import Models
 import SwiftUI
+import Utils
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct ExportSeed {
@@ -34,7 +33,6 @@ public struct ExportSeed {
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -50,7 +48,7 @@ public struct ExportSeed {
                     let storedWallet = try walletStorage.exportWallet()
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
                     state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
+                    state.birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
                     return .none
                 } catch {
                     return .none

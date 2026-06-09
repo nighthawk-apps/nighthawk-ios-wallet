@@ -1,6 +1,6 @@
 //
 //  WalletEvent.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 20.06.2022.
 //
@@ -8,7 +8,6 @@
 import Foundation
 import ComposableArchitecture
 import SwiftUI
-import ZcashLightClientKit
 import Utils
 
 // MARK: - Model

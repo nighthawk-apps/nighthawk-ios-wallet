@@ -60,4 +60,3 @@ public struct SplashView: View {
         self.store = store
     }
 }
-

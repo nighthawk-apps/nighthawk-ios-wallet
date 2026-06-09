@@ -1,0 +1,57 @@
+[package]
+name = "darkfi-mobile-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "UniFFI cdylib for DarkFi-backed Android APIs (incremental rollout)."
+license = "MIT"
+publish = false
+
+[lib]
+name = "darkfi_mobile_ffi"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+
+
+[dependencies]
+uniffi_bindgen = "0.31.1"
+drk = { path = "../../third_party/darkfi/bin/drk" }
+darkfi = { path = "../../third_party/darkfi", features = ["bs58", "event-graph", "rpc", "p2p-tor"] }
+darkfi-sdk = { path = "../../third_party/darkfi/src/sdk", features = ["async"] }
+darkfi-serial = { path = "../../third_party/darkfi/src/serial" }
+darkfi_dao_contract = { path = "../../third_party/darkfi/src/contract/dao" }
+darkfi_money_contract = { path = "../../third_party/darkfi/src/contract/money" }
+crypto_box = {version = "0.9.1", features = ["std", "chacha20"]}
+bs58 = "0.5.1"
+bip39 = "2.0.0"
+rand = "0.8.5"
+blake3 = "1.8.5"
+futures = "0.3.32"
+smol = "2.0.2"
+url = "2.5.8"
+uniffi = { version = "0.31.1", features = ["scaffolding-ffi-buffer-fns", "cli"] }
+thiserror = "2"
+pbkdf2 = "0.11.0"
+hmac = "0.12.1"
+sha2 = "0.10.6"
+num-bigint = {version = "0.4.6", features = ["rand"]}
+num-traits = "0.2.19"
+unicode-normalization = "0.1.25"
+# darkirc daemon deps
+sled-overlay = "0.1.20"
+easy-parallel = "3.3.1"
+semver = "1.0.28"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# In-process Arti Tor (matches the runtime/TLS backend the vendored darkfi
+# `net` layer uses, so both link the same arti-client build).
+arti-client = { version = "0.42.0", default-features = false, features = ["async-std", "compression", "error_detail", "rustls"] }
+tor-rtcompat = { version = "0.42.0", features = ["async-std", "rustls"] }
+
+[build-dependencies]
+uniffi = { version = "0.31.1", features = ["build", "scaffolding-ffi-buffer-fns"] }
+
+[patch.crates-io]
+halo2_proofs = {git="https://github.com/parazyd/halo2", branch="v050"}
+halo2_gadgets = {git="https://github.com/parazyd/halo2", branch="v050"}
+# Forked "url" crate with added P2P schemas
+url = {git="https://github.com/darkrenaissance/rust-url", branch="v258"}

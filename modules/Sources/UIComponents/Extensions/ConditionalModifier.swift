@@ -1,6 +1,6 @@
 //
 //  ConditionalModifier.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by ANTOINE VAN DER LEE
 //

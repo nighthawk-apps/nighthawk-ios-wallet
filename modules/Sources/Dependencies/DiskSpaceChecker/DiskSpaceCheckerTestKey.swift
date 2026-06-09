@@ -1,6 +1,6 @@
 //
 //  DiskSpaceCheckerTestKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 10.11.2022.
 //

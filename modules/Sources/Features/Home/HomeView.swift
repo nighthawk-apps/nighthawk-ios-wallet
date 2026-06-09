@@ -1,13 +1,12 @@
 //
 //  HomeView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
 
 import Addresses
 import AlertToast
-import Autoshield
 import ComposableArchitecture
 import Generated
 import SwiftUI
@@ -17,64 +16,44 @@ public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
     
     public var body: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $store.selectedTab) {
-                WalletView(
-                    store: store.scope(
-                        state: \.wallet,
-                        action: \.wallet
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                tabContent
+                    .frame(
+                        width: geometry.size.width,
+                        height: max(0, geometry.size.height - NighthawkTabBar.height)
                     )
-                )
-                .tag(Home.State.Tab.wallet)
-                .overlay(alignment: .top) {
-                    if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
-                        IndeterminateProgress()
-                    }
-                }
+                    .clipped()
+                    .environment(\.nighthawkSuppressNestedBackground, true)
                 
-                TransferView(
-                    store: store.scope(
-                        state: \.transfer,
-                        action: \.transfer
-                    )
+                NighthawkTabBar(
+                    destination: $store.selectedTab,
+                    onSelect: { store.send(.tabSelected($0)) },
+                    disableSend: store.synchronizerFailed
                 )
-                .tag(Home.State.Tab.transfer)
-                
-                NighthawkSettingsView(
-                    store: store.scope(
-                        state: \.settings,
-                        action: \.settings
-                    )
-                )
-                .tag(Home.State.Tab.settings)
             }
-            .overlay(alignment: .top) {
-                if store.selectedTab == .wallet {
-                    NighthawkLogo(spacing: .compact)
-                        .padding(.top, 40)
-                }
-            }
-            
-            NighthawkTabBar(
-                destination: $store.selectedTab,
-                disableSend: store.synchronizerFailed
-            )
+        }
+        .background {
+            Asset.Colors.Nighthawk.darkNavy.color
+                .ignoresSafeArea(edges: [.top, .horizontal])
         }
         .onAppear { store.send(.onAppear) }
         .toast(
             unwrapping: $store.toast,
             case: /Home.State.Toast.expectingFunds,
             alert: {
+                // `.alert` display mode installs a full-screen overlay that blocks
+                // the home tab bar even when the toast is not visible.
                 AlertToast(
+                    displayMode: .banner(.slide),
                     type: .regular,
                     title: L10n.Nighthawk.HomeScreen.expectingFunds(
-                        store.walletInfo.expectingZatoshi.decimalString(),
+                        store.walletInfo.expectingAmount.decimalString(),
                         store.tokenName
                     )
                 )
             }
         )
-        .applyNighthawkBackground()
         .alert(
             $store.scope(
                 state: \.alert,
@@ -89,17 +68,58 @@ public struct HomeView: View {
         ) { store in
             AddressesView(store: store)
         }
-        .sheet(
-            item: $store.scope(
-                state: \.destination?.autoshield,
-                action: \.destination.autoshield
-            )
-        ) { store in
-            AutoshieldView(store: store)
-        }
     }
     
     public init(store: StoreOf<Home>) {
         self.store = store
+    }
+}
+
+// MARK: - Tab content
+private extension HomeView {
+    @ViewBuilder
+    var tabContent: some View {
+        switch store.selectedTab {
+        case .wallet:
+            WalletView(
+                store: store.scope(
+                    state: \.wallet,
+                    action: \.wallet
+                )
+            )
+            .overlay(alignment: .top) {
+                if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                    IndeterminateProgress()
+                }
+            }
+            .overlay(alignment: .top) {
+                NighthawkLogo(spacing: .compact)
+                    .padding(.top, 40)
+            }
+            
+        case .transfer:
+            TransferView(
+                store: store.scope(
+                    state: \.transfer,
+                    action: \.transfer
+                )
+            )
+            
+        case .chat:
+            ChatView(
+                store: store.scope(
+                    state: \.chat,
+                    action: \.chat
+                )
+            )
+            
+        case .settings:
+            NighthawkSettingsView(
+                store: store.scope(
+                    state: \.settings,
+                    action: \.settings
+                )
+            )
+        }
     }
 }

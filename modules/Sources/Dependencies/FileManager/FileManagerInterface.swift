@@ -1,6 +1,6 @@
 //
 //  FileManagerClient.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 07.04.2022.
 //
@@ -16,8 +16,7 @@ public struct FileManagerClient {
     public init(
         url: @escaping (FileManager.SearchPathDirectory, FileManager.SearchPathDomainMask, URL?, Bool) throws -> URL,
         fileExists: @escaping (String) -> Bool,
-        removeItem: @escaping (URL) throws -> Void)
-    {
+        removeItem: @escaping (URL) throws -> Void) {
         self.url = url
         self.fileExists = fileExists
         self.removeItem = removeItem

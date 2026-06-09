@@ -7,14 +7,14 @@
 
 import ComposableArchitecture
 import Generated
-import ZcashLightClientKit
+import Utils
 
 extension AlertState where Action == Home.Action.Alert {
-    public static func cantStartSync(_ error: ZcashError) -> AlertState {
+    public static func cantStartSync(_ error: DarkFiError) -> AlertState {
             AlertState {
                 TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.CantStartSync.title)
             } message: {
-                TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.CantStartSync.message(error.message, error.code.rawValue))
+                TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.CantStartSync.message(error.message, 0))
             }
         }
     
@@ -24,11 +24,11 @@ extension AlertState where Action == Home.Action.Alert {
         }
     }
     
-    public static func rescanFailed(_ error: ZcashError) -> AlertState {
+    public static func rescanFailed(_ error: DarkFiError) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.Failed.title)
         } message: {
-            TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.Failed.message(error.message, error.code.rawValue))
+            TextState(L10n.Nighthawk.SettingsTab.Alert.Rescan.Failed.message(error.message, 0))
         }
     }
 }

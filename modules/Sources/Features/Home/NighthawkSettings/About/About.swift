@@ -1,6 +1,6 @@
 //
 //  About.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/22/23.
 //
@@ -11,7 +11,6 @@ import Utils
 
 @Reducer
 public struct About {
-    
     @ObservableState
     public struct State: Equatable {
         public init() {}

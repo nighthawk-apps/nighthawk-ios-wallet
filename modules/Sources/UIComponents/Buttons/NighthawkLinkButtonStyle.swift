@@ -1,6 +1,6 @@
 //
 //  NighthawkLinkButtonStyle.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 4/16/23.
 //
@@ -32,4 +32,3 @@ public struct NighthawkLinkButtonStyle: ButtonStyle {
 public extension ButtonStyle where Self == NighthawkLinkButtonStyle {
     static func nighthawkLink() -> NighthawkLinkButtonStyle { NighthawkLinkButtonStyle() }
 }
-

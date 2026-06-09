@@ -1,6 +1,6 @@
 //
 //  ChangeServerView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/22/23.
 //
@@ -10,12 +10,11 @@ import Generated
 import Models
 import SwiftUI
 import UIComponents
-import ZcashSDKEnvironment
 
 public struct ChangeServerView: View {
     @Bindable var store: StoreOf<ChangeServer>
     
-    @FocusState private var isCustomLightwalletdServerEditorFocused: Bool
+    @FocusState private var isCustomServerEditorFocused: Bool
     
     public var body: some View {
         ScrollView([.vertical], showsIndicators: false) {
@@ -24,12 +23,12 @@ public struct ChangeServerView: View {
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 
                 RadioSelectionList(
-                    options: ChangeServer.State.LightwalletdOption.allCases,
-                    selection: $store.lightwalletdOption.animation(.none)
+                    options: ChangeServer.State.ServerOption.allCases,
+                    selection: $store.serverOption.animation(.none)
                 ) { option in
                     HStack {
                         if option == .default {
-                            Text("Default (\(store.defaultLightwalletdServer))")
+                            Text("Default (\(store.defaultServerInfo))")
                                 .paragraphMedium(color: .white)
                         } else {
                             Text("Custom")
@@ -42,15 +41,15 @@ public struct ChangeServerView: View {
                 }
                 
                 NighthawkTextField(
-                    placeholder: store.defaultLightwalletdServer,
-                    text: $store.customLightwalletdServer,
-                    isValid: store.validateCustomLightwalletdServer()
+                    placeholder: store.defaultServerInfo,
+                    text: $store.customServerAddress,
+                    isValid: store.validateCustomServer()
                 )
                 .frame(maxWidth: .infinity)
                 .keyboardType(.URL)
-                .disabled(store.lightwalletdOption != .custom)
-                .opacity(store.lightwalletdOption != .custom ? 0.5 : 1.0)
-                .focused($isCustomLightwalletdServerEditorFocused)
+                .disabled(store.serverOption != .custom)
+                .opacity(store.serverOption != .custom ? 0.5 : 1.0)
+                .focused($isCustomServerEditorFocused)
                 
                 VStack(alignment: .center) {
                     Button(
@@ -66,16 +65,15 @@ public struct ChangeServerView: View {
                 Text(L10n.Nighthawk.SettingsTab.ChangeServer.disclaimer)
                     .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 
-                
                 Spacer()
             }
             .padding(.top, 25)
             .padding(.horizontal, 25)
         }
         .onAppear { store.send(.onAppear) }
-        .onChange(of: store.lightwalletdOption) {
-            if store.lightwalletdOption == .custom {
-                isCustomLightwalletdServerEditorFocused = true
+        .onChange(of: store.serverOption) {
+            if store.serverOption == .custom {
+                isCustomServerEditorFocused = true
             }
         }
         .applyNighthawkBackground()
@@ -85,6 +83,19 @@ public struct ChangeServerView: View {
                 action: \.alert
             )
         )
+        .alert(
+            "Non-Standard Port",
+            isPresented: $store.showPortWarning
+        ) {
+            Button("Use Anyway", role: .destructive) {
+                store.send(.portWarningConfirmed)
+            }
+            Button("Cancel", role: .cancel) {
+                store.send(.portWarningCancelled)
+            }
+        } message: {
+            Text("The port you entered is not a standard DarkFi port (8345 mainnet / 18345 testnet). Using a non-standard port may prevent connection to the network.")
+        }
     }
     
     public init(store: StoreOf<ChangeServer>) {
@@ -94,7 +105,7 @@ public struct ChangeServerView: View {
 
 // MARK: - ViewStore
 extension StoreOf<ChangeServer> {
-    func validateCustomLightwalletdServer() -> NighthawkTextFieldValidationState {
+    func validateCustomServer() -> NighthawkTextFieldValidationState {
         self.isValidHostAndPort ? .valid : .invalid(error: L10n.Nighthawk.SettingsTab.ChangeServer.Custom.invalidLightwalletd)
     }
 }

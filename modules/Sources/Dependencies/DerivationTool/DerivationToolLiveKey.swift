@@ -1,64 +1,39 @@
 //
 //  DerivationToolLiveKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 12.11.2022.
 //
 
 import ComposableArchitecture
-import ZcashLightClientKit
 
 extension DerivationToolClient: DependencyKey {
     public static let liveValue = DerivationToolClient.live()
         
     public static func live() -> Self {
         Self(
-            deriveSpendingKey: { seed, accountIndex, networkType in
-                try DerivationTool(networkType: networkType).deriveUnifiedSpendingKey(seed: seed, accountIndex: accountIndex)
+            deriveSpendingKey: { _, accountIndex, _ in
+                return UnifiedSpendingKey(
+                    bytes: [],
+                    account: accountIndex
+                )
             },
-            deriveUnifiedFullViewingKey: { spendingKey, networkType in
-                try DerivationTool(networkType: networkType).deriveUnifiedFullViewingKey(from: spendingKey)
+            deriveUnifiedFullViewingKey: { _, _ in
+                return UnifiedFullViewingKey(
+                    stringEncoded: ""
+                )
             },
-            isUnifiedAddress: { address, networkType in
-                do {
-                    if case .unified = try Recipient(address, network: networkType) {
-                        return true
-                    } else {
-                        return false
-                    }
-                } catch {
-                    return false
-                }
+            isUnifiedAddress: { _, _ in
+                return true
             },
-            isSaplingAddress: { address, networkType in
-                do {
-                    if case .sapling = try Recipient(address, network: networkType) {
-                        return true
-                    } else {
-                        return false
-                    }
-                } catch {
-                    return false
-                }
+            isSaplingAddress: { _, _ in
+                return true
             },
-            isTransparentAddress: { address, networkType in
-                do {
-                    if case .transparent = try Recipient(address, network: networkType) {
-                        return true
-                    } else {
-                        return false
-                    }
-                } catch {
-                    return false
-                }
+            isTransparentAddress: { _, _ in
+                return true
             },
-            isZcashAddress: { address, networkType in
-                do {
-                    _ = try Recipient(address, network: networkType)
-                    return true
-                } catch {
-                    return false
-                }
+            isDarkFiAddress: { _, _ in
+                return true
             }
         )
     }

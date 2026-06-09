@@ -20,7 +20,6 @@ extension DataManager: DependencyKey {
         save: { data, url in try data.write(to: url) }
     )
     
-    
     public static let failToWrite = Self(
         load: { _ in Data() },
         save: { _, _ in
@@ -60,4 +59,3 @@ extension DependencyValues {
         set { self[DataManager.self] = newValue }
     }
 }
-

@@ -45,8 +45,8 @@ extension View {
         tapToDismiss: Bool = true,
         offsetY: CGFloat = 0,
         alert: @escaping (Case) -> AlertToast,
-        onTap: (() -> ())? = nil,
-        completion: (() -> ())? = nil
+        onTap: (() -> Void)? = nil,
+        completion: (() -> Void)? = nil
     ) -> some View {
         self.toast(
             unwrapping: `enum`.case(casePath),

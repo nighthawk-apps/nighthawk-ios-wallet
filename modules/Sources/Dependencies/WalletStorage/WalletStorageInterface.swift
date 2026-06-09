@@ -1,14 +1,14 @@
 //
 //  WalletStorageInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 15.11.2022.
 //
 
 import ComposableArchitecture
 import MnemonicSwift
-import ZcashLightClientKit
 import Models
+import Utils
 
 extension DependencyValues {
     public var walletStorage: WalletStorageClient {

@@ -20,10 +20,13 @@ extension ProcessInfoClient: DependencyKey {
     )
 }
 
+extension ProcessInfoClient: TestDependencyKey {
+    public static let testValue = Self(isiOSAppOnMac: { false })
+}
+
 extension DependencyValues {
     public var processInfo: ProcessInfoClient {
         get { self[ProcessInfoClient.self] }
         set { self[ProcessInfoClient.self] = newValue }
     }
 }
-

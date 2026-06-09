@@ -1,6 +1,6 @@
 //
 //  Button+Disabling.swift
-//  secant
+//  stealth
 //
 //  Created by Francisco Gindre on 3/13/23.
 //

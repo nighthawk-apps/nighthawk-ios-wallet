@@ -10,7 +10,6 @@ import Generated
 import Models
 import SwiftUI
 import UIComponents
-import ZcashLightClientKit
 
 public struct ReviewView: View {
     @Bindable var store: StoreOf<Review>
@@ -28,7 +27,7 @@ public struct ReviewView: View {
             
             Button(
                 L10n.Nighthawk.TransferTab.Review.send,
-                action: { store.send(.sendZcashTapped) }
+                action: { store.send(.sendDrkTapped) }
             )
             .buttonStyle(.nighthawkPrimary())
             .padding(.bottom, 28)
@@ -131,6 +130,6 @@ private extension StoreOf<Review> {
     }
     
     var viewRecipientOnlineURL: URL? {
-        URL(string: "https://3xpl.com/zcash/address/\(self.recipient)")
+        URL(string: "https://darkfi.explorer/address/\(self.recipient)")
     }
 }

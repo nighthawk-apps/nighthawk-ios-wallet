@@ -1,6 +1,6 @@
 //
 //  AppVersionInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 12.11.2022.
 //

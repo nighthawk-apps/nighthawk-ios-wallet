@@ -115,12 +115,8 @@ public enum NighthawkSetting {
         }
         
         public var colorScheme: ColorScheme {
-            switch self {
-            case .`default`:
-                .light
-            case .dark:
-                .dark
-            }
+            // DarkFi is always dark mode
+            .dark
         }
     }
 }

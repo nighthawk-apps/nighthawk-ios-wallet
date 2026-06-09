@@ -1,6 +1,6 @@
 //
 //  WalletView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
@@ -12,7 +12,6 @@ import SwiftUI
 import TransactionDetail
 import UIComponents
 import Utils
-import ZcashLightClientKit
 
 @MainActor
 public struct WalletView: View {
@@ -25,16 +24,6 @@ public struct WalletView: View {
             Spacer()
             
             balanceTabsView
-            
-            if store.walletInfo.transparentBalance >= .autoshieldingThreshold &&
-                store.balanceViewType == .transparent &&
-                store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSynced {
-                Button(L10n.Nighthawk.WalletTab.shieldNow) {
-                    store.send(.shieldNowTapped)
-                }
-                .buttonStyle(.nighthawkPrimary())
-                .padding(.top, 16)
-            }
             
             Spacer()
             
@@ -115,26 +104,10 @@ private extension WalletView {
                 )
                 .tag(BalanceView.ViewType.total)
                 .padding(.top, 32)
-                
-                BalanceView(
-                    balance: store.walletInfo.shieldedBalance,
-                    type: .shielded,
-                    tokenName: store.tokenName,
-                    synchronizerState: store.walletInfo.synchronizerState
-                )
-                .tag(BalanceView.ViewType.shielded)
-                .padding(.top, 32)
-                
-                BalanceView(
-                    balance: store.walletInfo.transparentBalance,
-                    type: .transparent,
-                    tokenName: store.tokenName,
-                    synchronizerState: store.walletInfo.synchronizerState
-                )
-                .tag(BalanceView.ViewType.transparent)
-                .padding(.top, 32)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .scrollDisabled(true)
+            .clipped()
         }
     }
     

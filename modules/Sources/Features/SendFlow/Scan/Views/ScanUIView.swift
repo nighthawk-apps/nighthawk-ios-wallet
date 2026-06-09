@@ -1,6 +1,6 @@
 //
 //  ScanUIView.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 16.05.2022.
 //

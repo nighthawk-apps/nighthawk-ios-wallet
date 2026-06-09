@@ -1,6 +1,6 @@
 //
 //  WalletCreatedView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 4/19/23.
 //
@@ -20,10 +20,12 @@ public struct WalletCreatedView: View {
     
     public var body: some View {
         VStack(spacing: 32) {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbolPeach
+            Asset.Assets.Icons.Nighthawk.nighthawkSymbol
                 .image
+                .renderingMode(.template)
                 .resizable()
                 .frame(width: 35, height: 35)
+                .foregroundColor(.white)
                 .padding(.bottom, 22)
                 .padding(.top, 44)
             

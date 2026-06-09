@@ -25,14 +25,13 @@ extension Home {
                     switch delegateAction {
                     case .showAddresses:
                         await send(.wallet(.viewAddressesTapped))
-                    case .showPartners:
-                        await send(.transfer(.topUpWalletTapped))
                     }
                 }
             case .alert,
                  .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
+                 .chat,
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
@@ -42,6 +41,7 @@ extension Home {
                  .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
+                 .tabSelected,
                  .transfer,
                  .updateWalletEvents,
                  .wallet:

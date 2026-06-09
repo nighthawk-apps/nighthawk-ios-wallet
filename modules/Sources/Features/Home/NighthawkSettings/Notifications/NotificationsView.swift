@@ -1,6 +1,6 @@
 //
 //  NotificationsView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/14/23.
 //

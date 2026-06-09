@@ -1,6 +1,6 @@
 //
 //  Wallet.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew watt on 5/5/23.
 //
@@ -12,12 +12,9 @@ import ProcessInfoClient
 import SwiftUI
 import TransactionDetail
 import Utils
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Wallet {
-    
     @ObservableState
     public struct State: Equatable {
         @Shared(.walletInfo) public var walletInfo = Home.State.WalletInfo()
@@ -64,8 +61,7 @@ public struct Wallet {
         }
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            return "DRK"
         }
         
         public init() {}
@@ -75,14 +71,12 @@ public struct Wallet {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case scanPaymentRequestTapped
-        case shieldNowTapped
         case viewAddressesTapped
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
         
         public enum Delegate: Equatable {
             case scanPaymentRequest
-            case shieldFunds
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
@@ -100,8 +94,6 @@ public struct Wallet {
                 return .none
             case .scanPaymentRequestTapped:
                 return .send(.delegate(.scanPaymentRequest))
-            case .shieldNowTapped:
-                return .send(.delegate(.shieldFunds))
             case .viewAddressesTapped:
                 return .send(.delegate(.showAddresses))
             case let .viewTransactionDetailTapped(walletEvent):

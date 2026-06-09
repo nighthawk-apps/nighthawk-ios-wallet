@@ -1,6 +1,6 @@
 //
 //  DatabaseFilesTestKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 11.11.2022.
 //
@@ -11,17 +11,7 @@ import XCTestDynamicOverlay
 import Utils
 
 extension DatabaseFilesClient: TestDependencyKey {
-    public static let testValue = Self(
-        documentsDirectory: unimplemented("\(Self.self).documentsDirectory", placeholder: .empty),
-        fsBlockDbRootFor: unimplemented("\(Self.self).fsBlockDbRootFor", placeholder: .empty),
-        cacheDbURLFor: unimplemented("\(Self.self).cacheDbURLFor", placeholder: .empty),
-        dataDbURLFor: unimplemented("\(Self.self).dataDbURLFor", placeholder: .empty),
-        outputParamsURLFor: unimplemented("\(Self.self).outputParamsURLFor", placeholder: .empty),
-        pendingDbURLFor: unimplemented("\(Self.self).pendingDbURLFor", placeholder: .empty),
-        spendParamsURLFor: unimplemented("\(Self.self).spendParamsURLFor", placeholder: .empty),
-        torDirURLFor: unimplemented("\(Self.self).torDirURLFor", placeholder: .empty),
-        areDbFilesPresentFor: unimplemented("\(Self.self).areDbFilesPresentFor", placeholder: false)
-    )
+    public static let testValue = Self.noOp
 }
 
 extension DatabaseFilesClient {

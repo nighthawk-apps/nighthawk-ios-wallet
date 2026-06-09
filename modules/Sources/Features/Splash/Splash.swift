@@ -10,13 +10,10 @@ import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
 import Models
-import ProcessInfoClient
 import SwiftUI
 import UserPreferencesStorage
 import Utils
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct Splash {
@@ -63,10 +60,8 @@ public struct Splash {
     @Dependency(\.date) var date
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
-    @Dependency(\.processInfo) var processInfo
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -102,7 +97,7 @@ public struct Splash {
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
-                    zcashNetwork: zcashSDKEnvironment.network
+                    darkfiNetwork: "testnet"
                 )
                 
                 switch state.initializationState {
@@ -128,22 +123,14 @@ public struct Splash {
             case .onAppear:
                 defer { state.isFirstLaunch = false }
                 state.isVisible = true
-                if processInfo.isiOSAppOnMac() && state.isFirstLaunch {
+                if state.isFirstLaunch || state.shouldHandleScenePhaseChange {
                     return .run { send in
                         /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
                         try await clock.sleep(for: .seconds(0.5))
                         await send(.checkWalletInitialization)
                     }
-                } else {
-                    if !state.isFirstLaunch && state.shouldHandleScenePhaseChange {
-                        return .run { send in
-                            /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                            try await clock.sleep(for: .seconds(0.5))
-                            await send(.checkWalletInitialization)
-                        }
-                    }
-                    return .none
                 }
+                return .none
             case .onDisappear:
                 state.isVisible = false
                 return .none
@@ -181,13 +168,13 @@ private extension Splash {
     static func walletInitializationState(
         databaseFiles: DatabaseFilesClient,
         walletStorage: WalletStorageClient,
-        zcashNetwork: ZcashNetwork
+        darkfiNetwork: DarkFiNetwork
     ) -> InitializationState {
         var keysPresent = false
         do {
             keysPresent = try walletStorage.areKeysPresent()
             let databaseFilesPresent = databaseFiles.areDbFilesPresentFor(
-                zcashNetwork
+                darkfiNetwork
             )
             
             switch (keysPresent, databaseFilesPresent) {
@@ -205,7 +192,7 @@ private extension Splash {
                 return .needsMigration
             }
             
-            if databaseFiles.areDbFilesPresentFor(zcashNetwork) {
+            if databaseFiles.areDbFilesPresentFor(darkfiNetwork) {
                 return .keysMissing
             }
         } catch {

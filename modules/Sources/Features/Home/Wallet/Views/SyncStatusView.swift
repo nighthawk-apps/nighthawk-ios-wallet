@@ -1,6 +1,6 @@
 //
 //  SyncStatusView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/6/23.
 //

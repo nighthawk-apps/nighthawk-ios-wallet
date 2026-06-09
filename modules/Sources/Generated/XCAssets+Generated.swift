@@ -86,6 +86,33 @@ public enum Asset {
   }
   public enum Colors {
     public enum Nighthawk {
+      // ── StealthTokens (matching Android) ──────────────────────
+      // Backgrounds
+      public static let moonlit = ColorAsset(name: "moonlit")
+      public static let charcoalDeep = ColorAsset(name: "charcoalDeep")
+      public static let charcoalRaised = ColorAsset(name: "charcoalRaised")
+      public static let elevated = ColorAsset(name: "elevated")
+      // Borders
+      public static let steelBorder = ColorAsset(name: "steelBorder")
+      public static let steelBorderMuted = ColorAsset(name: "steelBorderMuted")
+      // Accent (teal)
+      public static let accent = ColorAsset(name: "accent")
+      public static let accentPressed = ColorAsset(name: "accentPressed")
+      public static let accentDeep = ColorAsset(name: "accentDeep")
+      public static let accentMuted = ColorAsset(name: "accentMuted")
+      // Text
+      public static let textHeader = ColorAsset(name: "textHeader")
+      public static let textBody = ColorAsset(name: "textBody")
+      public static let textMuted = ColorAsset(name: "textMuted")
+      // Secondary
+      public static let secondaryFill = ColorAsset(name: "secondaryFill")
+      // Callout
+      public static let calloutFill = ColorAsset(name: "calloutFill")
+      public static let calloutOn = ColorAsset(name: "calloutOn")
+      // Status
+      public static let dangerous = ColorAsset(name: "dangerous")
+
+      // ── Legacy aliases (updated hex values match Android) ─────
       public static let darkNavy = ColorAsset(name: "darkNavy")
       public static let error = ColorAsset(name: "error")
       public static let navy = ColorAsset(name: "navy")

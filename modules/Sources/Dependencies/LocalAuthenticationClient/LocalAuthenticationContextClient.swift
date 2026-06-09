@@ -62,7 +62,6 @@ public struct LocalAuthenticationContextClientGenerator: Sendable {
     }
 }
 
-
 public struct LocalAuthenticationContextClient {
     public let biometryType: () -> LABiometryType
     public let canEvaluatePolicy: (LAPolicy) throws -> Bool

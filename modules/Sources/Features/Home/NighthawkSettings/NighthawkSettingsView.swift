@@ -1,6 +1,6 @@
 //
 //  NighthawkSettingsView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
@@ -34,14 +34,14 @@ struct NighthawkSettingsView: View {
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.notificationsTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
-                    icon:  Asset.Assets.Icons.Nighthawk.notifications.image,
+                    icon: Asset.Assets.Icons.Nighthawk.notifications.image,
                     action: { store.send(.rowTapped(.notifications)) }
                 )
                 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.fiatTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
-                    icon:  Asset.Assets.Icons.Nighthawk.fiat.image,
+                    icon: Asset.Assets.Icons.Nighthawk.fiat.image,
                     action: { store.send(.rowTapped(.fiat)) }
                 )
                 
@@ -79,6 +79,27 @@ struct NighthawkSettingsView: View {
                     action: { store.send(.rowTapped(.changeServer)) }
                 )
                 
+                settingRow(
+                    title: "Chat Settings",
+                    subtitle: "E2E encryption, DAG sync, embedded darkirc",
+                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    action: { store.send(.rowTapped(.chatSettings)) }
+                )
+                
+                settingRow(
+                    title: "Tor Network",
+                    subtitle: "Route wallet and chat through Arti Tor",
+                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    action: { store.send(.rowTapped(.torNetwork)) }
+                )
+                
+                settingRow(
+                    title: "DAO Hub",
+                    subtitle: "Browse DAOs and proposals (read-only)",
+                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    action: { store.send(.rowTapped(.daoHub)) }
+                )
+                
                 // TODO: Enable once we can actually test this.
 //                    settingRow(
 //                        title: L10n.Nighthawk.SettingsTab.externalServicesTitle,
@@ -90,7 +111,7 @@ struct NighthawkSettingsView: View {
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.advancedTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
-                    icon:  Asset.Assets.Icons.Nighthawk.settings.image,
+                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
                     action: { store.send(.rowTapped(.advanced)) }
                 )
                 
@@ -98,7 +119,7 @@ struct NighthawkSettingsView: View {
                     title: L10n.Nighthawk.SettingsTab.aboutTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion),
                     icon: Asset.Assets.Icons.Nighthawk.about.image,
-                    action: { store.send(.rowTapped(.about))}
+                    action: { store.send(.rowTapped(.about)) }
                 )
             }
         }

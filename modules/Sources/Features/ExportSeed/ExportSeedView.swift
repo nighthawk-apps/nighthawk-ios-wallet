@@ -11,7 +11,7 @@ import Models
 import PDFKit
 import SwiftUI
 import UIComponents
-import ZcashLightClientKit
+import Utils
 
 public struct ExportSeedView: View {
     @Bindable var store: StoreOf<ExportSeed>
@@ -108,8 +108,8 @@ private extension ExportSeedView {
             pdfDocument.write(
                 to: url,
                 withOptions: [
-                    PDFDocumentWriteOption.userPasswordOption : password,
-                    PDFDocumentWriteOption.ownerPasswordOption : password
+                    PDFDocumentWriteOption.userPasswordOption: password,
+                    PDFDocumentWriteOption.ownerPasswordOption: password
                 ]
             )
         }
@@ -117,4 +117,3 @@ private extension ExportSeedView {
         return url
     }
 }
-

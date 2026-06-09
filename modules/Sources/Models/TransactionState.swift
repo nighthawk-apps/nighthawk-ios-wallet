@@ -1,12 +1,12 @@
 //
 //  TransactionState.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 26.04.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
+import Utils
 
 /// Representation of the transaction on the SDK side, used as a bridge to the TCA wallet side. 
 public struct TransactionState: Codable, Equatable, Identifiable {
@@ -26,11 +26,11 @@ public struct TransactionState: Codable, Equatable, Identifiable {
     public var tAddress: String?
     public var zAddress: String?
     
-    public var fee: Zatoshi
+    public var fee: DrkAmount
     public var id: String
     public var status: Status
     public var timestamp: TimeInterval?
-    public var zecAmount: Zatoshi
+    public var zecAmount: DrkAmount
     
     public var address: String? { zAddress ?? tAddress }
     
@@ -60,13 +60,13 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         }
     }
     
-    public func viewOnlineURL(for networkType: NetworkType) -> URL? {
-        return URL(string: "https://3xpl.com/zcash/transaction/\(id)")
+    public func viewOnlineURL(for networkType: String) -> URL? {
+        return URL(string: "https://darkfi.explorer/tx/\(id)")
     }
     
-    public func viewRecipientOnlineURL(for networkType: NetworkType) -> URL? {        
+    public func viewRecipientOnlineURL(for networkType: String) -> URL? {
         if let address {
-            return URL(string: "https://3xpl.com/zcash/address/\(address)")
+            return URL(string: "https://darkfi.explorer/address/\(address)")
         }
         
         return nil
@@ -74,14 +74,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
     
     public var textMemo: Memo? {
         guard let memos else { return nil }
-        
-        for memo in memos {
-            if case .text = memo {
-                return memo
-            }
-        }
-        
-        return nil
+        return memos.first
     }
     
     public init(
@@ -91,11 +84,11 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         minedHeight: BlockHeight? = nil,
         shielded: Bool = true,
         zAddress: String? = nil,
-        fee: Zatoshi,
+        fee: DrkAmount,
         id: String,
         status: Status,
         timestamp: TimeInterval? = nil,
-        zecAmount: Zatoshi
+        zecAmount: DrkAmount
     ) {
         self.errorMessage = errorMessage
         self.expiryHeight = expiryHeight
@@ -119,63 +112,42 @@ public struct TransactionState: Codable, Equatable, Identifiable {
     }
 }
 
-extension TransactionState {
-    public init(transaction: ZcashTransaction.Overview, memos: [Memo]? = nil, latestBlockHeight: BlockHeight? = nil) {
-        expiryHeight = transaction.expiryHeight
-        minedHeight = transaction.minedHeight
-        fee = transaction.fee ?? .zero
-        id = transaction.rawID.toHexStringTxId()
-        timestamp = transaction.blockTime
-        zecAmount = transaction.isSentTransaction ? Zatoshi(-transaction.value.amount) : transaction.value
-        self.memos = memos
-        
-        let isSent = transaction.isSentTransaction
-        let isPending = transaction.isPending(currentHeight: latestBlockHeight ?? 0)
-        switch (isSent, isPending) {
-        case (true, true): status = .sending
-        case (true, false): status = .paid(success: minedHeight ?? 0 > 0)
-        case (false, true): status = .receiving
-        case (false, false): status = .received
-        }
-    }
-}
-
 // MARK: - Placeholders
 
 extension TransactionState {
     public static func placeholder(
-        amount: Zatoshi = .zero,
-        fee: Zatoshi = .zero,
+        amount: DrkAmount = .zero,
+        fee: DrkAmount = .zero,
         shielded: Bool = true,
         status: Status = .received,
         timestamp: TimeInterval = 0.0,
         uuid: String = UUID().debugDescription
     ) -> TransactionState {
         .init(
-            expiryHeight: -1,
+            expiryHeight: 0,
             memos: nil,
-            minedHeight: -1,
+            minedHeight: 0,
             shielded: shielded,
             zAddress: nil,
             fee: fee,
             id: uuid,
             status: status,
             timestamp: timestamp,
-            zecAmount: status == .received ? amount : Zatoshi(-amount.amount)
+            zecAmount: status == .received ? amount : -amount
         )
     }
 }
 
 public struct TransactionStateMockHelper {
     public var date: TimeInterval
-    public var amount: Zatoshi
+    public var amount: DrkAmount
     public var shielded = true
     public var status: TransactionState.Status = .received
     public var uuid = ""
     
     public init(
         date: TimeInterval,
-        amount: Zatoshi,
+        amount: DrkAmount,
         shielded: Bool = true,
         status: TransactionState.Status = .received,
         uuid: String = ""
@@ -185,5 +157,29 @@ public struct TransactionStateMockHelper {
         self.shielded = shielded
         self.status = status
         self.uuid = uuid
+    }
+}
+
+// MARK: - DarkfiTransactionOverview -> TransactionState conversion
+
+extension TransactionState {
+    /// Convert a DarkfiTransactionOverview (from the SDK layer) to a TransactionState (for the UI layer)
+    public init(from overview: DarkfiTransactionOverview) {
+        var memos: [Memo]?
+        if let memoStr = overview.memo, !memoStr.isEmpty,
+           let memoData = memoStr.data(using: .utf8) {
+            memos = [Memo(data: memoData)]
+        }
+        
+        self.init(
+            memos: memos,
+            minedHeight: overview.minedHeight,
+            shielded: true, // DarkFi: all transactions are private
+            fee: overview.fee,
+            id: overview.rawId,
+            status: overview.isSending ? .paid(success: true) : .received,
+            timestamp: overview.timestampEpochSeconds,
+            zecAmount: overview.isSending ? -overview.totalAtomicValue : overview.totalAtomicValue
+        )
     }
 }

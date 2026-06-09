@@ -1,16 +1,243 @@
-# Nighthawk for iOS and Apple Silicon
+# Nighthawk Wallet (DarkFi Edition) — iOS & Apple Silicon
 
-Privacy-preserving wallet maintained by [nighthawk apps](https://nighthawkapps.com)
+Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This branch ships as a **native iOS application** running on the DarkFi network with DRK currency. The app integrates a fully working native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`), allowing for complete chain synchronization, transaction broadcasting, and robust native interactions.
 
-### Download
+## Download
+
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-# Description
+## What to run locally
 
-Nighthawk is an open source wallet for privacy preserving money.
-As a non-custodial wallet, users have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet. Nighthawk utilizes ZcashLightClientKit SDK that is maintained by ECC core developers.
+From the repository root, in order (first-time or after vendored DarkFi / native code changes):
 
-## Disclosure Policy
+```bash
+# 1) Ensure Rust + iOS targets (once per machine)
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+
+# 2) Build UniFFI wallet native lib (required for wallet, balances, send, chat FFI)
+./scripts/build-darkfi-mobile-ffi-ios.sh
+
+# 3) Open Xcode and build
+open stealth.xcodeproj
+# Scheme: stealth-testnet (default dev) or stealth-mainnet
+# Destination: simulator or a connected iPhone, then ⌘B / ⌘R
+```
+
+**Physical device from Terminal** (clean rebuild, install, launch — run in Terminal.app so codesign can access your Keychain):
+
+```bash
+./scripts/deploy-ios-device.sh
+# Optional: SCHEME=stealth-mainnet DEVICE_ID=<udid> ./scripts/deploy-ios-device.sh
+```
+
+**Chat on simulator:** open the **Chat** tab — DarkIRC runs **in-process** via the UniFFI layer (`libdarkfi_mobile_ffi.a`), not a bundled binary. Public channel history needs P2P/DAG sync (can take several minutes on first launch).
+
+**Optional standalone darkirc binary:** `./scripts/build-darkirc-ios.sh` cross-compiles upstream `darkirc` into `stealth/Resources/darkirc_exec`. The app does **not** require this today; embedded chat uses the FFI library. That script may fail if upstream `darkirc` crate paths drift — it is not part of the default build.
+
+**Desktop darkirc instead of embedded:** run upstream `darkirc` on your workstation and point chat settings at `127.0.0.1:6667`.
+
+Disk note: `rust/target/` and `build/DerivedData/` can grow large; `cargo clean` in `rust/` and removing `build/DerivedData` frees space between rebuilds.
+
+## Scripts
+
+All helper scripts live in [`scripts/`](scripts/).
+
+| Script | Purpose |
+|--------|---------|
+| [`build-darkfi-mobile-ffi-ios.sh`](scripts/build-darkfi-mobile-ffi-ios.sh) | **Required.** Cross-compiles `darkfi-mobile-ffi` for device + simulator, runs UniFFI bindgen, packages `modules/Sources/DarkfiCore/DarkfiCore.xcframework`. Re-run after changes to `rust/darkfi-mobile-ffi/` or the UDL. |
+| [`build-darkirc-ios.sh`](scripts/build-darkirc-ios.sh) | **Optional.** Builds a standalone `darkirc` binary for iOS and copies it to `stealth/Resources/darkirc_exec`. Not used by the default in-app chat path. |
+| [`deploy-ios-device.sh`](scripts/deploy-ios-device.sh) | **Device deploy.** `cargo clean`, rebuilds FFI, `xcodebuild clean build` for a connected iPhone, installs via `devicectl`, launches `com.nighthawkapps.wallet.ios`. Defaults to scheme `stealth-testnet`. |
+
+Environment variables for `deploy-ios-device.sh`:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SCHEME` | `stealth-testnet` | Xcode scheme (`stealth-mainnet` also available) |
+| `DEVICE_ID` | first connected iPhone | UDID from `xcrun xctrace list devices` |
+| `DERIVED_DATA` | `build/DerivedData` | Xcode derived data path |
+
+Uses project-local `CARGO_HOME=.cargo-home` (same as the FFI build scripts).
+
+## Build the project
+
+End-to-end build steps. For architecture, signing, and troubleshooting, see [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.md).
+
+### Prerequisites
+
+- **Xcode 15+** with **iOS 17+** SDK.
+- **Rust** ([rustup](https://rustup.rs/)) and **Cargo**.
+- **Rust iOS targets** (once):
+
+  ```bash
+  rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+  ```
+
+- **SwiftGen** and **SwiftLint** — see [Installation](#installation-of-swiftgen--swiftlint-on-apple-silicon-chip) below.
+
+### 1. Build the UniFFI native library
+
+Produces **`libdarkfi_mobile_ffi.a`** (device + universal simulator) and refreshes **`DarkfiCore.xcframework`** plus generated Swift bindings under `modules/Sources/DarkfiCore/`.
+
+```bash
+./scripts/build-darkfi-mobile-ffi-ios.sh
+```
+
+Re-run when Rust sources or `darkfi_mobile_ffi.udl` change. Details: [`rust/darkfi-mobile-ffi/`](rust/darkfi-mobile-ffi/).
+
+**Feature catalog (Android parity):** [`docs/app-features.md`](docs/app-features.md) · **Implementation plan (P0–P4):** [`docs/implementation-plan.md`](docs/implementation-plan.md).
+
+### 2. Build the iOS app
+
+**Xcode:** open `stealth.xcodeproj`, choose scheme **`stealth-testnet`** (or **`stealth-mainnet`**), pick simulator or device, **⌘B** / **⌘R**.
+
+**Simulator (CLI):**
+
+```bash
+xcodebuild -project stealth.xcodeproj \
+  -scheme stealth-testnet \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -derivedDataPath build/DerivedData \
+  -skipMacroValidation \
+  build
+```
+
+**Physical device (CLI):** plug in and unlock the iPhone, trust the Mac, then use `./scripts/deploy-ios-device.sh` or:
+
+```bash
+xcodebuild -project stealth.xcodeproj \
+  -scheme stealth-testnet \
+  -destination 'id=<DEVICE_UDID>' \
+  -derivedDataPath build/DerivedData \
+  -skipMacroValidation \
+  -allowProvisioningUpdates \
+  build
+```
+
+Code signing uses the **Apple Development** identity in your login Keychain (`DEVELOPMENT_TEAM` is set in the project). If `codesign` hangs from an IDE-embedded shell, run builds from **Terminal.app** or Xcode and approve Keychain access.
+
+### 3. Tests and checks
+
+```bash
+# Rust compile check
+cd rust && cargo check -p darkfi-mobile-ffi && cd ..
+
+# Swift unit tests (simulator)
+xcodebuild test -project stealth.xcodeproj \
+  -scheme stealth-testnet \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -derivedDataPath build/DerivedData \
+  -skipMacroValidation \
+  -only-testing:stealthTests
+```
+
+## Chat (DarkIRC-style)
+
+In-app **Chat** uses an **in-process DarkIRC daemon** via UniFFI. Unlike Android (which runs a packaged `darkirc_exec` subprocess), iOS runs `darkirc` natively inside the Rust FFI layer with a **callback bridge** pattern — the Rust daemon invokes `DarkircEventCallback.on_message()` which surfaces messages directly into Swift's `AsyncStream`. See [DarkIRC on iOS](docs/darkirc-ios.md).
+
+| Capability | Behavior |
+|------------|----------|
+| Default mode | In-process `darkirc` via `start_darkirc()` UniFFI |
+| Tor | In-process **Arti** proxy via `start_arti_proxy()` (no external Tor app needed) |
+| Public channels | `#dev`, `#random`, `#lunardao` (upstream `autojoin` defaults) |
+| E2E DMs | ChaCha via UniFFI `chacha_encrypt_dm` / `chacha_decrypt_dm` |
+| DM contacts | `DarkircContactManager` + `DarkircCryptoStore` |
+| DM key generation | UniFFI `generate_dm_keypair()` (native Rust) |
+| Connection status | `darkirc_status()` polling |
+| DAG history | EventGraph replays on connect; needs P2P sync for non-empty channels |
+
+### Build and test (chat-related)
+
+Chat uses the in-process FFI built by **`build-darkfi-mobile-ffi-ios.sh`** (includes `start_darkirc()` and related UniFFI surface). Rebuild that script after Rust/chat changes:
+
+```bash
+./scripts/build-darkfi-mobile-ffi-ios.sh
+```
+
+The optional **`build-darkirc-ios.sh`** script is only for bundling a standalone `darkirc_exec` binary; it is separate from the default embedded chat path.
+
+## Architecture (current)
+
+- **UI:** SwiftUI + [The Composable Architecture (TCA)](https://github.com/pointfreeco/swift-composable-architecture) for state management. `Home.swift` scopes tabs into child reducers: Wallet, Transfer, Chat, Settings.
+- **Themes:** Stealth (default dark theme).
+- **Settings hub:** Main settings surface includes Chat settings (identity, IRC endpoint, Tor, DM contacts), Change server (darkfid endpoint), Security (PIN), Fiat currency, About.
+- **Wallet SDK:** `SDKSynchronizerLive.swift` hosts `WalletHandleManager` singleton wrapping `DarkfiWalletHandle` over UniFFI. Combine `CurrentValueSubject` streams balance/sync state to TCA reducers.
+- **Balance model:** Single **confirmed / spendable** DRK tally via `confirmedBalanceAtomic()` — no transparent vs shielded split (aligned with DarkFi's private ledger model).
+- **Native DarkFi:** **UniFFI** bindings in `rust/darkfi-mobile-ffi` compile to a static library `libdarkfi_mobile_ffi.a`. Runtime calls go through generated Swift bindings. Rebuild whenever `rust/darkfi-mobile-ffi` changes.
+
+## UniFFI & native bridge
+
+| Piece | Role today |
+|-------|------------|
+| **`rust/darkfi-mobile-ffi`** | UniFFI `staticlib` (`libdarkfi_mobile_ffi`; UDL `src/darkfi_mobile_ffi.udl`). Builds with `cargo` from `rust/` workspace. Fully linked to the upstream DarkFi workspace. |
+| **Generated Swift** | UniFFI-generated Swift bridging headers + bindings. |
+| **`DarkfiWalletHandle`** | UniFFI interface exposing wallet init, balance, sync, transfer, history, DAO, address management. |
+| **`DarkircEventCallback`** | Callback interface for in-process darkirc → Swift message relay. |
+| **Arti Tor** | `start_arti_proxy(socks_port)` / `stop_arti_proxy()` — in-process Rust Tor via Arti. |
+| **DM Crypto** | `generate_dm_keypair()`, `chacha_encrypt_dm()`, `chacha_decrypt_dm()` — native ChaCha20 E2E. |
+
+**Production mapping:** Mirrors DarkFi wallet RPC / `bin/drk` semantics — single balance field, scan/progress, broadcast. The wallet handle is fully implemented with native Rust-backed operations.
+
+## DAO Hub
+
+Read-only DAO governance hub via UniFFI:
+- `list_daos()` — enumerate wallet DAOs
+- `list_proposals(dao_name?)` — list proposals per DAO
+- `get_proposal(proposal_bulla_b58)` — proposal detail
+
+UI: Transfer tab and Settings → **DAO Hub**; hub → DAO detail → proposal detail.
+
+## Verification
+
+| Step | Command |
+|------|---------|
+| Rust check | `cd rust && cargo check -p darkfi-mobile-ffi` |
+| FFI + XCFramework | `./scripts/build-darkfi-mobile-ffi-ios.sh` |
+| iOS build (simulator) | `xcodebuild -project stealth.xcodeproj -scheme stealth-testnet -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build` |
+| Swift tests | `xcodebuild test -project stealth.xcodeproj -scheme stealth-testnet -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation -only-testing:stealthTests` |
+| Device deploy | `./scripts/deploy-ios-device.sh` |
+
+## Installation of SwiftGen & SwiftLint on Apple Silicon chip
+
+### SwiftGen
+Install it using homebrew
+```
+$ brew install swiftgen
+```
+and create a symbolic link
+```
+ln -s /opt/homebrew/bin/swiftgen /usr/local/bin
+```
+### SwiftLint
+The project is setup to work with `0.50.3` version. We recommend to install it directly using [the official 0.50.3 package](https://github.com/realm/SwiftLint/releases/download/0.50.3/SwiftLint.pkg). If you follow this step there is no symbolic link needed.
+
+In case you already have swiftlint 0.50.3 ready on your machine and installed via homebrew, create a symbolic link
+```
+ln -s /opt/homebrew/bin/swiftlint /usr/local/bin
+```
+
+## Contributing
+
+Contributions are very much welcomed! Please read our [Contributing Guidelines](/CONTRIBUTING.md), [AI Contributing Guide](/CONTRIBUTING_AI.md), and [Code of Conduct](/CONDUCT.md). Our backlog has many Issues tagged with the `good first issue` label. Please fork the repo and make a pull request for us to review.
+
+The project uses [SwiftLint](https://github.com/realm/SwiftLint) and [SwiftGen](https://github.com/SwiftGen/SwiftGen) to conform to our coding guidelines for source code and generate accessors for assets. Please install these locally when contributing to the project, they are run automatically when you build.
+
+## Reporting an issue
+
+Security disclosures: email `nighthawkwallet@protonmail.com` (see [disclosure policy](#disclosure-policy) for PGP expectations).
+
+Technical issues / features: file a GitHub issue on this repository.
+
+General support: [DM @NighthawkWallet on X](https://x.com/nighthawkwallet).
+
+## Known issues
+
+1. The DarkFi iOS wallet uses an in-process `darkirc` daemon; first P2P/DAG sync can take several minutes.
+2. Arti Tor in-process startup adds ~10–15s to first chat connection.
+3. DRK fiat conversion may show "unavailable" until pricing endpoints support DRK.
+4. Default development scheme is **`stealth-testnet`**; **`stealth-mainnet`** is available for mainnet builds.
+
+## Disclosure policy
+
 Do not disclose any bug or vulnerability on public forums, message boards, mailing lists, etc. prior to responsibly disclosing to Nighthawk Wallet and giving sufficient time for the issue to be fixed and deployed. Do not execute on or exploit any vulnerability.
 
 ### Reporting a Bug or Vulnerability
@@ -22,55 +249,24 @@ Your name (optional). If provided, we will provide credit for disclosure. Otherw
 Your email or other means of contacting you.
 A PGP key/fingerprint for us to provide encrypted responses to your disclosure. If this is not provided, we cannot guarantee that you will receive a response prior to a fix being made and deployed.
 
-## Encrypting the Disclosure
-We highly encourage all disclosures to be encrypted to prevent interception and exploitation by third-parties prior to a fix being developed and deployed.  Please encrypt using the PGP public key with fingerprint: `8c07e1261c5d9330287f4ec35aff0fd018b01972`
+### Encrypting the Disclosure
+We highly encourage all disclosures to be encrypted to prevent interception and exploitation by third-parties prior to a fix being developed and deployed. Please encrypt using the PGP public key with fingerprint: `8c07e1261c5d9330287f4ec35aff0fd018b01972`
 
 ## Disclaimers
-There are some known areas for improvement:
 
-- This app depends upon related libraries that it uses. There may be bugs.
-- This wallet currently only supports transacting between shielded addresses, which makes it incompatible with wallets that do not support sending to shielded addresses. 
+- Funding/on-ramp and third-party exchange shortcuts were removed; acquire DRK through channels you trust.
+- Chat connects to **DarkIRC** P2P network via in-process Rust daemon; **Arti/Tor** runs inside the app when enabled.
+- Fiat hints depend on public APIs and may be unavailable.
 - Traffic analysis, like in other cryptocurrency wallets, can leak some privacy of the user.
-- The wallet requires a trust in the lightwalletd server to display accurate transaction information. 
-- This app has been developed and run exclusively on `mainnet` it might not work on `testnet`.  
-
-See the [Wallet App Threat Model](https://zcash.readthedocs.io/en/latest/rtd_pages/wallet_threat_model.html)
-for more information about the security and privacy limitations of the wallet.
-
-# Installation of Swiftgen & Swiftlint on Apple Silicon chip
-
-## Swiftgen
-Install it using homebrew
-```
-$ brew install swiftgen
-```
-and create a symbolic link
-```
-ln -s /opt/homebrew/bin/swiftgen /usr/local/bin
-```
-## Swiftlint
-The project is setup to work with `0.50.3` version. We recommend to install it directly using [the official 0.50.3 package](https://github.com/realm/SwiftLint/releases/download/0.50.3/SwiftLint.pkg). If you follow this step there is no symbolic link needed.
-
-In case you already have swiftlint 0.50.3 ready on your machine and installed via homebrew, create a symbolic link
-```
-ln -s /opt/homebrew/bin/swiftlint /usr/local/bin
-```
-
-# Contributing
-
-Contributions are very much welcomed! Please read our [Contributing Guidelines](/CONTRIBUTING.md) and [Code of Conduct](/CONDUCT.md). Our backlog has many Issues tagged with the `good first issue` label. Please fork the repo and make a pull request for us to review.
-
-Secant Wallet uses [SwiftLint](https://github.com/realm/SwiftLint) and [SwiftGen](https://github.com/SwiftGen/SwiftGen) to conform to our coding guidelines for source code and generate accessors for assets. Please install these locally when contributing to the project, they are run automatically when you build.
-  
-# Reporting an issue
-
-If you wish to report a security issue, please follow our [Wallet Issue Disclosure Policy](https://github.com/nighthawk-apps/nighthawk-ios-wallet/edit/main/README.md#disclosure-policy) and [ZcashLightClientKit Responsible Disclosure guidelines](https://github.com/zcash/ZcashLightClientKit/blob/master/responsible_disclosure.md).
-
- For other kind of inquiries, feel welcome to open an Issue if you encounter a bug or would like to request a feature.
+- The wallet requires trust in the connected `darkfid` server to display accurate transaction information.
 
 ## Donate to Nighthawk Devs
 
 zs1nhawkewaslscuey9qhnv9e4wpx77sp73kfu0l8wh9vhna7puazvfnutyq5ymg830hn5u2dmr0sf
+
+## Contact Nighthawk Apps
+
+Email: `nighthawkwallet@protonmail.com` (see disclosure section for PGP expectations).
 
 ### License
 

@@ -17,7 +17,6 @@ import SwiftUI
 import TransactionDetail
 import WalletCreated
 import Welcome
-import ZcashLightClientKit
 
 public struct AppView: View {
     @Bindable var store: StoreOf<AppReducer>

@@ -1,13 +1,14 @@
 //
 //  DatabaseFilesInterface.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 11.11.2022.
 //
 
 import Foundation
 import ComposableArchitecture
-import ZcashLightClientKit
+
+public typealias DarkFiNetwork = String
 
 extension DependencyValues {
     public var databaseFiles: DatabaseFilesClient {
@@ -18,12 +19,12 @@ extension DependencyValues {
 
 public struct DatabaseFilesClient {
     public let documentsDirectory: () -> URL
-    public let fsBlockDbRootFor: (ZcashNetwork) -> URL
-    public let cacheDbURLFor: (ZcashNetwork) -> URL
-    public let dataDbURLFor: (ZcashNetwork) -> URL
-    public let outputParamsURLFor: (ZcashNetwork) -> URL
-    public let pendingDbURLFor: (ZcashNetwork) -> URL
-    public let spendParamsURLFor: (ZcashNetwork) -> URL
-    public var torDirURLFor: (ZcashNetwork) -> URL
-    public var areDbFilesPresentFor: (ZcashNetwork) -> Bool
+    public let fsBlockDbRootFor: (DarkFiNetwork) -> URL
+    public let cacheDbURLFor: (DarkFiNetwork) -> URL
+    public let dataDbURLFor: (DarkFiNetwork) -> URL
+    public let outputParamsURLFor: (DarkFiNetwork) -> URL
+    public let pendingDbURLFor: (DarkFiNetwork) -> URL
+    public let spendParamsURLFor: (DarkFiNetwork) -> URL
+    public var torDirURLFor: (DarkFiNetwork) -> URL
+    public var areDbFilesPresentFor: (DarkFiNetwork) -> Bool
 }

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Utils
 import DatabaseFiles
 import DerivationTool
 import FileManager
@@ -25,8 +26,6 @@ import UserPreferencesStorage
 import WalletCreated
 import WalletStorage
 import Welcome
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct AppReducer {
@@ -41,12 +40,8 @@ public struct AppReducer {
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
         public var nighthawkColorScheme: ColorScheme {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return if userStoredPreferences.isBandit() {
-                userStoredPreferences.theme().colorScheme
-            } else {
-                .light
-            }
+            // DarkFi is always dark mode
+            .dark
         }
         
         var shouldResetToSplash: Bool {
@@ -99,7 +94,9 @@ public struct AppReducer {
     
     public enum Action {
         case alert(PresentationAction<Alert>)
-        case initializeSDKFailed(ZcashError)
+        case createWalletFailed(DarkFiError)
+        case createWalletSucceeded
+        case initializeSDKFailed(DarkFiError)
         case initializeSDKSuccess(shouldResetStack: Bool)
         case deleteWalletSuccess
         case deleteWalletFailed
@@ -142,7 +139,6 @@ public struct AppReducer {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.splash, action: \.splash) {
@@ -153,8 +149,23 @@ public struct AppReducer {
             switch action {
             case .alert:
                 return .none
+            case let .createWalletFailed(error):
+                state.alert = .cantCreateNewWallet(error)
+                return .none
+            case .createWalletSucceeded:
+                state.path.append(.walletCreated(.init()))
+                return .none
             case let .initializeSDKFailed(error):
-                state.alert = .sdkInitFailed(error)
+                // DarkFi mobile SDK is still under development — don't block the app.
+                // Log the error and proceed to home in degraded mode (chat, settings still work).
+                print("[DarkFi] SDK init failed (expected while darkfid mobile is in development): \(error.message)")
+                state.synchronizerStopped = true
+                // Navigate to home so the user isn't stuck
+                state.path = StackState([
+                    .home(
+                        .init(unifiedAddress: nil)
+                    )
+                ])
                 return .none
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
@@ -173,7 +184,7 @@ public struct AppReducer {
                 userStoredPreferences.removeAll()
                 state.unifiedAddress = nil
                 state.latestFiatPrice = nil
-                if let eventsCache = URL.latestEventsCache(for: zcashSDKEnvironment.network.networkType) {
+                if let eventsCache = URL.latestEventsCache(for: "testnet") {
                     try? fileManager.removeItem(eventsCache)
                 }
                 
@@ -234,27 +245,25 @@ extension AppReducer {
         do {
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
-            let birthday = storedWallet.birthday?.value() ?? zcashSDKEnvironment.latestCheckpoint
+            let birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
             let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
             
             return .run { send in
                 do {
-                    // Prepare, if needed
-                    if !sdkSynchronizer.isInitialized() {
-                        try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
-                    }
+                    // Prepare and start
+                    try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
                     
-                    // Start synchronizer
-                    let ua = try? await sdkSynchronizer.getUnifiedAddress(0)
-                    await send(.unifiedAddressResponse(ua))
+                    // Get address
+                    let address = try? await sdkSynchronizer.getAddress()
+                    await send(.unifiedAddressResponse(address))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
                 } catch {
-                    await send(.initializeSDKFailed(error.toZcashError()))
+                    await send(.initializeSDKFailed(error.toDarkFiError()))
                 }
             }
         } catch {
-            return .send(.initializeSDKFailed(error.toZcashError()))
+            return .send(.initializeSDKFailed(error.toDarkFiError()))
         }
     }
 }
@@ -275,7 +284,7 @@ private extension AppReducer {
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.existingWallet)
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }

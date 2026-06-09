@@ -9,7 +9,6 @@ import ComposableArchitecture
 
 @Reducer
 public struct SendFailed {
-    
     @ObservableState
     public struct State: Equatable {
         public init() {}

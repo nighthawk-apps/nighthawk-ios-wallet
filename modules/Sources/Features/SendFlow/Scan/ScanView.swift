@@ -14,7 +14,7 @@ import Utils
 public struct ScanView: View {
     @Bindable var store: StoreOf<Scan>
     
-    let normalizedRectOfInterest: CGRect = CGRect(
+    let normalizedRectOfInterest = CGRect(
         x: 0.25,
         y: 0.25,
         width: 1.0,
@@ -109,4 +109,3 @@ private struct CornerStrokeSquare: Shape {
         return path
     }
 }
-

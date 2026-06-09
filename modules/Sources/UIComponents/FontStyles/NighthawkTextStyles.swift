@@ -1,6 +1,6 @@
 //
 //  NighthawkTextStyles.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 3/17/23.
 //

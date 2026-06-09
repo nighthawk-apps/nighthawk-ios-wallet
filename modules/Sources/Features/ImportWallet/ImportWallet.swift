@@ -1,6 +1,6 @@
 //
 //  ImportWallet.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/10/23.
 //
@@ -12,18 +12,15 @@ import SwiftUI
 import UIComponents
 import Utils
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct ImportWallet {
     @ObservableState
     public struct State: Equatable {
-        let saplingActivationHeight: BlockHeight
         @Presents public var alert: AlertState<Action.Alert>?
         public var importedSeedPhrase = ""
         public var birthdayHeight = ""
-        public var maxWordsCount = 0
+        public var maxWordsCount = DarkfiSeedPhrase.wordCount
         public var birthdayHeightValue: RedactableBlockHeight? { BlockHeight(birthdayHeight)?.redacted }
         public var formattedPhrase: String {
             let trimmedPhraseWords = importedSeedPhrase.split(separator: " ")
@@ -37,22 +34,15 @@ public struct ImportWallet {
         }
         
         public var isValidBirthday: Bool {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            
             if let birthdayHeightValue {
-                return birthdayHeightValue.data >= zcashSDKEnvironment.network.constants.saplingActivationHeight
+                return birthdayHeightValue.data >= 0
             }
-                        
             return true
         }
         
         public var isValidForm: Bool { isValidBirthday && isValidMnemonic }
                 
-        public init(saplingActivationHeight: BlockHeight) {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            maxWordsCount = zcashSDKEnvironment.mnemonicWordsMaxCount
-            self.saplingActivationHeight = saplingActivationHeight
-        }
+        public init() {}
     }
     
     public enum Action: BindableAction, Equatable {
@@ -70,8 +60,6 @@ public struct ImportWallet {
     
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-    
     
     public var body: some ReducerOf<ImportWallet> {
         BindingReducer()
@@ -86,12 +74,12 @@ public struct ImportWallet {
                 guard state.isValidForm else { return .none }
                 do {
                     // if the user did not input a height,
-                    // fall back to sapling activation
-                    let birthday = state.birthdayHeightValue ?? zcashSDKEnvironment.network.constants.saplingActivationHeight.redacted
+                    // fall back to 0 (DarkFi: no checkpoint concept)
+                    let birthday = state.birthdayHeightValue ?? BlockHeight(0).redacted
                     try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
                     return .send(.delegate(.showImportSuccess))
                 } catch {
-                    state.alert = AlertState.importWalletFailed(error.toZcashError())
+                    state.alert = AlertState.importWalletFailed(error.toDarkFiError())
                     return .none
                 }
             case .delegate:
@@ -105,11 +93,11 @@ public struct ImportWallet {
 }
 
 extension AlertState where Action == ImportWallet.Action.Alert {
-    static func importWalletFailed(_ error: ZcashError) -> Self {
+    static func importWalletFailed(_ error: DarkfiError) -> Self {
         AlertState {
             TextState(L10n.Nighthawk.ImportWallet.Alert.Failed.title)
         } message: {
-            TextState(L10n.Nighthawk.ImportWallet.Alert.Failed.message(error.message, error.code.rawValue))
+            TextState(L10n.Nighthawk.ImportWallet.Alert.Failed.message(error.message, 0))
         }
     }
 }

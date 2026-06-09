@@ -1,17 +1,14 @@
 //
 //  NighthawkTextEditor.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/13/23.
 //
 
-import CasePaths
 import Generated
 import SwiftUI
 
 public struct NighthawkTextEditor: View {
-    
-    @CasePathable
     public enum ValidationState: Equatable {
         case valid
         case invalid(error: String)
@@ -38,7 +35,10 @@ public struct NighthawkTextEditor: View {
     @State private var _dirty = false
     
     public var body: some View {
-        let errorMessage = isValid[case: \.invalid]
+        let errorMessage: String? = {
+            if case let .invalid(error) = isValid { return error }
+            return nil
+        }()
         let isError = errorMessage != nil
         let showError = isError && _dirty && !_focusState
         

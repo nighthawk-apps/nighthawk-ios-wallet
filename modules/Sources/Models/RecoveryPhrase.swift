@@ -1,12 +1,11 @@
 //
 //  RecoveryPhrase.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 12.05.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
 import Utils
 
 public enum RecoveryPhraseError: Error {

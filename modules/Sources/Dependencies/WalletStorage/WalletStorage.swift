@@ -1,6 +1,6 @@
 //
 //  WalletStorage.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 03/10/2022.
 //
@@ -8,24 +8,19 @@
 import Foundation
 import KeychainSwift
 import MnemonicSwift
-import ZcashLightClientKit
 import Utils
 import SecItem
 import Models
 
-/// Zcash implementation of the keychain that is not universal but designed to deliver functionality needed by the wallet itself.
+/// DarkFi wallet keychain storage.
 /// All the APIs should be thread safe according to official doc:
 /// https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
 public struct WalletStorage {
     public enum Constants {
-        public static let zcashStoredWallet = "zcashStoredWallet"
-        
-        public static let zcashLegacyPhrase = "zECCWalletPhrase"
-        public static let zcashLegacyBirthday = "zECCWalletBirthday"
-        public static let zcashLegacyKeys = "zECCWalletKeys"
-        public static let zcashLegacySeedKey = "zEECWalletSeedKey"
+        /// Primary wallet storage key
+        public static let darkfiStoredWallet = "darkfiStoredWallet"
         /// Versioning of the stored data
-        public static let zcashKeychainVersion = 1
+        public static let darkfiKeychainVersion = 1
     }
 
     public enum KeychainError: Error, Equatable {
@@ -45,7 +40,7 @@ public struct WalletStorage {
     }
 
     private let secItem: SecItemClient
-    public var zcashStoredWalletPrefix = ""
+    public var darkfiStoredWalletPrefix = ""
     private let keychain = KeychainSwift()
     
     public init(secItem: SecItemClient) {
@@ -57,7 +52,7 @@ public struct WalletStorage {
         birthday: BlockHeight?,
         language: MnemonicLanguageType = .english
     ) throws {
-        // Future-proof of the bundle to potentially avoid migration. We enforce english mnemonic.
+        // DarkFi uses 22-word seed phrases
         guard language == .english else {
             throw WalletStorageError.unsupportedLanguage(language)
         }
@@ -65,7 +60,7 @@ public struct WalletStorage {
         let wallet = StoredWallet(
             language: language,
             seedPhrase: SeedPhrase(phrase),
-            version: Constants.zcashKeychainVersion,
+            version: Constants.darkfiKeychainVersion,
             birthday: Birthday(birthday)
         )
 
@@ -74,7 +69,7 @@ public struct WalletStorage {
                 throw KeychainError.encoding
             }
             
-            try setData(data, forKey: Constants.zcashStoredWallet)
+            try setData(data, forKey: Constants.darkfiStoredWallet)
         } catch KeychainError.duplicate {
             throw WalletStorageError.alreadyImported
         } catch {
@@ -83,7 +78,7 @@ public struct WalletStorage {
     }
     
     public func exportWallet() throws -> StoredWallet {
-        guard let data = data(forKey: Constants.zcashStoredWallet) else {
+        guard let data = data(forKey: Constants.darkfiStoredWallet) else {
             throw WalletStorageError.uninitializedWallet
         }
         
@@ -91,7 +86,7 @@ public struct WalletStorage {
             throw WalletStorageError.uninitializedWallet
         }
         
-        guard wallet.version == Constants.zcashKeychainVersion else {
+        guard wallet.version == Constants.darkfiKeychainVersion else {
             throw WalletStorageError.unsupportedVersion(wallet.version)
         }
         
@@ -108,25 +103,6 @@ public struct WalletStorage {
         return true
     }
     
-    public func areLegacyKeysPresent() -> Bool {
-        let phrase = keychain.get(Constants.zcashLegacyPhrase)
-        let birthday = keychain.get(Constants.zcashLegacyBirthday)
-        return phrase != nil && birthday != nil
-    }
-    
-    public func exportLegacyPhrase() throws -> String {
-        guard let seed = keychain.get(Constants.zcashLegacyPhrase) else { throw WalletStorageError.uninitializedWallet }
-        return seed
-    }
-    
-    public func exportLegacyBirthday() throws -> BlockHeight {
-        guard let birthday = keychain.get(Constants.zcashLegacyBirthday),
-            let value = BlockHeight(birthday) else {
-                throw WalletStorageError.uninitializedWallet
-        }
-        return value
-    }
-    
     public func updateBirthday(_ height: BlockHeight) throws {
         do {
             var wallet = try exportWallet()
@@ -136,37 +112,14 @@ public struct WalletStorage {
                 throw KeychainError.encoding
             }
             
-            try updateData(data, forKey: Constants.zcashStoredWallet)
+            try updateData(data, forKey: Constants.darkfiStoredWallet)
         } catch {
             throw error
         }
     }
     
     public func deleteWallet() {
-        deleteData(forKey: Constants.zcashStoredWallet)
-    }
-    
-    public func deleteLegacyWallet() {
-        keychain.delete(Constants.zcashLegacyKeys)
-        keychain.delete(Constants.zcashLegacySeedKey)
-        keychain.delete(Constants.zcashLegacyPhrase)
-        keychain.delete(Constants.zcashLegacyBirthday)
-        
-        // Fix: retrocompatibility with old wallets, previous to IVK Synchronizer updates
-        removeRetrocompatibilityKeys()
-    }
-
-    /**
-     Removes all remaining keys related to this App except the ones considered "New" under the key `Constants.zcashStoredWallet`
-     If there are no retrocompatibility keys present this function will do nothing.
-    */
-    private func removeRetrocompatibilityKeys() {
-        let allKeys = Set(keychain.allKeys)
-        // BUGFIX: avoid calling `keychain.delete("")` because it apparently wipes the keychain
-        let allButNew = allKeys.subtracting([Constants.zcashStoredWallet, ""])
-        for key in allButNew {
-            keychain.delete(key)
-        }
+        deleteData(forKey: Constants.darkfiStoredWallet)
     }
     
     // MARK: - Wallet Storage Codable & Query helpers
@@ -194,7 +147,7 @@ public struct WalletStorage {
     public func baseQuery(forAccount account: String = "", andKey forKey: String) -> [String: Any] {
         let query: [String: AnyObject] = [
             /// Uniquely identify this keychain accessor
-            kSecAttrService as String: (zcashStoredWalletPrefix + forKey) as AnyObject,
+            kSecAttrService as String: (darkfiStoredWalletPrefix + forKey) as AnyObject,
             kSecAttrAccount as String: account as AnyObject,
             kSecClass as String: kSecClassGenericPassword,
             /// The data in the keychain item can be accessed only while the device is unlocked by the user.
@@ -226,7 +179,7 @@ public struct WalletStorage {
         let query = restoreQuery(forAccount: account, andKey: forKey)
 
         var result: AnyObject?
-        let _ = secItem.copyMatching(query as CFDictionary, &result)
+        _ = secItem.copyMatching(query as CFDictionary, &result)
         
         return result as? Data
     }

@@ -1,8 +1,9 @@
 //
 //  ReceiveView.swift
-//  
+//  stealth
 //
-//  Created by Matthew on 7/15/23.
+//  DarkFi: Single privacy address — show QR code + copy address.
+//  No transparent/public section. No legacy address types.
 //
 
 import AlertToast
@@ -19,17 +20,79 @@ public struct ReceiveView: View {
     }
     
     public var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             NighthawkLogo(spacing: .compact)
-                .padding(.vertical, 40)
+                .padding(.vertical, 32)
             
-            VStack(spacing: 10) {
-                secureOptionsList
+            // Address section
+            VStack(spacing: 16) {
+                Text("Your DarkFi Address")
+                    .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 
-                publicOptionsList
+                Text("All transactions on DarkFi are private by default. Share this address to receive DRK.")
+                    .font(.custom(FontFamily.Rubik.regular.name, size: 14))
+                    .foregroundColor(Asset.Colors.Nighthawk.textMuted.color)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
             }
+            .padding(.bottom, 24)
+            
+            // Options
+            VStack(spacing: 10) {
+                Button(action: { store.send(.showQrCodeTapped) }) {
+                    optionRow(
+                        title: "Show QR Code",
+                        description: "Display QR for in-person payments",
+                        icon: Asset.Assets.Icons.Nighthawk.nhQrCode.image
+                    )
+                }
+                
+                Button(action: { store.send(.copyAddressTapped) }) {
+                    optionRow(
+                        title: "Copy Address",
+                        description: "Copy your DarkFi privacy address to clipboard",
+                        icon: Asset.Assets.Icons.Nighthawk.copy.image
+                    )
+                }
+                
+                Button(action: { store.send(.generateNewAddressTapped) }) {
+                    HStack(alignment: .center) {
+                        if store.isGenerating {
+                            ProgressView()
+                                .frame(width: 24, height: 24)
+                                .tint(.white)
+                                .padding(.trailing, 14)
+                        } else {
+                            Image(systemName: "plus.circle")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.white)
+                                .padding(.trailing, 14)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Generate New Address")
+                                .foregroundColor(Asset.Colors.Nighthawk.accent.color)
+                                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                            
+                            Text("Derive a new DarkFi address for privacy")
+                                .caption()
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                }
+                .disabled(store.isGenerating)
+            }
+            .padding(.horizontal, 25)
             
             Spacer()
+            
+            // Address preview
+            addressPreview
         }
         .toast(
             unwrapping: $store.toast,
@@ -38,6 +101,26 @@ public struct ReceiveView: View {
                 AlertToast(
                     type: .regular,
                     title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
+                )
+            }
+        )
+        .toast(
+            unwrapping: $store.toast,
+            case: /Receive.State.Toast.newAddressGenerated,
+            alert: {
+                AlertToast(
+                    type: .complete(.green),
+                    title: "New address generated"
+                )
+            }
+        )
+        .toast(
+            unwrapping: $store.toast,
+            case: /Receive.State.Toast.generateFailed,
+            alert: {
+                AlertToast(
+                    type: .error(.red),
+                    title: "Failed to generate address"
                 )
             }
         )
@@ -54,61 +137,43 @@ public struct ReceiveView: View {
     }
 }
 
-// MARK: - Subviews
+// MARK: - Components
 private extension ReceiveView {
-    var secureOptionsList: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneySecurely)
-                    .paragraphMedium()
-                Spacer()
+    var addressPreview: some View {
+        VStack(spacing: 12) {
+            if store.privacyAddress != "-" {
+                addressCard(label: "PRIMARY ADDRESS", address: store.privacyAddress)
             }
             
-            Button(action: { store.send(.showQrCodeTapped) }) {
-                optionRow(
-                    title: L10n.Nighthawk.TransferTab.Receive.showQrCodeTitle,
-                    description: L10n.Nighthawk.TransferTab.sendMoneyDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.nhQrCode.image
-                )
-            }
-            
-            Button(action: { store.send(.copyUnifiedAddressTapped) }) {
-                optionRow(
-                    title: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressTitle,
-                    description: L10n.Nighthawk.TransferTab.Receive.copyUnifiedAddressDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.copy.image
-                )
-            }
-            
-            Button(action: { store.send(.topUpWalletTapped) }) {
-                optionRow(
-                    title: L10n.Nighthawk.TransferTab.topUpWalletTitle,
-                    description: L10n.Nighthawk.TransferTab.topUpWalletDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.topUp.image
-                )
+            if let generated = store.generatedAddress {
+                addressCard(label: "NEW ADDRESS", address: generated)
             }
         }
         .padding(.horizontal, 25)
+        .padding(.bottom, 24)
     }
     
-    var publicOptionsList: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Text(L10n.Nighthawk.TransferTab.Receive.receiveMoneyPublicly)
-                    .paragraphMedium()
-                    .padding(.top, 10)
-                Spacer()
-            }
+    func addressCard(label: String, address: String) -> some View {
+        VStack(spacing: 8) {
+            Text(label)
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
+                .foregroundColor(Asset.Colors.Nighthawk.textMuted.color)
+                .tracking(1.5)
             
-            Button(action: { store.send(.copyTransparentAddressTapped) }) {
-                optionRow(
-                    title: L10n.Nighthawk.TransferTab.Receive.copyNonPrivateAddressTitle,
-                    description: L10n.Nighthawk.TransferTab.Receive.copyNonPrivateAddressDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.unshielded.image
-                )
-            }
+            Text(address)
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundColor(Asset.Colors.Nighthawk.textBody.color)
+                .lineLimit(2)
+                .truncationMode(.middle)
+                .padding(.horizontal, 20)
+                .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, 25)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Asset.Colors.Nighthawk.charcoalRaised.color)
+        )
     }
     
     func optionRow(
@@ -127,7 +192,7 @@ private extension ReceiveView {
                 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(title)
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(Asset.Colors.Nighthawk.accent.color)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                     
                     Text(description)
@@ -141,7 +206,7 @@ private extension ReceiveView {
             
             Divider()
                 .frame(height: 2)
-                .overlay(Asset.Colors.Nighthawk.navy.color)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
     }
 }

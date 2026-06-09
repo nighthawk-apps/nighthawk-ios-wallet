@@ -1,6 +1,6 @@
 //
 //  NighthawkTabBar.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
@@ -8,53 +8,98 @@
 import Generated
 import SwiftUI
 
+private enum Constants {
+    static let barHeight: CGFloat = 54
+}
+
 struct NighthawkTabBar: View {
-    let destination: Binding<Home.State.Tab>
+    @Binding var destination: Home.State.Tab
+    let onSelect: (Home.State.Tab) -> Void
     let disableSend: Bool
     
     init(
         destination: Binding<Home.State.Tab>,
+        onSelect: @escaping (Home.State.Tab) -> Void,
         disableSend: Bool
     ) {
-        self.destination = destination
+        self._destination = destination
+        self.onSelect = onSelect
         self.disableSend = disableSend
         UITabBar.appearance().isHidden = true
     }
     
     var body: some View {
-        HStack {
-            Tab(
+        HStack(spacing: 0) {
+            tabButton(
                 title: L10n.Nighthawk.HomeScreen.wallet,
                 image: Asset.Assets.Icons.Nighthawk.wallet.image,
-                isSelected: destination.wrappedValue == .wallet
+                tab: .wallet
             )
-            .onTapGesture { destination.wrappedValue = .wallet }
-                        
-            Tab(
+            
+            tabButton(
                 title: L10n.Nighthawk.HomeScreen.transfer,
                 image: Asset.Assets.Icons.Nighthawk.transfer.image,
-                isSelected: destination.wrappedValue == .transfer
+                tab: .transfer,
+                isDisabled: disableSend
             )
-            .onTapGesture { destination.wrappedValue = .transfer }
-            .disable(when: disableSend, dimmingOpacity: 0.3)
-                        
-            Tab(
+            
+            tabButton(
+                title: "Chat",
+                image: Image(systemName: "bubble.left.and.bubble.right"),
+                tab: .chat
+            )
+            
+            tabButton(
                 title: L10n.Nighthawk.HomeScreen.settings,
                 image: Asset.Assets.Icons.Nighthawk.settings.image,
-                isSelected: destination.wrappedValue == .settings
+                tab: .settings
             )
-            .onTapGesture {
-                destination.wrappedValue = .settings
-            }
         }
-        .frame(maxWidth: .infinity, maxHeight: 54)
-        .edgesIgnoringSafeArea([.bottom])
-        .background(Asset.Colors.Nighthawk.navy.color)
+        .frame(maxWidth: .infinity)
+        .frame(height: Constants.barHeight)
+        .background {
+            Asset.Colors.Nighthawk.navy.color
+                .ignoresSafeArea(edges: .bottom)
+        }
         .environment(\.layoutDirection, .leftToRight)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("nighthawk.home.tabbar")
+    }
+    
+    private func tabButton(
+        title: String,
+        image: Image,
+        tab: Home.State.Tab,
+        isDisabled: Bool = false
+    ) -> some View {
+        Button {
+            destination = tab
+            onSelect(tab)
+        } label: {
+            TabBarItem(
+                title: title,
+                image: image,
+                isSelected: destination == tab
+            )
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(NighthawkTabButtonStyle())
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.3 : 1.0)
+        .accessibilityIdentifier("nighthawk.home.tab.\(tab)")
     }
 }
 
-struct Tab: View {
+private struct NighthawkTabButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.45 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private struct TabBarItem: View {
     let title: String
     let image: Image
     let isSelected: Bool
@@ -80,7 +125,6 @@ struct Tab: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .frame(maxWidth: .infinity)
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(
@@ -92,4 +136,8 @@ struct Tab: View {
                 .frame(maxWidth: .infinity)
         }
     }
+}
+
+extension NighthawkTabBar {
+    static var height: CGFloat { Constants.barHeight }
 }

@@ -1,6 +1,6 @@
 //
 //  NighthawkSettings.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/5/23.
 //
@@ -15,11 +15,9 @@ import Models
 import RecoveryPhraseDisplay
 import SwiftUI
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
-public struct NighthawkSettings {    
+public struct NighthawkSettings {
     @ObservableState
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?
@@ -32,11 +30,14 @@ public struct NighthawkSettings {
             case advanced
             case backup
             case changeServer
+            case chatSettings
+            case daoHub
             case externalServices
             case fiat
             case notifications
             case rescan
             case security
+            case torNetwork
         }
         
         public init() {}
@@ -64,7 +65,6 @@ public struct NighthawkSettings {
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in

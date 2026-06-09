@@ -1,6 +1,6 @@
 //
 //  QRCodeGenerator.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 04.07.2022.
 //

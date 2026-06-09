@@ -1,12 +1,11 @@
 //
 //  DatabaseFiles.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 05.04.2022.
 //
 
 import Foundation
-import ZcashLightClientKit
 import FileManager
 
 public struct DatabaseFiles {
@@ -36,55 +35,55 @@ public struct DatabaseFiles {
         }
     }
 
-    func cacheDbURL(for network: ZcashNetwork) -> URL {
+    func cacheDbURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)cache.db",
+                "\(network)-cache.db",
                 isDirectory: false
             )
     }
 
-    func dataDbURL(for network: ZcashNetwork) -> URL {
+    func dataDbURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)data.db",
+                "\(network)-data.db",
                 isDirectory: false
                 )
     }
 
-    func outputParamsURL(for network: ZcashNetwork) -> URL {
+    func outputParamsURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)sapling-output.params",
+                "\(network)-sapling-output.params",
                 isDirectory: false
             )
     }
 
-    func pendingDbURL(for network: ZcashNetwork) -> URL {
+    func pendingDbURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)pending.db",
+                "\(network)-pending.db",
                 isDirectory: false
             )
     }
 
-    func spendParamsURL(for network: ZcashNetwork) -> URL {
+    func spendParamsURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)sapling-spend.params",
+                "\(network)-sapling-spend.params",
                 isDirectory: false
             )
     }
     
-    func toDirURL(for network: ZcashNetwork) -> URL {
+    func toDirURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network.constants.defaultDbNamePrefix)to-dir",
+                "\(network)-to-dir",
                 isDirectory: false
             )
     }
 
-    func areDbFilesPresent(for network: ZcashNetwork) -> Bool {
+    func areDbFilesPresent(for network: DarkFiNetwork) -> Bool {
         let dataDbURL = dataDbURL(for: network)
         return fileManager.fileExists(dataDbURL.path)
     }

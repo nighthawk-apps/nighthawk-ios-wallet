@@ -23,7 +23,6 @@ public struct MigrateView: View {
                 .paragraphMedium()
                 .padding(.bottom, 32)
                 
-            
             Text(L10n.Nighthawk.MigrateScreen.explanation)
                 .caption()
                 .multilineTextAlignment(.center)

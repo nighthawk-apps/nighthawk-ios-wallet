@@ -1,13 +1,12 @@
 //
 //  URIParserClient.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 17.05.2022.
 //
 
 import Foundation
 import ComposableArchitecture
-import ZcashLightClientKit
 
 extension DependencyValues {
     public var uriParser: URIParserClient {
@@ -17,6 +16,6 @@ extension DependencyValues {
 }
 
 public struct URIParserClient {
-    public var parseZaddrOrZIP321: (String, NetworkType) -> QRCodeParseResult
+    public var parseZaddrOrZIP321: (String, String) -> QRCodeParseResult
 }
         

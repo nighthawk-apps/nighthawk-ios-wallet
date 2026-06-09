@@ -7,6 +7,7 @@
 
 import Combine
 import ComposableArchitecture
+import Utils
 
 extension Home {
     @ReducerBuilder<State, Action>
@@ -15,7 +16,7 @@ extension Home {
     }
     
     private func nighthawkSettingsDelegateReducer() -> Reduce<Home.State, Home.Action> {
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case let .settings(.delegate(delegateAction)):
                 switch delegateAction {
@@ -28,6 +29,7 @@ extension Home {
                  .binding,
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
+                 .chat,
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
@@ -37,6 +39,7 @@ extension Home {
                  .rescanDone,
                  .settings,
                  .synchronizerStateChanged,
+                 .tabSelected,
                  .transfer,
                  .updateWalletEvents,
                  .wallet:
@@ -47,11 +50,11 @@ extension Home {
     
     private func rescan() -> Effect<Action> {
         .publisher {
-            sdkSynchronizer.rewind(.birthday)
+            sdkSynchronizer.rewind()
                 .replaceEmpty(with: Void())
                 .map { _ in return Home.Action.rescanDone() }
                 .catch { error in
-                    return Just(Home.Action.rescanDone(error.toZcashError())).eraseToAnyPublisher()
+                    return Just(Home.Action.rescanDone(error.toDarkFiError())).eraseToAnyPublisher()
                 }
                 .receive(on: mainQueue)
         }

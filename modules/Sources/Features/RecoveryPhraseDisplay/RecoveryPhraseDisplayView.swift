@@ -1,6 +1,6 @@
 //
 //  NHRecoveryPhraseDisplayView.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 3/24/23.
 //
@@ -12,7 +12,6 @@ import Models
 import PDFKit
 import SwiftUI
 import UIComponents
-import ZcashLightClientKit
 
 public struct RecoveryPhraseDisplayView: View {
     @Bindable var store: StoreOf<RecoveryPhraseDisplay>
@@ -107,4 +106,3 @@ private extension RecoveryPhraseDisplayView {
         .frame(maxWidth: .infinity)
     }
 }
-

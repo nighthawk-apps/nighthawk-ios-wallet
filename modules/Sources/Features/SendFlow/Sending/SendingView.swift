@@ -26,7 +26,7 @@ public struct SendingView: View {
                     .frame(
                         width: geometry.size.width * 0.9
                     )
-                    .aspectRatio(16/9, contentMode: .fit)
+                    .aspectRatio(16 / 9, contentMode: .fit)
                     
                     Spacer()
                 }

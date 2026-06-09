@@ -15,11 +15,8 @@ import Models
 import ProcessInfoClient
 import SDKSynchronizer
 import SwiftUI
-import UserPreferencesStorage
 import Utils
 import WalletStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
 
 @Reducer
 public struct SendFlow {
@@ -44,27 +41,27 @@ public struct SendFlow {
         @Presents public var alert: AlertState<Action.Alert>?
 
         public var unifiedAddress: UnifiedAddress?
-        public var spendableBalance = Zatoshi.zero
+        public var spendableBalance = DrkAmount.zero
         public var memoCharLimit = 0
         public var isSendingTransaction = false
         
         // Inputs
         public var amountToSendInput = "0"
-        public var amountToSend: Zatoshi {
-            Zatoshi.from(decimalString: amountToSendInput) ?? .zero
+        public var amountToSend: DrkAmount {
+            DrkAmount.from(decimalString: amountToSendInput) ?? .zero
         }
         public var recipient: String?
         public var memo: RedactableString?
         public var proposal: Proposal?
-        public var feeRequired: Zatoshi {
-            proposal?.totalFeeRequired() ?? Zatoshi(0)
+        public var feeRequired: DrkAmount {
+            proposal?.totalFeeRequired() ?? DrkAmount(0)
         }
         
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-            amountToSend.amount < spendableBalance.amount
+            amountToSend < spendableBalance
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -84,13 +81,22 @@ public struct SendFlow {
             return !processInfo.isiOSAppOnMac()
         }
         
+        /// Selected token for sending (nil = native DRK)
+        public var selectedTokenId: String?
+        /// Available tokens from wallet (populated from listTokenBalances)
+        public var availableTokens: [TokenBalanceInfo] = []
+        
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
-            return zcashSDKEnvironment.tokenName
+            if let tokenId = selectedTokenId,
+               let token = availableTokens.first(where: { $0.tokenId == tokenId }),
+               let label = token.displayLabel {
+                return label
+            }
+            return "DRK"
         }
         
         public enum Toast {
-            case notEnoughZcash
+            case notEnoughDrk
         }
 
         public init(
@@ -112,7 +118,7 @@ public struct SendFlow {
         case continueTapped
         case delegate(Delegate)
         case onAppear
-        case proposeSendTransactionFailure(ZcashError)
+        case proposeSendTransactionFailure(DarkFiError)
         case review(Review.State)
         case scanCodeTapped
         case sendTransaction
@@ -122,16 +128,18 @@ public struct SendFlow {
         case setProposal(Proposal)
         case synchronizerStateChanged(SynchronizerState)
         case topUpWalletTapped
+        case loadTokenBalances
+        case tokenBalancesLoaded([TokenBalanceInfo])
+        case tokenSelected(String?)
         
         public enum Alert: Equatable {
-            case proposeTransactionFailed(ZcashError)
+            case proposeTransactionFailed(DarkFiError)
         }
         
         public enum Delegate: Equatable {
             case showPartners
         }
     }
-    
     
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.dismiss) var dismiss
@@ -141,7 +149,6 @@ public struct SendFlow {
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.walletStorage) var walletStorage
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -158,7 +165,7 @@ public struct SendFlow {
                     return .none
                 }
                 
-                if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!, zcashSDKEnvironment.network.networkType) {
+                if state.memo == nil && derivationTool.isSaplingAddress(state.recipient!, "testnet") {
                     var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
@@ -167,7 +174,7 @@ public struct SendFlow {
                 
                 return .run { [state] send in
                     do {
-                        let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
+                        let recipient = Utils.Recipient.address(state.recipient!)
                         
                         let memo: Memo?
                         if let memoText = state.memo?.data {
@@ -191,25 +198,24 @@ public struct SendFlow {
                             )
                         )
                     } catch {
-                        await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                        await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
                     }
                 }
             case .delegate:
                 return .none
             case .onAppear:
-                state.memoCharLimit = zcashSDKEnvironment.memoCharLimit
-                return .publisher {
-                    sdkSynchronizer.stateStream()
-                        .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                        .map(SendFlow.Action.synchronizerStateChanged)
-                }
-                .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true)
+                state.memoCharLimit = 512
+                return .merge(
+                    .publisher {
+                        sdkSynchronizer.stateStream()
+                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                            .map(SendFlow.Action.synchronizerStateChanged)
+                    }
+                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true),
+                    .send(.loadTokenBalances)
+                )
             case let .proposeSendTransactionFailure(error):
-                if case let .rustCreateToAddress(message) = error {
-                    state.alert = AlertState.proposeTransferFailed(message)
-                } else {
-                    state.alert = AlertState.proposeTransferFailed(error.message)
-                }
+                state.alert = AlertState.proposeTransferFailed(error.message)
                 return .none
             case let .review(reviewState):
                 state.path.append(Path.State.review(reviewState))
@@ -224,13 +230,14 @@ public struct SendFlow {
                 do {
                     let storedWallet = try walletStorage.exportWallet()
                     let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, zcashSDKEnvironment.network.networkType)
+                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, "testnet")
                     
                     state.isSendingTransaction = true
                     
-                    let recipient = try ZcashLightClientKit.Recipient(recipientStr, network: zcashSDKEnvironment.network.networkType)
+                    let recipient = Utils.Recipient.address(recipientStr)
                     var memo: Memo?
-                    if recipient[case: \.transparent] == nil, let memoStr = state.memo?.data, !memoStr.isEmpty {
+                    // DarkFi: all addresses are private, memos always supported
+                    if let memoStr = state.memo?.data, !memoStr.isEmpty {
                         memo = try Memo(string: memoStr)
                     }
                     return .run { [state, memo] send in
@@ -242,7 +249,7 @@ public struct SendFlow {
                                 recipient,
                                 memo
                             )
-                            await send(SendFlow.Action.sendTransactionSuccess(txn))
+                            await send(SendFlow.Action.sendTransactionSuccess(TransactionState(from: txn)))
                         } catch {
                             await send(SendFlow.Action.sendTransactionFailure)
                         }
@@ -272,10 +279,26 @@ public struct SendFlow {
                 state.proposal = proposal
                 return .none
             case let .synchronizerStateChanged(latestState):
-                state.spendableBalance = (latestState.accountBalance?.saplingBalance.spendableValue ?? .zero) + (latestState.accountBalance?.orchardBalance.spendableValue ?? .zero)
+                state.spendableBalance = latestState.confirmedBalance
                 return .none
             case .topUpWalletTapped:
                 return .send(.delegate(.showPartners))
+            case .loadTokenBalances:
+                return .run { send in
+                    do {
+                        let balances = try await sdkSynchronizer.listTokenBalances()
+                        await send(.tokenBalancesLoaded(balances))
+                    } catch {
+                        // Non-fatal: just use default DRK
+                        print("[SendFlow] Could not load token balances: \(error)")
+                    }
+                }
+            case let .tokenBalancesLoaded(balances):
+                state.availableTokens = balances
+                return .none
+            case let .tokenSelected(tokenId):
+                state.selectedTokenId = tokenId
+                return .none
             case .binding, .path:
                 return .none
             }
@@ -324,7 +347,7 @@ extension SendFlow {
                         state.proposal = nil
                     }
                     
-                    let _ = state.path.popLast()
+                    _ = state.path.popLast()
                     return .none
                 case .nextScreen:
                     guard case let .addMemo(addMemoState) = state.path[id: id]
@@ -338,7 +361,7 @@ extension SendFlow {
                     if let recipientString = state.recipient {
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(recipientString, network: zcashSDKEnvironment.network.networkType)
+                                let recipient = Utils.Recipient.address(recipientString)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {
@@ -362,7 +385,7 @@ extension SendFlow {
                                     )
                                 )
                             } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
                             }
                         }
                     } else {
@@ -387,7 +410,10 @@ extension SendFlow {
                  .sendTransactionSuccess,
                  .setProposal,
                  .synchronizerStateChanged,
-                 .topUpWalletTapped:
+                 .topUpWalletTapped,
+                 .loadTokenBalances,
+                 .tokenBalancesLoaded,
+                 .tokenSelected:
                 return .none
             }
         }
@@ -411,15 +437,15 @@ extension SendFlow {
                         state.proposal = nil
                     }
                     
-                    let _ = state.path.popLast()
+                    _ = state.path.popLast()
                     return .none
                 case let .proceedWithRecipient(recipient):
-                    guard derivationTool.isZcashAddress(recipient, zcashSDKEnvironment.network.networkType) else { return .none }
+                    guard derivationTool.isDarkFiAddress(recipient, "testnet") else { return .none }
                     state.recipient = recipient
-                    if derivationTool.isTransparentAddress(recipient, zcashSDKEnvironment.network.networkType) {
+                    if derivationTool.isTransparentAddress(recipient, "testnet") {
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
+                                let recipient = Utils.Recipient.address(state.recipient!)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {
@@ -443,7 +469,7 @@ extension SendFlow {
                                     )
                                 )
                             } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
                             }
                         }
                     } else {
@@ -472,7 +498,10 @@ extension SendFlow {
                  .sendTransactionSuccess,
                  .setProposal,
                  .synchronizerStateChanged,
-                 .topUpWalletTapped:
+                 .topUpWalletTapped,
+                 .loadTokenBalances,
+                 .tokenBalancesLoaded,
+                 .tokenSelected:
                 return .none
             }
         }
@@ -492,7 +521,7 @@ extension SendFlow {
                     state.recipient = result.address
                     state.amountToSendInput = result.amount ?? state.amountToSendInput
                     state.memo = result.memo?.redacted
-                    let _ = state.path.popLast()
+                    _ = state.path.popLast()
                     
                     if let address = state.recipient, !address.isEmpty {
                         if !state.hasEnteredAmount {
@@ -500,17 +529,17 @@ extension SendFlow {
                             return .none
                         }
                         
-                        if state.amountToSend.amount > state.spendableBalance.amount {
+                        if state.amountToSend > state.spendableBalance {
                             state.amountToSendInput = "0"
                             state.recipient = nil
                             state.memo = nil
                             state.proposal = nil
                             state.path = StackState()
-                            state.toast = .notEnoughZcash
+                            state.toast = .notEnoughDrk
                             return .none
                         }
                         
-                        if state.memo == nil && !derivationTool.isTransparentAddress(address, zcashSDKEnvironment.network.networkType) {
+                        if state.memo == nil && !derivationTool.isTransparentAddress(address, "testnet") {
                             var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))
@@ -519,7 +548,7 @@ extension SendFlow {
                         
                         return .run { [state] send in
                             do {
-                                let recipient = try ZcashLightClientKit.Recipient(state.recipient!, network: zcashSDKEnvironment.network.networkType)
+                                let recipient = Utils.Recipient.address(state.recipient!)
                                 
                                 let memo: Memo?
                                 if let memoText = state.memo?.data {
@@ -543,7 +572,7 @@ extension SendFlow {
                                     )
                                 )
                             } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toZcashError()))
+                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
                             }
                         }
                     }
@@ -567,7 +596,10 @@ extension SendFlow {
                  .sendTransactionSuccess,
                  .setProposal,
                  .synchronizerStateChanged,
-                 .topUpWalletTapped:
+                 .topUpWalletTapped,
+                 .loadTokenBalances,
+                 .tokenBalancesLoaded,
+                 .tokenSelected:
                 return .none
             }
         }
@@ -591,9 +623,9 @@ extension SendFlow {
                         state.proposal = nil
                     }
                     
-                    let _ = state.path.popLast()
+                    _ = state.path.popLast()
                     return .none
-                case .sendZcash:
+                case .sendDrk:
                     return .send(.sendTransaction)
                 }
             case .alert,
@@ -612,7 +644,10 @@ extension SendFlow {
                  .sendTransactionSuccess,
                  .setProposal,
                  .synchronizerStateChanged,
-                 .topUpWalletTapped:
+                 .topUpWalletTapped,
+                 .loadTokenBalances,
+                 .tokenBalancesLoaded,
+                 .tokenSelected:
                 return .none
             }
         }

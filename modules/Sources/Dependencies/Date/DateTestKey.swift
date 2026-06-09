@@ -1,6 +1,6 @@
 //
 //  DateTestKey.swift
-//  secant-testnet
+//  stealth
 //
 //  Created by Lukáš Korba on 15.11.2022.
 //

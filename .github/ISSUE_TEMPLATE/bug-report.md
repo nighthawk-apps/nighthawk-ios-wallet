@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report about a bug in Secant iOS Wallet.
+about: Create a report about a bug in the Nighthawk iOS wallet.
 title: ''
 labels: 'bug'
 assignees: ''
@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!--
-This issue tracker is only for technical issues related to Secant iOS Wallet.
+This issue tracker is only for technical issues related to the Nighthawk iOS wallet.
 
 General Zcash questions and/or support requests and are best directed to the
 Zcash Forum: https://forum.zcashcommunity.com/

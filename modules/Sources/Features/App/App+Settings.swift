@@ -28,7 +28,7 @@ extension AppReducer {
                 case .rescan:
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -40,7 +40,7 @@ extension AppReducer {
             case let .path(.element(id: _, action: .fiat(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .fetchLatestFiatCurrency:
-                    state.path =  StackState(
+                    state.path = StackState(
                         state.path.map { state in
                             if case let .home(homeState) = state {
                                 homeState.walletInfo.latestFiatPrice = nil
@@ -52,28 +52,28 @@ extension AppReducer {
                     )
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
     }
     
     private func advancedSettingsDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case let .path(.element(id: _, action: .advanced(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .deleteWallet:
                     return deleteWallet()
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
     }
     
     private func aboutDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case let .path(.element(id: _, action: .about(.delegate(delegateAction)))):
                 switch delegateAction {
@@ -81,7 +81,7 @@ extension AppReducer {
                     // TODO: Show license list
                     return .none
                 }
-            case .alert, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
             }
         }
@@ -101,6 +101,12 @@ extension AppReducer {
         case .changeServer:
             state.path.append(.changeServer(.init()))
             return .none
+        case .chatSettings:
+            // TODO: Wire ChatSettings path destination
+            return .none
+        case .daoHub:
+            // TODO: Wire DaoHub path destination
+            return .none
         case .externalServices:
             state.path.append(.externalServices(.init()))
             return .none
@@ -115,20 +121,20 @@ extension AppReducer {
         case .security:
             state.path.append(.security(.init()))
             return .none
+        case .torNetwork:
+            // TODO: Wire TorNetwork path destination
+            return .none
         }
     }
     
     private func deleteWallet() -> Effect<Action> {
-        guard let wipePublisher = sdkSynchronizer.wipe() else {
-            return .send(.deleteWalletFailed)
-        }
-        
-        return .publisher {
-            wipePublisher
-                .replaceEmpty(with: Void())
-                .map { _ in return AppReducer.Action.deleteWalletSuccess }
-                .replaceError(with: AppReducer.Action.deleteWalletFailed)
-                .receive(on: mainQueue)
+        .run { send in
+            do {
+                try await sdkSynchronizer.wipe()
+                await send(.deleteWalletSuccess)
+            } catch {
+                await send(.deleteWalletFailed)
+            }
         }
         .cancellable(id: CancelId.timer, cancelInFlight: true)
     }

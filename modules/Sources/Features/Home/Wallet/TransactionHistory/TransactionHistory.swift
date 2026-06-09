@@ -1,6 +1,6 @@
 //
 //  TransactionHistory.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/18/23.
 //
@@ -10,8 +10,7 @@ import DiskSpaceChecker
 import Models
 import SDKSynchronizer
 import UserPreferencesStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
+import Utils
 
 @Reducer
 public struct TransactionHistory {
@@ -35,8 +34,7 @@ public struct TransactionHistory {
         }
         
         public var tokenName: String {
-            @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironement
-            return zcashSDKEnvironement.tokenName
+            return "DRK"
         }
         
         public init(
@@ -64,7 +62,6 @@ public struct TransactionHistory {
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironement
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -91,7 +88,8 @@ public struct TransactionHistory {
                 state.synchronizerStatusSnapshot = snapshot
                 if latestState.syncStatus == .upToDate {
                     return .run { send in
-                        if let events = try? await sdkSynchronizer.getAllTransactions() {
+                        if let overviews = try? await sdkSynchronizer.getAllTransactions() {
+                            let events = overviews.map { WalletEvent(transaction: TransactionState(from: $0)) }
                             await send(.updateWalletEvents(events))
                         }
                     }

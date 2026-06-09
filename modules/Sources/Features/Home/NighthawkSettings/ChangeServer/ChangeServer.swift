@@ -1,23 +1,25 @@
 //
-//  ChangeServer.swift
-//  secant
+//  ChangeServer.swift → AddServer.swift
+//  stealth
 //
-//  Created by Matthew Watt on 5/22/23.
+//  DarkFi: Allows user to add a custom server address for the daemon to connect to.
+//  DarkFi has NO LightWallet endpoints. The daemon connects directly to the P2P network.
+//  This feature lets the user configure a custom seed node or relay.
 //
 
 import ComposableArchitecture
+import Foundation
 import Generated
 import Models
 import UIComponents
 import UserPreferencesStorage
-import ZcashLightClientKit
-import ZcashSDKEnvironment
+import Utils
 
 @Reducer
-public struct ChangeServer {    
+public struct ChangeServer {
     @ObservableState
     public struct State: Equatable {
-        public enum LightwalletdOption: String, Equatable, CaseIterable, Identifiable, Hashable {
+        public enum ServerOption: String, Equatable, CaseIterable, Identifiable, Hashable {
             case `default`
             case custom
             
@@ -25,26 +27,36 @@ public struct ChangeServer {
         }
         
         @Presents public var alert: AlertState<Action.Alert>?
-        public var lightwalletdOption: LightwalletdOption = .default
-        public var customLightwalletdServer: String = ""
-        public var defaultLightwalletdServer = ""
+        public var serverOption: ServerOption = .default
+        public var customServerAddress: String = ""
+        public var defaultServerInfo = "DarkFi P2P Network (automatic)"
         public var isChangingServer = false
+        /// Show warning when using a non-standard port
+        public var showPortWarning = false
         
         public var isValidHostAndPort: Bool {
-            if lightwalletdOption == .default { return true }
+            if serverOption == .default { return true }
             
             let validHostAndPort = #/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]):([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/#
             
-            return customLightwalletdServer.contains(validHostAndPort)
+            return customServerAddress.contains(validHostAndPort)
+        }
+        
+        /// DarkFi mainnet port is 8345, testnet is 18345.
+        public var isExpectedDarkFiPort: Bool {
+            guard serverOption == .custom else { return true }
+            let components = customServerAddress.split(separator: ":")
+            guard let portStr = components.last, let port = Int(portStr) else { return false }
+            return port == 8345 || port == 18345
         }
         
         public var canSave: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
-            let isChanged = userStoredPreferences.isUsingCustomLightwalletd() && lightwalletdOption == .default
-            || !userStoredPreferences.isUsingCustomLightwalletd() && lightwalletdOption == .custom
-            || (lightwalletdOption == .custom && userStoredPreferences.customLightwalletdServer() != customLightwalletdServer)
+            let isChanged = userStoredPreferences.isUsingCustomLightwalletd() && serverOption == .default
+            || !userStoredPreferences.isUsingCustomLightwalletd() && serverOption == .custom
+            || (serverOption == .custom && userStoredPreferences.customLightwalletdServer() != customServerAddress)
             
-            return isChanged && (lightwalletdOption == .default || isValidHostAndPort) && !isChangingServer
+            return isChanged && (serverOption == .default || isValidHostAndPort) && !isChangingServer
         }
         
         public init() {}
@@ -55,7 +67,9 @@ public struct ChangeServer {
         case binding(BindingAction<State>)
         case onAppear
         case saveTapped
-        case changeFailed(error: ZcashError, previousIsUsingCustomLightwalletd: Bool, previousCustomLightwalletd: String?)
+        case portWarningConfirmed
+        case portWarningCancelled
+        case changeFailed(error: DarkFiError, previousIsUsingCustom: Bool, previousCustomServer: String?)
         case changeSucceeded
         
         public enum Alert: Equatable {}
@@ -63,7 +77,6 @@ public struct ChangeServer {
     
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
-    @Dependency(\.zcashSDKEnvironment) var zcashSdkEnvironment
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     
     public var body: some ReducerOf<Self> {
@@ -74,47 +87,59 @@ public struct ChangeServer {
             case .alert:
                 return .none
             case .onAppear:
-                let defaultEndpoint = zcashSdkEnvironment.defaultEndpoint
-                state.defaultLightwalletdServer = "\(defaultEndpoint.host):\(defaultEndpoint.port)"
+                state.defaultServerInfo = "127.0.0.1:18345 (darkfid testnet 0.3)"
                 if userStoredPreferences.isUsingCustomLightwalletd(),
                    let customServer = userStoredPreferences.customLightwalletdServer() {
-                    state.lightwalletdOption = .custom
-                    state.customLightwalletdServer = customServer
+                    state.serverOption = .custom
+                    state.customServerAddress = customServer
                 } else {
-                    state.lightwalletdOption = .default
+                    state.serverOption = .default
                 }
                 return .none
             case .saveTapped:
                 guard state.canSave else { return .none }
                 
+                // Check for non-standard port and warn
+                if state.serverOption == .custom && !state.isExpectedDarkFiPort {
+                    state.showPortWarning = true
+                    return .none
+                }
+                
+                return .send(.portWarningConfirmed)
+                
+            case .portWarningCancelled:
+                state.showPortWarning = false
+                return .none
+                
+            case .portWarningConfirmed:
+                state.showPortWarning = false
                 state.isChangingServer = true
                 
-                let oldIsUsingCustomLightwalletd = userStoredPreferences.isUsingCustomLightwalletd()
-                let oldCustomLightwalletdServer = userStoredPreferences.customLightwalletdServer()
+                let oldIsUsingCustom = userStoredPreferences.isUsingCustomLightwalletd()
+                let oldCustomServer = userStoredPreferences.customLightwalletdServer()
                 
-                userStoredPreferences.setIsUsingCustomLightwalletd(state.lightwalletdOption == .custom)
-                userStoredPreferences.setCustomLightwalletdServer(state.lightwalletdOption == .custom ? state.customLightwalletdServer : nil)
+                userStoredPreferences.setIsUsingCustomLightwalletd(state.serverOption == .custom)
+                userStoredPreferences.setCustomLightwalletdServer(state.serverOption == .custom ? state.customServerAddress : nil)
+                
+                let isCustom = state.serverOption == .custom
+                let customAddress = state.customServerAddress
                 
                 return .run { send in
-                    do {
-                        let lightWalletEndpoint = zcashSdkEnvironment.endpoint
-                        try await sdkSynchronizer.switchToEndpoint(lightWalletEndpoint)
-                        try await mainQueue.sleep(for: .seconds(1))
-                        await send(.changeSucceeded)
-                    } catch {
-                        await send(
-                            .changeFailed(
-                                error: error.toZcashError(),
-                                previousIsUsingCustomLightwalletd: oldIsUsingCustomLightwalletd,
-                                previousCustomLightwalletd: oldCustomLightwalletdServer
-                            )
-                        )
+                    // Save the endpoint to UserDefaults so WalletHandleManager picks it up
+                    if isCustom && !customAddress.isEmpty {
+                        let endpoint = "tcp://\(customAddress)"
+                        UserDefaults.standard.set(endpoint, forKey: "darkfi_server_endpoint")
+                    } else {
+                        UserDefaults.standard.removeObject(forKey: "darkfi_server_endpoint")
                     }
+                    
+                    try await mainQueue.sleep(for: .seconds(0.5))
+                    await send(.changeSucceeded)
                 }
-            case let .changeFailed(error, previousIsUsingCustom, previousCustomLightwalletd):
+            case let .changeFailed(error, previousIsUsingCustom, previousCustomServer):
                 state.isChangingServer = false
                 userStoredPreferences.setIsUsingCustomLightwalletd(previousIsUsingCustom)
-                userStoredPreferences.setCustomLightwalletdServer(previousCustomLightwalletd)
+                userStoredPreferences.setCustomLightwalletdServer(previousCustomServer)
                 state.alert = AlertState.serverChangeFailed(error)
                 return .none
             case .changeSucceeded:
@@ -132,7 +157,7 @@ public struct ChangeServer {
 
 // MARK: - Alerts
 extension AlertState where Action == ChangeServer.Action.Alert {
-    public static func serverChangeFailed(_ error: ZcashError) -> AlertState {
+    public static func serverChangeFailed(_ error: DarkFiError) -> AlertState {
         AlertState {
             TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.title)
         } actions: {
@@ -140,8 +165,7 @@ extension AlertState where Action == ChangeServer.Action.Alert {
                 TextState(L10n.General.ok)
             }
         } message: {
-            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.message(error.message, error.code.rawValue))
+            TextState(L10n.Nighthawk.SettingsTab.ChangeServer.Alert.ChangeServerFailed.message(error.message, 0))
         }
     }
 }
-

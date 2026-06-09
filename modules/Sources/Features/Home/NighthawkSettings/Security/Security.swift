@@ -1,6 +1,6 @@
 //
 //  Security.swift
-//  secant
+//  stealth
 //
 //  Created by Matthew Watt on 5/15/23.
 //
@@ -13,7 +13,6 @@ import UserPreferencesStorage
 
 @Reducer
 public struct Security {
-    
     @ObservableState
     public struct State: Equatable {
         public var areBiometricsEnabled = false
@@ -40,7 +39,7 @@ public struct Security {
                 if authenticated {
                     userStoredPreferences.setAreBiometricsEnabled(state.areBiometricsEnabled)
                 } else {
-                    state.areBiometricsEnabled = !state.areBiometricsEnabled
+                    state.areBiometricsEnabled.toggle()
                 }
                 return .none
             case .binding(\.areBiometricsEnabled):

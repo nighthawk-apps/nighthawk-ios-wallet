@@ -1,12 +1,11 @@
 //
 //  SensitiveData.swift
-//  secantTests
+//  stealth
 //
 //  Created by Lukáš Korba on 06.02.2023.
 //
 
 import Foundation
-import ZcashLightClientKit
 
 // MARK: - Redactable Protocol
 
@@ -17,7 +16,7 @@ import ZcashLightClientKit
 #if DEBUG
 public protocol Redactable { }
 #else
-public protocol Redactable: Undescribable { }
+public protocol Redactable { } // Undescribable was from SDK
 #endif
 
 // MARK: - Redactable Seed Phrase
@@ -67,41 +66,6 @@ public struct RedactableString: Equatable, Hashable, Redactable {
 extension String {
     public var redacted: RedactableString { RedactableString(self) }
 }
-
-// MARK: - Redactable BlockHeight
-
-/// Redactable holder for a block height.
-public struct RedactableBlockHeight: Equatable, Redactable {
-    public let data: BlockHeight
-
-    public init(_ data: BlockHeight = -1) { self.data = data }
-}
-
-/// Utility that converts a block height to a redacted counterpart.
-extension BlockHeight {
-    public var redacted: RedactableBlockHeight { RedactableBlockHeight(self) }
-}
-
-// MARK: - Redactable AccountBalance & SynchronizerState
-
-/// Redactable holder for a block height.
-public struct RedactableAccountBalance: Equatable, Redactable {
-    public let data: AccountBalance?
-
-    public init(_ data: AccountBalance? = nil) { self.data = data }
-}
-
-/// Utility that converts a block height to a redacted counterpart.
-extension AccountBalance {
-    public var redacted: RedactableAccountBalance? { RedactableAccountBalance(self) }
-}
-
-/*
-extension SynchronizerState {
-    public var redacted: SynchronizerState {
-        SynchronizerState
-    }
-}*/
 
 // MARK: - Redactable Int64
 
