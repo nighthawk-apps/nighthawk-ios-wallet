@@ -48,12 +48,12 @@ struct TransferView: View {
 // MARK: - Subviews
 private extension TransferView {
     @ViewBuilder var heading: some View {
-        NighthawkLogo(spacing: .compact)
-            .padding(.vertical, 40)
+        NighthawkLogo(spacing: .compact, size: .tabHeader)
+            .padding(.vertical, 24)
         
         HStack {
             Text(L10n.Nighthawk.TransferTab.sendAndReceiveDrk)
-                .paragraphMedium()
+                .paragraphMedium(color: .white)
             Spacer()
         }
         .padding(.horizontal, 25)
@@ -68,6 +68,8 @@ private extension TransferView {
                     icon: Asset.Assets.Icons.Nighthawk.sent.image
                 )
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.transfer.send")
             
             Button(action: { store.send(.receiveMoneyTapped) }) {
                 optionRow(
@@ -76,6 +78,8 @@ private extension TransferView {
                     icon: Asset.Assets.Icons.Nighthawk.received.image
                 )
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.transfer.receive")
             
             Button(action: { store.send(.topUpWalletTapped) }) {
                 optionRow(
@@ -84,6 +88,8 @@ private extension TransferView {
                     icon: Asset.Assets.Icons.Nighthawk.topUp.image
                 )
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.transfer.topUp")
         }
         .padding(.horizontal, 25)
     }

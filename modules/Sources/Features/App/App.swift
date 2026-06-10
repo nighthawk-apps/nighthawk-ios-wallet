@@ -153,13 +153,16 @@ public struct AppReducer {
                 state.alert = .cantCreateNewWallet(error)
                 return .none
             case .createWalletSucceeded:
-                state.path.append(.walletCreated(.init()))
+                state.path = StackState([
+                    .recoveryPhraseDisplay(.init(flow: .onboarding))
+                ])
                 return .none
             case let .initializeSDKFailed(error):
                 // DarkFi mobile SDK is still under development — don't block the app.
                 // Log the error and proceed to home in degraded mode (chat, settings still work).
                 print("[DarkFi] SDK init failed (expected while darkfid mobile is in development): \(error.message)")
                 state.synchronizerStopped = true
+                state.splash.hasCompletedInitialRoute = true
                 // Navigate to home so the user isn't stuck
                 state.path = StackState([
                     .home(
@@ -169,6 +172,7 @@ public struct AppReducer {
                 return .none
             case let .initializeSDKSuccess(shouldResetStack: shouldResetStack):
                 state.synchronizerStopped = false
+                state.splash.hasCompletedInitialRoute = true
                 if shouldResetStack {
                     state.path = StackState([
                         .home(
@@ -184,6 +188,7 @@ public struct AppReducer {
                 userStoredPreferences.removeAll()
                 state.unifiedAddress = nil
                 state.latestFiatPrice = nil
+                state.splash.hasCompletedInitialRoute = false
                 if let eventsCache = URL.latestEventsCache(for: "testnet") {
                     try? fileManager.removeItem(eventsCache)
                 }
@@ -243,6 +248,9 @@ public struct AppReducer {
 extension AppReducer {
     func initializeSDK(_ mode: WalletInitMode, shouldResetStack: Bool = true) -> Effect<Action> {
         do {
+            if mode == .newWallet && !userStoredPreferences.isUserBackupComplete() {
+                return .none
+            }
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
             let birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
@@ -276,12 +284,21 @@ private extension AppReducer {
             case let .splash(.delegate(action)):
                 switch action {
                 case .handleNewUser:
+                    state.splash.hasCompletedInitialRoute = true
                     state.path.append(.welcome(.init()))
                     return .none
                 case .handleMigration:
+                    state.splash.hasCompletedInitialRoute = true
                     state.path.append(.migrate(.init()))
                     return .none
+                case .handleNeedsBackup:
+                    state.splash.hasCompletedInitialRoute = true
+                    state.path = StackState([
+                        .recoveryPhraseDisplay(.init(flow: .onboarding))
+                    ])
+                    return .none
                 case .initializeSDKAndLaunchWallet:
+                    state.splash.hasCompletedInitialRoute = true
                     return initializeSDK(.existingWallet)
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:

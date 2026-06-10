@@ -47,7 +47,7 @@ public struct AddressesView: View {
             unwrapping: $store.toast,
             case: /Addresses.State.Toast.copiedToClipboard,
             alert: {
-                AlertToast(
+                AlertToast.nighthawkBanner(
                     type: .regular,
                     title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
                 )

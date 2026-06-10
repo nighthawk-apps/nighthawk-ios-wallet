@@ -43,7 +43,7 @@ public struct WalletCreated {
                 subsonic.play("sound_receive_small.mp3")
                 return .none
             case .skip:
-                return .send(.delegate(.initializeSDKAndLaunchWallet))
+                return .none
             }
         }
     }

@@ -13,16 +13,16 @@ private enum Constants {
 }
 
 struct NighthawkTabBar: View {
-    @Binding var destination: Home.State.Tab
+    let selectedTab: Home.State.Tab
     let onSelect: (Home.State.Tab) -> Void
     let disableSend: Bool
     
     init(
-        destination: Binding<Home.State.Tab>,
+        selectedTab: Home.State.Tab,
         onSelect: @escaping (Home.State.Tab) -> Void,
         disableSend: Bool
     ) {
-        self._destination = destination
+        self.selectedTab = selectedTab
         self.onSelect = onSelect
         self.disableSend = disableSend
         UITabBar.appearance().isHidden = true
@@ -72,30 +72,20 @@ struct NighthawkTabBar: View {
         tab: Home.State.Tab,
         isDisabled: Bool = false
     ) -> some View {
-        Button {
-            destination = tab
-            onSelect(tab)
-        } label: {
-            TabBarItem(
-                title: title,
-                image: image,
-                isSelected: destination == tab
-            )
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(NighthawkTabButtonStyle())
-        .disabled(isDisabled)
+        TabBarItem(
+            title: title,
+            image: image,
+            isSelected: selectedTab == tab
+        )
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
         .opacity(isDisabled ? 0.3 : 1.0)
+        .onTapGesture {
+            guard !isDisabled else { return }
+            onSelect(tab)
+        }
         .accessibilityIdentifier("nighthawk.home.tab.\(tab)")
-    }
-}
-
-private struct NighthawkTabButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.45 : 1.0)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
     }
 }
 
@@ -134,6 +124,7 @@ private struct TabBarItem: View {
                 )
                 .frame(height: 4)
                 .frame(maxWidth: .infinity)
+                .allowsHitTesting(false)
         }
     }
 }

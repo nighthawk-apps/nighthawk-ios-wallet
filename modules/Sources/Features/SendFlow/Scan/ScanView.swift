@@ -1,6 +1,6 @@
 //
 //  ScanView.swift
-//  
+//
 //
 //  Created by Matthew Watt on 7/22/23.
 //
@@ -13,42 +13,40 @@ import Utils
 
 public struct ScanView: View {
     @Bindable var store: StoreOf<Scan>
-    
-    let normalizedRectOfInterest = CGRect(
-        x: 0.25,
-        y: 0.25,
-        width: 1.0,
-        height: 1.0
-    )
-    
+
     public var body: some View {
         GeometryReader { geometry in
-            VStack {
-                NighthawkHeading(
-                    title: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequest,
-                    subtitle: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequestDetails
-                )
-                .padding(.bottom, 40)
-                
-                QRCodeScanView(
-                    rectOfInterest: normalizedRectOfInterest,
-                    onQRScanningDidFail: { store.send(.scanFailed) },
-                    onQRScanningSucceededWithCode: { store.send(.scan($0.redacted)) }
-                )
-                .frame(
-                    width: geometry.size.width * 0.7,
-                    height: geometry.size.width * 0.7
-                )
-                .cornerRadius(8)
-                .overlay(
-                    CornerStrokeSquare()
-                        .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 5)
-                        .cornerRadius(2)
-                        .padding(18)
-                )
-                
-                Spacer()
+            let scanSize = min(geometry.size.width * 0.72, 320)
+
+            ZStack {
+                VStack(spacing: 24) {
+                    Spacer(minLength: 0)
+
+                    NighthawkHeading(
+                        title: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequest,
+                        subtitle: L10n.Nighthawk.TransferTab.Scan.scanPaymentRequestDetails
+                    )
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 24)
+
+                    QRCodeScanView(
+                        onQRScanningDidFail: { store.send(.scanFailed) },
+                        onQRScanningSucceededWithCode: { store.send(.scan($0.redacted)) }
+                    )
+                    .frame(width: scanSize, height: scanSize)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay {
+                        CornerStrokeSquare()
+                            .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 5)
+                            .padding(18)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
             .showNighthawkBackButton(
                 type: store.backButtonType,
                 action: { store.send(.backButtonTapped) }
@@ -57,25 +55,9 @@ public struct ScanView: View {
         .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
     }
-    
+
     public init(store: StoreOf<Scan>) {
         self.store = store
-    }
-}
-
-// MARK: - Subviews
-private extension ScanView {
-    func frameSize(_ size: CGSize) -> CGFloat {
-        size.width * 0.55
-    }
-
-    func rectOfInterest(_ size: CGSize) -> CGRect {
-        CGRect(
-            x: size.width * 0.5,
-            y: size.height * 0.5,
-            width: frameSize(size),
-            height: frameSize(size)
-        )
     }
 }
 

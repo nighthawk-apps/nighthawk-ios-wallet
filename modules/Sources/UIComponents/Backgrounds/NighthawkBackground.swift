@@ -31,6 +31,7 @@ public struct NighthawkBackgroundModifier: ViewModifier {
             ZStack {
                 Asset.Colors.Nighthawk.darkNavy.color
                     .ignoresSafeArea(edges: [.top, .horizontal])
+                    .allowsHitTesting(false)
                 content
             }
         }

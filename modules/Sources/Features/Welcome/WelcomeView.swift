@@ -13,34 +13,44 @@ import UIComponents
 
 public struct WelcomeView: View {
     @Bindable var store: StoreOf<Welcome>
-    @State private var currentPage = 0
+    @State private var currentPage: Int? = 0
     
     public init(store: StoreOf<Welcome>) {
         self.store = store
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
-            NighthawkLogo()
-                .padding(.top, 44)
-            
-            Spacer()
-            
-            // Onboarding carousel (matches Android OnboardingCarousel)
-            onboardingCarousel
-            
-            Spacer()
-            
-            terms {
-                store.send(.termsAndConditionsTapped)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                NighthawkLogo()
+                    .padding(.top, 44)
+                
+                Spacer(minLength: 0)
+                
+                // Onboarding carousel (matches Android OnboardingCarousel)
+                onboardingCarousel
+                
+                Spacer(minLength: 0)
+                
+                // Reserve space so carousel gestures do not overlap the controls.
+                Color.clear
+                    .frame(height: Self.bottomControlsHeight)
+                    .accessibilityHidden(true)
             }
-            .padding(.bottom, 16)
             
-            actions {
-                store.send(.createNewWalletTapped)
-            } onRestore: {
-                store.send(.importExistingWalletTapped)
+            VStack(spacing: 0) {
+                terms {
+                    store.send(.termsAndConditionsTapped)
+                }
+                .padding(.bottom, 16)
+                
+                actions {
+                    store.send(.createNewWalletTapped)
+                } onRestore: {
+                    store.send(.importExistingWalletTapped)
+                }
             }
+            .zIndex(1)
         }
         .applyNighthawkBackground()
         .nighthawkAlert(
@@ -56,6 +66,9 @@ public struct WelcomeView: View {
 
 // MARK: - Onboarding Carousel
 private extension WelcomeView {
+    /// Approximate height of terms + action buttons so the carousel stays above them.
+    static let bottomControlsHeight: CGFloat = 220
+    
     struct OnboardingPage: Identifiable {
         let id: Int
         let icon: String // SF Symbol
@@ -88,16 +101,23 @@ private extension WelcomeView {
     
     var onboardingCarousel: some View {
         VStack(spacing: 24) {
-            TabView(selection: $currentPage) {
-                ForEach(Self.onboardingPages) { page in
-                    carouselPage(page)
-                        .tag(page.id)
+            // Page-style TabView installs a full-screen UIPageViewController gesture
+            // layer that steals taps from the welcome buttons below it on device.
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 0) {
+                    ForEach(Self.onboardingPages) { page in
+                        carouselPage(page)
+                            .containerRelativeFrame(.horizontal)
+                            .id(page.id)
+                    }
                 }
+                .scrollTargetLayout()
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: $currentPage)
             .frame(height: 240)
             .clipped()
-            .animation(.easeInOut(duration: 0.3), value: currentPage)
+            .contentShape(Rectangle())
             
             // Page indicators (matches Android dot indicators)
             HStack(spacing: 8) {
@@ -162,6 +182,7 @@ private extension WelcomeView {
             
             Button(L10n.General.termsAndConditions, action: onTermsLinkTapped)
                 .buttonStyle(.nighthawkLink())
+                .accessibilityIdentifier("nighthawk.welcome.terms")
         }
     }
     
@@ -171,10 +192,12 @@ private extension WelcomeView {
     ) -> some View {
         VStack(spacing: 16) {
             Button(L10n.Nighthawk.Welcome.create, action: onCreate)
-            .buttonStyle(.nighthawkPrimary())
+                .buttonStyle(.nighthawkPrimary(width: 210))
+                .accessibilityIdentifier("nighthawk.welcome.create")
             
             Button(L10n.Nighthawk.Welcome.restore, action: onRestore)
-            .buttonStyle(.nighthawkSecondary())
+                .buttonStyle(.nighthawkSecondary(width: 210))
+                .accessibilityIdentifier("nighthawk.welcome.restore")
         }
         .padding(.bottom, 64)
     }

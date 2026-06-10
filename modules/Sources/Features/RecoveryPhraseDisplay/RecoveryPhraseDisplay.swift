@@ -11,6 +11,7 @@ import Foundation
 import MnemonicClient
 import Models
 import Pasteboard
+import UserPreferencesStorage
 import Utils
 import WalletStorage
 
@@ -54,6 +55,7 @@ public struct RecoveryPhraseDisplay {
     
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
         
     public var body: some ReducerOf<Self> {
@@ -64,6 +66,10 @@ public struct RecoveryPhraseDisplay {
             case .binding:
                 return .none
             case .continuePressed:
+                guard state.flow == .onboarding, state.isConfirmSeedPhraseWrittenChecked else {
+                    return .none
+                }
+                userStoredPreferences.setIsUserBackupComplete(true)
                 return .send(.delegate(.initializeSDKAndLaunchWallet))
             case .delegate:
                 return .none

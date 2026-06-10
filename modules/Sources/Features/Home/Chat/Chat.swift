@@ -279,17 +279,15 @@ public struct Chat {
                     // `DarkfiChatController`. We hand the daemon a callback that
                     // funnels messages into an AsyncStream the reducer consumes.
                     let daemon = DarkircDaemonManager.shared
-                    daemon.stop()
-                    try? await Task.sleep(for: .seconds(1))
-                    
+
                     await send(.embeddedNodeStatusChanged(.starting))
                     await send(.dagSyncStatusUpdate("Starting darkirc node…"))
-                    
+
                     let (stream, continuation) = AsyncStream<State.Message>.makeStream()
                     let relay = ChatEventRelay(continuation: continuation, myNickname: nickname)
-                    
+
                     do {
-                        try daemon.start(callback: relay, useTor: useTor)
+                        try await daemon.restartForChat(callback: relay, useTor: useTor)
                     } catch {
                         print("[DarkIRC] Daemon start error: \(error.localizedDescription)")
                         continuation.finish()
@@ -298,32 +296,50 @@ public struct Chat {
                         await send(.embeddedNodeStatusChanged(.failed))
                         return
                     }
-                    
-                    await send(.embeddedNodeStatusChanged(.running))
+
                     await send(.connectionStateChanged(.waitingForDagSync))
                     await send(.dagSyncStatusUpdate("Waiting for P2P peers…"))
-                    
-                    // Poll darkirc_status() to track daemon/DAG-sync progress.
+
+                    // Wait until the Rust daemon reports STATUS_RUNNING before allowing sends.
                     var pollCount = 0
-                    let maxPolls = 30
+                    let maxPolls = 90
+                    var reachedRunning = false
                     while pollCount < maxPolls {
                         try? await Task.sleep(for: .seconds(1))
                         pollCount += 1
                         let ffiStatus = darkircStatus()
                         await send(.dagSyncStatusUpdate("DAG syncing… (\(pollCount)s)"))
-                        await send(.embeddedNodeStatusChanged(.syncingDag))
-                        if ffiStatus == "failed" {
+
+                        switch ffiStatus {
+                        case "failed":
                             continuation.finish()
-                            await send(.ircBridgeError("darkirc daemon failed to start"))
+                            await send(.ircBridgeError("darkirc daemon failed during startup"))
                             await send(.connectionStateChanged(.error))
                             await send(.embeddedNodeStatusChanged(.failed))
                             return
+                        case "running":
+                            reachedRunning = true
+                            await send(.embeddedNodeStatusChanged(.syncingDag))
+                            break
+                        case "starting":
+                            await send(.embeddedNodeStatusChanged(.starting))
+                        default:
+                            break
                         }
-                        if ffiStatus == "running" && pollCount >= 3 {
+
+                        if reachedRunning {
                             break
                         }
                     }
-                    
+
+                    guard reachedRunning else {
+                        continuation.finish()
+                        await send(.ircBridgeError("darkirc did not reach running state (status: \(darkircStatus()))"))
+                        await send(.connectionStateChanged(.error))
+                        await send(.embeddedNodeStatusChanged(.failed))
+                        return
+                    }
+
                     await send(.embeddedNodeStatusChanged(.ready))
                     await send(.connectionStateChanged(useTor ? .connectedViaTor : .connectedDirect))
                     await send(.dagSyncStatusUpdate(nil))
@@ -357,7 +373,7 @@ public struct Chat {
                     )
                 }
                 if case .error = newState {
-                    state.diagnosticDetail = "Connection to darkirc failed. The darkirc node needs to be running on 127.0.0.1:6667. Check that the embedded darkirc runtime is compiled into the Rust FFI library."
+                    state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
                 } else {
                     state.diagnosticDetail = nil
                 }

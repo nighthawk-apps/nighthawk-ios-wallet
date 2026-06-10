@@ -16,36 +16,30 @@ public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
     
     public var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                tabContent
-                    .frame(
-                        width: geometry.size.width,
-                        height: max(0, geometry.size.height - NighthawkTabBar.height)
-                    )
-                    .clipped()
-                    .environment(\.nighthawkSuppressNestedBackground, true)
-                
-                NighthawkTabBar(
-                    destination: $store.selectedTab,
-                    onSelect: { store.send(.tabSelected($0)) },
-                    disableSend: store.synchronizerFailed
-                )
-            }
+        ZStack(alignment: .bottom) {
+            tabContent
+                .padding(.bottom, NighthawkTabBar.height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .environment(\.nighthawkSuppressNestedBackground, true)
+            
+            NighthawkTabBar(
+                selectedTab: store.selectedTab,
+                onSelect: { store.send(.tabSelected($0)) },
+                disableSend: store.synchronizerFailed
+            )
+            .zIndex(1)
         }
         .background {
             Asset.Colors.Nighthawk.darkNavy.color
                 .ignoresSafeArea(edges: [.top, .horizontal])
+                .allowsHitTesting(false)
         }
         .onAppear { store.send(.onAppear) }
         .toast(
             unwrapping: $store.toast,
             case: /Home.State.Toast.expectingFunds,
             alert: {
-                // `.alert` display mode installs a full-screen overlay that blocks
-                // the home tab bar even when the toast is not visible.
-                AlertToast(
-                    displayMode: .banner(.slide),
+                AlertToast.nighthawkBanner(
                     type: .regular,
                     title: L10n.Nighthawk.HomeScreen.expectingFunds(
                         store.walletInfo.expectingAmount.decimalString(),
@@ -90,11 +84,13 @@ private extension HomeView {
             .overlay(alignment: .top) {
                 if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
                     IndeterminateProgress()
+                        .allowsHitTesting(false)
                 }
             }
             .overlay(alignment: .top) {
-                NighthawkLogo(spacing: .compact)
-                    .padding(.top, 40)
+                NighthawkLogo(spacing: .compact, size: .tabHeader)
+                    .padding(.top, 24)
+                    .allowsHitTesting(false)
             }
             
         case .transfer:

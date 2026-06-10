@@ -31,7 +31,7 @@ public struct TransactionDetailView: View {
             unwrapping: $store.toast,
             case: /TransactionDetail.State.Toast.replyToCopied,
             alert: {
-                AlertToast(
+                AlertToast.nighthawkBanner(
                     type: .regular,
                     title: L10n.Nighthawk.TransactionDetails.replyToCopied
                 )

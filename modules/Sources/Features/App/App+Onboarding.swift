@@ -46,6 +46,7 @@ extension AppReducer {
                 let birthday: BlockHeight = 0 /* DarkFi: no checkpoint concept */
                 walletStorage.deleteWallet()
                 try walletStorage.importWallet(newRandomPhrase, birthday, .english)
+                userStoredPreferences.setIsUserBackupComplete(false)
                 await send(.createWalletSucceeded)
             } catch {
                 await send(.createWalletFailed(error.toDarkFiError()))

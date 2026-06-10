@@ -10,9 +10,9 @@ import Foundation
 import DarkfiCore
 
 public struct MnemonicClient {
-    /// Random 24 words mnemonic phrase
+    /// Random 22-word DarkFi mnemonic phrase
     public var randomMnemonic: () throws -> String
-    /// Random 24 words mnemonic phrase as array of words
+    /// Random 22-word DarkFi mnemonic phrase as array of words
     public var randomMnemonicWords: () throws -> [String]
     /// Generate deterministic seed from mnemonic phrase
     public var toSeed: (String) throws -> [UInt8]

@@ -106,6 +106,22 @@ public final class DarkircDaemonManager: @unchecked Sendable {
         activeIrcClient = nil
         try? stopDarkirc()
     }
+
+    /// Stop any in-flight start so a fresh `start(callback:)` can attach the bridge.
+    public func restartForChat(callback: DarkircEventCallback, useTor: Bool) async throws {
+        stop()
+        for _ in 0..<40 {
+            let status = darkircStatus()
+            if status == "not_running" || status == "failed" {
+                break
+            }
+            if status == "running" {
+                try? stopDarkirc()
+            }
+            try await Task.sleep(for: .milliseconds(250))
+        }
+        try start(callback: callback, useTor: useTor)
+    }
     
     // MARK: - App Lifecycle
     

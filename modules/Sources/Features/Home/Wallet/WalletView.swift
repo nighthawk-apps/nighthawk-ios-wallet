@@ -16,18 +16,26 @@ import Utils
 @MainActor
 public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
+    @State private var balancePage: BalanceView.ViewType?
     
     public var body: some View {
-        VStack {
+        ZStack(alignment: .top) {
+            VStack {
+                Color.clear
+                    .frame(height: 165)
+                    .accessibilityHidden(true)
+                
+                Spacer(minLength: 0)
+                
+                balanceTabsView
+                
+                Spacer(minLength: 0)
+                
+                latestWalletEvents
+            }
+            
             qrCodeButtons
-            
-            Spacer()
-            
-            balanceTabsView
-            
-            Spacer()
-            
-            latestWalletEvents
+                .zIndex(1)
         }
         .applyNighthawkBackground()
     }
@@ -46,8 +54,11 @@ private extension WalletView {
                     .resizable()
                     .frame(width: 22, height: 22)
                     .aspectRatio(contentMode: .fit)
+                    .padding(12)
+                    .contentShape(Rectangle())
             }
-            .padding([.top, .leading], 25)
+            .accessibilityIdentifier("nighthawk.wallet.viewAddresses")
+            .padding([.top, .leading], 13)
             
             Spacer()
             
@@ -57,8 +68,11 @@ private extension WalletView {
                         .resizable()
                         .frame(width: 22, height: 22)
                         .aspectRatio(contentMode: .fit)
+                        .padding(12)
+                        .contentShape(Rectangle())
                 }
-                .padding([.top, .trailing], 25)
+                .accessibilityIdentifier("nighthawk.wallet.scan")
+                .padding([.top, .trailing], 13)
             }
         }
         .environment(\.layoutDirection, .leftToRight)
@@ -73,66 +87,92 @@ private extension WalletView {
             tabIndicators
         }
         .frame(maxHeight: 180)
-        .padding(.top, 58)
+        .padding(.top, 8)
         .environment(\.layoutDirection, .leftToRight)
     }
     
     @ViewBuilder var tabs: some View {
         if store.isSyncingForFirstTime {
             SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
+        } else if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing
+                    || store.isSyncingFailed
+                    || store.isSyncingStopped {
+            SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
         } else {
-            TabView(selection: $store.balanceViewType) {
-                Group {
-                    if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing || store.isSyncingFailed || store.isSyncingStopped {
-                        SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
-                    } else {
-                        BalanceView(
-                            balance: store.walletInfo.totalBalance,
-                            type: .hidden,
-                            tokenName: store.tokenName,
-                            synchronizerState: store.walletInfo.synchronizerState
-                        )
-                    }
-                }
-                .tag(BalanceView.ViewType.hidden)
-                
-                BalanceView(
-                    balance: store.walletInfo.totalBalance,
-                    type: .total,
-                    tokenName: store.tokenName,
-                    synchronizerState: store.walletInfo.synchronizerState
-                )
-                .tag(BalanceView.ViewType.total)
-                .padding(.top, 32)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .scrollDisabled(true)
-            .clipped()
+            balancePager
         }
+    }
+    
+    var balancePager: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 0) {
+                balancePage(.hidden)
+                    .containerRelativeFrame(.horizontal)
+                    .id(BalanceView.ViewType.hidden)
+                
+                balancePage(.total)
+                    .containerRelativeFrame(.horizontal)
+                    .id(BalanceView.ViewType.total)
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $balancePage)
+        .frame(height: 150)
+        .fixedSize(horizontal: false, vertical: true)
+        .clipped()
+        .contentShape(Rectangle())
+        .onAppear {
+            balancePage = store.balanceViewType
+        }
+        .onChange(of: balancePage) { _, newPage in
+            guard let newPage, newPage != store.balanceViewType else { return }
+            store.balanceViewType = newPage
+        }
+        .onChange(of: store.balanceViewType) { _, newType in
+            guard balancePage != newType else { return }
+            balancePage = newType
+        }
+    }
+    
+    func balancePage(_ viewType: BalanceView.ViewType) -> some View {
+        BalanceView(
+            balance: store.walletInfo.totalBalance,
+            type: viewType,
+            tokenName: store.tokenName,
+            synchronizerState: store.walletInfo.synchronizerState
+        )
+        .padding(.top, viewType == .total ? 32 : 0)
     }
     
     var tabIndicators: some View {
         HStack {
             ForEach(BalanceView.ViewType.allCases, id: \.self) { viewType in
-                Circle()
-                    .strokeBorder(
-                        strokeColor(
-                            for: store.balanceViewType,
-                            isSelected: viewType == store.balanceViewType
-                        ),
-                        lineWidth: 3
-                    )
-                    .background(
-                        Circle()
-                            .fill(
-                                fillColor(
-                                    for: store.balanceViewType,
-                                    isSelected: viewType == store.balanceViewType
+                Button {
+                    store.balanceViewType = viewType
+                } label: {
+                    Circle()
+                        .strokeBorder(
+                            strokeColor(
+                                for: store.balanceViewType,
+                                isSelected: viewType == store.balanceViewType
+                            ),
+                            lineWidth: 3
+                        )
+                        .background(
+                            Circle()
+                                .fill(
+                                    fillColor(
+                                        for: store.balanceViewType,
+                                        isSelected: viewType == store.balanceViewType
+                                    )
                                 )
-                            )
-                            .frame(width: 10, height: 10)
-                    )
-                    .frame(width: 16, height: 16)
+                                .frame(width: 10, height: 10)
+                        )
+                        .frame(width: 16, height: 16)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("nighthawk.wallet.balance.\(viewType == .hidden ? "hidden" : "total")")
             }
         }
     }

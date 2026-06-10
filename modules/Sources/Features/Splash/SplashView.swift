@@ -20,7 +20,7 @@ public struct SplashView: View {
             Spacer()
             
             VStack {
-                NighthawkLogo()
+                NighthawkLogo(size: .splash)
                     .padding(.bottom, 10)
                 
                 Text(L10n.Nighthawk.Splash.subtitle)

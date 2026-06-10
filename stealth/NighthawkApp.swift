@@ -23,11 +23,10 @@ struct NighthawkApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
                 case .active:
-                    // Avoid starting P2P/darkirc during onboarding — it can contend with
-                    // wallet FFI on the main thread and make the welcome screen feel stuck.
-                    if (try? WalletStorageClient.live().areKeysPresent()) == true {
-                        DarkircDaemonManager.shared.ensureRunning()
-                    }
+                    // Chat tab owns darkirc lifecycle (connect on appear, disconnect on
+                    // background). Starting here races with Chat and can leave the daemon
+                    // running without a message callback.
+                    break
                     
                 case .background:
                     // Don't stop darkirc — let iOS's background grace period

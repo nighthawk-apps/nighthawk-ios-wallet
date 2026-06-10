@@ -21,14 +21,15 @@ struct NighthawkSettingsView: View {
     
     var body: some View {
         ScrollView([.vertical], showsIndicators: false) {
-            NighthawkLogo(spacing: .compact)
-                .padding(.vertical, 40)
+            NighthawkLogo(spacing: .compact, size: .tabHeader)
+                .padding(.vertical, 24)
             
             HStack {
                 Text(L10n.Nighthawk.SettingsTab.settings)
-                    .paragraphMedium()
+                    .paragraphMedium(color: .white)
                 Spacer()
             }
+            .padding(.bottom, 13)
             
             VStack {
                 settingRow(

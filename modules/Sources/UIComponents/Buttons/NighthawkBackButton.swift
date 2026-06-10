@@ -15,8 +15,8 @@ public enum NighthawkBackButtonType: Equatable {
 
 extension View {
     public func showNighthawkBackButton(type: NighthawkBackButtonType = .back, action: @escaping () -> Void) -> some View {
-        self.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .topLeading) {
+        safeAreaInset(edge: .top, spacing: 0) {
+            HStack {
                 Button(action: action) {
                     image(for: type)
                         .resizable()
@@ -24,10 +24,14 @@ extension View {
                         .foregroundColor(.white)
                         .frame(width: 24, height: 24)
                         .aspectRatio(contentMode: .fit)
+                        .padding(12)
+                        .contentShape(Rectangle())
                 }
-                .padding([.top, .leading], 25)
+
+                Spacer(minLength: 0)
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .padding(.horizontal, 13)
+        }
     }
     
     func image(for type: NighthawkBackButtonType) -> Image {

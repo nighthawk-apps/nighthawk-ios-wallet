@@ -29,6 +29,9 @@ public struct Splash {
         public var lastInactiveTime: Date?
         public var phase = ScenePhase.background
         public var isVisible = true
+        /// Once the user has been routed past splash, avoid sending them back to welcome
+        /// when splash reappears after background lock / scene phase changes.
+        public var hasCompletedInitialRoute = false
         public var shouldHandleScenePhaseChange: Bool {
             isVisible && !isAuthenticating && !hasAttemptedAuthentication
         }
@@ -52,6 +55,7 @@ public struct Splash {
         public enum Delegate: Equatable {
             case handleNewUser
             case handleMigration
+            case handleNeedsBackup
             case initializeSDKAndLaunchWallet
         }
     }
@@ -110,12 +114,19 @@ public struct Splash {
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
                 case .initialized, .filesMissing:
+                    if !userStoredPreferences.isUserBackupComplete() {
+                        return .send(.delegate(.handleNeedsBackup))
+                    }
                     if userStoredPreferences.areBiometricsEnabled() {
                         return .send(.authenticate)
                     } else {
                         return .send(.delegate(.initializeSDKAndLaunchWallet))
                     }
                 case .uninitialized:
+                    guard !state.hasCompletedInitialRoute else {
+                        state.alert = AlertState.walletStateFailed(.uninitialized)
+                        return .none
+                    }
                     return .send(.delegate(.handleNewUser))
                 }
             case .delegate:

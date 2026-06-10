@@ -10,28 +10,46 @@ import SwiftUI
 
 public struct NighthawkLogo: View {
     public enum Spacing: CGFloat {
-        case normal = 30
-        case compact = 22
+        case normal = 20
+        case compact = 16
     }
-    
+
+    /// Logo dimensions aligned with Android `NighthawkBrandingHeader` / `ic_nighthawk_logo`.
+    public enum Size: CGFloat {
+        case standard = 35
+        case splash = 40
+        /// Home tab headers (wallet, transfer, settings).
+        case tabHeader = 105
+    }
+
     let spacing: Spacing
-    
-    public init(spacing: Spacing = .normal) {
+    let size: Size
+    let showsTitle: Bool
+
+    public init(
+        spacing: Spacing = .normal,
+        size: Size = .standard,
+        showsTitle: Bool = true
+    ) {
         self.spacing = spacing
+        self.size = size
+        self.showsTitle = showsTitle
     }
-    
+
     public var body: some View {
-        VStack {
+        VStack(spacing: spacing.rawValue) {
             Asset.Assets.Icons.Nighthawk.nighthawkSymbol
                 .image
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 80, height: 80)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: size.rawValue, height: size.rawValue)
                 .foregroundColor(.white)
-                .padding(.bottom, spacing.rawValue)
-            
-            Text(L10n.Nighthawk.Splash.title)
-                .title()
+
+            if showsTitle {
+                Text(L10n.Nighthawk.Splash.title)
+                    .title()
+            }
         }
     }
 }

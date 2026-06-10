@@ -224,6 +224,7 @@ let package = Package(
                 "Generated",
                 "MnemonicClient",
                 "UIComponents",
+                "UserPreferencesStorage",
                 "Utils",
                 "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -392,7 +393,10 @@ let package = Package(
                 "Generated",
                 "Models",
                 "Pasteboard",
+                "MnemonicClient",
                 "UIComponents",
+                "UserPreferencesStorage",
+                "Utils",
                 "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],

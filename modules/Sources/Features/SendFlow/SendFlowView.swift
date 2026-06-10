@@ -69,7 +69,7 @@ public struct SendFlowView: View {
                 unwrapping: $store.toast,
                 case: /SendFlow.State.Toast.notEnoughDrk,
                 alert: {
-                    AlertToast(
+                    AlertToast.nighthawkBanner(
                         type: .regular,
                         title: L10n.Nighthawk.TransferTab.Send.Toast.notEnoughDrk
                     )

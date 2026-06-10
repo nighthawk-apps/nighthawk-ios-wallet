@@ -46,4 +46,18 @@ final class HomeTests: XCTestCase {
             state.selectedTab = .wallet
         }
     }
+
+    func testViewAddressesTapped_PresentsAddressesSheet() async {
+        let store = TestStore(
+            initialState: HomeTestSupport.makeState(),
+            reducer: Home.init
+        ) {
+            HomeTestSupport.configureDependencies(&$0)
+        }
+        store.exhaustivity = .off
+
+        await store.send(.wallet(.delegate(.showAddresses))) {
+            $0.destination = .addresses(.init(uAddress: nil, showCloseButton: false))
+        }
+    }
 }

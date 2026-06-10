@@ -10,6 +10,7 @@ import Generated
 import MnemonicClient
 import SwiftUI
 import UIComponents
+import UserPreferencesStorage
 import Utils
 import WalletStorage
 
@@ -60,6 +61,7 @@ public struct ImportWallet {
     
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<ImportWallet> {
         BindingReducer()
@@ -77,6 +79,7 @@ public struct ImportWallet {
                     // fall back to 0 (DarkFi: no checkpoint concept)
                     let birthday = state.birthdayHeightValue ?? BlockHeight(0).redacted
                     try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
+                    userStoredPreferences.setIsUserBackupComplete(true)
                     return .send(.delegate(.showImportSuccess))
                 } catch {
                     state.alert = AlertState.importWalletFailed(error.toDarkFiError())

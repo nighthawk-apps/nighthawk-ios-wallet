@@ -15,37 +15,46 @@ import UIComponents
 
 public struct RecoveryPhraseDisplayView: View {
     @Bindable var store: StoreOf<RecoveryPhraseDisplay>
-    
+
     public init(store: StoreOf<RecoveryPhraseDisplay>) {
         self.store = store
     }
-    
+
     public var body: some View {
-        VStack {
-            Group {
-                let groups = store.phrase.toGroups(groupSizeOverride: 3)
-                
-                instructions
-                
-                SeedView(groups: groups, birthday: store.birthday)
-                
-                if store.flow == .onboarding {
-                    confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
+        ZStack {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    let groups = store.phrase.toGroups(groupSizeOverride: 3)
+
+                    NighthawkLogo(spacing: .compact, showsTitle: false)
+                        .padding(.bottom, 25)
+
+                    instructions
+
+                    SeedView(groups: groups, birthday: store.birthday)
+                        .padding(.top, 25)
+
+                    if store.flow == .onboarding {
+                        confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
+                            .padding(.top, 20)
+                    }
+
+                    actions(groups: groups)
+                        .padding(.top, 24)
                 }
-                
-                Spacer()
-                
-                actions(groups: groups)
+            }
+            .padding(.horizontal, 25)
+            .padding(.top, 22)
+            .padding(.bottom, 66)
+
+            if store.flow == .onboarding, !store.isConfirmSeedPhraseWrittenChecked {
+                backupConfirmationBlocker
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 25)
-        .padding(.horizontal, 25)
-        .padding(.bottom, 66)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { store.send(.onAppear) }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .applyNighthawkBackground()
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .nighthawkAlert(
             store: store.scope(
                 state: \.$destination.exportSeedAlert,
@@ -62,31 +71,59 @@ private extension RecoveryPhraseDisplayView {
     @ViewBuilder
     var instructions: some View {
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.title)
-            .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .paragraphMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 12)
-        
+
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
-            .paragraphMedium(color: .white)
+            .caption(color: .white)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 18)
-        
+            .padding(.top, 11)
+
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions2)
-            .paragraphMedium(color: .white)
+            .caption(color: .white)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 18)
+            .padding(.top, 11)
     }
-    
+
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {
         CheckBox(isChecked: isChecked) {
             Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
                 .caption()
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
+    var backupConfirmationBlocker: some View {
+        VStack {
+            Spacer()
+            VStack(spacing: 12) {
+                Image(systemName: "exclamationmark.shield.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+
+                Text("Write down all 22 words before continuing")
+                    .subtitleMedium(color: .white)
+                    .multilineTextAlignment(.center)
+
+                Text("Check the box below to confirm you have saved your recovery phrase in a safe place.")
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Asset.Colors.Nighthawk.darkNavy.color.opacity(0.95))
+            )
+            .padding(.horizontal, 25)
+            .padding(.bottom, 140)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.45).ignoresSafeArea())
+        .allowsHitTesting(false)
+    }
+
     @MainActor
     func actions(groups: [RecoveryPhrase.Group]) -> some View {
         Group {
@@ -100,7 +137,7 @@ private extension RecoveryPhraseDisplayView {
                     store.send(.continuePressed)
                 }
                 .buttonStyle(.nighthawkPrimary(width: 152))
-                .disabled(!store.state.isConfirmSeedPhraseWrittenChecked)
+                .disabled(!store.isConfirmSeedPhraseWrittenChecked)
             }
         }
         .frame(maxWidth: .infinity)

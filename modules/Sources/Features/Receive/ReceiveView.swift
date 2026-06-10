@@ -98,7 +98,7 @@ public struct ReceiveView: View {
             unwrapping: $store.toast,
             case: /Receive.State.Toast.copiedToClipboard,
             alert: {
-                AlertToast(
+                AlertToast.nighthawkBanner(
                     type: .regular,
                     title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
                 )
@@ -108,7 +108,7 @@ public struct ReceiveView: View {
             unwrapping: $store.toast,
             case: /Receive.State.Toast.newAddressGenerated,
             alert: {
-                AlertToast(
+                AlertToast.nighthawkBanner(
                     type: .complete(.green),
                     title: "New address generated"
                 )
@@ -118,7 +118,7 @@ public struct ReceiveView: View {
             unwrapping: $store.toast,
             case: /Receive.State.Toast.generateFailed,
             alert: {
-                AlertToast(
+                AlertToast.nighthawkBanner(
                     type: .error(.red),
                     title: "Failed to generate address"
                 )

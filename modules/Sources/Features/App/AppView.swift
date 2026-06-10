@@ -23,97 +23,16 @@ public struct AppView: View {
     @Environment(\.scenePhase) var scenePhase
     
     public var body: some View {
-        NavigationStack(
-            path: $store.scope(
-                state: \.path,
-                action: \.path
-            )
-        ) {
-            SplashView(
-                store: store.scope(
-                    state: \.splash,
-                    action: \.splash
+        Group {
+            if store.path.isEmpty {
+                SplashView(
+                    store: store.scope(
+                        state: \.splash,
+                        action: \.splash
+                    )
                 )
-            )
-        } destination: { store in
-            switch store.case {
-            case let .about(store):
-                AboutView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .advanced(store):
-                AdvancedView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .backup(store):
-                RecoveryPhraseDisplayView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .changeServer(store):
-                ChangeServerView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .externalServices(store):
-                ExternalServicesView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .fiat(store):
-                FiatView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .home(store):
-                HomeView(store: store)
-                    .navigationTitle("")
-                    .toolbar(.hidden, for: .navigationBar)
-                
-            case let .importWallet(store):
-                ImportWalletView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .importWalletSuccess(store):
-                ImportWalletSuccessView(store: store)
-                    .toolbar(.hidden, for: .navigationBar)
-                
-            case let .migrate(store):
-                MigrateView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .notifications(store):
-                NotificationsView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .recoveryPhraseDisplay(store):
-                RecoveryPhraseDisplayView(store: store)
-                    .toolbar(.hidden, for: .navigationBar)
-                
-            case let .security(store):
-                SecurityView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .transactionDetail(store):
-                TransactionDetailView(store: store)
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .transactionHistory(store):
-                TransactionHistoryView(store: store)
-                    .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            VStack {
-                                Text(L10n.Nighthawk.TransactionHistory.title)
-                                    .title()
-                            }
-                        }
-                    }
-                    .toolbarColorScheme(.dark, for: .navigationBar)
-                
-            case let .walletCreated(store):
-                WalletCreatedView(store: store)
-                    .toolbar(.hidden, for: .navigationBar)
-                
-            case let .welcome(store):
-                WelcomeView(store: store)
-                    .navigationTitle("")
-                    .toolbar(.hidden, for: .navigationBar)
+            } else if let topID = store.path.ids.last {
+                pathScreen(id: topID)
             }
         }
         .tint(.white)
@@ -131,5 +50,80 @@ public struct AppView: View {
     
     public init(store: StoreOf<AppReducer>) {
         self.store = store
+    }
+}
+
+// MARK: - Path screens
+private extension AppView {
+    @ViewBuilder
+    func pathScreen(id: StackElementID) -> some View {
+        let showBackButton = store.path.count > 1
+        
+        if let pathStore = store.scope(state: \.path[id: id], action: \.path[id: id]) {
+            Group {
+                switch pathStore.case {
+            case let .about(store):
+                AboutView(store: store)
+                
+            case let .advanced(store):
+                AdvancedView(store: store)
+                
+            case let .backup(store):
+                RecoveryPhraseDisplayView(store: store)
+                
+            case let .changeServer(store):
+                ChangeServerView(store: store)
+                
+            case let .externalServices(store):
+                ExternalServicesView(store: store)
+                
+            case let .fiat(store):
+                FiatView(store: store)
+                
+            case let .home(store):
+                HomeView(store: store)
+                
+            case let .importWallet(store):
+                ImportWalletView(store: store)
+                
+            case let .importWalletSuccess(store):
+                ImportWalletSuccessView(store: store)
+                
+            case let .migrate(store):
+                MigrateView(store: store)
+                
+            case let .notifications(store):
+                NotificationsView(store: store)
+                
+            case let .recoveryPhraseDisplay(store):
+                RecoveryPhraseDisplayView(store: store)
+                
+            case let .security(store):
+                SecurityView(store: store)
+                
+            case let .transactionDetail(store):
+                TransactionDetailView(store: store)
+                
+            case let .transactionHistory(store):
+                TransactionHistoryView(store: store)
+                
+            case let .walletCreated(store):
+                WalletCreatedView(store: store)
+                
+            case let .welcome(store):
+                WelcomeView(store: store)
+            }
+        }
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .modify {
+            if showBackButton {
+                $0.showNighthawkBackButton {
+                    store.send(.path(.popFrom(id: id)))
+                }
+            } else {
+                $0
+            }
+        }
+        }
     }
 }

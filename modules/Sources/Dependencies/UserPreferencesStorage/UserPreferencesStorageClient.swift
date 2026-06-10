@@ -57,6 +57,9 @@ public struct UserPreferencesStorageClient {
     public var setTorSocksHost: (String) -> Void
     public var torSocksPort: () -> String?
     public var setTorSocksPort: (String) -> Void
+
+    public var isUserBackupComplete: () -> Bool
+    public var setIsUserBackupComplete: (Bool) -> Void
     
     public var removeAll: () -> Void
 }
@@ -97,6 +100,8 @@ extension UserPreferencesStorageClient: DependencyKey {
         setTorSocksHost: UserPreferencesStorage.live.setTorSocksHost(_:),
         torSocksPort: { UserPreferencesStorage.live.torSocksPort },
         setTorSocksPort: UserPreferencesStorage.live.setTorSocksPort(_:),
+        isUserBackupComplete: { UserPreferencesStorage.live.isUserBackupComplete },
+        setIsUserBackupComplete: UserPreferencesStorage.live.setIsUserBackupComplete(_:),
         removeAll: UserPreferencesStorage.live.removeAll
     )
 }

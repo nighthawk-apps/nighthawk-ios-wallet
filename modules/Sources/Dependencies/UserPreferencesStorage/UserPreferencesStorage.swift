@@ -31,6 +31,7 @@ public struct UserPreferencesStorage {
         case darkfiUseEmbeddedTor
         case darkfiTorSocksHost
         case darkfiTorSocksPort
+        case darkfiIsUserBackupComplete
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
@@ -227,6 +228,15 @@ public struct UserPreferencesStorage {
     
     public func setTorSocksPort(_ port: String) {
         setValue(port, forKey: Constants.darkfiTorSocksPort.rawValue)
+    }
+
+    /// Whether the user confirmed they wrote down their 22-word recovery phrase.
+    public var isUserBackupComplete: Bool {
+        getValue(forKey: Constants.darkfiIsUserBackupComplete.rawValue, default: false)
+    }
+
+    public func setIsUserBackupComplete(_ complete: Bool) {
+        setValue(complete, forKey: Constants.darkfiIsUserBackupComplete.rawValue)
     }
 
     /// Use carefully: Deletes all user preferences from the User Defaults
