@@ -30,6 +30,9 @@ public struct DaoHubView: View {
                 proposalDetailScreen
             }
         }
+        .refreshable {
+            await store.send(.loadHub).finish()
+        }
         .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
     }
@@ -40,14 +43,18 @@ private extension DaoHubView {
     var hubScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                daoScaffoldHeader(title: "DAO Hub")
+                HStack(alignment: .center) {
+                    daoScaffoldHeader(title: "DAO Hub")
+                    Spacer()
+                    readOnlyBadge
+                }
                 
                 if store.isLoading {
                     daoLoading
                 } else if let error = store.errorMessage {
                     daoMessage(error)
                 } else if store.daos.isEmpty {
-                    daoMessage("No DAOs found for this wallet. Import a wallet that participates in a DAO, or wait for sync to finish.")
+                    daoEmptyState
                 } else {
                     Text("Governance imported with your wallet. Voting and execution arrive in a later release.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
@@ -63,16 +70,58 @@ private extension DaoHubView {
         }
     }
     
+    // ── Empty State ─────────────────────────────────────────────────────
+    
+    var daoEmptyState: some View {
+        VStack(spacing: 16) {
+            Text("🏛️")
+                .font(.system(size: 48))
+                .padding(.top, 24)
+            
+            Text("No DAOs found")
+                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
+                .foregroundColor(.white)
+            
+            Text("Import a wallet that participates in a DAO, or wait for sync to finish. DAOs appear here when your wallet scans governance data from darkfid.")
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            
+            Button("Refresh") {
+                store.send(.loadHub)
+            }
+            .buttonStyle(.nighthawkPrimary())
+            .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    // ── DAO Row ──────────────────────────────────────────────────────────
+    
     func daoRow(_ dao: DaoBrief) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(dao.name)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            HStack {
+                Text(dao.name)
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                
+                Spacer()
+            }
             
             Text("Quorum \(dao.quorumDisplay) · Approval \(String(format: "%.0f", dao.approvalRatioPercent))%")
-
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            
+            // Role badges
+            HStack(spacing: 6) {
+                if dao.canPropose { roleBadge("Proposer", color: .green) }
+                if dao.canVote { roleBadge("Voter", color: .blue) }
+                if dao.canExec { roleBadge("Executor", color: .orange) }
+                if !dao.canPropose && !dao.canVote && !dao.canExec {
+                    roleBadge("Observer", color: Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+            }
             
             Divider().overlay(Asset.Colors.Nighthawk.navy.color)
         }
@@ -122,14 +171,26 @@ private extension DaoHubView {
     
     func daoParamsCard(_ dao: DaoBrief) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            detailLine(label: "Governance token", value: dao.govTokenId)
+            copyableDetailLine(label: "Governance token", value: dao.govTokenId)
             detailLine(label: "Quorum", value: dao.quorumDisplay)
             detailLine(label: "Proposer limit", value: dao.proposerLimitDisplay)
             detailLine(label: "Approval ratio", value: "\(String(format: "%.0f", dao.approvalRatioPercent))%")
             if let h = dao.mintHeight {
                 detailLine(label: "Mint height", value: "\(h)")
             }
-            detailLine(label: "Your roles", value: rolesLabel(for: dao))
+            
+            // Role badges
+            Text("Your roles")
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            HStack(spacing: 6) {
+                if dao.canPropose { roleBadge("Proposer", color: .green) }
+                if dao.canVote { roleBadge("Voter", color: .blue) }
+                if dao.canExec { roleBadge("Executor", color: .orange) }
+                if !dao.canPropose && !dao.canVote && !dao.canExec {
+                    roleBadge("None", color: Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+            }
             
             Divider().overlay(Asset.Colors.Nighthawk.navy.color)
         }
@@ -138,9 +199,7 @@ private extension DaoHubView {
     
     func proposalRow(_ proposal: ProposalBrief) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(statusLabel(for: proposal))
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                .foregroundColor(proposalStatusColor(statusLabel(for: proposal)))
+            statusBadge(for: proposal)
             
             Text(proposal.summaryLine)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
@@ -167,7 +226,7 @@ private extension DaoHubView {
                 } else if let detail = store.proposalDetail {
                     let p = detail.brief
                     detailLine(label: "DAO", value: p.daoName)
-                    detailLine(label: "Status", value: statusLabel(for: p))
+                    statusBadge(for: p)
                     detailLine(label: "Auth calls", value: "\(p.authCallCount)")
                     detailLine(label: "Duration (blocks)", value: "\(p.durationBlockwindows)")
                     if let h = p.mintHeight {
@@ -177,15 +236,13 @@ private extension DaoHubView {
                         detailLine(label: "Exec height", value: "\(h)")
                     }
                     if let tx = detail.proposeTxHash {
-                        detailLine(label: "Propose tx", value: tx)
+                        copyableDetailLine(label: "Propose tx", value: tx)
                     }
                     if let tx = detail.execTxHash {
-                        detailLine(label: "Exec tx", value: tx)
+                        copyableDetailLine(label: "Exec tx", value: tx)
                     }
                     
-                    Text("Read-only preview (M1). Propose, vote, and execute will be enabled after testnet validation.")
-                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    readOnlyBadge
                         .padding(.top, 12)
                 } else {
                     daoMessage("Proposal not found")
@@ -250,20 +307,69 @@ private extension DaoHubView {
         }
     }
     
-    func proposalStatusColor(_ status: String) -> Color {
-        switch status {
-        case "Executed": return .green
-        case "Active": return Asset.Colors.Nighthawk.peach.color
-        default: return Asset.Colors.Nighthawk.parmaviolet.color
+    // ── Copyable Detail Line ────────────────────────────────────────────
+    
+    func copyableDetailLine(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            HStack(spacing: 4) {
+                Text(value)
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Image(systemName: "doc.on.doc")
+                    .font(.system(size: 11))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+            .onTapGesture {
+                UIPasteboard.general.string = value
+            }
         }
     }
     
-    func rolesLabel(for dao: DaoBrief) -> String {
-        var roles: [String] = []
-        if dao.canPropose { roles.append("Proposer") }
-        if dao.canVote { roles.append("Voter") }
-        if dao.canExec { roles.append("Executor") }
-        return roles.isEmpty ? "None" : roles.joined(separator: ", ")
+    // ── Badges ──────────────────────────────────────────────────────────
+    
+    var readOnlyBadge: some View {
+        Text("Read-only · M1")
+            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
+            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Asset.Colors.Nighthawk.navy.color)
+            )
+    }
+    
+    func roleBadge(_ label: String, color: Color) -> some View {
+        Text(label)
+            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
+            .foregroundColor(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(color.opacity(0.12))
+            )
+    }
+    
+    func statusBadge(for p: ProposalBrief) -> some View {
+        let label = statusLabel(for: p)
+        let color = proposalStatusColor(label)
+        return Text(label)
+            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+            .foregroundColor(color)
+    }
+    
+    func proposalStatusColor(_ status: String) -> Color {
+        switch status {
+        case "Executed": return .green
+        case "Active": return .orange
+        default: return Asset.Colors.Nighthawk.parmaviolet.color
+        }
     }
     
     func statusLabel(for p: ProposalBrief) -> String {

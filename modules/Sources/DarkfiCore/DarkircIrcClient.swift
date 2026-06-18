@@ -93,7 +93,9 @@ public class DarkircIrcClient {
         guard let data = "\(line)\r\n".data(using: .utf8) else { return }
         connection?.send(content: data, completion: .contentProcessed({ error in
             if let error = error {
+                #if DEBUG
                 print("DarkircIrcClient send error: \(error)")
+                #endif
             }
         }))
     }

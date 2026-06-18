@@ -290,7 +290,9 @@ public struct SendFlow {
                         await send(.tokenBalancesLoaded(balances))
                     } catch {
                         // Non-fatal: just use default DRK
+                        #if DEBUG
                         print("[SendFlow] Could not load token balances: \(error)")
+                        #endif
                     }
                 }
             case let .tokenBalancesLoaded(balances):

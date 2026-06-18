@@ -276,6 +276,7 @@ let package = Package(
                 "FiatPriceClient",
                 "FileManager",
                 "Models",
+                "Pasteboard",
                 "TransactionDetail",
                 "UserPreferencesStorage",
                 "ProcessInfoClient",
@@ -312,6 +313,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "UserDefaults",
+                "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/UserPreferencesStorage"
@@ -408,6 +410,7 @@ let package = Package(
                 "DatabaseFiles",
                 "DerivationTool",
                 "Models",
+                "UserPreferencesStorage",
                 "Utils",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DarkfiCore"

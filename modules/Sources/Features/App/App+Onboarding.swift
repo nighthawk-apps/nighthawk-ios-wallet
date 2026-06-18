@@ -43,7 +43,8 @@ extension AppReducer {
         .run { send in
             do {
                 let newRandomPhrase = try mnemonic.randomMnemonic()
-                let birthday: BlockHeight = 0 /* DarkFi: no checkpoint concept */
+                // DarkFi: no checkpoint concept
+                let birthday: BlockHeight = 0
                 walletStorage.deleteWallet()
                 try walletStorage.importWallet(newRandomPhrase, birthday, .english)
                 userStoredPreferences.setIsUserBackupComplete(false)

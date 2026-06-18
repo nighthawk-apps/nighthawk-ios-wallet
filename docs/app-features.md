@@ -89,7 +89,8 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Embedded `darkirc` | 🚀 | ✅ | iOS: **native in-process** via UniFFI callback; Android: subprocess `darkirc_exec` |
 | Tor for chat / P2P | 🚀 | ✅ | iOS: Arti in-process; Android: tor-android SOCKS |
 | Connection status | ✅ | ✅ | `darkirc_status()` polling |
-| Chat settings | ✅ | ✅ | `ChatSettings` feature in Settings |
+| Chat settings navigation | ✅ | ✅ | Settings → Chat Settings (stack push) |
+| Chat settings | ✅ | ✅ | DAG hours, fast mode, E2E channels/contacts persisted |
 | E2E encrypted DMs | ✅ | ✅ | ChaCha via UniFFI; `DarkircCryptoStore` |
 | DM key generation | 🚀 | 🟡 | iOS: native `generate_dm_keypair()`; Android: CLI keygen |
 | DM contact management | ✅ | ✅ | `DarkircContactManager` + `NewDmConversationView` |
@@ -103,14 +104,14 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Feature | iOS | Android | Notes |
 |---------|-----|---------|-------|
 | Settings hub | ✅ | ✅ | Tab bar navigation |
-| Tor network | 🚀 | ✅ | iOS: Arti in-process with `TorNetwork` settings |
+| Tor network | ✅ | ✅ | Settings → **Tor Network**; real Arti FFI + apply reload |
 | Change server (darkfid endpoint) | ✅ | ✅ | `ChangeServer` feature |
 | Security (PIN) | ✅ | ✅ | `Security` feature |
 | Fiat currency | ✅ | ✅ | `Fiat` feature |
 | Backup wallet | ✅ | ✅ | `ExportSeed` feature |
 | About / version | ✅ | ✅ | `About` feature |
 | Advanced settings | ✅ | ✅ | `Advanced` feature |
-| Chat settings | ✅ | ✅ | `ChatSettings` feature |
+| Chat settings | ✅ | ✅ | Settings → **Chat Settings**; prefs + DM keys + reconnect |
 | Notifications | ✅ | 🟡 | `Notifications` feature |
 | Wipe / reset wallet data | ✅ | ✅ | Rescan in settings |
 
@@ -126,7 +127,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Embedded darkfid P2P seeds | ❌ | ✅ | iOS does not bundle darkfid |
 | Embedded darkirc P2P seeds | ✅ | ✅ | In-process darkirc uses upstream defaults |
 | Stratum / mining UI | ❌ | ❌ | Desktop `darkfid` + xmrig |
-| DAO / contract admin UI | 🟡 | 🟡 | Read-only DAO Hub |
+| DAO / contract admin UI | 🟡 | 🟡 | Read-only **DAO Hub** (Settings + Transfer tab entry) |
 
 ---
 

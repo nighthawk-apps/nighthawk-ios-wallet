@@ -8,7 +8,7 @@ use std::{
 };
 
 use thiserror::Error;
-use hmac::{Hmac, Mac};
+use hmac::Hmac;
 use num_bigint::BigUint;
 use num_bigint::RandBigInt;
 use num_traits::identities::{One, Zero};
@@ -49,6 +49,7 @@ pub enum MnemonicError {
     InvalidWord(String),
     #[error("Cannot extract same entropy from mnemonic!")]
     EntropyMismatch,
+    #[allow(dead_code)]
     #[error("Other error: {0}")]
     Other(String),
 }
@@ -134,6 +135,7 @@ impl Default for DarkfiMnemonic {
 }
 
 impl DarkfiMnemonic {
+    #[allow(dead_code)]
     pub fn mnemonic_to_seed(mnemonic: &str, passphrase: Option<&str>) -> [u8; 64] {
         const PBKDF_ROUNDS: u32 = 2048;
         let mnemonic = normalize_text(mnemonic);
@@ -143,6 +145,7 @@ impl DarkfiMnemonic {
         salt.push_str(&passphrase);
 
         let mut key = [0u8; 64];
+        // pbkdf2 is infallible for HMAC-based PRFs (returns unit).
         pbkdf2::<Hmac<Sha512>>(mnemonic.as_bytes(), salt.as_bytes(), PBKDF_ROUNDS, &mut key);
         key
     }

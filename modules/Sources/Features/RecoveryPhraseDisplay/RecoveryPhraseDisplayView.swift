@@ -15,6 +15,7 @@ import UIComponents
 
 public struct RecoveryPhraseDisplayView: View {
     @Bindable var store: StoreOf<RecoveryPhraseDisplay>
+    @State private var isCaptured = false
 
     public init(store: StoreOf<RecoveryPhraseDisplay>) {
         self.store = store
@@ -31,8 +32,17 @@ public struct RecoveryPhraseDisplayView: View {
 
                     instructions
 
-                    SeedView(groups: groups, birthday: store.birthday)
-                        .padding(.top, 25)
+                    if isCaptured {
+                        // When screen is being captured/recorded, hide the seed
+                        Text("Screen recording or screenshot detected.\nSeed phrase hidden for security.")
+                            .caption(color: Asset.Colors.Nighthawk.peach.color)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 25)
+                            .padding(.horizontal, 16)
+                    } else {
+                        SeedView(groups: groups, birthday: store.birthday)
+                            .padding(.top, 25)
+                    }
 
                     if store.flow == .onboarding {
                         confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
@@ -53,6 +63,18 @@ public struct RecoveryPhraseDisplayView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { store.send(.onAppear) }
+        .onReceive(NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)) { _ in
+            isCaptured = UIScreen.main.isCaptured
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)) { _ in
+            // Screenshot already taken — we can't prevent it, but we can
+            // hide the seed going forward so repeated screenshots fail.
+            isCaptured = true
+            // Re-show after a short delay so the user can continue
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                isCaptured = UIScreen.main.isCaptured
+            }
+        }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .applyNighthawkBackground()
         .nighthawkAlert(

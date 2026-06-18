@@ -10,6 +10,7 @@ import Combine
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import UserPreferencesStorage
 import Utils
 
 // MARK: - Wallet Handle Manager
@@ -71,9 +72,9 @@ private final class WalletHandleManager: @unchecked Sendable {
         
         // Read user-configured server endpoint (from ChangeServer settings),
         // or fall back to the default local darkfid RPC.
-        let endpoint = UserDefaults.standard.string(
-            forKey: WalletHandleManager.serverEndpointKey
-        ) ?? WalletHandleManager.defaultDarkfidEndpoint
+        let storedEndpoint = UserPreferencesStorage.live.customLightwalletdServer
+        let endpoint = (storedEndpoint?.isEmpty == false ? storedEndpoint : nil)
+            ?? WalletHandleManager.defaultDarkfidEndpoint
         
         let config = DrkBootstrapConfig(
             network: "testnet",  // DarkFi testnet 0.3
@@ -146,6 +147,21 @@ extension SDKSynchronizerClient: DependencyKey {
                 syncStatus: .stopped,
                 confirmedBalance: WalletHandleManager.shared.latestState.confirmedBalance,
                 latestBlockHeight: WalletHandleManager.shared.latestState.latestBlockHeight
+            ))
+        },
+        isWalletPrepared: {
+            WalletHandleManager.shared.handle != nil
+        },
+        refreshNow: {
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            let snapshot = try handle.refreshNow()
+            let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
+            WalletHandleManager.shared.updateState(SynchronizerState(
+                syncStatus: .upToDate,
+                confirmedBalance: balance,
+                latestBlockHeight: BlockHeight(snapshot.chainTip)
             ))
         },
         getConfirmedBalance: {
@@ -284,8 +300,10 @@ extension SDKSynchronizerClient: DependencyKey {
             return try? handle.transactionRecipient(txHash: txHash)
         },
         listDaos: {
-            guard let handle = WalletHandleManager.shared.handle else { return [] }
-            let ffiDaos = (try? handle.listDaos()) ?? []
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            let ffiDaos = try handle.listDaos()
             return ffiDaos.map { d in
                 DaoBrief(
                     name: d.name, bullaB58: d.bullaB58, govTokenId: d.govTokenId,
@@ -297,8 +315,10 @@ extension SDKSynchronizerClient: DependencyKey {
             }
         },
         listProposals: { daoName in
-            guard let handle = WalletHandleManager.shared.handle else { return [] }
-            let ffiProposals = (try? handle.listProposals(daoName: daoName)) ?? []
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            let ffiProposals = try handle.listProposals(daoName: daoName)
             return ffiProposals.map { p in
                 ProposalBrief(
                     proposalBullaB58: p.proposalBullaB58, daoName: p.daoName,
@@ -312,8 +332,10 @@ extension SDKSynchronizerClient: DependencyKey {
             }
         },
         getProposal: { bullaB58 in
-            guard let handle = WalletHandleManager.shared.handle else { return nil }
-            guard let d = try? handle.getProposal(proposalBullaB58: bullaB58) else { return nil }
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            let d = try handle.getProposal(proposalBullaB58: bullaB58)
             let brief = ProposalBrief(
                 proposalBullaB58: d.proposalBullaB58, daoName: d.daoName,
                 daoBullaB58: d.daoBullaB58, authCallCount: Int(d.authCallCount),
@@ -360,4 +382,15 @@ extension SDKSynchronizerClient: DependencyKey {
             }
         }
     )
+}
+
+private enum SDKSynchronizerError: LocalizedError {
+    case walletNotPrepared
+
+    var errorDescription: String? {
+        switch self {
+        case .walletNotPrepared:
+            return "Wallet not initialized. Connect to a DarkFi node under Settings → Change Server, then try again."
+        }
+    }
 }

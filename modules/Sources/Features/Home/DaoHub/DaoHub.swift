@@ -10,6 +10,7 @@
 import ComposableArchitecture
 import Foundation
 import SDKSynchronizer
+import Utils
 
 @Reducer
 public struct DaoHub {
@@ -58,11 +59,28 @@ public struct DaoHub {
         Reduce { state, action in
             switch action {
             case .onAppear, .loadHub:
+                guard sdkSynchronizer.isWalletPrepared() else {
+                    state.isLoading = false
+                    state.errorMessage = walletNotReadyMessage(for: .unprepared)
+                    return .none
+                }
+
+                let syncStatus = sdkSynchronizer.latestState().syncStatus
+                switch syncStatus {
+                case .unprepared, .stopped:
+                    state.isLoading = false
+                    state.errorMessage = walletNotReadyMessage(for: syncStatus)
+                    return .none
+                case .syncing, .upToDate, .error:
+                    break
+                }
+
                 state.isLoading = true
                 state.errorMessage = nil
                 state.screen = .hub
                 return .run { send in
                     do {
+                        try await sdkSynchronizer.refreshNow()
                         let daos = try await sdkSynchronizer.listDaos()
                         await send(.hubLoaded(daos))
                     } catch {
@@ -135,4 +153,21 @@ public struct DaoHub {
     }
     
     public init() {}
+}
+
+private extension DaoHub {
+    func walletNotReadyMessage(for status: DarkfiSyncStatus) -> String {
+        switch status {
+        case .unprepared:
+            return "Wallet is not ready yet. Finish setup or wait for the wallet to initialize."
+        case .stopped:
+            return "Wallet sync is stopped. Resume sync from the Wallet tab, then open DAO Hub again."
+        case .syncing:
+            return "Wallet sync is still in progress. Open DAO Hub again once your wallet is up to date."
+        case let .error(message):
+            return "Wallet sync failed: \(message)"
+        case .upToDate:
+            return ""
+        }
+    }
 }

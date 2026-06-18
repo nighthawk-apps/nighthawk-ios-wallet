@@ -81,6 +81,16 @@ private extension TransferView {
             .buttonStyle(.plain)
             .accessibilityIdentifier("nighthawk.transfer.receive")
             
+            Button(action: { store.send(.daoHubTapped) }) {
+                optionRow(
+                    title: "DAO Hub",
+                    description: "Browse DAOs, proposals, and governance details for your wallet.",
+                    icon: Image(systemName: "building.columns")
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.transfer.daoHub")
+            
             Button(action: { store.send(.topUpWalletTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.topUpWalletTitle,

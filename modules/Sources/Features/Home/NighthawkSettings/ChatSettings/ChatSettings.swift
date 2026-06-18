@@ -7,7 +7,11 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Foundation
+import Pasteboard
+import UserPreferencesStorage
+import Utils
 
 @Reducer
 public struct ChatSettings {
@@ -19,7 +23,7 @@ public struct ChatSettings {
         public var fastSyncMode: Bool = false
         
         // E2E encrypted channels
-        public struct EncryptedChannel: Equatable, Identifiable {
+        public struct EncryptedChannel: Equatable, Identifiable, Codable {
             public let id: String
             public var name: String  // e.g. "#dev"
             public var sharedSecret: String  // base58
@@ -28,7 +32,7 @@ public struct ChatSettings {
         public var encryptedChannels: [EncryptedChannel] = []
         
         // E2E encrypted contacts (DM)
-        public struct EncryptedContact: Equatable, Identifiable {
+        public struct EncryptedContact: Equatable, Identifiable, Codable {
             public let id: String
             public var nick: String
             public var mySecretKey: String  // base58
@@ -87,17 +91,23 @@ public struct ChatSettings {
             case binding(BindingAction<State>)
             case addTapped
             case generateSecretTapped
+            case secretGenerated(String)
             case cancelTapped
         }
         
         public var body: some ReducerOf<Self> {
             BindingReducer()
-            Reduce { _, action in
+            Reduce { state, action in
                 switch action {
                 case .binding, .addTapped, .cancelTapped:
                     return .none
                 case .generateSecretTapped:
-                    // TODO: Generate random shared secret via UniFFI
+                    return .run { send in
+                        guard let keypair = DarkfiFfiSafe.generateDmKeypair() else { return }
+                        await send(.secretGenerated(keypair.secretB58))
+                    }
+                case let .secretGenerated(secret):
+                    state.sharedSecret = secret
                     return .none
                 }
             }
@@ -131,6 +141,9 @@ public struct ChatSettings {
         }
     }
     
+    @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
+    
     public var body: some ReducerOf<Self> {
         BindingReducer()
         
@@ -139,25 +152,31 @@ public struct ChatSettings {
             case .binding:
                 return .none
             case .onAppear:
-                // TODO: Load from persistence
+                loadPreferences(into: &state)
                 return .none
             case let .toggleEmbeddedDarkirc(enabled):
                 state.useEmbeddedDarkirc = enabled
+                userStoredPreferences.setRunEmbeddedDarkirc(enabled)
                 return .none
             case let .setDagHistoryHours(hours):
                 state.dagHistoryHours = min(max(hours, 1), 24)
+                userStoredPreferences.setDarkircDagsCount(state.dagHistoryHours)
                 return .none
             case let .toggleFastSync(enabled):
                 state.fastSyncMode = enabled
+                userStoredPreferences.setDarkircFastMode(enabled)
                 return .none
             case .applyAndReconnect:
-                // TODO: Restart darkirc with new config
-                return .none
+                savePreferences(from: state)
+                return .run { _ in
+                    DarkircDaemonManager.shared.stop()
+                }
             case .addChannelTapped:
                 state.addChannelDialog = AddChannelDialog.State()
                 return .none
             case let .removeChannel(id):
                 state.encryptedChannels.removeAll { $0.id == id }
+                persistChannels(state.encryptedChannels)
                 return .none
             case .addChannelDialog(.presented(.addTapped)):
                 if let dialog = state.addChannelDialog {
@@ -168,6 +187,7 @@ public struct ChatSettings {
                         topic: dialog.topic
                     )
                     state.encryptedChannels.append(channel)
+                    persistChannels(state.encryptedChannels)
                 }
                 state.addChannelDialog = nil
                 return .none
@@ -181,6 +201,7 @@ public struct ChatSettings {
                 return .none
             case let .removeContact(id):
                 state.encryptedContacts.removeAll { $0.id == id }
+                persistContacts(state.encryptedContacts)
                 return .none
             case .addContactDialog(.presented(.addTapped)):
                 if let dialog = state.addContactDialog {
@@ -191,6 +212,7 @@ public struct ChatSettings {
                         theirPublicKey: dialog.theirPublicKey
                     )
                     state.encryptedContacts.append(contact)
+                    persistContacts(state.encryptedContacts)
                 }
                 state.addContactDialog = nil
                 return .none
@@ -202,19 +224,23 @@ public struct ChatSettings {
             case .generateDmKeysTapped:
                 state.isGeneratingKeys = true
                 return .run { send in
-                    // Use UniFFI generate_dm_keypair()
-                    // For now, generate placeholder until UniFFI bindings are compiled
-                    // let keypair = generateDmKeypair()
-                    // await send(.dmKeysGenerated(secret: keypair.secretB58, publicKey: keypair.publicB58))
-                    try await Task.sleep(for: .seconds(0.5))
-                    await send(.dmKeysGenerated(secret: "placeholder", publicKey: "placeholder"))
+                    guard let keypair = DarkfiFfiSafe.generateDmKeypair() else {
+                        await send(.dmKeysGenerated(secret: "", publicKey: ""))
+                        return
+                    }
+                    await send(.dmKeysGenerated(secret: keypair.secretB58, publicKey: keypair.publicB58))
                 }
-            case let .dmKeysGenerated(_, publicKey):
+            case let .dmKeysGenerated(secret, publicKey):
                 state.isGeneratingKeys = false
+                guard !publicKey.isEmpty else { return .none }
                 state.myDmPublicKey = publicKey
+                userStoredPreferences.setDmPublicKey(publicKey)
+                userStoredPreferences.setDmSecretKey(secret)
                 return .none
             case .copyPublicKeyTapped:
-                // TODO: Copy to clipboard
+                if let publicKey = state.myDmPublicKey {
+                    pasteboard.setString(RedactableString(publicKey))
+                }
                 return .none
             }
         }
@@ -227,4 +253,48 @@ public struct ChatSettings {
     }
     
     public init() {}
+}
+
+// MARK: - Persistence
+private extension ChatSettings {
+    func loadPreferences(into state: inout State) {
+        state.useEmbeddedDarkirc = userStoredPreferences.runEmbeddedDarkirc()
+        state.dagHistoryHours = userStoredPreferences.darkircDagsCount()
+        state.fastSyncMode = userStoredPreferences.darkircFastMode()
+        state.myDmPublicKey = userStoredPreferences.dmPublicKey()
+        state.encryptedChannels = decodeJSON(
+            userStoredPreferences.encryptedChannelsJSON(),
+            as: [State.EncryptedChannel].self
+        ) ?? []
+        state.encryptedContacts = decodeJSON(
+            userStoredPreferences.encryptedContactsJSON(),
+            as: [State.EncryptedContact].self
+        ) ?? []
+    }
+    
+    func savePreferences(from state: State) {
+        userStoredPreferences.setRunEmbeddedDarkirc(state.useEmbeddedDarkirc)
+        userStoredPreferences.setDarkircDagsCount(state.dagHistoryHours)
+        userStoredPreferences.setDarkircFastMode(state.fastSyncMode)
+        persistChannels(state.encryptedChannels)
+        persistContacts(state.encryptedContacts)
+    }
+    
+    func persistChannels(_ channels: [State.EncryptedChannel]) {
+        userStoredPreferences.setEncryptedChannelsJSON(encodeJSON(channels))
+    }
+    
+    func persistContacts(_ contacts: [State.EncryptedContact]) {
+        userStoredPreferences.setEncryptedContactsJSON(encodeJSON(contacts))
+    }
+    
+    func encodeJSON<T: Encodable>(_ value: T) -> String? {
+        guard let data = try? JSONEncoder().encode(value) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+    
+    func decodeJSON<T: Decodable>(_ json: String?, as type: T.Type) -> T? {
+        guard let json, let data = json.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
 }

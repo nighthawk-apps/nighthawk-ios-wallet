@@ -102,10 +102,10 @@ extension AppReducer {
             state.path.append(.changeServer(.init()))
             return .none
         case .chatSettings:
-            // TODO: Wire ChatSettings path destination
+            state.path.append(.chatSettings(.init()))
             return .none
         case .daoHub:
-            // TODO: Wire DaoHub path destination
+            state.path.append(.daoHub(.init()))
             return .none
         case .externalServices:
             state.path.append(.externalServices(.init()))
@@ -122,7 +122,7 @@ extension AppReducer {
             state.path.append(.security(.init()))
             return .none
         case .torNetwork:
-            // TODO: Wire TorNetwork path destination
+            state.path.append(.torNetwork(.init()))
             return .none
         }
     }

@@ -10,8 +10,19 @@ use crate::mnemonic::secret_key_from_mnemonic;
 use crate::DrkBootstrapConfig;
 use crate::DrkPtr;
 
+/// Permitted URL schemes for the darkfid JSON-RPC endpoint.
+const ALLOWED_SCHEMES: &[&str] = &["tcp", "tcp+tls", "socks5"];
+
 pub fn parse_darkfid_endpoint(url: &str) -> Result<Url, String> {
-    Url::parse(url.trim()).map_err(|e| format!("invalid darkfid endpoint URL: {e}"))
+    let parsed = Url::parse(url.trim()).map_err(|e| format!("invalid darkfid endpoint URL: {e}"))?;
+    if !ALLOWED_SCHEMES.contains(&parsed.scheme()) {
+        return Err(format!(
+            "unsupported URL scheme '{}' — allowed: {}",
+            parsed.scheme(),
+            ALLOWED_SCHEMES.join(", ")
+        ));
+    }
+    Ok(parsed)
 }
 
 pub async fn bootstrap_drk(
@@ -93,7 +104,8 @@ mod tests {
     #[test]
     fn parse_darkfid_endpoint_accepts_upstream_tcp_url() {
         let url = parse_darkfid_endpoint("tcp://127.0.0.1:18345").unwrap();
-        assert_eq!(url.as_str(), "tcp://127.0.0.1:18345");
+        // The `url` crate normalizes scheme-authority URLs with a trailing slash.
+        assert_eq!(url.as_str(), "tcp://127.0.0.1:18345/");
     }
 
     #[test]

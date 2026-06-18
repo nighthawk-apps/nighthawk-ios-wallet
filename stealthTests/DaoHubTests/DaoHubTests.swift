@@ -7,6 +7,8 @@
 
 import XCTest
 import ComposableArchitecture
+import SDKSynchronizer
+import Utils
 @testable import stealth_testnet
 
 @MainActor
@@ -31,7 +33,14 @@ class DaoHubTests: XCTestCase {
         let store = TestStore(
             initialState: DaoHub.State(),
             reducer: DaoHub.init
-        )
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { true }
+            $0.sdkSynchronizer.refreshNow = { }
+            $0.sdkSynchronizer.listDaos = { [] }
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .upToDate)
+            }
+        }
         
         await store.send(.loadHub) { state in
             state.isLoading = true
@@ -51,9 +60,8 @@ class DaoHubTests: XCTestCase {
             reducer: DaoHub.init
         )
         
-        let daos: [DaoHub.State.DaoSummary] = [
-            DaoHub.State.DaoSummary(
-                id: "bulla1",
+        let daos: [DaoBrief] = [
+            DaoBrief(
                 name: "TestDAO",
                 bullaB58: "bulla1",
                 govTokenId: "DRK",
@@ -73,13 +81,59 @@ class DaoHubTests: XCTestCase {
         }
     }
     
+    func testLoadHub_WhenWalletNotSynced_AttemptsRefresh() async {
+        let store = TestStore(
+            initialState: DaoHub.State(),
+            reducer: DaoHub.init
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { true }
+            $0.sdkSynchronizer.refreshNow = { }
+            $0.sdkSynchronizer.listDaos = { [] }
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .syncing(progress: 0.4))
+            }
+        }
+        
+        await store.send(.loadHub) { state in
+            state.isLoading = true
+            state.errorMessage = nil
+            state.screen = .hub
+        }
+
+        await store.receive(.hubLoaded([])) { state in
+            state.isLoading = false
+            state.daos = []
+        }
+    }
+
+    func testLoadHub_WhenWalletNotPrepared_ShowsMessage() async {
+        let store = TestStore(
+            initialState: DaoHub.State(),
+            reducer: DaoHub.init
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { false }
+        }
+
+        await store.send(.loadHub) { state in
+            state.isLoading = false
+            state.errorMessage = "Wallet is not ready yet. Finish setup or wait for the wallet to initialize."
+        }
+    }
+    
     // MARK: - DAO Detail Navigation
     
     func testDaoSelected_NavigatesToDetail() async throws {
         let store = TestStore(
             initialState: DaoHub.State(),
             reducer: DaoHub.init
-        )
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { true }
+            $0.sdkSynchronizer.refreshNow = { }
+            $0.sdkSynchronizer.listProposals = { _ in [] }
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .upToDate)
+            }
+        }
         
         await store.send(.daoSelected("TestDAO")) { state in
             state.isLoading = true
@@ -100,7 +154,14 @@ class DaoHubTests: XCTestCase {
         let store = TestStore(
             initialState: DaoHub.State(),
             reducer: DaoHub.init
-        )
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { true }
+            $0.sdkSynchronizer.refreshNow = { }
+            $0.sdkSynchronizer.getProposal = { _ in nil }
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .upToDate)
+            }
+        }
         
         await store.send(.proposalSelected("bulla123")) { state in
             state.isLoading = true
@@ -142,56 +203,5 @@ class DaoHubTests: XCTestCase {
             state.isLoading = false
             state.errorMessage = "Native library unavailable"
         }
-    }
-    
-    // MARK: - Model Tests
-    
-    func testDaoSummary_RolesLabel() {
-        let fullRoles = DaoHub.State.DaoSummary(
-            id: "1", name: "DAO", bullaB58: "1", govTokenId: "DRK",
-            quorumDisplay: "100", proposerLimitDisplay: "10",
-            approvalRatioPercent: 60, mintHeight: nil,
-            canPropose: true, canVote: true, canExec: true
-        )
-        XCTAssertEqual(fullRoles.rolesLabel, "Proposer, Voter, Executor")
-        
-        let noRoles = DaoHub.State.DaoSummary(
-            id: "2", name: "DAO", bullaB58: "2", govTokenId: "DRK",
-            quorumDisplay: "100", proposerLimitDisplay: "10",
-            approvalRatioPercent: 60, mintHeight: nil,
-            canPropose: false, canVote: false, canExec: false
-        )
-        XCTAssertEqual(noRoles.rolesLabel, "None")
-        
-        let voterOnly = DaoHub.State.DaoSummary(
-            id: "3", name: "DAO", bullaB58: "3", govTokenId: "DRK",
-            quorumDisplay: "100", proposerLimitDisplay: "10",
-            approvalRatioPercent: 60, mintHeight: nil,
-            canPropose: false, canVote: true, canExec: false
-        )
-        XCTAssertEqual(voterOnly.rolesLabel, "Voter")
-    }
-    
-    func testProposalSummary_StatusLabel() {
-        let executed = DaoHub.State.ProposalSummary(
-            id: "1", proposalBullaB58: "1", daoName: "DAO", daoBullaB58: "d1",
-            authCallCount: 1, durationBlockwindows: 10, creationBlockwindow: 5,
-            mintHeight: 100, execHeight: 200, isExecuted: true, summaryLine: ""
-        )
-        XCTAssertEqual(executed.statusLabel, "Executed")
-        
-        let active = DaoHub.State.ProposalSummary(
-            id: "2", proposalBullaB58: "2", daoName: "DAO", daoBullaB58: "d1",
-            authCallCount: 1, durationBlockwindows: 10, creationBlockwindow: 5,
-            mintHeight: 100, execHeight: nil, isExecuted: false, summaryLine: ""
-        )
-        XCTAssertEqual(active.statusLabel, "Active")
-        
-        let pending = DaoHub.State.ProposalSummary(
-            id: "3", proposalBullaB58: "3", daoName: "DAO", daoBullaB58: "d1",
-            authCallCount: 1, durationBlockwindows: 10, creationBlockwindow: 5,
-            mintHeight: nil, execHeight: nil, isExecuted: false, summaryLine: ""
-        )
-        XCTAssertEqual(pending.statusLabel, "Pending")
     }
 }

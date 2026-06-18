@@ -35,6 +35,7 @@ public enum DarkfiChatDefaults {
     ///
     /// On first call, generates a random nickname in the format `hawk000`–`hawk999`
     /// and stores it in UserDefaults. Subsequent calls return the same nickname.
+    /// The nickname is non-sensitive app preference data.
     ///
     /// Example nicknames: `hawk042`, `hawk731`, `hawk003`
     public static func persistentNickname() -> String {

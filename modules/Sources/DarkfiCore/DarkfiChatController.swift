@@ -89,7 +89,9 @@ public class DarkfiChatController {
         do {
             try stopDarkirc()
         } catch {
+            #if DEBUG
             print("Failed to stop darkirc daemon: \(error)")
+            #endif
         }
         
         state = .stopped

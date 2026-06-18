@@ -63,8 +63,8 @@ Update status when a task lands; Android column notes what the Kotlin app mirror
 |----|------|--------|----------------|
 | P3-1 | Embedded darkfid (optional local fullnode) | todo | Android has foreground service; iOS needs background task |
 | P3-2 | Testnet build configuration (Xcode scheme/config) | todo | Android has distinct `darkfitestnet` flavor |
-| P3-3 | Chat settings: DAG hours, fast mode | todo | Android has darkirc runtime prefs |
-| P3-4 | Chat E2E + DM queue hardening | todo | DM reliability |
+| P3-3 | Chat settings: DAG hours, fast mode | done | `ChatSettings` prefs + Apply & reconnect |
+| P3-4 | Chat E2E + DM queue hardening | in_progress | DM keys via UniFFI; encrypted channel/contact JSON persisted |
 | P3-5 | Keep screen on while syncing | todo | UIApplication.shared.isIdleTimerDisabled |
 
 ---
@@ -80,6 +80,7 @@ Update status when a task lands; Android column notes what the Kotlin app mirror
 | P4-5 | Create `docs/security-threat-model.md` | done | iOS security model |
 | P4-6 | Create `docs/darkirc-ios.md` | done | iOS darkirc architecture |
 | P4-7 | CI: build FFI + run tests | todo | GitHub Actions workflow |
+| P4-8 | Settings sub-screen navigation (Chat, Tor, DAO) | done | App path stack + Transfer DAO Hub entry |
 
 ---
 

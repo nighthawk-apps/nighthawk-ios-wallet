@@ -7,7 +7,10 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Foundation
+import SDKSynchronizer
+import UserPreferencesStorage
 
 @Reducer
 public struct TorNetwork {
@@ -90,6 +93,7 @@ public struct TorNetwork {
         }
     }
     
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     
     public var body: some ReducerOf<Self> {
@@ -101,7 +105,6 @@ public struct TorNetwork {
                 return .none
                 
             case .onAppear:
-                // Load persisted prefs
                 state.torForWallet = userStoredPreferences.torForWalletEnabled()
                 state.torForChat = userStoredPreferences.torForChatEnabled()
                 state.torMode = userStoredPreferences.useEmbeddedTor()
@@ -112,11 +115,17 @@ public struct TorNetwork {
                 if let port = userStoredPreferences.torSocksPort() {
                     state.externalSocksPort = port
                 }
+                if DarkfiFfiSafe.isArtiRunning() {
+                    state.artiStatus = .connected
+                    state.artiBootstrapProgress = 1.0
+                }
                 return .none
                 
             case let .torForWalletToggled(enabled):
                 state.torForWallet = enabled
+                state.torForChat = enabled
                 userStoredPreferences.setTorForWalletEnabled(enabled)
+                userStoredPreferences.setTorForChatEnabled(enabled)
                 return resolveArtiLifecycle(state: &state)
                 
             case let .torForChatToggled(enabled):
@@ -134,21 +143,22 @@ public struct TorNetwork {
                       state.artiStatus != .connected else { return .none }
                 state.artiStatus = .bootstrapping
                 state.artiBootstrapProgress = 0.0
+                let portString = state.externalSocksPort
                 return .run { send in
-                    // Start ArtiProxyHandle via UniFFI (Rust side)
-                    // On iOS, Arti runs in-process via tor.rs
-                    await send(.artiBootstrapProgressUpdated(0.25))
-                    try await Task.sleep(for: .seconds(0.5))
-                    await send(.artiBootstrapProgressUpdated(0.6))
-                    try await Task.sleep(for: .seconds(0.5))
+                    await send(.artiBootstrapProgressUpdated(0.1))
+                    let port = UInt16(portString) ?? 9050
+                    let started = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
                     await send(.artiBootstrapProgressUpdated(1.0))
-                    await send(.artiStatusChanged(.connected))
+                    let status: State.ArtiStatus = started && DarkfiFfiSafe.isArtiRunning()
+                        ? .connected
+                        : .failed
+                    await send(.artiStatusChanged(status))
                 }
                 
             case .stopArti:
+                DarkfiFfiSafe.stopArtiProxy()
                 state.artiStatus = .stopped
                 state.artiBootstrapProgress = 0.0
-                // ArtiProxyHandle.stop() via UniFFI
                 return .none
                 
             case let .artiStatusChanged(status):
@@ -160,15 +170,29 @@ public struct TorNetwork {
                 return .none
                 
             case .applyAndReconnect:
-                // Persist SOCKS settings
                 userStoredPreferences.setTorSocksHost(state.externalSocksAddress)
                 userStoredPreferences.setTorSocksPort(state.externalSocksPort)
                 
-                return .run { [state] send in
-                    // Restart darkirc if needed (transport profile change)
-                    // Restart wallet connection if needed
-                    // Matching Android AppTorCoordinator.applyNetworkProfileChange()
-                    try await Task.sleep(for: .seconds(0.3))
+                let torForWallet = state.torForWallet
+                let torEnabled = state.isTorEnabled
+                let useEmbedded = state.isUsingEmbedded
+                let socksPort = state.externalSocksPort
+                
+                return .run { send in
+                    if torEnabled && useEmbedded {
+                        let port = UInt16(socksPort) ?? 9050
+                        _ = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
+                    } else if !torEnabled || !useEmbedded {
+                        DarkfiFfiSafe.stopArtiProxy()
+                    }
+                    
+                    if torForWallet {
+                        sdkSynchronizer.stop()
+                        try? await sdkSynchronizer.start(false)
+                    }
+                    
+                    DarkircDaemonManager.shared.stop()
+                    
                     await send(.applyCompleted)
                 }
                 

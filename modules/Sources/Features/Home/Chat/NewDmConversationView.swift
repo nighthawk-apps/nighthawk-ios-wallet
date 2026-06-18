@@ -90,9 +90,20 @@ public struct NewDmConversation {
                 if let clip = UIPasteboard.general.string {
                     if let key = DarkircDmPubkeyParser.extractFromText(clip) {
                         state.theirPublicKey = key
-                    } else if clip.count >= 32 {
-                        // Assume raw base58 key
-                        state.theirPublicKey = clip.trimmingCharacters(in: .whitespacesAndNewlines)
+                    } else {
+                        // Validate raw paste as base58: must be ≥32 chars and
+                        // contain only valid base58 alphabet (no 0, O, I, l).
+                        let trimmed = clip.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let base58Charset = CharacterSet(
+                            charactersIn: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+                        )
+                        let isBase58 = trimmed.count >= 32
+                            && trimmed.unicodeScalars.allSatisfy { base58Charset.contains($0) }
+                        if isBase58 {
+                            state.theirPublicKey = trimmed
+                        } else {
+                            state.errorMessage = "Clipboard does not contain a valid base58 public key."
+                        }
                     }
                 }
                 return .none
@@ -103,7 +114,10 @@ public struct NewDmConversation {
                 
             case .copyMyPublicKeyTapped:
                 let shareText = DarkircDmPubkeyParser.formatForSharing(state.myPublicKey)
-                UIPasteboard.general.string = shareText
+                UIPasteboard.general.setItems(
+                    [[UIPasteboard.typeAutomatic: shareText]],
+                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                )
                 return .none
                 
             case .startDmTapped:

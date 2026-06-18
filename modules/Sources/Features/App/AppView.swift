@@ -73,6 +73,12 @@ private extension AppView {
                 
             case let .changeServer(store):
                 ChangeServerView(store: store)
+
+            case let .chatSettings(store):
+                ChatSettingsView(store: store)
+
+            case let .daoHub(store):
+                DaoHubView(store: store)
                 
             case let .externalServices(store):
                 ExternalServicesView(store: store)
@@ -100,6 +106,9 @@ private extension AppView {
                 
             case let .security(store):
                 SecurityView(store: store)
+
+            case let .torNetwork(store):
+                TorNetworkView(store: store)
                 
             case let .transactionDetail(store):
                 TransactionDetailView(store: store)

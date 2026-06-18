@@ -33,9 +33,15 @@ public struct Transfer {
     
     public enum Action: Equatable {
         case destination(PresentationAction<Destination.Action>)
+        case delegate(Delegate)
         case receiveMoneyTapped
         case sendMoneyTapped
+        case daoHubTapped
         case topUpWalletTapped
+        
+        public enum Delegate: Equatable {
+            case openDaoHub
+        }
     }
     
     @Dependency(\.continuousClock) var clock
@@ -65,6 +71,10 @@ public struct Transfer {
                 return .none
             case .topUpWalletTapped:
                 // TODO: DarkFi: implement peer exchange / swap
+                return .none
+            case .daoHubTapped:
+                return .send(.delegate(.openDaoHub))
+            case .delegate:
                 return .none
             }
         }

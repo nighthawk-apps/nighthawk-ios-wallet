@@ -48,7 +48,8 @@ public struct ExportSeed {
                     let storedWallet = try walletStorage.exportWallet()
                     let phraseWords = mnemonic.asWords(storedWallet.seedPhrase.value())
                     state.phrase = RecoveryPhrase(words: phraseWords.map { $0.redacted })
-                    state.birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
+                    // DarkFi: no checkpoint concept
+                    state.birthday = storedWallet.birthday?.value() ?? 0
                     return .none
                 } catch {
                     return .none

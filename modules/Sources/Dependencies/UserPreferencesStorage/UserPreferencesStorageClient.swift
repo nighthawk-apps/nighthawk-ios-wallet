@@ -60,6 +60,21 @@ public struct UserPreferencesStorageClient {
 
     public var isUserBackupComplete: () -> Bool
     public var setIsUserBackupComplete: (Bool) -> Void
+
+    public var runEmbeddedDarkirc: () -> Bool
+    public var setRunEmbeddedDarkirc: (Bool) -> Void
+    public var darkircDagsCount: () -> Int
+    public var setDarkircDagsCount: (Int) -> Void
+    public var darkircFastMode: () -> Bool
+    public var setDarkircFastMode: (Bool) -> Void
+    public var dmPublicKey: () -> String?
+    public var setDmPublicKey: (String?) -> Void
+    public var dmSecretKey: () -> String?
+    public var setDmSecretKey: (String?) -> Void
+    public var encryptedChannelsJSON: () -> String?
+    public var setEncryptedChannelsJSON: (String?) -> Void
+    public var encryptedContactsJSON: () -> String?
+    public var setEncryptedContactsJSON: (String?) -> Void
     
     public var removeAll: () -> Void
 }
@@ -102,6 +117,20 @@ extension UserPreferencesStorageClient: DependencyKey {
         setTorSocksPort: UserPreferencesStorage.live.setTorSocksPort(_:),
         isUserBackupComplete: { UserPreferencesStorage.live.isUserBackupComplete },
         setIsUserBackupComplete: UserPreferencesStorage.live.setIsUserBackupComplete(_:),
+        runEmbeddedDarkirc: { UserPreferencesStorage.live.runEmbeddedDarkirc },
+        setRunEmbeddedDarkirc: UserPreferencesStorage.live.setRunEmbeddedDarkirc(_:),
+        darkircDagsCount: { UserPreferencesStorage.live.darkircDagsCount },
+        setDarkircDagsCount: UserPreferencesStorage.live.setDarkircDagsCount(_:),
+        darkircFastMode: { UserPreferencesStorage.live.darkircFastMode },
+        setDarkircFastMode: UserPreferencesStorage.live.setDarkircFastMode(_:),
+        dmPublicKey: { UserPreferencesStorage.live.dmPublicKey },
+        setDmPublicKey: UserPreferencesStorage.live.setDmPublicKey(_:),
+        dmSecretKey: { UserPreferencesStorage.live.dmSecretKey },
+        setDmSecretKey: UserPreferencesStorage.live.setDmSecretKey(_:),
+        encryptedChannelsJSON: { UserPreferencesStorage.live.encryptedChannelsJSON },
+        setEncryptedChannelsJSON: UserPreferencesStorage.live.setEncryptedChannelsJSON(_:),
+        encryptedContactsJSON: { UserPreferencesStorage.live.encryptedContactsJSON },
+        setEncryptedContactsJSON: UserPreferencesStorage.live.setEncryptedContactsJSON(_:),
         removeAll: UserPreferencesStorage.live.removeAll
     )
 }

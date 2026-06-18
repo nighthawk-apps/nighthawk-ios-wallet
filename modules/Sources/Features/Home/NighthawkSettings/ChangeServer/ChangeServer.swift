@@ -124,13 +124,14 @@ public struct ChangeServer {
                 let isCustom = state.serverOption == .custom
                 let customAddress = state.customServerAddress
                 
-                return .run { send in
-                    // Save the endpoint to UserDefaults so WalletHandleManager picks it up
+                return .run { [userStoredPreferences] send in
+                    // The endpoint is persisted through UserPreferencesStorage
+                    // so WalletHandleManager picks it up on next prepare.
                     if isCustom && !customAddress.isEmpty {
                         let endpoint = "tcp://\(customAddress)"
-                        UserDefaults.standard.set(endpoint, forKey: "darkfi_server_endpoint")
+                        userStoredPreferences.setCustomLightwalletdServer(endpoint)
                     } else {
-                        UserDefaults.standard.removeObject(forKey: "darkfi_server_endpoint")
+                        userStoredPreferences.setCustomLightwalletdServer(nil)
                     }
                     
                     try await mainQueue.sleep(for: .seconds(0.5))

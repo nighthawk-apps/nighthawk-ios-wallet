@@ -69,7 +69,9 @@ public enum DarkircContactManager {
                 plaintext: plaintext
             )
         } catch {
+            #if DEBUG
             print("[DarkircContactManager] Encrypt failed: \(error)")
+            #endif
             return nil
         }
     }

@@ -13,7 +13,6 @@ import UIComponents
 
 public struct TorNetworkView: View {
     @Bindable var store: StoreOf<TorNetwork>
-    @Environment(\.dismiss) private var dismiss
     
     public init(store: StoreOf<TorNetwork>) {
         self.store = store
@@ -22,9 +21,6 @@ public struct TorNetworkView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                // Top bar
-                topBar
-                
                 // Intro (matches Android TorNetworkSettingsIntro)
                 introSection
                 
@@ -50,24 +46,6 @@ public struct TorNetworkView: View {
     }
 }
 
-// MARK: - Top Bar
-private extension TorNetworkView {
-    var topBar: some View {
-        HStack {
-            Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.white)
-            }
-            
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.top, 16)
-        .padding(.bottom, 8)
-    }
-}
-
 // MARK: - Intro
 private extension TorNetworkView {
     var introSection: some View {
@@ -82,6 +60,7 @@ private extension TorNetworkView {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal)
+        .padding(.top, 16)
         .padding(.bottom, 16)
     }
 }

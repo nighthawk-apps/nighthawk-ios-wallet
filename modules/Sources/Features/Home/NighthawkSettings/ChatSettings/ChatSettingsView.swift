@@ -13,7 +13,6 @@ import UIComponents
 
 public struct ChatSettingsView: View {
     @Bindable var store: StoreOf<ChatSettings>
-    @Environment(\.dismiss) private var dismiss
     
     public init(store: StoreOf<ChatSettings>) {
         self.store = store
@@ -22,27 +21,11 @@ public struct ChatSettingsView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                // Header
-                HStack {
-                    Button(action: { dismiss() }) {
-                        Asset.Assets.Icons.Nighthawk.chevronLeft.image
-                            .resizable()
-                            .renderingMode(.template)
-                            .frame(width: 24, height: 24)
-                            .foregroundColor(.white)
-                    }
-                    
-                    Spacer()
-                    
-                    Text("Chat Settings")
-                        .font(.custom(FontFamily.PulpDisplay.bold.name, size: 20))
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    Spacer().frame(width: 24)
-                }
-                .padding(.horizontal)
-                .padding(.top, 16)
+                Text("Chat Settings")
+                    .font(.custom(FontFamily.PulpDisplay.bold.name, size: 22))
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                    .padding(.top, 16)
                 
                 // Embedded Node Sync section
                 sectionHeader("EMBEDDED NODE SYNC")

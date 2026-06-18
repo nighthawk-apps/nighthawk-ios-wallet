@@ -11,6 +11,7 @@ import ComposableArchitecture
 import Foundation
 import SwiftUI
 import UIKit
+import UserPreferencesStorage
 import Utils
 import DarkfiCore
 
@@ -213,6 +214,8 @@ public struct Chat {
     
     private enum CancelID { case readLoop, connection }
     
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
+    
     /// A relay to adapt UniFFI callbacks into an AsyncStream.
     final class ChatEventRelay: DarkircEventCallback, @unchecked Sendable {
         let continuation: AsyncStream<State.Message>.Continuation
@@ -244,6 +247,7 @@ public struct Chat {
                 return .none
                 
             case .onAppear:
+                state.useTor = userStoredPreferences.torForChatEnabled()
                 if state.connectionState == .disconnected {
                     return .send(.connectTapped)
                 }
@@ -269,6 +273,7 @@ public struct Chat {
                 state.connectionState = .startingDaemon
                 state.diagnosticDetail = nil
                 state.dagSyncCount = 0
+                state.useTor = userStoredPreferences.torForChatEnabled()
                 let nickname = state.nickname
                 let useTor = state.useTor
                 
@@ -289,7 +294,9 @@ public struct Chat {
                     do {
                         try await daemon.restartForChat(callback: relay, useTor: useTor)
                     } catch {
+                        #if DEBUG
                         print("[DarkIRC] Daemon start error: \(error.localizedDescription)")
+                        #endif
                         continuation.finish()
                         await send(.ircBridgeError(error.localizedDescription))
                         await send(.connectionStateChanged(.error))
@@ -528,9 +535,12 @@ public struct Chat {
                 
             case let .pubkeyGenerated(publicKey):
                 state.myDmPublicKey = publicKey
-                // Copy to clipboard
+                // Copy to clipboard with 60-second auto-expiry
                 let shareText = DarkircDmPubkeyParser.formatForSharing(publicKey)
-                UIPasteboard.general.string = shareText
+                UIPasteboard.general.setItems(
+                    [[UIPasteboard.typeAutomatic: shareText]],
+                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                )
                 return .none
                 
             case let .dmMessageReceived(contactId, message):

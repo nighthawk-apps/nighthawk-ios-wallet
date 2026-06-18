@@ -11,6 +11,35 @@ extension Home {
     @ReducerBuilder<State, Action>
     func transferReducer() -> some ReducerOf<Home> {
         receiveDelegateReducer()
+        daoHubDelegateReducer()
+    }
+    
+    private func daoHubDelegateReducer() -> Reduce<Home.State, Home.Action> {
+        Reduce { _, action in
+            switch action {
+            case .transfer(.delegate(.openDaoHub)):
+                return .send(.delegate(.openDaoHub))
+            case .alert,
+                 .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
+                 .chat,
+                 .delegate,
+                 .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
+                 .listenForSynchronizerUpdates,
+                 .onAppear,
+                 .rescanDone,
+                 .settings,
+                 .synchronizerStateChanged,
+                 .tabSelected,
+                 .transfer,
+                 .updateWalletEvents,
+                 .wallet:
+                return .none
+            }
+        }
     }
     
     private func receiveDelegateReducer() -> Reduce<Home.State, Home.Action> {

@@ -36,7 +36,8 @@ sha2 = "0.10.6"
 num-bigint = {version = "0.4.6", features = ["rand"]}
 num-traits = "0.2.19"
 unicode-normalization = "0.1.25"
-# darkirc daemon deps
+# darkirc daemon deps (Cargo package `darkirc`, Rust lib name `irc2`)
+darkirc = { path = "../../third_party/darkfi/bin/darkirc" }
 sled-overlay = "0.1.20"
 easy-parallel = "3.3.1"
 semver = "1.0.28"

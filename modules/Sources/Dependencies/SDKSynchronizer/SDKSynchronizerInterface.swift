@@ -41,6 +41,12 @@ public struct SDKSynchronizerClient {
     /// Stop syncing
     public var stop: () -> Void
 
+    /// Whether the Rust wallet handle was created (prepare succeeded).
+    public var isWalletPrepared: () -> Bool
+
+    /// Scan blocks from darkfid and refresh local wallet state (required before DAO list is current).
+    public var refreshNow: () async throws -> Void
+
     // MARK: - Balance (single atomic value from Rust)
 
     /// Confirmed spendable balance in smallest DRK units

@@ -113,11 +113,11 @@ pub async fn estimate_transfer_fee(
     i64::try_from(fee).map_err(|_| format!("fee out of range: {fee}"))
 }
 
-pub async fn get_transaction_memo(drk: &Drk, tx_hash: &str) -> Result<Option<String>, String> {
+pub async fn get_transaction_memo(_drk: &Drk, tx_hash: &str) -> Result<Option<String>, String> {
     Ok(PAYMENT_MEMOS.read().await.get(tx_hash.trim()).cloned())
 }
 
-pub async fn get_transaction_recipient(drk: &Drk, tx_hash: &str) -> Result<Option<String>, String> {
+pub async fn get_transaction_recipient(_drk: &Drk, tx_hash: &str) -> Result<Option<String>, String> {
     Ok(OUTGOING_RECIPIENTS.read().await.get(tx_hash.trim()).cloned())
 }
 
@@ -129,7 +129,7 @@ pub async fn list_transaction_history(drk: &Drk) -> Result<Vec<DrkTransactionRec
         let is_sent = status == "Broadcasted";
         let mut fee_atomic = 0i64;
         let mut net_atomic = 0i64;
-        let mut contract_summary = String::new();
+        let contract_summary;
         let recipient_address = OUTGOING_RECIPIENTS.read().await.get(&tx_hash).cloned();
 
         match drk.get_tx_history_record(&tx_hash).await {

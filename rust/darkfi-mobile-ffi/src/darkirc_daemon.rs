@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
 
-use darkfi_serial::{async_trait, deserialize_async_partial, serialize_async, SerialDecodable, SerialEncodable};
+use darkfi_serial::{deserialize_async_partial, serialize_async};
 use smol::Executor;
 
 use crate::{DarkfiWalletNativeError, DarkircEventCallback};
@@ -45,34 +45,19 @@ static EVENT_GRAPH: std::sync::LazyLock<smol::lock::RwLock<Option<darkfi::event_
 static P2P: std::sync::LazyLock<smol::lock::RwLock<Option<darkfi::net::P2pPtr>>> =
     std::sync::LazyLock::new(|| smol::lock::RwLock::new(None));
 
-/// On-wire IRC PRIVMSG, byte-for-byte compatible with upstream `darkirc`
-/// (`bin/darkirc/src/irc/mod.rs`). The leading `version` and `msg_type`
-/// fields are part of the serialized DAG event content; omitting them
-/// shifts every subsequent field and breaks deserialization of real
-/// network events (the cause of missing public-channel messages).
-#[derive(Clone, Debug, SerialEncodable, SerialDecodable)]
-pub struct Privmsg {
-    /// Wire-format version byte emitted by upstream `darkirc`.
-    pub version: u8,
-    /// Message-type discriminator emitted by upstream `darkirc`.
-    pub msg_type: u8,
-    /// Target channel (e.g. `#dev`).
-    pub channel: String,
-    /// Sender nickname.
-    pub nick: String,
-    /// Message body.
-    pub msg: String,
-}
+/// On-wire IRC PRIVMSG — imported directly from the upstream `darkirc` crate
+/// (lib name `irc2`) so the struct is always byte-for-byte compatible with the
+/// live network. The fields are: `version`, `msg_type`, `channel`, `nick`, `msg`.
+pub use irc2::Privmsg;
 
 /// Current upstream wire version emitted by `darkirc` clients.
 const PRIVMSG_VERSION: u8 = 0;
 /// Plaintext/standard message type emitted by `darkirc` clients.
 const PRIVMSG_MSG_TYPE: u8 = 0;
 
-impl Privmsg {
-    pub fn new(channel: String, nick: String, msg: String) -> Self {
-        Self { version: PRIVMSG_VERSION, msg_type: PRIVMSG_MSG_TYPE, channel, nick, msg }
-    }
+/// Convenience constructor for mobile send — upstream doesn't export one.
+fn new_privmsg(channel: String, nick: String, msg: String) -> Privmsg {
+    Privmsg { version: PRIVMSG_VERSION, msg_type: PRIVMSG_MSG_TYPE, channel, nick, msg }
 }
 
 /// Initializes a `tracing` subscriber once so the darkfi `net`/`event_graph`
@@ -85,11 +70,11 @@ static LOGGING_INIT: std::sync::Once = std::sync::Once::new();
 
 fn init_logging() {
     LOGGING_INIT.call_once(|| {
-        // INFO surfaces the meaningful P2P/DAG milestones ("Connected seed",
-        // "Got peer connection", "Static synced", version-exchange failures)
-        // without the per-message DEBUG flood. Bump to `net=debug` when
-        // diagnosing connection issues.
-        let filter = tracing_subscriber::EnvFilter::new("info");
+        // Release: WARN+ only — prevents P2P peer addresses, DAG sync
+        // details, and connection metadata from leaking to device logs.
+        // Debug: INFO for diagnosing connection issues.
+        let level = if cfg!(debug_assertions) { "info" } else { "warn" };
+        let filter = tracing_subscriber::EnvFilter::new(level);
         let _ = tracing_subscriber::fmt()
             .with_env_filter(filter)
             .with_ansi(false)
@@ -208,7 +193,7 @@ pub fn send_chat_message(channel: String, nick: String, message: String) -> Resu
         let p2p_lock = P2P.read().await;
 
         if let (Some(eg), Some(p2p)) = (&*eg_lock, &*p2p_lock) {
-            let msg = Privmsg::new(channel.clone(), nick, message);
+            let msg = new_privmsg(channel.clone(), nick, message);
 
             let event = darkfi::event_graph::Event::new(serialize_async(&msg).await, eg).await;
 
@@ -489,7 +474,7 @@ mod tests {
 
     #[test]
     fn serialized_output_matches_upstream_layout() {
-        let msg = Privmsg::new("#dev".into(), "alice".into(), "hello world".into());
+        let msg = new_privmsg("#dev".into(), "alice".into(), "hello world".into());
         let encoded = smol::block_on(serialize_async(&msg));
         // The first two bytes MUST be the version/msg_type prefix.
         assert_eq!(&encoded[..2], &[0x00, 0x00]);
@@ -498,7 +483,7 @@ mod tests {
 
     #[test]
     fn round_trips_through_serialize_deserialize() {
-        let original = Privmsg::new("#math".into(), "bob".into(), "2+2=4".into());
+        let original = new_privmsg("#math".into(), "bob".into(), "2+2=4".into());
         let encoded = smol::block_on(serialize_async(&original));
         let (decoded, _): (Privmsg, usize) =
             smol::block_on(deserialize_async_partial(&encoded)).expect("deserialize");

@@ -30,6 +30,8 @@ extension Transfer {
                     }
                 }
             case .destination,
+                 .delegate,
+                 .daoHubTapped,
                  .receiveMoneyTapped,
                  .sendMoneyTapped,
                  .topUpWalletTapped:
@@ -50,6 +52,8 @@ extension Transfer {
                     return .none
                 }
             case .destination,
+                 .delegate,
+                 .daoHubTapped,
                  .receiveMoneyTapped,
                  .sendMoneyTapped,
                  .topUpWalletTapped:
@@ -71,6 +75,8 @@ extension Transfer {
                     return .none
                 }
             case .destination,
+                 .delegate,
+                 .daoHubTapped,
                  .receiveMoneyTapped,
                  .sendMoneyTapped,
                  .topUpWalletTapped:
@@ -89,6 +95,8 @@ extension Transfer {
                     return .none
                 }
             case .destination,
+                 .delegate,
+                 .daoHubTapped,
                  .receiveMoneyTapped,
                  .sendMoneyTapped,
                  .topUpWalletTapped:

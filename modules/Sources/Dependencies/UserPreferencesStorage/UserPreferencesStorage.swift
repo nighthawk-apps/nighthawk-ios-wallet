@@ -8,6 +8,7 @@
 import Foundation
 import Models
 import UserDefaults
+import WalletStorage
 
 /// Live implementation of the `UserPreferences` using User Defaults
 /// according to https://developer.apple.com/documentation/foundation/userdefaults
@@ -32,6 +33,11 @@ public struct UserPreferencesStorage {
         case darkfiTorSocksHost
         case darkfiTorSocksPort
         case darkfiIsUserBackupComplete
+        case darkfiRunEmbeddedDarkirc
+        case darkfiDarkircDagsCount
+        case darkfiDarkircFastMode
+        // DM keys and encrypted channel/contact JSON are now stored
+        // in the Keychain via ChatSecureStorage (not in UserDefaults).
     }
     
     /// Default values for all preferences in case there is no value stored (counterparts to `Constants`)
@@ -49,6 +55,7 @@ public struct UserPreferencesStorage {
     private let selectedCustomLightwalletdServer: String?
     
     private let userDefaults: UserDefaultsClient
+    private let chatSecure = ChatSecureStorage()
     
     public init(
         icon: NighthawkSetting.AppIcon,
@@ -239,11 +246,72 @@ public struct UserPreferencesStorage {
         setValue(complete, forKey: Constants.darkfiIsUserBackupComplete.rawValue)
     }
 
-    /// Use carefully: Deletes all user preferences from the User Defaults
+    // MARK: - Chat settings
+
+    public var runEmbeddedDarkirc: Bool {
+        getValue(forKey: Constants.darkfiRunEmbeddedDarkirc.rawValue, default: true)
+    }
+
+    public func setRunEmbeddedDarkirc(_ enabled: Bool) {
+        setValue(enabled, forKey: Constants.darkfiRunEmbeddedDarkirc.rawValue)
+    }
+
+    public var darkircDagsCount: Int {
+        getValue(forKey: Constants.darkfiDarkircDagsCount.rawValue, default: 8)
+    }
+
+    public func setDarkircDagsCount(_ count: Int) {
+        setValue(count, forKey: Constants.darkfiDarkircDagsCount.rawValue)
+    }
+
+    public var darkircFastMode: Bool {
+        getValue(forKey: Constants.darkfiDarkircFastMode.rawValue, default: false)
+    }
+
+    public func setDarkircFastMode(_ enabled: Bool) {
+        setValue(enabled, forKey: Constants.darkfiDarkircFastMode.rawValue)
+    }
+
+    // MARK: - Chat Secrets (Keychain-backed via ChatSecureStorage)
+
+    public var dmPublicKey: String? {
+        chatSecure.dmPublicKey
+    }
+
+    public func setDmPublicKey(_ key: String?) {
+        chatSecure.setDmPublicKey(key)
+    }
+
+    public var dmSecretKey: String? {
+        chatSecure.dmSecretKey
+    }
+
+    public func setDmSecretKey(_ key: String?) {
+        chatSecure.setDmSecretKey(key)
+    }
+
+    public var encryptedChannelsJSON: String? {
+        chatSecure.encryptedChannelsJSON
+    }
+
+    public func setEncryptedChannelsJSON(_ json: String?) {
+        chatSecure.setEncryptedChannelsJSON(json)
+    }
+
+    public var encryptedContactsJSON: String? {
+        chatSecure.encryptedContactsJSON
+    }
+
+    public func setEncryptedContactsJSON(_ json: String?) {
+        chatSecure.setEncryptedContactsJSON(json)
+    }
+
+    /// Use carefully: Deletes all user preferences and chat secrets.
     public func removeAll() {
         for key in Constants.allCases {
             userDefaults.remove(key.rawValue)
         }
+        chatSecure.removeAll()
     }
 }
 

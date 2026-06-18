@@ -76,6 +76,18 @@ public struct AppReducer {
                 if let _ = currentScreen[case: \.notifications] {
                     return false
                 }
+
+                if let _ = currentScreen[case: \.chatSettings] {
+                    return false
+                }
+
+                if let _ = currentScreen[case: \.torNetwork] {
+                    return false
+                }
+
+                if let _ = currentScreen[case: \.daoHub] {
+                    return false
+                }
             }
             
             return true
@@ -113,7 +125,9 @@ public struct AppReducer {
         case about(About)
         case advanced(Advanced)
         case backup(RecoveryPhraseDisplay)
+        case chatSettings(ChatSettings)
         case changeServer(ChangeServer)
+        case daoHub(DaoHub)
         case externalServices(ExternalServices)
         case fiat(Fiat)
         case home(Home)
@@ -123,6 +137,7 @@ public struct AppReducer {
         case notifications(Notifications)
         case recoveryPhraseDisplay(RecoveryPhraseDisplay)
         case security(Security)
+        case torNetwork(TorNetwork)
         case transactionDetail(TransactionDetail)
         case transactionHistory(TransactionHistory)
         case walletCreated(WalletCreated)
@@ -160,7 +175,9 @@ public struct AppReducer {
             case let .initializeSDKFailed(error):
                 // DarkFi mobile SDK is still under development — don't block the app.
                 // Log the error and proceed to home in degraded mode (chat, settings still work).
+                #if DEBUG
                 print("[DarkFi] SDK init failed (expected while darkfid mobile is in development): \(error.message)")
+                #endif
                 state.synchronizerStopped = true
                 state.splash.hasCompletedInitialRoute = true
                 // Navigate to home so the user isn't stuck
@@ -253,7 +270,8 @@ extension AppReducer {
             }
             // Retrieve wallet
             let storedWallet = try walletStorage.exportWallet()
-            let birthday = storedWallet.birthday?.value() ?? 0 /* DarkFi: no checkpoint concept */
+            // DarkFi: no checkpoint concept
+            let birthday = storedWallet.birthday?.value() ?? 0
             let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
             
             return .run { send in

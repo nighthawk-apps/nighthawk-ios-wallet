@@ -56,12 +56,21 @@ pub fn start_arti_proxy(socks_port: u16) -> Result<bool, crate::DarkfiWalletNati
     std::thread::Builder::new()
         .name("arti-proxy".into())
         .spawn(move || {
-            let result = smol::block_on(run_socks_proxy(socks_port));
-            if let Err(e) = result {
-                tracing::error!("arti proxy exited with error: {e}");
-                ARTI_STATE.store(ARTI_FAILED, Ordering::SeqCst);
-            } else {
-                ARTI_STATE.store(ARTI_STOPPED, Ordering::SeqCst);
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                smol::block_on(run_socks_proxy(socks_port))
+            }));
+            match result {
+                Ok(Ok(())) => {
+                    ARTI_STATE.store(ARTI_STOPPED, Ordering::SeqCst);
+                }
+                Ok(Err(e)) => {
+                    tracing::error!("arti proxy exited with error: {e}");
+                    ARTI_STATE.store(ARTI_FAILED, Ordering::SeqCst);
+                }
+                Err(_) => {
+                    tracing::error!("arti proxy thread panicked");
+                    ARTI_STATE.store(ARTI_FAILED, Ordering::SeqCst);
+                }
             }
         })
         .map_err(|e| {

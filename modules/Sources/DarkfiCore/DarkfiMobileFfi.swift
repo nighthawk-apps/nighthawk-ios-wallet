@@ -281,7 +281,7 @@ private func makeRustCall<T, E: Swift.Error>(
     _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T,
     errorHandler: ((RustBuffer) throws -> E)?
 ) throws -> T {
-    uniffiEnsureDarkfiMobileFfiInitialized()
+    try uniffiEnsureDarkfiMobileFfiInitialized()
     var callStatus = RustCallStatus.init()
     let returnedVal = callback(&callStatus)
     try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: errorHandler)
@@ -1572,7 +1572,9 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
             do {
                 try FfiConverterCallbackInterfaceDarkircEventCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
+                #if DEBUG
                 print("Uniffi callback interface DarkircEventCallback: handle missing in uniffiFree")
+                #endif
             }
         },
         uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
@@ -2140,14 +2142,86 @@ private let initializationResult: InitializationResult = {
 
 // Make the ensure init function public so that other modules which have external type references to
 // our types can call it.
-public func uniffiEnsureDarkfiMobileFfiInitialized() {
-    switch initializationResult {
-    case .ok:
-        break
-    case .contractVersionMismatch:
-        fatalError("UniFFI contract version mismatch: try cleaning and rebuilding your project")
-    case .apiChecksumMismatch:
-        fatalError("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+public enum DarkfiFfiBootstrapError: Error, LocalizedError {
+    case notInitialized(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case let .notInitialized(message):
+            return message
+        }
+    }
+}
+
+public enum DarkfiFfiBootstrap {
+    case ready
+    case failed(String)
+
+    public static let status: DarkfiFfiBootstrap = {
+        switch initializationResult {
+        case .ok:
+            return .ready
+        case .contractVersionMismatch:
+            return .failed("UniFFI contract version mismatch — run ./scripts/build-darkfi-mobile-ffi-ios.sh")
+        case .apiChecksumMismatch:
+            return .failed("UniFFI API checksum mismatch — rebuild native library and Swift bindings together")
+        }
+    }()
+}
+
+public func uniffiEnsureDarkfiMobileFfiInitialized() throws {
+    if case let .failed(message) = DarkfiFfiBootstrap.status {
+        throw DarkfiFfiBootstrapError.notInitialized(message)
+    }
+}
+
+/// Non-aborting wrappers for UniFFI entry points that the generated bindings expose via `try!`.
+public enum DarkfiFfiSafe {
+    public static func generateDmKeypair() -> DmKeypair? {
+        do {
+            return try FfiConverterTypeDmKeypair.lift(try rustCall() {
+                uniffi_darkfi_mobile_ffi_fn_func_generate_dm_keypair($0)
+            })
+        } catch {
+            #if DEBUG
+            print("[DarkFi] generateDmKeypair failed: \(error)")
+            #endif
+            return nil
+        }
+    }
+
+    public static func isArtiRunning() -> Bool {
+        do {
+            return try FfiConverterBool.lift(try rustCall() {
+                uniffi_darkfi_mobile_ffi_fn_func_is_arti_running($0)
+            })
+        } catch {
+            return false
+        }
+    }
+
+    public static func stopArtiProxy() {
+        do {
+            try rustCall() {
+                uniffi_darkfi_mobile_ffi_fn_func_stop_arti_proxy($0)
+            }
+        } catch {
+            #if DEBUG
+            print("[DarkFi] stopArtiProxy failed: \(error)")
+            #endif
+        }
+    }
+
+    @discardableResult
+    public static func startArtiProxySafely(socksPort: UInt16) -> Bool {
+        do {
+            return try startArtiProxy(socksPort: socksPort)
+        } catch {
+            #if DEBUG
+            print("[DarkFi] startArtiProxy failed: \(error)")
+            #endif
+            return false
+        }
     }
 }
 

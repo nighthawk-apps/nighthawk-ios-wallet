@@ -87,7 +87,9 @@ public struct Receive {
                         let newAddr = try await sdkSynchronizer.generateNewAddress()
                         await send(.newAddressGenerated(newAddr))
                     } catch {
+                        #if DEBUG
                         print("[Receive] Failed to generate new address: \(error)")
+                        #endif
                         await send(.generateAddressFailed)
                     }
                 }

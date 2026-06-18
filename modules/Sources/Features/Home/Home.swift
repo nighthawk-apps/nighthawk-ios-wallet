@@ -129,6 +129,7 @@ public struct Home {
         public enum Delegate: Equatable {
             case setLatestFiatPrice(Double?)
             case unifiedAddressResponse(UnifiedAddress?)
+            case openDaoHub
         }
     }
     
