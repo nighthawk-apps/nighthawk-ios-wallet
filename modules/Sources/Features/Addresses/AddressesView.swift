@@ -60,86 +60,26 @@ public struct AddressesView: View {
 // MARK: - Subviews
 private extension AddressesView {
     var actionsCarousel: some View {
-        GeometryReader { geometry in
-            tabs(geometry: geometry)
-                .padding(.top, 16)
-                .padding(.bottom, 64)
-                .frame(maxHeight: geometry.size.width * 1.35)
+        VStack(spacing: 0) {
+            singleAddressCard
+                .padding(.horizontal, 32)
+                .padding(.top, 24)
         }
     }
     
-    func tabs(geometry: GeometryProxy) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            ScrollViewReader { scrollView in
-                HStack {
-                    topUpView(seeMoreAction: { store.send(.topUpWalletTapped) })
-                        .frame(width: geometry.size.width * 0.68)
-                        .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
-                            effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
-                        }
-                    
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.unifiedAddress,
-                        address: store.unifiedAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image,
-                        copyAction: { store.send(.copyTapped(.unified)) }
-                    )
-                    .id("unified")
-                    .frame(width: geometry.size.width * 0.68)
-                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
-                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
-                    }
-                    
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.saplingAddress,
-                        address: store.saplingAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.saplingBadge.image,
-                        copyAction: { store.send(.copyTapped(.sapling)) }
-                    )
-                    .frame(width: geometry.size.width * 0.68)
-                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
-                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
-                    }
-                    
-                    addressView(
-                        title: L10n.Nighthawk.WalletTab.Addresses.transparentAddress,
-                        address: store.transparentAddress,
-                        badge: Asset.Assets.Icons.Nighthawk.transparentBadge.image,
-                        copyAction: { store.send(.copyTapped(.transparent)) }
-                    )
-                    .frame(width: geometry.size.width * 0.68)
-                    .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
-                        effect.scaleEffect(phase.isIdentity ? 1.0 : 0.95)
-                    }
-                }
-                .scrollTargetLayout()
-                .onAppear {
-                    scrollView.scrollTo("unified", anchor: .center)
-                }
-            }
-        }
-        .scrollTargetBehavior(.viewAligned)
-        .safeAreaPadding(.horizontal, geometry.size.width * 0.16)
-    }
-    
-    func addressView(
-        title: String,
-        address: String,
-        badge: Image,
-        copyAction: @escaping () -> Void
-    ) -> some View {
+    var singleAddressCard: some View {
         VStack {
             ScrollView([.vertical], showsIndicators: false) {
                 VStack {
                     QRCodeContainer(
-                        qrImage: qrCode(for: address),
-                        badge: badge
+                        qrImage: qrCode(for: store.privacyAddress),
+                        badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image
                     )
                     .frame(maxWidth: .infinity)
                     .layoutPriority(1)
                     
                     HStack {
-                        Text(title)
+                        Text("DarkFi Address")
                             .paragraphMedium()
                         
                         Spacer()
@@ -147,7 +87,7 @@ private extension AddressesView {
                     .padding(.vertical, 8)
                     
                     HStack {
-                        Text(address)
+                        Text(store.privacyAddress)
                             .caption()
                             .multilineTextAlignment(.leading)
                         
@@ -160,7 +100,7 @@ private extension AddressesView {
             
             Button(
                 L10n.Nighthawk.WalletTab.Addresses.copy,
-                action: copyAction
+                action: { store.send(.copyTapped(.unified)) }
             )
             .buttonStyle(.nighthawkPrimary())
         }
@@ -176,48 +116,5 @@ private extension AddressesView {
         } else {
             return Image(systemName: "qrcode")
         }
-    }
-    
-    func topUpView(seeMoreAction: @escaping () -> Void) -> some View {
-        VStack {
-            HStack {
-                Asset.Assets.Icons.Nighthawk.topUp.image
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24, height: 24)
-                
-                Spacer()
-            }
-            
-            HStack {
-                Text(L10n.Nighthawk.WalletTab.Addresses.topUpYourWallet)
-                    .paragraphMedium()
-                
-                Spacer()
-            }
-            .padding(.vertical, 8)
-            
-            HStack {
-                Text(L10n.Nighthawk.WalletTab.Addresses.topUpYourWalletDescription)
-                    .caption()
-                    .multilineTextAlignment(.leading)
-                
-                Spacer()
-            }
-            
-            Spacer()
-            
-            Button(
-                L10n.Nighthawk.WalletTab.Addresses.seeMore,
-                action: seeMoreAction
-            )
-            .buttonStyle(.nighthawkPrimary())
-        }
-        .frame(maxHeight: .infinity)
-        .padding(22)
-        .background(Asset.Colors.Nighthawk.navy.color)
-        .cornerRadius(10)
     }
 }

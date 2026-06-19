@@ -92,6 +92,11 @@ private extension HomeView {
                     .padding(.top, 24)
                     .allowsHitTesting(false)
             }
+            .overlay(alignment: .top) {
+                syncProgressBanner
+                    .padding(.top, 72)
+                    .allowsHitTesting(false)
+            }
             
         case .transfer:
             TransferView(
@@ -116,6 +121,91 @@ private extension HomeView {
                     action: \.settings
                 )
             )
+        }
+    }
+    
+    @ViewBuilder
+    var syncProgressBanner: some View {
+        let snapshot = store.walletInfo.synchronizerStatusSnapshot
+        let blockHeight = store.walletInfo.synchronizerState.latestBlockHeight
+        
+        switch snapshot.syncStatus {
+        case .upToDate:
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundColor(.green)
+                Text("Synced · Block \(blockHeight)")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Color.black.opacity(0.4))
+            .clipShape(Capsule())
+            
+        case let .syncing(progress):
+            let percent = progress * 100
+            HStack(spacing: 4) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(0.6)
+                    .frame(width: 12, height: 12)
+                    .tint(.white.opacity(0.7))
+                Text(blockHeight > 0
+                    ? String(format: "Syncing %.0f%% · Block %d", percent, blockHeight)
+                    : String(format: "Syncing %.0f%%", percent))
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Color.black.opacity(0.4))
+            .clipShape(Capsule())
+            
+        case .unprepared:
+            HStack(spacing: 4) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(0.6)
+                    .frame(width: 12, height: 12)
+                    .tint(.white.opacity(0.7))
+                Text("Connecting…")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Color.black.opacity(0.4))
+            .clipShape(Capsule())
+            
+        case .error:
+            HStack(spacing: 4) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+                Text("Sync Error")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Color.black.opacity(0.4))
+            .clipShape(Capsule())
+            
+        case .stopped:
+            HStack(spacing: 4) {
+                Image(systemName: "pause.circle.fill")
+                    .font(.caption2)
+                    .foregroundColor(.yellow)
+                Text("Sync Stopped")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Color.black.opacity(0.4))
+            .clipShape(Capsule())
         }
     }
 }

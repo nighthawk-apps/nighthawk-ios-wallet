@@ -191,7 +191,12 @@ public struct Home {
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 return .concatenate(
                     .send(.fetchLatestFiatPrice),
-                    .send(.listenForSynchronizerUpdates)
+                    .send(.listenForSynchronizerUpdates),
+                    // Eagerly fetch address — it's available before sync completes
+                    .run { send in
+                        let ua = try? await sdkSynchronizer.getAddress()
+                        await send(.delegate(.unifiedAddressResponse(ua)))
+                    }
                 )
             case let .rescanDone(error):
                 userStoredPreferences.setIsFirstSync(true)
@@ -245,9 +250,18 @@ public struct Home {
                         state.walletInfo.expectingAmount = state.walletInfo.totalBalance - availableBalance
                         state.toast = .expectingFunds
                     }
-                    
+                }
+                
+                // Fetch address on every state change if not yet available
+                if state.walletInfo.unifiedAddress == nil {
                     return .run { send in
-                        // Re-fetch the UA, as sometimes it is unavailable when synchronizer first starts
+                        let ua = try? await sdkSynchronizer.getAddress()
+                        await send(.delegate(.unifiedAddressResponse(ua)))
+                    }
+                }
+                
+                if latestState.syncStatus == .upToDate {
+                    return .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
                         await send(.delegate(.unifiedAddressResponse(ua)))
                         
