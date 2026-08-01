@@ -1,0 +1,47 @@
+//
+//  DatabaseFilesLiveKey.swift
+//  stealth
+//
+//  Created by Lukáš Korba on 11.11.2022.
+//
+
+import ComposableArchitecture
+import FileManager
+
+extension DatabaseFilesClient: DependencyKey {
+    public static let liveValue = DatabaseFilesClient.live()
+
+    public static func live(databaseFiles: DatabaseFiles = DatabaseFiles(fileManager: .live)) -> Self {
+        Self(
+            documentsDirectory: {
+                databaseFiles.documentsDirectory()
+            },
+            fsBlockDbRootFor: { network in
+                databaseFiles.documentsDirectory()
+                    .appendingPathComponent(network)
+                    .appendingPathComponent("fs_cache", isDirectory: true)
+            },
+            cacheDbURLFor: { network in
+                databaseFiles.cacheDbURL(for: network)
+            },
+            dataDbURLFor: { network in
+                databaseFiles.dataDbURL(for: network)
+            },
+            outputParamsURLFor: { network in
+                databaseFiles.outputParamsURL(for: network)
+            },
+            pendingDbURLFor: { network in
+                databaseFiles.pendingDbURL(for: network)
+            },
+            spendParamsURLFor: { network in
+                databaseFiles.spendParamsURL(for: network)
+            },
+            torDirURLFor: { network in
+                databaseFiles.toDirURL(for: network)
+            },
+            areDbFilesPresentFor: { network in
+                databaseFiles.areDbFilesPresent(for: network)
+            }
+        )
+    }
+}

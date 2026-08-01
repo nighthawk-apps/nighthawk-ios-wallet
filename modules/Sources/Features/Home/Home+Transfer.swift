@@ -1,0 +1,80 @@
+//
+//  Home+Transfer.swift
+//
+//
+//  Created by Matthew Watt on 9/14/23.
+//
+
+import ComposableArchitecture
+
+extension Home {
+    @ReducerBuilder<State, Action>
+    func transferReducer() -> some ReducerOf<Home> {
+        receiveDelegateReducer()
+        daoHubDelegateReducer()
+    }
+
+    private func daoHubDelegateReducer() -> Reduce<Home.State, Home.Action> {
+        Reduce { _, action in
+            switch action {
+            case .transfer(.delegate(.openDaoHub)):
+                return .send(.delegate(.openDaoHub))
+            case .alert,
+                 .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
+                 .chat,
+                 .delegate,
+                 .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
+                 .listenForSynchronizerUpdates,
+                 .onAppear,
+                 .rescanDone,
+                 .settings,
+                 .synchronizerStateChanged,
+                 .tabSelected,
+                 .transfer,
+                 .updateWalletEvents,
+                 .wallet:
+                return .none
+            }
+        }
+    }
+
+    private func receiveDelegateReducer() -> Reduce<Home.State, Home.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .transfer(.destination(.presented(.receive(.delegate(delegateAction))))):
+                state.transfer.destination = nil
+                switch delegateAction {
+                case .showAddresses:
+                    return .run { send in
+                        // Slight delay to allow previous sheet to dismiss before presenting
+                        try await clock.sleep(for: .seconds(0.005))
+                        await send(.wallet(.viewAddressesTapped))
+                    }
+                }
+            case .alert,
+                 .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
+                 .chat,
+                 .delegate,
+                 .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
+                 .listenForSynchronizerUpdates,
+                 .onAppear,
+                 .rescanDone,
+                 .settings,
+                 .synchronizerStateChanged,
+                 .tabSelected,
+                 .transfer,
+                 .updateWalletEvents,
+                 .wallet:
+                return .none
+            }
+        }
+    }
+}

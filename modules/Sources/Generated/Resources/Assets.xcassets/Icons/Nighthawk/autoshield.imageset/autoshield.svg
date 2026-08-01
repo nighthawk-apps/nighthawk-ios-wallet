@@ -1,0 +1,13 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 17 21"
+    id="vector">
+    <path
+        id="path"
+        d="M 17 3.388 L 17 11.683 C 17 14.643 15.371 17.348 12.75 18.741 L 8.5 21 L 4.25 18.741 C 1.629 17.348 0 14.643 0 11.683 L 0 3.388 L 8.5 0 L 17 3.388 Z M 8.012 10.852 L 11.904 7 L 14 9.074 L 8.012 15 L 4 11.03 L 6.096 8.956 L 8.012 10.852 Z"
+        fill="#fe7757"
+        stroke="#00000000"
+        stroke-opacity="0.4079706"
+        stroke-width="1"
+        fill-rule="evenodd"/>
+</svg>

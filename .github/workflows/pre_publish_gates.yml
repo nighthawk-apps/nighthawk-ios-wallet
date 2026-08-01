@@ -1,0 +1,25 @@
+name: Pre-Publish Privacy Gates
+
+on:
+  pull_request:
+    branches:
+      - release/*
+      - main
+  push:
+    branches:
+      - main
+      - release/*
+
+jobs:
+  privacy-checks:
+    name: Run Privacy and Log Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run pre-publishing checks
+        run: |
+          chmod +x scripts/pre_publish_checks.sh
+          ./scripts/pre_publish_checks.sh

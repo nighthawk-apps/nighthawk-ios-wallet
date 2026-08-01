@@ -1,0 +1,38 @@
+//
+//  URL+Constants.swift
+//
+//
+//  Created by Matthew Watt on 9/11/23.
+//
+
+import ComposableArchitecture
+import FileManager
+import Foundation
+
+extension URL {
+    /// The `DatabaseFilesClient` API returns an instance of the URL or throws an error.
+    /// In order to use placeholders for the URL we need a URL instance, hence `emptyURL` and force unwrapp.
+    public static let empty = URL(string: "https://empty.url")!// swiftlint:disable:this force_unwrapping
+
+    public static let source = URL(string: "https://github.com/nighthawk-apps/nighthawk-ios-wallet")!
+
+    public static let friends = URL(string: "https://nighthawkwallet.com/credits")!
+
+    public static let terms = URL(string: "https://nighthawkwallet.com/termsconditions")!
+
+    public static let coinGeckoApi = URL(string: "https://api.coingecko.com/api/v3/")!
+
+    public static func latestEventsCache(for networkType: String) -> URL? {
+        @Dependency(\.fileManager) var fileManager
+        return try? fileManager.url(
+            .documentDirectory,
+            .userDomainMask,
+            nil,
+            true
+        )
+        .appendingPathComponent(
+            "\(networkType)-latest-wallet-events-cache.json",
+            isDirectory: false
+        )
+    }
+}

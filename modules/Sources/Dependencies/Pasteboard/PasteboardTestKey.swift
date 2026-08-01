@@ -1,0 +1,27 @@
+//
+//  PasteboardTestKey.swift
+//  stealth
+//
+//  Created by Lukáš Korba on 13.11.2022.
+//
+
+import ComposableArchitecture
+import XCTestDynamicOverlay
+import Utils
+
+extension PasteboardClient: TestDependencyKey {
+    public static let testValue = Self(
+        setString: unimplemented("\(Self.self).setString"),
+        getString: unimplemented("\(Self.self).getString", placeholder: "".redacted)
+    )
+
+    private struct TestPasteboard {
+        static var general = TestPasteboard()
+        var string: String?
+    }
+
+    public static let testPasteboard = Self(
+        setString: { TestPasteboard.general.string = $0.data },
+        getString: { TestPasteboard.general.string?.redacted }
+    )
+}
