@@ -16,6 +16,12 @@ IOS_DEPLOY="${IPHONEOS_DEPLOYMENT_TARGET:-17.0}"
 echo "Installing required Rust targets for iOS..."
 # rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 
+if [[ ! -d "$ROOT/third_party/darkfi/bin/drk" ]]; then
+  echo "Expected vendored DarkFi — run ./scripts/vendor-darkfi.sh first." >&2
+  exit 1
+fi
+"$ROOT/scripts/compile-darkfi-zkas-proofs.sh"
+
 echo "Building for iOS targets..."
 
 # Allow building only the simulator slice for a faster local iteration:

@@ -139,7 +139,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | `libdarkfi_mobile_ffi.a` | ✅ (static lib) | `libdarkfi_mobile_ffi.so` per ABI |
 | UniFFI `DarkfiWalletHandle` | ✅ | Same UDL → Kotlin |
 | Stub synchronizer fallback | ✅ | `StubDarkfiSynchronizer` |
-| SQLCipher-linked `drk` | ✅ | Same Rust crate |
+| Tip `drk` (turso + aegis256) | ✅ | Same Rust crate / pin |
 | Payment memo FFI | ✅ | Same `payment_memo` APIs |
 | Arti Tor proxy | 🚀 | ❌ (uses tor-android) |
 | DM keypair generation | 🚀 | ❌ (CLI keygen) |

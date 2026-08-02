@@ -352,7 +352,7 @@
 "nighthawk.settingsTab.advanced.theme.title" = "Theme";
 "nighthawk.settingsTab.advanced.theme.default" = "Default";
 "nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: Completely nukes this wallet — seed words, SQLCipher pass, and on-device databases. You cannot recover funds without your seed. Close and relaunch the app before creating or restoring a wallet.";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: Completely nukes this wallet — seed words, wallet pass, and on-device databases. You cannot recover funds without your seed. Close and relaunch the app before creating or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.title" = "Nuke wallet";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have them saved somewhere safe before proceeding. Do you still want to proceed?";

@@ -48,7 +48,7 @@ public struct AboutView: View {
                     licenseRow(name: "SwiftUI Navigation", license: "MIT")
                     licenseRow(name: "DarkIRC", license: "AGPL-3.0")
                     licenseRow(name: "gRPC Swift", license: "Apache-2.0")
-                    licenseRow(name: "SQLCipher", license: "BSD-3-Clause")
+                    licenseRow(name: "Turso / SQLite", license: "MIT")
                     licenseRow(name: "libsecp256k1", license: "MIT")
                 }
                 .padding(.top, 8)

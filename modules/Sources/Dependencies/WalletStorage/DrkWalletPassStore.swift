@@ -2,8 +2,8 @@
 //  DrkWalletPassStore.swift
 //  stealth
 //
-//  Keychain-backed SQLCipher wallet_pass for DarkfiWalletHandle / DrkBootstrapConfig.
-//  Generated once per install (not derived from the seed).
+//  Keychain-backed wallet_pass for DarkfiWalletHandle / DrkBootstrapConfig
+//  (turso + experimental aegis256). Generated once per install (not from seed).
 //
 
 import Foundation
@@ -39,7 +39,7 @@ public enum DrkWalletPassStore {
         return generated
     }
 
-    /// Remove the stored SQLCipher wallet passphrase (next open generates a new one).
+    /// Remove the stored wallet passphrase (next open generates a new one).
     public static func clear() {
         let keychain = KeychainSwift()
         keychain.accessGroup = nil

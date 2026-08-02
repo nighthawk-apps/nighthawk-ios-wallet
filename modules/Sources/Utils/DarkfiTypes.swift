@@ -317,7 +317,7 @@ extension Error {
 
 extension DarkfiWalletNativeError {
     /// Prefer the associated message over `String(reflecting:)`, so UI alerts
-    /// surface bootstrap failures like sled lock / SQLCipher errors.
+    /// surface bootstrap failures like sled lock / wallet DB open errors.
     fileprivate var userFacingMessage: String {
         switch self {
         case .WalletNotInitialized(let message),

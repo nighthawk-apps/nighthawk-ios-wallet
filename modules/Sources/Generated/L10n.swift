@@ -315,7 +315,7 @@ public enum L10n {
                 }
                 public enum DeleteWallet {
                     /// CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.
-                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: Completely nukes this wallet — seed words, SQLCipher pass, and on-device databases. You cannot recover funds without your seed. Close and relaunch the app before creating or restoring a wallet.")
+                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.subtitle", fallback: "CAUTION: Completely nukes this wallet — seed words, wallet pass, and on-device databases. You cannot recover funds without your seed. Close and relaunch the app before creating or restoring a wallet.")
                     /// Nuke wallet
                     public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.deleteWallet.title", fallback: "Nuke wallet")
                     public enum Alert {

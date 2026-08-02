@@ -149,7 +149,7 @@ private final class WalletHandleManager: @unchecked Sendable {
             _handle = try DarkfiWalletHandle(config: config)
         } catch let error as DarkfiWalletNativeError {
             // Stale sled flock after a crash / overlapping prepare: clear cache once and retry.
-            // Also recover from pre-SQLCipher plaintext DBs / passphrase mismatches after native
+            // Also recover from stale local DBs / passphrase mismatches after native
             // upgrades — keys are re-imported from the mnemonic on the next open.
             if case .NativeDrkUnavailable(let message) = error {
                 let lower = message.lowercased()
