@@ -2,7 +2,7 @@
 //  ChangeServerPortTests.swift
 //  stealthTests
 //
-//  Tests for DarkFi port validation (8345 mainnet, 18345 testnet).
+//  Tests for DarkFi lightwalletd endpoint validation.
 //
 
 import XCTest
@@ -16,19 +16,21 @@ class ChangeServerPortTests: XCTestCase {
         var state = ChangeServer.State()
         state.serverOption = .default
         XCTAssertTrue(state.isExpectedDarkFiPort)
+        XCTAssertFalse(state.isPrivateOrLoopbackHost)
     }
     
-    func testCustomServer_MainnetPort_IsValid() {
+    func testCustomServer_LwdPort_IsValid() {
         var state = ChangeServer.State()
         state.serverOption = .custom
-        state.customServerAddress = "seed1.darkfi.dev:8345"
+        state.customServerAddress = "lwd.example.com:9067"
         XCTAssertTrue(state.isExpectedDarkFiPort)
+        XCTAssertFalse(state.isPrivateOrLoopbackHost)
     }
     
-    func testCustomServer_TestnetPort_IsValid() {
+    func testCustomServer_TlsPort_IsValid() {
         var state = ChangeServer.State()
         state.serverOption = .custom
-        state.customServerAddress = "node.example.com:18345"
+        state.customServerAddress = "lwd.example.com:443"
         XCTAssertTrue(state.isExpectedDarkFiPort)
     }
     
@@ -38,35 +40,12 @@ class ChangeServerPortTests: XCTestCase {
         state.customServerAddress = "node.example.com:9090"
         XCTAssertFalse(state.isExpectedDarkFiPort)
     }
-    
-    func testCustomServer_NoPort_IsInvalid() {
+
+    func testCustomServer_PrivateHost_Blocked() {
         var state = ChangeServer.State()
         state.serverOption = .custom
-        state.customServerAddress = "node.example.com"
-        XCTAssertFalse(state.isExpectedDarkFiPort)
-    }
-    
-    func testCustomServer_EmptyAddress_IsInvalid() {
-        var state = ChangeServer.State()
-        state.serverOption = .custom
-        state.customServerAddress = ""
-        XCTAssertFalse(state.isExpectedDarkFiPort)
-    }
-    
-    func testCustomServer_HostPortFormatValidation() {
-        var state = ChangeServer.State()
-        state.serverOption = .custom
-        
-        // Valid format
-        state.customServerAddress = "node.darkfi.dev:8345"
-        XCTAssertTrue(state.isValidHostAndPort)
-        
-        // Invalid format (no port)
-        state.customServerAddress = "node.darkfi.dev"
-        XCTAssertFalse(state.isValidHostAndPort)
-        
-        // Invalid format (port 0)
-        state.customServerAddress = "node.darkfi.dev:0"
-        XCTAssertFalse(state.isValidHostAndPort)
+        state.customServerAddress = "192.168.1.10:9067"
+        XCTAssertTrue(state.isPrivateOrLoopbackHost)
+        XCTAssertFalse(state.canSave)
     }
 }

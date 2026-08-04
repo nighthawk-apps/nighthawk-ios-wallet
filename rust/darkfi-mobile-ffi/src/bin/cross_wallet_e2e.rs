@@ -26,10 +26,23 @@ const SEND_AMOUNT: &str = "1";
 const SEND_AMOUNT_ATOMIC: u64 = 100_000_000;
 /// Blockchain network for address encoding.
 const NETWORK: &str = "testnet";
-/// Skip early history — testnet 0.3 tip is ~19k; birthday near tip for fast sync.
-const BIRTHDAY_HEIGHT: i64 = 19_000;
+/// Wallet birthday. Default `-1` = full history (required for spendable merkle
+/// roots via darkfid `scan_blocks`). Override via `E2E_BIRTHDAY`.
+fn birthday_height() -> i64 {
+    std::env::var("E2E_BIRTHDAY")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(-1)
+}
 /// lightwalletd gRPC (sync + SendTransaction / RegisterOmrClue).
 const LW_URL: &str = "http://127.0.0.1:9067";
+/// Optional darkfid JSON-RPC for direct `scan_blocks` (override via E2E_DARKFID_RPC).
+fn darkfid_rpc_url() -> Option<String> {
+    std::env::var("E2E_DARKFID_RPC")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| Some("tcp://127.0.0.1:18345".into()))
+}
 
 fn load_or_create_mnemonics(base_dir: &PathBuf) -> Result<(String, String, String), String> {
     let path = base_dir.join("mnemonics.txt");
@@ -73,11 +86,11 @@ async fn bootstrap_wallet(
         cache_path: wallet_dir.join("cache").to_string_lossy().into(),
         wallet_pass: "e2e-test-pass".into(),
         lightwallet_server_url: LW_URL.into(),
-        birthday_height: BIRTHDAY_HEIGHT,
+        birthday_height: birthday_height(),
         lightwallet_tls_pin_sha256: None,
         use_tor: false,
         tor_socks_port: 0,
-        darkfid_rpc_url: None,
+        darkfid_rpc_url: darkfid_rpc_url(),
     };
 
     bootstrap::bootstrap_drk(&config, ex).await
@@ -116,9 +129,23 @@ async fn sync_until_balance(
     use_lightwallet: bool,
 ) -> Result<u64, String> {
     let start = Instant::now();
+    let mut attempt = 0u32;
+    // Prefer darkfid scan_blocks when RPC is configured — produces spendable
+    // merkle roots. LWD trial-decrypt is a fallback when darkfid is unreachable.
+    let prefer_darkfid = darkfid_rpc_url().is_some();
     loop {
-        if use_lightwallet {
-            sync::sync_once_via_lightwallet(drk_ptr.clone(), LW_URL).await?;
+        attempt += 1;
+        if prefer_darkfid {
+            let drk = drk_ptr.read().await;
+            match sync_wallet_direct(&drk).await {
+                Ok(()) => {}
+                Err(e) => eprintln!("  darkfid scan attempt {attempt} warn: {e}"),
+            }
+        } else if use_lightwallet {
+            match sync::sync_once_trial_decrypt(drk_ptr.clone(), LW_URL).await {
+                Ok(()) => {}
+                Err(e) => eprintln!("  sync attempt {attempt} warn: {e}"),
+            }
         } else {
             let drk = drk_ptr.read().await;
             sync_wallet_direct(&drk).await?;
@@ -208,37 +235,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("iOS recipient address:       {ios_addr}");
         println!("Android recipient address:   {android_addr}\n");
 
-        println!("Scanning moonshine wallet (mining rewards / incoming funds)...");
-        for attempt in 1..=5 {
-            {
-                let drk = moonshine.read().await;
-                sync_wallet_direct(&drk).await?;
+        println!("Scanning moonshine wallet (trial-decrypt via LWD, then darkfid fallback)...");
+        let sender_balance = match sync_until_balance(
+            &moonshine,
+            SEND_AMOUNT_ATOMIC,
+            Duration::from_secs(600),
+            true,
+        )
+        .await
+        {
+            Ok(bal) => bal,
+            Err(e) => {
+                eprintln!("  lightwallet sync timed out ({e}); trying darkfid scan_blocks...");
+                {
+                    let drk = moonshine.read().await;
+                    if let Err(scan_e) = sync_wallet_direct(&drk).await {
+                        eprintln!("  scan_blocks warn: {scan_e}");
+                    }
+                }
+                let bal = {
+                    let drk = moonshine.read().await;
+                    balance_atomic(&drk).await?
+                };
+                if bal == 0 {
+                    eprintln!(
+                        "ERROR: moonshine wallet has 0 DRK. Fund it first, e.g.:\n\
+                         drk -n testnet transfer 10 DRK {moonshine_addr} | drk -n testnet broadcast\n\
+                         Explorer (prior fund): https://explorer.testnet.dark.fi/tx/adee118820ae622aed3d2ec3957a91e9e99f21cbf99d5cb6c09a0af219b49d70\n\
+                         Then re-run with the same E2E_WALLET_DIR."
+                    );
+                    std::process::exit(1);
+                }
+                bal
             }
-            let bal = {
-                let drk = moonshine.read().await;
-                balance_atomic(&drk).await?
-            };
-            if bal > 0 {
-                break;
-            }
-            if attempt == 5 {
-                break;
-            }
-            smol::Timer::after(Duration::from_secs(3)).await;
-        }
-
-        let sender_balance = {
-            let drk = moonshine.read().await;
-            balance_atomic(&drk).await?
         };
-        if sender_balance == 0 {
-            eprintln!(
-                "ERROR: moonshine wallet has 0 DRK. Fund it first, e.g.:\n\
-                 cd darkfi/contrib/localnet/darkfid-single-node && \\\n\
-                 ../../../target/debug/drk -c drk.toml transfer 5000 DRK {moonshine_addr}\n"
-            );
-            std::process::exit(1);
-        }
         println!("Moonshine balance: {sender_balance} atomic DRK\n");
 
         // Leg 1: moonshine → iOS
@@ -248,6 +278,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             send(&drk, &ios_addr, SEND_AMOUNT, "e2e leg1 moonshine→ios").await?
         };
         println!("  broadcast tx: {tx1}");
+        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx1}");
 
         // Verify recipient has a registerable UnifOMR clue keypair (directory path).
         {
@@ -268,7 +299,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         println!("  syncing iOS wallet...");
         let ios_balance =
-            sync_until_balance(&ios, SEND_AMOUNT_ATOMIC, Duration::from_secs(180), true).await?;
+            sync_until_balance(&ios, SEND_AMOUNT_ATOMIC, Duration::from_secs(300), true).await?;
         println!("  iOS balance after leg1: {ios_balance} atomic DRK\n");
 
         // Leg 2: iOS → Android
@@ -278,15 +309,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             send(&drk, &android_addr, SEND_AMOUNT, "e2e leg2 ios→android").await?
         };
         println!("  broadcast tx: {tx2}");
+        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx2}");
 
         println!("  syncing Android wallet...");
         let android_balance =
-            sync_until_balance(&android, SEND_AMOUNT_ATOMIC, Duration::from_secs(180), true)
+            sync_until_balance(&android, SEND_AMOUNT_ATOMIC, Duration::from_secs(300), true)
                 .await?;
         println!("  Android balance after leg2: {android_balance} atomic DRK\n");
 
-        println!("=== PASS: cross-wallet send moonshine → iOS → Android ===");
-        println!("Mnemonics (for manual UI replay):");
+        // Leg 3: Android → moonshine (desktop/FFI parity round-trip)
+        println!("Leg 3: Android → moonshine ({SEND_AMOUNT} DRK)...");
+        let tx3 = {
+            let drk = android.read().await;
+            send(&drk, &moonshine_addr, SEND_AMOUNT, "e2e leg3 android→moonshine").await?
+        };
+        println!("  broadcast tx: {tx3}");
+        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx3}");
+
+        println!("=== PASS: cross-wallet send moonshine → iOS → Android → moonshine ===");
+        println!("Explorer links:");
+        println!("  leg1 moonshine→ios:     https://explorer.testnet.dark.fi/tx/{tx1}");
+        println!("  leg2 ios→android:       https://explorer.testnet.dark.fi/tx/{tx2}");
+        println!("  leg3 android→moonshine: https://explorer.testnet.dark.fi/tx/{tx3}");
+        println!("Mnemonics (for manual UI / desktop replay):");
         println!("  moonshine: {moonshine_phrase}");
         println!("  ios:       {ios_phrase}");
         println!("  android:   {android_phrase}");

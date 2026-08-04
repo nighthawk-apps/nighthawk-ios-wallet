@@ -552,6 +552,13 @@ private extension ChatView {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
+            .onAppear {
+                if let last = store.messages.last {
+                    // Scroll to newest message on initial load (no animation
+                    // to avoid visual jump when history is already populated).
+                    proxy.scrollTo(last.id, anchor: .bottom)
+                }
+            }
             .onChange(of: store.messages.count) {
                 if let last = store.messages.last {
                     withAnimation {

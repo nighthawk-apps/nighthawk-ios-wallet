@@ -11,24 +11,38 @@ import WalletStorage
 @main
 struct NighthawkApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @State private var privacyBlur = false
 
     var body: some Scene {
         WindowGroup {
-            AppView(
-                store: Store(
-                    initialState: AppReducer.State()
-                ) {
-                    AppReducer()
+            ZStack {
+                AppView(
+                    store: Store(
+                        initialState: AppReducer.State()
+                    ) {
+                        AppReducer()
+                    }
+                )
+                if privacyBlur {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .ignoresSafeArea()
+                        .accessibilityHidden(true)
                 }
-            )
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
                 case .active:
+                    privacyBlur = false
                     // End DarkIRC background task; Chat reducer's scenePhaseChanged
                     // reconnects with a fresh event callback if the daemon died.
                     DarkircDaemonManager.shared.handleForegrounding()
 
+                case .inactive:
+                    privacyBlur = true
+
                 case .background:
+                    privacyBlur = true
                     // Don't stop darkirc — request a short background execution
                     // window so P2P/DAG can survive the OS grace period.
                     DarkircDaemonManager.shared.handleBackgrounding()
@@ -42,7 +56,7 @@ struct NighthawkApp: App {
                         print("Failed to schedule background task: \(error)")
                     }
 
-                default:
+                @unknown default:
                     break
                 }
             }

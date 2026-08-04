@@ -116,6 +116,8 @@ pub struct LightSyncState {
     /// True when a chain reorg was detected and the wallet needs a re-scan
     /// (security audit R1). The UI should prompt the user or auto-trigger rescan.
     pub reorg_detected: bool,
+    /// Last hard error message (e.g. strict OMR downgrade refusal).
+    pub last_error: Option<String>,
 }
 
 impl Default for LightSyncState {
@@ -136,6 +138,7 @@ impl Default for LightSyncState {
             omr_downgrade_warning: false,
             omr_downgrade_count: 0,
             reorg_detected: false,
+            last_error: None,
         }
     }
 }
@@ -483,6 +486,18 @@ impl SyncEngine {
                  Potential downgrade attack detected (session count: {})",
                 state.omr_downgrade_count,
             );
+            if self.strict_omr_only() {
+                state.omr_available = false;
+                state.status = LightSyncStatus::Error;
+                state.sync_type = LightSyncType::Idle;
+                state.last_error = Some(
+                    "OMR capability downgrade refused (strict_omr_only); \
+                     refusing trial-decrypt fallback"
+                        .into(),
+                );
+                state.refresh_messages();
+                return;
+            }
             if state.omr_downgrade_count > 3 {
                 tracing::error!(
                     target: "sync-engine",
@@ -496,7 +511,16 @@ impl SyncEngine {
         if available && state.sync_type == LightSyncType::Idle {
             state.sync_type = LightSyncType::Omr;
         } else if !available && state.sync_type == LightSyncType::Omr {
-            state.sync_type = LightSyncType::TrialDecryption;
+            if self.strict_omr_only() {
+                state.status = LightSyncStatus::Error;
+                state.sync_type = LightSyncType::Idle;
+                state.last_error = Some(
+                    "Server reports OMR unsupported; strict_omr_only refuses trial decrypt"
+                        .into(),
+                );
+            } else {
+                state.sync_type = LightSyncType::TrialDecryption;
+            }
         }
         state.refresh_messages();
     }
@@ -751,8 +775,19 @@ mod tests {
     }
 
     #[test]
-    fn test_set_omr_unavailable_switches_omr_to_trial() {
+    fn test_set_omr_unavailable_strict_refuses_trial() {
         let engine = SyncEngine::new("x".to_string());
+        // strict_omr_only defaults true
+        engine.set_omr_available(true);
+        engine.set_omr_available(false);
+        assert_eq!(engine.snapshot().status, LightSyncStatus::Error);
+        assert_ne!(engine.snapshot().sync_type, LightSyncType::TrialDecryption);
+    }
+
+    #[test]
+    fn test_set_omr_unavailable_switches_omr_to_trial_when_not_strict() {
+        let engine = SyncEngine::new("x".to_string());
+        engine.set_strict_omr_only(false);
         engine.set_omr_available(true);
         engine.set_omr_available(false);
         assert_eq!(engine.snapshot().sync_type, LightSyncType::TrialDecryption);
@@ -1082,5 +1117,53 @@ mod tests {
             BACKEND_CATCHUP_THRESHOLD <= 1000,
             "Threshold too high — would miss real catch-up behavior"
         );
+    }
+
+    #[test]
+    fn test_rewind_to_height_resets_scan_cursor() {
+        let engine = SyncEngine::new("x".to_string());
+        engine.set_scanned_height(500);
+        engine.set_chain_tip(500);
+
+        let prev = engine.rewind_to_height(200);
+        assert_eq!(prev, 500);
+
+        let snap = engine.snapshot();
+        assert_eq!(snap.scanned_height, 200);
+        // chain_tip_hash should be cleared after rewind
+        assert!(!engine.needs_reorg_recovery());
+    }
+
+    #[test]
+    fn test_needs_reorg_recovery_after_hash_change() {
+        let engine = SyncEngine::new("x".to_string());
+        // First update — no reorg (first time)
+        let reorg1 = engine.update_chain_tip_hash(100, &[0xAA; 32]);
+        assert!(!reorg1, "First tip hash should not trigger reorg");
+        assert!(!engine.needs_reorg_recovery());
+
+        // Same height, different hash — reorg
+        let reorg2 = engine.update_chain_tip_hash(100, &[0xBB; 32]);
+        assert!(reorg2, "Same height + different hash = reorg");
+        assert!(engine.needs_reorg_recovery());
+    }
+
+    #[test]
+    fn test_reorg_recovery_clears_flag() {
+        let engine = SyncEngine::new("x".to_string());
+        engine.update_chain_tip_hash(100, &[0xAA; 32]);
+        engine.update_chain_tip_hash(100, &[0xBB; 32]);
+        assert!(engine.needs_reorg_recovery());
+
+        // Rewind clears the flag
+        engine.rewind_to_height(50);
+        assert!(!engine.needs_reorg_recovery(), "rewind should clear reorg flag");
+
+        // Re-detect and test clear_reorg_flag
+        engine.update_chain_tip_hash(100, &[0xCC; 32]);
+        engine.update_chain_tip_hash(100, &[0xDD; 32]);
+        assert!(engine.needs_reorg_recovery());
+        engine.clear_reorg_flag();
+        assert!(!engine.needs_reorg_recovery(), "clear_reorg_flag should reset");
     }
 }

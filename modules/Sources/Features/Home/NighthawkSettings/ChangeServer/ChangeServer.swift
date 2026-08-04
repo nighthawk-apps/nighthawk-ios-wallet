@@ -42,12 +42,29 @@ public struct ChangeServer {
             return customServerAddress.contains(validHostAndPort)
         }
 
-        /// DarkFi lightwallet default port is 9067.
+        /// DarkFi lightwallet ports: 9067 (gRPC), 9068 (alt), 443 (TLS terminator).
         public var isExpectedDarkFiPort: Bool {
             guard serverOption == .custom else { return true }
             let components = customServerAddress.split(separator: ":")
             guard let portStr = components.last, let port = Int(portStr) else { return false }
-            return port == 9067
+            return [9067, 9068, 443].contains(port)
+        }
+
+        /// Reject RFC1918 / loopback hosts for remote custom servers (SSRF guard).
+        public var isPrivateOrLoopbackHost: Bool {
+            guard serverOption == .custom else { return false }
+            let host = customServerAddress.split(separator: ":").first.map(String.init) ?? ""
+            let lower = host.lowercased()
+            if lower == "localhost" || lower == "::1" { return true }
+            if lower.hasPrefix("127.") || lower.hasPrefix("10.") { return true }
+            if lower.hasPrefix("192.168.") { return true }
+            if lower.hasPrefix("172.") {
+                let parts = lower.split(separator: ".")
+                if parts.count >= 2, let second = Int(parts[1]), (16...31).contains(second) {
+                    return true
+                }
+            }
+            return false
         }
 
         public var canSave: Bool {
@@ -56,7 +73,9 @@ public struct ChangeServer {
                 || !userStoredPreferences.isUsingCustomLightwalletd() && serverOption == .custom
                 || (serverOption == .custom && userStoredPreferences.customLightwalletdServer() != customServerAddress)
 
-            return isChanged && (serverOption == .default || isValidHostAndPort) && !isChangingServer
+            return isChanged
+                && (serverOption == .default || (isValidHostAndPort && isExpectedDarkFiPort && !isPrivateOrLoopbackHost))
+                && !isChangingServer
         }
 
         public init() {}
