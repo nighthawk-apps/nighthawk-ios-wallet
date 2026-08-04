@@ -39,8 +39,9 @@ private final class WalletHandleManager: @unchecked Sendable {
         stateSubject.value
     }
 
-    /// Default lightwalletd gRPC endpoint (standalone fhe-omr on :9067).
-    static let defaultDarkfidEndpoint = "tcp://127.0.0.1:9067"
+    /// Default lightwalletd gRPC endpoint (Studio testnet via ngrok).
+    static let defaultDarkfidEndpoint =
+        "https://epidermis-sandbox-marshland.ngrok-free.dev"
 
     /// UserDefaults key for custom server endpoint (set by ChangeServer feature)
     static let serverEndpointKey = "darkfi_server_endpoint"

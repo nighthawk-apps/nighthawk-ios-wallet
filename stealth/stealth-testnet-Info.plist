@@ -42,7 +42,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LightwalletTlsPinSha256</key>
-	<string>$(LIGHTWALLET_TLS_PIN_SHA256)</string>
+	<string>9f8f3877f312cb48e4d8d050b5c7b70f6144f1c31812d7ec299c32793a274985</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan DarkFi address QR codes</string>
 	<key>NSFaceIDUsageDescription</key>

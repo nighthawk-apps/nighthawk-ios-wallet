@@ -106,7 +106,8 @@ public struct ChangeServer {
             case .alert:
                 return .none
             case .onAppear:
-                state.defaultServerInfo = "127.0.0.1:9067 (lightwallet testnet)"
+                state.defaultServerInfo =
+                    "epidermis-sandbox-marshland.ngrok-free.dev (Studio testnet LWD)"
                 if userStoredPreferences.isUsingCustomLightwalletd(),
                    let customServer = userStoredPreferences.customLightwalletdServer() {
                     state.serverOption = .custom
