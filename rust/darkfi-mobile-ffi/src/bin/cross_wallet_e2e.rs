@@ -142,7 +142,7 @@ async fn sync_until_balance(
                 Err(e) => eprintln!("  darkfid scan attempt {attempt} warn: {e}"),
             }
         } else if use_lightwallet {
-            match sync::sync_once_trial_decrypt(drk_ptr.clone(), LW_URL).await {
+            match sync::sync_once_via_lightwallet(drk_ptr.clone(), LW_URL).await {
                 Ok(()) => {}
                 Err(e) => eprintln!("  sync attempt {attempt} warn: {e}"),
             }
