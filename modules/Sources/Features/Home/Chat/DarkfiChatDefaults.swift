@@ -27,10 +27,13 @@ public enum DarkfiChatDefaults {
         "#lunardao"
     ]
 
-    /// Topic descriptions for default channels (upstream `[channel."#…"]` blocks).
+    /// Topic descriptions for default channels (upstream `[channel."#…"]` blocks),
+    /// plus a Nighthawk-only fill for `#hackers` (autojoin upstream, no topic block).
     public static let defaultChannelTopics: [String: String] = [
         "#dev": "DarkFi Development HQ",
         "#media": "DarkFi Art, Fashion, Video, Memetics",
+        // Nighthawk fill — not present in upstream darkirc_config.toml.
+        "#hackers": "Hacker Culture",
         "#memes": "DarkFi Meme Reality",
         "#philosophy": "Philosophy Discussions",
         "#markets": "Crypto Market Talk",
