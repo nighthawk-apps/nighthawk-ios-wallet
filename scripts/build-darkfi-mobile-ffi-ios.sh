@@ -54,7 +54,7 @@ fi
 mkdir -p "$MODULES"
 rm -rf "$XCFRAMEWORK"
 
-# Regenerate Swift/FFI glue from the UDL (writes DarkfiMobileFfi.* per uniffi.toml).
+# Regenerate Swift/FFI glue from the UDL (UniFFI 0.32 emits PascalCase names).
 # Host build — do NOT export IPHONEOS_DEPLOYMENT_TARGET here.
 cargo run --bin uniffi-bindgen generate \
     darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
@@ -63,11 +63,24 @@ cargo run --bin uniffi-bindgen generate \
     --out-dir "$MODULES" \
     --no-format
 
-# Replace DarkfiMobileFfiFFI with darkfi_mobile_ffiFFI in the generated Swift file
-sed -i '' 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/darkfi_mobile_ffi.swift"
-# UniFFI may also emit PascalCase DarkfiMobileFfi.swift — drop it to avoid
-# duplicate-type ambiguity in the DarkfiCore module.
-rm -f "$MODULES/DarkfiMobileFfi.swift"
+# Normalize UniFFI 0.32 PascalCase outputs to the snake_case names Xcode expects.
+if [[ -f "$MODULES/DarkfiMobileFfi.swift" ]]; then
+  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfi.swift" \
+    > "$MODULES/darkfi_mobile_ffi.swift"
+  rm -f "$MODULES/DarkfiMobileFfi.swift"
+elif [[ -f "$MODULES/darkfi_mobile_ffi.swift" ]]; then
+  sed -i '' 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/darkfi_mobile_ffi.swift"
+fi
+if [[ -f "$MODULES/DarkfiMobileFfiFFI.h" ]]; then
+  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.h" \
+    > "$MODULES/darkfi_mobile_ffiFFI.h"
+  rm -f "$MODULES/DarkfiMobileFfiFFI.h"
+fi
+if [[ -f "$MODULES/DarkfiMobileFfiFFI.modulemap" ]]; then
+  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.modulemap" \
+    > "$MODULES/darkfi_mobile_ffiFFI.modulemap"
+  rm -f "$MODULES/DarkfiMobileFfiFFI.modulemap"
+fi
 
 # Package the canonical FFI headers into the xcframework bundle.
 rm -rf "$ROOT/rust/target/Headers"
