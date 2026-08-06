@@ -49,6 +49,20 @@ public struct AdvancedView: View {
                     .padding(.vertical, 12)
                 }
 
+                Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.title)
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.subtitle)
+                    .paragraphMedium(color: .white)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(6)
+
+                Toggle(isOn: $store.strictOmrOnly) {
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.toggle)
+                        .paragraphMedium(color: .white)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+
                 banditSettings
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.title)

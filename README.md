@@ -315,6 +315,7 @@ Lightwallet can dial SOCKS5 the same way as Android.
 - Requires **darkfi-lightwalletd** with `fhe-omr`
 - Crypto parity with Android / moonshine / LWD (`n=1024`)
 - Sync fail-closed if clue PK registration fails; send via LWD `SendTransaction` only
+- **Trial-decrypt fallback (default on):** when UnifOMR returns no matches (or large gaps), the wallet supplemental trial-decrypts compact blocks so you can receive from non-UnifOMR wallets such as upstream `drk`. Toggle **Strict UnifOMR sync** under Advanced settings to disable this (UnifOMR-only, more private / faster when counterparties also use UnifOMR).
 - Default local: `tcp://127.0.0.1:9067` (Change Server)
 - Limits: [`docs/unifomr_mvp_limits.md`](docs/unifomr_mvp_limits.md)
 

@@ -158,6 +158,22 @@ pub fn darkirc_status() -> String {
     .to_string()
 }
 
+/// Fine-grained connection / DAG-sync phase for UI progress text.
+///
+/// iOS currently maps from daemon lifecycle status (Android has a richer
+/// phase tracker). Values match the UniFFI contract:
+/// `stopped` | `starting` | `connected` | `stopping` | `failed`.
+pub fn darkirc_connection_phase() -> String {
+    match DAEMON_STATUS.load(Ordering::Relaxed) {
+        STATUS_NOT_RUNNING => "stopped",
+        STATUS_STARTING => "starting",
+        STATUS_RUNNING => "connected",
+        STATUS_STOPPING => "stopping",
+        STATUS_FAILED => "failed",
+        _ => "stopped",
+    }
+    .to_string()
+}
 
 /// Start the darkirc daemon on a background thread.
 ///

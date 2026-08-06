@@ -91,6 +91,7 @@ async fn bootstrap_wallet(
         use_tor: false,
         tor_socks_port: 0,
         darkfid_rpc_url: darkfid_rpc_url(),
+        strict_omr_only: false,
     };
 
     bootstrap::bootstrap_drk(&config, ex).await

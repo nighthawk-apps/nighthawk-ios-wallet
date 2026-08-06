@@ -14,6 +14,15 @@ import UserPreferencesStorage
 import Utils
 import WalletStorage
 
+// MARK: - Strict UnifOMR control
+
+/// Applies Advanced Settings → Strict UnifOMR sync to the live wallet handle.
+public enum DarkfiStrictOmrControl {
+    public static func setStrictOmrOnly(_ strict: Bool) {
+        WalletHandleManager.shared.handle?.setStrictOmrOnly(strict: strict)
+    }
+}
+
 // MARK: - Wallet Handle Manager
 
 /// Singleton manager for the DarkFi wallet handle.
@@ -143,7 +152,8 @@ private final class WalletHandleManager: @unchecked Sendable {
             lightwalletTlsPinSha256: LightwalletTlsPin.pinDataOrNil().map { [UInt8]($0) },
             useTor: torForWallet,
             torSocksPort: socksPort,
-            darkfidRpcUrl: nil // LWD-only; never hardcode a darkfid testnet port
+            darkfidRpcUrl: nil, // LWD-only; never hardcode a darkfid testnet port
+            strictOmrOnly: UserPreferencesStorage.live.strictOmrOnly
         )
 
         do {

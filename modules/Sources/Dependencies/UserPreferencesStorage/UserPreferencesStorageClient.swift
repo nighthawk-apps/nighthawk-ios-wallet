@@ -55,6 +55,9 @@ public struct UserPreferencesStorageClient {
     public var torSocksPort: () -> String?
     public var setTorSocksPort: (String) -> Void
 
+    public var strictOmrOnly: () -> Bool
+    public var setStrictOmrOnly: (Bool) -> Void
+
     public var isUserBackupComplete: () -> Bool
     public var setIsUserBackupComplete: (Bool) -> Void
 
@@ -110,6 +113,8 @@ extension UserPreferencesStorageClient: DependencyKey {
         setTorSocksHost: UserPreferencesStorage.live.setTorSocksHost(_:),
         torSocksPort: { UserPreferencesStorage.live.torSocksPort },
         setTorSocksPort: UserPreferencesStorage.live.setTorSocksPort(_:),
+        strictOmrOnly: { UserPreferencesStorage.live.strictOmrOnly },
+        setStrictOmrOnly: UserPreferencesStorage.live.setStrictOmrOnly(_:),
         isUserBackupComplete: { UserPreferencesStorage.live.isUserBackupComplete },
         setIsUserBackupComplete: UserPreferencesStorage.live.setIsUserBackupComplete(_:),
         runEmbeddedDarkirc: { UserPreferencesStorage.live.runEmbeddedDarkirc },

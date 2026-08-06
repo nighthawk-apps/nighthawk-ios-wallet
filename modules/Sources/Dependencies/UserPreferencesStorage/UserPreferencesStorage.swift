@@ -31,6 +31,7 @@ public struct UserPreferencesStorage {
         case darkfiUseEmbeddedTor
         case darkfiTorSocksHost
         case darkfiTorSocksPort
+        case darkfiStrictOmrOnly
         case darkfiIsUserBackupComplete
         case darkfiRunEmbeddedDarkirc
         case darkfiDarkircDagsCount
@@ -223,6 +224,16 @@ public struct UserPreferencesStorage {
 
     public func setTorSocksPort(_ port: String) {
         setValue(port, forKey: Constants.darkfiTorSocksPort.rawValue)
+    }
+
+    /// When true, sync is UnifOMR-only (no supplemental/gap trial decrypt).
+    /// Default false so Nighthawk can receive from non-UnifOMR wallets (e.g. `drk`).
+    public var strictOmrOnly: Bool {
+        getValue(forKey: Constants.darkfiStrictOmrOnly.rawValue, default: false)
+    }
+
+    public func setStrictOmrOnly(_ enabled: Bool) {
+        setValue(enabled, forKey: Constants.darkfiStrictOmrOnly.rawValue)
     }
 
     /// Whether the user confirmed they wrote down their 22-word recovery phrase.

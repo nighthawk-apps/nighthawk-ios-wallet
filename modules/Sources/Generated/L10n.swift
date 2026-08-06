@@ -369,6 +369,14 @@ public enum L10n {
                     /// Keep screen on
                     public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
                 }
+                public enum StrictOmr {
+                    /// Strict UnifOMR sync
+                    public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.strictOmr.title", fallback: "Strict UnifOMR sync")
+                    /// When enabled, Nighthawk only discovers payments that include UnifOMR clues (faster and more private). Leave off (default) to also trial-decrypt compact blocks so you can receive from other DarkFi wallets such as the upstream drk CLI. Turning this on can hide those non-UnifOMR payments.
+                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.strictOmr.subtitle", fallback: "When enabled, Nighthawk only discovers payments that include UnifOMR clues (faster and more private). Leave off (default) to also trial-decrypt compact blocks so you can receive from other DarkFi wallets such as the upstream drk CLI. Turning this on can hide those non-UnifOMR payments.")
+                    /// UnifOMR-only (no trial-decrypt fallback)
+                    public static let toggle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.strictOmr.toggle", fallback: "UnifOMR-only (no trial-decrypt fallback)")
+                }
                 public enum Theme {
                     /// Dark
                     public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")

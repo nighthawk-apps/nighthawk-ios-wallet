@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Generated
 import Models
+import SDKSynchronizer
 import UserPreferencesStorage
 import UIKit
 
@@ -19,6 +20,7 @@ public struct Advanced {
         public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         public var selectedAppIcon: NighthawkSetting.AppIcon = .default
         public var theme: NighthawkSetting.Theme = .default
+        public var strictOmrOnly: Bool = false
         public var showBanditSettings: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.isBandit()
@@ -33,6 +35,7 @@ public struct Advanced {
             self.selectedScreenMode = userStoredPreferences.screenMode()
             self.selectedAppIcon = userStoredPreferences.appIcon()
             self.theme = userStoredPreferences.theme()
+            self.strictOmrOnly = userStoredPreferences.strictOmrOnly()
         }
     }
 
@@ -105,6 +108,10 @@ public struct Advanced {
             case .binding(\.selectedScreenMode):
                 userStoredPreferences.setScreenMode(state.selectedScreenMode)
                 UIApplication.shared.isIdleTimerDisabled = state.selectedScreenMode == .keepOn
+                return .none
+            case .binding(\.strictOmrOnly):
+                userStoredPreferences.setStrictOmrOnly(state.strictOmrOnly)
+                DarkfiStrictOmrControl.setStrictOmrOnly(state.strictOmrOnly)
                 return .none
             case .binding(\.theme):
                 userStoredPreferences.setTheme(state.theme)
