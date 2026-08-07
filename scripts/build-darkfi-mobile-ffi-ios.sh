@@ -28,11 +28,19 @@ echo "Building for iOS targets..."
 #   SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 # Device-only (physical iPhone deploy; skips simulator jemalloc/host work):
 #   DEVICE_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
+#
+# IMPORTANT — XCFramework binaries (*.a) are gitignored (~500MB). A fresh clone
+# does NOT contain libdarkfi_mobile_ffi.a. You MUST run this script (full build,
+# not SIM_ONLY) before Archive / TestFlight / device deploy, or linking fails /
+# you ship a stale framework. Headers + Swift glue are tracked; the .a files are not.
 SIM_ONLY="${SIM_ONLY:-0}"
 DEVICE_ONLY="${DEVICE_ONLY:-0}"
 if [ "$SIM_ONLY" = "1" ] && [ "$DEVICE_ONLY" = "1" ]; then
   echo "SIM_ONLY and DEVICE_ONLY are mutually exclusive" >&2
   exit 1
+fi
+if [ "$SIM_ONLY" = "1" ]; then
+  echo "WARNING: SIM_ONLY=1 — device slice omitted. Do NOT Archive/TestFlight this XCFramework." >&2
 fi
 
 cd "$RUST"
@@ -107,4 +115,19 @@ else
         -output "$XCFRAMEWORK"
 fi
 
+# Fail closed if expected slices are missing (common after SIM_ONLY or interrupted builds).
+if [ "$SIM_ONLY" != "1" ] && [ ! -f "$XCFRAMEWORK/ios-arm64/libdarkfi_mobile_ffi.a" ]; then
+  echo "ERROR: device slice missing at $XCFRAMEWORK/ios-arm64/libdarkfi_mobile_ffi.a" >&2
+  exit 1
+fi
+if [ "$DEVICE_ONLY" != "1" ] && [ ! -f "$XCFRAMEWORK/ios-arm64-simulator/universal-sim-libdarkfi_mobile_ffi.a" ] \
+  && [ ! -f "$XCFRAMEWORK/ios-arm64-simulator/libdarkfi_mobile_ffi.a" ]; then
+  # xcodebuild may name the sim library differently; accept any .a under the sim slice.
+  if ! compgen -G "$XCFRAMEWORK/ios-arm64-simulator/*.a" >/dev/null; then
+    echo "ERROR: simulator slice missing under $XCFRAMEWORK/ios-arm64-simulator/" >&2
+    exit 1
+  fi
+fi
+
 echo "Build complete. XCFramework generated in $MODULES"
+echo "Reminder: *.a files are gitignored — rebuild before every TestFlight Archive."

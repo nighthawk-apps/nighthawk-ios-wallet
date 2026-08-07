@@ -17,8 +17,8 @@ public struct TorNetwork {
     @ObservableState
     public struct State: Equatable {
         // ── Routing toggle (single app-wide toggle matching Android) ────
-        public var torForWallet: Bool = false
-        public var torForChat: Bool = false
+        public var torForWallet: Bool = true
+        public var torForChat: Bool = true
 
         // ── Tor provider ────────────────────────────────────────────────
         public enum TorMode: String, Equatable, CaseIterable {
@@ -147,12 +147,11 @@ public struct TorNetwork {
                 return .run { send in
                     await send(.artiBootstrapProgressUpdated(0.1))
                     let port = UInt16(portString) ?? 9050
-                    let started = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
+                    // `start_arti_proxy` may return false when already running;
+                    // always wait for bootstrap readiness.
+                    let ready = await TorBootstrap.ensureReady(socksPort: port)
                     await send(.artiBootstrapProgressUpdated(1.0))
-                    let status: State.ArtiStatus = started && DarkfiFfiSafe.isArtiRunning()
-                        ? .connected
-                        : .failed
-                    await send(.artiStatusChanged(status))
+                    await send(.artiStatusChanged(ready ? .connected : .failed))
                 }
 
             case .stopArti:

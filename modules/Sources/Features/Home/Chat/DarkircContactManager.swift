@@ -19,35 +19,15 @@
 
 import DarkfiCore
 import Foundation
-import Security
 
 /// Manages DM contact crypto operations.
 public enum DarkircContactManager {
-    /// Generate a new DM keypair using the Rust FFI.
-    /// Returns (secretB58, publicB58) or nil if FFI unavailable.
-    ///
-    /// NOTE: generateDmKeypair is defined in the UDL but the current generated
-    /// Swift bindings don't include it. This uses a stub that generates random bytes
-    /// until the bindings are regenerated. When available, use:
-    /// ```
-    /// let kp = generateDmKeypair()
-    /// return (kp.secretB58, kp.publicB58)
-    /// ```
+    /// Generate a new X25519 DM keypair via UniFFI (`crypto_box`), matching Android.
+    /// Public key is derived from the secret — never two independent random blobs.
     public static func generateKeypair() -> (secretB58: String, publicB58: String)? {
-        // Stub: generate 32 random bytes and base58-encode them
-        // This is cryptographically sound for key generation but won't interop
-        // with actual darkirc until the real FFI is wired.
-
-        var secretBytes = [UInt8](repeating: 0, count: 32)
-        var publicBytes = [UInt8](repeating: 0, count: 32)
-        guard SecRandomCopyBytes(kSecRandomDefault, 32, &secretBytes) == errSecSuccess,
-              SecRandomCopyBytes(kSecRandomDefault, 32, &publicBytes) == errSecSuccess else {
-            return nil
-        }
-
-        let secretB58 = Base58.encode(secretBytes)
-        let publicB58 = Base58.encode(publicBytes)
-        return (secretB58, publicB58)
+        let kp = generateDmKeypair()
+        guard !kp.secretB58.isEmpty, !kp.publicB58.isEmpty else { return nil }
+        return (kp.secretB58, kp.publicB58)
     }
 
     /// Encrypt a DM message using ChaCha20 via FFI.

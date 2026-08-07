@@ -86,16 +86,26 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// outgoing messages go through `send_chat_message`.
     /// Returns immediately — DAG sync proceeds asynchronously.
     ///
-    /// When `useTor` is true the Rust daemon routes all P2P traffic over
-    /// darkfi's embedded Tor (arti) transport using the `tor://` onion seeds.
+    /// When `useTor` is true the Rust daemon dials onion seeds via SOCKS5
+    /// (`127.0.0.1:torSocksPort` — usually embedded Arti). Callers must ensure
+    /// Arti is bootstrapped first (`TorBootstrap.ensureReady`).
     /// When false it connects over clearnet `tcp+tls` seeds.
-    public func start(callback: DarkircEventCallback? = nil, useTor: Bool = false) throws {
+    public func start(
+        callback: DarkircEventCallback? = nil,
+        useTor: Bool = false,
+        torSocksPort: UInt16 = 9050
+    ) throws {
         let currentStatus = status
         guard currentStatus != .running && currentStatus != .starting else {
             return // Already running
         }
 
-        try startDarkirc(datastorePath: datastorePath, useTor: useTor, torSocksPort: 9050, callback: callback)
+        try startDarkirc(
+            datastorePath: datastorePath,
+            useTor: useTor,
+            torSocksPort: torSocksPort,
+            callback: callback
+        )
     }
 
     /// Stop the embedded darkirc runtime.
@@ -109,7 +119,11 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// abort or stack overflow), the drain loop will time out (10s). In that case
     /// we proceed anyway — `start_darkirc()` will return a descriptive error if
     /// the status is truly stuck.
-    public func restartForChat(callback: DarkircEventCallback, useTor: Bool) async throws {
+    public func restartForChat(
+        callback: DarkircEventCallback,
+        useTor: Bool,
+        torSocksPort: UInt16 = 9050
+    ) async throws {
         stop()
         for _ in 0..<40 {
             let status = darkircStatus()
@@ -121,7 +135,17 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
-        try start(callback: callback, useTor: useTor)
+        if useTor {
+            let ready = await TorBootstrap.ensureReady(socksPort: torSocksPort)
+            guard ready else {
+                throw NSError(
+                    domain: "DarkircDaemon",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Tor (Arti) failed to bootstrap for chat"]
+                )
+            }
+        }
+        try start(callback: callback, useTor: useTor, torSocksPort: torSocksPort)
     }
 
     // MARK: - App Lifecycle

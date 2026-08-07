@@ -187,7 +187,7 @@ public struct UserPreferencesStorage {
     // MARK: - Tor Network Preferences
 
     public var torForWalletEnabled: Bool {
-        getValue(forKey: Constants.darkfiTorForWallet.rawValue, default: false)
+        getValue(forKey: Constants.darkfiTorForWallet.rawValue, default: true)
     }
 
     public func setTorForWalletEnabled(_ enabled: Bool) {
@@ -195,7 +195,7 @@ public struct UserPreferencesStorage {
     }
 
     public var torForChatEnabled: Bool {
-        getValue(forKey: Constants.darkfiTorForChat.rawValue, default: false)
+        getValue(forKey: Constants.darkfiTorForChat.rawValue, default: true)
     }
 
     public func setTorForChatEnabled(_ enabled: Bool) {

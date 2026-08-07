@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
@@ -29,6 +30,10 @@ public struct Splash {
         public var lastInactiveTime: Date?
         public var phase = ScenePhase.background
         public var isVisible = true
+        /// Status line under the logo (e.g. Tor bootstrap while opening the wallet).
+        public var statusMessage: String?
+        /// Show “Continue without Tor” while bootstrap is in progress or failed.
+        public var showDisableTorButton = false
         /// Once the user has been routed past splash, avoid sending them back to welcome
         /// when splash reappears after background lock / scene phase changes.
         public var hasCompletedInitialRoute = false
@@ -44,11 +49,15 @@ public struct Splash {
         case authenticate
         case authenticationResponse(Bool)
         case checkWalletInitialization
+        case bootstrapTorThenLaunch
+        case torBootstrapFailed
+        case disableTorAndContinue
         case delegate(Delegate)
         case onDisappear
         case onAppear
         case retryTapped
         case scenePhaseChanged(ScenePhase)
+        case statusMessageUpdated(String?)
 
         public enum Alert: Equatable {}
 
@@ -59,6 +68,8 @@ public struct Splash {
             case initializeSDKAndLaunchWallet
         }
     }
+
+    private enum CancelID { case torBootstrap }
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
@@ -85,9 +96,6 @@ public struct Splash {
                             )
                         ) ?? false
                         await send(.authenticationResponse(success))
-                        if success {
-                            await send(.delegate(.initializeSDKAndLaunchWallet))
-                        }
                     }
                 }
             case let .authenticationResponse(authenticated):
@@ -95,6 +103,50 @@ public struct Splash {
                 state.isAuthenticating = false
                 if authenticated {
                     state.lastAuthenticatedTime = date()
+                    return .send(.bootstrapTorThenLaunch)
+                }
+                return .none
+            case .bootstrapTorThenLaunch:
+                let torOn = userStoredPreferences.torForWalletEnabled()
+                    || userStoredPreferences.torForChatEnabled()
+                let socksPort = UInt16(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
+                if !torOn {
+                    state.statusMessage = nil
+                    state.showDisableTorButton = false
+                    return .send(.delegate(.initializeSDKAndLaunchWallet))
+                }
+                state.statusMessage = "Tor bootstrapping…"
+                state.showDisableTorButton = true
+                return .run { send in
+                    let ready = await TorBootstrap.ensureReady(socksPort: socksPort)
+                    if ready {
+                        await send(.statusMessageUpdated(nil))
+                        await send(.delegate(.initializeSDKAndLaunchWallet))
+                    } else {
+                        await send(.torBootstrapFailed)
+                    }
+                }
+                .cancellable(id: CancelID.torBootstrap, cancelInFlight: true)
+            case .torBootstrapFailed:
+                state.statusMessage = "Tor bootstrap failed — retry or continue without Tor"
+                state.showDisableTorButton = true
+                state.hasAttemptedAuthentication = true
+                return .none
+            case .disableTorAndContinue:
+                // Persist clearnet as the user's default; Settings can re-enable Tor later.
+                userStoredPreferences.setTorForWalletEnabled(false)
+                userStoredPreferences.setTorForChatEnabled(false)
+                DarkfiFfiSafe.stopArtiProxy()
+                state.statusMessage = nil
+                state.showDisableTorButton = false
+                return .merge(
+                    .cancel(id: CancelID.torBootstrap),
+                    .send(.delegate(.initializeSDKAndLaunchWallet))
+                )
+            case let .statusMessageUpdated(message):
+                state.statusMessage = message
+                if message == nil {
+                    state.showDisableTorButton = false
                 }
                 return .none
             case .checkWalletInitialization:
@@ -120,7 +172,7 @@ public struct Splash {
                     if userStoredPreferences.areBiometricsEnabled() {
                         return .send(.authenticate)
                     } else {
-                        return .send(.delegate(.initializeSDKAndLaunchWallet))
+                        return .send(.bootstrapTorThenLaunch)
                     }
                 case .uninitialized:
                     guard !state.hasCompletedInitialRoute else {

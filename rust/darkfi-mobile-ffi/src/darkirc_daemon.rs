@@ -23,6 +23,23 @@ const STATUS_FAILED: u8 = 4;
 /// Global daemon state (atomically updated).
 static DAEMON_STATUS: AtomicU8 = AtomicU8::new(STATUS_NOT_RUNNING);
 
+/// Fine-grained connection phase for UI (independent of coarse DAEMON_STATUS).
+const PHASE_STOPPED: u8 = 0;
+const PHASE_STARTING: u8 = 1;
+const PHASE_WAITING_FOR_PEERS: u8 = 2;
+const PHASE_STATIC_SYNC: u8 = 3;
+const PHASE_SYNCING_DAG: u8 = 4;
+const PHASE_LOADING_HISTORY: u8 = 5;
+const PHASE_CONNECTED: u8 = 6;
+const PHASE_STOPPING: u8 = 7;
+const PHASE_FAILED: u8 = 8;
+
+static CONNECTION_PHASE: AtomicU8 = AtomicU8::new(PHASE_STOPPED);
+
+fn set_phase(phase: u8) {
+    CONNECTION_PHASE.store(phase, Ordering::Relaxed);
+}
+
 /// Global stop channel (single pair — previously Sender/Receiver were
 /// constructed independently, so stop never woke the daemon loops).
 static STOP_CHANNEL: std::sync::LazyLock<(smol::channel::Sender<()>, smol::channel::Receiver<()>)> =
@@ -160,16 +177,28 @@ pub fn darkirc_status() -> String {
 
 /// Fine-grained connection / DAG-sync phase for UI progress text.
 ///
-/// iOS currently maps from daemon lifecycle status (Android has a richer
-/// phase tracker). Values match the UniFFI contract:
-/// `stopped` | `starting` | `connected` | `stopping` | `failed`.
+/// Values: `stopped` | `starting` | `waiting_for_peers` | `static_sync` |
+/// `syncing_dag` | `loading_history` | `connected` | `stopping` | `failed`.
 pub fn darkirc_connection_phase() -> String {
     match DAEMON_STATUS.load(Ordering::Relaxed) {
-        STATUS_NOT_RUNNING => "stopped",
-        STATUS_STARTING => "starting",
-        STATUS_RUNNING => "connected",
-        STATUS_STOPPING => "stopping",
-        STATUS_FAILED => "failed",
+        STATUS_FAILED => return "failed".to_string(),
+        STATUS_STOPPING => return "stopping".to_string(),
+        STATUS_NOT_RUNNING => {
+            if CONNECTION_PHASE.load(Ordering::Relaxed) != PHASE_FAILED {
+                return "stopped".to_string();
+            }
+        }
+        _ => {}
+    }
+    match CONNECTION_PHASE.load(Ordering::Relaxed) {
+        PHASE_STARTING => "starting",
+        PHASE_WAITING_FOR_PEERS => "waiting_for_peers",
+        PHASE_STATIC_SYNC => "static_sync",
+        PHASE_SYNCING_DAG => "syncing_dag",
+        PHASE_LOADING_HISTORY => "loading_history",
+        PHASE_CONNECTED => "connected",
+        PHASE_STOPPING => "stopping",
+        PHASE_FAILED => "failed",
         _ => "stopped",
     }
     .to_string()
@@ -217,6 +246,7 @@ pub fn start_darkirc(
     let db_path = PathBuf::from(&datastore_path);
     let cb: Option<Arc<dyn DarkircEventCallback>> = callback.map(Arc::from);
     DAG_SYNCED.store(0, Ordering::Relaxed);
+    set_phase(PHASE_STARTING);
 
     // Drain any stale stop signal left over from a previous daemon lifecycle.
     // The STOP_CHANNEL is a global bounded(1) that persists across restarts;
@@ -265,10 +295,12 @@ pub fn start_darkirc(
                 match result {
                     Ok(()) => {
                         DAEMON_STATUS.store(STATUS_NOT_RUNNING, Ordering::Relaxed);
+                        set_phase(PHASE_STOPPED);
                     }
                     Err(e) => {
                         log::error!("darkirc daemon failed: {e}");
                         DAEMON_STATUS.store(STATUS_FAILED, Ordering::Relaxed);
+                        set_phase(PHASE_FAILED);
                     }
                 }
             }));
@@ -276,10 +308,14 @@ pub fn start_darkirc(
             if outcome.is_err() {
                 log::error!("darkirc daemon thread panicked — forcing status to FAILED");
                 DAEMON_STATUS.store(STATUS_FAILED, Ordering::Relaxed);
+                set_phase(PHASE_FAILED);
             }
 
             // Always clean up global state, panic or not.
             DAG_SYNCED.store(0, Ordering::Relaxed);
+            if DAEMON_STATUS.load(Ordering::Relaxed) != STATUS_FAILED {
+                set_phase(PHASE_STOPPED);
+            }
             smol::block_on(async {
                 *CALLBACK.write().await = None;
             });
@@ -311,6 +347,7 @@ pub fn stop_darkirc() -> Result<(), DarkfiWalletNativeError> {
         }
     }
 
+    set_phase(PHASE_STOPPING);
     let _ = STOP_CHANNEL.0.try_send(());
     Ok(())
 }
@@ -612,6 +649,7 @@ async fn run_darkirc_daemon(
         .map_err(|e| format!("P2P start: {e}"))?;
 
     DAEMON_STATUS.store(STATUS_RUNNING, Ordering::Relaxed);
+    set_phase(PHASE_WAITING_FOR_PEERS);
     log::info!(
         "darkirc daemon started over {} transport, syncing DAG...",
         if use_tor { "tor (socks5)" } else { "tcp+tls" }
@@ -654,6 +692,7 @@ async fn run_darkirc_daemon(
         }
 
         if !p2p.is_connected() {
+            set_phase(PHASE_WAITING_FOR_PEERS);
             log::info!("darkirc daemon waiting for P2P peers...");
             smol::future::race(
                 async {
@@ -667,9 +706,11 @@ async fn run_darkirc_daemon(
             continue;
         }
 
+        set_phase(PHASE_STATIC_SYNC);
         log::info!("darkirc daemon connected, waiting for static sync...");
         if event_graph.static_sync().await.is_err() {
             log::warn!("darkirc daemon static_sync failed — retrying");
+            set_phase(PHASE_WAITING_FOR_PEERS);
             smol::future::race(
                 async {
                     let _ = STOP_CHANNEL.1.recv().await;
@@ -682,11 +723,13 @@ async fn run_darkirc_daemon(
             continue;
         }
 
+        set_phase(PHASE_SYNCING_DAG);
         log::info!("darkirc daemon static sync complete. Starting sync_selected...");
         // Full sync (bodies + headers). Header-only clients use
         // `sync_selected_headers` instead (darkirc `--fast-mode`).
         if event_graph.sync_selected(dags_count).await.is_err() {
             log::warn!("darkirc daemon sync_selected failed — retrying");
+            set_phase(PHASE_WAITING_FOR_PEERS);
             smol::future::race(
                 async {
                     let _ = STOP_CHANNEL.1.recv().await;
@@ -699,11 +742,13 @@ async fn run_darkirc_daemon(
             continue;
         }
 
+        set_phase(PHASE_LOADING_HISTORY);
         log::info!("darkirc daemon sync_selected complete. Fetching historical events...");
         let history = match event_graph.order_events().await {
             Ok(events) => events,
             Err(e) => {
                 log::error!("darkirc daemon order_events failed: {e}");
+                set_phase(PHASE_WAITING_FOR_PEERS);
                 smol::future::race(
                     async {
                         let _ = STOP_CHANNEL.1.recv().await;
@@ -739,6 +784,7 @@ async fn run_darkirc_daemon(
             }
         }
         DAG_SYNCED.store(1, Ordering::Relaxed);
+        set_phase(PHASE_CONNECTED);
         log::info!("darkirc daemon DAG synced and history replayed");
 
         // Monitor until stop or loss of all peers, then outer loop resyncs.
@@ -750,6 +796,7 @@ async fn run_darkirc_daemon(
             if !p2p.is_connected() {
                 log::info!("darkirc daemon disconnected (0 peers), preparing resync...");
                 DAG_SYNCED.store(0, Ordering::Relaxed);
+                set_phase(PHASE_WAITING_FOR_PEERS);
                 break;
             }
 
@@ -780,6 +827,7 @@ async fn run_darkirc_daemon(
             if stop_or_disc == "disconnect" && !p2p.is_connected() {
                 log::info!("darkirc daemon detected disconnection, preparing resync...");
                 DAG_SYNCED.store(0, Ordering::Relaxed);
+                set_phase(PHASE_WAITING_FOR_PEERS);
                 break;
             }
         }

@@ -50,7 +50,7 @@ public struct TorNetworkView: View {
 private extension TorNetworkView {
     var introSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Tor is off by default — the app uses your normal mobile network (clearnet). Turn on app-wide Tor routing only if you want wallet HTTP and DarkIRC P2P to use SOCKS (default loopback 127.0.0.1:9050). You can use built-in Arti or an external SOCKS proxy.")
+            Text("Tor is on by default for wallet sync and DarkIRC (embedded Arti SOCKS at 127.0.0.1:9050). Turn it off only for local clearnet testing. You can use built-in Arti or an external SOCKS proxy.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)

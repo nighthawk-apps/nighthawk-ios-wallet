@@ -56,15 +56,18 @@ From the repository root (first-time or after native code changes):
 # 2) Rust iOS targets (once per machine)
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 
-# 3) UniFFI wallet native lib
+# 3) UniFFI wallet native lib (REQUIRED — XCFramework .a binaries are gitignored)
 ./scripts/build-darkfi-mobile-ffi-ios.sh
-# Faster simulator-only: SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
+# Faster simulator-only (NOT for TestFlight/device Archive):
+#   SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 
 # 4) Open Xcode
 open stealth.xcodeproj
 # Scheme: stealth-testnet (default) or stealth-mainnet
 # Destination: simulator or device → ⌘B / ⌘R
 ```
+
+> **TestFlight / Archive:** `DarkfiCore.xcframework` static libraries (`*.a`) are **not** in git (see `.gitignore`). A clean clone cannot link until you run the full `./scripts/build-darkfi-mobile-ffi-ios.sh` (device + simulator). Never Archive with `SIM_ONLY=1`. Re-run after Rust/UDL changes so UniFFI Swift checksums match the binary.
 
 **Physical device from Terminal** (run in Terminal.app so codesign can access Keychain):
 
@@ -73,7 +76,7 @@ open stealth.xcodeproj
 # Optional: SCHEME=stealth-mainnet DEVICE_ID=<udid> ./scripts/deploy-ios-device.sh
 ```
 
-**Chat:** open the **Chat** tab — DarkIRC runs **in-process** via UniFFI. With **Tor** enabled, P2P uses darkfi’s embedded **arti** transport. First DAG sync can take several minutes.
+**Chat:** open the **Chat** tab — DarkIRC runs **in-process** via UniFFI. **Tor is on by default** (embedded Arti SOCKS); the splash screen shows “Tor bootstrapping…” while Arti comes up. First DAG sync can take several minutes.
 
 **Optional standalone darkirc:** `./scripts/build-darkirc-ios.sh` → `stealth/Resources/darkirc_exec` (not required for default chat).
 
@@ -126,7 +129,7 @@ All helpers live in [`scripts/`](scripts/).
 ./scripts/build-darkfi-mobile-ffi-ios.sh
 ```
 
-Produces `libdarkfi_mobile_ffi.a`, regenerates `DarkfiMobileFfi.swift` / `DarkfiMobileFfiFFI.h`, refreshes `DarkfiCore.xcframework`. Re-run when Rust or the UDL changes.
+Produces `libdarkfi_mobile_ffi.a` (device + sim), regenerates `darkfi_mobile_ffi.swift` / headers, refreshes `DarkfiCore.xcframework`. The `.a` files stay local (gitignored); headers/Swift/Info.plist are committed. Re-run when Rust or the UDL changes, and **always** before TestFlight Archive.
 
 Details: [`rust/darkfi-mobile-ffi/`](rust/darkfi-mobile-ffi/).  
 Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/implementation-plan.md`](docs/implementation-plan.md).
@@ -363,9 +366,9 @@ Checklist: [`docs/verification-checklist.md`](docs/verification-checklist.md).
 ## Known issues
 
 1. First P2P/DAG sync for in-process DarkIRC can take several minutes.
-2. Arti Tor startup adds ~10–15s on first enable; rebuild xcframework after UDL/Tor changes.
+2. Tor is **on by default**; Arti bootstrap can take 10–60s (splash shows “Tor bootstrapping…”). Rebuild the XCFramework after UDL/Tor/FFI changes — `*.a` files are gitignored.
 3. DRK fiat may show “unavailable” until pricing endpoints support DRK.
-4. Default scheme is **`stealth-testnet`**; use **`stealth-mainnet`** for mainnet.
+4. Default scheme is **`stealth-testnet`**; use **`stealth-mainnet`** for mainnet. Mainnet remote HTTPS LWD requires `LightwalletTlsPinSha256` in Info.plist.
 5. `SIM_ONLY=1` FFI builds omit the device slice — use a full script run before TestFlight / devices.
 
 ---

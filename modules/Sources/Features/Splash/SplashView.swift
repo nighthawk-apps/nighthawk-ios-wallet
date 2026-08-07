@@ -16,27 +16,60 @@ public struct SplashView: View {
     @Environment(\.scenePhase) var scenePhase
 
     public var body: some View {
-        VStack {
-            Spacer()
-
+        ZStack(alignment: .bottom) {
             VStack {
-                NighthawkLogo(size: .tabHeader)
-                    .padding(.bottom, 10)
+                Spacer()
 
-                Text(L10n.Nighthawk.Splash.subtitle)
-                    .paragraph()
+                VStack {
+                    NighthawkLogo(size: .tabHeader)
+                        .padding(.bottom, 10)
+
+                    Text(L10n.Nighthawk.Splash.subtitle)
+                        .paragraph()
+
+                    if let status = store.statusMessage {
+                        Text(status)
+                            .paragraph()
+                            .padding(.top, 12)
+                            .accessibilityLabel(status)
+                    }
+                }
+
+                if store.hasAttemptedAuthentication && !store.authenticated {
+                    Button(
+                        L10n.Nighthawk.Splash.retry,
+                        action: { store.send(.retryTapped) }
+                    )
+                    .buttonStyle(.nighthawkPrimary())
+                    .padding(.top, 8)
+                } else if store.statusMessage?.contains("Tor bootstrap failed") == true {
+                    Button(
+                        L10n.Nighthawk.Splash.retry,
+                        action: { store.send(.bootstrapTorThenLaunch) }
+                    )
+                    .buttonStyle(.nighthawkPrimary())
+                    .padding(.top, 8)
+                }
+
+                Spacer()
             }
 
-            if store.hasAttemptedAuthentication && !store.authenticated {
-                Button(
-                    L10n.Nighthawk.Splash.retry,
-                    action: { store.send(.retryTapped) }
-                )
-                .buttonStyle(.nighthawkPrimary())
-                .padding(.top, 8)
-            }
+            // Bottom-center escape hatch (Android splash parity).
+            if store.showDisableTorButton {
+                VStack(spacing: 8) {
+                    Button("Continue without Tor") {
+                        store.send(.disableTorAndContinue)
+                    }
+                    .buttonStyle(.nighthawkSecondary())
 
-            Spacer()
+                    Text("Uses your regular network. You can re-enable Tor in Settings.")
+                        .paragraph()
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 48)
+            }
         }
         .onChange(of: scenePhase) {
             store.send(.scenePhaseChanged(scenePhase))

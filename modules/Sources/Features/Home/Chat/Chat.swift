@@ -146,7 +146,7 @@ public struct Chat {
         public var diagnosticDetail: String?
         /// Persistent hawkXXX nickname — generated once, persists between sessions.
         public var nickname: String = DarkfiChatDefaults.persistentNickname()
-        public var useTor: Bool = false
+        public var useTor: Bool = true
         /// Number of DAG bootstrap messages received
         public var dagSyncCount: Int = 0
         /// Descriptive string for DAG sync progress (e.g. "Syncing DAG… 142 events")
@@ -301,6 +301,7 @@ public struct Chat {
                 state.useTor = userStoredPreferences.torForChatEnabled()
                 let nickname = state.nickname
                 let useTor = state.useTor
+                let socksPort = UInt16(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
 
                 return .run { send in
                     // The embedded darkirc daemon relays public-channel and DM
@@ -311,13 +312,21 @@ public struct Chat {
                     let daemon = DarkircDaemonManager.shared
 
                     await send(.embeddedNodeStatusChanged(.starting))
-                    await send(.dagSyncStatusUpdate("Starting darkirc node…"))
+                    if useTor {
+                        await send(.dagSyncStatusUpdate("Tor bootstrapping…"))
+                    } else {
+                        await send(.dagSyncStatusUpdate("Starting darkirc node…"))
+                    }
 
                     let (stream, continuation) = AsyncStream<State.Message>.makeStream()
                     let relay = ChatEventRelay(continuation: continuation, myNickname: nickname)
 
                     do {
-                        try await daemon.restartForChat(callback: relay, useTor: useTor)
+                        try await daemon.restartForChat(
+                            callback: relay,
+                            useTor: useTor,
+                            torSocksPort: socksPort
+                        )
                     } catch {
                         continuation.finish()
                         await send(.ircBridgeError(error.localizedDescription))
@@ -329,40 +338,58 @@ public struct Chat {
                     await send(.connectionStateChanged(.waitingForDagSync))
                     await send(.dagSyncStatusUpdate("Waiting for P2P peers…"))
 
-                    // Wait until the Rust daemon reports STATUS_RUNNING before allowing sends.
+                    // Prefer fine-grained `darkirc_connection_phase`; fall back to
+                    // STATUS_RUNNING once the daemon is up (pre-phase binaries).
                     var pollCount = 0
-                    let maxPolls = 90
-                    var reachedRunning = false
+                    let maxPolls = 180
+                    var ready = false
                     while pollCount < maxPolls {
                         try? await Task.sleep(for: .seconds(1))
                         pollCount += 1
+                        let phase = darkircConnectionPhase()
                         let ffiStatus = darkircStatus()
-                        await send(.dagSyncStatusUpdate("DAG syncing… (\(pollCount)s)"))
+                        let label: String
+                        switch phase {
+                        case "waiting_for_peers": label = "Waiting for P2P peers…"
+                        case "static_sync": label = "Static sync…"
+                        case "syncing_dag": label = "Syncing DAG…"
+                        case "loading_history": label = "Loading history…"
+                        case "connected": label = "Connected"
+                        case "starting": label = "Starting…"
+                        default: label = "DAG syncing… (\(pollCount)s)"
+                        }
+                        await send(.dagSyncStatusUpdate(label))
 
-                        switch ffiStatus {
-                        case "failed":
+                        if phase == "failed" || ffiStatus == "failed" {
                             continuation.finish()
                             await send(.ircBridgeError("darkirc daemon failed during startup"))
                             await send(.connectionStateChanged(.error))
                             await send(.embeddedNodeStatusChanged(.failed))
                             return
-                        case "running":
-                            reachedRunning = true
-                            await send(.embeddedNodeStatusChanged(.syncingDag))
-                        case "starting":
-                            await send(.embeddedNodeStatusChanged(.starting))
-                        default:
+                        }
+                        if phase == "connected" {
+                            ready = true
                             break
                         }
-
-                        if reachedRunning {
-                            break
+                        if ffiStatus == "running" {
+                            await send(.embeddedNodeStatusChanged(.syncingDag))
+                            // Coarse mapping (running → "connected") or rich phase still syncing.
+                            let syncing = [
+                                "waiting_for_peers", "static_sync", "syncing_dag",
+                                "loading_history", "starting",
+                            ].contains(phase)
+                            if !syncing {
+                                ready = true
+                                break
+                            }
                         }
                     }
 
-                    guard reachedRunning else {
+                    guard ready else {
                         continuation.finish()
-                        await send(.ircBridgeError("darkirc did not reach running state (status: \(darkircStatus()))"))
+                        await send(.ircBridgeError(
+                            "darkirc did not finish sync (status: \(darkircStatus()), phase: \(darkircConnectionPhase()))"
+                        ))
                         await send(.connectionStateChanged(.error))
                         await send(.embeddedNodeStatusChanged(.failed))
                         return

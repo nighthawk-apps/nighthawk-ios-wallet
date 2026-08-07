@@ -43,6 +43,9 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Required for remote HTTPS lightwalletd (fail-closed without pin). Leave unset for loopback HTTP. -->
+	<key>LightwalletTlsPinSha256</key>
+	<string></string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan DarkFi address QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
