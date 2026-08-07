@@ -40,6 +40,10 @@ static ARTI_STOP_REQUESTED: std::sync::atomic::AtomicBool =
 /// a background thread; poll [`is_arti_running`] / the FFI status to observe
 /// real progress.
 pub fn start_arti_proxy(socks_port: u16) -> Result<bool, crate::DarkfiWalletNativeError> {
+    // rustls 0.23 requires an explicit process-level CryptoProvider when both
+    // `ring` and `aws-lc-rs` may be pulled in transitively (Arti + tonic).
+    let _ = rustls::crypto::ring::default_provider().install_default();
+
     // Only one proxy at a time.
     if ARTI_STATE
         .compare_exchange(

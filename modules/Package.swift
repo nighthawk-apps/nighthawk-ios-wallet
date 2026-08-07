@@ -57,7 +57,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.3.2"),
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.25.5"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.26.1"),
         .package(url: "https://github.com/pointfreeco/swift-case-paths", exact: "1.5.6"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", exact: "6.6.2"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", exact: "2.2.4"),
