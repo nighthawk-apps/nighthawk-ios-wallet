@@ -21,9 +21,12 @@ use drk::Drk;
 use smol::Executor;
 
 /// Human-readable DRK amount (matches iOS/Android `build_transfer` input).
+/// Recipients need fee headroom beyond this (fund separately or leave change).
 const SEND_AMOUNT: &str = "1";
 /// Expected received balance in atomic units (1 DRK with 8 decimals).
 const SEND_AMOUNT_ATOMIC: u64 = 100_000_000;
+/// Extra DRK that must remain after a hop to cover gas (atomic).
+const FEE_HEADROOM_ATOMIC: u64 = 50_000_000;
 /// Blockchain network for address encoding.
 const NETWORK: &str = "testnet";
 /// Wallet birthday. Default `-1` = full history (required for spendable merkle
@@ -136,18 +139,22 @@ async fn sync_until_balance(
     let prefer_darkfid = darkfid_rpc_url().is_some();
     loop {
         attempt += 1;
+        let mut darkfid_ok = false;
         if prefer_darkfid {
             let drk = drk_ptr.read().await;
             match sync_wallet_direct(&drk).await {
-                Ok(()) => {}
+                Ok(()) => darkfid_ok = true,
                 Err(e) => eprintln!("  darkfid scan attempt {attempt} warn: {e}"),
             }
-        } else if use_lightwallet {
+        }
+        // LWD trial-decrypt fallback when darkfid is unset or scan failed
+        // (e.g. birthday placeholder hash / tunnel blip).
+        if !darkfid_ok && use_lightwallet {
             match sync::sync_once_via_lightwallet(drk_ptr.clone(), LW_URL).await {
                 Ok(()) => {}
-                Err(e) => eprintln!("  sync attempt {attempt} warn: {e}"),
+                Err(e) => eprintln!("  lwd sync attempt {attempt} warn: {e}"),
             }
-        } else {
+        } else if !prefer_darkfid && !use_lightwallet {
             let drk = drk_ptr.read().await;
             sync_wallet_direct(&drk).await?;
         }
@@ -187,6 +194,33 @@ async fn send(drk: &Drk, recipient: &str, amount: &str, memo: &str) -> Result<St
         None, // loopback HTTP — no TLS pin
     )
     .await
+}
+
+/// Register this wallet's UnifOMR clue PK on lightwalletd (no full sync).
+async fn register_unifomr_clue(drk_ptr: &DrkWalletPtr) -> Result<(), String> {
+    use darkfi_mobile_ffi::lightwallet_client::LightwalletClient;
+    use darkfi_sdk::crypto::keypair::Network;
+
+    let drk = drk_ptr.read().await;
+    let secret = drk.default_secret().await.map_err(|e| e.to_string())?;
+    let secret_bytes: [u8; 32] = secret.inner().to_repr();
+    let pay_pk = drk
+        .default_address()
+        .await
+        .map_err(|e| e.to_string())?
+        .to_bytes();
+    let net = match drk.network {
+        Network::Mainnet => 0u8,
+        Network::Testnet => 1u8,
+    };
+    let (_sk, pk) = unifomr::clue_keypair_from_wallet(&secret_bytes, net)?;
+    let clue_pk = unifomr::serialize_public_key(&pk);
+    let key_version = unifomr::clue_key_version_now();
+    let proof = unifomr::sign_clue_pk_ownership(&secret, net, key_version, &pay_pk, &clue_pk);
+    let client = LightwalletClient::from_endpoint_and_pin(LW_URL, None);
+    client
+        .register_clue_public_key(pay_pk.to_vec(), clue_pk, proof, key_version)
+        .await
 }
 
 #[allow(clippy::too_many_lines)]
@@ -272,6 +306,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
         println!("Moonshine balance: {sender_balance} atomic DRK\n");
 
+        // All hop endpoints must RegisterCluePublicKey before senders' GetCluePublicKey
+        // returns a verifiable clue (otherwise LWD serves a decoy and send fails).
+        // Use a lightweight register-only path — full LWD sync is too heavy here.
+        println!("Registering UnifOMR clue PKs (moonshine + iOS + Android)...");
+        for (name, wallet) in [
+            ("moonshine", &moonshine),
+            ("ios", &ios),
+            ("android", &android),
+        ] {
+            match register_unifomr_clue(wallet).await {
+                Ok(()) => println!("  {name}: RegisterCluePublicKey ok"),
+                Err(e) => eprintln!("  {name}: register warn: {e}"),
+            }
+        }
+        println!();
+
         // Leg 1: moonshine → iOS
         println!("Leg 1: moonshine → iOS ({SEND_AMOUNT} DRK)...");
         let tx1 = {
@@ -298,10 +348,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
 
-        println!("  syncing iOS wallet...");
-        let ios_balance =
-            sync_until_balance(&ios, SEND_AMOUNT_ATOMIC, Duration::from_secs(300), true).await?;
+        println!("  syncing iOS wallet (need hop + fee headroom)...");
+        let ios_balance = sync_until_balance(
+            &ios,
+            SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+            Duration::from_secs(900),
+            true,
+        )
+        .await?;
         println!("  iOS balance after leg1: {ios_balance} atomic DRK\n");
+        if ios_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+            return Err(format!(
+                "iOS needs >= {} atomic for hop+fees (have {ios_balance}); fund fee buffer",
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+            ));
+        }
 
         // Leg 2: iOS → Android
         println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK)...");
@@ -312,11 +373,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("  broadcast tx: {tx2}");
         println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx2}");
 
-        println!("  syncing Android wallet...");
-        let android_balance =
-            sync_until_balance(&android, SEND_AMOUNT_ATOMIC, Duration::from_secs(300), true)
-                .await?;
+        println!("  syncing Android wallet (need hop + fee headroom)...");
+        let android_balance = sync_until_balance(
+            &android,
+            SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+            Duration::from_secs(900),
+            true,
+        )
+        .await?;
         println!("  Android balance after leg2: {android_balance} atomic DRK\n");
+        if android_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+            return Err(format!(
+                "Android needs >= {} atomic for hop+fees (have {android_balance}); fund fee buffer",
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+            ));
+        }
 
         // Leg 3: Android → moonshine (desktop/FFI parity round-trip)
         println!("Leg 3: Android → moonshine ({SEND_AMOUNT} DRK)...");
