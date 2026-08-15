@@ -5,7 +5,7 @@
 //!   - darkfi-lightwalletd (with RegisterOmrClue) on :9067
 //!   - Sender pre-funded via `drk transfer` (moonshine CLI send is still a stub)
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -47,7 +47,7 @@ fn darkfid_rpc_url() -> Option<String> {
         .or_else(|| Some("tcp://127.0.0.1:18345".into()))
 }
 
-fn load_or_create_mnemonics(base_dir: &PathBuf) -> Result<(String, String, String), String> {
+fn load_or_create_mnemonics(base_dir: &Path) -> Result<(String, String, String), String> {
     let path = base_dir.join("mnemonics.txt");
     if path.exists() {
         let text = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
@@ -76,7 +76,7 @@ fn words_from_phrase(phrase: &str) -> Vec<String> {
 async fn bootstrap_wallet(
     name: &str,
     mnemonic: &[String],
-    base_dir: &PathBuf,
+    base_dir: &Path,
     ex: &Arc<Executor<'static>>,
 ) -> Result<DrkWalletPtr, String> {
     let wallet_dir = base_dir.join(name);
@@ -121,9 +121,19 @@ async fn default_address(drk: &Drk) -> Result<String, String> {
 }
 
 async fn sync_wallet_direct(drk: &Drk) -> Result<(), String> {
-    drk.scan_blocks(&mut Vec::new(), None, &false, None)
+    let mut output = Vec::new();
+    drk.scan_blocks(&mut output, None, &false, None)
         .await
-        .map_err(|e| format!("scan_blocks: {e}"))
+        .map_err(|e| format!("scan_blocks: {e}"))?;
+    if let Some(first) = output.first() {
+        eprintln!("  scan_blocks: {first}");
+    }
+    if output.len() > 1 {
+        if let Some(last) = output.last() {
+            eprintln!("  scan_blocks done ({} msgs): {last}", output.len());
+        }
+    }
+    Ok(())
 }
 
 async fn sync_until_balance(
@@ -134,9 +144,12 @@ async fn sync_until_balance(
 ) -> Result<u64, String> {
     let start = Instant::now();
     let mut attempt = 0u32;
-    // Prefer darkfid scan_blocks when RPC is configured — produces spendable
-    // merkle roots. LWD trial-decrypt is a fallback when darkfid is unreachable.
-    let prefer_darkfid = darkfid_rpc_url().is_some();
+    // LWD GetCoins walks every note commitment from the scan cursor and
+    // rebuilds the global Money merkle tree (required for spendable roots).
+    // darkfid scan_blocks of full blocks is much slower and a mid-chain
+    // birthday produces TransferMerkleRootNotFound (contract error 0x5).
+    // Keep darkfid RPC for tx.calculate_fee; only use scan_blocks if LWD fails.
+    let prefer_darkfid = std::env::var("E2E_PREFER_DARKFID").ok().as_deref() == Some("1");
     loop {
         attempt += 1;
         let mut darkfid_ok = false;
@@ -145,6 +158,29 @@ async fn sync_until_balance(
             match sync_wallet_direct(&drk).await {
                 Ok(()) => darkfid_ok = true,
                 Err(e) => eprintln!("  darkfid scan attempt {attempt} warn: {e}"),
+            }
+            // Copied full-history caches sit at tip with no decrypted coins.
+            // Rewind a few hundred blocks so fee-buffer / hop notes are found
+            // without another 45k-block scan.
+            if darkfid_ok && attempt == 1 {
+                let bal = balance_atomic(&drk).await.unwrap_or(0);
+                if bal < min_balance {
+                    if let Ok((h, _)) = drk.get_last_scanned_block() {
+                        if h > 500 {
+                            // Funds may be ~1k blocks behind tip after a paused run.
+                            let rewind = h.saturating_sub(1500);
+                            eprintln!(
+                                "  rewind to height {rewind} (was {h}) to decrypt recent notes"
+                            );
+                            let mut out = Vec::new();
+                            if let Err(e) = drk.reset_to_height(rewind, &mut out).await {
+                                eprintln!("  rewind warn: {e}");
+                            } else if let Err(e) = sync_wallet_direct(&drk).await {
+                                eprintln!("  rescan after rewind warn: {e}");
+                            }
+                        }
+                    }
+                }
             }
         }
         // LWD trial-decrypt fallback when darkfid is unset or scan failed
@@ -162,6 +198,10 @@ async fn sync_until_balance(
             let drk = drk_ptr.read().await;
             balance_atomic(&drk).await?
         };
+        println!(
+            "  sync attempt {attempt}: balance={balance} atomic (elapsed {}s)",
+            start.elapsed().as_secs()
+        );
         if balance >= min_balance {
             return Ok(balance);
         }
@@ -270,11 +310,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("iOS recipient address:       {ios_addr}");
         println!("Android recipient address:   {android_addr}\n");
 
-        println!("Scanning moonshine wallet (trial-decrypt via LWD, then darkfid fallback)...");
+        println!("Scanning moonshine wallet (LWD GetCoins full-history merkle rebuild)...");
         let sender_balance = match sync_until_balance(
             &moonshine,
             SEND_AMOUNT_ATOMIC,
-            Duration::from_secs(600),
+            Duration::from_secs(1800),
             true,
         )
         .await
@@ -352,7 +392,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let ios_balance = sync_until_balance(
             &ios,
             SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
-            Duration::from_secs(900),
+            Duration::from_secs(1800),
             true,
         )
         .await?;
@@ -377,7 +417,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let android_balance = sync_until_balance(
             &android,
             SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
-            Duration::from_secs(900),
+            Duration::from_secs(1800),
             true,
         )
         .await?;
