@@ -108,6 +108,13 @@ async fn balance_atomic(drk: &Drk) -> Result<u64, String> {
     Ok(balances.values().copied().sum())
 }
 
+/// Unspent coins. DarkFi `Money::Fee` is a separate call and cannot reuse the
+/// coin spent by the transfer, so a hop needs at least two coins.
+async fn unspent_coin_count(drk: &Drk) -> Result<usize, String> {
+    let coins = drk.get_coins(false).await.map_err(|e| e.to_string())?;
+    Ok(coins.len())
+}
+
 async fn default_address(drk: &Drk) -> Result<String, String> {
     use darkfi_sdk::crypto::keypair::{Address, Network, StandardAddress};
     let pubkey = drk.default_address().await.map_err(|e| e.to_string())?;
@@ -142,6 +149,7 @@ async fn sync_wallet_direct(drk: &Drk) -> Result<(), String> {
 async fn sync_until_balance(
     drk_ptr: &DrkWalletPtr,
     min_balance: u64,
+    min_coins: usize,
     timeout: Duration,
     use_lightwallet: bool,
 ) -> Result<u64, String> {
@@ -198,20 +206,23 @@ async fn sync_until_balance(
             let drk = drk_ptr.read().await;
             sync_wallet_direct(&drk).await?;
         }
-        let balance = {
+        let (balance, coins) = {
             let drk = drk_ptr.read().await;
-            balance_atomic(&drk).await?
+            (
+                balance_atomic(&drk).await?,
+                unspent_coin_count(&drk).await?,
+            )
         };
         println!(
-            "  sync attempt {attempt}: balance={balance} atomic (elapsed {}s)",
+            "  sync attempt {attempt}: balance={balance} atomic coins={coins} (elapsed {}s)",
             start.elapsed().as_secs()
         );
-        if balance >= min_balance {
+        if balance >= min_balance && coins >= min_coins {
             return Ok(balance);
         }
         if start.elapsed() > timeout {
             return Err(format!(
-                "timeout waiting for balance >= {min_balance} (have {balance})"
+                "timeout waiting for balance >= {min_balance} and coins >= {min_coins} (have {balance} / {coins})"
             ));
         }
         smol::Timer::after(Duration::from_secs(2)).await;
@@ -423,6 +434,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let sender_balance = match sync_until_balance(
             &moonshine,
             SEND_AMOUNT_ATOMIC,
+            2, // transfer coin + separate fee coin
             Duration::from_secs(1800),
             true,
         )
@@ -503,10 +515,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
 
-        println!("  syncing iOS wallet (need hop + fee headroom)...");
+        println!("  syncing iOS wallet (need hop coin + separate fee coin)...");
         let ios_balance = sync_until_balance(
             &ios,
             SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+            2,
             Duration::from_secs(1800),
             true,
         )
@@ -533,10 +546,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("  broadcast tx: {tx2}");
         println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx2}");
 
-        println!("  syncing Android wallet (need hop + fee headroom)...");
+        println!("  syncing Android wallet (need hop coin + separate fee coin)...");
         let android_balance = sync_until_balance(
             &android,
             SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+            2,
             Duration::from_secs(1800),
             true,
         )
