@@ -39,6 +39,16 @@ public struct AddMemoView: View {
             .padding(.horizontal, 24)
             .focused($isMemoEditorFocused)
 
+            HStack {
+                Spacer()
+                Text("\(store.memo.utf8.count) / \(store.memoCharLimit)")
+                    .caption()
+                    .foregroundColor(store.memo.utf8.count >= store.memoCharLimit ? .red : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+            }
+            .padding(.horizontal, 28)
+            .padding(.top, 2)
+            .padding(.bottom, 8)
+
             CheckBox(isChecked: $store.isIncludeReplyToChecked) {
                 Text(L10n.Nighthawk.TransferTab.AddMemo.includeReplyTo)
                     .caption()

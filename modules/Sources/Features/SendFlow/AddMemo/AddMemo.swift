@@ -16,17 +16,18 @@ public struct AddMemo {
     public struct State: Equatable {
         public var memo = ""
         public var isIncludeReplyToChecked = false
-        public var memoCharLimit = 0
+        public var memoCharLimit = 255
         public var unifiedAddress: UnifiedAddress?
         public var hasEnteredMemo: Bool { !memo.isEmpty }
         public var canIncludeReplyTo: Bool {
             guard let ua = unifiedAddress?.stringEncoded else { return false }
             let prefix = "Reply to:"
-            return hasEnteredMemo && "\(memo)\n\(prefix)\(ua)".count <= memoCharLimit
+            return hasEnteredMemo && "\(memo)\n\(prefix)\(ua)".utf8.count <= memoCharLimit
         }
 
-        public init(unifiedAddress: UnifiedAddress?) {
+        public init(unifiedAddress: UnifiedAddress?, memoCharLimit: Int = 255) {
             self.unifiedAddress = unifiedAddress
+            self.memoCharLimit = memoCharLimit
         }
     }
 
@@ -52,8 +53,11 @@ public struct AddMemo {
             case .backButtonTapped:
                 return .send(.delegate(.goBack))
             case .binding(\.memo):
-                if state.memo.count >= state.memoCharLimit {
-                    state.memo = String(state.memo.prefix(state.memoCharLimit))
+                if state.memo.utf8.count > state.memoCharLimit {
+                    state.memo = String(
+                        decoding: state.memo.utf8.prefix(state.memoCharLimit),
+                        as: UTF8.self
+                    )
                 }
                 return .none
             case .binding:
