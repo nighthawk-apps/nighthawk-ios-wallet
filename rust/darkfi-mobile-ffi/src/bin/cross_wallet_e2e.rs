@@ -38,7 +38,10 @@ fn birthday_height() -> i64 {
         .unwrap_or(-1)
 }
 /// lightwalletd gRPC (sync + SendTransaction / RegisterOmrClue).
-const LW_URL: &str = "http://127.0.0.1:9067";
+/// Override with `E2E_LWD_URL` (e.g. reverse-tunneled latest LWD).
+fn lw_url() -> String {
+    std::env::var("E2E_LWD_URL").unwrap_or_else(|_| "http://127.0.0.1:9067".into())
+}
 /// Optional darkfid JSON-RPC for direct `scan_blocks` (override via E2E_DARKFID_RPC).
 fn darkfid_rpc_url() -> Option<String> {
     std::env::var("E2E_DARKFID_RPC")
@@ -88,7 +91,7 @@ async fn bootstrap_wallet(
         wallet_db_path: wallet_dir.join("wallet.db").to_string_lossy().into(),
         cache_path: wallet_dir.join("cache").to_string_lossy().into(),
         wallet_pass: "e2e-test-pass".into(),
-        lightwallet_server_url: LW_URL.into(),
+        lightwallet_server_url: lw_url(),
         birthday_height: birthday_height(),
         lightwallet_tls_pin_sha256: None,
         use_tor: false,
@@ -186,7 +189,8 @@ async fn sync_until_balance(
         // LWD trial-decrypt fallback when darkfid is unset or scan failed
         // (e.g. birthday placeholder hash / tunnel blip).
         if !darkfid_ok && use_lightwallet {
-            match sync::sync_once_via_lightwallet(drk_ptr.clone(), LW_URL).await {
+            let lwd = lw_url();
+            match sync::sync_once_via_lightwallet(drk_ptr.clone(), &lwd).await {
                 Ok(()) => {}
                 Err(e) => eprintln!("  lwd sync attempt {attempt} warn: {e}"),
             }
@@ -215,13 +219,14 @@ async fn sync_until_balance(
 }
 
 async fn send(drk: &Drk, recipient: &str, amount: &str, memo: &str) -> Result<String, String> {
+    let lwd = lw_url();
     let tx_bytes = transactions::build_transfer(
         drk,
         recipient,
         amount,
         Some("DRK"),
         Some(memo),
-        Some(LW_URL),
+        Some(&lwd),
         None,
     )
     .await?;
@@ -230,7 +235,7 @@ async fn send(drk: &Drk, recipient: &str, amount: &str, memo: &str) -> Result<St
         &tx_bytes,
         Some(memo),
         Some(recipient),
-        Some(LW_URL),
+        Some(&lwd),
         None, // loopback HTTP — no TLS pin
     )
     .await
@@ -257,10 +262,114 @@ async fn register_unifomr_clue(drk_ptr: &DrkWalletPtr) -> Result<(), String> {
     let clue_pk = unifomr::serialize_public_key(&pk);
     let key_version = unifomr::clue_key_version_now();
     let proof = unifomr::sign_clue_pk_ownership(&secret, net, key_version, &pay_pk, &clue_pk);
-    let client = LightwalletClient::from_endpoint_and_pin(LW_URL, None);
+    let lwd = lw_url();
+    let client = LightwalletClient::from_endpoint_and_pin(&lwd, None);
     client
         .register_clue_public_key(pay_pk.to_vec(), clue_pk, proof, key_version)
         .await
+}
+
+/// Rebuild the Money Merkle tree from genesis via LWD `GetNoteCommitments`.
+///
+/// `scan_blocks` from a mid-chain birthday decrypts notes but only appends
+/// that window's commitments, so spend proofs use a root that is not on
+/// chain (`tx.calculate_fee` → -32111). Walking every commitment and
+/// re-marking this wallet's coins restores valid witnesses.
+async fn rebuild_money_tree_from_lwd(drk: &Drk, name: &str) -> Result<(), String> {
+    use std::collections::HashMap;
+
+    use darkfi_mobile_ffi::lightwallet_client::LightwalletClient;
+    use darkfi_sdk::crypto::{MerkleNode, MerkleTree};
+    use darkfi_sdk::pasta::group::ff::{Field, PrimeField};
+    use darkfi_serial::serialize;
+    use drk::money::{MONEY_COINS_COL_COIN, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_TABLE};
+
+    let coins = drk.get_coins(true).await.map_err(|e| e.to_string())?;
+    if coins.is_empty() {
+        println!("  {name}: no coins — skip merkle rebuild");
+        return Ok(());
+    }
+
+    let mut own: HashMap<[u8; 32], Vec<u8>> = HashMap::new();
+    for (oc, _, _, _, _) in &coins {
+        own.insert(oc.coin.inner().to_repr(), oc.coin.to_bytes().to_vec());
+    }
+
+    let lwd = lw_url();
+    let client = LightwalletClient::from_endpoint_and_pin(&lwd, None);
+    let info = client.get_light_info().await?;
+    let tip = info.chain_tip_height;
+    if tip == 0 {
+        return Err("LWD tip is 0".into());
+    }
+
+    println!("  {name}: rebuilding Money tree 0..={tip} ({} wallet coins)...", own.len());
+    // Match on-chain Money: dummy ZERO leaf, then genesis (height 0) coins.
+    let mut tree = MerkleTree::new(u32::MAX as usize);
+    tree.append(MerkleNode::from(darkfi_sdk::pasta::pallas::Base::ZERO));
+    let _ = tree.mark().unwrap();
+    let mut marked = 0u32;
+    let mut appended = 0u64;
+    const CHUNK: u32 = 4096;
+    let mut start = 0u32;
+    while start <= tip {
+        let end = start.saturating_add(CHUNK - 1).min(tip);
+        let updates = client.get_note_commitments(start, end).await?;
+        let mut by_h: Vec<(u32, Vec<Vec<u8>>)> = updates;
+        by_h.sort_by_key(|(h, _)| *h);
+        for (_h, commitments) in by_h {
+            for coin_bytes in commitments {
+                if coin_bytes.len() != 32 {
+                    continue;
+                }
+                let mut repr = [0u8; 32];
+                repr.copy_from_slice(&coin_bytes);
+                let Some(base) =
+                    Option::<darkfi_sdk::pasta::pallas::Base>::from(darkfi_sdk::pasta::pallas::Base::from_repr(repr))
+                else {
+                    continue;
+                };
+                tree.append(MerkleNode::from(base));
+                appended += 1;
+                if let Some(sql_key) = own.get(&repr) {
+                    let pos = tree.mark().ok_or_else(|| "merkle mark failed".to_string())?;
+                    let query = format!(
+                        "UPDATE {} SET {} = ?1 WHERE {} = ?2;",
+                        *MONEY_COINS_TABLE,
+                        MONEY_COINS_COL_LEAF_POSITION,
+                        MONEY_COINS_COL_COIN,
+                    );
+                    drk.wallet
+                        .exec_sql(
+                            &query,
+                            vec![
+                                drk::walletdb::Value::from(serialize(&pos)),
+                                drk::walletdb::Value::from(sql_key.clone()),
+                            ],
+                        )
+                        .await
+                        .map_err(|e| format!("update leaf_position: {e}"))?;
+                    marked += 1;
+                }
+            }
+        }
+        start = end.saturating_add(1);
+        if start == 0 {
+            break;
+        }
+    }
+
+    drk.cache
+        .insert_merkle_trees(&[(drk::money::SLED_MERKLE_TREES_MONEY, &tree)])
+        .map_err(|e| format!("persist merkle tree: {e}"))?;
+    let _ = drk.cache.sled_db.flush();
+    println!("  {name}: merkle rebuild done (appended={appended} marked={marked})");
+    if marked == 0 {
+        return Err(format!(
+            "{name}: rebuilt tree but marked 0 wallet coins — spend proofs will fail"
+        ));
+    }
+    Ok(())
 }
 
 #[allow(clippy::too_many_lines)]
@@ -346,6 +455,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
         println!("Moonshine balance: {sender_balance} atomic DRK\n");
 
+        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+            println!("Rebuilding moonshine Money merkle tree from LWD commitments...");
+            let drk = moonshine.read().await;
+            rebuild_money_tree_from_lwd(&drk, "moonshine").await?;
+        }
+
         // All hop endpoints must RegisterCluePublicKey before senders' GetCluePublicKey
         // returns a verifiable clue (otherwise LWD serves a decoy and send fails).
         // Use a lightweight register-only path — full LWD sync is too heavy here.
@@ -405,6 +520,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         // Leg 2: iOS → Android
+        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+            println!("Rebuilding iOS Money merkle tree from LWD commitments...");
+            let drk = ios.read().await;
+            rebuild_money_tree_from_lwd(&drk, "ios").await?;
+        }
         println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK)...");
         let tx2 = {
             let drk = ios.read().await;
@@ -430,6 +550,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         // Leg 3: Android → moonshine (desktop/FFI parity round-trip)
+        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+            println!("Rebuilding Android Money merkle tree from LWD commitments...");
+            let drk = android.read().await;
+            rebuild_money_tree_from_lwd(&drk, "android").await?;
+        }
         println!("Leg 3: Android → moonshine ({SEND_AMOUNT} DRK)...");
         let tx3 = {
             let drk = android.read().await;

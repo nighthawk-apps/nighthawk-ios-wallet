@@ -76,7 +76,27 @@ public final class DarkircDaemonManager: @unchecked Sendable {
         return dbDir.path
     }
 
-    private init() {}
+    private var lifecycleObservers: [NSObjectProtocol] = []
+
+    private init() {
+        // `willTerminate` often does not fire (iOS suspends instead of killing).
+        // Register both here so sled flush does not depend on SwiftUI scenePhase.
+        let term = NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleTermination()
+        }
+        let bg = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleBackgrounding()
+        }
+        lifecycleObservers = [term, bg]
+    }
 
     /// Start the embedded darkirc runtime.
     ///
