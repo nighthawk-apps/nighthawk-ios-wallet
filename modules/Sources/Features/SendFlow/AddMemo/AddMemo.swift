@@ -16,7 +16,7 @@ public struct AddMemo {
     public struct State: Equatable {
         public var memo = ""
         public var isIncludeReplyToChecked = false
-        public var memoCharLimit = 255
+        public var memoCharLimit = Memo.maxUtf8Bytes
         public var unifiedAddress: UnifiedAddress?
         public var hasEnteredMemo: Bool { !memo.isEmpty }
         public var canIncludeReplyTo: Bool {
@@ -25,7 +25,7 @@ public struct AddMemo {
             return hasEnteredMemo && "\(memo)\n\(prefix)\(ua)".utf8.count <= memoCharLimit
         }
 
-        public init(unifiedAddress: UnifiedAddress?, memoCharLimit: Int = 255) {
+        public init(unifiedAddress: UnifiedAddress?, memoCharLimit: Int = Memo.maxUtf8Bytes) {
             self.unifiedAddress = unifiedAddress
             self.memoCharLimit = memoCharLimit
         }

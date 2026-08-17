@@ -88,6 +88,9 @@ public typealias SaplingAddress = DarkfiAddress
 // MARK: - Memo
 
 public struct Memo: Equatable, Codable {
+    /// UnifOMR metadata encodes user-memo length as `u8` (`MAX_PAYMENT_MEMO_BYTES` in FFI).
+    public static let maxUtf8Bytes = 255
+
     public let data: Data
     public init(data: Data) { self.data = data }
 
@@ -95,7 +98,15 @@ public struct Memo: Equatable, Codable {
         guard let data = string.data(using: .utf8) else {
             throw DarkfiError(message: "Failed to encode memo as UTF-8")
         }
+        guard data.count <= Self.maxUtf8Bytes else {
+            throw DarkfiError(message: "Memo exceeds \(Self.maxUtf8Bytes) UTF-8 bytes")
+        }
         self.data = data
+    }
+
+    public static func truncateToMaxUtf8Bytes(_ string: String) -> String {
+        if string.utf8.count <= maxUtf8Bytes { return string }
+        return String(decoding: string.utf8.prefix(maxUtf8Bytes), as: UTF8.self)
     }
 
     /// Text representation of the memo

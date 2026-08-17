@@ -51,8 +51,11 @@ public struct URIParser {
 
         if let memoMatch = memoRegex.firstMatch(in: stripped, range: nsRange),
            let range = Range(memoMatch.range(at: 2), in: stripped),
-           let data = Data(base64Encoded: String(stripped[range])) {
-            memo = String(data: data, encoding: .utf8)
+           let data = Data(base64Encoded: String(stripped[range])),
+           let decoded = String(data: data, encoding: .utf8) {
+            // UnifOMR user-memo length is a u8; drop oversized URI memos rather than
+            // silently sending a truncated payment message.
+            memo = decoded.utf8.count <= 255 ? decoded : nil
         }
 
         if let amountMatch = amountRegex.firstMatch(in: stripped, range: nsRange), let range = Range(amountMatch.range(at: 2), in: stripped) {

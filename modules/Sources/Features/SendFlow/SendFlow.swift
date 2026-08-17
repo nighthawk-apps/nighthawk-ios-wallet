@@ -204,7 +204,7 @@ public struct SendFlow {
                     }
                 }
             case .onAppear:
-                state.memoCharLimit = 255
+                state.memoCharLimit = Memo.maxUtf8Bytes
                 return .merge(
                     .publisher {
                         sdkSynchronizer.stateStream()

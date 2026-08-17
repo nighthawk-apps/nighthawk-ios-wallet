@@ -57,7 +57,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Send without native lib | 🟡 | 🟡 | Graceful degrade / error message |
 | Fee estimate before send | ✅ | ✅ | `estimateTransferFee` |
 | Send confirmation dialog | ✅ | ✅ | Amount, recipient, fee, memo |
-| Payment memo (private, encrypted note) | ✅ | ✅ | Up to 512 UTF-8 bytes; UniFFI + send field |
+| Payment memo (private, UnifOMR metadata) | ✅ | ✅ | Up to 255 UTF-8 bytes (`u8` length in OMR envelope; FFI `MAX_PAYMENT_MEMO_BYTES`) |
 | Memo on transaction details | ✅ | ✅ | `transactionPaymentMemo` on history rows |
 | QR scan recipient / amount | ✅ | ✅ | `SendFlow` feature |
 | Receive QR display | ✅ | ✅ | `Receive` feature |
@@ -154,7 +154,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 |--------------------------|-------------------|
 | ZEC transparent + shielded pools | Single private DRK balance |
 | Unified address / uview | `drk` deposit address |
-| Memo field (512 bytes) | `MoneyNote::memo` (OMR-aware encrypted note memo) |
+| Memo field (512 bytes) | UnifOMR user memo, max **255 UTF-8 bytes** (off-chain `omr_metadata_enc`; on-chain `MoneyNote.memo` is unbounded `Vec<u8>` and left empty by `drk.transfer`) |
 | Lightwalletd | `darkfi-lightwalletd` gRPC **:9067** (UnifOMR) → `darkfid` |
 | Tor via librustzcash | Arti in-process (iOS) |
 | ZIP-321 | Payment URI `drk:address?amount=&memo=` |
