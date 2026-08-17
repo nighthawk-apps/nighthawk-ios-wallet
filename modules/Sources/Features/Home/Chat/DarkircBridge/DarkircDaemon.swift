@@ -152,17 +152,28 @@ public final class DarkircDaemonManager: @unchecked Sendable {
 
     /// Call when the scene enters background. Requests a short UIKit background
     /// task so the in-process UniFFI darkirc threads can keep sockets alive for
-    /// the OS-allowed grace window (~30s). Chat reconnects on resume via the
-    /// Chat reducer's `scenePhaseChanged(.active)` (with a fresh event callback).
+    /// the OS-allowed grace window (~30s). When the OS expiration handler fires,
+    /// we gracefully stop darkirc so Sled DB is cleanly flushed before the
+    /// process is suspended. Chat reconnects on resume via the Chat reducer's
+    /// `scenePhaseChanged(.active)` (with a fresh event callback).
     public func handleBackgrounding() {
         endBackgroundTask()
         backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundExecution") { [weak self] in
+            // Expiration handler: gracefully stop darkirc so Sled DB is flushed.
+            self?.stop()
             self?.endBackgroundTask()
         }
     }
 
     /// Call when the scene becomes active again — ends any outstanding background task.
     public func handleForegrounding() {
+        endBackgroundTask()
+    }
+
+    /// Gracefully stop darkirc and end the background task. Called on app
+    /// termination and from the expiration handler.
+    public func handleTermination() {
+        stop()
         endBackgroundTask()
     }
 

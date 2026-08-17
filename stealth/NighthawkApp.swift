@@ -68,5 +68,14 @@ struct NighthawkApp: App {
 
     init() {
         FontFamily.registerAllCustomFonts()
+
+        // Gracefully stop DarkIRC and flush Sled DB on app termination.
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            DarkircDaemonManager.shared.handleTermination()
+        }
     }
 }
