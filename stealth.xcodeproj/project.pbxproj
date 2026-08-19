@@ -51,6 +51,7 @@
 		B1C2D3E4F5A60006 /* HomeSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60005 /* HomeSnapshotTests.swift */; };
 		B1C2D3E4F5A60008 /* UIView+Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60007 /* UIView+Accessibility.swift */; };
 		B1C2D3E4F5A60012 /* HomeTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60013 /* HomeTestSupport.swift */; };
+		D4A1C7B2E5F60002 /* DarkircLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60001 /* DarkircLifecycleTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,6 +116,7 @@
 		B1C2D3E4F5A60005 /* HomeSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSnapshotTests.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60007 /* UIView+Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Accessibility.swift"; sourceTree = "<group>"; };
 		B1C2D3E4F5A60013 /* HomeTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTestSupport.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60001 /* DarkircLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkircLifecycleTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +202,7 @@
 				343CF3F429BB5A14009E44DF /* Frameworks */,
 				0D4E7A1C26B364180058B01E /* Info.plist */,
 				B1C2D3E4F5A60009 /* HomeTests */,
+				D4A1C7B2E5F60003 /* ChatTests */,
 				B1C2D3E4F5A60011 /* TestSupport */,
 				0DFE93DD272C6D4B000FCCA5 /* BackupFlowTests */,
 				9E391122283E4C970073DD9A /* ImportWalletTests */,
@@ -408,6 +411,14 @@
 			path = HomeTests;
 			sourceTree = "<group>";
 		};
+		D4A1C7B2E5F60003 /* ChatTests */ = {
+			isa = PBXGroup;
+			children = (
+				D4A1C7B2E5F60001 /* DarkircLifecycleTests.swift */,
+			);
+			path = ChatTests;
+			sourceTree = "<group>";
+		};
 		B1C2D3E4F5A6000A /* HomeSnapshotTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -611,6 +622,7 @@
 				B1C2D3E4F5A60012 /* HomeTestSupport.swift in Sources */,
 				B1C2D3E4F5A60004 /* HomeTabBarUITests.swift in Sources */,
 				B1C2D3E4F5A60006 /* HomeSnapshotTests.swift in Sources */,
+				D4A1C7B2E5F60002 /* DarkircLifecycleTests.swift in Sources */,
 				B1C2D3E4F5A60008 /* UIView+Accessibility.swift in Sources */,
 				9E3451C429C857DF00177D16 /* View+UIImage.swift in Sources */,
 				9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */,
