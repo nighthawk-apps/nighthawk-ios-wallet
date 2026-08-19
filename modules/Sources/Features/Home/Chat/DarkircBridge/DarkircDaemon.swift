@@ -136,7 +136,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// Stop any in-flight start so a fresh `start(callback:)` can attach the bridge.
     ///
     /// If the daemon thread crashed without resetting `DAEMON_STATUS` (e.g. thread
-    /// abort or stack overflow), the drain loop will time out (10s). In that case
+    /// abort or stack overflow), the drain loop will time out (5s). In that case
     /// we proceed anyway — `start_darkirc()` will return a descriptive error if
     /// the status is truly stuck.
     public func restartForChat(
@@ -145,7 +145,9 @@ public final class DarkircDaemonManager: @unchecked Sendable {
         torSocksPort: UInt16 = 9050
     ) async throws {
         stop()
-        for _ in 0..<40 {
+        // 20 × 250ms = 5s max drain — matches Android's awaitDaemonNotRunning(5_000).
+        for _ in 0..<20 {
+            try Task.checkCancellation()
             let status = darkircStatus()
             if status == "not_running" || status == "failed" {
                 break
@@ -155,6 +157,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
+        try Task.checkCancellation()
         if useTor {
             let ready = await TorBootstrap.ensureReady(socksPort: torSocksPort)
             guard ready else {

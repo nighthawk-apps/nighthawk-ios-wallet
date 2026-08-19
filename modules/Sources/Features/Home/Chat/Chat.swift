@@ -275,10 +275,9 @@ public struct Chat {
                     let uiDisconnected = (state.connectionState == .disconnected || state.connectionState == .error)
 
                     if daemonDead || uiDisconnected {
-                        // Clear stale message state so the history replay starts fresh
-                        state.channelMessages = [:]
-                        state.messages = []
-                        state.seenEventIds = []
+                        // Keep channelMessages and seenEventIds so scrollback
+                        // stays on screen and DAG replay is deduped by event id
+                        // (Android never clears _messagesByChannel on reconnect).
                         if !uiDisconnected {
                             // Daemon died silently — force UI to disconnected first
                             state.connectionState = .disconnected
@@ -294,10 +293,9 @@ public struct Chat {
                 state.connectionState = .startingDaemon
                 state.diagnosticDetail = nil
                 state.dagSyncCount = 0
-                // Clear stale state so DAG history replay starts fresh
-                state.channelMessages = [:]
-                state.messages = []
-                state.seenEventIds = []
+                // Do not wipe channelMessages or seenEventIds: reconnect
+                // must keep scrollback, and replay uses seenEventIds to
+                // skip events already shown.
                 state.useTor = userStoredPreferences.torForChatEnabled()
                 let nickname = state.nickname
                 let useTor = state.useTor
@@ -327,6 +325,9 @@ public struct Chat {
                             useTor: useTor,
                             torSocksPort: socksPort
                         )
+                    } catch is CancellationError {
+                        continuation.finish()
+                        return
                     } catch {
                         continuation.finish()
                         await send(.ircBridgeError(error.localizedDescription))
@@ -338,13 +339,21 @@ public struct Chat {
                     await send(.connectionStateChanged(.waitingForDagSync))
                     await send(.dagSyncStatusUpdate("Waiting for P2P peers…"))
 
-                    // Prefer fine-grained `darkirc_connection_phase`; fall back to
-                    // STATUS_RUNNING once the daemon is up (pre-phase binaries).
+                    // Poll until the daemon reaches a terminal state
+                    // (connected / failed / not_running). No hard timeout —
+                    // the Rust daemon retries and reports `failed` if peers
+                    // are unreachable. Matches Android's readJob. `try?` on
+                    // sleep is avoided so Task cancellation actually exits
+                    // (a cancelled 180s loop used to be the only backstop).
                     var pollCount = 0
-                    let maxPolls = 180
                     var ready = false
-                    while pollCount < maxPolls {
-                        try? await Task.sleep(for: .seconds(1))
+                    while !Task.isCancelled && !ready {
+                        do {
+                            try await Task.sleep(for: .seconds(1))
+                        } catch {
+                            continuation.finish()
+                            return
+                        }
                         pollCount += 1
                         let phase = darkircConnectionPhase()
                         let ffiStatus = darkircStatus()
@@ -367,6 +376,13 @@ public struct Chat {
                             await send(.embeddedNodeStatusChanged(.failed))
                             return
                         }
+                        // Daemon stopped externally (e.g. backgrounding expiration)
+                        if ffiStatus == "not_running" || ffiStatus == "stopping" {
+                            continuation.finish()
+                            await send(.connectionStateChanged(.disconnected))
+                            await send(.embeddedNodeStatusChanged(.notUsed))
+                            return
+                        }
                         if phase == "connected" {
                             ready = true
                             break
@@ -380,18 +396,12 @@ public struct Chat {
                             ].contains(phase)
                             if !syncing {
                                 ready = true
-                                break
                             }
                         }
                     }
 
-                    guard ready else {
+                    if Task.isCancelled || !ready {
                         continuation.finish()
-                        await send(.ircBridgeError(
-                            "darkirc did not finish sync (status: \(darkircStatus()), phase: \(darkircConnectionPhase()))"
-                        ))
-                        await send(.connectionStateChanged(.error))
-                        await send(.embeddedNodeStatusChanged(.failed))
                         return
                     }
 
