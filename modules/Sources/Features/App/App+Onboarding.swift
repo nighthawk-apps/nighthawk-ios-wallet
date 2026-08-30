@@ -23,8 +23,6 @@ extension AppReducer {
     func welcomeDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .welcome(.createNewWalletTapped))):
-                return createNewWallet()
             case let .path(.element(id: _, action: .welcome(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .createNewWallet:
@@ -45,8 +43,10 @@ extension AppReducer {
             let birthday: BlockHeight = 0 // 0 → UniFFI seeds at LWD tip (fresh wallet)
             walletStorage.deleteWallet()
             try walletStorage.importWallet(newRandomPhrase, birthday, .english)
-            userStoredPreferences.setIsUserBackupComplete(true)
-            return initializeSDK(.newWallet)
+            // Show the 22-word phrase next. Marking backup complete + booting
+            // DarkfiWalletHandle here froze the welcome screen (Arti wait ≤120s
+            // + LWD tip probe) so Create Wallet looked dead.
+            return .send(.createWalletSucceeded)
         } catch {
             return .send(.createWalletFailed(error.toDarkFiError()))
         }

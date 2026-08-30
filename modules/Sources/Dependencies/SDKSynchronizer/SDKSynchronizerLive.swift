@@ -276,7 +276,11 @@ extension SDKSynchronizerClient: DependencyKey {
             WalletHandleManager.shared.latestState
         },
         prepareWith: { seed, birthday, mode in
-            try WalletHandleManager.shared.prepare(seed: seed, birthday: birthday, mode: mode)
+            // DarkfiWalletHandle::new can block on Arti bootstrap (≤120s) plus
+            // an LWD tip probe. Never run that on the cooperative Swift executor.
+            try await Task.detached(priority: .userInitiated) {
+                try WalletHandleManager.shared.prepare(seed: seed, birthday: birthday, mode: mode)
+            }.value
         },
         start: { _ in
             guard let handle = WalletHandleManager.shared.handle else { return }

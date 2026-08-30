@@ -20,37 +20,26 @@ public struct WelcomeView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                NighthawkLogo(size: .tabHeader)
-                    .padding(.top, 16)
+        VStack(spacing: 0) {
+            NighthawkLogo(size: .tabHeader)
+                .padding(.top, 16)
 
-                Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-                // Onboarding carousel (matches Android OnboardingCarousel)
-                onboardingCarousel
+            onboardingCarousel
 
-                Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-                // Reserve space so carousel gestures do not overlap the controls.
-                Color.clear
-                    .frame(height: Self.bottomControlsHeight)
-                    .accessibilityHidden(true)
+            terms {
+                store.send(.termsAndConditionsTapped)
             }
+            .padding(.bottom, 16)
 
-            VStack(spacing: 0) {
-                terms {
-                    store.send(.termsAndConditionsTapped)
-                }
-                .padding(.bottom, 16)
-
-                actions {
-                    store.send(.createNewWalletTapped)
-                } onRestore: {
-                    store.send(.importExistingWalletTapped)
-                }
+            actions {
+                store.send(.createNewWalletTapped)
+            } onRestore: {
+                store.send(.importExistingWalletTapped)
             }
-            .zIndex(1)
         }
         .applyNighthawkBackground()
         .nighthawkAlert(
@@ -66,9 +55,6 @@ public struct WelcomeView: View {
 
 // MARK: - Onboarding Carousel
 private extension WelcomeView {
-    /// Approximate height of terms + action buttons so the carousel stays above them.
-    static let bottomControlsHeight: CGFloat = 220
-
     struct OnboardingPage: Identifiable {
         let id: Int
         let icon: String // SF Symbol

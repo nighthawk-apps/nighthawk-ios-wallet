@@ -42,8 +42,7 @@ public struct Welcome {
         Reduce { state, action in
             switch action {
             case .createNewWalletTapped:
-                // Parent AppReducer handles wallet creation and navigation.
-                return .none
+                return .send(.delegate(.createNewWallet))
             case .delegate:
                 return .none
             case .destination:
