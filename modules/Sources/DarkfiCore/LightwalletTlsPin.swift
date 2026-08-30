@@ -13,21 +13,20 @@ public enum LightwalletTlsPin {
 
     /// Resolve the lightwalletd leaf-cert SHA-256 pin (32 raw bytes).
     ///
-    /// **Preferred (production):** set `LightwalletTlsPinSha256` in Info.plist.
-    /// **Override (debug/QA):** if `UserDefaults` key `lightwallet_tls_pin_sha256`
-    /// is set to a valid 64-char hex pin, it wins over Info.plist so local
-    /// testing can pin a different server without rebuilding.
+    /// **Production:** `LightwalletTlsPinSha256` in Info.plist only.
+    /// **Debug/QA:** `UserDefaults` key `lightwallet_tls_pin_sha256` may override
+    /// so local testing can pin a different server without rebuilding.
     ///
     /// Remote HTTPS without any pin remains **fail-closed** in Rust bootstrap (S8/S12).
     public static func pinDataOrNil(
         defaults: UserDefaults = .standard,
         bundle: Bundle = .main
     ) -> Data? {
-        // UserDefaults override (optional) — documented above; do not remove.
+        #if DEBUG
         if let fromDefaults = parseHexPin(defaults.string(forKey: userDefaultsKey)) {
             return fromDefaults
         }
-        // Preferred production source
+        #endif
         return parseHexPin(bundle.object(forInfoDictionaryKey: infoPlistKey) as? String)
     }
 

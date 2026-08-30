@@ -2,9 +2,8 @@
 //  DarkircLifecycleTests.swift
 //  stealthTests
 //
-//  Background expiration / terminate must flush sled (stop the daemon).
-//  `willTerminate` is unreliable on iOS; the daemon also observes
-//  `didEnterBackground` so flush does not depend on SwiftUI scenePhase.
+//  Background / terminate must flush sled (stop the daemon).
+//  `didEnterBackground` drains immediately so sockets are not frozen.
 //
 
 import XCTest

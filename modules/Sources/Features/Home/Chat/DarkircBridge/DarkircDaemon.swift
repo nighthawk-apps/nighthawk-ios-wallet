@@ -181,11 +181,14 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// `scenePhaseChanged(.active)` (with a fresh event callback).
     public func handleBackgrounding() {
         endBackgroundTask()
-        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundExecution") { [weak self] in
-            // Expiration handler: gracefully stop darkirc so Sled DB is flushed.
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundDrain") { [weak self] in
             self?.stop()
             self?.endBackgroundTask()
         }
+        // Drain immediately so P2P sockets are not frozen mid-flight across
+        // suspend. Chat reconnects on foreground via scenePhaseChanged(.active).
+        stop()
+        endBackgroundTask()
     }
 
     /// Call when the scene becomes active again — ends any outstanding background task.
