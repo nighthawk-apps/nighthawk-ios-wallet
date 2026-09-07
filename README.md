@@ -29,7 +29,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.0.05 (build 5):** Instant Sync — checkpoint restore, birthday clamping, UnifOMR pipelining, ZKAS cache, proto_version 1.x lockstep, pinned-HTTPS ALPN fix. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.0.06 (build 6):** Instant Sync plus proto-mismatch home UI; checkpoint restore, birthday clamping, UnifOMR pipelining, ZKAS cache, proto_version 1.x lockstep. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
