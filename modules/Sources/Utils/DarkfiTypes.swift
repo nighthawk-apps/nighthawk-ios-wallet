@@ -202,6 +202,8 @@ public struct SynchronizerState: Equatable {
     public var fallbackReason: String
     /// User-facing message explaining the fallback. Empty when no fallback.
     public var fallbackUserMessage: String
+    /// True when lightwalletd's proto major version disagrees with the client.
+    public var protoVersionMismatch: Bool
 
     public static var zero: SynchronizerState {
         SynchronizerState(syncStatus: .disconnected, confirmedBalance: 0, latestBlockHeight: 0)
@@ -213,7 +215,8 @@ public struct SynchronizerState: Equatable {
         latestBlockHeight: BlockHeight = 0,
         activeSyncMethod: DarkfiSyncMethod = .unknown,
         fallbackReason: String = "None",
-        fallbackUserMessage: String = ""
+        fallbackUserMessage: String = "",
+        protoVersionMismatch: Bool = false
     ) {
         self.syncStatus = syncStatus
         self.confirmedBalance = confirmedBalance
@@ -221,6 +224,7 @@ public struct SynchronizerState: Equatable {
         self.activeSyncMethod = activeSyncMethod
         self.fallbackReason = fallbackReason
         self.fallbackUserMessage = fallbackUserMessage
+        self.protoVersionMismatch = protoVersionMismatch
     }
 }
 

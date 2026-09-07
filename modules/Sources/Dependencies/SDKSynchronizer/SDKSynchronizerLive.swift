@@ -293,12 +293,15 @@ extension SDKSynchronizerClient: DependencyKey {
                 let lightState = handle.lightSyncSnapshot()
 
                 WalletHandleManager.shared.updateState(SynchronizerState(
-                    syncStatus: .upToDate,
+                    syncStatus: lightState.protoVersionMismatch
+                        ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
+                        : .upToDate,
                     confirmedBalance: balance,
                     latestBlockHeight: BlockHeight(snapshot.chainTip),
                     activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                     fallbackReason: String(describing: lightState.fallbackReason),
-                    fallbackUserMessage: lightState.fallbackUserMessage
+                    fallbackUserMessage: lightState.fallbackUserMessage,
+                    protoVersionMismatch: lightState.protoVersionMismatch
                 ))
             } catch {
                 WalletHandleManager.shared.updateState(SynchronizerState(
@@ -326,12 +329,15 @@ extension SDKSynchronizerClient: DependencyKey {
             let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
             let lightState = handle.lightSyncSnapshot()
             WalletHandleManager.shared.updateState(SynchronizerState(
-                syncStatus: .upToDate,
+                syncStatus: lightState.protoVersionMismatch
+                    ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
+                    : .upToDate,
                 confirmedBalance: balance,
                 latestBlockHeight: BlockHeight(snapshot.chainTip),
                 activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                 fallbackReason: String(describing: lightState.fallbackReason),
-                fallbackUserMessage: lightState.fallbackUserMessage
+                fallbackUserMessage: lightState.fallbackUserMessage,
+                protoVersionMismatch: lightState.protoVersionMismatch
             ))
         },
         getConfirmedBalance: {

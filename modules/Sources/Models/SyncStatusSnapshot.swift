@@ -21,6 +21,8 @@ public struct SyncStatusSnapshot: Equatable {
     public let omrAvailable: Bool
     /// Canonical retrieval/encryption path currently in use (shared Rust model).
     public let syncMethod: DarkfiSyncMethod
+    /// True when lightwalletd's proto major version disagrees with the client.
+    public let protoVersionMismatch: Bool
 
     public init(
         _ syncStatus: SyncStatus = .unprepared,
@@ -28,7 +30,8 @@ public struct SyncStatusSnapshot: Equatable {
         lightSyncStatusMessage: String? = nil,
         lightSyncTypeMessage: String? = nil,
         omrAvailable: Bool = false,
-        syncMethod: DarkfiSyncMethod = .unknown
+        syncMethod: DarkfiSyncMethod = .unknown,
+        protoVersionMismatch: Bool = false
     ) {
         self.message = message
         self.syncStatus = syncStatus
@@ -36,6 +39,7 @@ public struct SyncStatusSnapshot: Equatable {
         self.lightSyncTypeMessage = lightSyncTypeMessage
         self.omrAvailable = omrAvailable
         self.syncMethod = syncMethod
+        self.protoVersionMismatch = protoVersionMismatch
     }
 
     public static func snapshotFor(state: SyncStatus) -> SyncStatusSnapshot {
@@ -66,7 +70,8 @@ public struct SyncStatusSnapshot: Equatable {
         lightStatusMessage: String?,
         lightTypeMessage: String?,
         omrAvailable: Bool,
-        syncMethod: DarkfiSyncMethod = .unknown
+        syncMethod: DarkfiSyncMethod = .unknown,
+        protoVersionMismatch: Bool = false
     ) -> SyncStatusSnapshot {
         let base = snapshotFor(state: state)
         return SyncStatusSnapshot(
@@ -75,7 +80,8 @@ public struct SyncStatusSnapshot: Equatable {
             lightSyncStatusMessage: lightStatusMessage,
             lightSyncTypeMessage: lightTypeMessage,
             omrAvailable: omrAvailable,
-            syncMethod: syncMethod
+            syncMethod: syncMethod,
+            protoVersionMismatch: protoVersionMismatch
         )
     }
 
@@ -84,10 +90,11 @@ public struct SyncStatusSnapshot: Equatable {
     public static func snapshotFor(state: SynchronizerState) -> SyncStatusSnapshot {
         snapshotFor(
             state: state.syncStatus,
-            lightStatusMessage: nil,
+            lightStatusMessage: state.fallbackUserMessage.isEmpty ? nil : state.fallbackUserMessage,
             lightTypeMessage: state.activeSyncMethod == .unknown ? nil : state.activeSyncMethod.displayName,
             omrAvailable: state.activeSyncMethod.isPrivateRetrieval,
-            syncMethod: state.activeSyncMethod
+            syncMethod: state.activeSyncMethod,
+            protoVersionMismatch: state.protoVersionMismatch
         )
     }
 

@@ -37,6 +37,13 @@ struct SyncStatusView: View {
                     .padding(.horizontal, 25)
             }
 
+            if status.protoVersionMismatch {
+                Text("Lightwallet protocol version mismatch. Update Nighthawk.")
+                    .caption(color: .orange)
+                    .padding(.horizontal, 25)
+                    .accessibilityIdentifier("PROTO_MISMATCH_TEXT")
+            }
+
             // Live retrieval-method label from the shared Rust `SyncMethod`.
             // Private OMR-family paths get a lock + green; the trial-decryption
             // fallback gets an amber warning.
