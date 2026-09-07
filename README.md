@@ -184,7 +184,7 @@ Both run automatically on build. Style guide: [SWIFTLINT.md](SWIFTLINT.md).
 
 ## Wallet & recovery phrase (22 words)
 
-DarkFi wallets use a **22-word English recovery phrase** (not BIP39 24-word). Generation/validation live in Rust FFI (`generateDarkfiMnemonic` / `validateDarkfiMnemonic`). Restore also accepts **12 words** for legacy import.
+DarkFi wallets use a **22-word English recovery phrase** (not BIP39 12/24-word). Generation/validation live in Rust FFI (`generateDarkfiMnemonic` / `validateDarkfiMnemonic`). Restore rejects any length other than 22 words.
 
 ### Create
 

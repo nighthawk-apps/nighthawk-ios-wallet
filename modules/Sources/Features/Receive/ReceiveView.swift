@@ -57,6 +57,18 @@ public struct ReceiveView: View {
                     )
                 }
                 .buttonStyle(.plain)
+
+                Button(action: { store.send(.generateNewAddressTapped) }) {
+                    optionRow(
+                        title: store.isGenerating ? "Generating…" : "Generate new address",
+                        description: store.generatedAddress == nil
+                            ? "Derive another receive address from this wallet."
+                            : store.generatedAddress ?? "",
+                        icon: Asset.Assets.Icons.Nighthawk.copy.image
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(store.isGenerating)
             }
             .padding(.horizontal, 25)
 

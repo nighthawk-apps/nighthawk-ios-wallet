@@ -229,7 +229,7 @@ public struct UserPreferencesStorage {
     /// When true, sync is UnifOMR-only (no supplemental trial decrypt).
     /// Default true. Turn off in Advanced Settings to receive from `drk`.
     public var strictOmrOnly: Bool {
-        getValue(forKey: Constants.darkfiStrictOmrOnly.rawValue, default: true)
+        getValue(forKey: Constants.darkfiStrictOmrOnly.rawValue, default: false)
     }
 
     public func setStrictOmrOnly(_ enabled: Bool) {

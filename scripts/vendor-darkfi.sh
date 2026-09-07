@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Vendor darkrenaissance/darkfi at docs/upstream/darkfi-revision.txt into third_party/darkfi.
+# Vendor nighthawk24/darkfi at docs/upstream/darkfi-revision.txt into third_party/darkfi.
+# Do not clone darkrenaissance/darkfi — we do not change upstream.
 #
 # Pin format: line 1 must start with a full 40-char lowercase hex SHA.
 # Further tokens / later lines may be comments.
@@ -18,11 +19,13 @@ if [[ ! "${first_token}" =~ ^[0-9a-f]{40}$ ]]; then
 fi
 
 if [[ ! -d "${DEST}/.git" ]]; then
-  git clone --filter=blob:none https://github.com/darkrenaissance/darkfi.git "${DEST}"
+  git clone --filter=blob:none https://github.com/nighthawk24/darkfi.git "${DEST}"
 fi
 
 (
   cd "${DEST}"
+  # Existing checkouts may still point at darkrenaissance; retarget to nighthawk24.
+  git remote set-url origin https://github.com/nighthawk24/darkfi.git
   # Drop any local SQLCipher/drk overlays so the tree matches the pin exactly.
   # Avoid `git clean -x` so a pre-built target/ and zk.bin caches can be reused when present.
   git reset --hard HEAD >/dev/null

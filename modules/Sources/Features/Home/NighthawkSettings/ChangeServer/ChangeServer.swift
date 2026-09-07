@@ -10,10 +10,13 @@
 import ComposableArchitecture
 import Foundation
 import Generated
+import MnemonicClient
 import Models
+import SDKSynchronizer
 import UIComponents
 import UserPreferencesStorage
 import Utils
+import WalletStorage
 
 @Reducer
 public struct ChangeServer {
@@ -97,6 +100,8 @@ public struct ChangeServer {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.mnemonic) var mnemonic
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -144,18 +149,32 @@ public struct ChangeServer {
                 let isCustom = state.serverOption == .custom
                 let customAddress = state.customServerAddress
 
-                return .run { [userStoredPreferences] send in
-                    // The endpoint is persisted through UserPreferencesStorage
-                    // so WalletHandleManager picks it up on next prepare.
+                return .run { [userStoredPreferences, walletStorage, mnemonic, sdkSynchronizer] send in
+                    // Persist the endpoint, then reopen the handle so the next
+                    // sync uses the new lightwalletd (existingWallet keeps cache).
                     if isCustom && !customAddress.isEmpty {
-                        let endpoint = "tcp://\(customAddress)"
+                        let endpoint = customAddress.contains("://")
+                            ? customAddress
+                            : "tcp://\(customAddress)"
                         userStoredPreferences.setCustomLightwalletdServer(endpoint)
                     } else {
                         userStoredPreferences.setCustomLightwalletdServer(nil)
                     }
 
-                    try await mainQueue.sleep(for: .seconds(0.5))
-                    await send(.changeSucceeded)
+                    do {
+                        let storedWallet = try walletStorage.exportWallet()
+                        let birthday = storedWallet.birthday?.value() ?? 0
+                        let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
+                        try await sdkSynchronizer.prepareWith(seedBytes, birthday, .existingWallet)
+                        try await sdkSynchronizer.start(false)
+                        await send(.changeSucceeded)
+                    } catch {
+                        await send(.changeFailed(
+                            error: error.toDarkFiError(),
+                            previousIsUsingCustom: oldIsUsingCustom,
+                            previousCustomServer: oldCustomServer
+                        ))
+                    }
                 }
             case let .changeFailed(error, previousIsUsingCustom, previousCustomServer):
                 state.isChangingServer = false

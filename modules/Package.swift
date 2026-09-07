@@ -286,6 +286,8 @@ let package = Package(
                 "LocalAuthenticationClient",
                 "SendFlow",
                 "SDKSynchronizer",
+                "MnemonicClient",
+                "WalletStorage",
                 "UIComponents",
                 "UserNotificationCenter",
                 "Utils",

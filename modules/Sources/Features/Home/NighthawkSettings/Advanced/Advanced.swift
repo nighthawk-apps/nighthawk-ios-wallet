@@ -20,7 +20,7 @@ public struct Advanced {
         public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         public var selectedAppIcon: NighthawkSetting.AppIcon = .default
         public var theme: NighthawkSetting.Theme = .default
-        public var strictOmrOnly: Bool = true
+        public var strictOmrOnly: Bool = false
         public var showBanditSettings: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
             return userStoredPreferences.isBandit()

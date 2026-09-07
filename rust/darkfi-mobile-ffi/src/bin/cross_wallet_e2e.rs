@@ -371,9 +371,9 @@ async fn rebuild_money_tree_from_lwd(drk: &Drk, name: &str) -> Result<(), String
     }
 
     drk.cache
-        .insert_merkle_trees(&[(drk::money::SLED_MERKLE_TREES_MONEY, &tree)])
+        .insert_merkle_trees(&[(drk::money::KVDB_MERKLE_TREES_MONEY, &tree)])
         .map_err(|e| format!("persist merkle tree: {e}"))?;
-    let _ = drk.cache.sled_db.flush();
+    let _ = drk.cache.kvdb.flush_default_mode();
     println!("  {name}: merkle rebuild done (appended={appended} marked={marked})");
     if marked == 0 {
         return Err(format!(
