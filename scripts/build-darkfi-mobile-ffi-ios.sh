@@ -64,7 +64,8 @@ rm -rf "$XCFRAMEWORK"
 
 # Regenerate Swift/FFI glue from the UDL (UniFFI 0.32 emits PascalCase names).
 # Host build — do NOT export IPHONEOS_DEPLOYMENT_TARGET here.
-cargo run --bin uniffi-bindgen generate \
+# --release avoids a second ~10GB debug target tree on disk-constrained machines.
+cargo run --release --bin uniffi-bindgen generate \
     darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
     --language swift \
     --crate darkfi_mobile_ffi \

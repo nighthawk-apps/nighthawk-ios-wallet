@@ -1,6 +1,6 @@
 [package]
 name = "darkfi-mobile-ffi"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "UniFFI cdylib for DarkFi-backed Android APIs (incremental rollout)."
 license = "MIT OR Apache-2.0"
@@ -12,6 +12,7 @@ darkirc = ["dep:darkirc"]
 
 [lib]
 name = "darkfi_mobile_ffi"
+# cdylib for Android JNI; staticlib for iOS XCFramework (build-darkfi-mobile-ffi-ios.sh).
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [dependencies]

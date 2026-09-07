@@ -1,5 +1,9 @@
 # Nighthawk Wallet (DarkFi Edition) — iOS
 
+<p align="center">
+  <img src="docs/images/ios-testnet.png" alt="Nighthawk iOS — DarkFi chat syncing on testnet" width="320">
+</p>
+
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
 ## Contents
@@ -24,6 +28,8 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 ## Download
 
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
+
+**TestFlight 3.0.05 (build 5):** Instant Sync — checkpoint restore, birthday clamping, UnifOMR pipelining, ZKAS cache, proto_version 1.x lockstep, pinned-HTTPS ALPN fix. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -303,6 +309,13 @@ Lightwallet can dial SOCKS5 the same way as Android.
 | 6 | OMR-first + backoff (S15) | ✅ |
 | 7 | In-process Arti Tor | ✅ |
 | 8 | SOCKS5 lightwallet dial | ✅ |
+| 9 | Instant Sync & Checkpoints | ✅ |
+| 10 | Real Birthday Clamping | ✅ |
+| 11 | UnifOMR Pipelining | ✅ |
+| 12 | ZKAS & Key Cache | ✅ |
+| 13 | Proto Version Lockstep | ✅ |
+
+See [docs/instant-sync-strategy.md](docs/instant-sync-strategy.md) for full instant sync architecture and implementation details.
 
 ### Data-at-rest & logging
 

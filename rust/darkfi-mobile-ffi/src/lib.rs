@@ -1,4 +1,4 @@
-//! UniFFI entry for the iOS wallet (`libdarkfi_mobile_ffi`).
+//! UniFFI entry for the Android wallet (`libdarkfi_mobile_ffi`).
 //!
 //! Links upstream **`bin/drk`** when `third_party/darkfi` is vendored (see `scripts/vendor-darkfi.sh`).
 
@@ -18,10 +18,13 @@ pub mod transactions;
 mod tx_inspect;
 
 pub mod batch_pir;
+pub mod checkpoint;
 pub mod lightwallet_client;
 pub mod lightwallet_sync;
 pub mod omr;
+pub mod sync_pipeline;
 pub mod unifomr;
+pub mod zkas_cache;
 
 fn install_panic_hook_once() {
     use std::sync::Once;
@@ -79,7 +82,7 @@ pub fn darkirc_status() -> String {
 
 #[cfg(not(feature = "darkirc"))]
 pub fn darkirc_connection_phase() -> String {
-    "disabled".to_string()
+    "stopped".to_string()
 }
 
 #[cfg(not(feature = "darkirc"))]
@@ -199,9 +202,8 @@ pub struct DrkBootstrapConfig {
     pub tor_socks_port: u16,
     /// Optional darkfid JSON-RPC for broadcast fallback only. Empty/`None` = LWD-only.
     pub darkfid_rpc_url: Option<String>,
-    /// When `true`, refuse supplemental / gap trial-decrypt (UnifOMR-only).
-    /// Nighthawk defaults this to `false` so users can receive from non-UnifOMR
-    /// wallets (e.g. upstream `drk`). Toggle via Advanced Settings.
+    /// When `true`, refuse supplemental trial-decrypt (UnifOMR-only).
+    /// Default is `true`. Turn off in Advanced Settings to receive from `drk`.
     pub strict_omr_only: bool,
 }
 
@@ -380,6 +382,8 @@ pub struct DrkLightSyncState {
     pub fallback_reason: SyncFallbackReason,
     /// User-facing message explaining the fallback. Empty when no fallback.
     pub fallback_user_message: String,
+    /// Whether server proto version is incompatible with client.
+    pub proto_version_mismatch: bool,
 }
 
 impl From<crate::lightwallet_sync::LightSyncState> for DrkLightSyncState {
@@ -412,6 +416,7 @@ impl From<crate::lightwallet_sync::LightSyncState> for DrkLightSyncState {
             sync_method,
             fallback_reason,
             fallback_user_message,
+            proto_version_mismatch: s.proto_version_mismatch,
         }
     }
 }
@@ -663,14 +668,14 @@ impl DarkfiWalletHandle {
         // connections either go through Tor or fail — they never silently
         // downgrade to a direct connection.
         if config.use_tor {
-            // Match Android: default SOCKS 9050 when unset (prefs / TorNetwork).
             let port = if config.tor_socks_port == 0 {
                 9050
             } else {
                 config.tor_socks_port
             };
             crate::tor::start_arti_proxy(port)?;
-            // Wait until Arti finishes bootstrap before any LWD traffic.
+            // Bind happens quickly; circuit bootstrap can take up to ~2 minutes
+            // on first launch. Do not dial lightwalletd until SOCKS CONNECT works.
             crate::tor::wait_until_running(std::time::Duration::from_secs(120))?;
             crate::lightwallet_client::set_default_socks5_proxy(Some((
                 "127.0.0.1".to_string(),
@@ -693,6 +698,12 @@ impl DarkfiWalletHandle {
                 .flatten(),
         ));
         sync_engine.set_strict_omr_only(config.strict_omr_only);
+        if config.birthday_height > 0 {
+            if let Ok(height) = u32::try_from(config.birthday_height) {
+                sync_engine.set_birthday_height(height);
+            }
+        }
+        crate::zkas_cache::set_disk_cache_dir(std::path::PathBuf::from(&config.cache_path));
         sync::start_background_sync(drk.clone(), ex, sync_engine.clone());
         let mut config = config;
         config.zeroize_secrets();

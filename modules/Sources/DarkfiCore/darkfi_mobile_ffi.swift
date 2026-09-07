@@ -1505,10 +1505,11 @@ public struct DrkLightSyncState: Equatable, Hashable {
     public var syncMethod: SyncMethod
     public var fallbackReason: SyncFallbackReason
     public var fallbackUserMessage: String
+    public var protoVersionMismatch: Bool
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(status: String, syncType: String, statusMessage: String, syncTypeMessage: String, scannedHeight: Int64, chainTip: Int64, omrAvailable: Bool, syncMethod: SyncMethod, fallbackReason: SyncFallbackReason, fallbackUserMessage: String) {
+    public init(status: String, syncType: String, statusMessage: String, syncTypeMessage: String, scannedHeight: Int64, chainTip: Int64, omrAvailable: Bool, syncMethod: SyncMethod, fallbackReason: SyncFallbackReason, fallbackUserMessage: String, protoVersionMismatch: Bool) {
         self.status = status
         self.syncType = syncType
         self.statusMessage = statusMessage
@@ -1519,6 +1520,7 @@ public struct DrkLightSyncState: Equatable, Hashable {
         self.syncMethod = syncMethod
         self.fallbackReason = fallbackReason
         self.fallbackUserMessage = fallbackUserMessage
+        self.protoVersionMismatch = protoVersionMismatch
     }
 
     
@@ -1546,7 +1548,8 @@ public struct FfiConverterTypeDrkLightSyncState: FfiConverterRustBuffer {
                 omrAvailable: FfiConverterBool.read(from: &buf), 
                 syncMethod: FfiConverterTypeSyncMethod.read(from: &buf), 
                 fallbackReason: FfiConverterTypeSyncFallbackReason.read(from: &buf), 
-                fallbackUserMessage: FfiConverterString.read(from: &buf)
+                fallbackUserMessage: FfiConverterString.read(from: &buf), 
+                protoVersionMismatch: FfiConverterBool.read(from: &buf)
         )
     }
 
@@ -1561,6 +1564,7 @@ public struct FfiConverterTypeDrkLightSyncState: FfiConverterRustBuffer {
         FfiConverterTypeSyncMethod.write(value.syncMethod, into: &buf)
         FfiConverterTypeSyncFallbackReason.write(value.fallbackReason, into: &buf)
         FfiConverterString.write(value.fallbackUserMessage, into: &buf)
+        FfiConverterBool.write(value.protoVersionMismatch, into: &buf)
     }
 }
 
