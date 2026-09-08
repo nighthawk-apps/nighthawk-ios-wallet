@@ -41,7 +41,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<!-- Required for remote HTTPS lightwalletd (fail-closed without pin). Leave unset for loopback HTTP. -->
