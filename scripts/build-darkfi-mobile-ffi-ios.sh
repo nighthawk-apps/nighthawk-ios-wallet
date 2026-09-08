@@ -48,14 +48,14 @@ cd "$RUST"
 # Simulator slice (Apple-silicon simulator).
 if [ "$DEVICE_ONLY" != "1" ]; then
   IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \
-    cargo build --release --target aarch64-apple-ios-sim -p darkfi-mobile-ffi
+    cargo build --release --target aarch64-apple-ios-sim -p darkfi-mobile-ffi --lib
   cp target/aarch64-apple-ios-sim/release/libdarkfi_mobile_ffi.a target/universal-sim-libdarkfi_mobile_ffi.a
 fi
 
 # Device slice (real iPhone/iPad, arm64). Required to run on a physical device.
 if [ "$SIM_ONLY" != "1" ]; then
     IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \
-      cargo build --release --target aarch64-apple-ios -p darkfi-mobile-ffi
+      cargo build --release --target aarch64-apple-ios -p darkfi-mobile-ffi --lib
 fi
 
 # Create XCFramework

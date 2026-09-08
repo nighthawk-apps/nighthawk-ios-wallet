@@ -7,6 +7,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.nighthawkapps.sync</string>
+		<string>com.nighthawkapps.sync.processing</string>
 	</array>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
@@ -40,11 +41,13 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<!-- Required for remote HTTPS lightwalletd (fail-closed without pin). Leave unset for loopback HTTP. -->
 	<key>LightwalletTlsPinSha256</key>
+	<string></string>
+	<key>LightwalletTlsPinSha256Previous</key>
 	<string></string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan DarkFi address QR codes</string>
@@ -81,6 +84,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>processing</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

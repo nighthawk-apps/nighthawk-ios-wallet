@@ -5,6 +5,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.nighthawkapps.sync</string>
+		<string>com.nighthawkapps.sync.processing</string>
 	</array>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
@@ -38,11 +39,13 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LightwalletTlsPinSha256</key>
 	<string>9f8f3877f312cb48e4d8d050b5c7b70f6144f1c31812d7ec299c32793a274985</string>
+	<key>LightwalletTlsPinSha256Previous</key>
+	<string></string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan DarkFi address QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -78,6 +81,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>processing</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

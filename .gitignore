@@ -83,6 +83,7 @@ lib
 .cargo-home/
 rust/.cargo-home/
 rust/target/
+rust/rustc-ice-*.txt
 .cargo/
 rust/.cargo/
 

@@ -39,17 +39,24 @@ Path dependencies and sibling Nighthawk repos use these **directory names**:
 
 ```text
 parent/
-  darkfi/                 # optional upstream clone; app vendors into third_party/darkfi
-  darkfi-lightwalletd/    # gRPC lightwalletd (local sync target)
-  darkfi-mobile-ffi/      # optional sibling symlink of rust/darkfi-mobile-ffi for desktop/other clients
-  nighthawk-ios-wallet/   # this repo
-  nighthawk-android-wallet/
-  nighthawk-desktop/
+  darkfi-nighthawk-testnet/     # pin 327fa9f13 (nighthawk24 nighthawk-testnet)
+  darkfi-lightwalletd/          # gRPC lightwalletd (local sync target)
+  nighthawk-ios-wallet/         # this repo
+  new-nighthawk-android-wallet/ # same pin at third_party/darkfi
+  nighthawk-app-desktop/
   moonshine/
 ```
 
-Vendored DarkFi lives at `third_party/darkfi/` (gitignored). Other clients can consume the
-UniFFI crate from `rust/darkfi-mobile-ffi`, or via a sibling checkout named `darkfi-mobile-ffi`.
+`third_party/darkfi` **must** be the nighthawk-testnet pin (`327fa9f134fc756b84be2ce327afaae1cd41a956`), **not** a symlink to GitHub `darkfi` master. Running `./scripts/vendor-darkfi.sh` on a master symlink would `git checkout` that shared repo off master. Safe:
+
+```bash
+# reuse the Android vendored tree (same pin)
+ln -sfn ../new-nighthawk-android-wallet/third_party/darkfi third_party/darkfi
+# or a dedicated sibling:
+# ln -sfn ../darkfi-nighthawk-testnet third_party/darkfi
+```
+
+The vendor script refuses to checkout through a symlink unless the target is already at the pin (`FORCE_VENDOR_SYMLINK=1` to override). Other clients can consume UniFFI from `rust/darkfi-mobile-ffi`.
 
 ## Quick start
 
@@ -103,7 +110,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` (pins `docs/upstream/darkfi-revision.txt`) |
+| **Vendored DarkFi** | Pin `327fa9f13` via `./scripts/vendor-darkfi.sh` or a symlink to Android `third_party/darkfi` / sibling `darkfi-nighthawk-testnet`. **Not** `darkrenaissance/darkfi` master. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 
@@ -133,9 +140,11 @@ All helpers live in [`scripts/`](scripts/).
 
 ```bash
 ./scripts/build-darkfi-mobile-ffi-ios.sh
+# faster local simulator iteration (do not Archive this XCFramework):
+# SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 ```
 
-Produces `libdarkfi_mobile_ffi.a` (device + sim), regenerates `darkfi_mobile_ffi.swift` / headers, refreshes `DarkfiCore.xcframework`. The `.a` files stay local (gitignored); headers/Swift/Info.plist are committed. Re-run when Rust or the UDL changes, and **always** before TestFlight Archive.
+The script passes `--lib` (the `test_sync` helper bin uses `android_logger`, which is Android-only). Produces `libdarkfi_mobile_ffi.a` (device + sim), regenerates `darkfi_mobile_ffi.swift` / headers, refreshes `DarkfiCore.xcframework`. The `.a` files stay local (gitignored); headers/Swift/Info.plist are committed. Re-run when Rust or the UDL changes, and **always** before TestFlight Archive.
 
 Details: [`rust/darkfi-mobile-ffi/`](rust/darkfi-mobile-ffi/).  
 Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/implementation-plan.md`](docs/implementation-plan.md).
@@ -146,7 +155,10 @@ Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/
 
 **Simulator (CLI):**
 
+The committed `DarkfiCore.xcframework` is headers + Info.plist only (the `.a` files are gitignored). A device-only slice (`ios-arm64`) is **not** enough for the simulator — `xcodebuild` then fails with “no library for this platform”. Build the sim slice first:
+
 ```bash
+SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 xcodebuild -project stealth.xcodeproj \
   -scheme stealth-testnet \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
@@ -171,20 +183,14 @@ If `codesign` hangs from an IDE-embedded shell, run from **Terminal.app** or Xco
 
 ### Tooling (SwiftGen & SwiftLint)
 
-**SwiftGen**
+**SwiftGen** / **SwiftLint** (Homebrew is enough — `/opt/homebrew/bin` on `PATH`. `/usr/local/bin` symlinks need `sudo` on this Mac and are **not** required.)
 
 ```bash
-brew install swiftgen
-ln -s /opt/homebrew/bin/swiftgen /usr/local/bin
+brew install swiftgen swiftlint
+# xcodebuild also has a SwiftGen SPM plugin; brew tools are not required for compile.
 ```
 
-**SwiftLint** — project expects a recent Homebrew install (or the official `.pkg`). Symlink if needed:
-
-```bash
-ln -s /opt/homebrew/bin/swiftlint /usr/local/bin
-```
-
-Both run automatically on build. Style guide: [SWIFTLINT.md](SWIFTLINT.md).
+Style guide: [SWIFTLINT.md](SWIFTLINT.md).
 
 ---
 

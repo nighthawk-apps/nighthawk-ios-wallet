@@ -55,6 +55,17 @@ struct NighthawkApp: App {
                     } catch {
                         print("Failed to schedule background task: \(error)")
                     }
+                    let processing = BGProcessingTaskRequest(
+                        identifier: "com.nighthawkapps.sync.processing"
+                    )
+                    processing.requiresNetworkConnectivity = true
+                    processing.requiresExternalPower = false
+                    processing.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
+                    do {
+                        try BGTaskScheduler.shared.submit(processing)
+                    } catch {
+                        print("Failed to schedule processing task: \(error)")
+                    }
 
                 @unknown default:
                     break
@@ -68,5 +79,16 @@ struct NighthawkApp: App {
 
     init() {
         FontFamily.registerAllCustomFonts()
+        // SwiftUI `backgroundTask` only handles appRefresh / urlSession on this
+        // SDK. BGProcessingTask needs a classic scheduler registration.
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.nighthawkapps.sync.processing",
+            using: nil
+        ) { task in
+            Task {
+                _ = try? await SDKSynchronizerClient.liveValue.refreshNow()
+                task.setTaskCompleted(success: true)
+            }
+        }
     }
 }

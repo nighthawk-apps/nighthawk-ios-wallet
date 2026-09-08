@@ -35,9 +35,19 @@ extension DrkAmount {
 
     /// Parse a user-entered decimal string into atomic DrkAmount.
     public static func fromDecimalString(_ string: String, decimals: Int = drkDisplayDecimals) -> DrkAmount? {
-        guard let decimal = Decimal(string: string) else { return nil }
-        let atomic = decimal * pow(10, decimals)
-        return NSDecimalNumber(decimal: atomic).int64Value
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let parts = trimmed.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count <= 2, parts.allSatisfy({ $0.allSatisfy(\.isNumber) || $0.isEmpty }) else {
+            return nil
+        }
+        let whole = parts[0].isEmpty ? "0" : String(parts[0])
+        var frac = parts.count == 2 ? String(parts[1]) : ""
+        if frac.count > decimals { return nil }
+        frac = frac + String(repeating: "0", count: decimals - frac.count)
+        let digits = whole + frac
+        guard let atomic = Int64(digits), atomic > 0 else { return nil }
+        return atomic
     }
 
     // MARK: - Backward-compatible methods (used by existing UI code)

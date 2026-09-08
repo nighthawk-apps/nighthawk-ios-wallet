@@ -10,10 +10,12 @@ import Foundation
 public enum LightwalletTlsPin {
     public static let userDefaultsKey = "lightwallet_tls_pin_sha256"
     public static let infoPlistKey = "LightwalletTlsPinSha256"
+    public static let previousInfoPlistKey = "LightwalletTlsPinSha256Previous"
 
-    /// Resolve the lightwalletd leaf-cert SHA-256 pin (32 raw bytes).
+    /// Resolve lightwalletd leaf-cert SHA-256 pin(s) (32 bytes, or 64 with previous).
     ///
-    /// **Production:** `LightwalletTlsPinSha256` in Info.plist only.
+    /// **Production:** `LightwalletTlsPinSha256` in Info.plist, plus optional
+    /// `LightwalletTlsPinSha256Previous` during a cert-rotation window.
     /// **Debug/QA:** `UserDefaults` key `lightwallet_tls_pin_sha256` may override
     /// so local testing can pin a different server without rebuilding.
     ///
@@ -27,7 +29,22 @@ public enum LightwalletTlsPin {
             return fromDefaults
         }
         #endif
-        return parseHexPin(bundle.object(forInfoDictionaryKey: infoPlistKey) as? String)
+        let current = parseHexPin(bundle.object(forInfoDictionaryKey: infoPlistKey) as? String)
+        let previous = parseHexPin(bundle.object(forInfoDictionaryKey: previousInfoPlistKey) as? String)
+        switch (current, previous) {
+        case (nil, nil):
+            return nil
+        case (let cur?, nil):
+            return cur
+        case (let cur?, let prev?) where cur != prev:
+            var out = cur
+            out.append(prev)
+            return out
+        case (let cur?, _):
+            return cur
+        case (nil, let prev?):
+            return prev
+        }
     }
 
     public static func parseHexPin(_ hex: String?) -> Data? {

@@ -18,6 +18,29 @@ if [[ ! "${first_token}" =~ ^[0-9a-f]{40}$ ]]; then
   exit 1
 fi
 
+# Symlink to a shared darkrenaissance/darkfi master checkout is a footgun:
+# git checkout below would move that repo off master.
+if [[ -L "$DEST" ]]; then
+  target="$(readlink "$DEST" || true)"
+  echo "third_party/darkfi is a symlink → ${target}"
+  echo "Safe: ../new-nighthawk-android-wallet/third_party/darkfi or sibling darkfi-nighthawk-testnet"
+  echo "at pin ${first_token} (nighthawk24 nighthawk-testnet). Not GitHub darkfi master."
+  current="$(git -C "$DEST" rev-parse HEAD 2>/dev/null || true)"
+  if [[ "$current" == "$first_token" ]]; then
+    echo "symlink already at pin — skip checkout"
+    DARKFI_SRC="$DEST" "$ROOT/scripts/compile-darkfi-zkas-proofs.sh"
+    echo "Vendored darkfi @ ${first_token} → ${DEST} (symlink, unchanged)"
+    echo "Set DARKFI_SRC=${DEST} for scripts/build-darkirc-ios.sh"
+    exit 0
+  fi
+  if [[ "${FORCE_VENDOR_SYMLINK:-}" != "1" ]]; then
+    echo "error: refusing to git checkout through a symlink (would move ${target})." >&2
+    echo "  ln -sfn ../new-nighthawk-android-wallet/third_party/darkfi third_party/darkfi" >&2
+    echo "  # or FORCE_VENDOR_SYMLINK=1 $0" >&2
+    exit 1
+  fi
+fi
+
 if [[ ! -d "${DEST}/.git" ]]; then
   git clone --filter=blob:none https://github.com/nighthawk24/darkfi.git "${DEST}"
 fi
