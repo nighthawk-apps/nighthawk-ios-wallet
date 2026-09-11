@@ -19,7 +19,9 @@ import WalletStorage
 /// Applies Advanced Settings → Strict UnifOMR sync to the live wallet handle.
 public enum DarkfiStrictOmrControl {
     public static func setStrictOmrOnly(_ strict: Bool) {
-        WalletHandleManager.shared.handle?.setStrictOmrOnly(strict: strict)
+        WalletHandleManager.shared.withHandle { handle in
+            handle.setStrictOmrOnly(strict: strict)
+        }
     }
 }
 
@@ -30,14 +32,43 @@ public enum DarkfiStrictOmrControl {
 private final class WalletHandleManager: @unchecked Sendable {
     static let shared = WalletHandleManager()
 
-    private let lock = NSLock()
+    /// Serializes handle lifetime vs in-flight FFI. A retained `DarkfiWalletHandle`
+    /// copy (e.g. `start`/`refreshNow`) keeps Fjall locked after `_handle = nil`.
+    private let condition = NSCondition()
     private var _handle: DarkfiWalletHandle?
+    private var inFlight = 0
+    private var preparing = false
     private let stateSubject = CurrentValueSubject<SynchronizerState, Never>(.zero)
 
     var handle: DarkfiWalletHandle? {
-        lock.lock()
-        defer { lock.unlock() }
+        condition.lock()
+        defer { condition.unlock() }
         return _handle
+    }
+
+    @discardableResult
+    func withHandle<T>(_ body: (DarkfiWalletHandle) throws -> T) rethrows -> T? {
+        condition.lock()
+        guard let handle = _handle else {
+            condition.unlock()
+            return nil
+        }
+        inFlight += 1
+        condition.unlock()
+        defer {
+            condition.lock()
+            inFlight -= 1
+            condition.broadcast()
+            condition.unlock()
+        }
+        return try body(handle)
+    }
+
+    func requireHandle<T>(_ body: (DarkfiWalletHandle) throws -> T) throws -> T {
+        guard let value = try withHandle(body) else {
+            throw SDKSynchronizerError.walletNotPrepared
+        }
+        return value
     }
 
     var stateStream: AnyPublisher<SynchronizerState, Never> {
@@ -56,8 +87,21 @@ private final class WalletHandleManager: @unchecked Sendable {
     static let serverEndpointKey = "darkfi_server_endpoint"
 
     func prepare(seed: [UInt8], birthday: BlockHeight, mode: WalletInitMode) throws {
-        lock.lock()
-        defer { lock.unlock() }
+        condition.lock()
+        while inFlight > 0 || preparing {
+            condition.wait()
+        }
+        preparing = true
+        _handle = nil
+        condition.unlock()
+        defer {
+            condition.lock()
+            preparing = false
+            condition.broadcast()
+            condition.unlock()
+        }
+        // UniFFI deinit / Fjall exclusive lock can lag a tick after the last retain drops.
+        Thread.sleep(forTimeInterval: 0.2)
 
         // swiftlint:disable:next force_unwrapping
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -68,7 +112,6 @@ private final class WalletHandleManager: @unchecked Sendable {
         // Leaving a live handle holds exclusive flock on `darkfi_cache/db` and
         // causes the next `Drk::new` to fail with NativeDrkUnavailable
         // ("could not acquire lock … Resource temporarily unavailable").
-        _handle = nil
 
         // Only wipe on new wallet / restore — never on existingWallet reopen.
         switch mode {
@@ -157,7 +200,10 @@ private final class WalletHandleManager: @unchecked Sendable {
         )
 
         do {
-            _handle = try DarkfiWalletHandle(config: config)
+            let opened = try DarkfiWalletHandle(config: config)
+            condition.lock()
+            _handle = opened
+            condition.unlock()
         } catch let error as DarkfiWalletNativeError {
             // Stale sled flock after a crash / overlapping prepare: clear cache once and retry.
             // Also recover from stale local DBs / passphrase mismatches after native
@@ -166,13 +212,15 @@ private final class WalletHandleManager: @unchecked Sendable {
                 let lower = message.lowercased()
                 let sledLock =
                     lower.contains("could not acquire lock") ||
-                    lower.contains("resource temporarily unavailable")
+                    lower.contains("resource temporarily unavailable") ||
+                    lower.contains("fjall")
                 let walletDb =
                     lower.contains("walletdb") ||
                     lower.contains("pragma") ||
                     lower.contains("file is not a database") ||
                     lower.contains("sqlite") ||
                     lower.contains("sqlcipher") ||
+                    lower.contains("turso") ||
                     lower.contains("initializationfailed") ||
                     lower.contains("connectionfailed") ||
                     lower.contains("initialize_wallet") ||
@@ -187,7 +235,11 @@ private final class WalletHandleManager: @unchecked Sendable {
                         atPath: cachePath,
                         withIntermediateDirectories: true
                     )
-                    _handle = try DarkfiWalletHandle(config: config)
+                    Thread.sleep(forTimeInterval: 0.3)
+                    let retried = try DarkfiWalletHandle(config: config)
+                    condition.lock()
+                    _handle = retried
+                    condition.unlock()
                 } else {
                     throw error
                 }
@@ -224,18 +276,24 @@ private final class WalletHandleManager: @unchecked Sendable {
     }
 
     func wipe() {
-        lock.lock()
-        defer { lock.unlock() }
+        condition.lock()
+        while inFlight > 0 {
+            condition.wait()
+        }
         _handle = nil
+        condition.unlock()
         stateSubject.send(.zero)
     }
 
     /// Drop the live handle and delete on-disk wallet + cache databases.
     /// Keeps Keychain seed / wallet_pass so the user can reopen and rescan.
     func nukeLocalDatabases() {
-        lock.lock()
-        defer { lock.unlock() }
+        condition.lock()
+        while inFlight > 0 {
+            condition.wait()
+        }
         _handle = nil
+        condition.unlock()
         stateSubject.send(.zero)
 
         // swiftlint:disable:next force_unwrapping
@@ -283,32 +341,30 @@ extension SDKSynchronizerClient: DependencyKey {
             }.value
         },
         start: { _ in
-            guard let handle = WalletHandleManager.shared.handle else { return }
+            WalletHandleManager.shared.withHandle { handle in
+                do {
+                    let snapshot = try handle.refreshNow()
+                    let balance = try handle.confirmedBalanceAtomic()
+                    let lightState = handle.lightSyncSnapshot()
 
-            // Trigger initial sync
-            do {
-                let snapshot = try handle.refreshNow()
-                let balance = try handle.confirmedBalanceAtomic()
-
-                let lightState = handle.lightSyncSnapshot()
-
-                WalletHandleManager.shared.updateState(SynchronizerState(
-                    syncStatus: lightState.protoVersionMismatch
-                        ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
-                        : .upToDate,
-                    confirmedBalance: balance,
-                    latestBlockHeight: BlockHeight(snapshot.chainTip),
-                    activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
-                    fallbackReason: String(describing: lightState.fallbackReason),
-                    fallbackUserMessage: lightState.fallbackUserMessage,
-                    protoVersionMismatch: lightState.protoVersionMismatch
-                ))
-            } catch {
-                WalletHandleManager.shared.updateState(SynchronizerState(
-                    syncStatus: .error(error.localizedDescription),
-                    confirmedBalance: 0,
-                    latestBlockHeight: 0
-                ))
+                    WalletHandleManager.shared.updateState(SynchronizerState(
+                        syncStatus: lightState.protoVersionMismatch
+                            ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
+                            : .upToDate,
+                        confirmedBalance: balance,
+                        latestBlockHeight: BlockHeight(snapshot.chainTip),
+                        activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                        fallbackReason: String(describing: lightState.fallbackReason),
+                        fallbackUserMessage: lightState.fallbackUserMessage,
+                        protoVersionMismatch: lightState.protoVersionMismatch
+                    ))
+                } catch {
+                    WalletHandleManager.shared.updateState(SynchronizerState(
+                        syncStatus: .error(error.localizedDescription),
+                        confirmedBalance: 0,
+                        latestBlockHeight: 0
+                    ))
+                }
             }
         },
         stop: {
@@ -322,23 +378,22 @@ extension SDKSynchronizerClient: DependencyKey {
             WalletHandleManager.shared.handle != nil
         },
         refreshNow: {
-            guard let handle = WalletHandleManager.shared.handle else {
-                throw SDKSynchronizerError.walletNotPrepared
+            try WalletHandleManager.shared.requireHandle { handle in
+                let snapshot = try handle.refreshNow()
+                let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
+                let lightState = handle.lightSyncSnapshot()
+                WalletHandleManager.shared.updateState(SynchronizerState(
+                    syncStatus: lightState.protoVersionMismatch
+                        ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
+                        : .upToDate,
+                    confirmedBalance: balance,
+                    latestBlockHeight: BlockHeight(snapshot.chainTip),
+                    activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                    fallbackReason: String(describing: lightState.fallbackReason),
+                    fallbackUserMessage: lightState.fallbackUserMessage,
+                    protoVersionMismatch: lightState.protoVersionMismatch
+                ))
             }
-            let snapshot = try handle.refreshNow()
-            let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
-            let lightState = handle.lightSyncSnapshot()
-            WalletHandleManager.shared.updateState(SynchronizerState(
-                syncStatus: lightState.protoVersionMismatch
-                    ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
-                    : .upToDate,
-                confirmedBalance: balance,
-                latestBlockHeight: BlockHeight(snapshot.chainTip),
-                activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
-                fallbackReason: String(describing: lightState.fallbackReason),
-                fallbackUserMessage: lightState.fallbackUserMessage,
-                protoVersionMismatch: lightState.protoVersionMismatch
-            ))
         },
         getConfirmedBalance: {
             guard let handle = WalletHandleManager.shared.handle else { return 0 }
@@ -420,56 +475,54 @@ extension SDKSynchronizerClient: DependencyKey {
             )) ?? 10_000
         },
         sendTransaction: { _, amount, recipient, memo, tokenId in
-            guard let handle = WalletHandleManager.shared.handle else {
-                throw DarkfiError(message: "Wallet not initialized")
-            }
-
             guard case .address(let recipientAddr) = recipient else {
                 throw DarkfiError(message: "Invalid recipient")
             }
 
-            // Build and broadcast — PerfOMR/OMD clue embedded in Rust by default.
-            let memoText: String? = memo?.text
-            let txBytes = try handle.buildTransfer(
-                recipientAddress: recipientAddr,
-                amount: String(amount),
-                tokenId: tokenId,
-                paymentMemo: memoText
-            )
-            let txHash = try handle.broadcastTransfer(
-                txBytes: txBytes,
-                paymentMemo: memoText,
-                recipientAddress: recipientAddr
-            )
-
-            // Refresh balance after send
-            let newBalance = (try? handle.confirmedBalanceAtomic()) ?? 0
-            let snapshot = (try? handle.syncSnapshot()) ?? DrkSyncSnapshot(scannedBlocks: 0, chainTip: 0)
-
-            WalletHandleManager.shared.updateState(SynchronizerState(
-                syncStatus: .upToDate,
-                confirmedBalance: newBalance,
-                latestBlockHeight: BlockHeight(snapshot.chainTip),
-                activeSyncMethod: WalletHandleManager.shared.activeSyncMethod
-            ))
-
-            return DarkfiTransactionOverview(
-                rawId: txHash,
-                totalAtomicValue: amount,
-                fee: (try? handle.estimateTransferFee(
+            guard let overview = try WalletHandleManager.shared.withHandle({ handle -> DarkfiTransactionOverview in
+                let memoText: String? = memo?.text
+                let txBytes = try handle.buildTransfer(
                     recipientAddress: recipientAddr,
                     amount: String(amount),
                     tokenId: tokenId,
                     paymentMemo: memoText
-                )) ?? 10_000,
-                isSending: true,
-                status: "Broadcasted",
-                contractSummary: "Money::TransferV1",
-                recipientAddress: recipientAddr,
-                memo: memo?.text,
-                // Outgoing tx carries the UnifOMR clue we embed by default.
-                syncMethod: .unifOmr
-            )
+                )
+                let txHash = try handle.broadcastTransfer(
+                    txBytes: txBytes,
+                    paymentMemo: memoText,
+                    recipientAddress: recipientAddr
+                )
+
+                let newBalance = (try? handle.confirmedBalanceAtomic()) ?? 0
+                let snapshot = (try? handle.syncSnapshot()) ?? DrkSyncSnapshot(scannedBlocks: 0, chainTip: 0)
+
+                WalletHandleManager.shared.updateState(SynchronizerState(
+                    syncStatus: .upToDate,
+                    confirmedBalance: newBalance,
+                    latestBlockHeight: BlockHeight(snapshot.chainTip),
+                    activeSyncMethod: WalletHandleManager.shared.activeSyncMethod
+                ))
+
+                return DarkfiTransactionOverview(
+                    rawId: txHash,
+                    totalAtomicValue: amount,
+                    fee: (try? handle.estimateTransferFee(
+                        recipientAddress: recipientAddr,
+                        amount: String(amount),
+                        tokenId: tokenId,
+                        paymentMemo: memoText
+                    )) ?? 10_000,
+                    isSending: true,
+                    status: "Broadcasted",
+                    contractSummary: "Money::TransferV1",
+                    recipientAddress: recipientAddr,
+                    memo: memo?.text,
+                    syncMethod: .unifOmr
+                )
+            }) else {
+                throw DarkfiError(message: "Wallet not initialized")
+            }
+            return overview
         },
         // Wired to regenerated UniFFI bindings — thin conversion from FFI types to app models
         getTransactionMemo: { txHash in
@@ -561,14 +614,9 @@ extension SDKSynchronizerClient: DependencyKey {
             WalletHandleManager.shared.nukeLocalDatabases()
         },
         rewind: {
-            guard let handle = WalletHandleManager.shared.handle else {
-                return Fail(error: DarkfiError(message: "Wallet not initialized"))
-                    .eraseToAnyPublisher()
-            }
-
             return Future<Void, Error> { promise in
                 do {
-                    _ = try handle.refreshNow()
+                    _ = try WalletHandleManager.shared.requireHandle { try $0.refreshNow() }
                     promise(.success(()))
                 } catch {
                     promise(.failure(error))

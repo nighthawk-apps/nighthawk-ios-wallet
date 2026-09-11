@@ -29,7 +29,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.007 (build 7):** UnifOMR + trial-decrypt fallback, FFI `--lib` iOS builds, BGProcessingTask via BGTaskScheduler, nighthawk-testnet pin docs. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.008 (build 8):** Fjall wallet-handle serialization, Keychain replace, chat readability + outbound HUD slots. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 

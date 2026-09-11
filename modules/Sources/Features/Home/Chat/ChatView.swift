@@ -11,6 +11,7 @@ import Generated
 import SwiftUI
 import UIComponents
 import UIKit
+import UserPreferencesStorage
 
 struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
@@ -531,7 +532,7 @@ private extension ChatView {
     var messagesList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 8) {
+                LazyVStack(spacing: isEncryptedThread ? 8 : 2) {
                     if store.messages.isEmpty {
                         VStack(spacing: 12) {
                             Spacer().frame(height: 60)
@@ -569,53 +570,87 @@ private extension ChatView {
         }
     }
 
-    func messageBubble(_ message: Chat.State.Message) -> some View {
-        HStack {
-            if message.isOutgoing { Spacer(minLength: 60) }
+    private var isEncryptedThread: Bool {
+        ChatChrome.threadIsEncrypted(
+            isDirectInbox: store.selectedTab == .direct,
+            threadKey: store.selectedTab == .direct
+                ? (store.selectedDmContact?.contactLabel ?? "")
+                : (store.selectedChannel?.name ?? ""),
+            encryptedChannelNames: EncryptedChannelIndex.names(
+                from: UserPreferencesStorage.live.encryptedChannelsJSON
+            )
+        )
+    }
 
-            VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 4) {
-                if !message.isOutgoing {
-                    Text(message.sender)
-                        .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+    func attributedMessageLine(_ message: Chat.State.Message) -> AttributedString {
+        var result = AttributedString()
+        var nickRun = AttributedString("\(message.sender): ")
+        nickRun.foregroundColor = ChatChrome.nickColor(nick: message.sender, myNick: store.nickname)
+        nickRun.font = .custom(FontFamily.PulpDisplay.bold.name, size: 15)
+        result.append(nickRun)
+        let bodyColor = ChatChrome.bodyColor(isOwn: message.isOutgoing)
+        for span in ChatMessageLexer.lex(message.content) {
+            switch span {
+            case let .text(value):
+                var run = AttributedString(value)
+                run.foregroundColor = bodyColor
+                run.font = .custom(FontFamily.PulpDisplay.regular.name, size: 15)
+                result.append(run)
+            case let .url(url):
+                var run = AttributedString(url)
+                run.foregroundColor = ChatChrome.link
+                run.underlineStyle = .single
+                run.font = .custom(FontFamily.PulpDisplay.regular.name, size: 15)
+                if let parsed = URL(string: url) {
+                    run.link = parsed
                 }
+                result.append(run)
+            case let .fud(uri):
+                var run = AttributedString(uri)
+                run.foregroundColor = ChatChrome.fud
+                run.font = .custom(FontFamily.PulpDisplay.regular.name, size: 15)
+                result.append(run)
+            }
+        }
+        return result
+    }
 
-                Text(message.content)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                message.isOutgoing
-                                    ? Asset.Colors.Nighthawk.peach.color.opacity(0.25)
-                                    : Asset.Colors.Nighthawk.navy.color
-                            )
-                    )
+    func messageBubble(_ message: Chat.State.Message) -> some View {
+        let encrypted = isEncryptedThread
+        return HStack(alignment: .top, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(attributedMessageLine(message))
                     .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .contextMenu {
                         Button {
-                            // Match DM pubkey share: local-only + 60s expiry.
                             UIPasteboard.general.setItems(
                                 [[UIPasteboard.typeAutomatic: message.content]],
                                 options: [
                                     .localOnly: true,
-                                    .expirationDate: Date().addingTimeInterval(60),
+                                    .expirationDate: Date().addingTimeInterval(60)
                                 ]
                             )
                         } label: {
                             Label("Copy Message", systemImage: "doc.on.doc")
                         }
                     }
-
-                Text(message.timestamp, style: .time)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                if ChatMessageLexer.hasFud(message.content) {
+                    Text("File transfer (fud) is not available in this build")
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                        .foregroundColor(ChatChrome.fud)
+                }
             }
-
-            if !message.isOutgoing { Spacer(minLength: 60) }
+            Text(ChatTimeline.gutterTime(message.timestamp))
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                .foregroundColor(ChatChrome.timestamp)
         }
+        .padding(.horizontal, encrypted ? 10 : 0)
+        .padding(.vertical, encrypted ? 6 : 0)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(encrypted ? ChatChrome.bubbleColor(isOwn: message.isOutgoing) : Color.clear)
+        )
     }
 
     var composeBar: some View {

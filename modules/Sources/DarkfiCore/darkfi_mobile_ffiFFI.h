@@ -443,6 +443,12 @@ RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_connection_phase(RustCallSta
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_OUTBOUND_SLOTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_OUTBOUND_SLOTS
+RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_outbound_slots(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_STATUS
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_STATUS
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_status(RustCallStatus *_Nonnull out_status
@@ -797,6 +803,12 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_chacha_encrypt_dm(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_connection_phase(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_OUTBOUND_SLOTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_OUTBOUND_SLOTS
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_outbound_slots(void
     
 );
 #endif

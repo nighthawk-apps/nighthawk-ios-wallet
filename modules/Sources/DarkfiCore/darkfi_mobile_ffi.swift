@@ -2790,6 +2790,13 @@ public func darkircConnectionPhase() -> String  {
     )
 })
 }
+public func darkircOutboundSlots() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_darkirc_outbound_slots(uniffiCallStatus
+    )
+})
+}
 public func darkircStatus() -> String  {
     return try!  FfiConverterString.lift(try! rustCall() {
         uniffiCallStatus in
@@ -2909,6 +2916,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_darkirc_connection_phase() != 60093) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_darkirc_outbound_slots() != 49871) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_darkirc_status() != 29954) {

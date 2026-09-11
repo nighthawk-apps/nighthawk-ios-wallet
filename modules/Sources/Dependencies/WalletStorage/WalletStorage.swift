@@ -23,20 +23,50 @@ public struct WalletStorage {
         public static let darkfiKeychainVersion = 1
     }
 
-    public enum KeychainError: Error, Equatable {
+    public enum KeychainError: Error, Equatable, LocalizedError {
         case decoding
         case duplicate
         case encoding
         case noDataFound
         case unknown(OSStatus)
+
+        public var errorDescription: String? {
+            switch self {
+            case .decoding:
+                return "Keychain data could not be decoded."
+            case .duplicate:
+                return "Keychain item already exists."
+            case .encoding:
+                return "Wallet could not be encoded for the Keychain."
+            case .noDataFound:
+                return "Keychain item not found."
+            case .unknown(let status):
+                return "Keychain OSStatus \(status)."
+            }
+        }
     }
 
-    public enum WalletStorageError: Error {
+    public enum WalletStorageError: Error, LocalizedError {
         case alreadyImported
         case uninitializedWallet
         case storageError(Error)
         case unsupportedVersion(Int)
         case unsupportedLanguage(MnemonicLanguageType)
+
+        public var errorDescription: String? {
+            switch self {
+            case .alreadyImported:
+                return "A wallet already exists in the Keychain. Delete it, then try Create Wallet again."
+            case .uninitializedWallet:
+                return "No wallet found in the Keychain."
+            case .storageError(let error):
+                return "Keychain storage error: \(error.localizedDescription)"
+            case .unsupportedVersion(let version):
+                return "Unsupported wallet storage version \(version)."
+            case .unsupportedLanguage(let language):
+                return "Unsupported mnemonic language \(language)."
+            }
+        }
     }
 
     private let secItem: SecItemClient
@@ -69,8 +99,10 @@ public struct WalletStorage {
                 throw KeychainError.encoding
             }
 
-            try setData(data, forKey: Constants.darkfiStoredWallet)
-        } catch KeychainError.duplicate {
+            try replaceData(data, forKey: Constants.darkfiStoredWallet)
+        } catch let error as WalletStorageError {
+            throw error
+        } catch KeychainError.noDataFound {
             throw WalletStorageError.alreadyImported
         } catch {
             throw WalletStorageError.storageError(error)
@@ -144,20 +176,17 @@ public struct WalletStorage {
         }
     }
 
+    /// Match keys for copy/update/delete. Must **not** include `kSecAttrAccessible`:
+    /// that attribute is write-only. Putting it in a search query makes SecItemCopyMatching
+    /// and SecItemDelete miss items that SecItemAdd still treats as duplicates (error 0 /
+    /// `alreadyImported` on Create Wallet, especially in the Simulator after reinstall).
     public func baseQuery(forAccount account: String = "", andKey forKey: String) -> [String: Any] {
-        let query: [String: AnyObject] = [
+        [
             /// Uniquely identify this keychain accessor
             kSecAttrService as String: (darkfiStoredWalletPrefix + forKey) as AnyObject,
             kSecAttrAccount as String: account as AnyObject,
             kSecClass as String: kSecClassGenericPassword,
-            /// The data in the keychain item can be accessed only while the device is unlocked by the user.
-            /// This is recommended for items that need to be accessible only while the application is in the foreground.
-            /// Items with this attribute do not migrate to a new device.
-            /// Thus, after restoring from a backup of a different device, these items will not be present.
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
-
-        return query
     }
 
     public func restoreQuery(forAccount account: String = "", andKey forKey: String) -> [String: Any] {
@@ -181,7 +210,14 @@ public struct WalletStorage {
         var result: AnyObject?
         _ = secItem.copyMatching(query as CFDictionary, &result)
 
-        return result as? Data
+        if let data = result as? Data {
+            return data
+        }
+        #if targetEnvironment(simulator)
+        return readSimulatorWallet(forKey: forKey)
+        #else
+        return nil
+        #endif
     }
 
     /// Use carefully:  Deletes data for key
@@ -193,6 +229,9 @@ public struct WalletStorage {
         let query = baseQuery(forAccount: account, andKey: forKey)
 
         let status = secItem.delete(query as CFDictionary)
+        #if targetEnvironment(simulator)
+        deleteSimulatorWallet(forKey: forKey)
+        #endif
 
         return status == noErr
     }
@@ -203,8 +242,41 @@ public struct WalletStorage {
         forKey: String,
         account: String = ""
     ) throws {
+        try addData(data, forKey: forKey, account: account, accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
+    }
+
+    /// Delete any leftover item, then add. Simulator reinstalls often leave a
+    /// generic-password that `SecItemAdd` treats as duplicate while `SecItemUpdate`
+    /// cannot see it (accessibility / access-group mismatch).
+    public func replaceData(
+        _ data: Data,
+        forKey: String,
+        account: String = ""
+    ) throws {
+        deleteData(forKey: forKey, account: account)
+        do {
+            try addData(data, forKey: forKey, account: account, accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
+        } catch KeychainError.duplicate {
+            do {
+                try updateData(data, forKey: forKey, account: account)
+            } catch {
+                deleteData(forKey: forKey, account: account)
+                // Unsigned Simulator builds sometimes reject ThisDeviceOnly.
+                try addData(data, forKey: forKey, account: account, accessible: kSecAttrAccessibleAfterFirstUnlock)
+            }
+        }
+    }
+
+    private func addData(
+        _ data: Data,
+        forKey: String,
+        account: String,
+        accessible: CFString
+    ) throws {
         var query = baseQuery(forAccount: account, andKey: forKey)
-        query[kSecValueData as String] = data as AnyObject
+        /// Accessibility is set only on add — not on search/delete (see `baseQuery`).
+        query[kSecAttrAccessible as String] = accessible
+        query[kSecValueData as String] = data
 
         var result: AnyObject?
         let status = secItem.add(query as CFDictionary, &result)
@@ -214,6 +286,14 @@ public struct WalletStorage {
         }
 
         guard status == errSecSuccess else {
+            #if targetEnvironment(simulator)
+            // Unsigned Simulator installs (`CODE_SIGNING_ALLOWED=NO`) cannot
+            // use the Keychain: SecItemAdd returns errSecMissingEntitlement (-34018).
+            if status == errSecMissingEntitlement {
+                try writeSimulatorWallet(data, forKey: forKey)
+                return
+            }
+            #endif
             throw KeychainError.unknown(status)
         }
     }
@@ -226,8 +306,8 @@ public struct WalletStorage {
     ) throws {
         let query = baseQuery(forAccount: account, andKey: forKey)
 
-        let attributes: [String: AnyObject] = [
-            kSecValueData as String: data as AnyObject
+        let attributes: [String: Any] = [
+            kSecValueData as String: data
         ]
 
         let status = secItem.update(query as CFDictionary, attributes as CFDictionary)
@@ -237,7 +317,41 @@ public struct WalletStorage {
         }
 
         guard status == errSecSuccess else {
+            #if targetEnvironment(simulator)
+            if status == errSecMissingEntitlement {
+                try writeSimulatorWallet(data, forKey: forKey)
+                return
+            }
+            #endif
             throw KeychainError.unknown(status)
         }
     }
+
+    #if targetEnvironment(simulator)
+    /// File-backed wallet JSON when the Simulator Keychain is unusable.
+    private func simulatorWalletFileURL(forKey key: String) throws -> URL {
+        let dir = try FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        ).appendingPathComponent("darkfi_simulator_keychain", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent(key)
+    }
+
+    private func writeSimulatorWallet(_ data: Data, forKey key: String) throws {
+        try data.write(to: try simulatorWalletFileURL(forKey: key), options: .atomic)
+    }
+
+    private func readSimulatorWallet(forKey key: String) -> Data? {
+        guard let url = try? simulatorWalletFileURL(forKey: key) else { return nil }
+        return try? Data(contentsOf: url)
+    }
+
+    private func deleteSimulatorWallet(forKey key: String) {
+        guard let url = try? simulatorWalletFileURL(forKey: key) else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
+    #endif
 }
