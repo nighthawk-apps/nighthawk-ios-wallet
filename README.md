@@ -29,7 +29,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.008 (build 8):** Fjall wallet-handle serialization, Keychain replace, chat readability + outbound HUD slots. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.008 (build 8):** Fjall wallet-handle serialization, Keychain replace, chat readability + outbound HUD slots. Native sent-tx session cache is FIFO-capped (10,000). Reorg “transactions affected” is counted from `drk.get_txs_history()`, not a constant. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -374,6 +374,7 @@ Checklist: [`docs/verification-checklist.md`](docs/verification-checklist.md).
 | Step | Command |
 |------|---------|
 | Rust check | `cd rust && cargo check -p darkfi-mobile-ffi` |
+| UniFFI crate tests | `cd rust && cargo test -p darkfi-mobile-ffi --lib` |
 | FFI + XCFramework | `./scripts/build-darkfi-mobile-ffi-ios.sh` |
 | Simulator build | `xcodebuild -project stealth.xcodeproj -scheme stealth-testnet -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build` |
 | Swift tests | `xcodebuild test … -only-testing:stealthTests` |
