@@ -13,7 +13,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | 🚀 | iOS-ahead feature (not a hard exclusive — Android may use a different implementation) |
 
 **Light client path:** wallets → **`darkfi-lightwalletd` gRPC `:9067`** (UnifOMR) → `darkfid`.  
-**Chat:** DarkIRC on both platforms (iOS in-process UniFFI; Android embedded `darkirc_exec`).
+**Chat:** DarkIRC on **both** platforms is in-process UniFFI (`start_darkirc`). Android may still package optional `darkirc_exec` (legacy). Nearby **Nighthawk Mesh** is an encrypted EventGraph hop over BLE (share-internet off).
 
 ## 1. Onboarding & wallet core
 
@@ -86,17 +86,18 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 
 | Feature | iOS | Android | Notes |
 |---------|-----|---------|-------|
-| Public IRC channels | ✅ | ✅ | iOS: in-process; Android: Kotlin IRC client |
-| Embedded `darkirc` | 🚀 | ✅ | iOS: **native in-process** via UniFFI callback; Android: subprocess `darkirc_exec` |
-| Tor for chat / P2P | 🚀 | ✅ | iOS: Arti in-process; Android: tor-android SOCKS |
+| Public `#` channels | ✅ | ✅ | Both: in-process UniFFI `start_darkirc` |
+| In-process EventGraph | ✅ | ✅ | Same crate; iOS staticlib / Android `.so` |
+| Optional `darkirc_exec` | ❌ | 🟡 | Android legacy IRC subprocess only |
+| Tor for chat / P2P | ✅ | ✅ | iOS: Arti in-process; Android: tor-android SOCKS |
 | Connection status | ✅ | ✅ | `darkirc_status()` polling |
-| Chat settings navigation | ✅ | ✅ | Settings → Chat Settings (stack push) |
-| Chat settings | ✅ | ✅ | DAG hours, fast mode, E2E channels/contacts persisted |
-| E2E encrypted DMs | ✅ | ✅ | ChaCha via UniFFI; `DarkircCryptoStore` |
-| DM key generation | 🚀 | 🟡 | iOS: native `generate_dm_keypair()`; Android: CLI keygen |
-| DM contact management | ✅ | ✅ | `DarkircContactManager` + `NewDmConversationView` |
-| DM pubkey parser | ✅ | ✅ | `DarkircDmPubkeyParser` |
+| Chat settings navigation | ✅ | ✅ | Settings → Chat Settings |
+| Chat settings | ✅ | ✅ | DAG hours, fast mode, E2E contacts persisted |
+| E2E encrypted DMs | ✅ | ✅ | ChaCha UniFFI; daemon refuses plaintext DMs |
+| DM key generation | ✅ | ✅ | `generate_dm_keypair()` on both |
+| DM contact management | ✅ | ✅ | `DarkircContactManager` + crypto store |
 | DAG history | ✅ | ✅ | EventGraph replays on connect |
+| Nighthawk Mesh (BLE EventGraph hop) | ✅ | ✅ | Encrypted DAG only; share-internet **off** — [nighthawk-mesh.md](nighthawk-mesh.md) |
 
 ---
 
@@ -141,9 +142,10 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Stub synchronizer fallback | ✅ | `StubDarkfiSynchronizer` |
 | Tip `drk` (turso + aegis256) | ✅ | Same Rust crate / pin |
 | Payment memo FFI | ✅ | Same `payment_memo` APIs |
-| Arti Tor proxy | 🚀 | ❌ (uses tor-android) |
-| DM keypair generation | 🚀 | ❌ (CLI keygen) |
-| In-process darkirc | 🚀 | ❌ (subprocess) |
+| Arti Tor proxy | 🚀 | ❌ (Guardian tor-android SOCKS) |
+| DM keypair generation | ✅ | ✅ (`generate_dm_keypair` UniFFI) |
+| In-process darkirc | ✅ | ✅ (`start_darkirc`) |
+| Nighthawk Mesh C ABI | ✅ | ✅ (`nh_mesh_*`; UniFFI UDL unchanged) |
 | DAO FFI (list/proposals/detail) | ✅ | Same UDL |
 
 ---
@@ -172,9 +174,10 @@ When implementing each screen, tick against this list:
 2. Same **endpoint ports** and mismatch guard.
 3. **Memo** send + tx detail parity.
 4. **Tor** toggle behavior (wallet RPC + chat).
-5. **Chat** in-process daemon (iOS) vs subprocess (Android) — same user experience.
-6. **Native library** load failure messaging (no silent wrong balances).
-7. Document any intentional **omission** (e.g. no embedded darkfid on iOS).
+5. **Chat** in-process UniFFI on both platforms.
+6. **Nighthawk Mesh** EventGraph-only (no share-internet).
+7. **Native library** load failure messaging (no silent wrong balances).
+8. Document any intentional **omission** (e.g. no embedded darkfid on iOS).
 
 ---
 

@@ -94,6 +94,12 @@ private extension AppView {
                             self.store.send(.path(.popFrom(id: id)))
                         }
 
+                case let .meshSettings(store):
+                    MeshSettingsView(store: store)
+                        .nighthawkChrome(showBack: showBackButton, title: "Nighthawk Mesh") {
+                            self.store.send(.path(.popFrom(id: id)))
+                        }
+
                 case let .daoHub(store):
                     // DaoHub owns internal back on detail/proposal; App back only on hub.
                     DaoHubView(store: store)

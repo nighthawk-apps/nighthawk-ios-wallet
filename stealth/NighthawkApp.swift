@@ -37,15 +37,18 @@ struct NighthawkApp: App {
                     // End DarkIRC background task; Chat reducer's scenePhaseChanged
                     // reconnects with a fresh event callback if the daemon died.
                     DarkircDaemonManager.shared.handleForegrounding()
+                    NighthawkMeshController.shared.handleScene(.active)
 
                 case .inactive:
                     privacyBlur = true
+                    NighthawkMeshController.shared.handleScene(.inactive)
 
                 case .background:
                     privacyBlur = true
                     // Don't stop darkirc — request a short background execution
                     // window so P2P/DAG can survive the OS grace period.
                     DarkircDaemonManager.shared.handleBackgrounding()
+                    NighthawkMeshController.shared.handleScene(.background)
 
                     // Schedule background sync task
                     let request = BGAppRefreshTaskRequest(identifier: "com.nighthawkapps.sync")
@@ -79,6 +82,14 @@ struct NighthawkApp: App {
 
     init() {
         FontFamily.registerAllCustomFonts()
+        let isUiTestHost = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        if isUiTestHost {
+            prepareDependencies {
+                $0.continuousClock = ImmediateClock()
+            }
+            return
+        }
+        NighthawkMeshController.shared.restoreIfNeeded()
         // SwiftUI `backgroundTask` only handles appRefresh / urlSession on this
         // SDK. BGProcessingTask needs a classic scheduler registration.
         BGTaskScheduler.shared.register(

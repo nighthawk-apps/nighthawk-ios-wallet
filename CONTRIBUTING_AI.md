@@ -36,8 +36,9 @@ See [`AI_CONTEXT.md`](AI_CONTEXT.md) for language-specific rules:
 When modifying the UniFFI interface (`darkfi_mobile_ffi.udl`):
 - Changes affect **both** iOS (Swift bindings) and Android (Kotlin bindings).
 - Test on both platforms or clearly document platform-specific additions.
-- iOS-specific exports: `start_arti_proxy`, `generate_dm_keypair`.
-- Android-specific behavior: `send_chat_message` has different signature.
+- `start_darkirc`, `generate_dm_keypair`, and `send_chat_message` are shared.
+- `start_arti_proxy` is used on iOS; Android chat/wallet SOCKS uses Guardian tor-android.
+- Mesh neighbor APIs are **C ABI** (`nh_mesh_*`), not UDL — rebuild with `SKIP_UNIFFI_BINDGEN=1` and keep `src/mesh/` lockstep with Android.
 
 ## 6. Documentation Updates
 
@@ -45,3 +46,4 @@ When adding features, update:
 - [`docs/app-features.md`](docs/app-features.md) — Feature catalog status
 - [`docs/implementation-plan.md`](docs/implementation-plan.md) — Task completion
 - [`docs/darkfi-integration.md`](docs/darkfi-integration.md) — Architecture changes
+- [`docs/nighthawk-mesh.md`](docs/nighthawk-mesh.md) — BLE EventGraph hop (if radio/mesh changes)

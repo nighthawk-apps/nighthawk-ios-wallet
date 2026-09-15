@@ -17,7 +17,10 @@ final class LiveUnifOmrE2eTests: XCTestCase {
     func testRestoreSyncAndTransferLiveTestnet() throws {
         let env = ProcessInfo.processInfo.environment
         let mnemonicRaw = loadMnemonic(env: env)
-        XCTAssertFalse(mnemonicRaw.isEmpty, "Set TEST_RUNNER_E2E_MNEMONIC or /tmp/e2e_wallets/ios.txt")
+        try XCTSkipIf(
+            mnemonicRaw.isEmpty,
+            "Set TEST_RUNNER_E2E_MNEMONIC or /tmp/e2e_wallets/ios.txt to run live UnifOMR e2e"
+        )
         let seedWords = mnemonicRaw.split(whereSeparator: \.isWhitespace).map(String.init)
         XCTAssertEqual(seedWords.count, 22, "Restore phrase must be 22 words")
 

@@ -82,6 +82,18 @@
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
+	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Nighthawk Mesh uses Bluetooth to chat and relay small wallet requests with nearby Nighthawk users when you have no internet. Nighthawk does not use Bluetooth to determine your location.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Nearby Nighthawk users discover this device over Bluetooth so messages can hop through you. This does not expose your wallet keys.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Nighthawk Mesh uses the local network for a short high-bandwidth link to a nearby Nighthawk gateway during wallet sync. Traffic to lightwalletd stays encrypted.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_nighthawk-mesh._tcp</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

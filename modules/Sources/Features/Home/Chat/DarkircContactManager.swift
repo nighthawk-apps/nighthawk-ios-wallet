@@ -30,6 +30,22 @@ public enum DarkircContactManager {
         return (kp.secretB58, kp.publicB58)
     }
 
+    public static func encryptIfNeeded(
+        channel: String,
+        plaintext: String,
+        contacts: [DmContact]
+    ) -> String {
+        if channel.hasPrefix("#") { return plaintext }
+        guard let contact = contacts.first(where: { $0.contactLabel == channel }) else {
+            return plaintext
+        }
+        return encryptMessage(
+            mySecretB58: contact.mySecretB58,
+            theirPublicB58: contact.theirPublicB58,
+            plaintext: plaintext
+        ) ?? plaintext
+    }
+
     /// Encrypt a DM message using ChaCha20 via FFI.
     /// Returns base58-encoded ciphertext, or nil if encryption fails.
     public static func encryptMessage(

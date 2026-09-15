@@ -600,9 +600,15 @@ public struct Chat {
                             let target = String(msgParts[0]).trimmingCharacters(in: .whitespacesAndNewlines)
                             let msgContent = String(msgParts[1]).trimmingCharacters(in: .whitespacesAndNewlines)
                             let nick = state.nickname
+                            let contacts = state.dmContacts
                             return .run { send in
                                 do {
-                                    try sendChatMessage(channel: target, nick: nick, message: msgContent)
+                                    let wire = DarkircContactManager.encryptIfNeeded(
+                                        channel: target,
+                                        plaintext: msgContent,
+                                        contacts: contacts
+                                    )
+                                    try sendChatMessage(channel: target, nick: nick, message: wire)
                                 } catch {
                                     await send(.ircBridgeError("Send /msg failed: \(error.localizedDescription)"))
                                 }
@@ -675,9 +681,15 @@ public struct Chat {
                 let channelTarget = channel.name
                 let nick = state.nickname
                 let optimisticId = message.id
+                let contacts = state.dmContacts
                 return .run { send in
                     do {
-                        try sendChatMessage(channel: channelTarget, nick: nick, message: text)
+                        let wire = DarkircContactManager.encryptIfNeeded(
+                            channel: channelTarget,
+                            plaintext: text,
+                            contacts: contacts
+                        )
+                        try sendChatMessage(channel: channelTarget, nick: nick, message: wire)
                     } catch {
                         await send(.ircBridgeError("Send failed: \(error.localizedDescription)"))
                         await send(.removeOptimisticMessage(id: optimisticId, channel: channelTarget))

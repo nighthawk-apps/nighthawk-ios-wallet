@@ -8,7 +8,8 @@ Index of all project documentation for the Nighthawk iOS DarkFi wallet.
 |----------|-------------|
 | [Darkfi_iOS_Architecture.md](Darkfi_iOS_Architecture.md) | Core architecture: TCA state management, wallet integration walkthrough, DarkIRC chat feature, development guidelines |
 | [darkfi-integration.md](darkfi-integration.md) | DarkFi integration layers, Swift SDK, Rust UniFFI crate, endpoint configuration, upstream parity status |
-| [darkirc-ios.md](darkirc-ios.md) | In-process DarkIRC architecture: callback bridge, iOS vs Android comparison, DM E2E encryption |
+| [darkirc-ios.md](darkirc-ios.md) | In-process DarkIRC: callback bridge, iOS vs Android (both UniFFI) |
+| [nighthawk-mesh.md](nighthawk-mesh.md) | Encrypted EventGraph hop over BLE (share-internet off) |
 
 ## Features & planning
 
@@ -46,6 +47,6 @@ Index of all project documentation for the Nighthawk iOS DarkFi wallet.
 | [AI_CONTEXT.md](../AI_CONTEXT.md) | Coding instructions for AI agents |
 | [CODE_STRUCTURE.md](../CODE_STRUCTURE.md) | TCA code structure conventions |
 | [CONDUCT.md](../CONDUCT.md) | Code of conduct |
-| [CHANGELOG.md](../CHANGELOG.md) | Release changelog |
+| [CHANGELOG.md](../CHANGELOG.md) | Historical Zcash-era changelog; DarkFi notes live in the README / TestFlight blurb (**3.00.010**) |
 | [SWIFTLINT.md](../SWIFTLINT.md) | SwiftLint configuration guide |
 | [CODE_REVIEW_GUIDELINES.md](../CODE_REVIEW_GUIDELINES.md) | Code review standards |

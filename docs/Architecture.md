@@ -7,4 +7,5 @@ Our App architecture is based on [The Composable Architecture](https://github.co
 See also:
 - [DarkFi Integration Architecture](darkfi-integration.md) — layers, SDK, FFI, endpoint configuration
 - [DarkIRC on iOS](darkirc-ios.md) — in-process darkirc via callback bridge
+- [Nighthawk Mesh](nighthawk-mesh.md) — encrypted EventGraph hop over BLE
 - [Feature Catalog](app-features.md) — iOS vs Android feature parity

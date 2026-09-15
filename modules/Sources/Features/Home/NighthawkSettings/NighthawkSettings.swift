@@ -33,6 +33,7 @@ public struct NighthawkSettings {
             case chatSettings
             case daoHub
             case fiat
+            case meshSettings
             case notifications
             case rescan
             case security

@@ -21,6 +21,9 @@ public struct ChatSettings {
         public var useEmbeddedDarkirc: Bool = false
         public var dagHistoryHours: Int = 8
         public var fastSyncMode: Bool = false
+        public var meshOn: Bool = false
+        public var meshGateway: Bool = false
+        public var meshAlwaysOn: Bool = true
 
         // E2E encrypted channels
         public struct EncryptedChannel: Equatable, Identifiable, Codable {
@@ -59,6 +62,9 @@ public struct ChatSettings {
         case toggleEmbeddedDarkirc(Bool)
         case setDagHistoryHours(Int)
         case toggleFastSync(Bool)
+        case toggleMesh(Bool)
+        case toggleMeshGateway(Bool)
+        case toggleMeshAlwaysOn(Bool)
         case applyAndReconnect
 
         // E2E channels
@@ -166,6 +172,20 @@ public struct ChatSettings {
                 state.fastSyncMode = enabled
                 userStoredPreferences.setDarkircFastMode(enabled)
                 return .none
+            case let .toggleMesh(enabled):
+                state.meshOn = enabled
+                NighthawkMeshController.shared.setAlwaysOn(state.meshAlwaysOn)
+                NighthawkMeshController.shared.setGatewayOptIn(false)
+                NighthawkMeshController.shared.setMeshOn(enabled)
+                return .none
+            case .toggleMeshGateway:
+                state.meshGateway = false
+                NighthawkMeshController.shared.setGatewayOptIn(false)
+                return .none
+            case let .toggleMeshAlwaysOn(enabled):
+                state.meshAlwaysOn = enabled
+                NighthawkMeshController.shared.setAlwaysOn(enabled)
+                return .none
             case .applyAndReconnect:
                 savePreferences(from: state)
                 return .run { _ in
@@ -258,6 +278,9 @@ private extension ChatSettings {
         state.useEmbeddedDarkirc = userStoredPreferences.runEmbeddedDarkirc()
         state.dagHistoryHours = userStoredPreferences.darkircDagsCount()
         state.fastSyncMode = userStoredPreferences.darkircFastMode()
+        state.meshOn = NighthawkMeshController.shared.meshOn
+        state.meshGateway = NighthawkMeshController.shared.gatewayOptIn
+        state.meshAlwaysOn = NighthawkMeshController.shared.alwaysOn
         state.myDmPublicKey = userStoredPreferences.dmPublicKey()
         state.encryptedChannels = decodeJSON(
             userStoredPreferences.encryptedChannelsJSON(),

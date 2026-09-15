@@ -108,7 +108,11 @@ DarkIRC provides end-to-end encrypted (E2E), anonymous chatting over the DarkFi 
   - Displays the active channels, DMs, and real-time chat bubbles via TCA state bindings.
 
 ### Sending Messages:
-When a user types a message and hits send, the TCA action `.sendMessage` invokes `send_chat_message(channel:nick:message:)` (same signature as Android). This is an FFI call that builds an `EventGraph` `Event` carrying an upstream-compatible `Privmsg`, inserts it into the Header DAG + DAG (keyed by the genesis timestamp), and broadcasts it to the P2P network.
+When a user types a message and hits send, the TCA action `.sendMessage` invokes `send_chat_message(channel:nick:message:)` (same signature as Android). This is an FFI call that builds an `EventGraph` `Event` carrying an upstream-compatible `Privmsg`, inserts it into the Header DAG + DAG, broadcasts it to P2P, and gossips a clone onto **Nighthawk Mesh** when the BLE engine is running. DMs must be saltbox before send.
+
+### Nighthawk Mesh (BLE)
+
+Optional encrypted EventGraph hop. Chat UI does **not** parse mesh frames. Share-internet is off. See [nighthawk-mesh.md](nighthawk-mesh.md).
 
 ### DM (Direct Messages):
 - **Contact management**: `DarkircContactManager` + `DarkircCryptoStore` manage E2E contacts.
@@ -219,6 +223,7 @@ nighthawk-ios-wallet/
 
 - [`darkfi-integration.md`](darkfi-integration.md) — Full integration architecture and upstream parity
 - [`darkirc-ios.md`](darkirc-ios.md) — In-process DarkIRC details
+- [`nighthawk-mesh.md`](nighthawk-mesh.md) — Encrypted EventGraph hop over BLE
 - [`app-features.md`](app-features.md) — Feature catalog
 - [`implementation-plan.md`](implementation-plan.md) — P0–P4 task list
 - [`security-threat-model.md`](security-threat-model.md) — Security model

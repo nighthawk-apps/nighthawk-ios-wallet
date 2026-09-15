@@ -359,6 +359,7 @@ extension SDKSynchronizerClient: DependencyKey {
                         protoVersionMismatch: lightState.protoVersionMismatch
                     ))
                 } catch {
+                    NotificationCenter.default.post(name: .nighthawkLightwalletdUnreachable, object: nil)
                     WalletHandleManager.shared.updateState(SynchronizerState(
                         syncStatus: .error(error.localizedDescription),
                         confirmedBalance: 0,
@@ -378,21 +379,26 @@ extension SDKSynchronizerClient: DependencyKey {
             WalletHandleManager.shared.handle != nil
         },
         refreshNow: {
-            try WalletHandleManager.shared.requireHandle { handle in
-                let snapshot = try handle.refreshNow()
-                let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
-                let lightState = handle.lightSyncSnapshot()
-                WalletHandleManager.shared.updateState(SynchronizerState(
-                    syncStatus: lightState.protoVersionMismatch
-                        ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
-                        : .upToDate,
-                    confirmedBalance: balance,
-                    latestBlockHeight: BlockHeight(snapshot.chainTip),
-                    activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
-                    fallbackReason: String(describing: lightState.fallbackReason),
-                    fallbackUserMessage: lightState.fallbackUserMessage,
-                    protoVersionMismatch: lightState.protoVersionMismatch
-                ))
+            do {
+                try WalletHandleManager.shared.requireHandle { handle in
+                    let snapshot = try handle.refreshNow()
+                    let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
+                    let lightState = handle.lightSyncSnapshot()
+                    WalletHandleManager.shared.updateState(SynchronizerState(
+                        syncStatus: lightState.protoVersionMismatch
+                            ? .error("Lightwallet protocol version mismatch. Update Nighthawk.")
+                            : .upToDate,
+                        confirmedBalance: balance,
+                        latestBlockHeight: BlockHeight(snapshot.chainTip),
+                        activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                        fallbackReason: String(describing: lightState.fallbackReason),
+                        fallbackUserMessage: lightState.fallbackUserMessage,
+                        protoVersionMismatch: lightState.protoVersionMismatch
+                    ))
+                }
+            } catch {
+                NotificationCenter.default.post(name: .nighthawkLightwalletdUnreachable, object: nil)
+                throw error
             }
         },
         getConfirmedBalance: {

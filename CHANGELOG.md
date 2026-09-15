@@ -1,4 +1,7 @@
 # Changelog
+
+DarkFi-era version notes live in the root [README.md](README.md) (TestFlight **3.00.010** build 10) and [docs/app-features.md](docs/app-features.md). Entries below are the historical **Zcash / Nighthawk** 0.0.1 changelog and are not the current product.
+
 # 0.0.1 build 52
 - [#709] Better error handling in tests (#713)
 

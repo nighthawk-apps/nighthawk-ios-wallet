@@ -4,7 +4,7 @@
   <img src="docs/images/ios-testnet.png" alt="Nighthawk iOS — DarkFi chat syncing on testnet" width="320">
 </p>
 
-Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
+Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI 0.32** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat. Toolchain: iOS **17+**, Swift **5**, TCA **1.26.1**, Swift tools **5.9**.
 
 ## Contents
 
@@ -14,6 +14,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 - [Build](#build)
 - [Wallet & recovery phrase](#wallet--recovery-phrase-22-words)
 - [Chat (DarkIRC)](#chat-darkirc--eventgraph)
+- [Nighthawk Mesh](#nighthawk-mesh-encrypted-eventgraph-hop)
 - [Architecture](#architecture)
 - [DAO Hub](#dao-hub)
 - [Privacy & security](#privacy--security)
@@ -29,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.008 (build 8):** Fjall wallet-handle serialization, Keychain replace, chat readability + outbound HUD slots. Native sent-tx session cache is FIFO-capped (10,000). Reorg “transactions affected” is counted from `drk.get_txs_history()`, not a constant. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.010 (build 10):** Encrypted nearby DarkIRC EventGraph hop over BLE (Noise; share-internet off). Chat stays in-process UniFFI. Native sent-tx session cache is FIFO-capped (10,000). Reorg “transactions affected” is counted from `drk.get_txs_history()`, not a constant. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -71,6 +72,8 @@ rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 
 # 3) UniFFI wallet native lib (REQUIRED — XCFramework .a binaries are gitignored)
 ./scripts/build-darkfi-mobile-ffi-ios.sh
+# Mesh C ABI only (keep committed UniFFI Swift):
+#   SKIP_UNIFFI_BINDGEN=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 # Faster simulator-only (NOT for TestFlight/device Archive):
 #   SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 
@@ -80,7 +83,7 @@ open stealth.xcodeproj
 # Destination: simulator or device → ⌘B / ⌘R
 ```
 
-> **TestFlight / Archive:** `DarkfiCore.xcframework` static libraries (`*.a`) are **not** in git (see `.gitignore`). A clean clone cannot link until you run the full `./scripts/build-darkfi-mobile-ffi-ios.sh` (device + simulator). Never Archive with `SIM_ONLY=1`. Re-run after Rust/UDL changes so UniFFI Swift checksums match the binary.
+> **TestFlight / Archive:** `DarkfiCore.xcframework` static libraries (`*.a`) are **not** in git (see `.gitignore`). A clean clone cannot link until you run the full `./scripts/build-darkfi-mobile-ffi-ios.sh` (device + simulator). Never Archive with `SIM_ONLY=1`. Re-run after Rust/UDL changes so UniFFI Swift checksums match the binary. After **mesh C ABI** changes only, set `SKIP_UNIFFI_BINDGEN=1`.
 
 **Physical device from Terminal** (run in Terminal.app so codesign can access Keychain):
 
@@ -124,7 +127,7 @@ All helpers live in [`scripts/`](scripts/).
 
 | Script | Purpose |
 |--------|---------|
-| [`build-darkfi-mobile-ffi-ios.sh`](scripts/build-darkfi-mobile-ffi-ios.sh) | **Required.** Cross-compiles FFI for device + simulator, UniFFI bindgen, packages `DarkfiCore.xcframework`. `SIM_ONLY=1` skips device slice. |
+| [`build-darkfi-mobile-ffi-ios.sh`](scripts/build-darkfi-mobile-ffi-ios.sh) | **Required.** Cross-compiles FFI for device + simulator, packages `DarkfiCore.xcframework`. `SKIP_UNIFFI_BINDGEN=1` keeps committed Swift. `SIM_ONLY=1` / `DEVICE_ONLY=1` skip a slice. |
 | [`build-darkirc-ios.sh`](scripts/build-darkirc-ios.sh) | **Optional.** Standalone `darkirc_exec` (not used by default chat). |
 | [`deploy-ios-device.sh`](scripts/deploy-ios-device.sh) | Clean rebuild, install, launch on a connected iPhone (`stealth-testnet` by default). |
 
@@ -144,7 +147,7 @@ All helpers live in [`scripts/`](scripts/).
 # SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 ```
 
-The script passes `--lib` (the `test_sync` helper bin uses `android_logger`, which is Android-only). Produces `libdarkfi_mobile_ffi.a` (device + sim), regenerates `darkfi_mobile_ffi.swift` / headers, refreshes `DarkfiCore.xcframework`. The `.a` files stay local (gitignored); headers/Swift/Info.plist are committed. Re-run when Rust or the UDL changes, and **always** before TestFlight Archive.
+The script passes `--lib` (the `test_sync` helper bin uses `android_logger`, which is Android-only). Produces `libdarkfi_mobile_ffi.a` (device + sim) and refreshes `DarkfiCore.xcframework`. Set `SKIP_UNIFFI_BINDGEN=1` after mesh C ABI changes to keep committed Swift/headers. Omit that flag after UDL changes. The `.a` files stay local (gitignored); headers/Swift/Info.plist are committed. Re-run **always** before TestFlight Archive.
 
 Details: [`rust/darkfi-mobile-ffi/`](rust/darkfi-mobile-ffi/).  
 Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/implementation-plan.md`](docs/implementation-plan.md).
@@ -222,22 +225,28 @@ Re-displays the stored phrase (with confirmation). Does not reset the onboarding
 
 ## Chat (DarkIRC / EventGraph)
 
-In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Swift `AsyncStream`. No bundled `darkirc` subprocess required. See [DarkIRC on iOS](docs/darkirc-ios.md).
+In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Swift `AsyncStream`. Same model as Android (`start_darkirc`). No bundled `darkirc` subprocess. See [DarkIRC on iOS](docs/darkirc-ios.md) and [Nighthawk Mesh](docs/nighthawk-mesh.md).
 
 | Capability | Behavior |
 |------------|----------|
 | Transport | EventGraph P2P via `DarkfiCore.xcframework` |
+| Nearby hop | Optional BLE **Nighthawk Mesh** — encrypted EventGraph only (no share-internet this pass) |
 | Tor | `start_darkirc(..., useTor: true)` → arti / onion seeds |
 | Standalone Arti SOCKS | `start_arti_proxy()` for wallet/LWD HTTP clients |
 | Public channels | `#dev`, `#media`, `#hackers`, `#memes`, `#philosophy`, `#markets`, `#math`, `#random`, `#lunardao` |
-| E2E DMs | `chacha_encrypt_dm` / `chacha_decrypt_dm` |
+| E2E DMs | `chacha_encrypt_dm` / `chacha_decrypt_dm`; daemon refuses plaintext DMs |
 | Status | `darkirc_status()` polling |
 | DAG history | First P2P connect can take several minutes |
 
 ```bash
 ./scripts/build-darkfi-mobile-ffi-ios.sh
-cd rust && cargo test -p darkfi-mobile-ffi --lib darkirc && cd ..
 ```
+
+---
+
+## Nighthawk Mesh (encrypted EventGraph hop)
+
+Optional nearby BLE hop for **encrypted DarkIRC DAG** frames. Chat still goes through EventGraph → callback → UI. Share-internet / SoftAP / BLE LWD are **off**. Rebuild with `SKIP_UNIFFI_BINDGEN=1` after mesh C ABI changes. Full write-up: [docs/nighthawk-mesh.md](docs/nighthawk-mesh.md).
 
 ---
 
@@ -248,14 +257,14 @@ cd rust && cargo test -p darkfi-mobile-ffi --lib darkirc && cd ..
 - **Settings:** Chat (identity, Tor, DMs), Change server, Security (PIN), Fiat, About.
 - **Wallet SDK:** `SDKSynchronizerLive` / `WalletHandleManager` wrapping `DarkfiWalletHandle`; Combine streams to TCA.
 - **Balance:** single confirmed/spendable DRK tally.
-- **Native:** UniFFI staticlib → `DarkfiCore.xcframework`. Rebuild after `rust/darkfi-mobile-ffi` changes.
+- **Native:** UniFFI **0.32** staticlib → `DarkfiCore.xcframework`. Mesh C ABI: `SKIP_UNIFFI_BINDGEN=1`. Device + sim slices rebuilt with neighbor symbols.
 - **Lightwalletd:** default `tcp://127.0.0.1:9067`; remote HTTPS needs `LIGHTWALLET_TLS_PIN_SHA256`.
 
 ### UniFFI & native bridge
 
 | Piece | Role |
 |-------|------|
-| **`rust/darkfi-mobile-ffi`** | UniFFI `staticlib` + UDL; `p2p-tor` for chat |
+| **`rust/darkfi-mobile-ffi`** | UniFFI **0.32** `staticlib` + UDL; `p2p-tor` for chat; mesh C ABI |
 | **Generated Swift** | `DarkfiMobileFfi.swift` + `DarkfiMobileFfiFFI.h` |
 | **`DarkfiCore.xcframework`** | Binary target via SwiftPM |
 | **`DarkfiWalletHandle`** | Init, balance, sync, transfer, history, DAO, addresses |

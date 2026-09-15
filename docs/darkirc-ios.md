@@ -1,6 +1,8 @@
 # DarkIRC on iOS — in-process architecture
 
-iOS runs the DarkIRC daemon **in-process** via the Rust FFI layer, unlike Android which runs a separate `darkirc_exec` subprocess. This document explains the architecture and differences.
+iOS and Android both run the DarkIRC daemon **in-process** via UniFFI (`start_darkirc` + `DarkircEventCallback`). Android may still package an optional `darkirc_exec` subprocess for a **legacy IRC** path; it is not how the Chat tab talks to EventGraph today.
+
+Nearby **Nighthawk Mesh** (BLE) is an encrypted EventGraph hop only — see [nighthawk-mesh.md](nighthawk-mesh.md). Chat UI does not parse mesh frames.
 
 ## Architecture overview
 
@@ -60,7 +62,7 @@ Because the daemon reports `running` (and the UI flips to "Connected (Tor)") onl
 
 1. User types message and taps Send.
 2. TCA reducer dispatches to `send_chat_message(channel, nick, message)` (UniFFI) — same signature as Android.
-3. Rust builds an `Event` carrying a `Privmsg { version, msg_type, channel, nick, msg }` (byte-for-byte upstream `darkirc` layout), inserts the header into the Header DAG then the event into the DAG (keyed by the genesis timestamp), and broadcasts it via `EventPut(event, vec![])` (empty RLN blob).
+3. Rust builds an `Event` carrying a `Privmsg { version, msg_type, channel, nick, msg }` (byte-for-byte upstream `darkirc` layout), inserts the header into the Header DAG then the event into the DAG, and broadcasts it via `EventPut(event, blob)`. A clone of the event is also gossiped onto **Nighthawk Mesh** when the mesh engine is running. DMs must already be saltbox (wallet encrypts before `send_chat_message`); the daemon rejects plaintext DMs.
 
 ### Stopping the daemon
 
@@ -71,13 +73,14 @@ Because the daemon reports `running` (and the UI flips to "Connected (Tor)") onl
 
 | Aspect | iOS | Android |
 |--------|-----|---------|
-| **Daemon model** | In-process (same memory space) | Subprocess (`darkirc_exec` binary) |
-| **Communication** | UniFFI callback bridge | IRC TCP socket to `127.0.0.1:6667` |
-| **Lifecycle** | Tied to app process | Foreground service (survives app backgrounding) |
-| **P2P/DAG** | Native Rust in-process | Native Rust in subprocess |
-| **Tor** | Native darkfi transport (in-process arti, `p2p-tor`, `tor://` seeds) | Guardian tor-android SOCKS |
-| **Memory** | Shares app heap | Separate process memory |
-| **Background execution** | Limited by iOS (suspended when backgrounded) | Foreground service keeps running |
+| **Daemon model** | In-process UniFFI | In-process UniFFI (same crate) |
+| **Communication** | `DarkircEventCallback` → `AsyncStream` | `DarkircEventCallback` → Kotlin |
+| **Lifecycle** | Tied to app process | Tied to app process |
+| **P2P/DAG** | Native Rust in-process | Native Rust in-process |
+| **Nearby hop** | BLE Nighthawk Mesh (encrypted EventGraph) | Same engine; JNA + GATT |
+| **Tor** | Native darkfi transport (in-process arti, `p2p-tor`) | Guardian tor-android SOCKS |
+| **Legacy IRC** | None | Optional `darkirc_exec` + Kotlin IRC (not default) |
+| **Background** | Suspended when backgrounded | Process can keep running; mesh/chat still need the UniFFI daemon |
 
 ## Advantages of in-process model (iOS)
 
@@ -91,7 +94,7 @@ Because the daemon reports `running` (and the UI flips to "Connected (Tor)") onl
 - **Background execution**: iOS suspends the app (and darkirc) when backgrounded. Messages are missed until the app is foregrounded.
 - **Memory pressure**: The darkirc daemon + EventGraph + P2P connections consume memory in the app's allocation.
 - **First sync**: P2P/DAG sync can take several minutes; the UI shows a loading state during this period.
-- **No IRC client**: Unlike Android (which uses a Kotlin IRC client against the daemon's TCP listener), iOS bypasses IRC entirely — messages flow through the callback bridge.
+- **No IRC client**: Messages flow through the UniFFI callback bridge on both platforms. Android’s Kotlin IRC client is leftover for the optional `darkirc_exec` path.
 
 ## Configuration
 
@@ -105,7 +108,7 @@ The darkirc daemon uses upstream defaults for P2P seeds:
 
 DMs use the same upstream protocol as Android:
 
-1. **Key generation**: `generate_dm_keypair()` → `DmKeypair { secret_b58, public_b58 }` (iOS-specific UniFFI; Android uses CLI keygen).
+1. **Key generation**: `generate_dm_keypair()` → `DmKeypair { secret_b58, public_b58 }` (same UniFFI on Android).
 2. **Contact management**: `DarkircContactManager` + `DarkircCryptoStore` persist contacts with their ChaCha public keys.
 3. **Encryption**: `chacha_encrypt_dm(my_secret, their_public, plaintext)` before send.
 4. **Decryption**: `chacha_decrypt_dm(my_secret, their_public, ciphertext_b58)` on receive.
@@ -115,4 +118,4 @@ DMs use the same upstream protocol as Android:
 
 - [`darkfi-integration.md`](darkfi-integration.md) — Full integration architecture
 - [`app-features.md`](app-features.md) — Feature catalog (Chat section)
-- [`Darkfi_iOS_Architecture.md`](Darkfi_iOS_Architecture.md) — TCA architecture walkthrough
+- [`nighthawk-mesh.md`](nighthawk-mesh.md) — Encrypted EventGraph hop over BLE

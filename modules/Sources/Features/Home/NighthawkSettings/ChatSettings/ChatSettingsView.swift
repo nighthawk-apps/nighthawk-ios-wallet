@@ -75,6 +75,34 @@ public struct ChatSettingsView: View {
 
                 Divider().overlay(Asset.Colors.Nighthawk.navy.color)
 
+                sectionHeader("NIGHTHAWK MESH (BETA)")
+
+                toggleRow(
+                    title: "Bluetooth mesh",
+                    subtitle: "Nearby Nighthawk chat over Bluetooth. Works best with the app open. Nighthawk does not use Bluetooth to determine your location.",
+                    isOn: Binding(
+                        get: { store.meshOn },
+                        set: { store.send(.toggleMesh($0)) }
+                    )
+                )
+
+                if store.meshOn {
+                    toggleRow(
+                        title: "Always-on power",
+                        subtitle: "Keep Bluetooth mesh running in the background. Turn off to stop scanning when you leave the app.",
+                        isOn: Binding(
+                            get: { store.meshAlwaysOn },
+                            set: { store.send(.toggleMeshAlwaysOn($0)) }
+                        )
+                    )
+                    Text("Nearby peers: \(NighthawkMeshController.shared.peerCount). Full mesh controls: Settings → Nighthawk Mesh.")
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .padding(.horizontal)
+                }
+
+                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+
                 // Encrypted Channels section
                 sectionHeader("ENCRYPTED CHANNELS")
 

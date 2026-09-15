@@ -81,6 +81,10 @@ public struct AppReducer {
                     return false
                 }
 
+                if let _ = currentScreen[case: \.meshSettings] {
+                    return false
+                }
+
                 if let _ = currentScreen[case: \.torNetwork] {
                     return false
                 }
@@ -134,6 +138,7 @@ public struct AppReducer {
         case home(Home)
         case importWallet(ImportWallet)
         case importWalletSuccess(ImportWalletSuccess)
+        case meshSettings(MeshSettings)
         case migrate(Migrate)
         case notifications(Notifications)
         case recoveryPhraseDisplay(RecoveryPhraseDisplay)

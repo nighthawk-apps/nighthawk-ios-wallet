@@ -16,6 +16,7 @@ Nighthawk iOS holds wallet seed material, chat crypto keys, and optional PIN gat
 - **Device**: iOS App Sandbox isolates app storage; jailbroken devices are out of scope for strong guarantees.
 - **Network**: Wallet RPC to user-selected `darkfid` endpoints; optional Arti Tor for all network traffic.
 - **P2P**: darkirc connects to upstream P2P seeds; EventGraph messages are public (channels) or E2E encrypted (DMs).
+- **BLE mesh**: Ciphertext EventGraph hop only; no share-internet. Do not log Bluetooth addresses.
 - **Public chat**: DM **public** keys may be posted to `#channels`; users should be warned before sharing keys.
 
 ## Controls
@@ -35,7 +36,8 @@ Nighthawk iOS holds wallet seed material, chat crypto keys, and optional PIN gat
 | Chat keys | Encrypted app-private files | EncryptedSharedPreferences |
 | DM secrets in config | In-memory only (no TOML on disk) | `darkirc_config.toml` (plaintext, app-UID restricted) |
 | Tor | Arti in-process (no loopback proxy) | Guardian tor-android (SOCKS loopback) |
-| Daemon isolation | Shared process | Separate subprocess |
+| Daemon isolation | Shared process (UniFFI) | Shared process (UniFFI); optional legacy `darkirc_exec` |
+| Nearby mesh | BLE GATT, no characteristic READ | BLE GATT, no characteristic READ |
 | Background state | Suspended by iOS | Foreground service persists |
 | Clipboard | iOS auto-clears after paste (14+) | Manual clear on background / 60s timeout |
 | SecureScreen | `UIApplication.isIdleTimerDisabled` for screen lock prevention | `FLAG_SECURE` on sensitive windows |

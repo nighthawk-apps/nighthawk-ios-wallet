@@ -18,7 +18,7 @@ Update status when a task lands; Android column notes what the Kotlin app mirror
 
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
-| P0-1 | Build `libdarkfi_mobile_ffi.a` (arm64 + sim) | done | `./scripts/build-darkfi-mobile-ffi-ios.sh` |
+| P0-1 | Build `libdarkfi_mobile_ffi.a` (arm64 + sim) | done | Mesh C ABI: `SKIP_UNIFFI_BINDGEN=1 ./scripts/build-darkfi-mobile-ffi-ios.sh` |
 | P0-2 | UniFFI Swift bindings generated from UDL | done | All wallet + chat + DAO + Tor APIs |
 | P0-3 | `payment_memos` table migration | done | `Drk::ensure_payment_memos_table()` in Rust |
 | P0-4 | Mainnet endpoint ports (8345 / 18345) | done | `DrkBootstrapConfig.darkfid_endpoint_url` |
@@ -66,6 +66,7 @@ Update status when a task lands; Android column notes what the Kotlin app mirror
 | P3-3 | Chat settings: DAG hours, fast mode | done | `ChatSettings` prefs + Apply & reconnect |
 | P3-4 | Chat E2E + DM queue hardening | in_progress | DM keys via UniFFI; encrypted channel/contact JSON persisted |
 | P3-5 | Keep screen on while syncing | todo | UIApplication.shared.isIdleTimerDisabled |
+| P3-6 | Nighthawk Mesh encrypted EventGraph hop | done | BLE Noise; share-internet **off** — [`nighthawk-mesh.md`](nighthawk-mesh.md) |
 
 ---
 
@@ -99,8 +100,12 @@ Update status when a task lands; Android column notes what the Kotlin app mirror
 ## Native build commands (local)
 
 ```bash
-# Build FFI static library
+# Mesh C ABI (keep committed UniFFI Swift)
+SKIP_UNIFFI_BINDGEN=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
+
+# Full rebuild including UniFFI after UDL changes
 ./scripts/build-darkfi-mobile-ffi-ios.sh
+```
 
 # Build darkirc for iOS
 ./scripts/build-darkirc-ios.sh

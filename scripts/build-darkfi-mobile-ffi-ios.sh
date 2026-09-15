@@ -62,33 +62,34 @@ fi
 mkdir -p "$MODULES"
 rm -rf "$XCFRAMEWORK"
 
-# Regenerate Swift/FFI glue from the UDL (UniFFI 0.32 emits PascalCase names).
-# Host build — do NOT export IPHONEOS_DEPLOYMENT_TARGET here.
-# --release avoids a second ~10GB debug target tree on disk-constrained machines.
-cargo run --release --bin uniffi-bindgen generate \
-    darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
-    --language swift \
-    --crate darkfi_mobile_ffi \
-    --out-dir "$MODULES" \
-    --no-format
+# UniFFI Swift glue is committed. Skip regeneration unless explicitly requested.
+if [[ "${SKIP_UNIFFI_BINDGEN:-0}" != "1" ]]; then
+  cargo run --release --bin uniffi-bindgen generate \
+      darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
+      --language swift \
+      --crate darkfi_mobile_ffi \
+      --out-dir "$MODULES" \
+      --no-format
 
-# Normalize UniFFI 0.32 PascalCase outputs to the snake_case names Xcode expects.
-if [[ -f "$MODULES/DarkfiMobileFfi.swift" ]]; then
-  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfi.swift" \
-    > "$MODULES/darkfi_mobile_ffi.swift"
-  rm -f "$MODULES/DarkfiMobileFfi.swift"
-elif [[ -f "$MODULES/darkfi_mobile_ffi.swift" ]]; then
-  sed -i '' 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/darkfi_mobile_ffi.swift"
-fi
-if [[ -f "$MODULES/DarkfiMobileFfiFFI.h" ]]; then
-  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.h" \
-    > "$MODULES/darkfi_mobile_ffiFFI.h"
-  rm -f "$MODULES/DarkfiMobileFfiFFI.h"
-fi
-if [[ -f "$MODULES/DarkfiMobileFfiFFI.modulemap" ]]; then
-  sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.modulemap" \
-    > "$MODULES/darkfi_mobile_ffiFFI.modulemap"
-  rm -f "$MODULES/DarkfiMobileFfiFFI.modulemap"
+  if [[ -f "$MODULES/DarkfiMobileFfi.swift" ]]; then
+    sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfi.swift" \
+      > "$MODULES/darkfi_mobile_ffi.swift"
+    rm -f "$MODULES/DarkfiMobileFfi.swift"
+  elif [[ -f "$MODULES/darkfi_mobile_ffi.swift" ]]; then
+    sed -i '' 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/darkfi_mobile_ffi.swift"
+  fi
+  if [[ -f "$MODULES/DarkfiMobileFfiFFI.h" ]]; then
+    sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.h" \
+      > "$MODULES/darkfi_mobile_ffiFFI.h"
+    rm -f "$MODULES/DarkfiMobileFfiFFI.h"
+  fi
+  if [[ -f "$MODULES/DarkfiMobileFfiFFI.modulemap" ]]; then
+    sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/DarkfiMobileFfiFFI.modulemap" \
+      > "$MODULES/darkfi_mobile_ffiFFI.modulemap"
+    rm -f "$MODULES/DarkfiMobileFfiFFI.modulemap"
+  fi
+else
+  echo "Skipping UniFFI Swift bindgen (SKIP_UNIFFI_BINDGEN=1; using committed headers)."
 fi
 
 # Package the canonical FFI headers into the xcframework bundle.

@@ -23,6 +23,7 @@ This describes how the iOS app connects to DarkFi while keeping UI patterns from
 │  UDL-defined API (`darkfi_mobile_ffi.udl`)              │
 │  - DarkfiWalletHandle (wallet ops)                      │
 │  - darkirc lifecycle (in-process daemon)                 │
+│  - Mesh C ABI (`nh_mesh_*`) — encrypted EventGraph hop   │
 │  - Arti Tor proxy (in-process)                          │
 │  - ChaCha DM crypto                                     │
 │  - DAO read APIs                                        │
@@ -40,18 +41,19 @@ This describes how the iOS app connects to DarkFi while keeping UI patterns from
 
 ### Chat / DarkIRC
 
-`Chat.swift` (TCA reducer) manages the darkirc daemon lifecycle via UniFFI:
+`Chat.swift` (TCA reducer) manages the darkirc daemon lifecycle via UniFFI. **Chat UI must not parse mesh frames.** Nearby BLE is [Nighthawk Mesh](nighthawk-mesh.md): encrypted EventGraph hop only (share-internet off).
 
 | Topic | DarkFi source | iOS implementation |
 |-------|----------------|-------------------:|
 | Daemon lifecycle | `bin/darkirc` | **In-process** via `start_darkirc(datastore_path, callback)` |
-| Message delivery | EventGraph → IRC server → client | UniFFI `DarkircEventCallback.onMessage()` → Swift `AsyncStream` |
+| Message delivery | EventGraph | UniFFI `DarkircEventCallback.onMessage()` → Swift `AsyncStream` |
+| Nearby hop | (desktop p2p) | BLE mesh C ABI; `header_dag_insert` + `ingest_mesh_event` |
 | Channel presets | `darkirc_config.toml` `autojoin` | Hardcoded defaults in Chat reducer |
-| Tor | `arti-client` | In-process `start_arti_proxy(socks_port)` |
+| Tor | `arti-client` | In-process `start_arti_proxy(socks_port)` + chat `useTor` |
 | E2E DMs | ChaCha20 per-contact | `chacha_encrypt_dm` / `chacha_decrypt_dm` + `generate_dm_keypair` |
 | DM contacts | `[contact."label"]` TOML | `DarkircContactManager` + `DarkircCryptoStore` (encrypted) |
 
-**Key difference from Android**: iOS runs `darkirc` **in the same process** via the Rust FFI. Android runs a **subprocess** (`darkirc_exec`) started by a foreground service. The iOS approach avoids process management but means the daemon shares the app's memory and lifecycle.
+Android uses the **same** in-process UniFFI daemon. Optional `darkirc_exec` on Android is a legacy IRC subprocess, not the Chat tab path.
 
 ### DAO Hub
 
@@ -86,16 +88,18 @@ UI: `DaoHubView.swift` renders DAO list → detail → proposal detail.
 | `mnemonic.rs` | 22-word mnemonic generation/validation |
 | `birthday.rs` | Birthday height handling |
 | `dao.rs` | `list_daos`, `list_proposals`, `get_proposal` |
-| `darkirc_daemon.rs` | In-process darkirc lifecycle + callback bridge |
+| `darkirc_daemon.rs` | In-process darkirc lifecycle + callback + mesh gossip/ingest |
+| `mesh/` | Neighbor Noise, EventPut/DagSync, C ABI |
 | `tor.rs` | Arti Tor proxy: `start_arti_proxy`, `stop_arti_proxy`, `is_arti_running` |
 
-### iOS-specific FFI features (not on Android)
+### Platform notes (not UniFFI exclusives)
 
-| Feature | UDL export | Notes |
+| Feature | UDL / ABI | Notes |
 |---------|-----------|-------|
-| **Arti Tor** | `start_arti_proxy(socks_port)`, `stop_arti_proxy()`, `is_arti_running()` | In-process Rust Tor; Android uses Guardian tor-android |
-| **DM keypair gen** | `generate_dm_keypair()` → `DmKeypair` | Native Rust; Android uses CLI keygen |
-| **In-process darkirc** | `start_darkirc(datastore_path, callback)` | Callback bridge; Android runs subprocess |
+| **Arti Tor** | `start_arti_proxy` | In-process on iOS; Android uses Guardian tor-android for SOCKS |
+| **DM keypair gen** | `generate_dm_keypair()` | Same UniFFI on Android |
+| **In-process darkirc** | `start_darkirc` | Same on Android |
+| **Mesh neighbors** | C ABI `nh_mesh_*` | Not UniFFI; rebuild with `SKIP_UNIFFI_BINDGEN=1` |
 
 ## Endpoint configuration
 
@@ -117,9 +121,10 @@ This table closes the audit loop against the pinned `third_party/darkfi/` revisi
 | **`darkfid` JSON-RPC (wallet → node)** | **Aligned** | Rust `Drk` connects via `darkfid_endpoint_url` |
 | **`drk` wallet operations** | **Aligned** | Balance, scan, keys, signing all via UniFFI `DarkfiWalletHandle` |
 | **`drk` endpoint ports** | **Aligned** | 8345 / 18345 match `drk_config.toml` |
-| **`darkirc` in-process** | **Aligned** | EventGraph + P2P via UniFFI callback bridge |
+| **`darkirc` in-process** | **Aligned** | EventGraph + P2P via UniFFI; Android same |
 | **`darkirc` channel presets** | **Aligned** | `#dev`, `#random`, `#lunardao` match upstream `autojoin` |
-| **Arti Tor** | **iOS ahead** | In-process Arti; Android uses external tor-android |
+| **Nighthawk Mesh** | **EventGraph hop** | Encrypted BLE; LWD/SoftAP **off** |
+| **Arti Tor** | **iOS in-process** | Android uses tor-android SOCKS |
 | **Embedded `darkfid`** | **Not implemented** | Android has optional foreground service |
 
 ## Known limitations (explicit)
@@ -134,6 +139,6 @@ This table closes the audit loop against the pinned `third_party/darkfi/` revisi
 - DarkFi tree: [darkrenaissance/darkfi](https://github.com/darkrenaissance/darkfi) — vendored in `third_party/darkfi/`
 - **[Feature catalog](app-features.md)** — iOS vs Android feature matrix
 - **[Implementation plan](implementation-plan.md)** — P0–P4 task list
-- **[DarkIRC on iOS](darkirc-ios.md)** — In-process darkirc architecture
+- **[Nighthawk Mesh](nighthawk-mesh.md)** — Encrypted EventGraph hop over BLE
 - **[Architecture](Darkfi_iOS_Architecture.md)** — TCA patterns and wallet walkthrough
 - UniFFI: [mozilla/uniffi-rs](https://github.com/mozilla/uniffi-rs)

@@ -70,7 +70,8 @@ Exposed to Kotlin/Swift via UniFFI:
 - **Rust** stable via [rustup](https://rustup.rs/)
 - **Vendored DarkFi** at `third_party/darkfi` (run `./scripts/vendor-darkfi.sh` from the Android repo root before building)
 - **Android cross-build**: [cargo-ndk](https://github.com/bbqsrc/cargo-ndk) + `ANDROID_NDK_HOME` — see the root [README](../../README.md#build-the-project)
-- **UniFFI 0.31.x** — provided by the crate; bindgen runs via `cargo run --bin uniffi-bindgen` from the `rust/` workspace
+- **UniFFI 0.32.x** — bindgen from the `rust/` workspace unless `SKIP_UNIFFI_BINDGEN=1` (mesh C ABI rebuilds).
+- **iOS:** `../scripts/build-darkfi-mobile-ffi-ios.sh` → `DarkfiCore.xcframework`
 
 ## Build the native library (host)
 
@@ -109,11 +110,22 @@ Generating from the **UDL** (not an old `.dylib`) ensures new types like `SyncMe
 
 `--no-format` avoids invoking `ktlint` when it is not on `PATH`.
 
-After regeneration, sanity-check hand-edits: UniFFI 0.31.1 can occasionally fuse a brace with the following top-level declarations; the last block of `darkfi_mobile_ffi.kt` should end the `FfiConverterTypeDarkfiWalletNativeError` object with `}` **before** the generated `bridgePing` / `bridgeVersion` functions.
+After regeneration, sanity-check UniFFI 0.32 output before committing Swift/Kotlin bindings.
 
-## Kotlin facade
+## iOS staticlib
 
-Prefer calling through [`DarkfiMobileFfiApi`](../../darkfi-android-sdk/src/main/java/com/nighthawkapps/lib/android/sdk/uniffi/DarkfiMobileFfiApi.kt) from app code instead of importing generated symbols directly.
+From the **iOS repo root**:
+
+```bash
+SKIP_UNIFFI_BINDGEN=1 ./scripts/build-darkfi-mobile-ffi-ios.sh   # mesh C ABI only
+./scripts/build-darkfi-mobile-ffi-ios.sh                           # also regen Swift after UDL changes
+```
+
+Keep `src/mesh/` lockstep with the Android crate copy. See [`docs/nighthawk-mesh.md`](../../docs/nighthawk-mesh.md).
+
+## Kotlin facade (Android tree)
+
+On Android, prefer [`DarkfiMobileFfiApi`](../../darkfi-android-sdk/src/main/java/com/nighthawkapps/lib/android/sdk/uniffi/DarkfiMobileFfiApi.kt). This iOS checkout does not include that module.
 
 ## Dependencies
 

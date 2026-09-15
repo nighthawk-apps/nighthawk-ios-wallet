@@ -88,6 +88,13 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
+                    title: "Nighthawk Mesh",
+                    subtitle: "Bluetooth nearby chat, always-on power, share internet over Wi-Fi",
+                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    action: { store.send(.rowTapped(.meshSettings)) }
+                )
+
+                settingRow(
                     title: "Tor Network",
                     subtitle: "Route wallet and chat through Arti Tor",
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
