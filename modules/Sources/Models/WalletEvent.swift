@@ -2,8 +2,6 @@
 //  WalletEvent.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 20.06.2022.
-//
 
 import Foundation
 import ComposableArchitecture

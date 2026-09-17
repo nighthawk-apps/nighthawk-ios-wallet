@@ -1,9 +1,6 @@
 //
 //  App+Transfer.swift
 //
-//
-//  Created by Matthew Watt on 9/27/23.
-//
 
 import ComposableArchitecture
 

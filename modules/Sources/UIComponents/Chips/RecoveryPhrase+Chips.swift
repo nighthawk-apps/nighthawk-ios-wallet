@@ -1,9 +1,6 @@
 //
 //  RecoveryPhrase+Chips.swift
 //
-//
-//  Created by Matthew Watt on 8/1/23.
-//
 
 import Models
 import Utils

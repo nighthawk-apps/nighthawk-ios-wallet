@@ -2,8 +2,6 @@
 //  WalletView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/5/23.
-//
 
 import Addresses
 import ComposableArchitecture
@@ -27,6 +25,16 @@ public struct WalletView: View {
                 syncStatusDot
                     .padding(.top, 16)
                     .padding(.bottom, 8)
+
+                if NighthawkMeshController.shared.meshOn &&
+                    (store.isSyncingFailed || store.isSyncingStopped || store.walletInfo.synchronizerStatusSnapshot.syncStatus == .unprepared) {
+                    Text(L10n.Nighthawk.Chat.walletMeshChatOnly)
+                        .font(.caption)
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 8)
+                }
 
                 // Balance / swipe prompt centered between branding and recent activity
                 // (same layout intent as Android WalletView).

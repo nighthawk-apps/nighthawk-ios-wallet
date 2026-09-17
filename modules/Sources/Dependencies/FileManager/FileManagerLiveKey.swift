@@ -2,8 +2,6 @@
 //  FileManagerLiveKey.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 15.11.2022.
-//
 
 import Dependencies
 import Foundation

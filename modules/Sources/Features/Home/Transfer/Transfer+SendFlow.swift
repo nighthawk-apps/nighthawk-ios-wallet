@@ -1,9 +1,6 @@
 //
 //  Transfer+SendFlow.swift
 //
-//
-//  Created by Matthew Watt on 9/27/23.
-//
 
 import ComposableArchitecture
 
@@ -30,6 +27,7 @@ extension Transfer {
                  .delegate,
                  .daoHubTapped,
                  .receiveMoneyTapped,
+                 .requestMoneyTapped,
                  .sendMoneyTapped:
                 return .none
             }
@@ -52,6 +50,7 @@ extension Transfer {
                  .delegate,
                  .daoHubTapped,
                  .receiveMoneyTapped,
+                 .requestMoneyTapped,
                  .sendMoneyTapped:
                 return .none
             }
@@ -71,6 +70,7 @@ extension Transfer {
                  .delegate,
                  .daoHubTapped,
                  .receiveMoneyTapped,
+                 .requestMoneyTapped,
                  .sendMoneyTapped:
                 return .none
             }

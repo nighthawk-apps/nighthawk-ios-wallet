@@ -2,8 +2,6 @@
 //  DatabaseFilesTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 07.04.2022.
-//
 
 import XCTest
 import FileManager

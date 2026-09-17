@@ -1,9 +1,6 @@
 //
 //  App+Onboarding.swift
 //
-//
-//  Created by Matthew Watt on 9/12/23.
-//
 
 import ComposableArchitecture
 import Utils
@@ -30,6 +27,12 @@ extension AppReducer {
                 case .importExistingWallet:
                     state.path.append(.importWallet(.init()))
                     return .none
+                case .onboardingFinished:
+                    userStoredPreferences.setHasCompletedOnboarding(true)
+                    let mode: WalletInitMode = userStoredPreferences.isRestoreWallet()
+                        ? .restoreWallet
+                        : .newWallet
+                    return initializeSDK(mode)
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none
@@ -43,6 +46,7 @@ extension AppReducer {
             let birthday: BlockHeight = 0 // 0 → UniFFI seeds at LWD tip (fresh wallet)
             walletStorage.deleteWallet()
             try walletStorage.importWallet(newRandomPhrase, birthday, .english)
+            userStoredPreferences.setIsRestoreWallet(false)
             // Show the 22-word phrase next. Marking backup complete + booting
             // DarkfiWalletHandle here froze the welcome screen (Arti wait ≤120s
             // + LWD tip probe) so Create Wallet looked dead.
@@ -68,11 +72,15 @@ extension AppReducer {
     }
 
     func importWalletSuccessDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
             case let .path(.element(id: _, action: .importWalletSuccess(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .initializeSDKAndLaunchWallet:
+                    if !userStoredPreferences.hasCompletedOnboarding() {
+                        state.path.append(.welcome(.init(mode: .postBackupCarousel)))
+                        return .none
+                    }
                     return initializeSDK(.restoreWallet)
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
@@ -116,10 +124,13 @@ extension AppReducer {
     }
 
     func recoveryPhraseDisplayDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
             case let .path(.element(id: _, action: .recoveryPhraseDisplay(.delegate(delegateAction)))):
                 switch delegateAction {
+                case .showOnboardingCarousel:
+                    state.path.append(.welcome(.init(mode: .postBackupCarousel)))
+                    return .none
                 case .initializeSDKAndLaunchWallet:
                     return initializeSDK(.newWallet)
                 }

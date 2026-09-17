@@ -1,9 +1,6 @@
 //
 //  SendSuccess.swift
 //
-//
-//  Created by Matthew Watt on 8/2/23.
-//
 
 import ComposableArchitecture
 import Models

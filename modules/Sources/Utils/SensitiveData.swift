@@ -2,8 +2,6 @@
 //  SensitiveData.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 06.02.2023.
-//
 
 import Foundation
 
@@ -25,7 +23,7 @@ public struct SeedPhrase: Codable, Equatable, Redactable {
         self.seedPhrase = seedPhrase
     }
 
-    /// This method returns seed phrase, all 24 words with no protection or support of `Redactable` protocol.
+    /// This method returns seed phrase, all 22 words with no protection or support of `Redactable` protocol.
     /// Use it wisely and never log outcome of this method or share with anybody.
     public func value() -> String {
         seedPhrase

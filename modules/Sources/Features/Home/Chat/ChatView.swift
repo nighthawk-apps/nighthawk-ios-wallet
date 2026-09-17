@@ -12,6 +12,7 @@ import SwiftUI
 import UIComponents
 import UIKit
 import UserPreferencesStorage
+import Utils
 
 struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
@@ -68,6 +69,25 @@ private extension ChatView {
                 Text(store.nickname)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+
+                if NighthawkMeshController.shared.meshOn {
+                    HStack(spacing: 4) {
+                        Image(systemName: "point.3.connected.trianglepath.dotted")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        Text(L10n.Nighthawk.Chat.meshBadge)
+                            .font(.custom(FontFamily.PulpDisplay.bold.name, size: 11))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Asset.Colors.Nighthawk.peach.color.opacity(0.5), lineWidth: 1)
+                    )
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(L10n.Nighthawk.Chat.meshOn)
+                }
 
                 // Retry button
                 if store.connectionState == .error || store.connectionState == .disconnected {
@@ -273,6 +293,12 @@ private extension ChatView {
             Button("Cancel", role: .cancel, action: { store.send(.sharePubkeyCancelled) })
         } message: {
             Text("This will generate a new DM keypair and copy your public key to the clipboard. Share it with your peer via a secure channel. Anyone with this key can send you encrypted DMs.")
+        }
+        .alert(L10n.Nighthawk.Chat.publicPayTitle, isPresented: $store.showPublicPayWarning) {
+            Button(L10n.Nighthawk.Chat.publicPayConfirm, action: { store.send(.confirmPublicPay) })
+            Button(L10n.General.cancel, role: .cancel, action: { store.send(.cancelPublicPay) })
+        } message: {
+            Text(L10n.Nighthawk.Chat.publicPayWarning)
         }
     }
 
@@ -509,7 +535,7 @@ private extension ChatView {
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(contact.contactLabel)
+                    Text(ChatThreadDisplayNames.display(contact.contactLabel))
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                         .foregroundColor(.white)
                     Text("E2E encrypted")
@@ -519,10 +545,6 @@ private extension ChatView {
             }
 
             Spacer()
-
-            Image(systemName: "lock.fill")
-                .font(.system(size: 14))
-                .foregroundColor(.green.opacity(0.7))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -654,7 +676,33 @@ private extension ChatView {
     }
 
     var composeBar: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 8) {
+            if store.selectedTab == .direct, store.selectedDmContact != nil {
+                TextField(L10n.Nighthawk.Chat.localDisplayName, text: $store.localDisplayName)
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .onChange(of: store.localDisplayName) { _, newValue in
+                        store.send(.setLocalDisplayName(newValue))
+                    }
+            }
+            HStack(spacing: 8) {
+                Button(L10n.Nighthawk.Chat.attachRequest) { store.send(.attachPaymentRequest) }
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                Button(L10n.Nighthawk.Chat.payInvoice) {
+                    let fromDraft = store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let fromHistory = store.messages.reversed().first(where: { $0.content.hasPrefix("drk:") })?.content
+                    if let uri = ([fromDraft, fromHistory].compactMap { $0 }.first { $0.hasPrefix("drk:") }) {
+                        store.send(.payInvoice(uri))
+                    }
+                }
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            HStack(spacing: 12) {
             TextField("Message", text: $store.composedMessage)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
                 .foregroundColor(.white)
@@ -676,6 +724,7 @@ private extension ChatView {
                     )
             }
             .disabled(store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)

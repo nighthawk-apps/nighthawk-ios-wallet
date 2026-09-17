@@ -2,8 +2,6 @@
 //  Home.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/5/23.
-//
 
 import Addresses
 import ComposableArchitecture
@@ -15,6 +13,7 @@ import Foundation
 import Models
 import ProcessInfoClient
 import SDKSynchronizer
+import SendFlow
 import UIKit
 import UserPreferencesStorage
 import Utils
@@ -176,6 +175,7 @@ public struct Home {
                 return .none
             case .fetchLatestFiatPrice:
                 guard state.preferredCurrency != .off else { return .none }
+                guard userStoredPreferences.torForWalletEnabled() else { return .none }
                 return .run { [preferredCurrency = state.preferredCurrency] send in
                     let price = try? await fiatPriceClient.getDrkPrice(preferredCurrency)
                     await send(.latestFiatResponse(price))
@@ -291,7 +291,24 @@ public struct Home {
 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .alert, .binding, .chat, .delegate, .destination, .settings, .transfer, .wallet:
+            case .alert, .binding, .delegate, .destination, .settings, .transfer, .wallet:
+                return .none
+            case let .chat(.payInvoice(uri)):
+                guard let parsed = DrkPaymentUri.parse(uri) else { return .none }
+                var sendState = SendFlow.State(
+                    latestFiatPrice: state.walletInfo.latestFiatPrice,
+                    showCloseButton: processInfo.isiOSAppOnMac()
+                )
+                sendState.spendableBalance = state.walletInfo.balance
+                sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                sendState.recipient = parsed.address
+                if let amount = parsed.amount, !amount.isEmpty {
+                    sendState.amountToSendInput = amount
+                }
+                state.transfer.destination = .send(sendState)
+                state.selectedTab = .transfer
+                return .none
+            case .chat:
                 return .none
             }
         }

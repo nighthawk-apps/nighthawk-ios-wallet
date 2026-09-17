@@ -2,8 +2,6 @@
 //  ImportWalletView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/10/23.
-//
 
 import ComposableArchitecture
 import Generated

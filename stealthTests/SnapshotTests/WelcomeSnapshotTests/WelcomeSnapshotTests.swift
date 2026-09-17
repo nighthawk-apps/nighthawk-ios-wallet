@@ -2,8 +2,6 @@
 //  WelcomeSnapshotTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 06.06.2022.
-//
 
 import XCTest
 import ComposableArchitecture

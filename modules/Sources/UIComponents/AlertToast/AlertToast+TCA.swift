@@ -1,9 +1,6 @@
 //
 //  AlertToast+TCA.swift
 //
-//
-//  Created by Matthew Watt on 7/17/23.
-//
 
 import AlertToast
 import ComposableArchitecture

@@ -2,8 +2,6 @@
 //  NighthawkTextField.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/13/23.
-//
 
 import Generated
 import SwiftUI

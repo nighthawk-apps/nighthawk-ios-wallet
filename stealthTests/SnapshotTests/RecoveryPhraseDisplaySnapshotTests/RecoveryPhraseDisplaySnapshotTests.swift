@@ -5,14 +5,12 @@
 // //  RecoveryPhraseDisplaySnapshotTests.swift
 // //  stealthTests
 // //
-// //  Created by Lukáš Korba on 13.06.2022.
-// //
-// 
+//
 // import XCTest
 // import ComposableArchitecture
 // import RecoveryPhraseDisplay
 // @testable import stealth_testnet
-// 
+//
 // class RecoveryPhraseDisplaySnapshotTests: XCTestCase {
 //     func testRecoveryPhraseDisplaySnapshot() throws {
 //         let store = RecoveryPhraseDisplayStore(
@@ -20,7 +18,7 @@
 //             reducer: RecoveryPhraseDisplayReducer.demo,
 //             environment: Void()
 //         )
-//         
+//
 //         addAttachments(RecoveryPhraseDisplayView(store: store))
 //     }
 // }

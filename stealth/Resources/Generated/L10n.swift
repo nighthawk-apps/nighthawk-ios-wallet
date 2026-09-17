@@ -23,8 +23,8 @@ internal enum L10n {
         internal static let sa = L10n.tr("Localizable", "addressDetails.sa", fallback: "Sapling Address")
         /// Transparent Address
         internal static let ta = L10n.tr("Localizable", "addressDetails.ta", fallback: "Transparent Address")
-        /// Unified Address
-        internal static let ua = L10n.tr("Localizable", "addressDetails.ua", fallback: "Unified Address")
+        /// Wallet address
+        internal static let ua = L10n.tr("Localizable", "addressDetails.ua", fallback: "Wallet address")
         internal enum Error {
             /// could not extract sapling receiver from UA
             internal static let cantExtractSaplingAddress = L10n.tr("Localizable", "addressDetails.error.cantExtractSaplingAddress", fallback: "could not extract sapling receiver from UA")
@@ -228,8 +228,8 @@ internal enum L10n {
             internal static let birthdayHeight = L10n.tr("Localizable", "nighthawk.importWallet.birthdayHeight", fallback: "Birthday Height (optional)")
             /// Continue
             internal static let `continue` = L10n.tr("Localizable", "nighthawk.importWallet.continue", fallback: "Continue")
-            /// Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
-            internal static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 24 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
+            /// Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.
+            internal static let enterSeedPhrase = L10n.tr("Localizable", "nighthawk.importWallet.enterSeedPhrase", fallback: "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.")
             /// Error ⸱ This doesn't look like a valid birthday height
             internal static let invalidBirthday = L10n.tr("Localizable", "nighthawk.importWallet.invalidBirthday", fallback: "Error ⸱ This doesn't look like a valid birthday height")
             /// Error ⸱ This doesn't look like a valid seed phrase
@@ -270,8 +270,8 @@ internal enum L10n {
             internal static let exportAppName = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAppName", fallback: "Nighthawk Wallet")
             /// Export as PDF
             internal static let exportAsPdf = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.exportAsPdf", fallback: "Export as PDF")
-            /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 24 word phrase and wallet birthday code.
-            internal static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 24 word phrase and wallet birthday code.")
+            /// If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.
+            internal static let instructions1 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions1", fallback: "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.")
             /// Write it down on paper and store it somewhere safe.
             internal static let instructions2 = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.instructions2", fallback: "Write it down on paper and store it somewhere safe.")
             /// These are seed words used to restore your DarkFi in Nighthawk Wallet:
@@ -402,12 +402,12 @@ internal enum L10n {
             internal static let title = L10n.tr("Localizable", "onboarding.step1.title", fallback: "Welcome!")
         }
         internal enum Step2 {
-            /// You now have a unified address that includes and up-to-date shielded address for legacy systems.
+            /// You now have a wallet address that includes and up-to-date shielded address for legacy systems.
             ///
             /// This makes your wallet friendlier, and gives you and address that you won't have to upgrade again.
-            internal static let description = L10n.tr("Localizable", "onboarding.step2.description", fallback: "You now have a unified address that includes and up-to-date shielded address for legacy systems.\n\nThis makes your wallet friendlier, and gives you and address that you won't have to upgrade again.")
-            /// Unified Addresses
-            internal static let title = L10n.tr("Localizable", "onboarding.step2.title", fallback: "Unified Addresses")
+            internal static let description = L10n.tr("Localizable", "onboarding.step2.description", fallback: "You now have a wallet address that includes and up-to-date shielded address for legacy systems.\n\nThis makes your wallet friendlier, and gives you and address that you won't have to upgrade again.")
+            /// Wallet addresses
+            internal static let title = L10n.tr("Localizable", "onboarding.step2.title", fallback: "Wallet addresses")
         }
         internal enum Step3 {
             /// Due to Zcash's increased popularity, we are optimizing our syncing schemes to be faster and more efficient!
@@ -455,8 +455,8 @@ internal enum L10n {
         internal static let title = L10n.tr("Localizable", "recoveryPhraseBackupValidation.title", fallback: "Verify Your Backup")
     }
     internal enum RecoveryPhraseDisplay {
-        /// The following 24 words represent your funds and the security used to protect them. Back them up now!
-        internal static let description = L10n.tr("Localizable", "recoveryPhraseDisplay.description", fallback: "The following 24 words represent your funds and the security used to protect them. Back them up now!")
+        /// The following 22 words represent your funds and the security used to protect them. Back them up now!
+        internal static let description = L10n.tr("Localizable", "recoveryPhraseDisplay.description", fallback: "The following 22 words represent your funds and the security used to protect them. Back them up now!")
         /// Oops no words
         internal static let noWords = L10n.tr("Localizable", "recoveryPhraseDisplay.noWords", fallback: "Oops no words")
         /// Your Secret Recovery Phrase
@@ -814,8 +814,8 @@ internal enum L10n {
     internal enum ValidationFailed {
         /// Your placed words did not match your secret recovery phrase.
         internal static let description = L10n.tr("Localizable", "validationFailed.description", fallback: "Your placed words did not match your secret recovery phrase.")
-        /// Remember, you can't recover your funds if you lose (or incorrectly save) these 24 words.
-        internal static let incorrectBackupDescription = L10n.tr("Localizable", "validationFailed.incorrectBackupDescription", fallback: "Remember, you can't recover your funds if you lose (or incorrectly save) these 24 words.")
+        /// Remember, you can't recover your funds if you lose (or incorrectly save) these 22 words.
+        internal static let incorrectBackupDescription = L10n.tr("Localizable", "validationFailed.incorrectBackupDescription", fallback: "Remember, you can't recover your funds if you lose (or incorrectly save) these 22 words.")
         /// Ouch, sorry, no.
         internal static let title = L10n.tr("Localizable", "validationFailed.title", fallback: "Ouch, sorry, no.")
         internal enum Button {

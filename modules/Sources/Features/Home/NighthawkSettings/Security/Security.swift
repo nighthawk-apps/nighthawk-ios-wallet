@@ -2,8 +2,6 @@
 //  Security.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/15/23.
-//
 
 import ComposableArchitecture
 import Generated

@@ -217,7 +217,10 @@ let package = Package(
         ),
         .target(
             name: "Generated",
-            resources: [.process("Resources")]
+            resources: [
+                .process("Resources"),
+                .process("Localization"),
+            ]
         ),
         .target(
             name: "ImportWallet",
@@ -276,6 +279,7 @@ let package = Package(
                 "DiskSpaceChecker",
                 "FiatPriceClient",
                 "FileManager",
+                "Generated",
                 "Models",
                 "Pasteboard",
                 "TransactionDetail",
@@ -454,6 +458,7 @@ let package = Package(
         .target(
             name: "Splash",
             dependencies: [
+                "AppVersion",
                 "DatabaseFiles",
                 "Generated",
                 "LocalAuthenticationClient",
@@ -497,6 +502,7 @@ let package = Package(
             name: "URIParser",
             dependencies: [
                 "DerivationTool",
+                "Utils",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DarkfiCore"
             ],

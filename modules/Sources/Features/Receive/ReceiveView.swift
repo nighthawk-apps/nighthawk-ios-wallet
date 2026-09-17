@@ -57,18 +57,6 @@ public struct ReceiveView: View {
                     )
                 }
                 .buttonStyle(.plain)
-
-                Button(action: { store.send(.generateNewAddressTapped) }) {
-                    optionRow(
-                        title: store.isGenerating ? "Generating…" : "Generate new address",
-                        description: store.generatedAddress == nil
-                            ? "Derive another receive address from this wallet."
-                            : store.generatedAddress ?? "",
-                        icon: Asset.Assets.Icons.Nighthawk.copy.image
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(store.isGenerating)
             }
             .padding(.horizontal, 25)
 
@@ -81,26 +69,6 @@ public struct ReceiveView: View {
                 AlertToast.nighthawkBanner(
                     type: .regular,
                     title: L10n.Nighthawk.WalletTab.Addresses.copiedToClipboard
-                )
-            }
-        )
-        .toast(
-            unwrapping: $store.toast,
-            case: /Receive.State.Toast.newAddressGenerated,
-            alert: {
-                AlertToast.nighthawkBanner(
-                    type: .complete(.green),
-                    title: "New address generated"
-                )
-            }
-        )
-        .toast(
-            unwrapping: $store.toast,
-            case: /Receive.State.Toast.generateFailed,
-            alert: {
-                AlertToast.nighthawkBanner(
-                    type: .error(.red),
-                    title: "Failed to generate address"
                 )
             }
         )

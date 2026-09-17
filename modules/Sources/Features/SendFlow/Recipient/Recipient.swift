@@ -1,9 +1,6 @@
 //
 //  Recipient.swift
 //
-//
-//  Created by Matthew watt on 7/23/23.
-//
 
 import ComposableArchitecture
 import Generated

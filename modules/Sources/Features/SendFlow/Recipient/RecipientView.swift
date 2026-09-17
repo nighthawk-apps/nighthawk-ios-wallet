@@ -1,9 +1,6 @@
 //
 //  RecipientView.swift
 //
-//
-//  Created by Matthew Watt on 7/23/23.
-//
 
 import ComposableArchitecture
 import Generated
@@ -50,6 +47,20 @@ public struct RecipientView: View {
                     action: { store.send(.pasteFromClipboardTapped) }
                 )
                 .buttonStyle(.nighthawkDashed())
+            }
+
+            ForEach(DeviceAddressBook.load()) { entry in
+                Button(action: { store.send(.recipientInputChanged(entry.address)) }) {
+                    HStack {
+                        Text(entry.label)
+                            .paragraphMedium(color: .white)
+                        Spacer()
+                        Text(String(entry.address.prefix(12)) + "…")
+                            .caption()
+                    }
+                    .padding(.horizontal, 24)
+                }
+                .buttonStyle(.plain)
             }
 
             Spacer()

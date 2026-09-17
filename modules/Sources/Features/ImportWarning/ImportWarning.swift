@@ -1,9 +1,6 @@
 //
 //  ImportWarning.swift
 //
-//
-//  Created by Matthew Watt on 9/24/23.
-//
 
 import ComposableArchitecture
 

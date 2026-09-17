@@ -1,9 +1,6 @@
 //
 //  Review.swift
 //
-//
-//  Created by Matthew Watt on 7/22/23.
-//
 
 import ComposableArchitecture
 import DerivationTool

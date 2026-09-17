@@ -1,9 +1,6 @@
 //
 //  ProcessInfoClient.swift
 //
-//
-//  Created by Matthew Watt on 10/4/23.
-//
 
 import ComposableArchitecture
 import Foundation

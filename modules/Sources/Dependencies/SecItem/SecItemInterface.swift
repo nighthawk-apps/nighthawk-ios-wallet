@@ -2,8 +2,6 @@
 //  SecItemClient.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 12.04.2022.
-//
 
 import Foundation
 import Security

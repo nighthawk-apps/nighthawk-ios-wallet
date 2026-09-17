@@ -1,9 +1,6 @@
 //
 //  NHPageIndicator.swift
 //
-//
-//  Created by Matthew Watt on 8/9/23.
-//
 
 import Generated
 import SwiftUI

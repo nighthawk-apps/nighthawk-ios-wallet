@@ -1,9 +1,6 @@
 //
 //  App+Wallet.swift
 //
-//
-//  Created by Matthew Watt on 9/15/23.
-//
 
 import ComposableArchitecture
 import Home

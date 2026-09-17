@@ -2,8 +2,6 @@
 //  SensitiveDataTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 06.02.2023.
-//
 
 import XCTest
 import MnemonicSwift

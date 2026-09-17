@@ -2,8 +2,6 @@
 //  Clamped.swift
 //  stealth
 //
-//  Created by Francisco Gindre on 10/20/21.
-//
 // credits: https://iteo.medium.com/swift-property-wrappers-how-to-use-them-right-77095817d1b
 import Foundation
 

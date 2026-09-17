@@ -17,9 +17,7 @@ public struct Addresses {
     @ObservableState
     public struct State: Equatable {
         public enum Destination: String, CaseIterable, Equatable, Hashable {
-            case unified
-            case sapling
-            case transparent
+            case privacy
         }
 
         @CasePathable
@@ -28,7 +26,7 @@ public struct Addresses {
         }
 
         public var toast: Toast?
-        public var destination: Destination = .unified
+        public var destination: Destination = .privacy
         public var uAddress: UnifiedAddress?
         public var showCloseButton: Bool
 

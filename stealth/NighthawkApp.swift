@@ -12,17 +12,14 @@ import WalletStorage
 struct NighthawkApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var privacyBlur = false
+    @State private var store = Store(initialState: AppReducer.State()) {
+        AppReducer()
+    }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                AppView(
-                    store: Store(
-                        initialState: AppReducer.State()
-                    ) {
-                        AppReducer()
-                    }
-                )
+                AppView(store: store)
                 if privacyBlur {
                     Rectangle()
                         .fill(.ultraThinMaterial)

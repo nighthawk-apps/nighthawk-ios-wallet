@@ -2,8 +2,6 @@
 //  ImportWallet.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/10/23.
-//
 
 import ComposableArchitecture
 import Generated
@@ -80,6 +78,7 @@ public struct ImportWallet {
                     let birthday = state.birthdayHeightValue ?? BlockHeight(0).redacted
                     try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
                     userStoredPreferences.setIsUserBackupComplete(true)
+                    userStoredPreferences.setIsRestoreWallet(true)
                     return .send(.delegate(.showImportSuccess))
                 } catch {
                     state.alert = AlertState.importWalletFailed(error.toDarkFiError())

@@ -1,9 +1,6 @@
 //
 //  App.swift
 //
-//
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import Utils
@@ -235,9 +232,7 @@ public struct AppReducer {
                 case .active:
                     defer { state.splash.lastInactiveTime = nil }
                     if state.shouldResetToSplash {
-                        state.splash.lastAuthenticatedTime = nil
-                        state.splash.hasAttemptedAuthentication = false
-                        state.splash.isAuthenticating = false
+                        state.splash.resetForRelock()
                         state.path = StackState()
                     } else if !state.path.isEmpty && state.synchronizerStopped && !state.isWelcomeScreenShown {
                         return initializeSDK(.existingWallet, shouldResetStack: false)
@@ -335,6 +330,10 @@ private extension AppReducer {
                     state.path = StackState([
                         .recoveryPhraseDisplay(.init(flow: .onboarding))
                     ])
+                    return .none
+                case .handlePostBackupOnboarding:
+                    state.splash.hasCompletedInitialRoute = true
+                    state.path.append(.welcome(.init(mode: .postBackupCarousel)))
                     return .none
                 case .initializeSDKAndLaunchWallet:
                     state.splash.hasCompletedInitialRoute = true

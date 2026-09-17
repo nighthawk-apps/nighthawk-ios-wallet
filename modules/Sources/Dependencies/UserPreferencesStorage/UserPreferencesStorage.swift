@@ -2,8 +2,6 @@
 //  UserPreferencesStorage.swift
 //  stealth
 //
-//  Created by Matthew Watt on 08/03/2023.
-//
 
 import Foundation
 import Models
@@ -23,7 +21,6 @@ public struct UserPreferencesStorage {
         case darkfiBiometricsEnabled
         case darkfiIsBandit
         case darkfiIsFirstSync
-        case darkfiHasShownAutoshielding
         case darkfiUseCustomLightwalletd
         case darkfiCustomLightwalletdServer
         case darkfiTorForWallet
@@ -33,6 +30,8 @@ public struct UserPreferencesStorage {
         case darkfiTorSocksPort
         case darkfiStrictOmrOnly
         case darkfiIsUserBackupComplete
+        case darkfiHasCompletedOnboarding
+        case darkfiIsRestoreWallet
         case darkfiRunEmbeddedDarkirc
         case darkfiDarkircDagsCount
         case darkfiDarkircFastMode
@@ -49,7 +48,6 @@ public struct UserPreferencesStorage {
     private let biometricsEnabled: Bool
     private let bandit: Bool
     private let firstSync: Bool
-    private let shownAutoshielding: Bool
     private let useCustomLightwalletd: Bool
     private let selectedCustomLightwalletdServer: String?
 
@@ -65,7 +63,6 @@ public struct UserPreferencesStorage {
         biometricsEnabled: Bool,
         bandit: Bool,
         firstSync: Bool,
-        shownAutoshielding: Bool,
         useCustomLightwalletd: Bool,
         selectedCustomLightwalletdServer: String?,
         userDefaults: UserDefaultsClient
@@ -78,7 +75,6 @@ public struct UserPreferencesStorage {
         self.biometricsEnabled = biometricsEnabled
         self.bandit = bandit
         self.firstSync = firstSync
-        self.shownAutoshielding = shownAutoshielding
         self.useCustomLightwalletd = useCustomLightwalletd
         self.selectedCustomLightwalletdServer = selectedCustomLightwalletdServer
         self.userDefaults = userDefaults
@@ -154,14 +150,6 @@ public struct UserPreferencesStorage {
 
     public func setIsFirstSync(_ bool: Bool) {
         setValue(bool, forKey: Constants.darkfiIsFirstSync.rawValue)
-    }
-
-    public var hasShownAutoshielding: Bool {
-        getValue(forKey: Constants.darkfiHasShownAutoshielding.rawValue, default: shownAutoshielding)
-    }
-
-    public func setHasShownAutoshielding(_ bool: Bool) {
-        setValue(bool, forKey: Constants.darkfiHasShownAutoshielding.rawValue)
     }
 
     public var isUsingCustomLightwalletd: Bool {
@@ -245,6 +233,26 @@ public struct UserPreferencesStorage {
         setValue(complete, forKey: Constants.darkfiIsUserBackupComplete.rawValue)
     }
 
+    /// Educational carousel after first-time seed backup. Missing key stays false so
+    /// a brand-new backup still shows the carousel; splash infers a skip when wallet
+    /// DB files already exist (pre-carousel installs).
+    public var hasCompletedOnboarding: Bool {
+        getValue(forKey: Constants.darkfiHasCompletedOnboarding.rawValue, default: false)
+    }
+
+    public func setHasCompletedOnboarding(_ complete: Bool) {
+        setValue(complete, forKey: Constants.darkfiHasCompletedOnboarding.rawValue)
+    }
+
+    /// True when the in-progress first launch is a restore (full-history scan), not a fresh create.
+    public var isRestoreWallet: Bool {
+        getValue(forKey: Constants.darkfiIsRestoreWallet.rawValue, default: false)
+    }
+
+    public func setIsRestoreWallet(_ restore: Bool) {
+        setValue(restore, forKey: Constants.darkfiIsRestoreWallet.rawValue)
+    }
+
     // MARK: - Chat settings
 
     public var runEmbeddedDarkirc: Bool {
@@ -324,7 +332,6 @@ extension UserPreferencesStorage {
         biometricsEnabled: false,
         bandit: false,
         firstSync: true,
-        shownAutoshielding: false,
         useCustomLightwalletd: false,
         selectedCustomLightwalletdServer: nil,
         userDefaults: .live()

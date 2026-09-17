@@ -1,9 +1,6 @@
 //
 //  UserNotificationCenterLiveKey.swift
 //
-//
-//  Created by Matthew Watt on 8/23/23.
-//
 
 import ComposableArchitecture
 import Foundation

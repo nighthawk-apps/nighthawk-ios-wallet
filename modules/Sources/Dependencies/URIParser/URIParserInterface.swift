@@ -2,8 +2,6 @@
 //  URIParserClient.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 17.05.2022.
-//
 
 import Foundation
 import ComposableArchitecture
@@ -16,5 +14,5 @@ extension DependencyValues {
 }
 
 public struct URIParserClient {
-    public var parseZaddrOrZIP321: (String, String) -> QRCodeParseResult
+    public var parseDrkPaymentUri: (String, String) -> QRCodeParseResult
 }

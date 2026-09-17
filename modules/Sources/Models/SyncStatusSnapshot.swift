@@ -2,8 +2,6 @@
 //  SyncStatusSnapshot.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 07.07.2022.
-//
 
 import Foundation
 import Generated

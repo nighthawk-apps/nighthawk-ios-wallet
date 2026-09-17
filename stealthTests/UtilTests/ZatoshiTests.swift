@@ -2,8 +2,6 @@
 //  ZatoshiTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 26.05.2022.
-//
 
 import XCTest
 @testable import stealth_testnet

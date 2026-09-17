@@ -2,8 +2,6 @@
 //  NighthawkBackground.swift
 //  stealth
 //
-//  Created by Matthew Watt on 3/22/23.
-//
 
 import Generated
 import SwiftUI

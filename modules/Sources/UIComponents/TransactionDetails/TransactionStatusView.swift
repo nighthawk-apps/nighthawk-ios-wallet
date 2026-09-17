@@ -1,9 +1,6 @@
 //
 //  TransactionStatusView.swift
 //
-//
-//  Created by Matthew Watt on 7/9/23.
-//
 
 import Generated
 import Models

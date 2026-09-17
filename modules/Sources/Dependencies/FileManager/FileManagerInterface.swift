@@ -2,8 +2,6 @@
 //  FileManagerClient.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 07.04.2022.
-//
 
 import Dependencies
 import Foundation

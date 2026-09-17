@@ -2,8 +2,6 @@
 //  DiskSpaceCheckerMocks.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 10.11.2022.
-//
 
 extension DiskSpaceCheckerClient {
     public static let mockEmptyDisk = DiskSpaceCheckerClient(

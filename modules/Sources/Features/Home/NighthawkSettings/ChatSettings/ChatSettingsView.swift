@@ -21,6 +21,16 @@ public struct ChatSettingsView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                sectionHeader(L10n.Nighthawk.Chat.threeSecretsTitle)
+                    .padding(.top, 8)
+
+                Text(L10n.Nighthawk.Chat.threeSecretsBody)
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .padding(.horizontal)
+
+                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+
                 // Embedded Node Sync section
                 sectionHeader("EMBEDDED NODE SYNC")
                     .padding(.top, 8)
@@ -225,7 +235,7 @@ public struct ChatSettingsView: View {
 
                 // Apply button
                 Button(action: { store.send(.applyAndReconnect) }) {
-                    Text("Apply & reconnect")
+                    Text(L10n.Nighthawk.Chat.apply)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                 }
                 .buttonStyle(.nighthawkPrimary())
@@ -236,6 +246,54 @@ public struct ChatSettingsView: View {
         }
         .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
+        .sheet(
+            item: $store.scope(
+                state: \.addContactDialog,
+                action: \.addContactDialog
+            )
+        ) { contactStore in
+            @Bindable var contactStore = contactStore
+            NavigationStack {
+                VStack(alignment: .leading, spacing: 16) {
+                    TextField(L10n.Nighthawk.Chat.contactLabel, text: $contactStore.contactNick)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("Their ChaCha public key", text: $contactStore.theirPublicKey)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("My ChaCha secret key", text: $contactStore.mySecretKey)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Add") { contactStore.send(.addTapped) }
+                        .buttonStyle(.nighthawkPrimary())
+                    Button("Cancel") { contactStore.send(.cancelTapped) }
+                        .buttonStyle(.nighthawkSecondary())
+                }
+                .padding()
+                .applyNighthawkBackground()
+            }
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.addChannelDialog,
+                action: \.addChannelDialog
+            )
+        ) { channelStore in
+            @Bindable var channelStore = channelStore
+            NavigationStack {
+                VStack(alignment: .leading, spacing: 16) {
+                    TextField("Channel", text: $channelStore.channelName)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("Shared secret", text: $channelStore.sharedSecret)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("Topic (optional)", text: $channelStore.topic)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Add") { channelStore.send(.addTapped) }
+                        .buttonStyle(.nighthawkPrimary())
+                    Button("Cancel") { channelStore.send(.cancelTapped) }
+                        .buttonStyle(.nighthawkSecondary())
+                }
+                .padding()
+                .applyNighthawkBackground()
+            }
+        }
     }
 }
 

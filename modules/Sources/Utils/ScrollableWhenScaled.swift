@@ -2,8 +2,6 @@
 //  ScrollableWhenScaled.swift
 //  stealth
 //
-//  Created by Francisco Gindre on 12/27/21.
-//
 
 import SwiftUI
 

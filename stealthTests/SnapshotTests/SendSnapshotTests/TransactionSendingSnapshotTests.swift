@@ -5,16 +5,14 @@
 // //  TransactionSendingSnapshotTests.swift
 // //  stealthTests
 // //
-// //  Created by Michal Fousek on 30.09.2022.
-// //
-// 
+//
 // import XCTest
 // import ComposableArchitecture
 // import SwiftUI
 // import SendFlow
 // import UIComponents
 // @testable import stealth_testnet
-// 
+//
 // class TransactionSendingTests: XCTestCase {
 //     func testTransactionSendingSnapshot() throws {
 //         var state = SendFlowReducer.State.placeholder
@@ -32,7 +30,7 @@
 //                 text: "2.91".redacted
 //             )
 //         )
-// 
+//
 //         let store = Store(
 //             initialState: state,
 //             reducer: SendFlowReducer(networkType: .testnet)
@@ -42,7 +40,7 @@
 //                 .dependency(\.walletStorage, .live())
 //                 .dependency(\.sdkSynchronizer, .mock)
 //         )
-// 
+//
 //         ViewStore(store).send(.onAppear)
 //         addAttachments(TransactionSendingView(viewStore: ViewStore(store), tokenName: "ZEC"))
 //     }

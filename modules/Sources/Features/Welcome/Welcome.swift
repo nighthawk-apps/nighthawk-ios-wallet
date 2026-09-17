@@ -2,8 +2,6 @@
 //  Welcome.swift
 //  stealth
 //
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import Foundation
@@ -15,13 +13,24 @@ import UIKit
 public struct Welcome {
     @ObservableState
     public struct State: Equatable {
-        @Presents public var destination: Destination.State?
+        public enum Mode: Equatable {
+            /// Create / restore after Tor connecting.
+            case getStarted
+            /// Educational pages after first-time seed backup (or restore).
+            case postBackupCarousel
+        }
 
-        public init() {}
+        @Presents public var destination: Destination.State?
+        public var mode: Mode
+
+        public init(mode: Mode = .getStarted) {
+            self.mode = mode
+        }
     }
 
     public enum Action: Equatable {
         case createNewWalletTapped
+        case carouselFinished
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case importExistingWalletTapped
@@ -30,6 +39,7 @@ public struct Welcome {
         public enum Delegate: Equatable {
             case createNewWallet
             case importExistingWallet
+            case onboardingFinished
         }
     }
 
@@ -43,6 +53,8 @@ public struct Welcome {
             switch action {
             case .createNewWalletTapped:
                 return .send(.delegate(.createNewWallet))
+            case .carouselFinished:
+                return .send(.delegate(.onboardingFinished))
             case .delegate:
                 return .none
             case .destination:
@@ -75,6 +87,7 @@ extension Welcome {
                     return .send(.delegate(.importExistingWallet))
                 }
             case .createNewWalletTapped,
+                 .carouselFinished,
                  .delegate,
                  .destination,
                  .importExistingWalletTapped,

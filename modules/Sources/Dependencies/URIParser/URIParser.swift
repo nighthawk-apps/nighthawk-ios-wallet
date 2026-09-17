@@ -2,11 +2,10 @@
 //  URIParser.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 17.05.2022.
-//
 
 import Foundation
 import DerivationTool
+import Utils
 
 public struct QRCodeParseResult: Equatable {
     public let memo: String?
@@ -25,43 +24,8 @@ public struct QRCodeParseResult: Equatable {
 }
 
 public struct URIParser {
-    func parseZaddrOrZIP321(from qrCode: String, network: String) -> QRCodeParseResult {
-        let stripped = qrCode.replacingOccurrences(of: " ", with: "")
-        let nsRange = NSRange(location: 0, length: stripped.utf8.count)
-        var amount: String?
-        var zaddr: String?
-        var memo: String?
-
-        let shieldedPrefix = "drk"
-
-        guard
-            let zaddrRegex = try? NSRegularExpression(pattern: "((?i)\(shieldedPrefix)\\w{30,})"),
-            let uriRegex = try? NSRegularExpression(pattern: "((?i)darkfi:\(shieldedPrefix)\\w{30,})"),
-            let memoRegex = try? NSRegularExpression(pattern: "(memo=([^&]*))"),
-            let amountRegex = try? NSRegularExpression(pattern: "(amount=([^&]*))")
-        else { return .failed }
-
-        let zAddrMatch = zaddrRegex.firstMatch(in: stripped, range: nsRange)
-        let uriMatch = uriRegex.firstMatch(in: stripped, range: nsRange)
-        guard zAddrMatch != nil || uriMatch != nil else { return .failed }
-
-        if let zAddrMatch, let range = Range(zAddrMatch.range, in: stripped) {
-            zaddr = String(stripped[range])
-        }
-
-        if let memoMatch = memoRegex.firstMatch(in: stripped, range: nsRange),
-           let range = Range(memoMatch.range(at: 2), in: stripped),
-           let data = Data(base64Encoded: String(stripped[range])),
-           let decoded = String(data: data, encoding: .utf8) {
-            // UnifOMR user-memo length is a u8; drop oversized URI memos rather than
-            // silently sending a truncated payment message.
-            memo = decoded.utf8.count <= 255 ? decoded : nil
-        }
-
-        if let amountMatch = amountRegex.firstMatch(in: stripped, range: nsRange), let range = Range(amountMatch.range(at: 2), in: stripped) {
-            amount = String(stripped[range])
-        }
-
-        return QRCodeParseResult(memo: memo, amount: amount, address: zaddr ?? "")
+    func parseDrkPaymentUri(from qrCode: String, network: String) -> QRCodeParseResult {
+        guard let parsed = DrkPaymentUri.parse(qrCode) else { return .failed }
+        return QRCodeParseResult(memo: parsed.memo, amount: parsed.amount, address: parsed.address)
     }
 }

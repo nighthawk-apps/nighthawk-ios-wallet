@@ -2,8 +2,6 @@
 //  AppVersionTestKey.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 12.11.2022.
-//
 
 import ComposableArchitecture
 import XCTestDynamicOverlay

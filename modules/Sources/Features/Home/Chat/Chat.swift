@@ -173,6 +173,10 @@ public struct Chat {
         /// Show share-my-pubkey warning alert
         public var showSharePubkeyWarning: Bool = false
         public var myDmPublicKey: String?
+        public var showPublicPayWarning: Bool = false
+        public var pendingPublicInvoice: String?
+        public var localDisplayName: String = ""
+        @Shared(.walletInfo) var walletInfo = Home.State.WalletInfo()
 
         public init() {
             // Build channels from upstream defaults
@@ -214,6 +218,11 @@ public struct Chat {
         case sharePubkeyCancelled
         case pubkeyGenerated(String)
         case dmMessageReceived(String, State.Message)  // contactId, message
+        case attachPaymentRequest
+        case confirmPublicPay
+        case cancelPublicPay
+        case payInvoice(String)
+        case setLocalDisplayName(String)
     }
 
     private enum CancelID { case readLoop, connection }
@@ -406,7 +415,8 @@ public struct Chat {
                     }
 
                     await send(.embeddedNodeStatusChanged(.ready))
-                    await send(.connectionStateChanged(useTor ? .connectedViaTor : .connectedDirect))
+                    let torOn = userStoredPreferences.torForChatEnabled()
+                    await send(.connectionStateChanged(torOn ? .connectedViaTor : .connectedDirect))
                     await send(.dagSyncStatusUpdate(nil))
 
                     // Consume incoming messages from the Rust daemon callback
@@ -460,8 +470,14 @@ public struct Chat {
                 return .none
 
             case .sendMessage:
+                let thread: String? = {
+                    if state.selectedTab == .direct {
+                        return state.selectedDmContact?.contactLabel
+                    }
+                    return state.selectedChannel?.name
+                }()
                 guard !state.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                      let channel = state.selectedChannel else {
+                      let channelName = thread else {
                     return .none
                 }
 
@@ -484,24 +500,24 @@ public struct Chat {
                                 id: UUID().uuidString,
                                 sender: "System",
                                 content: "Your nickname is now: \(sanitized)",
-                                channel: channel.name,
+                                channel: channelName,
                                 timestamp: Date(),
                                 isOutgoing: false
                             )
                             state.messages.append(sysMsg)
-                            state.channelMessages[channel.name, default: []].append(sysMsg)
+                            state.channelMessages[channelName, default: []].append(sysMsg)
                             return .none
                         }
                         let sysMsg = State.Message(
                             id: UUID().uuidString,
                             sender: "System",
                             content: "Invalid nickname. Usage: /nick <name> (1–24 alphanumeric/underscore characters)",
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
 
                     case "/join":
@@ -531,16 +547,16 @@ public struct Chat {
                             id: UUID().uuidString,
                             sender: "System",
                             content: "Usage: /join <#channel>",
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
 
                     case "/part", "/leave":
-                        let targetChan = channel.name
+                        let targetChan = channelName
                         state.channels.remove(id: targetChan)
                         state.channelMessages.removeValue(forKey: targetChan)
                         if let first = state.channels.first {
@@ -553,7 +569,7 @@ public struct Chat {
                         return .none
 
                     case "/clear":
-                        state.channelMessages[channel.name] = []
+                        state.channelMessages[channelName] = []
                         state.messages = []
                         return .none
 
@@ -563,14 +579,14 @@ public struct Chat {
                             let message = State.Message(
                                 sender: state.nickname,
                                 content: actionText,
-                                channel: channel.name,
+                                channel: channelName,
                                 isOutgoing: true
                             )
                             state.messages.append(message)
-                            state.channelMessages[channel.name, default: []].append(message)
+                            state.channelMessages[channelName, default: []].append(message)
                             state.seenEventIds.insert(message.id)
 
-                            let channelTarget = channel.name
+                            let channelTarget = channelName
                             let nick = state.nickname
                             let optimisticId = message.id
                             return .run { send in
@@ -586,12 +602,12 @@ public struct Chat {
                             id: UUID().uuidString,
                             sender: "System",
                             content: "Usage: /me <action>",
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
 
                     case "/msg":
@@ -618,12 +634,12 @@ public struct Chat {
                             id: UUID().uuidString,
                             sender: "System",
                             content: "Usage: /msg <target> <message>",
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
 
                     case "/help":
@@ -641,12 +657,12 @@ public struct Chat {
                             id: UUID().uuidString,
                             sender: "System",
                             content: helpText,
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
 
                     default:
@@ -654,12 +670,12 @@ public struct Chat {
                             id: UUID().uuidString,
                             sender: "System",
                             content: "Unknown command '\(cmd)'. Type /help for DarkIRC commands.",
-                            channel: channel.name,
+                            channel: channelName,
                             timestamp: Date(),
                             isOutgoing: false
                         )
                         state.messages.append(sysMsg)
-                        state.channelMessages[channel.name, default: []].append(sysMsg)
+                        state.channelMessages[channelName, default: []].append(sysMsg)
                         return .none
                     }
                 }
@@ -671,14 +687,14 @@ public struct Chat {
                 let message = State.Message(
                     sender: state.nickname,
                     content: text,
-                    channel: channel.name,
+                    channel: channelName,
                     isOutgoing: true
                 )
                 state.messages.append(message)
-                state.channelMessages[channel.name, default: []].append(message)
+                state.channelMessages[channelName, default: []].append(message)
                 state.seenEventIds.insert(message.id)
 
-                let channelTarget = channel.name
+                let channelTarget = channelName
                 let nick = state.nickname
                 let optimisticId = message.id
                 let contacts = state.dmContacts
@@ -806,6 +822,7 @@ public struct Chat {
 
             case let .dmContactSelected(contact):
                 state.selectedDmContact = contact
+                state.localDisplayName = ChatThreadDisplayNames.load()[contact.contactLabel] ?? ""
                 state.messages = IdentifiedArrayOf(
                     uniqueElements: state.dmMessages[contact.id] ?? []
                 )
@@ -850,6 +867,50 @@ public struct Chat {
                 if state.selectedDmContact?.id == contactId {
                     state.messages.append(message)
                 }
+                return .none
+
+            case .attachPaymentRequest:
+                let address = state.walletInfo.unifiedAddress?.stringEncoded ?? ""
+                guard let uri = DrkPaymentUri.encode(address: address, amount: nil, memo: nil) else {
+                    return .none
+                }
+                let thread: String? = {
+                    if state.selectedTab == .direct { return state.selectedDmContact?.contactLabel }
+                    return state.selectedChannel?.name
+                }()
+                guard let thread, !thread.isEmpty else { return .none }
+                if thread.hasPrefix("#") {
+                    state.pendingPublicInvoice = uri
+                    state.showPublicPayWarning = true
+                    return .none
+                }
+                state.composedMessage = uri
+                return .send(.sendMessage)
+
+            case .confirmPublicPay:
+                let uri = state.pendingPublicInvoice
+                state.pendingPublicInvoice = nil
+                state.showPublicPayWarning = false
+                guard let uri else { return .none }
+                state.composedMessage = uri
+                return .send(.sendMessage)
+
+            case .cancelPublicPay:
+                state.pendingPublicInvoice = nil
+                state.showPublicPayWarning = false
+                return .none
+
+            case .payInvoice(_):
+                return .none
+
+            case let .setLocalDisplayName(name):
+                let thread: String? = {
+                    if state.selectedTab == .direct { return state.selectedDmContact?.contactLabel }
+                    return state.selectedChannel?.name
+                }()
+                guard let thread else { return .none }
+                state.localDisplayName = name
+                ChatThreadDisplayNames.put(threadKey: thread, displayName: name)
                 return .none
             }
         }

@@ -2,8 +2,6 @@
 //  View+UIImage.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 10.06.2022.
-//
 
 import XCTest
 import SwiftUI

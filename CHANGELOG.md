@@ -1,6 +1,6 @@
 # Changelog
 
-DarkFi-era version notes live in the root [README.md](README.md) (TestFlight **3.00.010** build 10) and [docs/app-features.md](docs/app-features.md). Entries below are the historical **Zcash / Nighthawk** 0.0.1 changelog and are not the current product.
+DarkFi-era version notes live in the root [README.md](README.md) (TestFlight **3.00.011** build 11) and [docs/app-features.md](docs/app-features.md). Older 0.0.1 entries below are historical and are not the current product.
 
 # 0.0.1 build 52
 - [#709] Better error handling in tests (#713)
@@ -107,7 +107,7 @@ This is the baseline build for iOS Re-Scoping epic.
 - [#126] TCA component for user logs (#526)
 - [#521] Update format for the Swiftlint TODO rule (#523)
 - [#517] QR codes integration into the wallet details and send feature (#518)
-- [#514] Adopt Unified Addresses (#515)
+- [#514] Adopt Wallet addresses (#515)
 # 0.0.1 build 37
 
 - [#512] Check that every TODO in code has an open issue (#513)

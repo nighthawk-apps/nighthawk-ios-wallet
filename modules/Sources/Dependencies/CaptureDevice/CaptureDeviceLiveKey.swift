@@ -2,8 +2,6 @@
 //  CaptureDeviceLiveKey.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 11.11.2022.
-//
 
 import AVFoundation
 import ComposableArchitecture

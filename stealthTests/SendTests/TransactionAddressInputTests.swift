@@ -2,8 +2,6 @@
 //  TransactionAddressTextFieldTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 06.05.2022.
-//
 
 import XCTest
 import ComposableArchitecture

@@ -5,15 +5,13 @@
 // //  SettingsSnapshotTests.swift
 // //  stealthTests
 // //
-// //  Created by Lukáš Korba on 21.07.2022.
-// //
-// 
+//
 // import XCTest
 // import ComposableArchitecture
 // import SwiftUI
 // import Settings
 // @testable import stealth_testnet
-// 
+//
 // class SettingsSnapshotTests: XCTestCase {
 //     func testSettingsSnapshot() throws {
 //         let store = Store(
@@ -24,10 +22,10 @@
 //                 .dependency(\.walletStorage, .noOp)
 //                 .dependency(\.appVersion, .mock)
 //         )
-//         
+//
 //         addAttachments(SettingsView(store: store))
 //     }
-//     
+//
 //     func testAboutSnapshot() throws {
 //         let store = Store(
 //             initialState: .placeholder,
@@ -37,7 +35,7 @@
 //                 .dependency(\.walletStorage, .noOp)
 //                 .dependency(\.appVersion, .liveValue)
 //         )
-//         
+//
 //         ViewStore(store).send(.onAppear)
 //         addAttachments(About(store: store))
 //     }

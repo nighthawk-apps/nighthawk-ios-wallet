@@ -2,8 +2,6 @@
 //  NighthawkLinkButtonStyle.swift
 //  stealth
 //
-//  Created by Matthew Watt on 4/16/23.
-//
 
 import Generated
 import SwiftUI

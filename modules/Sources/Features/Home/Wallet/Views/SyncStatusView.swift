@@ -2,8 +2,6 @@
 //  SyncStatusView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/6/23.
-//
 
 import Generated
 import Models
@@ -45,8 +43,6 @@ struct SyncStatusView: View {
             }
 
             // Live retrieval-method label from the shared Rust `SyncMethod`.
-            // Private OMR-family paths get a lock + green; the trial-decryption
-            // fallback gets an amber warning.
             if status.syncMethod != .unknown {
                 syncMethodLabel(for: status.syncMethod)
             }
@@ -63,8 +59,8 @@ struct SyncStatusView: View {
             return ""
         }()
         let displayText: String = {
-            if method.isPrivateRetrieval { return "🔒 \(method.displayName)\(phaseHint)" }
-            if method == .trialDecrypt { return "⚠️ \(method.displayName)" }
+            if method.isPrivateRetrieval { return "\(method.displayName)\(phaseHint)" }
+            if method == .trialDecrypt { return "\(method.displayName) (not UnifOMR)" }
             return method.displayName
         }()
         let displayColor: Color = {

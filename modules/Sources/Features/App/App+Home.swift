@@ -1,9 +1,6 @@
 //
 //  App+Home.swift
 //
-//
-//  Created by Matthew Watt on 10/7/23.
-//
 
 import ComposableArchitecture
 import Models

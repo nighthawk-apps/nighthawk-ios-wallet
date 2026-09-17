@@ -188,9 +188,7 @@ public struct ChatSettings {
                 return .none
             case .applyAndReconnect:
                 savePreferences(from: state)
-                return .run { _ in
-                    DarkircDaemonManager.shared.stop()
-                }
+                return .none
             case .addChannelTapped:
                 state.addChannelDialog = AddChannelDialog.State()
                 return .none

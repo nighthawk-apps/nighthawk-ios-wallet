@@ -1,9 +1,6 @@
 //
 //  Double+Currency.swift
 //
-//
-//  Created by Matthew Watt on 10/3/23.
-//
 
 import Foundation
 

@@ -1,12 +1,9 @@
 //
 //  Splash.swift
 //
-//
-//  Created by Matthew Watt on 9/11/23.
-//
 
+import AppVersion
 import ComposableArchitecture
-import DarkfiCore
 import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
@@ -22,7 +19,6 @@ public struct Splash {
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?
         public var authenticated: Bool { lastAuthenticatedTime != nil }
-        public var isFirstLaunch = true
         public var hasAttemptedAuthentication = false
         public var initializationState = InitializationState.uninitialized
         public var isAuthenticating = false
@@ -30,10 +26,16 @@ public struct Splash {
         public var lastInactiveTime: Date?
         public var phase = ScenePhase.background
         public var isVisible = true
-        /// Status line under the logo (e.g. Tor bootstrap while opening the wallet).
+        /// Status line under the logo (Tor bootstrap, matching Android splash).
         public var statusMessage: String?
         /// Show “Continue without Tor” while bootstrap is in progress or failed.
         public var showDisableTorButton = false
+        /// `vX.Y.Z` footer (Android `splash_app_version` parity).
+        public var appVersion: String = ""
+        public var walletCheckComplete = false
+        public var torGateOpen = false
+        public var didDispatchRoute = false
+        public var didStartLaunch = false
         /// Once the user has been routed past splash, avoid sending them back to welcome
         /// when splash reappears after background lock / scene phase changes.
         public var hasCompletedInitialRoute = false
@@ -42,6 +44,18 @@ public struct Splash {
         }
 
         public init() {}
+
+        public mutating func resetForRelock() {
+            lastAuthenticatedTime = nil
+            hasAttemptedAuthentication = false
+            isAuthenticating = false
+            walletCheckComplete = false
+            torGateOpen = false
+            didDispatchRoute = false
+            didStartLaunch = false
+            statusMessage = nil
+            showDisableTorButton = false
+        }
     }
 
     public enum Action: Equatable {
@@ -50,6 +64,7 @@ public struct Splash {
         case authenticationResponse(Bool)
         case checkWalletInitialization
         case bootstrapTorThenLaunch
+        case torBootstrapSucceeded
         case torBootstrapFailed
         case disableTorAndContinue
         case delegate(Delegate)
@@ -57,7 +72,6 @@ public struct Splash {
         case onAppear
         case retryTapped
         case scenePhaseChanged(ScenePhase)
-        case statusMessageUpdated(String?)
 
         public enum Alert: Equatable {}
 
@@ -65,16 +79,19 @@ public struct Splash {
             case handleNewUser
             case handleMigration
             case handleNeedsBackup
+            case handlePostBackupOnboarding
             case initializeSDKAndLaunchWallet
         }
     }
 
     private enum CancelID { case torBootstrap }
 
+    @Dependency(\.appVersion) var appVersion
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.torBootstrap) var torBootstrap
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
 
@@ -103,107 +120,71 @@ public struct Splash {
                 state.isAuthenticating = false
                 if authenticated {
                     state.lastAuthenticatedTime = date()
-                    return .send(.bootstrapTorThenLaunch)
+                    return continueAfterGates(state: &state)
                 }
                 return .none
             case .bootstrapTorThenLaunch:
-                let torOn = userStoredPreferences.torForWalletEnabled()
-                    || userStoredPreferences.torForChatEnabled()
-                let socksPort = UInt16(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
-                if !torOn {
-                    state.statusMessage = nil
-                    state.showDisableTorButton = false
-                    return .send(.delegate(.initializeSDKAndLaunchWallet))
-                }
-                state.statusMessage = "Tor bootstrapping…"
-                state.showDisableTorButton = true
-                return .run { send in
-                    let ready = await TorBootstrap.ensureReady(socksPort: socksPort)
-                    if ready {
-                        await send(.statusMessageUpdated(nil))
-                        await send(.delegate(.initializeSDKAndLaunchWallet))
-                    } else {
-                        await send(.torBootstrapFailed)
-                    }
-                }
-                .cancellable(id: CancelID.torBootstrap, cancelInFlight: true)
+                return startTorBootstrap(state: &state)
+            case .torBootstrapSucceeded:
+                state.statusMessage = L10n.Nighthawk.Splash.torReady
+                state.showDisableTorButton = false
+                state.torGateOpen = true
+                return continueAfterGates(state: &state)
             case .torBootstrapFailed:
-                state.statusMessage = "Tor bootstrap failed — retry or continue without Tor"
+                state.statusMessage = L10n.Nighthawk.Splash.torFailed
                 state.showDisableTorButton = true
-                state.hasAttemptedAuthentication = true
                 return .none
             case .disableTorAndContinue:
-                // Persist clearnet as the user's default; Settings can re-enable Tor later.
                 userStoredPreferences.setTorForWalletEnabled(false)
                 userStoredPreferences.setTorForChatEnabled(false)
-                DarkfiFfiSafe.stopArtiProxy()
+                torBootstrap.stop()
                 state.statusMessage = nil
                 state.showDisableTorButton = false
+                state.torGateOpen = true
                 return .merge(
                     .cancel(id: CancelID.torBootstrap),
-                    .send(.delegate(.initializeSDKAndLaunchWallet))
+                    continueAfterGates(state: &state)
                 )
-            case let .statusMessageUpdated(message):
-                state.statusMessage = message
-                if message == nil {
-                    state.showDisableTorButton = false
-                }
-                return .none
             case .checkWalletInitialization:
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
                     darkfiNetwork: "testnet"
                 )
+                state.walletCheckComplete = true
 
                 switch state.initializationState {
                 case .failed:
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
-                case .needsMigration:
-                    return .send(.delegate(.handleMigration))
                 case .keysMissing:
                     state.alert = AlertState.walletStateFailed(state.initializationState)
                     return .none
-                case .initialized, .filesMissing:
-                    if !userStoredPreferences.isUserBackupComplete() {
-                        return .send(.delegate(.handleNeedsBackup))
-                    }
-                    if userStoredPreferences.areBiometricsEnabled() {
-                        return .send(.authenticate)
-                    } else {
-                        return .send(.bootstrapTorThenLaunch)
-                    }
-                case .uninitialized:
-                    guard !state.hasCompletedInitialRoute else {
-                        state.alert = AlertState.walletStateFailed(.uninitialized)
-                        return .none
-                    }
-                    return .send(.delegate(.handleNewUser))
+                case .needsMigration, .initialized, .filesMissing, .uninitialized:
+                    return continueAfterGates(state: &state)
                 }
             case .delegate:
                 return .none
             case .onAppear:
-                defer { state.isFirstLaunch = false }
                 state.isVisible = true
-                if state.isFirstLaunch || state.shouldHandleScenePhaseChange {
-                    return .run { send in
-                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                        try await clock.sleep(for: .seconds(0.5))
-                        await send(.checkWalletInitialization)
-                    }
+                if state.appVersion.isEmpty {
+                    state.appVersion = appVersion.appVersion()
                 }
-                return .none
+                guard !state.didStartLaunch else {
+                    return .none
+                }
+                state.didStartLaunch = true
+                return startLaunch(state: &state)
             case .onDisappear:
                 state.isVisible = false
                 return .none
             case let .scenePhaseChanged(newPhase):
-                if newPhase == .active && state.shouldHandleScenePhaseChange {
-                    return .run { send in
-                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                        try await clock.sleep(for: .seconds(0.5))
-                        await send(.checkWalletInitialization)
+                if newPhase == .active && state.shouldHandleScenePhaseChange && !state.didStartLaunch {
+                    state.didStartLaunch = true
+                    if state.appVersion.isEmpty {
+                        state.appVersion = appVersion.appVersion()
                     }
+                    return startLaunch(state: &state)
                 }
                 return .none
             }
@@ -212,6 +193,85 @@ public struct Splash {
     }
 
     public init() {}
+}
+
+// MARK: - Launch gates (Android splash parity)
+private extension Splash {
+    func startLaunch(state: inout State) -> Effect<Action> {
+        let torOn = userStoredPreferences.torForWalletEnabled()
+            || userStoredPreferences.torForChatEnabled()
+        let walletCheck = Effect<Action>.run { send in
+            /// Keychain can lag on first process start; delay matches the historic splash path.
+            try await clock.sleep(for: .seconds(0.5))
+            await send(.checkWalletInitialization)
+        }
+        if torOn {
+            return .merge(startTorBootstrap(state: &state), walletCheck)
+        }
+        state.statusMessage = nil
+        state.showDisableTorButton = false
+        state.torGateOpen = true
+        return walletCheck
+    }
+
+    func startTorBootstrap(state: inout State) -> Effect<Action> {
+        let socksPort = UInt16(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
+        state.statusMessage = L10n.Nighthawk.Splash.torBootstrapping
+        state.showDisableTorButton = true
+        state.torGateOpen = false
+        return .run { [torBootstrap] send in
+            let ready = await torBootstrap.ensureReady(socksPort)
+            if ready {
+                await send(.torBootstrapSucceeded)
+            } else {
+                await send(.torBootstrapFailed)
+            }
+        }
+        .cancellable(id: CancelID.torBootstrap, cancelInFlight: true)
+    }
+
+    func continueAfterGates(state: inout State) -> Effect<Action> {
+        guard !state.didDispatchRoute, state.walletCheckComplete else {
+            return .none
+        }
+
+        switch state.initializationState {
+        case .failed, .keysMissing:
+            return .none
+        case .needsMigration:
+            guard state.torGateOpen else { return .none }
+            state.didDispatchRoute = true
+            return .send(.delegate(.handleMigration))
+        case .initialized, .filesMissing:
+            if !userStoredPreferences.isUserBackupComplete() {
+                guard state.torGateOpen else { return .none }
+                state.didDispatchRoute = true
+                return .send(.delegate(.handleNeedsBackup))
+            }
+            // First-time: seed is backed up but the educational carousel has not run.
+            // Existing installs already have wallet DB files and never stored this flag.
+            if !userStoredPreferences.hasCompletedOnboarding()
+                && !databaseFiles.areDbFilesPresentFor("testnet") {
+                guard state.torGateOpen else { return .none }
+                state.didDispatchRoute = true
+                return .send(.delegate(.handlePostBackupOnboarding))
+            }
+            if userStoredPreferences.areBiometricsEnabled() && !state.authenticated {
+                return .send(.authenticate)
+            }
+            guard state.torGateOpen else { return .none }
+            state.didDispatchRoute = true
+            return .send(.delegate(.initializeSDKAndLaunchWallet))
+        case .uninitialized:
+            guard !state.hasCompletedInitialRoute else {
+                state.alert = AlertState.walletStateFailed(.uninitialized)
+                return .none
+            }
+            guard state.torGateOpen else { return .none }
+            state.didDispatchRoute = true
+            return .send(.delegate(.handleNewUser))
+        }
+    }
 }
 
 // MARK: - Alerts

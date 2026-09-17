@@ -2,8 +2,6 @@
 //  AppVersionMocks.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 12.11.2022.
-//
 
 extension AppVersionClient {
     public static let mock = Self(

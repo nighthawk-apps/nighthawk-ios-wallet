@@ -2,8 +2,6 @@
 //  FeedbackGeneratorInterface.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 14.11.2022.
-//
 
 import ComposableArchitecture
 

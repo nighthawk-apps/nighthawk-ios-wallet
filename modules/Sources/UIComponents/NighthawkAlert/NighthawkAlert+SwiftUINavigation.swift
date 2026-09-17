@@ -1,9 +1,6 @@
 //
 //  NighthawkAlert+SwiftUINavigation.swift
 //
-//
-//  Created by Matthew Watt on 9/8/23.
-//
 
 import CasePaths
 import SwiftUI

@@ -1,9 +1,6 @@
 //
 //  MnemonicClient.swift
 //
-//
-//  Created by Matthew Watt on 9/29/23.
-//
 
 import ComposableArchitecture
 import Foundation

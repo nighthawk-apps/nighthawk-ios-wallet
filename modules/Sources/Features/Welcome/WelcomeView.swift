@@ -2,8 +2,6 @@
 //  WelcomeView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import Generated
@@ -20,25 +18,12 @@ public struct WelcomeView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            NighthawkLogo(size: .tabHeader)
-                .padding(.top, 16)
-
-            Spacer(minLength: 0)
-
-            onboardingCarousel
-
-            Spacer(minLength: 0)
-
-            terms {
-                store.send(.termsAndConditionsTapped)
-            }
-            .padding(.bottom, 16)
-
-            actions {
-                store.send(.createNewWalletTapped)
-            } onRestore: {
-                store.send(.importExistingWalletTapped)
+        Group {
+            switch store.mode {
+            case .getStarted:
+                getStartedContent
+            case .postBackupCarousel:
+                carouselContent
             }
         }
         .applyNighthawkBackground()
@@ -53,7 +38,44 @@ public struct WelcomeView: View {
     }
 }
 
-// MARK: - Onboarding Carousel
+// MARK: - Get started (create / restore)
+private extension WelcomeView {
+    var getStartedContent: some View {
+        VStack(spacing: 0) {
+            NighthawkLogo(size: .tabHeader)
+                .padding(.top, 16)
+
+            Spacer(minLength: 0)
+
+            VStack(spacing: 16) {
+                Text(L10n.Nighthawk.Welcome.subtitle)
+                    .subtitle()
+                    .multilineTextAlignment(.center)
+
+                Text(L10n.Nighthawk.Welcome.body)
+                    .paragraph()
+                    .lineSpacing(6)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
+
+            Spacer(minLength: 0)
+
+            terms {
+                store.send(.termsAndConditionsTapped)
+            }
+            .padding(.bottom, 16)
+
+            actions {
+                store.send(.createNewWalletTapped)
+            } onRestore: {
+                store.send(.importExistingWalletTapped)
+            }
+        }
+    }
+}
+
+// MARK: - Post-backup onboarding carousel
 private extension WelcomeView {
     struct OnboardingPage: Identifiable {
         let id: Int
@@ -85,6 +107,41 @@ private extension WelcomeView {
         ]
     }
 
+    var carouselContent: some View {
+        VStack(spacing: 0) {
+            NighthawkLogo(size: .tabHeader)
+                .padding(.top, 16)
+
+            Spacer(minLength: 0)
+
+            onboardingCarousel
+
+            Spacer(minLength: 0)
+
+            Button(carouselPrimaryTitle) {
+                if isLastCarouselPage {
+                    store.send(.carouselFinished)
+                } else {
+                    let next = min(Self.onboardingPages.count - 1, (currentPage ?? 0) + 1)
+                    currentPage = next
+                }
+            }
+            .buttonStyle(.nighthawkPrimary(width: 210))
+            .padding(.bottom, 64)
+            .accessibilityIdentifier("nighthawk.welcome.carousel.continue")
+        }
+    }
+
+    var isLastCarouselPage: Bool {
+        (currentPage ?? 0) >= Self.onboardingPages.count - 1
+    }
+
+    var carouselPrimaryTitle: String {
+        isLastCarouselPage
+            ? L10n.Nighthawk.RecoveryPhraseDisplay.continue
+            : L10n.General.next
+    }
+
     var onboardingCarousel: some View {
         VStack(spacing: 24) {
             // Page-style TabView installs a full-screen UIPageViewController gesture
@@ -105,7 +162,6 @@ private extension WelcomeView {
             .clipped()
             .contentShape(Rectangle())
 
-            // Page indicators (matches Android dot indicators)
             HStack(spacing: 8) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()

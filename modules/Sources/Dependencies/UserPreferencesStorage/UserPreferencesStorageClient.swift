@@ -2,8 +2,6 @@
 //  UserPreferencesStorageInterface.swift
 //  stealth
 //
-//  Created by Matthew Watt on 08/03/2023.
-//
 
 import Foundation
 import ComposableArchitecture
@@ -34,9 +32,6 @@ public struct UserPreferencesStorageClient {
     public var isFirstSync: () -> Bool
     public var setIsFirstSync: (Bool) -> Void
 
-    public var hasShownAutoshielding: () -> Bool
-    public var setHasShownAutoshielding: (Bool) -> Void
-
     public var isUsingCustomLightwalletd: () -> Bool
     public var setIsUsingCustomLightwalletd: (Bool) -> Void
 
@@ -60,6 +55,10 @@ public struct UserPreferencesStorageClient {
 
     public var isUserBackupComplete: () -> Bool
     public var setIsUserBackupComplete: (Bool) -> Void
+    public var hasCompletedOnboarding: () -> Bool
+    public var setHasCompletedOnboarding: (Bool) -> Void
+    public var isRestoreWallet: () -> Bool
+    public var setIsRestoreWallet: (Bool) -> Void
 
     public var runEmbeddedDarkirc: () -> Bool
     public var setRunEmbeddedDarkirc: (Bool) -> Void
@@ -97,8 +96,6 @@ extension UserPreferencesStorageClient: DependencyKey {
         setIsBandit: UserPreferencesStorage.live.setIsBandit(_:),
         isFirstSync: { UserPreferencesStorage.live.isFirstSync },
         setIsFirstSync: UserPreferencesStorage.live.setIsFirstSync(_:),
-        hasShownAutoshielding: { UserPreferencesStorage.live.hasShownAutoshielding },
-        setHasShownAutoshielding: UserPreferencesStorage.live.setHasShownAutoshielding(_:),
         isUsingCustomLightwalletd: { UserPreferencesStorage.live.isUsingCustomLightwalletd },
         setIsUsingCustomLightwalletd: UserPreferencesStorage.live.setIsUsingCustomLightwalletd(_:),
         customLightwalletdServer: { UserPreferencesStorage.live.customLightwalletdServer },
@@ -117,6 +114,10 @@ extension UserPreferencesStorageClient: DependencyKey {
         setStrictOmrOnly: UserPreferencesStorage.live.setStrictOmrOnly(_:),
         isUserBackupComplete: { UserPreferencesStorage.live.isUserBackupComplete },
         setIsUserBackupComplete: UserPreferencesStorage.live.setIsUserBackupComplete(_:),
+        hasCompletedOnboarding: { UserPreferencesStorage.live.hasCompletedOnboarding },
+        setHasCompletedOnboarding: UserPreferencesStorage.live.setHasCompletedOnboarding(_:),
+        isRestoreWallet: { UserPreferencesStorage.live.isRestoreWallet },
+        setIsRestoreWallet: UserPreferencesStorage.live.setIsRestoreWallet(_:),
         runEmbeddedDarkirc: { UserPreferencesStorage.live.runEmbeddedDarkirc },
         setRunEmbeddedDarkirc: UserPreferencesStorage.live.setRunEmbeddedDarkirc(_:),
         darkircDagsCount: { UserPreferencesStorage.live.darkircDagsCount },
@@ -133,6 +134,10 @@ extension UserPreferencesStorageClient: DependencyKey {
         setEncryptedContactsJSON: UserPreferencesStorage.live.setEncryptedContactsJSON(_:),
         removeAll: UserPreferencesStorage.live.removeAll
     )
+}
+
+extension UserPreferencesStorageClient: TestDependencyKey {
+    public static let testValue = liveValue
 }
 
 extension DependencyValues {

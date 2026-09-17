@@ -2,8 +2,6 @@
 //  HomeView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/5/23.
-//
 
 import Addresses
 import AlertToast

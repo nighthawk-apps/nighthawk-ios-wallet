@@ -2,8 +2,6 @@
 //  QRCodeScanView.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 16.05.2022.
-//
 
 import SwiftUI
 

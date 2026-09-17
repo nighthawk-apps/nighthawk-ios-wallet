@@ -1,9 +1,6 @@
 //
 //  TransactionDetail.swift
 //
-//
-//  Created by Matthew Watt on 7/14/23.
-//
 
 import ComposableArchitecture
 import DerivationTool

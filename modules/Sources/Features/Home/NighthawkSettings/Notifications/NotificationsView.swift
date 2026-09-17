@@ -2,8 +2,6 @@
 //  NotificationsView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/14/23.
-//
 
 import ComposableArchitecture
 import Generated

@@ -2,8 +2,6 @@
 //  RecoveryFlowTests.swift
 //  stealthTests
 //
-//  Created by Francisco Gindre on 10/29/21.
-//
 
 import XCTest
 import Models

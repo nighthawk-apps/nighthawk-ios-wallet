@@ -2,8 +2,6 @@
 //  RecoveryPhraseDisplay.swift
 //  stealth
 //
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import ExportSeed
@@ -29,6 +27,7 @@ public struct RecoveryPhraseDisplay {
         public var phrase: RecoveryPhrase = .empty
         public var birthday: BlockHeight = .zero
         public var isConfirmSeedPhraseWrittenChecked = false
+        public var isOpeningWallet = false
 
         public init(flow: RecoveryPhraseDisplayFlow) {
             self.flow = flow
@@ -44,6 +43,7 @@ public struct RecoveryPhraseDisplay {
         case onAppear
 
         public enum Delegate: Equatable {
+            case showOnboardingCarousel
             case initializeSDKAndLaunchWallet
         }
     }
@@ -66,10 +66,17 @@ public struct RecoveryPhraseDisplay {
             case .binding:
                 return .none
             case .continuePressed:
-                guard state.flow == .onboarding, state.isConfirmSeedPhraseWrittenChecked else {
+                guard state.flow == .onboarding,
+                      state.isConfirmSeedPhraseWrittenChecked,
+                      !state.isOpeningWallet
+                else {
                     return .none
                 }
                 userStoredPreferences.setIsUserBackupComplete(true)
+                state.isOpeningWallet = true
+                if !userStoredPreferences.hasCompletedOnboarding() {
+                    return .send(.delegate(.showOnboardingCarousel))
+                }
                 return .send(.delegate(.initializeSDKAndLaunchWallet))
             case .delegate:
                 return .none

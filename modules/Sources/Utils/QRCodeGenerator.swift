@@ -2,8 +2,6 @@
 //  QRCodeGenerator.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 04.07.2022.
-//
 
 import Foundation
 import Combine

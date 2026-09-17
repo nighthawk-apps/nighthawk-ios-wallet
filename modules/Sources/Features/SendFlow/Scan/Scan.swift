@@ -1,9 +1,6 @@
 //
 //  Scan.swift
 //
-//
-//  Created by Matthew Watt on 7/22/23.
-//
 
 import CaptureDevice
 import ComposableArchitecture
@@ -84,7 +81,7 @@ public struct Scan {
                     return .none
                 }
 
-                var parseResult = uriParser.parseZaddrOrZIP321(code.data, "testnet")
+                var parseResult = uriParser.parseDrkPaymentUri(code.data, "testnet")
                 if derivationTool.isDarkFiAddress(code.data, "testnet") {
                     parseResult.address = code.data
                 }

@@ -2,8 +2,6 @@
 //  Wallet.swift
 //  stealth
 //
-//  Created by Matthew watt on 5/5/23.
-//
 
 import Addresses
 import ComposableArchitecture

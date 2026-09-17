@@ -2,8 +2,6 @@
 //  AboutView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/22/23.
-//
 
 import ComposableArchitecture
 import Generated

@@ -2,8 +2,6 @@
 //  DiskSpaceChecker.swift
 //  stealth
 //
-//  Created by Michal Fousek on 28.09.2022.
-//
 
 import Foundation
 

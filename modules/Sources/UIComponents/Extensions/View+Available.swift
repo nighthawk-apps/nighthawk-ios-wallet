@@ -2,8 +2,6 @@
 //  View+ColorScheme.swift
 //  stealth
 //
-//  Created by Matthew Watt on 3/17/23.
-//
 
 import SwiftUI
 

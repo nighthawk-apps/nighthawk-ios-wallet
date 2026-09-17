@@ -1,9 +1,6 @@
 //
 //  RadioSelectionList.swift
 //
-//
-//  Created by Matthew Watt on 8/3/23.
-//
 
 import Generated
 import SwiftUI

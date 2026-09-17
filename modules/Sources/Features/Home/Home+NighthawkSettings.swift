@@ -1,9 +1,6 @@
 //
 //  Home+NighthawkSettings.swift
 //
-//
-//  Created by Matthew Watt on 9/28/23.
-//
 
 import Combine
 import ComposableArchitecture

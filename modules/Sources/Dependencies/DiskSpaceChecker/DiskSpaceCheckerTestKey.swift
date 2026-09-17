@@ -2,8 +2,6 @@
 //  DiskSpaceCheckerTestKey.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 10.11.2022.
-//
 
 import ComposableArchitecture
 import XCTestDynamicOverlay

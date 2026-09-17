@@ -2,8 +2,6 @@
 //  Button+Disabling.swift
 //  stealth
 //
-//  Created by Francisco Gindre on 3/13/23.
-//
 
 import SwiftUI
 

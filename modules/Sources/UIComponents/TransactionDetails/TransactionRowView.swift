@@ -2,8 +2,6 @@
 //  TransactionRowView.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/18/23.
-//
 
 import Generated
 import Models

@@ -2,8 +2,6 @@
 //  DarkfiTransferTests.swift
 //  stealthTests
 //
-//  Created by Antigravity on 2026-07-08.
-//
 
 import XCTest
 @testable import DarkfiCore

@@ -1,9 +1,6 @@
 //
 //  SplashView.swift
 //
-//
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import Generated
@@ -42,7 +39,7 @@ public struct SplashView: View {
                     )
                     .buttonStyle(.nighthawkPrimary())
                     .padding(.top, 8)
-                } else if store.statusMessage?.contains("Tor bootstrap failed") == true {
+                } else if store.statusMessage == L10n.Nighthawk.Splash.torFailed {
                     Button(
                         L10n.Nighthawk.Splash.retry,
                         action: { store.send(.bootstrapTorThenLaunch) }
@@ -54,27 +51,34 @@ public struct SplashView: View {
                 Spacer()
             }
 
-            // Bottom-center escape hatch (Android splash parity).
-            if store.showDisableTorButton {
-                VStack(spacing: 8) {
-                    Button("Continue without Tor") {
+            VStack(spacing: 8) {
+                if store.showDisableTorButton {
+                    Button(L10n.Nighthawk.Splash.continueWithoutTor) {
                         store.send(.disableTorAndContinue)
                     }
                     .buttonStyle(.nighthawkSecondary())
 
-                    Text("Uses your regular network. You can re-enable Tor in Settings.")
+                    Text(L10n.Nighthawk.Splash.continueWithoutTorHint)
                         .paragraph()
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 48)
+
+                if !store.appVersion.isEmpty {
+                    Text(L10n.Nighthawk.Splash.version(store.appVersion))
+                        .caption(color: Color.white.opacity(0.7))
+                        .accessibilityLabel(L10n.Nighthawk.Splash.version(store.appVersion))
+                }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 24)
         }
-        .onChange(of: scenePhase) {
-            store.send(.scenePhaseChanged(scenePhase))
+        .onChange(of: scenePhase) { _, newPhase in
+            store.send(.scenePhaseChanged(newPhase))
         }
-        .onAppear {
+        .task {
+            // `.task` fires when the view joins the hierarchy (more reliable than
+            // `onAppear` behind a UIKit launch storyboard).
             store.send(.onAppear)
         }
         .onDisappear {

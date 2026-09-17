@@ -1,9 +1,6 @@
 //
 //  NighthawkAlert.swift
 //
-//
-//  Created by Matthew Watt on 9/8/23.
-//
 
 import ComposableArchitecture
 import Generated

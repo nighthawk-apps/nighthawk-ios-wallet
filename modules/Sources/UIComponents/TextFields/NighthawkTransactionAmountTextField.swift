@@ -1,9 +1,6 @@
 //
 //  NighthawkTransactionAmountTextField.swift
 //
-//
-//  Created by Matthew Watt on 7/19/23.
-//
 
 import Generated
 import SwiftUI

@@ -2,8 +2,6 @@
 //  WalletCreated.swift
 //  stealth
 //
-//  Created by Matthew Watt on 4/19/23.
-//
 
 import ComposableArchitecture
 import FeedbackGenerator

@@ -2,8 +2,6 @@
 //  TransferView.swift
 //  stealth
 //
-//  Created by Matthew watt on 5/5/23.
-//
 
 import ComposableArchitecture
 import Generated
@@ -41,6 +39,14 @@ struct TransferView: View {
             )
         ) { store in
             SendFlowView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.request,
+                action: \.destination.request
+            )
+        ) { store in
+            RequestMoneyView(store: store)
         }
     }
 }
@@ -80,6 +86,16 @@ private extension TransferView {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("nighthawk.transfer.receive")
+
+            Button(action: { store.send(.requestMoneyTapped) }) {
+                optionRow(
+                    title: L10n.Nighthawk.TransferTab.requestMoneyTitle,
+                    description: L10n.Nighthawk.TransferTab.requestMoneyDescription,
+                    icon: Asset.Assets.Icons.Nighthawk.nhQrCode.image
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.transfer.request")
 
             Button(action: { store.send(.daoHubTapped) }) {
                 optionRow(

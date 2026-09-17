@@ -1,9 +1,6 @@
 //
 //  AddressesView.swift
 //
-//
-//  Created by Matthew Watt on 7/16/23.
-//
 
 import AlertToast
 import ComposableArchitecture
@@ -73,7 +70,7 @@ private extension AddressesView {
                 VStack {
                     QRCodeContainer(
                         qrImage: qrCode(for: store.privacyAddress),
-                        badge: Asset.Assets.Icons.Nighthawk.unifiedBadge.image
+                        badge: Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     )
                     .frame(maxWidth: .infinity)
                     .layoutPriority(1)
@@ -100,7 +97,7 @@ private extension AddressesView {
 
             Button(
                 L10n.Nighthawk.WalletTab.Addresses.copy,
-                action: { store.send(.copyTapped(.unified)) }
+                action: { store.send(.copyTapped(.privacy)) }
             )
             .buttonStyle(.nighthawkPrimary())
         }

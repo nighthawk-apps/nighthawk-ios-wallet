@@ -1,9 +1,6 @@
 //
 //  App+Alerts.swift
 //
-//
-//  Created by Matthew Watt on 9/12/23.
-//
 
 import ComposableArchitecture
 import Utils

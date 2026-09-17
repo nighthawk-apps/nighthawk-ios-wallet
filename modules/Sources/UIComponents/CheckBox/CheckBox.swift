@@ -2,8 +2,6 @@
 //  CheckBox.swift
 //  stealth
 //
-//  Created by Matthew Watt on 4/4/23.
-//
 
 import Generated
 import SwiftUI
@@ -42,5 +40,6 @@ public struct CheckBox<Label>: View where Label: View {
                 Spacer()
             }
         }
+        .buttonStyle(.plain)
     }
 }

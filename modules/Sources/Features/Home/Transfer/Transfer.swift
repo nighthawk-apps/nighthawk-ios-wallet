@@ -2,8 +2,6 @@
 //  Transfer.swift
 //  stealth
 //
-//  Created by Matthew Watt on 5/5/23.
-//
 
 import ComposableArchitecture
 import ProcessInfoClient
@@ -17,6 +15,7 @@ public struct Transfer {
     public enum Destination {
         case receive(Receive)
         case send(SendFlow)
+        case request(RequestMoney)
     }
 
     @ObservableState
@@ -36,6 +35,7 @@ public struct Transfer {
         case delegate(Delegate)
         case receiveMoneyTapped
         case sendMoneyTapped
+        case requestMoneyTapped
         case daoHubTapped
 
         public enum Delegate: Equatable {
@@ -67,6 +67,14 @@ public struct Transfer {
                 sendState.spendableBalance = state.walletInfo.balance
                 sendState.unifiedAddress = state.walletInfo.unifiedAddress
                 state.destination = .send(sendState)
+                return .none
+            case .requestMoneyTapped:
+                state.destination = .request(
+                    .init(
+                        address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                )
                 return .none
             case .daoHubTapped:
                 return .send(.delegate(.openDaoHub))

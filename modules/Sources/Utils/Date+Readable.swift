@@ -2,8 +2,6 @@
 //  Date+Readable.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 12.05.2022.
-//
 
 import Foundation
 

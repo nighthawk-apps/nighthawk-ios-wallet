@@ -1,9 +1,6 @@
 //
 //  TransactionDetailsTable.swift
 //
-//
-//  Created by Matthew Watt on 7/31/23.
-//
 
 import Generated
 import SwiftUI

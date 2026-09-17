@@ -1,9 +1,6 @@
 //
 //  LocalAuthenticationContext.swift
 //
-//
-//  Created by Matthew Watt on 9/2/23.
-//
 
 import Dependencies
 import Foundation

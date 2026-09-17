@@ -1,9 +1,6 @@
 //
 //  AppView.swift
 //
-//
-//  Created by Matthew Watt on 9/11/23.
-//
 
 import ComposableArchitecture
 import Generated

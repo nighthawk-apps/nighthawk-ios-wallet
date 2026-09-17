@@ -1,9 +1,6 @@
 //
 //  DataManager.swift
 //
-//
-//  Created by Matthew Watt on 9/28/23.
-//
 //  Taken from here: https://www.pointfree.co/collections/tours/composable-architecture-1-0/ep249-tour-of-the-composable-architecture-1-0-persistence
 
 import ComposableArchitecture

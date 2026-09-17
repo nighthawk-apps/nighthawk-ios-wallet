@@ -9,7 +9,6 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | ✅ | Implemented and usable (may need native lib or testnet node) |
 | 🟡 | Partial / stub / UI-only / requires external daemon |
 | ❌ | Not implemented |
-| 🔒 | Zcash had it; DarkFi equivalent differs (see notes) |
 | 🚀 | iOS-ahead feature (not a hard exclusive — Android may use a different implementation) |
 
 **Light client path:** wallets → **`darkfi-lightwalletd` gRPC `:9067`** (UnifOMR) → `darkfid`.  
@@ -23,11 +22,12 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Restore from seed phrase | ✅ | ✅ | Import path in onboarding (`ImportWallet` feature) |
 | Wallet encrypted at rest | ✅ | ✅ | Keychain + `wallet.db` (native `drk`) |
 | PIN / app lock | ✅ | ✅ | Security feature in Settings |
-| Backup reminder / seed backup flow | ✅ | ✅ | `ExportSeed` / `RecoveryPhraseDisplay` features |
+| Backup reminder / seed backup flow | ✅ | ✅ | `ExportSeed` / `RecoveryPhraseDisplay` / Android `SeedBackup` — required before home |
+| Educational onboarding carousel | ✅ | ✅ | After Tor connecting + create/restore + seed backup; then Home |
 | Birthday height (faster restore) | 🟡 | 🟡 | `birthday_height` in `DrkBootstrapConfig` |
 | Multiple accounts in one app | ❌ | ❌ | Single wallet today |
 | View / copy receive address | ✅ | ✅ | `Receive` feature + QR |
-| Generate new address | ✅ | ✅ | `generateNewAddress()` UniFFI |
+| Single wallet address | ✅ | ✅ | One receive address per wallet |
 | Address formats (`drk…`) | ✅ | ✅ | Confidential / public receive encodings |
 
 ---
@@ -37,7 +37,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Feature | iOS | Android | Notes |
 |---------|-----|---------|-------|
 | Confirmed balance (DRK) | ✅ | ✅ | `confirmedBalanceAtomic` via `WalletHandleManager` |
-| Transparent vs shielded split | 🔒 | 🔒 | **N/A** — DarkFi transfers are private; single balance |
+| Transparent vs shielded split | | | **N/A** — DarkFi transfers are private; single balance |
 | Fiat conversion display | 🟡 | 🟡 | Fiat currency setting exists; rate source project-specific |
 | Sync progress (% / blocks) | ✅ | ✅ | `syncSnapshot()` → `DrkSyncSnapshot` |
 | Pull-to-refresh / rescan | ✅ | ✅ | `refreshNow()` |
@@ -61,10 +61,8 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Memo on transaction details | ✅ | ✅ | `transactionPaymentMemo` on history rows |
 | QR scan recipient / amount | ✅ | ✅ | `SendFlow` feature |
 | Receive QR display | ✅ | ✅ | `Receive` feature |
-| Request specific amount (payment URI) | 🟡 | 🟡 | Deep link support; full "request" UX varies |
+| Request specific amount (payment URI) | ✅ | ✅ | Request money QR uses the wallet’s single `drk:` address |
 | Multi-token / custom assets send | 🟡 | ✅ | UDL has `list_token_balances`; UI may need token picker verification |
-| ZIP-321 / unified address | 🔒 | 🔒 | Use DarkFi `drk` addresses instead |
-| Shielding / deshielding | 🔒 | 🔒 | **N/A** on DarkFi |
 
 ---
 
@@ -159,7 +157,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Memo field (512 bytes) | UnifOMR user memo, max **255 UTF-8 bytes** (off-chain `omr_metadata_enc`; on-chain `MoneyNote.memo` is unbounded `Vec<u8>` and left empty by `drk.transfer`) |
 | Lightwalletd | `darkfi-lightwalletd` gRPC **:9067** (UnifOMR) → `darkfid` |
 | Tor via librustzcash | Arti in-process (iOS) |
-| ZIP-321 | Payment URI `drk:address?amount=&memo=` |
+| `drk:` payment URI | Payment URI `drk:address?amount=&memo=` |
 | Orchard / Sapling | Money contract `TransferV1` |
 | — | DarkIRC chat (new) |
 | — | DAO / custom tokens (chain; app UI read-only) |

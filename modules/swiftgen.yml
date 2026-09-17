@@ -1,10 +1,10 @@
-input_dir: Sources/Generated/Resources/
+input_dir: Sources/Generated/
 output_dir: Sources/Generated/
 
 xcassets:
   inputs:
-    - Assets.xcassets
-    - Colors.xcassets
+    - Resources/Assets.xcassets
+    - Resources/Colors.xcassets
   outputs:
       templatePath: Templates/xcassets/assets_swift5_swiftui.stencil
       params:
@@ -14,10 +14,10 @@ xcassets:
       
 fonts:
   inputs:
-    - Fonts/Zboto.otf
-    - Fonts/Rubik
-    - Fonts/Roboto
-    - Fonts/PulpDisplay
+    - Resources/Fonts/Zboto.otf
+    - Resources/Fonts/Rubik
+    - Resources/Fonts/Roboto
+    - Resources/Fonts/PulpDisplay
   outputs:
       templatePath: Templates/fonts/fonts_swift5_swiftui.stencil
       params:
@@ -25,7 +25,7 @@ fonts:
       output: Fonts+Generated.swift
 
 strings:
-  inputs: en.lproj/Localizable.strings
+  inputs: Localization/en.lproj/Localizable.strings
   outputs:
     - templateName: structured-swift5
       params:

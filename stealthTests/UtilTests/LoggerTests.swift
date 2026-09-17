@@ -2,8 +2,6 @@
 //  LoggerTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 24.01.2023.
-//
 
 import XCTest
 import OSLog

@@ -1,9 +1,6 @@
 //
 //  FiatPriceClient.swift
 //
-//
-//  Created by Matthew Watt on 10/1/23.
-//
 
 import ComposableArchitecture
 import Foundation
@@ -26,6 +23,19 @@ extension FiatPriceClient: DependencyKey {
     public static let liveValue = Self(
         getDrkPrice: { currency in
             guard currency != .off else { return nil }
+            let defaults = UserDefaults.standard
+            let torOn = (defaults.object(forKey: "darkfiTorForWallet") as? Bool) ?? true
+            guard torOn else { return nil }
+            let host = (defaults.string(forKey: "darkfiTorSocksHost")?.trimmingCharacters(in: .whitespacesAndNewlines))
+                .flatMap { $0.isEmpty ? nil : $0 } ?? "127.0.0.1"
+            let port = UInt16(defaults.string(forKey: "darkfiTorSocksPort") ?? "9050") ?? 9050
+            let config = URLSessionConfiguration.ephemeral
+            config.connectionProxyDictionary = [
+                "SOCKSEnable": NSNumber(value: 1),
+                "SOCKSProxy": host,
+                "SOCKSPort": NSNumber(value: Int(port))
+            ]
+            let session = URLSession(configuration: config)
 
             let simplePriceUrl = URL.coinGeckoApi
                 .appending(path: "simple/price")
@@ -36,7 +46,7 @@ extension FiatPriceClient: DependencyKey {
                     ]
                 )
 
-            let (data, _) = try await URLSession.shared.data(from: simplePriceUrl)
+            let (data, _) = try await session.data(from: simplePriceUrl)
             let priceData = try JSONDecoder().decode(FiatPriceApiResponse.self, from: data)
             return priceData.data[currency.rawValue]
         }

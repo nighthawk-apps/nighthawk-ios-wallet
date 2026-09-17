@@ -2,8 +2,6 @@
 //  ImportWalletTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 25.05.2022.
-//
 
 import XCTest
 import ComposableArchitecture

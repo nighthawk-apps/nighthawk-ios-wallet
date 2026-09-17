@@ -1,9 +1,6 @@
 //
 //  ExportSeedView.swift
 //
-//
-//  Created by Matthew Wat on 9/10/23.
-//
 
 import ComposableArchitecture
 import Generated

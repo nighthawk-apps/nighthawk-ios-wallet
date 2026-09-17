@@ -2,8 +2,6 @@
 //  CurrencySelectionTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 09.05.2022.
-//
 
 import XCTest
 import ComposableArchitecture

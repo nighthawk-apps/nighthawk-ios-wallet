@@ -2,8 +2,6 @@
 //  InitializationState.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 30.03.2022.
-//
 
 import Foundation
 

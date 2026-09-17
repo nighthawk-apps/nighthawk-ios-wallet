@@ -2,8 +2,6 @@
 //  UserDefaultsLiveKey.swift
 //  stealth
 //
-//  Created by Lukáš Korba on 13.11.2022.
-//
 
 import Foundation
 import ComposableArchitecture

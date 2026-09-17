@@ -2,8 +2,6 @@
 //  ConditionalModifier.swift
 //  stealth
 //
-//  Created by ANTOINE VAN DER LEE
-//
 // Credits: https://www.avanderlee.com/swiftui/conditional-view-modifier/
 import SwiftUI
 

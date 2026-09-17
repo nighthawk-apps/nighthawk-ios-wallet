@@ -28,9 +28,9 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 ## Download
 
-<a href="https://apps.apple.com/us/app/nighthawk-wallet/id1524708337" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-US" alt="Download Nighthawk on the App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
+<a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.010 (build 10):** Encrypted nearby DarkIRC EventGraph hop over BLE (Noise; share-internet off). Chat stays in-process UniFFI. Native sent-tx session cache is FIFO-capped (10,000). Reorg “transactions affected” is counted from `drk.get_txs_history()`, not a constant. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.011 (build 11):** Request money QR (`drk:` invoice, single receive address), honest UnifOMR vs trial-decrypt HUD, Tor vs direct chat HUD, Tor-only fiat, chat-to-pay, Nighthawk Mesh badge. UI strings for es, pt-BR, ja, zh-Hans, ru, de, fr, it, id, cs. Chat stays in-process UniFFI. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -92,7 +92,7 @@ open stealth.xcodeproj
 # Optional: SCHEME=stealth-mainnet DEVICE_ID=<udid> ./scripts/deploy-ios-device.sh
 ```
 
-**Chat:** open the **Chat** tab — DarkIRC runs **in-process** via UniFFI. **Tor is on by default** (embedded Arti SOCKS); the splash screen shows “Tor bootstrapping…” while Arti comes up. First DAG sync can take several minutes.
+**Chat:** open the **Chat** tab — DarkIRC runs **in-process** via UniFFI. **Tor is on by default** (embedded Arti SOCKS). First launch stays on the splash (version + “Tor bootstrapping…” + Continue without Tor) until Tor is ready, then Create/Restore, then required seed backup, then the educational onboarding carousel, then Home. First DAG sync can take several minutes.
 
 **Optional standalone darkirc:** `./scripts/build-darkirc-ios.sh` → `stealth/Resources/darkirc_exec` (not required for default chat).
 
@@ -199,19 +199,20 @@ Style guide: [SWIFTLINT.md](SWIFTLINT.md).
 
 ## Wallet & recovery phrase (22 words)
 
-DarkFi wallets use a **22-word English recovery phrase** (not BIP39 12/24-word). Generation/validation live in Rust FFI (`generateDarkfiMnemonic` / `validateDarkfiMnemonic`). Restore rejects any length other than 22 words.
+DarkFi wallets use a **22-word English recovery phrase** (not BIP39 12/22-word). Generation/validation live in Rust FFI (`generateDarkfiMnemonic` / `validateDarkfiMnemonic`). Restore rejects any length other than 22 words.
 
 ### Create
 
-1. Welcome → **Create wallet** — 22-word phrase stored in Keychain.
-2. **Backup (required)** — view all words, check confirmation, Continue. Overlay blocks progress until checked (Android parity).
-3. **Home** — SDK initializes only after backup (`isUserBackupComplete`). No skip path.
+1. Splash (Tor connecting) → **Create wallet** — 22-word phrase stored in Keychain.
+2. **Backup (required)** — view all 22 words, check confirmation, then Continue (checkbox + Continue stay pinned; Continue stays disabled until the box is checked).
+3. **Onboarding** — educational carousel.
+4. **Home** — SDK initializes only after backup + onboarding (`isUserBackupComplete`). No skip path.
 
 If the app is killed mid-backup, the next launch returns to the recovery phrase screen.
 
 ### Restore
 
-Welcome → **Restore** → paste/type **22-word** phrase. On success, backup is treated complete.
+Welcome → **Restore** → paste/type **22-word** phrase. On success, backup is treated complete, then the onboarding carousel, then Home.
 
 ### Settings → Backup your wallet
 

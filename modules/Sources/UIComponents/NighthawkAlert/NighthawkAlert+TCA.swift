@@ -1,9 +1,6 @@
 //
 //  NighthawkAlert+TCA.swift
 //
-//
-//  Created by Matthew Watt on 9/8/23.
-//
 
 // NOTE: This is internal API to TCA, so it could break in the future unexpectedly
 //       It seems that this is the only option (and sanctioned by the authors) for hooking custom views into the TCA @Presents mechanism

@@ -2,8 +2,6 @@
 //  WalletStorageTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 10.03.2022.
-//
 
 import XCTest
 import MnemonicSwift
