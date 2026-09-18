@@ -27,6 +27,7 @@ public struct SecurityView: View {
         .padding(.top, 8)
         .padding(.horizontal, 25)
         .onAppear { store.send(.onAppear) }
+        .privacySensitive()
         .applyNighthawkBackground()
     }
 

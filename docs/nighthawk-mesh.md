@@ -14,6 +14,21 @@ A decrypted neighbor is an EventGraph peer (same observer model as DarkIRC p2p).
 
 Keep `rust/darkfi-mobile-ffi/src/mesh/` **lockstep** with the Android copy. Relays decrypt, cache, and **re-seal** to other Ready neighbors. Inner kinds: `EventPut` (`0x20`) and GCS `DagSync` (`0x21`). Sequence is authenticated inside ciphertext. Payload cap 64 KiB; cache 256 events / 256 KiB.
 
+Handshake: lexicographic initiator; `HANDSHAKE_TIMEOUT_MS = 8_000` drops stuck InitSent/WaitHs3 sessions. Cache eviction emits `EngineEvent::CacheFull` (`{"t":"cache_full"}`).
+
+DagSync replies at most `DAG_SYNC_REPLY_MAX = 32` events per request. Already-sent ids are skipped (`sync_sent` per peer). Events JSON includes `"remaining"` so a later GCS request continues catch-up. Periodic `request_dag_sync` is the pagination loop.
+
+### Fragments
+
+| Constant | Value |
+|----------|-------|
+| `FRAGMENT_CHUNK` | 469 bytes |
+| `MAX_FRAGMENTS` | 256 |
+| `FRAGMENT_TTL_SECS` | 30 s |
+| Inflight | assembler drops stale / oversized sets |
+
+Cleanup is TTL-based in `fragment.rs`. Oversized NoiseEnc is rejected before reassembly.
+
 Daemon: after insert, gossip Event+blob onto mesh; inbound `header_dag_insert` then `ingest_mesh_event` (do not Tor-broadcast mesh-ingested events).
 
 ## iOS radio / OS
@@ -22,7 +37,9 @@ Daemon: after insert, gossip Event+blob onto mesh; inbound `header_dag_insert` t
 - Ingest only Noise HS/Enc, fragment, ping/pong after DAG consider.
 - `NHBLELinkLayer`: drop characteristic `.read`; `didReceiveRead` → `.readNotPermitted`.
 - Unicast by mesh-id; service-data session hint; `neighbor_up` on connect.
-- `MeshEngineBridge` uses `dlsym` for `nh_mesh_neighbor_up` / `nh_mesh_neighbor_down` / `nh_mesh_peer_id` (missing symbols on an older `.a` are OK).
+- `MeshEngineBridge` uses `dlsym` for `nh_mesh_neighbor_up` / `nh_mesh_neighbor_down` / `nh_mesh_peer_id` (missing symbols on an older `.a` are OK). When those symbols are missing, Mesh settings show **mesh unavailable**.
+- CoreBluetooth restore identifier: `NHBLELinkPolicy.centralRestoreId` (`CBCentralManagerOptionRestoreIdentifierKey`). Always-on keeps scanning after restore; opportunistic radio stops when backgrounded.
+- Settings show **mesh idle** when DarkIRC is `not_running` / `failed`, and **cache full** after `cache_full` engine events.
 - Chat/Mesh settings hide share-wifi; `setGatewayOptIn` forced **false**.
 - Do not log Bluetooth addresses.
 

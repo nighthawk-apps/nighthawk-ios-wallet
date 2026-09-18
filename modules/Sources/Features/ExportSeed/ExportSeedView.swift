@@ -55,6 +55,7 @@ public struct ExportSeedView: View {
             }
         }
         .onAppear { store.send(.onAppear) }
+        .privacySensitive()
     }
 
     public init(store: StoreOf<ExportSeed>) {

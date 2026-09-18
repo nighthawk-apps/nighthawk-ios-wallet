@@ -60,22 +60,13 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         }
     }
 
-    private static func explorerBase(for networkType: String) -> String {
-        networkType.lowercased() == "mainnet"
-            ? "https://explorer.dark.fi"
-            : "https://explorer.testnet.dark.fi"
-    }
-
     public func viewOnlineURL(for networkType: String) -> URL? {
-        return URL(string: "\(Self.explorerBase(for: networkType))/tx/\(id)")
+        DarkFiExplorer.transactionURL(txid: id, networkType: networkType)
     }
 
+    /// DarkFi explorers do not publish an address page.
     public func viewRecipientOnlineURL(for networkType: String) -> URL? {
-        if let address {
-            return URL(string: "\(Self.explorerBase(for: networkType))/address/\(address)")
-        }
-
-        return nil
+        DarkFiExplorer.recipientURL(address: address ?? "", networkType: networkType)
     }
 
     public var textMemo: Memo? {

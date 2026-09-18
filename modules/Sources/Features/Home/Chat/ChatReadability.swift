@@ -1,25 +1,25 @@
 import Foundation
 import SwiftUI
 
-enum OutboundPeerState: String, Equatable {
+public enum OutboundPeerState: String, Equatable {
     case connected
     case connecting
     case sleeping
 }
 
-struct OutboundPeerSlot: Equatable, Identifiable {
-    var id: Int { slot }
-    let slot: Int
-    let url: String?
-    let state: OutboundPeerState
+public struct OutboundPeerSlot: Equatable, Identifiable {
+    public var id: Int { slot }
+    public let slot: Int
+    public let url: String?
+    public let state: OutboundPeerState
 
-    var displayUrl: String {
+    public var displayUrl: String {
         if let url, !url.isEmpty { return url }
         return state.rawValue
     }
 }
 
-enum OutboundPeerSlots {
+public enum OutboundPeerSlots {
     static let hudSlotCount = 3
     static let fileName = "outbound_slots.json"
 
@@ -221,6 +221,38 @@ enum EncryptedChannelIndex {
     }
 }
 
+struct EncryptedChannelRecord: Equatable, Identifiable, Codable {
+    var id: String
+    var name: String
+    var sharedSecret: String
+    var topic: String
+}
+
+enum EncryptedChannelStore {
+    static func load(json: String?) -> [EncryptedChannelRecord] {
+        guard let json, let data = json.data(using: .utf8),
+              let rows = try? JSONDecoder().decode([EncryptedChannelRecord].self, from: data)
+        else { return [] }
+        return rows
+    }
+
+    static func upsert(name: String, secret: String, json: String?) -> String? {
+        var rows = load(json: json)
+        let key = name.lowercased()
+        rows.removeAll { $0.name.lowercased() == key }
+        rows.append(
+            EncryptedChannelRecord(
+                id: UUID().uuidString,
+                name: name,
+                sharedSecret: secret,
+                topic: ""
+            )
+        )
+        guard let data = try? JSONEncoder().encode(rows) else { return json }
+        return String(data: data, encoding: .utf8)
+    }
+}
+
 enum ChatInlineSpan: Equatable {
     case text(String)
     case url(String)
@@ -258,6 +290,13 @@ enum ChatMessageLexer {
 
     static func hasFud(_ text: String) -> Bool {
         lex(text).contains { if case .fud = $0 { return true }; return false }
+    }
+
+    static func fudUris(_ text: String) -> [String] {
+        lex(text).compactMap { span in
+            if case let .fud(uri) = span { return uri }
+            return nil
+        }
     }
 
     private static func trimPunctuation(_ value: String) -> String {

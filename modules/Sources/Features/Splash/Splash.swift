@@ -149,7 +149,7 @@ public struct Splash {
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
-                    darkfiNetwork: "testnet"
+                    darkfiNetwork: DarkFiNetworkLabel.current
                 )
                 state.walletCheckComplete = true
 

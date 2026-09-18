@@ -79,6 +79,25 @@ final class NighthawkMeshPolicyTests: XCTestCase {
         XCTAssertEqual(NighthawkMeshPolicy.backgroundDrainBudgetSeconds, 30)
     }
 
+    func testRadioUserStateMapsCoreBluetoothRawValues() {
+        XCTAssertEqual(NighthawkMeshPolicy.radioUserState(centralRawValue: 5), .ready)
+        XCTAssertEqual(NighthawkMeshPolicy.radioUserState(centralRawValue: 4), .poweredOff)
+        XCTAssertEqual(NighthawkMeshPolicy.radioUserState(centralRawValue: 3), .unauthorized)
+        XCTAssertEqual(NighthawkMeshPolicy.radioUserState(centralRawValue: 2), .unsupported)
+        XCTAssertEqual(NighthawkMeshPolicy.radioUserState(centralRawValue: 0), .pending)
+    }
+
+    func testRestoredLinksNeedRediscoveryOrReconnect() {
+        XCTAssertTrue(NighthawkMeshPolicy.shouldRediscoverRestoredLink(
+            peripheralConnected: true, hasCharacteristic: false
+        ))
+        XCTAssertFalse(NighthawkMeshPolicy.shouldRediscoverRestoredLink(
+            peripheralConnected: true, hasCharacteristic: true
+        ))
+        XCTAssertTrue(NighthawkMeshPolicy.shouldReconnectRestoredLink(peripheralConnected: false))
+        XCTAssertFalse(NighthawkMeshPolicy.shouldReconnectRestoredLink(peripheralConnected: true))
+    }
+
     func testOfflineRelayUnifOmrIsBulkJoinWhenForeground() {
         let dest = Data(repeating: 0x11, count: 8)
         let p = MeshOfflineRelay.plan(

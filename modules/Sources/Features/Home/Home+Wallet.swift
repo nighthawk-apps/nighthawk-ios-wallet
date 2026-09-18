@@ -35,9 +35,20 @@ extension Home {
                         )
                     )
                     return .none
-                case .showTransactionDetail:
+                case .showTransactionDetail(_):
                     return .none
-                case .showTransactionHistory:
+                case .showTransactionHistory(_):
+                    return .none
+                case let .sendToken(tokenId):
+                    let native = tokenId.isEmpty || tokenId.caseInsensitiveCompare("DRK") == .orderedSame
+                    state.selectedTab = .transfer
+                    state.transfer.destination = .send(
+                        .init(
+                            path: StackState([]),
+                            latestFiatPrice: state.walletInfo.latestFiatPrice,
+                            preselectedTokenId: native ? nil : tokenId
+                        )
+                    )
                     return .none
                 }
             case .alert,

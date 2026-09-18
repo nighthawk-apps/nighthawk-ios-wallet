@@ -44,7 +44,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Embedded `darkfid` fullnode | ❌ | 🟡 | Android has optional foreground service; iOS not implemented |
 | Remote `darkfid` JSON-RPC | ✅ | ✅ | Via `DrkBootstrapConfig.darkfid_endpoint_url` |
 | Endpoint presets / change server | ✅ | ✅ | `ChangeServer` feature in Settings |
-| Tor for wallet RPC | 🚀 | ✅ | iOS uses **Arti in-process** (`start_arti_proxy`); Android uses tor-android |
+| Tor for wallet RPC | 🚀 | ✅ | Both use **in-process Arti** (`start_arti_proxy`) SOCKS5 |
 | Keep screen on while syncing | ❌ | ✅ | Not implemented on iOS |
 
 ---
@@ -76,7 +76,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Mined / pending status | ✅ | ✅ | Status string from `DrkTransactionRecord` |
 | Contract call breakdown | ✅ | ✅ | `contract_summary` on history rows |
 | Fee + net value in history | ✅ | ✅ | `fee_atomic` + `net_value_atomic` on `DrkTransactionRecord` |
-| Export tx / block explorer link | 🟡 | 🟡 | Explorer integration project-specific |
+| Export tx / block explorer link | ✅ | ✅ | `DarkFiExplorer` / `DarkfiExplorer` — `/tx/{id}` only (testnet or mainnet) |
 
 ---
 

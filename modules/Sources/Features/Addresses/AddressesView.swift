@@ -50,6 +50,7 @@ public struct AddressesView: View {
                 )
             }
         )
+        .privacySensitive()
         .applyNighthawkBackground()
     }
 }

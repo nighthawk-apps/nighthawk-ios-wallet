@@ -45,7 +45,7 @@ Nighthawk iOS holds wallet seed material, chat crypto keys, and optional PIN gat
 ## Residual risks
 
 - In-process darkirc shares the app's address space — a Rust panic could crash the wallet.
-- iOS does not have per-view `FLAG_SECURE` equivalent; screenshots of sensitive screens are not system-prevented (use app lifecycle hooks).
+- iOS does not have per-view `FLAG_SECURE`; Receive, Addresses, Export seed, Security, and Recovery Phrase use `.privacySensitive()` plus capture hiding on the seed screen.
 - Arti Tor startup adds ~10–15s latency to first connection; users may disable Tor for faster startup.
 - `darkfid` endpoint is user-configurable — pointing at a malicious node could return incorrect balance/history.
 

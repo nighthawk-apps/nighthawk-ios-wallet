@@ -37,11 +37,13 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: "testnet",
+                                networkType: DarkFiNetworkLabel.current,
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
                     )
+                    return .none
+                case .sendToken(_):
                     return .none
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
@@ -63,7 +65,7 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: "testnet",
+                                networkType: DarkFiNetworkLabel.current,
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )

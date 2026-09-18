@@ -27,10 +27,12 @@ public enum NHBLELinkPolicy {
 public protocol NHBLELinkSink: AnyObject {
     func meshLinkDidReceive(_ frame: Data)
     func meshLinkNeedsFlush()
+    func meshLinkRadioStateDidChange(_ centralRawValue: Int)
 }
 
 public extension NHBLELinkSink {
     func meshLinkNeedsFlush() {}
+    func meshLinkRadioStateDidChange(_ centralRawValue: Int) {}
 }
 
 /// Dual-role GATT. Never call UniFFI synchronously on `bleQueue`.
@@ -51,6 +53,9 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
     private var writeCap = MeshAttPolicy.writePayloadCap(mtu: MeshAttPolicy.defaultMtu)
     private var attToMesh: [UUID: Data] = [:]
     private var meshToAtt: [String: UUID] = [:]
+    private var keepAlive = true
+    private var lastReconnect: [UUID: Date] = [:]
+    private var hasCharacteristic: Set<UUID> = []
 
     private override init() {
         super.init()
@@ -61,10 +66,12 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
             guard let self, !self.isRunning else { return }
             self.isRunning = true
             let centralOpts: [String: Any] = [
-                CBCentralManagerOptionRestoreIdentifierKey: NHBLELinkPolicy.centralRestoreId
+                CBCentralManagerOptionRestoreIdentifierKey: NHBLELinkPolicy.centralRestoreId,
+                CBCentralManagerOptionShowPowerAlertKey: true
             ]
             let periOpts: [String: Any] = [
-                CBPeripheralManagerOptionRestoreIdentifierKey: NHBLELinkPolicy.peripheralRestoreId
+                CBPeripheralManagerOptionRestoreIdentifierKey: NHBLELinkPolicy.peripheralRestoreId,
+                CBPeripheralManagerOptionShowPowerAlertKey: true
             ]
             self.central = CBCentralManager(delegate: self, queue: self.bleQueue, options: centralOpts)
             self.peripheral = CBPeripheralManager(delegate: self, queue: self.bleQueue, options: periOpts)
@@ -83,6 +90,8 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
             self.assemblers.removeAll()
             self.attToMesh.removeAll()
             self.meshToAtt.removeAll()
+            self.hasCharacteristic.removeAll()
+            self.lastReconnect.removeAll()
             self.peerCount = 0
             self.central = nil
             self.peripheral = nil
@@ -99,12 +108,24 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
     public func setSceneForeground(_ foreground: Bool, alwaysOn: Bool = true) {
         bleQueue.async { [weak self] in
             guard let self, self.isRunning else { return }
-            if foreground || alwaysOn {
+            self.keepAlive = foreground || alwaysOn
+            if self.keepAlive {
                 self.startScanLocked()
+                self.startAdvertisingLocked()
             } else {
                 self.central?.stopScan()
                 self.peripheral?.stopAdvertising()
             }
+        }
+    }
+
+    public func resumeAfterForeground() {
+        bleQueue.async { [weak self] in
+            guard let self, self.isRunning else { return }
+            self.keepAlive = true
+            self.startScanLocked()
+            self.startAdvertisingLocked()
+            self.rediscoverRestoredLocked()
         }
     }
 
@@ -118,17 +139,20 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
 
     private func startAdvertisingLocked() {
         guard let peripheral, peripheral.state == .poweredOn, isRunning else { return }
-        let service = CBMutableService(type: NHBLELinkPolicy.serviceUUID, primary: true)
-        let ch = CBMutableCharacteristic(
-            type: NHBLELinkPolicy.characteristicUUID,
-            properties: [.write, .writeWithoutResponse, .notify],
-            value: nil,
-            permissions: [.writeable]
-        )
-        service.characteristics = [ch]
-        localCharacteristic = ch
-        peripheral.removeAllServices()
-        peripheral.add(service)
+        if peripheral.isAdvertising { return }
+        if localCharacteristic == nil {
+            let service = CBMutableService(type: NHBLELinkPolicy.serviceUUID, primary: true)
+            let ch = CBMutableCharacteristic(
+                type: NHBLELinkPolicy.characteristicUUID,
+                properties: [.write, .writeWithoutResponse, .notify],
+                value: nil,
+                permissions: [.writeable]
+            )
+            service.characteristics = [ch]
+            localCharacteristic = ch
+            peripheral.removeAllServices()
+            peripheral.add(service)
+        }
         var adv: [String: Any] = [
             CBAdvertisementDataServiceUUIDsKey: [NHBLELinkPolicy.serviceUUID]
         ]
@@ -136,6 +160,49 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
             adv[CBAdvertisementDataServiceDataKey] = [NHBLELinkPolicy.serviceUUID: pid]
         }
         peripheral.startAdvertising(adv)
+    }
+
+    private func rediscoverRestoredLocked() {
+        guard let central, central.state == .poweredOn, isRunning else { return }
+        for peri in peripherals.values {
+            peri.delegate = self
+            if peri.state == .connected,
+               NighthawkMeshPolicy.shouldRediscoverRestoredLink(
+                peripheralConnected: true,
+                hasCharacteristic: hasCharacteristic.contains(peri.identifier)
+               ) {
+                peri.discoverServices(NHBLELinkPolicy.scanServices())
+            } else if peri.state == .disconnected,
+                      NighthawkMeshPolicy.shouldReconnectRestoredLink(peripheralConnected: false) {
+                reconnectIfAllowed(peri)
+            }
+        }
+    }
+
+    private func reconnectIfAllowed(_ peripheral: CBPeripheral) {
+        guard isRunning, keepAlive, let central, central.state == .poweredOn else { return }
+        let id = peripheral.identifier
+        let now = Date()
+        if let last = lastReconnect[id], now.timeIntervalSince(last) < 8 { return }
+        lastReconnect[id] = now
+        peripheral.delegate = self
+        peripherals[id] = peripheral
+        central.connect(peripheral, options: nil)
+    }
+
+    private func clearLocalLinks(notifyEngine: Bool) {
+        if notifyEngine {
+            for mesh in attToMesh.values {
+                MeshEngineBridge.neighborDown(mesh)
+            }
+        }
+        peripherals.removeAll()
+        centrals.removeAll()
+        assemblers.removeAll()
+        attToMesh.removeAll()
+        meshToAtt.removeAll()
+        hasCharacteristic.removeAll()
+        peerCount = 0
     }
 
     private func ingest(_ id: UUID, chunk: Data) {
@@ -201,8 +268,18 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
 
 extension NHBLELinkLayer: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if central.state == .poweredOn, isRunning {
-            startScanLocked()
+        sink?.meshLinkRadioStateDidChange(central.state.rawValue)
+        switch central.state {
+        case .poweredOn:
+            if isRunning {
+                startScanLocked()
+                rediscoverRestoredLocked()
+            }
+        case .poweredOff, .unauthorized, .unsupported:
+            // CoreBluetooth already left poweredOn — do not issue stop/cancel.
+            clearLocalLinks(notifyEngine: central.state == .poweredOff)
+        default:
+            break
         }
     }
 
@@ -216,7 +293,10 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
             peripherals[peri.identifier] = peri
         }
         peerCount = peripherals.count + centrals.count
-        if isRunning { startScanLocked() }
+        if central.state == .poweredOn, isRunning {
+            startScanLocked()
+            rediscoverRestoredLocked()
+        }
     }
 
     public func centralManager(
@@ -260,9 +340,14 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
         error: Error?
     ) {
         let _ = error
-        peripherals.removeValue(forKey: peripheral.identifier)
         assemblers.removeValue(forKey: peripheral.identifier)
+        hasCharacteristic.remove(peripheral.identifier)
         forgetAtt(peripheral.identifier)
+        if isRunning, keepAlive {
+            reconnectIfAllowed(peripheral)
+        } else {
+            peripherals.removeValue(forKey: peripheral.identifier)
+        }
         peerCount = peripherals.count + centrals.count
     }
 }
@@ -282,6 +367,7 @@ extension NHBLELinkLayer: CBPeripheralDelegate {
             .forEach { peripheral.setNotifyValue(true, for: $0) }
         let mtu = peripheral.maximumWriteValueLength(for: .withoutResponse)
         if mtu > 0 { writeCap = MeshAttPolicy.writePayloadCap(mtu: mtu + MeshAttPolicy.attOverhead) }
+        hasCharacteristic.insert(peripheral.identifier)
         if let mesh = attToMesh[peripheral.identifier] {
             MeshEngineBridge.neighborUp(mesh)
             sink?.meshLinkNeedsFlush()
@@ -300,8 +386,16 @@ extension NHBLELinkLayer: CBPeripheralDelegate {
 
 extension NHBLELinkLayer: CBPeripheralManagerDelegate {
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if peripheral.state == .poweredOn, isRunning {
-            startAdvertisingLocked()
+        sink?.meshLinkRadioStateDidChange(peripheral.state.rawValue)
+        switch peripheral.state {
+        case .poweredOn:
+            if isRunning { startAdvertisingLocked() }
+        case .poweredOff, .unauthorized, .unsupported:
+            localCharacteristic = nil
+            centrals.removeAll()
+            peerCount = peripherals.count
+        default:
+            break
         }
     }
 
@@ -309,7 +403,16 @@ extension NHBLELinkLayer: CBPeripheralManagerDelegate {
         _ peripheral: CBPeripheralManager,
         willRestoreState dict: [String: Any]
     ) {
-        if isRunning { startAdvertisingLocked() }
+        let restoredServices = (dict[CBPeripheralManagerRestoredStateServicesKey] as? [CBMutableService]) ?? []
+        if localCharacteristic == nil {
+            if let service = restoredServices.first(where: { $0.uuid == NHBLELinkPolicy.serviceUUID }),
+               let restored = service.characteristics?.first(where: { $0.uuid == NHBLELinkPolicy.characteristicUUID }) as? CBMutableCharacteristic {
+                localCharacteristic = restored
+            }
+        }
+        if peripheral.state == .poweredOn, isRunning, !peripheral.isAdvertising {
+            startAdvertisingLocked()
+        }
     }
 
     public func peripheralManager(

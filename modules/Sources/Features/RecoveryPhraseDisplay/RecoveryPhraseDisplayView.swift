@@ -71,6 +71,7 @@ public struct RecoveryPhraseDisplayView: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .privacySensitive()
         .applyNighthawkBackground()
         .nighthawkAlert(
             store: store.scope(

@@ -40,6 +40,37 @@ public struct MeshSettingsView: View {
                     Text("Nearby peers: \(store.peerCount). Mesh works best with Nighthawk open.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+
+                    if let banner = store.radioBanner {
+                        Text(banner)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("Open Settings") {
+                            store.send(.openSettings)
+                        }
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    }
+
+                    if store.engineUnavailable {
+                        Text(L10n.Nighthawk.Chat.meshUnavailable)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if store.cacheFull {
+                        Text(L10n.Nighthawk.Chat.meshCacheFull)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if store.idleBecauseChatOff {
+                        Text(L10n.Nighthawk.Chat.meshIdle)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
 
                 Text("If mesh stops after you lock the screen, check Settings → Battery and allow Nighthawk to run in the background. Nearby / local-network access is used only to talk to other Nighthawk wallets, not to determine your location.")

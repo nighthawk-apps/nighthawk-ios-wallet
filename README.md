@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.011 (build 11):** Request money QR (`drk:` invoice, single receive address), honest UnifOMR vs trial-decrypt HUD, Tor vs direct chat HUD, Tor-only fiat, chat-to-pay, Nighthawk Mesh badge. UI strings for es, pt-BR, ja, zh-Hans, ru, de, fr, it, id, cs. Chat stays in-process UniFFI. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.012 (build 12):** Explorer links follow the compiled network (`/tx/{id}` only). In-process Arti SOCKS on Android parity. Gated `fud://` offers (opt-in, Tor or mesh). Panic fence at chat/mesh/Arti FFI. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 

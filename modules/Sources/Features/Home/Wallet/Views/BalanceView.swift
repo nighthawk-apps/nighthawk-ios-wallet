@@ -10,7 +10,7 @@ import Utils
 public struct BalanceView: View {
     public enum ViewType: Equatable, Hashable, CaseIterable {
         case hidden
-        case total
+        case assets
     }
 
     let balance: DrkAmount
@@ -61,7 +61,7 @@ private extension BalanceView {
         switch type {
         case .hidden:
             return Asset.Assets.Icons.Nighthawk.swipe.image
-        case .total:
+        case .assets:
             return Asset.Assets.Icons.Nighthawk.piggy.image
         }
     }
@@ -71,8 +71,8 @@ private extension BalanceView {
         switch type {
         case .hidden:
             balanceString = L10n.Nighthawk.WalletTab.swipeToShowBalances
-        case .total:
-            balanceString = L10n.Nighthawk.WalletTab.totalBalance
+        case .assets:
+            balanceString = L10n.Nighthawk.WalletTab.assetsTitle
         }
 
         return Text(balanceString)

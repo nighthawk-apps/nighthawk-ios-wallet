@@ -818,6 +818,22 @@ public enum L10n {
             public static let contactLabel = L10n.tr("Localizable", "nighthawk.chat.contactLabel", fallback: "Contact label")
             /// Apply
             public static let apply = L10n.tr("Localizable", "nighthawk.chat.apply", fallback: "Apply")
+            /// Network
+            public static let hudTitle = L10n.tr("Localizable", "nighthawk.chat.hudTitle", fallback: "Network")
+            /// Outbound peers · tap IRC status to hide
+            public static let hudSubtitle = L10n.tr("Localizable", "nighthawk.chat.hudSubtitle", fallback: "Outbound peers · tap IRC status to hide")
+            /// Encrypt channel
+            public static let encryptChannel = L10n.tr("Localizable", "nighthawk.chat.encryptChannel", fallback: "Encrypt")
+            /// Generate a shared secret for this #channel, copy it, and restart DarkIRC so the daemon reloads it.
+            public static let encryptChannelBody = L10n.tr("Localizable", "nighthawk.chat.encryptChannelBody", fallback: "Generate a shared secret for this #channel, copy it, and restart DarkIRC so the daemon reloads it.")
+            /// Generate secret
+            public static let generateSecret = L10n.tr("Localizable", "nighthawk.chat.generateSecret", fallback: "Generate secret")
+            /// Mesh is idle until DarkIRC is running
+            public static let meshIdle = L10n.tr("Localizable", "nighthawk.chat.meshIdle", fallback: "Mesh is idle until DarkIRC is running")
+            /// Mesh cache is full — older events were dropped
+            public static let meshCacheFull = L10n.tr("Localizable", "nighthawk.chat.meshCacheFull", fallback: "Mesh cache is full — older events were dropped")
+            /// Mesh engine is unavailable on this build
+            public static let meshUnavailable = L10n.tr("Localizable", "nighthawk.chat.meshUnavailable", fallback: "Mesh engine is unavailable on this build")
         }
         public enum WalletCreated {
             /// Backup your wallet
@@ -838,8 +854,10 @@ public enum L10n {
             public static let shieldedBalance = L10n.tr("Localizable", "nighthawk.walletTab.shieldedBalance", fallback: "Private balance")
             /// Refresh
             public static let shieldNow = L10n.tr("Localizable", "nighthawk.walletTab.shieldNow", fallback: "Refresh")
-            /// Swipe left to show your balance
-            public static let swipeToShowBalances = L10n.tr("Localizable", "nighthawk.walletTab.swipeToShowBalances", fallback: "Swipe left to show your balance")
+            /// Swipe left to show your assets
+            public static let swipeToShowBalances = L10n.tr("Localizable", "nighthawk.walletTab.swipeToShowBalances", fallback: "Swipe left to show your assets")
+            /// Assets
+            public static let assetsTitle = L10n.tr("Localizable", "nighthawk.walletTab.assetsTitle", fallback: "Assets")
             /// Total balance
             public static let totalBalance = L10n.tr("Localizable", "nighthawk.walletTab.totalBalance", fallback: "Total balance")
             /// Private balance

@@ -35,6 +35,7 @@ public struct UserPreferencesStorage {
         case darkfiRunEmbeddedDarkirc
         case darkfiDarkircDagsCount
         case darkfiDarkircFastMode
+        case darkfiFudTransfersEnabled
         // DM keys and encrypted channel/contact JSON are now stored
         // in the Keychain via ChatSecureStorage (not in UserDefaults).
     }
@@ -277,6 +278,14 @@ public struct UserPreferencesStorage {
 
     public func setDarkircFastMode(_ enabled: Bool) {
         setValue(enabled, forKey: Constants.darkfiDarkircFastMode.rawValue)
+    }
+
+    public var fudTransfersEnabled: Bool {
+        getValue(forKey: Constants.darkfiFudTransfersEnabled.rawValue, default: false)
+    }
+
+    public func setFudTransfersEnabled(_ enabled: Bool) {
+        setValue(enabled, forKey: Constants.darkfiFudTransfersEnabled.rawValue)
     }
 
     // MARK: - Chat Secrets (Keychain-backed via ChatSecureStorage)

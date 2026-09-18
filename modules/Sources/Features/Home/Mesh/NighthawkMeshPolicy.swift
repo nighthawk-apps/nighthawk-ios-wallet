@@ -52,6 +52,36 @@ public enum NighthawkMeshPolicy {
     public static func isBitchatServiceUUID(_ uuid: String) -> Bool {
         uuid.lowercased().hasPrefix("f47b5e2d")
     }
+
+    /// CoreBluetooth `CBManagerState` raw values (stable).
+    public enum RadioUserState: Equatable {
+        case pending
+        case ready
+        case poweredOff
+        case unauthorized
+        case unsupported
+    }
+
+    public static func radioUserState(centralRawValue: Int) -> RadioUserState {
+        switch centralRawValue {
+        case 5: return .ready // poweredOn
+        case 4: return .poweredOff
+        case 3: return .unauthorized
+        case 2: return .unsupported
+        default: return .pending
+        }
+    }
+
+    public static func shouldRediscoverRestoredLink(
+        peripheralConnected: Bool,
+        hasCharacteristic: Bool
+    ) -> Bool {
+        peripheralConnected && !hasCharacteristic
+    }
+
+    public static func shouldReconnectRestoredLink(peripheralConnected: Bool) -> Bool {
+        !peripheralConnected
+    }
 }
 
 public enum NHBulkPolicy {

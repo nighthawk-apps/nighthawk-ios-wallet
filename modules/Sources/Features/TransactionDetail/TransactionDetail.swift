@@ -52,8 +52,8 @@ public struct TransactionDetail {
         public var shielded: Bool { walletEvent.transaction.shielded }
         public var status: TransactionState.Status { walletEvent.transaction.status }
         public var syncMethod: DarkfiSyncMethod { walletEvent.transaction.syncMethod }
-        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: "testnet") }
-        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: "testnet") }
+        public var networkType: String
+        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
         public var zecAmount: DrkAmount { walletEvent.transaction.zecAmount }
         public var preferredCurrency: NighthawkSetting.FiatCurrency {
             @Dependency(\.userStoredPreferences) var userStoredPreferences
@@ -73,10 +73,11 @@ public struct TransactionDetail {
 
         public init(
             walletEvent: WalletEvent,
-            networkType: String = "testnet",
+            networkType: String = DarkFiNetworkLabel.current,
             latestFiatPrice: Double?
         ) {
             self.walletEvent = walletEvent
+            self.networkType = networkType
             self.latestFiatPrice = latestFiatPrice
         }
     }

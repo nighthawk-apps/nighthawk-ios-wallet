@@ -109,7 +109,32 @@ public struct ChatSettingsView: View {
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         .padding(.horizontal)
+                    if let banner = NighthawkMeshController.shared.radioBanner {
+                        Text(banner)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .padding(.horizontal)
+                        Button("Open Settings") {
+                            NighthawkMeshController.shared.openSystemSettings()
+                        }
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .padding(.horizontal)
+                    }
                 }
+
+                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+
+                sectionHeader("FILE OFFERS (FUD)")
+
+                toggleRow(
+                    title: "Allow fud:// offers",
+                    subtitle: "Queue file offers from chat. Never auto-downloads. Requires Tor or mesh — not clearnet.",
+                    isOn: Binding(
+                        get: { store.allowFudTransfers },
+                        set: { store.send(.toggleFudTransfers($0)) }
+                    )
+                )
 
                 Divider().overlay(Asset.Colors.Nighthawk.navy.color)
 
@@ -245,6 +270,7 @@ public struct ChatSettingsView: View {
             }
         }
         .onAppear { store.send(.onAppear) }
+        .privacySensitive()
         .applyNighthawkBackground()
         .sheet(
             item: $store.scope(
@@ -285,6 +311,8 @@ public struct ChatSettingsView: View {
                         .textFieldStyle(.roundedBorder)
                     TextField("Topic (optional)", text: $channelStore.topic)
                         .textFieldStyle(.roundedBorder)
+                    Button("Generate secret") { channelStore.send(.generateSecretTapped) }
+                        .buttonStyle(.nighthawkSecondary())
                     Button("Add") { channelStore.send(.addTapped) }
                         .buttonStyle(.nighthawkPrimary())
                     Button("Cancel") { channelStore.send(.cancelTapped) }

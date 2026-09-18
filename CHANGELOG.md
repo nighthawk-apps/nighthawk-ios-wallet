@@ -1,6 +1,6 @@
 # Changelog
 
-DarkFi-era version notes live in the root [README.md](README.md) (TestFlight **3.00.011** build 11) and [docs/app-features.md](docs/app-features.md). Older 0.0.1 entries below are historical and are not the current product.
+DarkFi-era version notes live in the root [README.md](README.md) (TestFlight **3.00.012** build 12) and [docs/app-features.md](docs/app-features.md). Older 0.0.1 entries below are historical and are not the current product.
 
 # 0.0.1 build 52
 - [#709] Better error handling in tests (#713)

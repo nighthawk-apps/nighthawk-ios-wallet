@@ -81,6 +81,7 @@ public struct ReceiveView: View {
                 $0
             }
         }
+        .privacySensitive()
         .applyNighthawkBackground()
     }
 }

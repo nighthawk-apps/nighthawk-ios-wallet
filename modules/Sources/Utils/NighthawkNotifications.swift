@@ -5,4 +5,8 @@ extension Notification.Name {
     /// originate BLE ctrl / bulk; `BGAppRefresh` must still not start UnifOMR.
     public static let nighthawkLightwalletdUnreachable =
         Notification.Name("com.nighthawkapps.lwd.unreachable")
+
+    /// Posted after encrypted channel/contact secrets change so DarkIRC reloads `[contact.*]`.
+    public static let nighthawkChatCryptoChanged =
+        Notification.Name("com.nighthawkapps.chat.cryptoChanged")
 }

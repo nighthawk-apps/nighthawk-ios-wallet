@@ -223,4 +223,31 @@ public struct TokenBalanceInfo: Equatable, Identifiable {
         self.displayLabel = displayLabel
         self.balanceAtomic = balanceAtomic
     }
+
+    public var isNative: Bool {
+        let label = (displayLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return tokenId.caseInsensitiveCompare("DRK") == .orderedSame
+            || label.caseInsensitiveCompare("DRK") == .orderedSame
+    }
+
+    public var displayName: String {
+        if let displayLabel, !displayLabel.isEmpty {
+            return displayLabel
+        }
+        return isNative ? "DRK" : tokenId
+    }
+
+    /// DRK always first using the native snapshot, then extras sorted by name.
+    public static func portfolioRows(
+        nativeAtomic: Int64,
+        tokenBalances: [TokenBalanceInfo]
+    ) -> [TokenBalanceInfo] {
+        let extras = tokenBalances
+            .filter { !$0.isNative }
+            .sorted {
+                $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+            }
+        let drk = TokenBalanceInfo(tokenId: "DRK", displayLabel: "DRK", balanceAtomic: nativeAtomic)
+        return [drk] + extras
+    }
 }

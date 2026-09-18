@@ -127,13 +127,7 @@ private extension StoreOf<TransactionDetail> {
                     ),
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
-                        value: address,
-                        action: .button(
-                            title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
-                            action: {
-                                self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))
-                            }
-                        )
+                        value: address
                     )
                 ]
             )

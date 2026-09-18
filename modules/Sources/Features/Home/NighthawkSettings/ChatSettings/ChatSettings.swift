@@ -24,6 +24,7 @@ public struct ChatSettings {
         public var meshOn: Bool = false
         public var meshGateway: Bool = false
         public var meshAlwaysOn: Bool = true
+        public var allowFudTransfers: Bool = false
 
         // E2E encrypted channels
         public struct EncryptedChannel: Equatable, Identifiable, Codable {
@@ -65,6 +66,7 @@ public struct ChatSettings {
         case toggleMesh(Bool)
         case toggleMeshGateway(Bool)
         case toggleMeshAlwaysOn(Bool)
+        case toggleFudTransfers(Bool)
         case applyAndReconnect
 
         // E2E channels
@@ -186,8 +188,13 @@ public struct ChatSettings {
                 state.meshAlwaysOn = enabled
                 NighthawkMeshController.shared.setAlwaysOn(enabled)
                 return .none
+            case let .toggleFudTransfers(enabled):
+                state.allowFudTransfers = enabled
+                userStoredPreferences.setFudTransfersEnabled(enabled)
+                return .none
             case .applyAndReconnect:
                 savePreferences(from: state)
+                NotificationCenter.default.post(name: .nighthawkChatCryptoChanged, object: nil)
                 return .none
             case .addChannelTapped:
                 state.addChannelDialog = AddChannelDialog.State()
@@ -279,6 +286,7 @@ private extension ChatSettings {
         state.meshOn = NighthawkMeshController.shared.meshOn
         state.meshGateway = NighthawkMeshController.shared.gatewayOptIn
         state.meshAlwaysOn = NighthawkMeshController.shared.alwaysOn
+        state.allowFudTransfers = userStoredPreferences.fudTransfersEnabled()
         state.myDmPublicKey = userStoredPreferences.dmPublicKey()
         state.encryptedChannels = decodeJSON(
             userStoredPreferences.encryptedChannelsJSON(),
@@ -300,10 +308,12 @@ private extension ChatSettings {
 
     func persistChannels(_ channels: [State.EncryptedChannel]) {
         userStoredPreferences.setEncryptedChannelsJSON(encodeJSON(channels))
+        NotificationCenter.default.post(name: .nighthawkChatCryptoChanged, object: nil)
     }
 
     func persistContacts(_ contacts: [State.EncryptedContact]) {
         userStoredPreferences.setEncryptedContactsJSON(encodeJSON(contacts))
+        NotificationCenter.default.post(name: .nighthawkChatCryptoChanged, object: nil)
     }
 
     func encodeJSON<T: Encodable>(_ value: T) -> String? {

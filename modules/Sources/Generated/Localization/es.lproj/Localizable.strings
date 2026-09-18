@@ -130,7 +130,7 @@
 "nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Deslice a la izquierda para mostrar su balance";
+"nighthawk.walletTab.swipeToShowBalances" = "Deslice a la izquierda para mostrar sus activos";
 "nighthawk.walletTab.totalBalance" = "Balance total";
 "nighthawk.walletTab.shieldedBalance" = "Balance blindado";
 "nighthawk.walletTab.transparentBalance" = "Balance transparente";

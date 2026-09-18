@@ -35,6 +35,7 @@ struct NighthawkApp: App {
                     // reconnects with a fresh event callback if the daemon died.
                     DarkircDaemonManager.shared.handleForegrounding()
                     NighthawkMeshController.shared.handleScene(.active)
+                    NighthawkMeshController.shared.restoreIfNeeded()
 
                 case .inactive:
                     privacyBlur = true
@@ -73,6 +74,7 @@ struct NighthawkApp: App {
             }
         }
         .backgroundTask(.appRefresh("com.nighthawkapps.sync")) {
+            NighthawkMeshController.shared.backgroundRefreshTick()
             _ = try? await SDKSynchronizerClient.liveValue.refreshNow()
         }
     }
@@ -94,6 +96,7 @@ struct NighthawkApp: App {
             using: nil
         ) { task in
             Task {
+                NighthawkMeshController.shared.backgroundRefreshTick()
                 _ = try? await SDKSynchronizerClient.liveValue.refreshNow()
                 task.setTaskCompleted(success: true)
             }

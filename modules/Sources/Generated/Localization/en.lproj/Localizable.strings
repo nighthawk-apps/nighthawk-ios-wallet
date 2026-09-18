@@ -142,7 +142,8 @@
 "nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
+"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your assets";
+"nighthawk.walletTab.assetsTitle" = "Assets";
 "nighthawk.walletTab.totalBalance" = "Total balance";
 "nighthawk.walletTab.shieldedBalance" = "Private balance";
 "nighthawk.walletTab.transparentBalance" = "Private balance";
@@ -417,3 +418,11 @@
 "nighthawk.chat.walletMeshChatOnly" = "Wallet disconnected. Mesh is on for chat only.";
 "nighthawk.chat.contactLabel" = "Contact label";
 "nighthawk.chat.apply" = "Apply";
+"nighthawk.chat.hudTitle" = "Network";
+"nighthawk.chat.hudSubtitle" = "Outbound peers · tap IRC status to hide";
+"nighthawk.chat.encryptChannel" = "Encrypt";
+"nighthawk.chat.encryptChannelBody" = "Generate a shared secret for this #channel, copy it, and restart DarkIRC so the daemon reloads it.";
+"nighthawk.chat.generateSecret" = "Generate secret";
+"nighthawk.chat.meshIdle" = "Mesh is idle until DarkIRC is running";
+"nighthawk.chat.meshCacheFull" = "Mesh cache is full — older events were dropped";
+"nighthawk.chat.meshUnavailable" = "Mesh engine is unavailable on this build";

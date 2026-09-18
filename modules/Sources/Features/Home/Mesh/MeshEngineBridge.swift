@@ -192,6 +192,20 @@ enum MeshEngineBridge {
         return Data(buf)
     }
 
+    static var cacheEvicted = false
+    static var neighborsReady: Bool { neighborUpFn != nil && neighborDownFn != nil }
+
+    static func drainEvents() {
+        guard let eventsFn else { return }
+        var buf = [UInt8](repeating: 0, count: 16 * 1024)
+        let n = buf.withUnsafeMutableBufferPointer { eventsFn($0.baseAddress, Int32($0.count)) }
+        guard n > 0 else { return }
+        let json = String(bytes: buf.prefix(Int(n)), encoding: .utf8) ?? ""
+        if json.contains("\"cache_full\"") {
+            cacheEvicted = true
+        }
+    }
+
     private static func symbol<T>(_ name: String) -> T? {
         // Darwin RTLD_DEFAULT is (void *)-2; the named constant is not
         // always imported into Swift.

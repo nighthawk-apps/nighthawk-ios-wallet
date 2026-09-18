@@ -38,7 +38,54 @@ struct ChatView: View {
         .onChange(of: scenePhase) { _, newPhase in
             store.send(.scenePhaseChanged(newPhase))
         }
+        .alert(
+            fudPromptTitle,
+            isPresented: Binding(
+                get: { store.fudPrompt != nil },
+                set: { if !$0 { store.send(.dismissFudPrompt) } }
+            ),
+            actions: {
+                if case .confirm = store.fudPrompt {
+                    Button("Queue offer") { store.send(.confirmFudOffer) }
+                    Button("Cancel", role: .cancel) { store.send(.dismissFudPrompt) }
+                } else {
+                    Button("OK", role: .cancel) { store.send(.dismissFudPrompt) }
+                }
+            },
+            message: { Text(fudPromptMessage) }
+        )
         .applyNighthawkBackground()
+    }
+
+    var fudPromptTitle: String {
+        switch store.fudPrompt {
+        case .confirm: return "Queue fud offer"
+        case .queued: return "Offer queued"
+        case .disabled: return "fud offers off"
+        case .needsPrivateTransport: return "Private transport required"
+        case .invalid: return "Invalid fud link"
+        case .queueFailed: return "Could not queue offer"
+        case nil: return "fud"
+        }
+    }
+
+    var fudPromptMessage: String {
+        switch store.fudPrompt {
+        case let .confirm(uri: _, fileName: fileName):
+            return "Queue “\(fileName)” in the app sandbox. Bytes are not downloaded until a fud daemon is available. Tor or mesh only."
+        case let .queued(fileName: fileName):
+            return "Queued “\(fileName)”. This phone will not fetch file bytes over clearnet."
+        case .disabled:
+            return "Enable Allow fud:// offers in Chat settings first."
+        case .needsPrivateTransport:
+            return "Turn on Tor (Connected via Tor) or Bluetooth mesh before queueing a file offer."
+        case .invalid:
+            return "That fud:// link is not a valid infohash/filename."
+        case .queueFailed:
+            return "Could not write the offer to the local sandbox."
+        case nil:
+            return ""
+        }
     }
 }
 
@@ -59,9 +106,12 @@ private extension ChatView {
             // IRC connection status + nickname
             HStack(spacing: 8) {
                 connectionDot
-                Text("IRC: \(store.connectionState.label)")
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                Button(action: { store.send(.toggleNetworkHud) }) {
+                    Text("IRC: \(store.connectionState.label)")
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+                .buttonStyle(.plain)
 
                 Spacer()
 
@@ -99,16 +149,28 @@ private extension ChatView {
                 }
             }
 
-            // Tor routing label
-            HStack(spacing: 4) {
-                Text(store.useTor ? "Tor" : "Direct")
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
-                Text("·")
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.4))
-                Text(store.connectionState.label)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+            // Network HUD (tcp/tor + outbound slots)
+            if store.showNetworkHud {
+                NighthawkHudPanel(
+                    connectedGlow: store.outboundSlots.contains { $0.state == .connected }
+                ) {
+                    Text(L10n.Nighthawk.Chat.hudTitle)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                        .foregroundColor(.white)
+                    Text(L10n.Nighthawk.Chat.hudSubtitle)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    TransportSegment(torSelected: store.useTor) { tor in
+                        store.send(.setChatTransport(tor))
+                    }
+                    ForEach(store.outboundSlots) { slot in
+                        PeerSlotRow(
+                            slotIndex: slot.slot,
+                            label: slot.displayUrl,
+                            connected: slot.state == .connected
+                        )
+                    }
+                }
             }
 
             // Diagnostic detail
@@ -300,6 +362,18 @@ private extension ChatView {
         } message: {
             Text(L10n.Nighthawk.Chat.publicPayWarning)
         }
+        .alert(
+            L10n.Nighthawk.Chat.encryptChannel,
+            isPresented: Binding(
+                get: { store.encryptChannelName != nil },
+                set: { if !$0 { store.send(.encryptChannelCancelled) } }
+            )
+        ) {
+            Button(L10n.Nighthawk.Chat.generateSecret, action: { store.send(.encryptChannelConfirmed) })
+            Button(L10n.General.cancel, role: .cancel, action: { store.send(.encryptChannelCancelled) })
+        } message: {
+            Text(L10n.Nighthawk.Chat.encryptChannelBody)
+        }
     }
 
     var tabSelector: some View {
@@ -338,9 +412,20 @@ private extension ChatView {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.trailing, 88)
             .padding(.vertical, 10)
         }
         .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
+        .overlay(alignment: .trailing) {
+            if store.selectedTab == .channels, store.selectedChannel?.name.hasPrefix("#") == true {
+                Button(L10n.Nighthawk.Chat.encryptChannel) {
+                    store.send(.encryptChannelTapped)
+                }
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
+                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .padding(.trailing, 12)
+            }
+        }
     }
 
     func channelPill(_ channel: Chat.State.Channel) -> some View {
@@ -658,9 +743,16 @@ private extension ChatView {
                         }
                     }
                 if ChatMessageLexer.hasFud(message.content) {
-                    Text("File transfer (fud) is not available in this build")
-                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                        .foregroundColor(ChatChrome.fud)
+                    ForEach(ChatMessageLexer.fudUris(message.content), id: \.self) { uri in
+                        Button {
+                            store.send(.fudLinkTapped(uri))
+                        } label: {
+                            Text("fud offer · tap to queue")
+                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                                .foregroundColor(ChatChrome.fud)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             Text(ChatTimeline.gutterTime(message.timestamp))

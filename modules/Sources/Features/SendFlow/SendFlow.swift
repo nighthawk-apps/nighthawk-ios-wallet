@@ -99,11 +99,13 @@ public struct SendFlow {
         public init(
             path: StackState<Path.State> = .init(),
             latestFiatPrice: Double?,
-            showCloseButton: Bool = false
+            showCloseButton: Bool = false,
+            preselectedTokenId: String? = nil
         ) {
             self.path = path
             self.latestFiatPrice = latestFiatPrice
             self.showCloseButton = showCloseButton
+            self.selectedTokenId = preselectedTokenId
         }
     }
 

@@ -16,6 +16,7 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
     public private(set) var backgroundDrainRequested = false
     public private(set) var lastGatewayId: Data?
     public private(set) var lastGatewayCaps: UInt8 = 0
+    public private(set) var radioState: NighthawkMeshPolicy.RadioUserState = .pending
     public let dag = MeshDagBridge()
 
     private let defaults: UserDefaults
@@ -29,6 +30,7 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
     private var pathSatisfied = true
     private var dagTimer: Timer?
     private var unreachableObserver: NSObjectProtocol?
+    private var becomeActiveObserver: NSObjectProtocol?
 
     private override init() {
         defaults = .standard
@@ -58,6 +60,15 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
         ) { [weak self] _ in
             self?.onInternetUnreachable(fromBgRefresh: false)
         }
+        becomeActiveObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleScene(.active)
+            self?.restoreIfNeeded()
+            NHBLELinkLayer.shared.resumeAfterForeground()
+        }
     }
 
     public var peerCount: Int { NHBLELinkLayer.shared.peerCount }
@@ -79,6 +90,7 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
             MeshEngineBridge.stop()
             NHBulkLink.shared.stop()
             endBackgroundDrain()
+            radioState = .pending
         }
     }
 
@@ -105,6 +117,7 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
             NHBLELinkLayer.shared.sink = self
             NHBLELinkLayer.shared.start()
             NHBLELinkLayer.shared.setSceneForeground(sceneForeground, alwaysOn: alwaysOn)
+            NHBLELinkLayer.shared.resumeAfterForeground()
             pushPower()
             restartDagTimer()
         }
@@ -117,6 +130,10 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
             lastPowerForeground = true
             backgroundDrainRequested = false
             endBackgroundDrain()
+            if meshOn {
+                restoreIfNeeded()
+                NHBLELinkLayer.shared.resumeAfterForeground()
+            }
         case .inactive:
             sceneForeground = false
             lastPowerForeground = false
@@ -161,11 +178,45 @@ public final class NighthawkMeshController: NSObject, NHBLELinkSink, @unchecked 
         }
         acceptedFrameCount += 1
         MeshEngineBridge.ingest(frame)
+        MeshEngineBridge.drainEvents()
         MeshEngineBridge.flushOutbound { NHBLELinkLayer.shared.send($0) }
     }
 
     public func meshLinkNeedsFlush() {
         MeshEngineBridge.flushOutbound { NHBLELinkLayer.shared.send($0) }
+    }
+
+    public func meshLinkRadioStateDidChange(_ centralRawValue: Int) {
+        let next = NighthawkMeshPolicy.radioUserState(centralRawValue: centralRawValue)
+        DispatchQueue.main.async { [weak self] in
+            self?.radioState = next
+        }
+    }
+
+    public func backgroundRefreshTick() {
+        guard meshOn else { return }
+        MeshEngineBridge.requestDagSync()
+        MeshEngineBridge.flushOutbound { NHBLELinkLayer.shared.send($0) }
+    }
+
+    public var radioBanner: String? {
+        switch radioState {
+        case .ready, .pending:
+            return nil
+        case .poweredOff:
+            return "Turn Bluetooth on so nearby Nighthawk chat can start."
+        case .unauthorized:
+            return "Bluetooth permission is needed for nearby chat. Enable it in Settings."
+        case .unsupported:
+            return "This device does not support Bluetooth mesh."
+        }
+    }
+
+    public func openSystemSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        DispatchQueue.main.async {
+            UIApplication.shared.open(url)
+        }
     }
 
     public func onInternetUnreachable(fromBgRefresh: Bool) {

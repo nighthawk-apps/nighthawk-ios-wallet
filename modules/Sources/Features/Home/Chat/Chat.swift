@@ -8,6 +8,7 @@
 //
 
 import ComposableArchitecture
+import Combine
 import Foundation
 import SwiftUI
 import UIKit
@@ -176,6 +177,14 @@ public struct Chat {
         public var showPublicPayWarning: Bool = false
         public var pendingPublicInvoice: String?
         public var localDisplayName: String = ""
+        public var outboundSlots: [OutboundPeerSlot] = OutboundPeerSlots.synthesize(
+            phase: "stopped",
+            daemonRunning: false
+        )
+        public var showNetworkHud: Bool = true
+        public var encryptChannelName: String?
+        var allowFudTransfers: Bool = false
+        var fudPrompt: ChatFudPrompt?
         @Shared(.walletInfo) var walletInfo = Home.State.WalletInfo()
 
         public init() {
@@ -223,9 +232,18 @@ public struct Chat {
         case cancelPublicPay
         case payInvoice(String)
         case setLocalDisplayName(String)
+        case toggleNetworkHud
+        case setChatTransport(Bool)
+        case encryptChannelTapped
+        case encryptChannelCancelled
+        case encryptChannelConfirmed
+        case encryptChannelSecretReady(String)
+        case fudLinkTapped(String)
+        case confirmFudOffer
+        case dismissFudPrompt
     }
 
-    private enum CancelID { case readLoop, connection }
+    private enum CancelID { case readLoop, connection, crypto }
 
     @Dependency(\.userStoredPreferences) var userStoredPreferences
 
@@ -262,10 +280,19 @@ public struct Chat {
 
             case .onAppear:
                 state.useTor = userStoredPreferences.torForChatEnabled()
-                if state.connectionState == .disconnected {
-                    return .send(.connectTapped)
-                }
-                return .none
+                state.allowFudTransfers = userStoredPreferences.fudTransfersEnabled()
+                refreshOutboundSlots(&state)
+                let connect: Effect<Action> = state.connectionState == .disconnected
+                    ? .send(.connectTapped)
+                    : .none
+                return .merge(
+                    connect,
+                    .publisher {
+                        NotificationCenter.default.publisher(for: .nighthawkChatCryptoChanged)
+                            .map { _ in Chat.Action.connectTapped }
+                    }
+                    .cancellable(id: CancelID.crypto, cancelInFlight: true)
+                )
 
             case let .scenePhaseChanged(phase):
                 switch phase {
@@ -452,10 +479,12 @@ public struct Chat {
                 } else {
                     state.diagnosticDetail = nil
                 }
+                refreshOutboundSlots(&state)
                 return .none
 
             case let .embeddedNodeStatusChanged(status):
                 state.embeddedNodeStatus = status
+                refreshOutboundSlots(&state)
                 return .none
 
             case let .channelSelected(channel):
@@ -903,6 +932,56 @@ public struct Chat {
             case .payInvoice(_):
                 return .none
 
+            case .toggleNetworkHud:
+                state.showNetworkHud.toggle()
+                return .none
+
+            case let .setChatTransport(useTor):
+                guard state.useTor != useTor else { return .none }
+                userStoredPreferences.setTorForChatEnabled(useTor)
+                state.useTor = useTor
+                return .send(.connectTapped)
+
+            case .encryptChannelTapped:
+                guard state.selectedTab == .channels,
+                      let name = state.selectedChannel?.name, name.hasPrefix("#")
+                else { return .none }
+                state.encryptChannelName = name
+                return .none
+
+            case .encryptChannelCancelled:
+                state.encryptChannelName = nil
+                return .none
+
+            case .encryptChannelConfirmed:
+                guard state.encryptChannelName != nil else { return .none }
+                return .run { send in
+                    let secret = generateDmKeypair().secretB58
+                    await send(.encryptChannelSecretReady(secret))
+                }
+
+            case let .encryptChannelSecretReady(secret):
+                guard let name = state.encryptChannelName, !secret.isEmpty else {
+                    state.encryptChannelName = nil
+                    return .none
+                }
+                let json = EncryptedChannelStore.upsert(
+                    name: name,
+                    secret: secret,
+                    json: userStoredPreferences.encryptedChannelsJSON()
+                )
+                userStoredPreferences.setEncryptedChannelsJSON(json)
+                UIPasteboard.general.setItems(
+                    [[UIPasteboard.typeAutomatic: secret]],
+                    options: [
+                        .localOnly: true,
+                        .expirationDate: Date().addingTimeInterval(60)
+                    ]
+                )
+                state.encryptChannelName = nil
+                NotificationCenter.default.post(name: .nighthawkChatCryptoChanged, object: nil)
+                return .send(.connectTapped)
+
             case let .setLocalDisplayName(name):
                 let thread: String? = {
                     if state.selectedTab == .direct { return state.selectedDmContact?.contactLabel }
@@ -912,6 +991,47 @@ public struct Chat {
                 state.localDisplayName = name
                 ChatThreadDisplayNames.put(threadKey: thread, displayName: name)
                 return .none
+
+            case let .fudLinkTapped(raw):
+                let uri = FudUri.parse(raw)
+                let decision = FudTransferPolicy.decide(
+                    enabled: state.allowFudTransfers,
+                    torReady: state.connectionState == .connectedViaTor,
+                    meshOn: NighthawkMeshController.shared.meshOn,
+                    uri: uri
+                )
+                switch decision {
+                case .allowed:
+                    if let uri {
+                        state.fudPrompt = .confirm(uri: uri.raw, fileName: uri.displayName)
+                    }
+                case .disabled:
+                    state.fudPrompt = .disabled
+                case .needsPrivateTransport:
+                    state.fudPrompt = .needsPrivateTransport
+                case .invalid:
+                    state.fudPrompt = .invalid
+                }
+                return .none
+
+            case .confirmFudOffer:
+                guard case let .confirm(uri: raw, fileName: _) = state.fudPrompt,
+                      let uri = FudUri.parse(raw)
+                else {
+                    state.fudPrompt = .invalid
+                    return .none
+                }
+                do {
+                    try FudOfferInbox.queue(uri)
+                    state.fudPrompt = .queued(fileName: uri.displayName)
+                } catch {
+                    state.fudPrompt = .queueFailed
+                }
+                return .none
+
+            case .dismissFudPrompt:
+                state.fudPrompt = nil
+                return .none
             }
         }
         .ifLet(\.$newDmConversation, action: \.newDmConversation) {
@@ -920,5 +1040,31 @@ public struct Chat {
     }
 
     public init() {}
+
+    private func refreshOutboundSlots(_ state: inout State) {
+        let ffi = darkircStatus()
+        let running = ffi == "running" || ffi == "starting"
+        let phase: String
+        switch state.connectionState {
+        case .connectedDirect, .connectedViaTor:
+            phase = "connected"
+        case .startingDaemon:
+            phase = "starting"
+        case .waitingForDagSync:
+            phase = "syncing_dag"
+        case .connecting:
+            phase = "waiting_for_peers"
+        case .degraded:
+            phase = "running"
+        case .disconnected, .error:
+            phase = "stopped"
+        }
+        let json = OutboundPeerSlots.readSidecar(datastorePath: DarkircDaemonManager.shared.datastorePath)
+        state.outboundSlots = OutboundPeerSlots.resolve(
+            fileJSON: json,
+            phase: phase,
+            daemonRunning: running
+        )
+    }
 }
 // swiftlint:enable type_body_length

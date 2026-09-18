@@ -98,13 +98,7 @@ private extension StoreOf<Review> {
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.address,
-                    value: self.recipient,
-                    action: .button(
-                        title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
-                        action: {
-                            self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))
-                        }
-                    )
+                    value: self.recipient
                 )
             ]
         )
@@ -128,9 +122,5 @@ private extension StoreOf<Review> {
         )
 
         return result
-    }
-
-    var viewRecipientOnlineURL: URL? {
-        URL(string: "https://darkfi.explorer/address/\(self.recipient)")
     }
 }

@@ -66,6 +66,8 @@ public struct UserPreferencesStorageClient {
     public var setDarkircDagsCount: (Int) -> Void
     public var darkircFastMode: () -> Bool
     public var setDarkircFastMode: (Bool) -> Void
+    public var fudTransfersEnabled: () -> Bool
+    public var setFudTransfersEnabled: (Bool) -> Void
     public var dmPublicKey: () -> String?
     public var setDmPublicKey: (String?) -> Void
     public var dmSecretKey: () -> String?
@@ -124,6 +126,8 @@ extension UserPreferencesStorageClient: DependencyKey {
         setDarkircDagsCount: UserPreferencesStorage.live.setDarkircDagsCount(_:),
         darkircFastMode: { UserPreferencesStorage.live.darkircFastMode },
         setDarkircFastMode: UserPreferencesStorage.live.setDarkircFastMode(_:),
+        fudTransfersEnabled: { UserPreferencesStorage.live.fudTransfersEnabled },
+        setFudTransfersEnabled: UserPreferencesStorage.live.setFudTransfersEnabled(_:),
         dmPublicKey: { UserPreferencesStorage.live.dmPublicKey },
         setDmPublicKey: UserPreferencesStorage.live.setDmPublicKey(_:),
         dmSecretKey: { UserPreferencesStorage.live.dmSecretKey },

@@ -48,6 +48,10 @@ public struct WalletView: View {
             qrCodeButtons
                 .zIndex(1)
         }
+        .onAppear { store.send(.onAppear) }
+        .onChange(of: store.walletInfo.totalBalance) { _, _ in
+            store.send(.onAppear)
+        }
         .applyNighthawkBackground()
     }
 
@@ -161,15 +165,15 @@ private extension WalletView {
                     .containerRelativeFrame(.horizontal)
                     .id(BalanceView.ViewType.hidden)
 
-                balancePage(.total)
+                assetPage
                     .containerRelativeFrame(.horizontal)
-                    .id(BalanceView.ViewType.total)
+                    .id(BalanceView.ViewType.assets)
             }
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $balancePage)
-        .frame(height: 150)
+        .frame(minHeight: 150, maxHeight: 280)
         .fixedSize(horizontal: false, vertical: true)
         .clipped()
         .contentShape(Rectangle())
@@ -193,7 +197,15 @@ private extension WalletView {
             tokenName: store.tokenName,
             synchronizerState: store.walletInfo.synchronizerState
         )
-        .padding(.top, viewType == .total ? 32 : 0)
+        .padding(.top, viewType == .assets ? 16 : 0)
+    }
+
+    var assetPage: some View {
+        AssetPortfolioView(
+            rows: store.portfolioRows,
+            onTokenTap: { store.send(.sendTokenTapped($0)) }
+        )
+        .padding(.top, 8)
     }
 
     var tabIndicators: some View {
@@ -223,7 +235,7 @@ private extension WalletView {
                         .frame(width: 16, height: 16)
                 }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier("nighthawk.wallet.balance.\(viewType == .hidden ? "hidden" : "total")")
+                .accessibilityIdentifier("nighthawk.wallet.balance.\(viewType == .hidden ? "hidden" : "assets")")
             }
         }
     }

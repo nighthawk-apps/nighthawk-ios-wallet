@@ -3,6 +3,7 @@
 //
 
 import ComposableArchitecture
+import Models
 
 extension AppReducer {
     @ReducerBuilder<State, Action>
@@ -22,7 +23,7 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: "testnet",
+                                networkType: DarkFiNetworkLabel.current,
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
