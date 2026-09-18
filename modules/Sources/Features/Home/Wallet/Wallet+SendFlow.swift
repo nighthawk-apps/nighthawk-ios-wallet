@@ -1,10 +1,11 @@
 //
-//  Transfer+SendFlow.swift
+//  Wallet+SendFlow.swift
+//  stealth
 //
 
 import ComposableArchitecture
 
-extension Transfer {
+extension Wallet {
     @ReducerBuilder<State, Action>
     func sendFlowReducer() -> some ReducerOf<Self> {
         scanDelegateReducer()
@@ -12,7 +13,7 @@ extension Transfer {
         sendFailedDelegateReducer()
     }
 
-    private func scanDelegateReducer() -> Reduce<Transfer.State, Transfer.Action> {
+    private func scanDelegateReducer() -> Reduce<Wallet.State, Wallet.Action> {
         Reduce { state, action in
             switch action {
             case let .destination(.presented(.send(.path(.element(id: _, action: .scan(.delegate(delegateAction))))))):
@@ -23,18 +24,25 @@ extension Transfer {
                 case .handleParseResult:
                     return .none
                 }
-            case .destination,
+            case .binding,
                  .delegate,
-                 .daoHubTapped,
+                 .destination,
+                 .onAppear,
                  .receiveMoneyTapped,
                  .requestMoneyTapped,
-                 .sendMoneyTapped:
+                 .scanPaymentRequestTapped,
+                 .sendMoneyTapped,
+                 .sendTokenTapped,
+                 .tokenBalancesLoaded,
+                 .viewAddressesTapped,
+                 .viewTransactionDetailTapped,
+                 .viewTransactionHistoryTapped:
                 return .none
             }
         }
     }
 
-    private func sendSuccessDelegateReducer() -> Reduce<Transfer.State, Transfer.Action> {
+    private func sendSuccessDelegateReducer() -> Reduce<Wallet.State, Wallet.Action> {
         Reduce { state, action in
             switch action {
             case let .destination(.presented(.send(.path(.element(id: _, action: .success(.delegate(delegateAction))))))):
@@ -46,18 +54,25 @@ extension Transfer {
                     state.destination = nil
                     return .none
                 }
-            case .destination,
+            case .binding,
                  .delegate,
-                 .daoHubTapped,
+                 .destination,
+                 .onAppear,
                  .receiveMoneyTapped,
                  .requestMoneyTapped,
-                 .sendMoneyTapped:
+                 .scanPaymentRequestTapped,
+                 .sendMoneyTapped,
+                 .sendTokenTapped,
+                 .tokenBalancesLoaded,
+                 .viewAddressesTapped,
+                 .viewTransactionDetailTapped,
+                 .viewTransactionHistoryTapped:
                 return .none
             }
         }
     }
 
-    private func sendFailedDelegateReducer() -> Reduce<Transfer.State, Transfer.Action> {
+    private func sendFailedDelegateReducer() -> Reduce<Wallet.State, Wallet.Action> {
         Reduce { state, action in
             switch action {
             case let .destination(.presented(.send(.path(.element(id: _, action: .failed(.delegate(delegateAction))))))):
@@ -66,12 +81,19 @@ extension Transfer {
                     state.destination = nil
                     return .none
                 }
-            case .destination,
+            case .binding,
                  .delegate,
-                 .daoHubTapped,
+                 .destination,
+                 .onAppear,
                  .receiveMoneyTapped,
                  .requestMoneyTapped,
-                 .sendMoneyTapped:
+                 .scanPaymentRequestTapped,
+                 .sendMoneyTapped,
+                 .sendTokenTapped,
+                 .tokenBalancesLoaded,
+                 .viewAddressesTapped,
+                 .viewTransactionDetailTapped,
+                 .viewTransactionHistoryTapped:
                 return .none
             }
         }

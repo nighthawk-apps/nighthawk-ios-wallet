@@ -18,8 +18,6 @@ extension AppReducer {
             switch action {
             case let .path(.element(id: _, action: .home(.wallet(.delegate(delegateAction))))):
                 switch delegateAction {
-                case .scanPaymentRequest:
-                    return .none
                 case .showAddresses:
                     return .none
                 case let .showTransactionHistory(walletEvents):
@@ -42,8 +40,6 @@ extension AppReducer {
                             )
                         )
                     )
-                    return .none
-                case .sendToken(_):
                     return .none
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:

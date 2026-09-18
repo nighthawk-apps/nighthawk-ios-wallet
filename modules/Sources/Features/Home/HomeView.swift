@@ -16,16 +16,17 @@ public struct HomeView: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             tabContent
-                .padding(.bottom, NighthawkTabBar.height)
+                .padding(.bottom, isWalletFlowPresented ? 0 : NighthawkTabBar.height)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .environment(\.nighthawkSuppressNestedBackground, true)
 
-            NighthawkTabBar(
-                selectedTab: store.selectedTab,
-                onSelect: { store.send(.tabSelected($0)) },
-                disableSend: store.synchronizerFailed
-            )
-            .zIndex(1)
+            if !isWalletFlowPresented {
+                NighthawkTabBar(
+                    selectedTab: store.selectedTab,
+                    onSelect: { store.send(.tabSelected($0)) }
+                )
+                .zIndex(1)
+            }
         }
         .background {
             Asset.Colors.Nighthawk.darkNavy.color
@@ -65,6 +66,10 @@ public struct HomeView: View {
     public init(store: StoreOf<Home>) {
         self.store = store
     }
+
+    private var isWalletFlowPresented: Bool {
+        store.wallet.destination != nil
+    }
 }
 
 // MARK: - Tab content
@@ -85,7 +90,8 @@ private extension HomeView {
                 store: store.scope(
                     state: \.wallet,
                     action: \.wallet
-                )
+                ),
+                sendDisabled: store.synchronizerFailed
             )
             .overlay(alignment: .top) {
                 if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
@@ -94,13 +100,8 @@ private extension HomeView {
                 }
             }
 
-        case .transfer:
-            TransferView(
-                store: store.scope(
-                    state: \.transfer,
-                    action: \.transfer
-                )
-            )
+        case .dex:
+            DexComingSoonView()
 
         case .settings:
             NighthawkSettingsView(

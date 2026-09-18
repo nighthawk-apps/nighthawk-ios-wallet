@@ -122,10 +122,18 @@ public enum L10n {
             }
             /// Settings
             public static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
+            /// DEX
+            public static let dex = L10n.tr("Localizable", "nighthawk.homeScreen.dex", fallback: "DEX")
             /// Transfer
             public static let transfer = L10n.tr("Localizable", "nighthawk.homeScreen.transfer", fallback: "Transfer")
             /// Wallet
             public static let wallet = L10n.tr("Localizable", "nighthawk.homeScreen.wallet", fallback: "Wallet")
+        }
+        public enum DexTab {
+            /// Coming soon
+            public static let comingSoon = L10n.tr("Localizable", "nighthawk.dexTab.comingSoon", fallback: "Coming soon")
+            /// The DarkFi DEX will live here. Send, receive, and request stay on Wallet.
+            public static let body = L10n.tr("Localizable", "nighthawk.dexTab.body", fallback: "The DarkFi DEX will live here. Send, receive, and request stay on Wallet.")
         }
         public enum ImportWallet {
             /// Birthday Height (optional)

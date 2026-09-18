@@ -23,14 +23,15 @@ final class HomeTabBarUITests: XCTestCase {
         var selected = Home.State.Tab.wallet
         let onSelect: (Home.State.Tab) -> Void = { selected = $0 }
 
-        for tab in [Home.State.Tab.settings, .chat, .transfer, .wallet] {
+        for tab in [Home.State.Tab.settings, .chat, .dex, .wallet] {
             onSelect(tab)
             XCTAssertEqual(selected, tab)
         }
     }
 
-    func testHomeView_SynchronizerFailureDisablesTransferTab() {
+    func testHomeView_SynchronizerFailureDoesNotDisableWalletTab() {
         let state = HomeTestSupport.makeState(synchronizerFailedToStart: true)
         XCTAssertTrue(state.synchronizerFailed)
+        XCTAssertEqual(state.selectedTab, .wallet)
     }
 }

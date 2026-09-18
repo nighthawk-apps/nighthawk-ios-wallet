@@ -27,7 +27,7 @@ public struct Home {
         public enum Tab: Equatable, Hashable {
             case chat
             case wallet
-            case transfer
+            case dex
             case settings
         }
 
@@ -80,7 +80,6 @@ public struct Home {
 
         // Tab states
         public var wallet: Wallet.State = .init()
-        public var transfer: Transfer.State = .init()
         public var chat: Chat.State = .init()
         public var settings: NighthawkSettings.State = .init()
 
@@ -119,7 +118,6 @@ public struct Home {
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
         case tabSelected(State.Tab)
-        case transfer(Transfer.Action)
         case updateWalletEvents([WalletEvent])
         case wallet(Wallet.Action)
 
@@ -152,10 +150,6 @@ public struct Home {
 
         Scope(state: \.wallet, action: \.wallet) {
             Wallet()
-        }
-
-        Scope(state: \.transfer, action: \.transfer) {
-            Transfer()
         }
 
         Scope(state: \.chat, action: \.chat) {
@@ -291,7 +285,7 @@ public struct Home {
 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .alert, .binding, .delegate, .destination, .settings, .transfer, .wallet:
+            case .alert, .binding, .delegate, .destination, .settings, .wallet:
                 return .none
             case let .chat(.payInvoice(uri)):
                 guard let parsed = DrkPaymentUri.parse(uri) else { return .none }
@@ -305,8 +299,8 @@ public struct Home {
                 if let amount = parsed.amount, !amount.isEmpty {
                     sendState.amountToSendInput = amount
                 }
-                state.transfer.destination = .send(sendState)
-                state.selectedTab = .transfer
+                state.wallet.destination = .send(sendState)
+                state.selectedTab = .wallet
                 return .none
             case .chat:
                 return .none
@@ -314,7 +308,6 @@ public struct Home {
         }
         .ifLet(\.$destination, action: \.destination)
 
-        transferReducer()
         walletReducer()
         nighthawkSettingsReducer()
     }

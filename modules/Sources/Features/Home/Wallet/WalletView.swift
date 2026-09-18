@@ -6,6 +6,8 @@
 import Addresses
 import ComposableArchitecture
 import Generated
+import Receive
+import SendFlow
 import SwiftUI
 import TransactionDetail
 import UIComponents
@@ -15,6 +17,7 @@ import Utils
 public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
     @State private var balancePage: BalanceView.ViewType?
+    let sendDisabled: Bool
 
     public var body: some View {
         ZStack(alignment: .top) {
@@ -41,6 +44,7 @@ public struct WalletView: View {
                 balanceTabsView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+                walletActions
                 latestWalletEvents
             }
 
@@ -53,10 +57,35 @@ public struct WalletView: View {
             store.send(.onAppear)
         }
         .applyNighthawkBackground()
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.receive,
+                action: \.destination.receive
+            )
+        ) { store in
+            ReceiveView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.send,
+                action: \.destination.send
+            )
+        ) { store in
+            SendFlowView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.request,
+                action: \.destination.request
+            )
+        ) { store in
+            RequestMoneyView(store: store)
+        }
     }
 
-    public init(store: StoreOf<Wallet>) {
+    public init(store: StoreOf<Wallet>, sendDisabled: Bool = false) {
         self.store = store
+        self.sendDisabled = sendDisabled
     }
 }
 
@@ -256,6 +285,35 @@ private extension WalletView {
         default:
             return isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
         }
+    }
+
+    var walletActions: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                Button(L10n.Nighthawk.TransferTab.receiveMoneyTitle) {
+                    store.send(.receiveMoneyTapped)
+                }
+                .buttonStyle(.nighthawkPrimary())
+                .accessibilityIdentifier("nighthawk.wallet.receive")
+
+                Button(L10n.Nighthawk.TransferTab.sendMoneyTitle) {
+                    store.send(.sendMoneyTapped)
+                }
+                .buttonStyle(.nighthawkPrimary())
+                .disabled(sendDisabled)
+                .accessibilityIdentifier("nighthawk.wallet.send")
+            }
+
+            Button(action: { store.send(.requestMoneyTapped) }) {
+                Text(L10n.Nighthawk.TransferTab.requestMoneyTitle)
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("nighthawk.wallet.request")
+        }
+        .padding(.horizontal, 25)
+        .padding(.bottom, 8)
     }
 
     var latestWalletEvents: some View {

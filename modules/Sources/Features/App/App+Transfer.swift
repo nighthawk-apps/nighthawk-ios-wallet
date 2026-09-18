@@ -14,7 +14,7 @@ extension AppReducer {
     private func sendFlowDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .home(.transfer(.destination(.presented(.send(.path(.element(id: _, action: .success(.delegate(delegateAction))))))))))):
+            case let .path(.element(id: _, action: .home(.wallet(.destination(.presented(.send(.path(.element(id: _, action: .success(.delegate(delegateAction))))))))))):
                 switch delegateAction {
                 case .goHome:
                     return .none

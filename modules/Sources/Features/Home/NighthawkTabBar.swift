@@ -13,16 +13,13 @@ private enum Constants {
 struct NighthawkTabBar: View {
     let selectedTab: Home.State.Tab
     let onSelect: (Home.State.Tab) -> Void
-    let disableSend: Bool
 
     init(
         selectedTab: Home.State.Tab,
-        onSelect: @escaping (Home.State.Tab) -> Void,
-        disableSend: Bool
+        onSelect: @escaping (Home.State.Tab) -> Void
     ) {
         self.selectedTab = selectedTab
         self.onSelect = onSelect
-        self.disableSend = disableSend
         UITabBar.appearance().isHidden = true
     }
 
@@ -41,10 +38,9 @@ struct NighthawkTabBar: View {
             )
 
             tabButton(
-                title: L10n.Nighthawk.HomeScreen.transfer,
-                image: Asset.Assets.Icons.Nighthawk.transfer.image,
-                tab: .transfer,
-                isDisabled: disableSend
+                title: L10n.Nighthawk.HomeScreen.dex,
+                image: Image(systemName: "arrow.left.arrow.right"),
+                tab: .dex
             )
 
             tabButton(
@@ -67,8 +63,7 @@ struct NighthawkTabBar: View {
     private func tabButton(
         title: String,
         image: Image,
-        tab: Home.State.Tab,
-        isDisabled: Bool = false
+        tab: Home.State.Tab
     ) -> some View {
         TabBarItem(
             title: title,
@@ -77,9 +72,7 @@ struct NighthawkTabBar: View {
         )
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
-        .opacity(isDisabled ? 0.3 : 1.0)
         .onTapGesture {
-            guard !isDisabled else { return }
             onSelect(tab)
         }
         .accessibilityIdentifier("nighthawk.home.tab.\(tab)")

@@ -4,7 +4,7 @@
   <img src="docs/images/ios-testnet.png" alt="Nighthawk iOS — DarkFi chat syncing on testnet" width="320">
 </p>
 
-Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI 0.32** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat. Toolchain: iOS **17+**, Swift **5**, TCA **1.26.1**, Swift tools **5.9**.
+Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI 0.32** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat. Toolchain: iOS **17+** (Xcode **27** / iOS **27** SDK), Swift **5**, TCA **1.26.2**, Swift tools **5.9**.
 
 ## Contents
 
@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.012 (build 12):** Explorer links follow the compiled network (`/tx/{id}` only). In-process Arti SOCKS on Android parity. Gated `fud://` offers (opt-in, Tor or mesh). Panic fence at chat/mesh/Arti FFI. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.013 (build 13):** Send, Receive, and Request live on the Wallet tab (Transfer hub removed). Fourth tab is DEX (coming soon). DAO Hub stays in Settings. Tab bar hides on send/receive/request; Send stays enabled unless sync failed. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 

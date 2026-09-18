@@ -57,12 +57,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.3.2"),
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.26.1"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.26.2"),
         .package(url: "https://github.com/pointfreeco/swift-case-paths", exact: "1.5.6"),
+        // TCA 1.26.2 uses swift-issue-reporting; overlay 1.13+ is a shim so both identities coexist.
+        .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", exact: "1.13.1"),
+        .package(url: "https://github.com/pointfreeco/swift-sharing", exact: "2.9.1"),
         .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", exact: "6.6.2"),
         .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", exact: "2.2.4"),
         .package(url: "https://github.com/twostraws/Subsonic", exact: "0.2.0"),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.3.0"),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.6.1"),
         .package(url: "https://github.com/elai950/AlertToast.git", revision: "638f38f9daf08e17b7caea22d2fcb9c0a418d1b6"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", revision: "d108a1fa6189e661f91560548ef48651ed8d93b9"),
     ],

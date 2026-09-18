@@ -11,6 +11,7 @@ extension Home {
     @ReducerBuilder<State, Action>
     func walletReducer() -> some ReducerOf<Self> {
         walletDelegateReducer()
+        receiveDelegateReducer()
     }
 
     private func walletDelegateReducer() -> Reduce<Home.State, Home.Action> {
@@ -18,15 +19,6 @@ extension Home {
             switch action {
             case let .wallet(.delegate(delegateAction)):
                 switch delegateAction {
-                case .scanPaymentRequest:
-                    state.selectedTab = .transfer
-                    state.transfer.destination = .send(
-                        .init(
-                            path: StackState([.scan(.init(backButtonType: .close))]),
-                            latestFiatPrice: state.walletInfo.latestFiatPrice
-                        )
-                    )
-                    return .none
                 case .showAddresses:
                     state.destination = .addresses(
                         .init(
@@ -38,17 +30,6 @@ extension Home {
                 case .showTransactionDetail(_):
                     return .none
                 case .showTransactionHistory(_):
-                    return .none
-                case let .sendToken(tokenId):
-                    let native = tokenId.isEmpty || tokenId.caseInsensitiveCompare("DRK") == .orderedSame
-                    state.selectedTab = .transfer
-                    state.transfer.destination = .send(
-                        .init(
-                            path: StackState([]),
-                            latestFiatPrice: state.walletInfo.latestFiatPrice,
-                            preselectedTokenId: native ? nil : tokenId
-                        )
-                    )
                     return .none
                 }
             case .alert,
@@ -66,7 +47,41 @@ extension Home {
                  .settings,
                  .synchronizerStateChanged,
                  .tabSelected,
-                 .transfer,
+                 .updateWalletEvents,
+                 .wallet:
+                return .none
+            }
+        }
+    }
+
+    private func receiveDelegateReducer() -> Reduce<Home.State, Home.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .wallet(.destination(.presented(.receive(.delegate(delegateAction))))):
+                state.wallet.destination = nil
+                switch delegateAction {
+                case .showAddresses:
+                    return .run { send in
+                        // Slight delay to allow previous sheet to dismiss before presenting
+                        try await clock.sleep(for: .seconds(0.005))
+                        await send(.wallet(.viewAddressesTapped))
+                    }
+                }
+            case .alert,
+                 .binding,
+                 .cancelSynchronizerUpdates,
+                 .cantStartSync,
+                 .chat,
+                 .delegate,
+                 .destination,
+                 .fetchLatestFiatPrice,
+                 .latestFiatResponse,
+                 .listenForSynchronizerUpdates,
+                 .onAppear,
+                 .rescanDone,
+                 .settings,
+                 .synchronizerStateChanged,
+                 .tabSelected,
                  .updateWalletEvents,
                  .wallet:
                 return .none

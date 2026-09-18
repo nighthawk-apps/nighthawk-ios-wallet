@@ -37,7 +37,6 @@ extension Home {
                  .settings,
                  .synchronizerStateChanged,
                  .tabSelected,
-                 .transfer,
                  .updateWalletEvents,
                  .wallet:
                 return .none

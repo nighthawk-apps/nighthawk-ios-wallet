@@ -59,6 +59,8 @@
 		D4A1C7B2E5F60021 /* NighthawkMeshPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60020 /* NighthawkMeshPolicyTests.swift */; };
 		D4A1C7B2E5F60023 /* MeshWireCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60022 /* MeshWireCodecTests.swift */; };
 		D4A1C7B2E5F60025 /* MeshRadioScenarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60024 /* MeshRadioScenarioTests.swift */; };
+		D4A1C7B2E5F60031 /* DarkFiExplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */; };
+		D4A1C7B2E5F60033 /* ScreenCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +132,8 @@
 		D4A1C7B2E5F60020 /* NighthawkMeshPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NighthawkMeshPolicyTests.swift; sourceTree = "<group>"; };
 		D4A1C7B2E5F60022 /* MeshWireCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshWireCodecTests.swift; sourceTree = "<group>"; };
 		D4A1C7B2E5F60024 /* MeshRadioScenarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshRadioScenarioTests.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkFiExplorerTests.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -412,6 +416,8 @@
 				9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */,
 				D4A1C7B2E5F60010 /* WalletStorageKeychainQueryTests.swift */,
 				9E39112D283F91600073DD9A /* ZatoshiTests.swift */,
+				D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */,
+				D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */,
 			);
 			path = UtilTests;
 			sourceTree = "<group>";
@@ -666,6 +672,8 @@
 				D4A1C7B2E5F60021 /* NighthawkMeshPolicyTests.swift in Sources */,
 				D4A1C7B2E5F60023 /* MeshWireCodecTests.swift in Sources */,
 				D4A1C7B2E5F60025 /* MeshRadioScenarioTests.swift in Sources */,
+				D4A1C7B2E5F60031 /* DarkFiExplorerTests.swift in Sources */,
+				D4A1C7B2E5F60033 /* ScreenCaptureTests.swift in Sources */,
 				D4A1C7B2E5F60011 /* WalletStorageKeychainQueryTests.swift in Sources */,
 				B1C2D3E4F5A60008 /* UIView+Accessibility.swift in Sources */,
 				9E3451C429C857DF00177D16 /* View+UIImage.swift in Sources */,
@@ -692,7 +700,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
@@ -705,7 +713,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.012;
+				MARKETING_VERSION = 3.00.013;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -724,7 +732,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
@@ -736,7 +744,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.012;
+				MARKETING_VERSION = 3.00.013;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -879,7 +887,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
@@ -892,7 +900,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.012;
+				MARKETING_VERSION = 3.00.013;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -911,7 +919,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
@@ -923,7 +931,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.012;
+				MARKETING_VERSION = 3.00.013;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1028,7 +1036,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = exactVersion;
-				version = 1.26.1;
+				version = 1.26.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

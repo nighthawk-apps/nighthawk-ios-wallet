@@ -10,6 +10,8 @@ import Models
 import PDFKit
 import SwiftUI
 import UIComponents
+import UIKit
+import Utils
 
 public struct RecoveryPhraseDisplayView: View {
     @Bindable var store: StoreOf<RecoveryPhraseDisplay>
@@ -59,7 +61,7 @@ public struct RecoveryPhraseDisplayView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { store.send(.onAppear) }
         .onReceive(NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)) { _ in
-            isCaptured = UIScreen.main.isCaptured
+            isCaptured = ScreenCapture.isCaptured
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)) { _ in
             // Screenshot already taken — we can't prevent it, but we can
@@ -67,7 +69,7 @@ public struct RecoveryPhraseDisplayView: View {
             isCaptured = true
             // Re-show after a short delay so the user can continue
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                isCaptured = UIScreen.main.isCaptured
+                isCaptured = ScreenCapture.isCaptured
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)

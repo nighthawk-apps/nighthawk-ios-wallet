@@ -59,11 +59,14 @@ public struct AppReducer {
             // so don't stop synchronizer if the app is on screens where that happens:
             // - Security screen (Face ID enable / disable)
             // - Notification screen (system permission alert)
-            // - Transfer tab (send flow pasteboard permission alert)
+            // - Wallet send/receive/request sheets (pasteboard permission alert)
 
             if let currentScreen = path.last {
                 if let home = currentScreen[case: \.home] {
-                    return home.selectedTab != .transfer
+                    if case .send = home.wallet.destination {
+                        return false
+                    }
+                    return true
                 }
 
                 if let _ = currentScreen[case: \.security] {

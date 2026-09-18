@@ -37,8 +37,8 @@ final class HomeTests: XCTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.tabSelected(.transfer)) { state in
-            state.selectedTab = .transfer
+        await store.send(.tabSelected(.dex)) { state in
+            state.selectedTab = .dex
         }
         await store.send(.tabSelected(.chat)) { state in
             state.selectedTab = .chat
@@ -62,6 +62,38 @@ final class HomeTests: XCTestCase {
 
         await store.send(.wallet(.delegate(.showAddresses))) {
             $0.destination = .addresses(.init(uAddress: nil, showCloseButton: false))
+        }
+    }
+
+    func testSendMoneyTapped_PresentsSendDestination() async {
+        let store = TestStore(
+            initialState: HomeTestSupport.makeState(),
+            reducer: Home.init
+        ) {
+            HomeTestSupport.configureDependencies(&$0)
+        }
+        store.exhaustivity = .off
+
+        await store.send(.wallet(.sendMoneyTapped))
+        guard case .some(.send) = store.state.wallet.destination else {
+            XCTFail("Expected send destination on Wallet")
+            return
+        }
+    }
+
+    func testReceiveMoneyTapped_PresentsReceiveDestination() async {
+        let store = TestStore(
+            initialState: HomeTestSupport.makeState(),
+            reducer: Home.init
+        ) {
+            HomeTestSupport.configureDependencies(&$0)
+        }
+        store.exhaustivity = .off
+
+        await store.send(.wallet(.receiveMoneyTapped))
+        guard case .some(.receive) = store.state.wallet.destination else {
+            XCTFail("Expected receive destination on Wallet")
+            return
         }
     }
 }

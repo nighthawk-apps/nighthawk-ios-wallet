@@ -5,6 +5,7 @@
 
 import XCTest
 import SwiftUI
+import UIKit
 
 extension XCTestCase {
     func addAttachments<Content: View>(name: String = #function, _ view: Content) {
@@ -21,7 +22,9 @@ extension View {
         let colorSchemePostfix = colorScheme == .light ? "\(fileName)_light" : "\(fileName)_dark"
         let trimTest = colorSchemePostfix.replacingOccurrences(of: "test", with: "")
         let imageName = trimTest.replacingOccurrences(of: "()", with: "")
-        let rect = UIScreen.main.bounds
+        let rect = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.screen.bounds ?? CGRect(x: 0, y: 0, width: 390, height: 844)
         
         let viewHelper = self
             .environment(\.colorScheme, colorScheme)

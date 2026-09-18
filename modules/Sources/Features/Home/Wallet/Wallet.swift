@@ -7,16 +7,26 @@ import Addresses
 import ComposableArchitecture
 import Models
 import ProcessInfoClient
+import Receive
 import SDKSynchronizer
+import SendFlow
 import SwiftUI
 import TransactionDetail
 import Utils
 
 @Reducer
 public struct Wallet {
+    @Reducer(state: .equatable, action: .equatable)
+    public enum Destination {
+        case receive(Receive)
+        case send(SendFlow)
+        case request(RequestMoney)
+    }
+
     @ObservableState
     public struct State: Equatable {
         @Shared(.walletInfo) public var walletInfo = Home.State.WalletInfo()
+        @Presents public var destination: Destination.State?
 
         public var balanceViewType: BalanceView.ViewType = .hidden
 
@@ -80,8 +90,12 @@ public struct Wallet {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
+        case destination(PresentationAction<Destination.Action>)
         case onAppear
+        case receiveMoneyTapped
+        case requestMoneyTapped
         case scanPaymentRequestTapped
+        case sendMoneyTapped
         case sendTokenTapped(TokenBalanceInfo)
         case tokenBalancesLoaded([TokenBalanceInfo])
         case viewAddressesTapped
@@ -89,15 +103,13 @@ public struct Wallet {
         case viewTransactionHistoryTapped
 
         public enum Delegate: Equatable {
-            case scanPaymentRequest
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
-            /// Token id to preselect in Send. `"DRK"` (or empty) means native.
-            case sendToken(String)
         }
     }
 
+    @Dependency(\.processInfo) var processInfo
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
 
     public var body: some ReducerOf<Self> {
@@ -109,16 +121,44 @@ public struct Wallet {
                 return .none
             case .delegate:
                 return .none
+            case .destination:
+                return .none
             case .onAppear:
                 return .run { send in
                     let tokens = (try? await sdkSynchronizer.listTokenBalances()) ?? []
                     await send(.tokenBalancesLoaded(tokens))
                 }
+            case .receiveMoneyTapped:
+                state.destination = .receive(
+                    .init(
+                        uAddress: state.walletInfo.unifiedAddress,
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                )
+                return .none
+            case .requestMoneyTapped:
+                state.destination = .request(
+                    .init(
+                        address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                )
+                return .none
             case .scanPaymentRequestTapped:
-                return .send(.delegate(.scanPaymentRequest))
+                presentSend(
+                    state: &state,
+                    path: StackState([.scan(.init(backButtonType: .close))])
+                )
+                return .none
+            case .sendMoneyTapped:
+                presentSend(state: &state)
+                return .none
             case let .sendTokenTapped(token):
-                let id = token.isNative ? "DRK" : token.tokenId
-                return .send(.delegate(.sendToken(id)))
+                presentSend(
+                    state: &state,
+                    preselectedTokenId: token.isNative ? nil : token.tokenId
+                )
+                return .none
             case let .tokenBalancesLoaded(tokens):
                 state.tokenBalances = tokens
                 return .none
@@ -130,5 +170,24 @@ public struct Wallet {
                 return .send(.delegate(.showTransactionHistory(state.walletInfo.walletEvents)))
             }
         }
+        .ifLet(\.$destination, action: \.destination)
+
+        sendFlowReducer()
+    }
+
+    private func presentSend(
+        state: inout State,
+        path: StackState<SendFlow.Path.State> = .init(),
+        preselectedTokenId: String? = nil
+    ) {
+        var sendState = SendFlow.State(
+            path: path,
+            latestFiatPrice: state.walletInfo.latestFiatPrice,
+            showCloseButton: processInfo.isiOSAppOnMac(),
+            preselectedTokenId: preselectedTokenId
+        )
+        sendState.spendableBalance = state.walletInfo.balance
+        sendState.unifiedAddress = state.walletInfo.unifiedAddress
+        state.destination = .send(sendState)
     }
 }

@@ -218,6 +218,8 @@ internal enum L10n {
         internal enum HomeScreen {
             /// Settings
             internal static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
+            /// DEX
+            internal static let dex = L10n.tr("Localizable", "nighthawk.homeScreen.dex", fallback: "DEX")
             /// Transfer
             internal static let transfer = L10n.tr("Localizable", "nighthawk.homeScreen.transfer", fallback: "Transfer")
             /// Wallet
