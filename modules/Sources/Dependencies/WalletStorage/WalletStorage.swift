@@ -259,8 +259,17 @@ public struct WalletStorage {
                 try updateData(data, forKey: forKey, account: account)
             } catch {
                 deleteData(forKey: forKey, account: account)
+                #if targetEnvironment(simulator)
                 // Unsigned Simulator builds sometimes reject ThisDeviceOnly.
                 try addData(data, forKey: forKey, account: account, accessible: kSecAttrAccessibleAfterFirstUnlock)
+                #else
+                try addData(
+                    data,
+                    forKey: forKey,
+                    account: account,
+                    accessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+                )
+                #endif
             }
         }
     }

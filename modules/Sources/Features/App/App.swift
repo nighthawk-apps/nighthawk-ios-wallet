@@ -291,15 +291,7 @@ extension AppReducer {
                     // Prepare and start
                     try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
 
-                    // Get address
                     let address = try? await sdkSynchronizer.getAddress()
-                    if let addrStr = address?.stringEncoded {
-                        let docsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                        let fileUrl = docsUrl.appendingPathComponent("ios_wallet_address.txt")
-                        try? addrStr.write(to: fileUrl, atomically: true, encoding: .utf8)
-                    } else {
-                        // Why did it return nil?
-                    }
                     await send(.unifiedAddressResponse(address))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))

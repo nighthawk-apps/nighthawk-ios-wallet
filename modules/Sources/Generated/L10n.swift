@@ -830,6 +830,10 @@ public enum L10n {
             public static let hudTitle = L10n.tr("Localizable", "nighthawk.chat.hudTitle", fallback: "Network")
             /// Outbound peers · tap IRC status to hide
             public static let hudSubtitle = L10n.tr("Localizable", "nighthawk.chat.hudSubtitle", fallback: "Outbound peers · tap IRC status to hide")
+            /// Peers
+            public static let hudPeers = L10n.tr("Localizable", "nighthawk.chat.hudPeers", fallback: "Peers")
+            /// No connected peers
+            public static let hudPeersEmpty = L10n.tr("Localizable", "nighthawk.chat.hudPeersEmpty", fallback: "No connected peers")
             /// Encrypt channel
             public static let encryptChannel = L10n.tr("Localizable", "nighthawk.chat.encryptChannel", fallback: "Encrypt")
             /// Generate a shared secret for this #channel, copy it, and restart DarkIRC so the daemon reloads it.

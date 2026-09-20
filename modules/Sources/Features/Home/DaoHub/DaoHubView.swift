@@ -11,6 +11,7 @@ import Generated
 import SDKSynchronizer
 import SwiftUI
 import UIComponents
+import UIKit
 
 public struct DaoHubView: View {
     let store: StoreOf<DaoHub>
@@ -472,7 +473,13 @@ private extension DaoHubView {
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
             }
             .onTapGesture {
-                UIPasteboard.general.string = value
+                UIPasteboard.general.setItems(
+                    [[UIPasteboard.typeAutomatic: value]],
+                    options: [
+                        .localOnly: true,
+                        .expirationDate: Date().addingTimeInterval(60)
+                    ]
+                )
             }
         }
     }

@@ -3,6 +3,7 @@
 //
 
 import ComposableArchitecture
+import DerivationTool
 import Generated
 import Pasteboard
 import ProcessInfoClient
@@ -62,17 +63,17 @@ public struct Recipient {
                 return .none
             case .onAppear:
                 if let contents = pasteboard.getString() {
-                    state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(contents.data, "testnet")
+                    state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(contents.data, DarkfiNetwork.current.rawValue)
                 }
                 return .none
             case .pasteFromClipboardTapped:
                 guard let contents = pasteboard.getString(),
-                      derivationTool.isDarkFiAddress(contents.data, "testnet") else { return .none }
+                      derivationTool.isDarkFiAddress(contents.data, DarkfiNetwork.current.rawValue) else { return .none }
                 return .send(.recipientInputChanged(contents.data))
             case let .recipientInputChanged(recipient):
                 state.recipient = recipient
                 // DarkFi: no TEX address concept — all addresses are private
-                state.isRecipientValid = derivationTool.isDarkFiAddress(recipient, "testnet")
+                state.isRecipientValid = derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.current.rawValue)
                 return .none
             case .scanQRCodeTapped:
                 return .send(.delegate(.scanCode))

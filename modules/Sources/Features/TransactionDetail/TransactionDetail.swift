@@ -129,7 +129,7 @@ public struct TransactionDetail {
                 if !state.isSending, let memo = state.memo?.toString(), !memo.isEmpty {
                     let prefix = "Reply to:"
                     let components = memo.split(separator: prefix)
-                    if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), "testnet") {
+                    if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), DarkfiNetwork.current.rawValue) {
                         pasteboard.setString(String(components[1]).redacted)
                         state.toast = .replyToCopied
                     }

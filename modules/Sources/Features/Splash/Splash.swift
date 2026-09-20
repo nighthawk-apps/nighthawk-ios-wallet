@@ -113,6 +113,8 @@ public struct Splash {
                             )
                         ) ?? false
                         await send(.authenticationResponse(success))
+                    } else {
+                        await send(.authenticationResponse(false))
                     }
                 }
             case let .authenticationResponse(authenticated):

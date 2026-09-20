@@ -48,4 +48,23 @@ class ChangeServerPortTests: XCTestCase {
         XCTAssertTrue(state.isPrivateOrLoopbackHost)
         XCTAssertFalse(state.canSave)
     }
+
+    func testCustomServer_HttpsHost_IsValid() {
+        var state = ChangeServer.State()
+        state.serverOption = .custom
+        state.customServerAddress = "https://lwd.example.com"
+        XCTAssertTrue(state.isValidHostAndPort)
+        XCTAssertTrue(state.isExpectedDarkFiPort)
+        XCTAssertTrue(state.usesRemoteHttps)
+        XCTAssertFalse(state.isPrivateOrLoopbackHost)
+    }
+
+    func testCustomServer_HttpsHostPort_IsValid() {
+        var state = ChangeServer.State()
+        state.serverOption = .custom
+        state.customServerAddress = "https://lwd.example.com:443"
+        XCTAssertTrue(state.isValidHostAndPort)
+        XCTAssertTrue(state.isExpectedDarkFiPort)
+        XCTAssertTrue(state.usesRemoteHttps)
+    }
 }

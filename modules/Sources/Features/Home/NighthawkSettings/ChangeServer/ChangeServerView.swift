@@ -46,6 +46,11 @@ public struct ChangeServerView: View {
                 .opacity(store.serverOption != .custom ? 0.5 : 1.0)
                 .focused($isCustomServerEditorFocused)
 
+                if store.usesRemoteHttps {
+                    Text("Remote HTTPS needs LightwalletTlsPinSha256 in Info.plist (fail-closed without a pin).")
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+
                 VStack(alignment: .center) {
                     Button(
                         L10n.Nighthawk.SettingsTab.ChangeServer.save,

@@ -17,6 +17,7 @@ import Utils
 struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
     @Environment(\.scenePhase) var scenePhase
+    @State private var showPeerDialog = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,9 +35,20 @@ struct ChatView: View {
                 disconnectedView
             }
         }
+        .sheet(isPresented: $showPeerDialog) {
+            PeerNamesDialog(slots: store.outboundSlots)
+                .presentationDetents([.height(240)])
+                .presentationDragIndicator(.visible)
+        }
         .onAppear { store.send(.onAppear) }
         .onChange(of: scenePhase) { _, newPhase in
             store.send(.scenePhaseChanged(newPhase))
+        }
+        .alert("Use clearnet for chat?", isPresented: $store.showClearnetTransportWarning) {
+            Button("Use TCP", role: .destructive, action: { store.send(.confirmClearnetTransport) })
+            Button(L10n.General.cancel, role: .cancel, action: { store.send(.cancelClearnetTransport) })
+        } message: {
+            Text("Chat will reconnect without Tor. Peers can see this client’s network address.")
         }
         .alert(
             fudPromptTitle,
@@ -149,26 +161,28 @@ private extension ChatView {
                 }
             }
 
-            // Network HUD (tcp/tor + outbound slots)
+            // Network HUD (compact: Network + Peers link + tcp/tor)
             if store.showNetworkHud {
                 NighthawkHudPanel(
-                    connectedGlow: store.outboundSlots.contains { $0.state == .connected }
+                    connectedGlow: store.outboundSlots.contains { $0.state == .connected },
+                    compact: true
                 ) {
-                    Text(L10n.Nighthawk.Chat.hudTitle)
-                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                        .foregroundColor(.white)
-                    Text(L10n.Nighthawk.Chat.hudSubtitle)
-                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                    TransportSegment(torSelected: store.useTor) { tor in
-                        store.send(.setChatTransport(tor))
-                    }
-                    ForEach(store.outboundSlots) { slot in
-                        PeerSlotRow(
-                            slotIndex: slot.slot,
-                            label: slot.displayUrl,
-                            connected: slot.state == .connected
-                        )
+                    HStack(spacing: 6) {
+                        Text(L10n.Nighthawk.Chat.hudTitle)
+                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
+                            .foregroundColor(.white)
+                        Button(action: { showPeerDialog = true }) {
+                            Text(L10n.Nighthawk.Chat.hudPeers)
+                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                                .underline()
+                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("nighthawk_hud_peers_link")
+                        Spacer(minLength: 8)
+                        TransportSegment(torSelected: store.useTor, compact: true) { tor in
+                            store.send(.setChatTransport(tor))
+                        }
                     }
                 }
             }
@@ -717,6 +731,12 @@ private extension ChatView {
                 run.foregroundColor = ChatChrome.fud
                 run.font = .custom(FontFamily.PulpDisplay.regular.name, size: 15)
                 result.append(run)
+            case let .invoice(uri):
+                var run = AttributedString(uri)
+                run.foregroundColor = ChatChrome.link
+                run.underlineStyle = .single
+                run.font = .custom(FontFamily.PulpDisplay.regular.name, size: 15)
+                result.append(run)
             }
         }
         return result
@@ -754,6 +774,16 @@ private extension ChatView {
                         .buttonStyle(.plain)
                     }
                 }
+                ForEach(ChatMessageLexer.invoiceUris(message.content), id: \.self) { uri in
+                    Button {
+                        store.send(.invoiceTapped(uri))
+                    } label: {
+                        Text("Pay this invoice")
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                            .foregroundColor(ChatChrome.link)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
             Text(ChatTimeline.gutterTime(message.timestamp))
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
@@ -784,9 +814,8 @@ private extension ChatView {
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 Button(L10n.Nighthawk.Chat.payInvoice) {
                     let fromDraft = store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let fromHistory = store.messages.reversed().first(where: { $0.content.hasPrefix("drk:") })?.content
-                    if let uri = ([fromDraft, fromHistory].compactMap { $0 }.first { $0.hasPrefix("drk:") }) {
-                        store.send(.payInvoice(uri))
+                    if fromDraft.lowercased().hasPrefix("drk:") {
+                        store.send(.payInvoice(fromDraft))
                     }
                 }
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
@@ -821,5 +850,46 @@ private extension ChatView {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(Asset.Colors.Nighthawk.darkNavy.color)
+    }
+}
+
+private struct PeerNamesDialog: View {
+    let slots: [OutboundPeerSlot]
+    @Environment(\.dismiss) private var dismiss
+    @State private var labels: [String] = []
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 8) {
+                if slots.allSatisfy({ $0.url == nil || $0.url?.isEmpty == true }) {
+                    Text(L10n.Nighthawk.Chat.hudPeersEmpty)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+                ForEach(Array(slots.enumerated()), id: \.element.id) { index, slot in
+                    PeerSlotRow(
+                        slotIndex: slot.slot,
+                        label: labels.indices.contains(index) ? labels[index] : slot.dnsName(),
+                        connected: slot.state == .connected,
+                        compact: true
+                    )
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Asset.Colors.Nighthawk.navy.color)
+            .navigationTitle(L10n.Nighthawk.Chat.hudPeers)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L10n.General.done) { dismiss() }
+                }
+            }
+            .task {
+                labels = slots.map { $0.dnsName() }
+            }
+        }
+        .accessibilityIdentifier("nighthawk_hud_peers_dialog")
     }
 }

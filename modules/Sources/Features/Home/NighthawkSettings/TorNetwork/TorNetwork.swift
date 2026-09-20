@@ -9,8 +9,10 @@
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import MnemonicClient
 import SDKSynchronizer
 import UserPreferencesStorage
+import WalletStorage
 
 @Reducer
 public struct TorNetwork {
@@ -40,6 +42,7 @@ public struct TorNetwork {
         }
         public var artiStatus: ArtiStatus = .stopped
         public var artiBootstrapProgress: Double = 0.0
+        public var walletRestartError: String?
 
         // ── Derived ────────────────────────────────────────────────────
         public var isTorEnabled: Bool { torForWallet || torForChat }
@@ -83,6 +86,7 @@ public struct TorNetwork {
         // Apply & restart
         case applyAndReconnect
         case applyCompleted
+        case walletReopenFailed(String, revertTo: Bool?)
         case doneTapped
 
         // Delegate
@@ -95,6 +99,8 @@ public struct TorNetwork {
 
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.mnemonic) var mnemonic
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -122,11 +128,16 @@ public struct TorNetwork {
                 return .none
 
             case let .torForWalletToggled(enabled):
+                let previous = state.torForWallet
                 state.torForWallet = enabled
                 state.torForChat = enabled
+                state.walletRestartError = nil
                 userStoredPreferences.setTorForWalletEnabled(enabled)
                 userStoredPreferences.setTorForChatEnabled(enabled)
-                return resolveArtiLifecycle(state: &state)
+                return .merge(
+                    resolveArtiLifecycle(state: &state),
+                    reopenWalletIfPresent(previousWalletTor: previous)
+                )
 
             case let .torForChatToggled(enabled):
                 state.torForChat = enabled
@@ -172,7 +183,6 @@ public struct TorNetwork {
                 userStoredPreferences.setTorSocksHost(state.externalSocksAddress)
                 userStoredPreferences.setTorSocksPort(state.externalSocksPort)
 
-                let torForWallet = state.torForWallet
                 let torEnabled = state.isTorEnabled
                 let useEmbedded = state.isUsingEmbedded
                 let socksPort = state.externalSocksPort
@@ -185,9 +195,21 @@ public struct TorNetwork {
                         DarkfiFfiSafe.stopArtiProxy()
                     }
 
-                    if torForWallet {
-                        sdkSynchronizer.stop()
-                        try? await sdkSynchronizer.start(false)
+                    if (try? walletStorage.areKeysPresent()) == true {
+                        do {
+                            let storedWallet = try walletStorage.exportWallet()
+                            let birthday = storedWallet.birthday?.value() ?? 0
+                            let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
+                            sdkSynchronizer.stop()
+                            try await sdkSynchronizer.prepareWith(seedBytes, birthday, .existingWallet)
+                            try await sdkSynchronizer.start(false)
+                        } catch {
+                            await send(.walletReopenFailed(
+                                error.localizedDescription,
+                                revertTo: nil
+                            ))
+                            return
+                        }
                     }
 
                     DarkircDaemonManager.shared.stop()
@@ -196,6 +218,16 @@ public struct TorNetwork {
                 }
 
             case .applyCompleted:
+                return .none
+
+            case let .walletReopenFailed(message, revertTo):
+                if let revertTo {
+                    state.torForWallet = revertTo
+                    state.torForChat = revertTo
+                    userStoredPreferences.setTorForWalletEnabled(revertTo)
+                    userStoredPreferences.setTorForChatEnabled(revertTo)
+                }
+                state.walletRestartError = "Restart required: \(message)"
                 return .none
 
             case .doneTapped:
@@ -219,6 +251,22 @@ public struct TorNetwork {
             }
         }
         return .none
+    }
+
+    private func reopenWalletIfPresent(previousWalletTor: Bool) -> Effect<Action> {
+        guard (try? walletStorage.areKeysPresent()) == true else { return .none }
+        return .run { send in
+            do {
+                let storedWallet = try walletStorage.exportWallet()
+                let birthday = storedWallet.birthday?.value() ?? 0
+                let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
+                sdkSynchronizer.stop()
+                try await sdkSynchronizer.prepareWith(seedBytes, birthday, .existingWallet)
+                try await sdkSynchronizer.start(false)
+            } catch {
+                await send(.walletReopenFailed(error.localizedDescription, revertTo: previousWalletTor))
+            }
+        }
     }
 
     public init() {}

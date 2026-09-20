@@ -99,7 +99,7 @@ public struct Review {
             case .delegate:
                 return .none
             case .onAppear:
-                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, "testnet")
+                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, DarkfiNetwork.current.rawValue)
                 return .none
             case .sendDrkTapped:
                 if userStoredPreferences.areBiometricsEnabled() {

@@ -158,7 +158,8 @@ public struct SendFlow {
                     return .none
                 }
 
-                if let recipient = state.recipient, derivationTool.isSaplingAddress(recipient, "testnet") {
+                if let recipient = state.recipient,
+                   derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.current.rawValue) {
                     var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
@@ -445,9 +446,9 @@ extension SendFlow {
                     _ = state.path.popLast()
                     return .none
                 case let .proceedWithRecipient(recipient):
-                    guard derivationTool.isDarkFiAddress(recipient, "testnet") else { return .none }
+                    guard derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.current.rawValue) else { return .none }
                     state.recipient = recipient
-                    if derivationTool.isTransparentAddress(recipient, "testnet") {
+                    if derivationTool.isTransparentAddress(recipient, DarkfiNetwork.current.rawValue) {
                         return .run { [state] send in
                             do {
                                 guard let recipientAddr = state.recipient else { return }
@@ -550,7 +551,7 @@ extension SendFlow {
                             return .none
                         }
 
-                        if state.memo == nil && !derivationTool.isTransparentAddress(address, "testnet") {
+                        if state.memo == nil && !derivationTool.isTransparentAddress(address, DarkfiNetwork.current.rawValue) {
                             var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))

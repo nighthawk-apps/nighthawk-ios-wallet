@@ -39,24 +39,22 @@ public struct ChangeServer {
 
         public var isValidHostAndPort: Bool {
             if serverOption == .default { return true }
-
-            let validHostAndPort = #/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]):([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/#
-
-            return customServerAddress.contains(validHostAndPort)
+            return LightwalletdURL.parse(customServerAddress) != nil
         }
 
         /// DarkFi lightwallet ports: 9067 (gRPC), 9068 (alt), 443 (TLS terminator).
         public var isExpectedDarkFiPort: Bool {
             guard serverOption == .custom else { return true }
-            let components = customServerAddress.split(separator: ":")
-            guard let portStr = components.last, let port = Int(portStr) else { return false }
+            guard let parts = LightwalletdURL.parse(customServerAddress) else { return false }
+            let port = parts.port ?? (parts.scheme == "https" ? 443 : nil)
+            guard let port else { return false }
             return [9067, 9068, 443].contains(port)
         }
 
         /// Reject RFC1918 / loopback hosts for remote custom servers (SSRF guard).
         public var isPrivateOrLoopbackHost: Bool {
             guard serverOption == .custom else { return false }
-            let host = customServerAddress.split(separator: ":").first.map(String.init) ?? ""
+            let host = LightwalletdURL.parse(customServerAddress)?.host ?? ""
             let lower = host.lowercased()
             if lower == "localhost" || lower == "::1" { return true }
             if lower.hasPrefix("127.") || lower.hasPrefix("10.") { return true }
@@ -68,6 +66,11 @@ public struct ChangeServer {
                 }
             }
             return false
+        }
+
+        public var usesRemoteHttps: Bool {
+            guard serverOption == .custom else { return false }
+            return LightwalletdURL.parse(customServerAddress)?.scheme == "https"
         }
 
         public var canSave: Bool {
@@ -111,8 +114,16 @@ public struct ChangeServer {
             case .alert:
                 return .none
             case .onAppear:
-                state.defaultServerInfo =
-                    "epidermis-sandbox-marshland.ngrok-free.dev (Studio testnet LWD)"
+                #if STEALTH_MAINNET
+                state.defaultServerInfo = "Custom lightwalletd required (no built-in mainnet host)"
+                #else
+                if let configured = LightwalletdURL.configuredDefault() {
+                    state.defaultServerInfo = configured
+                } else {
+                    state.defaultServerInfo =
+                        "epidermis-sandbox-marshland.ngrok-free.dev (Studio testnet LWD)"
+                }
+                #endif
                 if userStoredPreferences.isUsingCustomLightwalletd(),
                    let customServer = userStoredPreferences.customLightwalletdServer() {
                     state.serverOption = .custom

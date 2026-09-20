@@ -423,6 +423,8 @@
 "nighthawk.chat.apply" = "Apply";
 "nighthawk.chat.hudTitle" = "Network";
 "nighthawk.chat.hudSubtitle" = "Outbound peers · tap IRC status to hide";
+"nighthawk.chat.hudPeers" = "Peers";
+"nighthawk.chat.hudPeersEmpty" = "No connected peers";
 "nighthawk.chat.encryptChannel" = "Encrypt";
 "nighthawk.chat.encryptChannelBody" = "Generate a shared secret for this #channel, copy it, and restart DarkIRC so the daemon reloads it.";
 "nighthawk.chat.generateSecret" = "Generate secret";

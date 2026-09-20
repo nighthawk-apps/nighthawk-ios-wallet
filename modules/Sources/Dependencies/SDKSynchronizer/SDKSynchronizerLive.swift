@@ -79,9 +79,8 @@ private final class WalletHandleManager: @unchecked Sendable {
         stateSubject.value
     }
 
-    /// Default lightwalletd gRPC endpoint (Studio testnet via ngrok).
-    static let defaultDarkfidEndpoint =
-        "https://epidermis-sandbox-marshland.ngrok-free.dev"
+    /// Studio testnet last-resort only. Mainnet must not use this string.
+    static let defaultDarkfidEndpoint = LightwalletdURL.testnetNgrokFallback
 
     /// UserDefaults key for custom server endpoint (set by ChangeServer feature)
     static let serverEndpointKey = "darkfi_server_endpoint"
@@ -140,11 +139,12 @@ private final class WalletHandleManager: @unchecked Sendable {
             )
         }
 
-        // Read user-configured lightwalletd endpoint (from ChangeServer settings),
-        // or fall back to standalone local lightwalletd.
-        var storedEndpoint = UserPreferencesStorage.live.customLightwalletdServer
-        var endpoint = (storedEndpoint?.isEmpty == false ? storedEndpoint : nil)
-            ?? WalletHandleManager.defaultDarkfidEndpoint
+        // Custom server → Info.plist / xcconfig LIGHTWALLETD_URL → testnet ngrok.
+        // Mainnet never silently inherits the testnet ngrok string.
+        let storedEndpoint = UserPreferencesStorage.live.customLightwalletdServer
+        var endpoint = try LightwalletdURL.resolve(
+            storedCustom: storedEndpoint?.isEmpty == false ? storedEndpoint : nil
+        )
 
         if !endpoint.contains("://") {
             endpoint = "tcp://\(endpoint)"
@@ -205,32 +205,17 @@ private final class WalletHandleManager: @unchecked Sendable {
             _handle = opened
             condition.unlock()
         } catch let error as DarkfiWalletNativeError {
-            // Stale sled flock after a crash / overlapping prepare: clear cache once and retry.
-            // Also recover from stale local DBs / passphrase mismatches after native
-            // upgrades — keys are re-imported from the mnemonic on the next open.
+            // Cache-only retry for an exclusive lock. Never wipe the wallet DB on
+            // broad strings such as "connectionfailed" / "sqlite".
             if case .NativeDrkUnavailable(let message) = error {
                 let lower = message.lowercased()
                 let sledLock =
                     lower.contains("could not acquire lock") ||
                     lower.contains("resource temporarily unavailable") ||
                     lower.contains("fjall")
-                let walletDb =
-                    lower.contains("walletdb") ||
-                    lower.contains("pragma") ||
-                    lower.contains("file is not a database") ||
-                    lower.contains("sqlite") ||
-                    lower.contains("sqlcipher") ||
-                    lower.contains("turso") ||
-                    lower.contains("initializationfailed") ||
-                    lower.contains("connectionfailed") ||
-                    lower.contains("initialize_wallet") ||
-                    lower.contains("databaseerror") ||
-                    lower.contains("queryexecution")
-                if sledLock || walletDb {
+                if sledLock {
+                    LoggerProxy.warn("Retrying wallet open after cache lock: \(message)")
                     try? FileManager.default.removeItem(atPath: cachePath)
-                    if walletDb {
-                        try? FileManager.default.removeItem(atPath: walletDbPath)
-                    }
                     try? FileManager.default.createDirectory(
                         atPath: cachePath,
                         withIntermediateDirectories: true
@@ -241,6 +226,7 @@ private final class WalletHandleManager: @unchecked Sendable {
                     _handle = retried
                     condition.unlock()
                 } else {
+                    LoggerProxy.error("Wallet open failed; not wiping databases: \(message)")
                     throw error
                 }
             } else {
@@ -301,7 +287,6 @@ private final class WalletHandleManager: @unchecked Sendable {
         let paths = [
             docs.appendingPathComponent("darkfi_wallet.db").path,
             docs.appendingPathComponent("darkfi_cache").path,
-            docs.appendingPathComponent("ios_wallet_address.txt").path,
         ]
         for path in paths {
             try? FileManager.default.removeItem(atPath: path)
@@ -429,13 +414,14 @@ extension SDKSynchronizerClient: DependencyKey {
             guard let handle = WalletHandleManager.shared.handle else { return [] }
             let records = try handle.listTransactions()
             return records.map { record in
-                DarkfiTransactionOverview(
+                let net = record.netValueAtomic
+                return DarkfiTransactionOverview(
                     rawId: record.txHash,
                     minedHeight: record.blockHeight > 0 ? BlockHeight(record.blockHeight) : nil,
                     timestampEpochSeconds: nil,  // Not available from record
-                    totalAtomicValue: record.netValueAtomic,
+                    totalAtomicValue: abs(net),
                     fee: record.feeAtomic,
-                    isSending: record.isSent,
+                    isSending: net < 0,
                     status: record.status,
                     contractSummary: record.contractSummary,
                     recipientAddress: record.recipientAddress,

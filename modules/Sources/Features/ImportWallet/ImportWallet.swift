@@ -33,10 +33,9 @@ public struct ImportWallet {
         }
 
         public var isValidBirthday: Bool {
-            if let birthdayHeightValue {
-                return birthdayHeightValue.data >= 0
-            }
-            return true
+            let trimmed = birthdayHeight.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { return true }
+            return BlockHeight(trimmed) != nil
         }
 
         public var isValidForm: Bool { isValidBirthday && isValidMnemonic }
@@ -74,9 +73,9 @@ public struct ImportWallet {
                 guard state.isValidForm else { return .none }
                 do {
                     // Empty birthday → unknown restore (−1 at FFI via prepare).
-                    // Explicit height is passed through for birthday seeding.
-                    let birthday = state.birthdayHeightValue ?? BlockHeight(0).redacted
-                    try walletStorage.importWallet(state.formattedPhrase, birthday.data, .english)
+                    // Non-numeric birthday is rejected by isValidBirthday.
+                    let birthday = state.birthdayHeightValue?.data ?? 0
+                    try walletStorage.importWallet(state.formattedPhrase, birthday, .english)
                     userStoredPreferences.setIsUserBackupComplete(true)
                     userStoredPreferences.setIsRestoreWallet(true)
                     return .send(.delegate(.showImportSuccess))

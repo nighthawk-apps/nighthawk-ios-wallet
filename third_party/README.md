@@ -3,7 +3,7 @@
 ## `darkfi/`
 
 Vendored [nighthawk24/darkfi](https://github.com/nighthawk24/darkfi) `nighthawk-testnet`
-at the commit in `docs/upstream/darkfi-revision.txt` (`327fa9f13…`).
+at the commit in `docs/upstream/darkfi-revision.txt` (`d30627982…`).
 **Do not** point this directory at `darkrenaissance/darkfi` master (wrong Arti / no overlay).
 A symlink to `../new-nighthawk-android-wallet/third_party/darkfi` or sibling
 `darkfi-nighthawk-testnet` at that pin is the intended reuse path.

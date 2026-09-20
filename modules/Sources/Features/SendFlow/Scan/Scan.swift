@@ -82,7 +82,7 @@ public struct Scan {
                 }
 
                 var parseResult = uriParser.parseDrkPaymentUri(code.data, "testnet")
-                if derivationTool.isDarkFiAddress(code.data, "testnet") {
+                if derivationTool.isDarkFiAddress(code.data, DarkfiNetwork.current.rawValue) {
                     parseResult.address = code.data
                 }
 

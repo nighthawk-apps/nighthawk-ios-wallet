@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Utils
 @testable import Home
 
 final class ChatChromeTests: XCTestCase {
@@ -46,6 +47,10 @@ final class ChatChromeTests: XCTestCase {
         XCTAssertEqual(spans.dropFirst().first, .url("https://dark.fi/docs"))
         XCTAssertTrue(ChatMessageLexer.hasFud("fud://abc"))
         XCTAssertEqual(ChatMessageLexer.fudUris("fud://QmHash/file.png"), ["fud://QmHash/file.png"])
+        XCTAssertEqual(
+            ChatMessageLexer.invoiceUris("pay drk:addr?amount=1 now"),
+            ["drk:addr?amount=1"]
+        )
     }
 
     func testFudUriParseAndPolicy() {
@@ -70,6 +75,85 @@ final class ChatChromeTests: XCTestCase {
             FudTransferPolicy.decide(enabled: true, torReady: false, meshOn: true, uri: uri),
             .allowed
         )
+    }
+
+    func testPeerHostDisplayParsesDnsNames() {
+        XCTAssertEqual(
+            PeerHostDisplay.hostFromUrl("tcp+tls://seed.testnet.dark.fi:25588"),
+            "seed.testnet.dark.fi"
+        )
+        XCTAssertEqual(PeerHostDisplay.hostFromUrl("tcp://1.2.3.4:9601"), "1.2.3.4")
+        XCTAssertEqual(PeerHostDisplay.hostFromUrl("tcp+tls://[2001:db8::1]:9601"), "2001:db8::1")
+        XCTAssertEqual(PeerHostDisplay.hostFromUrl("tor://abc.onion:9601"), "abc.onion")
+        XCTAssertNil(PeerHostDisplay.hostFromUrl(nil))
+        XCTAssertNil(PeerHostDisplay.hostFromUrl("connected"))
+
+        XCTAssertEqual(
+            PeerHostDisplay.dnsName(
+                url: "tcp+tls://lilith0.dark.fi:25588",
+                placeholder: "sleeping",
+                reverseLookup: { _ in XCTFail("must not reverse-lookup hostnames"); return nil }
+            ),
+            "lilith0.dark.fi"
+        )
+        XCTAssertEqual(
+            PeerHostDisplay.dnsName(
+                url: "tor://abcxyz.onion:9601",
+                placeholder: "connected",
+                reverseLookup: { _ in XCTFail("must not reverse-lookup onion"); return nil }
+            ),
+            "abcxyz.onion"
+        )
+        XCTAssertEqual(
+            PeerHostDisplay.dnsName(
+                url: "tcp://8.8.8.8:9601",
+                placeholder: "connected",
+                reverseLookup: { _ in
+                    XCTFail("must not reverse-lookup IPs")
+                    return "dns.google"
+                }
+            ),
+            PeerHostDisplay.opaquePeerLabel
+        )
+        XCTAssertEqual(
+            PeerHostDisplay.dnsName(
+                url: "tcp://10.0.0.1:1",
+                placeholder: "connected",
+                reverseLookup: { _ in
+                    XCTFail("must not reverse-lookup IPs")
+                    return nil
+                }
+            ),
+            PeerHostDisplay.opaquePeerLabel
+        )
+        XCTAssertNotEqual(
+            PeerHostDisplay.dnsName(
+                url: "tcp+tls://[2001:db8::1]:9601",
+                placeholder: "connected",
+                reverseLookup: { _ in
+                    XCTFail("must not reverse-lookup IPs")
+                    return nil
+                }
+            ),
+            "2001:db8::1"
+        )
+        XCTAssertEqual(
+            PeerHostDisplay.dnsName(url: nil, placeholder: "sleeping", reverseLookup: { _ in nil }),
+            "sleeping"
+        )
+        XCTAssertTrue(PeerHostDisplay.isIpLiteral("1.2.3.4"))
+        XCTAssertTrue(PeerHostDisplay.isIpLiteral("2001:db8::1"))
+        XCTAssertFalse(PeerHostDisplay.isIpLiteral("seed.dark.fi"))
+        XCTAssertTrue(PeerHostDisplay.isOnion("abc.onion"))
+    }
+
+    func testDarkfiAddressAndAmountHelpers() {
+        XCTAssertFalse(DarkfiAddressFormat.isValid("", network: "testnet"))
+        XCTAssertFalse(DarkfiAddressFormat.isValid("not-an-address", network: "testnet"))
+        XCTAssertEqual(LightwalletdURL.parse("https://lwd.example.com:443")?.scheme, "https")
+        XCTAssertEqual(LightwalletdURL.parse("lwd.example.com:9067")?.port, 9067)
+        XCTAssertEqual(DrkAmount.fromDecimalString("1.5"), 150_000_000)
+        XCTAssertNil(DrkAmount.fromDecimalString("abc"))
     }
 
     func testEncryptedChannelStoreReplacesSameName() {

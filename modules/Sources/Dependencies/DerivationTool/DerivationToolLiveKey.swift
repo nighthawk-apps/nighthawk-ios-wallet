@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import Utils
 
 extension DerivationToolClient: DependencyKey {
     public static let liveValue = DerivationToolClient.live()
@@ -21,17 +22,17 @@ extension DerivationToolClient: DependencyKey {
                     stringEncoded: ""
                 )
             },
-            isUnifiedAddress: { _, _ in
-                return true
+            isUnifiedAddress: { address, network in
+                DarkfiAddressFormat.isValid(address, network: network)
             },
             isSaplingAddress: { _, _ in
-                return true
+                false
             },
             isTransparentAddress: { _, _ in
-                return true
+                false
             },
-            isDarkFiAddress: { _, _ in
-                return true
+            isDarkFiAddress: { address, network in
+                DarkfiAddressFormat.isValid(address, network: network)
             }
         )
     }

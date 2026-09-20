@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.013 (build 13):** Send, Receive, and Request live on the Wallet tab (Transfer hub removed). Fourth tab is DEX (coming soon). DAO Hub stays in Settings. Tab bar hides on send/receive/request; Send stays enabled unless sync failed. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.014 (build 14):** DarkFi pin `f0978c222` (public `scan_block`, darkfid sync hardening). Wallet send/receive/request, DEX placeholder tab, DAO Hub in Settings. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -40,7 +40,7 @@ Path dependencies and sibling Nighthawk repos use these **directory names**:
 
 ```text
 parent/
-  darkfi-nighthawk-testnet/     # pin 327fa9f13 (nighthawk24 nighthawk-testnet)
+  darkfi-nighthawk-testnet/     # pin f0978c222 (nighthawk24 nighthawk-testnet)
   darkfi-lightwalletd/          # gRPC lightwalletd (local sync target)
   nighthawk-ios-wallet/         # this repo
   new-nighthawk-android-wallet/ # same pin at third_party/darkfi
@@ -48,7 +48,7 @@ parent/
   moonshine/
 ```
 
-`third_party/darkfi` **must** be the nighthawk-testnet pin (`327fa9f134fc756b84be2ce327afaae1cd41a956`), **not** a symlink to GitHub `darkfi` master. Running `./scripts/vendor-darkfi.sh` on a master symlink would `git checkout` that shared repo off master. Safe:
+`third_party/darkfi` **must** be the nighthawk-testnet pin (`f0978c22242267b5684e6b8334cdf063652d2b37`), **not** a symlink to GitHub `darkfi` master. Running `./scripts/vendor-darkfi.sh` on a master symlink would `git checkout` that shared repo off master. Safe:
 
 ```bash
 # reuse the Android vendored tree (same pin)
@@ -113,7 +113,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | Pin `327fa9f13` via `./scripts/vendor-darkfi.sh` or a symlink to Android `third_party/darkfi` / sibling `darkfi-nighthawk-testnet`. **Not** `darkrenaissance/darkfi` master. |
+| **Vendored DarkFi** | Pin `f0978c222` via `./scripts/vendor-darkfi.sh` or a symlink to Android `third_party/darkfi` / sibling `darkfi-nighthawk-testnet`. **Not** `darkrenaissance/darkfi` master. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 

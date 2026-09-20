@@ -84,6 +84,13 @@ private extension TorNetworkView {
             )
 
             // Arti status indicator (when enabled)
+            if let error = store.walletRestartError {
+                Text(error)
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                    .foregroundColor(.red.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             if store.isTorEnabled {
                 HStack(spacing: 8) {
                     Circle()

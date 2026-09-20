@@ -37,7 +37,9 @@ extension DrkAmount {
     public static func fromDecimalString(_ string: String, decimals: Int = drkDisplayDecimals) -> DrkAmount? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
-        let parts = trimmed.split(separator: ".", omittingEmptySubsequences: false)
+        let normalized = normalizeLocaleDecimal(trimmed)
+        guard !normalized.isEmpty else { return nil }
+        let parts = normalized.split(separator: ".", omittingEmptySubsequences: false)
         guard parts.count <= 2, parts.allSatisfy({ $0.allSatisfy(\.isNumber) || $0.isEmpty }) else {
             return nil
         }
@@ -63,6 +65,21 @@ extension DrkAmount {
 
     public static func from(decimalString: String) -> DrkAmount? {
         fromDecimalString(decimalString)
+    }
+
+    /// Map `Locale.current` grouping/decimal separators onto a `.`-decimal string.
+    private static func normalizeLocaleDecimal(_ string: String) -> String {
+        let locale = Locale.current
+        let decimalSeparator = locale.decimalSeparator ?? "."
+        let groupingSeparator = locale.groupingSeparator ?? ","
+        var normalized = string
+        if groupingSeparator != decimalSeparator, !groupingSeparator.isEmpty {
+            normalized = normalized.replacingOccurrences(of: groupingSeparator, with: "")
+        }
+        if decimalSeparator != ".", !decimalSeparator.isEmpty {
+            normalized = normalized.replacingOccurrences(of: decimalSeparator, with: ".")
+        }
+        return normalized
     }
 }
 
@@ -316,6 +333,14 @@ public enum ConnectionState: Equatable {
 public enum DarkfiNetwork: String {
     case mainnet
     case testnet
+
+    public static var current: DarkfiNetwork {
+        #if STEALTH_MAINNET
+        .mainnet
+        #else
+        .testnet
+        #endif
+    }
 }
 
 // MARK: - Error

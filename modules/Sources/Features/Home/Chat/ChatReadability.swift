@@ -1,13 +1,13 @@
 import Foundation
 import SwiftUI
 
-public enum OutboundPeerState: String, Equatable {
+public enum OutboundPeerState: String, Equatable, Sendable {
     case connected
     case connecting
     case sleeping
 }
 
-public struct OutboundPeerSlot: Equatable, Identifiable {
+public struct OutboundPeerSlot: Equatable, Identifiable, Sendable {
     public var id: Int { slot }
     public let slot: Int
     public let url: String?
@@ -16,6 +16,59 @@ public struct OutboundPeerSlot: Equatable, Identifiable {
     public var displayUrl: String {
         if let url, !url.isEmpty { return url }
         return state.rawValue
+    }
+
+    public func dnsName(reverseLookup: (String) -> String? = { _ in nil }) -> String {
+        PeerHostDisplay.dnsName(url: url, placeholder: state.rawValue, reverseLookup: reverseLookup)
+    }
+}
+
+/// Host / DNS name shown in the Chat Network HUD peers dialog.
+enum PeerHostDisplay {
+    /// Shown instead of an IP literal. Reverse DNS is never performed.
+    static let opaquePeerLabel = "peer"
+
+    static func hostFromUrl(_ url: String?) -> String? {
+        guard let url, !url.isEmpty else { return nil }
+        guard let schemeRange = url.range(of: "://") else { return nil }
+        let afterScheme = String(url[schemeRange.upperBound...])
+        let hostPort = afterScheme.split(separator: "/").first.map(String.init) ?? afterScheme
+        let noQuery = hostPort.split(separator: "?").first.map(String.init) ?? hostPort
+        if noQuery.hasPrefix("[") {
+            guard let end = noQuery.firstIndex(of: "]") else { return nil }
+            let inner = noQuery[noQuery.index(after: noQuery.startIndex)..<end]
+            return inner.isEmpty ? nil : String(inner)
+        }
+        let host = noQuery.split(separator: ":").first.map(String.init) ?? ""
+        return host.isEmpty ? nil : host
+    }
+
+    static func isOnion(_ host: String) -> Bool {
+        host.lowercased().hasSuffix(".onion")
+    }
+
+    static func isIpLiteral(_ host: String) -> Bool {
+        if host.range(of: #"^\d{1,3}(\.\d{1,3}){3}$"#, options: .regularExpression) != nil {
+            return true
+        }
+        guard host.contains(":") else { return false }
+        return host.unicodeScalars.allSatisfy { scalar in
+            CharacterSet(charactersIn: "0123456789abcdefABCDEF:.").contains(scalar)
+        }
+    }
+
+    /// `reverseLookup` is accepted only so tests can `XCTFail` if it is invoked.
+    /// IP literals never go through DNS and are never rendered.
+    static func dnsName(
+        url: String?,
+        placeholder: String,
+        reverseLookup: (String) -> String? = { _ in nil }
+    ) -> String {
+        guard let host = hostFromUrl(url) else { return placeholder }
+        if isOnion(host) { return host }
+        if isIpLiteral(host) { return opaquePeerLabel }
+        _ = reverseLookup
+        return host
     }
 }
 
@@ -257,11 +310,12 @@ enum ChatInlineSpan: Equatable {
     case text(String)
     case url(String)
     case fud(String)
+    case invoice(String)
 }
 
 enum ChatMessageLexer {
     private static let pattern = try! NSRegularExpression(
-        pattern: #"(fud://[^\s]+)|(https?://[^\s<>"]+)"#,
+        pattern: #"(fud://[^\s]+)|(https?://[^\s<>"]+)|(drk:[^\s<>"]+)"#,
         options: [.caseInsensitive]
     )
 
@@ -279,6 +333,8 @@ enum ChatMessageLexer {
                 spans.append(.fud(trimPunctuation(ns.substring(with: match.range(at: 1)))))
             } else if match.range(at: 2).location != NSNotFound {
                 spans.append(.url(trimPunctuation(ns.substring(with: match.range(at: 2)))))
+            } else if match.range(at: 3).location != NSNotFound {
+                spans.append(.invoice(trimPunctuation(ns.substring(with: match.range(at: 3)))))
             }
             cursor = match.range.location + match.range.length
         }
@@ -295,6 +351,13 @@ enum ChatMessageLexer {
     static func fudUris(_ text: String) -> [String] {
         lex(text).compactMap { span in
             if case let .fud(uri) = span { return uri }
+            return nil
+        }
+    }
+
+    static func invoiceUris(_ text: String) -> [String] {
+        lex(text).compactMap { span in
+            if case let .invoice(uri) = span { return uri }
             return nil
         }
     }

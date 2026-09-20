@@ -175,6 +175,7 @@ public struct Chat {
         public var showSharePubkeyWarning: Bool = false
         public var myDmPublicKey: String?
         public var showPublicPayWarning: Bool = false
+        public var showClearnetTransportWarning: Bool = false
         public var pendingPublicInvoice: String?
         public var localDisplayName: String = ""
         public var outboundSlots: [OutboundPeerSlot] = OutboundPeerSlots.synthesize(
@@ -231,9 +232,12 @@ public struct Chat {
         case confirmPublicPay
         case cancelPublicPay
         case payInvoice(String)
+        case invoiceTapped(String)
         case setLocalDisplayName(String)
         case toggleNetworkHud
         case setChatTransport(Bool)
+        case confirmClearnetTransport
+        case cancelClearnetTransport
         case encryptChannelTapped
         case encryptChannelCancelled
         case encryptChannelConfirmed
@@ -264,7 +268,7 @@ public struct Chat {
                 content: message,
                 channel: channel,
                 timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000),
-                isOutgoing: nick == myNickname
+                isOutgoing: nick.caseInsensitiveCompare(myNickname) == .orderedSame
             )
             continuation.yield(msg)
         }
@@ -932,15 +936,35 @@ public struct Chat {
             case .payInvoice(_):
                 return .none
 
+            case let .invoiceTapped(uri):
+                let trimmed = uri.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard trimmed.lowercased().hasPrefix("drk:") else { return .none }
+                state.composedMessage = trimmed
+                return .none
+
             case .toggleNetworkHud:
                 state.showNetworkHud.toggle()
                 return .none
 
             case let .setChatTransport(useTor):
                 guard state.useTor != useTor else { return .none }
-                userStoredPreferences.setTorForChatEnabled(useTor)
-                state.useTor = useTor
+                if !useTor {
+                    state.showClearnetTransportWarning = true
+                    return .none
+                }
+                userStoredPreferences.setTorForChatEnabled(true)
+                state.useTor = true
                 return .send(.connectTapped)
+
+            case .confirmClearnetTransport:
+                state.showClearnetTransportWarning = false
+                userStoredPreferences.setTorForChatEnabled(false)
+                state.useTor = false
+                return .send(.connectTapped)
+
+            case .cancelClearnetTransport:
+                state.showClearnetTransportWarning = false
+                return .none
 
             case .encryptChannelTapped:
                 guard state.selectedTab == .channels,
