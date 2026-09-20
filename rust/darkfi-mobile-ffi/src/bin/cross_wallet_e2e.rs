@@ -50,7 +50,9 @@ fn darkfid_rpc_url() -> Option<String> {
         .or_else(|| Some("tcp://127.0.0.1:18345".into()))
 }
 
-fn load_or_create_mnemonics(base_dir: &Path) -> Result<(String, String, String), String> {
+fn load_or_create_mnemonics(
+    base_dir: &Path,
+) -> Result<(String, String, String, String, String), String> {
     let path = base_dir.join("mnemonics.txt");
     if path.exists() {
         let text = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
@@ -61,15 +63,45 @@ fn load_or_create_mnemonics(base_dir: &Path) -> Result<(String, String, String),
             .to_string();
         let ios = lines.next().ok_or("missing ios mnemonic")?.to_string();
         let android = lines.next().ok_or("missing android mnemonic")?.to_string();
-        return Ok((moonshine, ios, android));
+        let desktop = lines
+            .next()
+            .ok_or("missing desktop mnemonic (4th line)")?
+            .to_string();
+        let trial_recv = lines
+            .next()
+            .ok_or("missing trial_recv mnemonic (5th line)")?
+            .to_string();
+        return Ok((moonshine, ios, android, desktop, trial_recv));
     }
 
     let engine = DarkfiMnemonic::default();
     let moonshine = engine.make_seed(None, None).map_err(|e| e.to_string())?;
     let ios = engine.make_seed(None, None).map_err(|e| e.to_string())?;
     let android = engine.make_seed(None, None).map_err(|e| e.to_string())?;
-    std::fs::write(&path, format!("{moonshine}\n{ios}\n{android}\n")).map_err(|e| e.to_string())?;
-    Ok((moonshine, ios, android))
+    let desktop = engine.make_seed(None, None).map_err(|e| e.to_string())?;
+    let trial_recv = engine.make_seed(None, None).map_err(|e| e.to_string())?;
+    std::fs::write(
+        &path,
+        format!("{moonshine}\n{ios}\n{android}\n{desktop}\n{trial_recv}\n"),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok((moonshine, ios, android, desktop, trial_recv))
+}
+
+fn inter_client_sleep_secs() -> u64 {
+    std::env::var("E2E_INTER_CLIENT_SLEEP_SECS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(150)
+}
+
+async fn pause_between_clients(label: &str) {
+    let secs = inter_client_sleep_secs();
+    if secs == 0 {
+        return;
+    }
+    println!("  pause {secs}s before {label}...");
+    smol::Timer::after(Duration::from_secs(secs)).await;
 }
 
 fn words_from_phrase(phrase: &str) -> Vec<String> {
@@ -132,7 +164,7 @@ async fn default_address(drk: &Drk) -> Result<String, String> {
 
 async fn sync_wallet_direct(drk: &Drk) -> Result<(), String> {
     let mut output = Vec::new();
-    drk.scan_blocks(&mut output, None, &false, None)
+    drk.scan_blocks(&mut output, None, &false)
         .await
         .map_err(|e| format!("scan_blocks: {e}"))?;
     if let Some(first) = output.first() {
@@ -402,33 +434,50 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let ex = darkfi_mobile_ffi::shared_executor();
 
-    let (moonshine_phrase, ios_phrase, android_phrase) = load_or_create_mnemonics(&base_dir)?;
+    let (moonshine_phrase, ios_phrase, android_phrase, desktop_phrase, trial_phrase) =
+        load_or_create_mnemonics(&base_dir)?;
 
     let moonshine_words = words_from_phrase(&moonshine_phrase);
     let ios_words = words_from_phrase(&ios_phrase);
     let android_words = words_from_phrase(&android_phrase);
+    let desktop_words = words_from_phrase(&desktop_phrase);
+    let trial_words = words_from_phrase(&trial_phrase);
 
     smol::block_on(async {
-        println!("=== Cross-wallet e2e: moonshine → iOS → Android ===\n");
+        println!(
+            "=== Cross-wallet e2e: moonshine → iOS → Android → desktop (UnifOMR ring) ===\n"
+        );
+        println!(
+            "Inter-client pause: {}s (E2E_INTER_CLIENT_SLEEP_SECS)\n",
+            inter_client_sleep_secs()
+        );
 
         let moonshine = bootstrap_wallet("moonshine", &moonshine_words, &base_dir, &ex).await?;
         let ios = bootstrap_wallet("ios", &ios_words, &base_dir, &ex).await?;
         let android = bootstrap_wallet("android", &android_words, &base_dir, &ex).await?;
+        let desktop = bootstrap_wallet("desktop", &desktop_words, &base_dir, &ex).await?;
+        let trial_recv = bootstrap_wallet("trial_recv", &trial_words, &base_dir, &ex).await?;
 
-        let (moonshine_addr, ios_addr, android_addr) = {
+        let (moonshine_addr, ios_addr, android_addr, desktop_addr, trial_recv_addr) = {
             let m = moonshine.read().await;
             let i = ios.read().await;
             let a = android.read().await;
+            let d = desktop.read().await;
+            let t = trial_recv.read().await;
             (
                 default_address(&m).await?,
                 default_address(&i).await?,
                 default_address(&a).await?,
+                default_address(&d).await?,
+                default_address(&t).await?,
             )
         };
 
-        println!("Moonshine (sender) address: {moonshine_addr}");
-        println!("iOS recipient address:       {ios_addr}");
-        println!("Android recipient address:   {android_addr}\n");
+        println!("Moonshine (CLI-class FFI) address: {moonshine_addr}");
+        println!("iOS (FFI) address:                 {ios_addr}");
+        println!("Android (FFI) address:             {android_addr}");
+        println!("Desktop (FFI) address:             {desktop_addr}");
+        println!("Trial-decrypt recv (unregistered): {trial_recv_addr}\n");
 
         println!("Scanning moonshine wallet (LWD GetCoins full-history merkle rebuild)...");
         let sender_balance = match sync_until_balance(
@@ -476,21 +525,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // All hop endpoints must RegisterCluePublicKey before senders' GetCluePublicKey
         // returns a verifiable clue (otherwise LWD serves a decoy and send fails).
         // Use a lightweight register-only path — full LWD sync is too heavy here.
-        println!("Registering UnifOMR clue PKs (moonshine + iOS + Android)...");
+        println!("Registering UnifOMR clue PKs (moonshine + iOS + Android + desktop)...");
         for (name, wallet) in [
             ("moonshine", &moonshine),
             ("ios", &ios),
             ("android", &android),
+            ("desktop", &desktop),
         ] {
             match register_unifomr_clue(wallet).await {
                 Ok(()) => println!("  {name}: RegisterCluePublicKey ok"),
                 Err(e) => eprintln!("  {name}: register warn: {e}"),
             }
         }
-        println!();
+        println!("  trial_recv: intentionally NOT registered (trial-decrypt leg)\n");
 
+        pause_between_clients("leg1 moonshine→iOS").await;
         // Leg 1: moonshine → iOS
-        println!("Leg 1: moonshine → iOS ({SEND_AMOUNT} DRK)...");
+        println!("Leg 1: moonshine → iOS ({SEND_AMOUNT} DRK) [UnifOMR]...");
         let tx1 = {
             let drk = moonshine.read().await;
             send(&drk, &ios_addr, SEND_AMOUNT, "e2e leg1 moonshine→ios").await?
@@ -532,13 +583,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ));
         }
 
+        pause_between_clients("leg2 iOS→Android").await;
         // Leg 2: iOS → Android
         if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
             println!("Rebuilding iOS Money merkle tree from LWD commitments...");
             let drk = ios.read().await;
             rebuild_money_tree_from_lwd(&drk, "ios").await?;
         }
-        println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK)...");
+        println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK) [UnifOMR]...");
         let tx2 = {
             let drk = ios.read().await;
             send(&drk, &android_addr, SEND_AMOUNT, "e2e leg2 ios→android").await?
@@ -563,29 +615,89 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ));
         }
 
-        // Leg 3: Android → moonshine (desktop/FFI parity round-trip)
+        pause_between_clients("leg3 Android→desktop").await;
+        // Leg 3: Android → desktop
         if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
             println!("Rebuilding Android Money merkle tree from LWD commitments...");
             let drk = android.read().await;
             rebuild_money_tree_from_lwd(&drk, "android").await?;
         }
-        println!("Leg 3: Android → moonshine ({SEND_AMOUNT} DRK)...");
+        println!("Leg 3: Android → desktop ({SEND_AMOUNT} DRK) [UnifOMR]...");
         let tx3 = {
             let drk = android.read().await;
-            send(&drk, &moonshine_addr, SEND_AMOUNT, "e2e leg3 android→moonshine").await?
+            send(&drk, &desktop_addr, SEND_AMOUNT, "e2e leg3 android→desktop").await?
         };
         println!("  broadcast tx: {tx3}");
         println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx3}");
 
-        println!("=== PASS: cross-wallet send moonshine → iOS → Android → moonshine ===");
+        println!("  syncing desktop wallet (need hop coin + separate fee coin)...");
+        let desktop_balance = sync_until_balance(
+            &desktop,
+            SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+            2,
+            Duration::from_secs(1800),
+            true,
+        )
+        .await?;
+        println!("  desktop balance after leg3: {desktop_balance} atomic DRK\n");
+        if desktop_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+            return Err(format!(
+                "desktop needs >= {} atomic for hop+fees (have {desktop_balance})",
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+            ));
+        }
+
+        pause_between_clients("leg4 desktop→moonshine").await;
+        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+            println!("Rebuilding desktop Money merkle tree from LWD commitments...");
+            let drk = desktop.read().await;
+            rebuild_money_tree_from_lwd(&drk, "desktop").await?;
+        }
+        println!("Leg 4: desktop → moonshine ({SEND_AMOUNT} DRK) [UnifOMR]...");
+        let tx4 = {
+            let drk = desktop.read().await;
+            send(&drk, &moonshine_addr, SEND_AMOUNT, "e2e leg4 desktop→moonshine").await?
+        };
+        println!("  broadcast tx: {tx4}");
+        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx4}");
+
+        pause_between_clients("trial-decrypt leg").await;
+        println!("Leg 5: moonshine → trial_recv ({SEND_AMOUNT} DRK) [trial-decrypt recv, no RegisterClue]...");
+        let tx5 = {
+            let drk = moonshine.read().await;
+            send(
+                &drk,
+                &trial_recv_addr,
+                SEND_AMOUNT,
+                "e2e trial-decrypt recv",
+            )
+            .await?
+        };
+        println!("  broadcast tx: {tx5}");
+        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx5}");
+        println!("  syncing trial_recv (expect supplemental trial decrypt)...");
+        let trial_bal = sync_until_balance(
+            &trial_recv,
+            SEND_AMOUNT_ATOMIC,
+            1,
+            Duration::from_secs(1800),
+            true,
+        )
+        .await?;
+        println!("  trial_recv balance after leg5: {trial_bal} atomic DRK\n");
+
+        println!("=== PASS: 4-client UnifOMR ring + trial-decrypt receive ===");
         println!("Explorer links:");
-        println!("  leg1 moonshine→ios:     https://explorer.testnet.dark.fi/tx/{tx1}");
-        println!("  leg2 ios→android:       https://explorer.testnet.dark.fi/tx/{tx2}");
-        println!("  leg3 android→moonshine: https://explorer.testnet.dark.fi/tx/{tx3}");
+        println!("  leg1 moonshine→ios:       https://explorer.testnet.dark.fi/tx/{tx1}");
+        println!("  leg2 ios→android:         https://explorer.testnet.dark.fi/tx/{tx2}");
+        println!("  leg3 android→desktop:     https://explorer.testnet.dark.fi/tx/{tx3}");
+        println!("  leg4 desktop→moonshine:   https://explorer.testnet.dark.fi/tx/{tx4}");
+        println!("  leg5 trial-decrypt recv:  https://explorer.testnet.dark.fi/tx/{tx5}");
         println!("Mnemonics (for manual UI / desktop replay):");
         println!("  moonshine: {moonshine_phrase}");
         println!("  ios:       {ios_phrase}");
         println!("  android:   {android_phrase}");
+        println!("  desktop:   {desktop_phrase}");
 
         Ok::<(), String>(())
     })
