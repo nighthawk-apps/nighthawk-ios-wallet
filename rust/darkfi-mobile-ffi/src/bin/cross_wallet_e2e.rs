@@ -95,6 +95,47 @@ fn inter_client_sleep_secs() -> u64 {
         .unwrap_or(150)
 }
 
+fn sync_timeout() -> Duration {
+    let secs = std::env::var("E2E_SYNC_TIMEOUT_SECS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(7200);
+    Duration::from_secs(secs)
+}
+
+/// Skip earlier legs when retrying a failed hop (e.g. `leg3` after iOS→Android).
+fn resume_from_leg() -> u32 {
+    std::env::var("E2E_RESUME_FROM")
+        .ok()
+        .and_then(|s| {
+            let s = s.trim().to_lowercase();
+            if s == "leg5" || s == "5" {
+                Some(5)
+            } else if s == "leg4" || s == "4" {
+                Some(4)
+            } else if s == "leg3" || s == "3" {
+                Some(3)
+            } else if s == "leg2" || s == "2" {
+                Some(2)
+            } else {
+                None
+            }
+        })
+        .unwrap_or(1)
+}
+
+fn clear_wallet_cache(base_dir: &Path, wallet_name: &str) {
+    if std::env::var("E2E_CLEAR_WALLET_CACHE").ok().as_deref() != Some("1") {
+        return;
+    }
+    let cache = base_dir.join(wallet_name).join("cache");
+    if cache.exists() {
+        let _ = std::fs::remove_dir_all(&cache);
+        let _ = std::fs::create_dir_all(&cache);
+        println!("  cleared {wallet_name} compact-block cache for fresh trial/UnifOMR scan");
+    }
+}
+
 async fn pause_between_clients(label: &str) {
     let secs = inter_client_sleep_secs();
     if secs == 0 {
@@ -479,52 +520,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Desktop (FFI) address:             {desktop_addr}");
         println!("Trial-decrypt recv (unregistered): {trial_recv_addr}\n");
 
-        println!("Scanning moonshine wallet (LWD GetCoins full-history merkle rebuild)...");
-        let sender_balance = match sync_until_balance(
-            &moonshine,
-            SEND_AMOUNT_ATOMIC,
-            2, // transfer coin + separate fee coin
-            Duration::from_secs(1800),
-            true,
-        )
-        .await
-        {
-            Ok(bal) => bal,
-            Err(e) => {
-                eprintln!("  lightwallet sync timed out ({e}); trying darkfid scan_blocks...");
-                {
-                    let drk = moonshine.read().await;
-                    if let Err(scan_e) = sync_wallet_direct(&drk).await {
-                        eprintln!("  scan_blocks warn: {scan_e}");
-                    }
-                }
-                let bal = {
-                    let drk = moonshine.read().await;
-                    balance_atomic(&drk).await?
-                };
-                if bal == 0 {
-                    eprintln!(
-                        "ERROR: moonshine wallet has 0 DRK. Fund it first, e.g.:\n\
-                         drk -n testnet transfer 10 DRK {moonshine_addr} | drk -n testnet broadcast\n\
-                         Explorer (prior fund): https://explorer.testnet.dark.fi/tx/adee118820ae622aed3d2ec3957a91e9e99f21cbf99d5cb6c09a0af219b49d70\n\
-                         Then re-run with the same E2E_WALLET_DIR."
-                    );
-                    std::process::exit(1);
-                }
-                bal
-            }
-        };
-        println!("Moonshine balance: {sender_balance} atomic DRK\n");
-
-        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
-            println!("Rebuilding moonshine Money merkle tree from LWD commitments...");
-            let drk = moonshine.read().await;
-            rebuild_money_tree_from_lwd(&drk, "moonshine").await?;
+        let start_leg = resume_from_leg();
+        let hop_timeout = sync_timeout();
+        if start_leg >= 3 {
+            println!("E2E_RESUME_FROM=leg{start_leg}: skipping legs 1–{}.\n", start_leg - 1);
         }
 
-        // All hop endpoints must RegisterCluePublicKey before senders' GetCluePublicKey
-        // returns a verifiable clue (otherwise LWD serves a decoy and send fails).
-        // Use a lightweight register-only path — full LWD sync is too heavy here.
         println!("Registering UnifOMR clue PKs (moonshine + iOS + Android + desktop)...");
         for (name, wallet) in [
             ("moonshine", &moonshine),
@@ -539,127 +540,222 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         println!("  trial_recv: intentionally NOT registered (trial-decrypt leg)\n");
 
-        pause_between_clients("leg1 moonshine→iOS").await;
-        // Leg 1: moonshine → iOS
-        println!("Leg 1: moonshine → iOS ({SEND_AMOUNT} DRK) [UnifOMR]...");
-        let tx1 = {
-            let drk = moonshine.read().await;
-            send(&drk, &ios_addr, SEND_AMOUNT, "e2e leg1 moonshine→ios").await?
-        };
-        println!("  broadcast tx: {tx1}");
-        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx1}");
+        let mut tx1 = std::env::var("E2E_LEG1_TX").unwrap_or_else(|_| {
+            "393913fae2dc5d9f9e5eed14c79a39f4998e18d258a4883c1fe88adbb4687339".into()
+        });
+        let mut tx2 = std::env::var("E2E_LEG2_TX").unwrap_or_else(|_| {
+            "f305c824f0ca82192cea06b0360efded288b066fe6bad2458bce1d644c63b0d2".into()
+        });
+        let mut tx3 = std::env::var("E2E_LEG3_TX").unwrap_or_else(|_| {
+            "e190f3a438c3393bfa9c51d14bbf2f09954e1ce8b31d52865a05c8686e005fd9".into()
+        });
+        let mut tx4 = std::env::var("E2E_LEG4_TX").unwrap_or_else(|_| {
+            "a6cd677b900f572843583845be1963e2ce5e29daa72d9dd79bc87f14fa21cd4b".into()
+        });
 
-        // Verify recipient has a registerable UnifOMR clue keypair (directory path).
-        {
-            let drk = ios.read().await;
-            let secret = drk.default_secret().await.map_err(|e| e.to_string())?;
-            let secret_bytes: [u8; 32] = secret.inner().to_repr();
-            let net = match drk.network {
-                darkfi_sdk::crypto::keypair::Network::Mainnet => 0u8,
-                darkfi_sdk::crypto::keypair::Network::Testnet => 1u8,
+        if start_leg <= 1 {
+            println!("Scanning moonshine wallet (LWD GetCoins full-history merkle rebuild)...");
+            let sender_balance = match sync_until_balance(
+                &moonshine,
+                SEND_AMOUNT_ATOMIC,
+                2,
+                hop_timeout,
+                true,
+            )
+            .await
+            {
+                Ok(bal) => bal,
+                Err(e) => {
+                    eprintln!("  lightwallet sync timed out ({e}); trying darkfid scan_blocks...");
+                    {
+                        let drk = moonshine.read().await;
+                        if let Err(scan_e) = sync_wallet_direct(&drk).await {
+                            eprintln!("  scan_blocks warn: {scan_e}");
+                        }
+                    }
+                    let bal = {
+                        let drk = moonshine.read().await;
+                        balance_atomic(&drk).await?
+                    };
+                    if bal == 0 {
+                        eprintln!(
+                            "ERROR: moonshine wallet has 0 DRK. Fund it first, e.g.:\n\
+                             drk -n testnet transfer 10 DRK {moonshine_addr} | drk -n testnet broadcast\n\
+                             Then re-run with the same E2E_WALLET_DIR."
+                        );
+                        std::process::exit(1);
+                    }
+                    bal
+                }
             };
-            let (_sk, pk) = unifomr::clue_keypair_from_wallet(&secret_bytes, net)?;
-            let clue_pk = unifomr::serialize_public_key(&pk);
-            println!(
-                "  iOS UnifOMR clue pk len={} (senders should GetCluePublicKey)",
-                clue_pk.len()
-            );
+            println!("Moonshine balance: {sender_balance} atomic DRK\n");
+
+            if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+                println!("Rebuilding moonshine Money merkle tree from LWD commitments...");
+                let drk = moonshine.read().await;
+                rebuild_money_tree_from_lwd(&drk, "moonshine").await?;
+            }
+
+            pause_between_clients("leg1 moonshine→iOS").await;
+            println!("Leg 1: moonshine → iOS ({SEND_AMOUNT} DRK) [UnifOMR]...");
+            tx1 = {
+                let drk = moonshine.read().await;
+                send(&drk, &ios_addr, SEND_AMOUNT, "e2e leg1 moonshine→ios").await?
+            };
+            println!("  broadcast tx: {tx1}");
+            println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx1}");
+
+            println!("  syncing iOS wallet (need hop coin + separate fee coin)...");
+            let ios_balance = sync_until_balance(
+                &ios,
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+                2,
+                hop_timeout,
+                true,
+            )
+            .await?;
+            println!("  iOS balance after leg1: {ios_balance} atomic DRK\n");
+            if ios_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+                return Err(format!(
+                    "iOS needs >= {} atomic for hop+fees (have {ios_balance})",
+                    SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+                ));
+            }
+        } else {
+            println!("  leg1 skipped (prior tx): {tx1}");
         }
 
-        println!("  syncing iOS wallet (need hop coin + separate fee coin)...");
-        let ios_balance = sync_until_balance(
-            &ios,
+        if start_leg <= 2 {
+            pause_between_clients("leg2 iOS→Android").await;
+            if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+                println!("Rebuilding iOS Money merkle tree from LWD commitments...");
+                let drk = ios.read().await;
+                rebuild_money_tree_from_lwd(&drk, "ios").await?;
+            }
+            println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK) [UnifOMR]...");
+            tx2 = {
+                let drk = ios.read().await;
+                send(&drk, &android_addr, SEND_AMOUNT, "e2e leg2 ios→android").await?
+            };
+            println!("  broadcast tx: {tx2}");
+            println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx2}");
+
+            println!("  syncing Android wallet (need hop coin + separate fee coin)...");
+            let android_balance = sync_until_balance(
+                &android,
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+                2,
+                hop_timeout,
+                true,
+            )
+            .await?;
+            println!("  Android balance after leg2: {android_balance} atomic DRK\n");
+            if android_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+                return Err(format!(
+                    "Android needs >= {} atomic for hop+fees (have {android_balance})",
+                    SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+                ));
+            }
+        } else {
+            println!("  leg2 skipped (prior tx): {tx2}");
+            if start_leg == 3 {
+                clear_wallet_cache(&base_dir, "android");
+                println!("  syncing Android wallet after leg2 (fresh cache, extended timeout)...");
+                let android_balance = sync_until_balance(
+                    &android,
+                    SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+                    2,
+                    hop_timeout,
+                    true,
+                )
+                .await?;
+                println!("  Android balance for leg3: {android_balance} atomic DRK\n");
+                if android_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+                    return Err(format!(
+                        "Android still underfunded for hop+fees: {android_balance} atomic (need {}, 2 coins). \
+                         Fund {android_addr} with a second inbound DRK and retry.",
+                        SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+                    ));
+                }
+            }
+        }
+
+        if start_leg <= 3 {
+            pause_between_clients("leg3 Android→desktop").await;
+            if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+                println!("Rebuilding Android Money merkle tree from LWD commitments...");
+                let drk = android.read().await;
+                rebuild_money_tree_from_lwd(&drk, "android").await?;
+            }
+            println!("Leg 3: Android → desktop ({SEND_AMOUNT} DRK) [UnifOMR]...");
+            tx3 = {
+                let drk = android.read().await;
+                send(&drk, &desktop_addr, SEND_AMOUNT, "e2e leg3 android→desktop").await?
+            };
+            println!("  broadcast tx: {tx3}");
+            println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx3}");
+
+            clear_wallet_cache(&base_dir, "desktop");
+            println!("  syncing desktop wallet (need hop coin + separate fee coin)...");
+            let desktop_balance = sync_until_balance(
+                &desktop,
+                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
+                2,
+                hop_timeout,
+                true,
+            )
+            .await?;
+            println!("  desktop balance after leg3: {desktop_balance} atomic DRK\n");
+            if desktop_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+                return Err(format!(
+                    "desktop needs >= {} atomic for hop+fees (have {desktop_balance})",
+                    SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
+                ));
+            }
+        } else {
+            println!("  leg3 skipped (prior tx): {tx3}");
+        }
+
+        if start_leg <= 4 {
+            pause_between_clients("leg4 desktop→moonshine").await;
+            if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+                println!("Rebuilding desktop Money merkle tree from LWD commitments...");
+                let drk = desktop.read().await;
+                rebuild_money_tree_from_lwd(&drk, "desktop").await?;
+            }
+            println!("Leg 4: desktop → moonshine ({SEND_AMOUNT} DRK) [UnifOMR]...");
+            tx4 = {
+                let drk = desktop.read().await;
+                send(&drk, &moonshine_addr, SEND_AMOUNT, "e2e leg4 desktop→moonshine").await?
+            };
+            println!("  broadcast tx: {tx4}");
+            println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx4}");
+        } else {
+            println!("  leg4 skipped (prior tx): {tx4}");
+        }
+
+        clear_wallet_cache(&base_dir, "moonshine");
+        println!("  syncing moonshine after leg4 (hop coin + fee coin before trial-decrypt send)...");
+        let moonshine_balance = sync_until_balance(
+            &moonshine,
             SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
             2,
-            Duration::from_secs(1800),
+            hop_timeout,
             true,
         )
         .await?;
-        println!("  iOS balance after leg1: {ios_balance} atomic DRK\n");
-        if ios_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
+        println!("  moonshine balance before leg5: {moonshine_balance} atomic DRK\n");
+        if moonshine_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
             return Err(format!(
-                "iOS needs >= {} atomic for hop+fees (have {ios_balance}); fund fee buffer",
+                "moonshine needs >= {} atomic for hop+fees (have {moonshine_balance})",
                 SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
             ));
         }
-
-        pause_between_clients("leg2 iOS→Android").await;
-        // Leg 2: iOS → Android
         if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
-            println!("Rebuilding iOS Money merkle tree from LWD commitments...");
-            let drk = ios.read().await;
-            rebuild_money_tree_from_lwd(&drk, "ios").await?;
+            println!("Rebuilding moonshine Money merkle tree from LWD commitments...");
+            let drk = moonshine.read().await;
+            rebuild_money_tree_from_lwd(&drk, "moonshine").await?;
         }
-        println!("Leg 2: iOS → Android ({SEND_AMOUNT} DRK) [UnifOMR]...");
-        let tx2 = {
-            let drk = ios.read().await;
-            send(&drk, &android_addr, SEND_AMOUNT, "e2e leg2 ios→android").await?
-        };
-        println!("  broadcast tx: {tx2}");
-        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx2}");
-
-        println!("  syncing Android wallet (need hop coin + separate fee coin)...");
-        let android_balance = sync_until_balance(
-            &android,
-            SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
-            2,
-            Duration::from_secs(1800),
-            true,
-        )
-        .await?;
-        println!("  Android balance after leg2: {android_balance} atomic DRK\n");
-        if android_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
-            return Err(format!(
-                "Android needs >= {} atomic for hop+fees (have {android_balance}); fund fee buffer",
-                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
-            ));
-        }
-
-        pause_between_clients("leg3 Android→desktop").await;
-        // Leg 3: Android → desktop
-        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
-            println!("Rebuilding Android Money merkle tree from LWD commitments...");
-            let drk = android.read().await;
-            rebuild_money_tree_from_lwd(&drk, "android").await?;
-        }
-        println!("Leg 3: Android → desktop ({SEND_AMOUNT} DRK) [UnifOMR]...");
-        let tx3 = {
-            let drk = android.read().await;
-            send(&drk, &desktop_addr, SEND_AMOUNT, "e2e leg3 android→desktop").await?
-        };
-        println!("  broadcast tx: {tx3}");
-        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx3}");
-
-        println!("  syncing desktop wallet (need hop coin + separate fee coin)...");
-        let desktop_balance = sync_until_balance(
-            &desktop,
-            SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC,
-            2,
-            Duration::from_secs(1800),
-            true,
-        )
-        .await?;
-        println!("  desktop balance after leg3: {desktop_balance} atomic DRK\n");
-        if desktop_balance < SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC {
-            return Err(format!(
-                "desktop needs >= {} atomic for hop+fees (have {desktop_balance})",
-                SEND_AMOUNT_ATOMIC + FEE_HEADROOM_ATOMIC
-            ));
-        }
-
-        pause_between_clients("leg4 desktop→moonshine").await;
-        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
-            println!("Rebuilding desktop Money merkle tree from LWD commitments...");
-            let drk = desktop.read().await;
-            rebuild_money_tree_from_lwd(&drk, "desktop").await?;
-        }
-        println!("Leg 4: desktop → moonshine ({SEND_AMOUNT} DRK) [UnifOMR]...");
-        let tx4 = {
-            let drk = desktop.read().await;
-            send(&drk, &moonshine_addr, SEND_AMOUNT, "e2e leg4 desktop→moonshine").await?
-        };
-        println!("  broadcast tx: {tx4}");
-        println!("  explorer: https://explorer.testnet.dark.fi/tx/{tx4}");
 
         pause_between_clients("trial-decrypt leg").await;
         println!("Leg 5: moonshine → trial_recv ({SEND_AMOUNT} DRK) [trial-decrypt recv, no RegisterClue]...");
@@ -680,7 +776,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &trial_recv,
             SEND_AMOUNT_ATOMIC,
             1,
-            Duration::from_secs(1800),
+            hop_timeout,
             true,
         )
         .await?;
