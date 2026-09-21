@@ -261,14 +261,14 @@ public struct Chat {
             self.myNickname = myNickname
         }
 
-        func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64) {
+        func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64, isOutgoing: Bool) {
             let msg = State.Message(
                 id: eventId,
                 sender: nick,
                 content: message,
                 channel: channel,
                 timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000),
-                isOutgoing: nick.caseInsensitiveCompare(myNickname) == .orderedSame
+                isOutgoing: isOutgoing
             )
             continuation.yield(msg)
         }

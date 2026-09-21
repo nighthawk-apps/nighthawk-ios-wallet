@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.014 (build 14):** DarkFi pin `f0978c222` (public `scan_block`, darkfid sync hardening). Wallet send/receive/request, DEX placeholder tab, DAO Hub in Settings. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.00.015 (build 15):** DarkFi pin `f0978c222` (public `scan_block`, darkfid sync hardening). Wallet send/receive/request, DEX placeholder tab, DAO Hub in Settings. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 

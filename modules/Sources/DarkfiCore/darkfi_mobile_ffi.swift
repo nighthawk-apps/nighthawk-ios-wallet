@@ -2227,7 +2227,7 @@ public func FfiConverterTypeSyncMethod_lower(_ value: SyncMethod) -> RustBuffer 
 
 public protocol DarkircEventCallback: AnyObject, Sendable {
     
-    func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64) 
+    func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64, isOutgoing: Bool) 
     
 }
 
@@ -2261,6 +2261,7 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
             nick: RustBuffer,
             message: RustBuffer,
             timestamp: UInt64,
+            isOutgoing: Int8,
             uniffiOutReturn: UnsafeMutableRawPointer,
             uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
         ) in
@@ -2274,7 +2275,8 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
                      channel: try FfiConverterString.lift(channel),
                      nick: try FfiConverterString.lift(nick),
                      message: try FfiConverterString.lift(message),
-                     timestamp: try FfiConverterUInt64.lift(timestamp)
+                     timestamp: try FfiConverterUInt64.lift(timestamp),
+                     isOutgoing: try FfiConverterBool.lift(isOutgoing)
                 )
             }
 
@@ -3029,7 +3031,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_darkfi_mobile_ffi_checksum_constructor_darkfiwallethandle_new() != 8185) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_darkfi_mobile_ffi_checksum_method_darkirceventcallback_on_message() != 64769) {
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkirceventcallback_on_message() != 10857) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_reorgeventcallback_on_reorg() != 9856) {
