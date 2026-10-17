@@ -99,7 +99,7 @@ UI: `DaoHubView.swift` renders DAO list → detail → proposal detail.
 
 ## Endpoint configuration
 
-`DrkBootstrapConfig.darkfid_endpoint_url` mirrors upstream **darkfid JSON-RPC** defaults from [`bin/drk/drk_config.toml`](https://github.com/darkrenaissance/darkfi/blob/master/bin/drk/drk_config.toml):
+`DrkBootstrapConfig.darkfid_endpoint_url` mirrors upstream **darkfid JSON-RPC** defaults from [`bin/drk/drk_config.toml`](https://git.dark.fi/darkrenaissance/darkfi/src/master/bin/drk/drk_config.toml):
 
 | Network | darkfid TCP port |
 |---------|------------------|
@@ -131,7 +131,7 @@ This table closes the audit loop against the pinned `third_party/darkfi/` revisi
 
 ## References
 
-- DarkFi tree: [darkrenaissance/darkfi](https://github.com/darkrenaissance/darkfi) — vendored in `third_party/darkfi/`
+- DarkFi tree: [darkrenaissance/darkfi](https://git.dark.fi/darkrenaissance/darkfi) — vendored in `third_party/darkfi/`
 - **[Feature catalog](app-features.md)** — iOS vs Android feature matrix
 - **[Implementation plan](implementation-plan.md)** — P0–P4 task list
 - **[DarkIRC on iOS](darkirc-ios.md)** — In-process darkirc architecture

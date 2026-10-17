@@ -2,7 +2,7 @@
 
 ## `darkfi/`
 
-Vendored [darkrenaissance/darkfi](https://github.com/darkrenaissance/darkfi) at the commit in
+Vendored [darkrenaissance/darkfi](https://git.dark.fi/darkrenaissance/darkfi) at the commit in
 `docs/upstream/darkfi-revision.txt`.
 
 Fetch or refresh:

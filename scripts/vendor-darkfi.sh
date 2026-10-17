@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Vendor darkrenaissance/darkfi at docs/upstream/darkfi-revision.txt into third_party/darkfi.
+# Vendor DarkFi from https://git.dark.fi/darkrenaissance/darkfi (not the GitHub mirror)
+# at docs/upstream/darkfi-revision.txt into third_party/darkfi.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,7 +14,7 @@ if [[ ! "${first_line}" =~ ^[0-9a-f]{40}$ ]]; then
 fi
 
 if [[ ! -d "${DEST}/.git" ]]; then
-  git clone --filter=blob:none --depth 1 https://github.com/darkrenaissance/darkfi.git "${DEST}"
+  git clone --filter=blob:none --depth 1 https://git.dark.fi/darkrenaissance/darkfi.git "${DEST}"
 fi
 
 (
