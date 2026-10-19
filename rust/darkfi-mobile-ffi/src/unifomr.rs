@@ -92,8 +92,11 @@ pub const R_PRIME: u64 = 149;
 /// Max clue bytes after LWEmongrass raise (a||b + header).
 pub const UNIFOMR_MAX_CLUE_SIZE: usize = 32_768;
 
-/// Max clue layers per digest window (matches server + client `layer_count` cap).
-pub const MAX_CLUE_LAYERS: usize = 64;
+/// Digest wire-format version (paper-faithful per-message packing).
+pub const DIGEST_FORMAT_VERSION: u8 = 0x01;
+
+/// DoS bound on clues packed into one digest. Must match lightwalletd.
+pub const MAX_OMR_MESSAGES: usize = 262_144;
 
 /// Minimal note view for UnifOMR detection (clue bytes only).
 #[derive(Clone, Debug)]
@@ -256,7 +259,11 @@ impl RlweSecretKey {
         for i in 0..CLUE_H {
             let j = i + (rng.next_u32() as usize) % (CLUE_N - i);
             idxs.swap(i, j);
-            coeffs[idxs[i]] = if rng.next_u32().is_multiple_of(2) { 1 } else { -1 };
+            coeffs[idxs[i]] = if rng.next_u32().is_multiple_of(2) {
+                1
+            } else {
+                -1
+            };
         }
         Self { coeffs }
     }
@@ -300,7 +307,11 @@ impl RlwePublicKey {
         for i in 0..h {
             let j = i + (rng.next_u32() as usize) % (CLUE_N - i);
             idxs.swap(i, j);
-            u[idxs[i]] = if rng.next_u32().is_multiple_of(2) { 1 } else { -1 };
+            u[idxs[i]] = if rng.next_u32().is_multiple_of(2) {
+                1
+            } else {
+                -1
+            };
         }
         // Discrete Gaussian σ=0.5 (paper Param2), not uniform.
         let e1: Vec<i64> = (0..CLUE_N)
@@ -575,77 +586,68 @@ impl UnifOmrClient {
         Ok(out)
     }
 
+    /// Decrypt a per-message digest frame into one collapsed flag per SIMD slot.
+    ///
+    /// Wire (paper-faithful per-message packing, ℓ bits):
+    ///   `[u8 version][u32 chunk_count]`
+    ///     for each chunk: `([u32 len][ct]) × CLUE_PLAINTEXT_BITS`
+    ///
+    /// A slot is pertinent iff **all ℓ** coefficients sit inside `R_PRIME`.
+    /// Returns one flag per slot (`0` match, `t/2` non-match). Map slots to
+    /// heights with [`Self::range_check_matches`] and the response `slot_heights`.
     pub fn decrypt_digest_slots(&self, digest: &[u8]) -> Result<Vec<u64>, String> {
-        let mut flags = Vec::new();
-        // Wire (any-match, ℓ bits): [u32 chunk_count]
-        //   for each chunk: [u32 layer_count]
-        //     for each layer: ([u32 len][ct]) × CLUE_PLAINTEXT_BITS
-        // Each CT packs one SIMD slot per height (bit b = negacyclic coefficient
-        // b of the partial decrypt). A height matches iff **any** layer has
-        // **all ℓ** coefficients inside R_PRIME (client OR of per-layer ANDs —
-        // avoids CT×CT noise blow-up while keeping ε_p = ((2r′+1)/q)^ℓ).
-        if digest.len() < 4 {
+        if digest.len() < 5 {
             return Err("empty digest".into());
         }
-        let chunk_count = u32::from_le_bytes(digest[0..4].try_into().unwrap()) as usize;
-        let mut off = 4usize;
+        if digest[0] != DIGEST_FORMAT_VERSION {
+            return Err(format!(
+                "unsupported UnifOMR digest version {:#04x} (expected {:#04x}); \
+                 server and client must deploy from the same revision",
+                digest[0], DIGEST_FORMAT_VERSION
+            ));
+        }
+        let chunk_count = u32::from_le_bytes(digest[1..5].try_into().unwrap()) as usize;
+        let mut off = 5usize;
         let degree = self.params.degree();
         let t = self.params.plaintext();
 
-        for _ in 0..chunk_count {
-            if off + 4 > digest.len() {
-                return Err("truncated digest layer_count".into());
-            }
-            let layer_count = u32::from_le_bytes(digest[off..off + 4].try_into().unwrap()) as usize;
-            off += 4;
-            if layer_count == 0 || layer_count > MAX_CLUE_LAYERS {
-                return Err(format!("invalid UnifOMR layer_count {layer_count}"));
-            }
-
-            // layers[l][b] = decoded slots for layer l, plaintext bit b.
-            let mut layers: Vec<Vec<Vec<u64>>> = Vec::with_capacity(layer_count);
-            for _ in 0..layer_count {
-                let mut bits: Vec<Vec<u64>> = Vec::with_capacity(CLUE_PLAINTEXT_BITS);
-                for _ in 0..CLUE_PLAINTEXT_BITS {
-                    if off + 4 > digest.len() {
-                        return Err("truncated digest".into());
-                    }
-                    let len = u32::from_le_bytes(digest[off..off + 4].try_into().unwrap()) as usize;
-                    off += 4;
-                    if off + len > digest.len() {
-                        return Err("truncated digest ct".into());
-                    }
-                    let ct = Ciphertext::from_bytes(&digest[off..off + len], &self.params)
-                        .map_err(|e| format!("digest ct: {e:?}"))?;
-                    off += len;
-                    let pt = self
-                        .det_sk
-                        .try_decrypt(&ct)
-                        .map_err(|e| format!("digest decrypt: {e:?}"))?;
-                    let slots = Vec::<u64>::try_decode(&pt, Encoding::simd())
-                        .map_err(|e| format!("digest decode: {e:?}"))?;
-                    if slots.len() < degree {
-                        return Err("digest slot count < BFV degree".into());
-                    }
-                    bits.push(slots);
-                }
-                layers.push(bits);
-            }
-
-            let in_range = |raw: u64| -> bool {
-                let centered = if raw > t / 2 {
-                    (t as i64) - (raw as i64)
-                } else {
-                    raw as i64
-                };
-                centered.unsigned_abs() <= R_PRIME
+        let in_range = |raw: u64| -> bool {
+            let centered = if raw > t / 2 {
+                (t as i64) - (raw as i64)
+            } else {
+                raw as i64
             };
+            centered.unsigned_abs() <= R_PRIME
+        };
 
+        let mut flags = Vec::with_capacity(chunk_count.saturating_mul(degree));
+        for _ in 0..chunk_count {
+            let mut bits: Vec<Vec<u64>> = Vec::with_capacity(CLUE_PLAINTEXT_BITS);
+            for _ in 0..CLUE_PLAINTEXT_BITS {
+                if off + 4 > digest.len() {
+                    return Err("truncated digest ct len".into());
+                }
+                let len = u32::from_le_bytes(digest[off..off + 4].try_into().unwrap()) as usize;
+                off += 4;
+                if off + len > digest.len() {
+                    return Err("truncated digest ct".into());
+                }
+                let ct = Ciphertext::from_bytes(&digest[off..off + len], &self.params)
+                    .map_err(|e| format!("digest ct: {e:?}"))?;
+                off += len;
+                let pt = self
+                    .det_sk
+                    .try_decrypt(&ct)
+                    .map_err(|e| format!("digest decrypt: {e:?}"))?;
+                let slots = Vec::<u64>::try_decode(&pt, Encoding::simd())
+                    .map_err(|e| format!("digest decode: {e:?}"))?;
+                if slots.len() < degree {
+                    return Err("digest slot count < BFV degree".into());
+                }
+                bits.push(slots);
+            }
             for i in 0..degree {
-                let matched = layers
-                    .iter()
-                    .any(|bits| bits.iter().all(|slots| in_range(slots[i])));
-                // 0 ⇒ match; t/2 ⇒ non-match (fails the range check by design).
+                let matched = bits.iter().all(|slots| in_range(slots[i]));
                 flags.push(if matched { 0 } else { t / 2 });
             }
         }
@@ -655,15 +657,15 @@ impl UnifOmrClient {
         Ok(flags)
     }
 
-    /// Paper range check: centered lift into (-t/2,t/2], match if |v| ≤ R_PRIME.
-    pub fn range_check_matches(slots: &[u64], start: u32, end: u32) -> Vec<u32> {
+    /// Map decrypted slot flags to heights via `slot_heights`.
+    ///
+    /// Slot `i` maps to `slot_heights[i]`. Slots past that length are padding.
+    /// Heights are sorted and de-duplicated.
+    pub fn range_check_matches(slots: &[u64], slot_heights: &[u32]) -> Result<Vec<u32>, OmrError> {
         let t = bfv_params().plaintext();
         let mut out = Vec::new();
-        for (i, &raw) in slots.iter().enumerate() {
-            let height = start.saturating_add(i as u32);
-            if height > end {
-                break;
-            }
+        for (i, &height) in slot_heights.iter().enumerate() {
+            let Some(&raw) = slots.get(i) else { break };
             let centered = if raw > t / 2 {
                 (t as i64) - (raw as i64)
             } else {
@@ -673,8 +675,24 @@ impl UnifOmrClient {
                 out.push(height);
             }
         }
-        out
+        out.sort_unstable();
+        out.dedup();
+        Ok(out)
     }
+}
+
+/// Parse the packed little-endian `u32` slot → height map.
+pub fn unpack_slot_heights(bytes: &[u8]) -> Result<Vec<u32>, String> {
+    if bytes.len() % 4 != 0 {
+        return Err(format!(
+            "slot_heights length {} not a multiple of 4",
+            bytes.len()
+        ));
+    }
+    Ok(bytes
+        .chunks_exact(4)
+        .map(|c| u32::from_le_bytes(c.try_into().unwrap()))
+        .collect())
 }
 
 /// Parse detection key into per-coefficient broadcast ciphertexts.
@@ -737,13 +755,8 @@ impl UnifOmrDetector {
 
     /// Evaluate UnifOMD over notes with LWEmongrass pre-filter.
     ///
-    /// `detection_key` is the full wire key from [`UnifOmrClient::build_detection_key`].
-    /// Returns framed digest covering every height in order (one SIMD slot per height).
-    ///
-    /// **Any-match (paper):** when a height has multiple UnifOMR clues, each clue is
-    /// evaluated as its own BFV layer (`Enc(e_i)`). The client ORs range-checks across
-    /// layers so the height matches if **any** clue is pertinent. (Homomorphic ∏ via
-    /// CT×CT exceeds this MVP noise budget; layered OR is semantically equivalent.)
+    /// Flattens validated clues in height order (one clue per SIMD slot) and
+    /// emits the versioned digest the lightwalletd server serves.
     pub fn evaluate(
         &self,
         detection_key: &[u8],
@@ -760,113 +773,63 @@ impl UnifOmrDetector {
             return Err(format!("expected {CLUE_N} sk ciphertexts"));
         }
 
-        let degree = self.params.degree();
-        let t = self.params.plaintext();
-        let mut digest = Vec::new();
-        let chunks: Vec<_> = block_notes.chunks(degree).collect();
-        digest.extend_from_slice(&(chunks.len() as u32).to_le_bytes());
-
-        for chunk in chunks {
-            let mut per_height: Vec<Vec<RlweCiphertext>> = Vec::with_capacity(degree);
-            let mut overflow: Vec<bool> = Vec::with_capacity(degree);
-            for (h, notes) in chunk {
-                let mut valid = Vec::new();
-                for note in notes {
-                    if note.omr_clue.is_empty() {
-                        continue;
-                    }
-                    match validate_unifomr_clue(&note.omr_clue) {
-                        Ok(()) => match deserialize_clue(&note.omr_clue) {
-                            Ok(ct) => valid.push(ct),
-                            Err(e) => {
-                                tracing::warn!(
-                                    target: "lightwalletd::unifomr",
-                                    "LWEmongrass/UnifOMR clue parse failed: {e}"
-                                );
-                            }
-                        },
-                        Err(e) => {
-                            tracing::warn!(
-                                target: "lightwalletd::unifomr",
-                                "LWEmongrass rejected UnifOMR clue: {e}"
-                            );
-                        }
-                    }
+        let mut messages = Vec::new();
+        for (_h, notes) in block_notes {
+            for note in notes {
+                if note.omr_clue.is_empty() {
+                    continue;
                 }
-                // Layer-overflow: never silently drop clues (censorship vector —
-                // an attacker could stuff MAX_CLUE_LAYERS clues at a height to
-                // hide the next one). Instead the whole height is forced to
-                // match for every client (fail-open: costs one extra fetch).
-                let over = valid.len() > MAX_CLUE_LAYERS;
-                if over {
-                    tracing::warn!(
+                match validate_unifomr_clue(&note.omr_clue) {
+                    Ok(()) => match deserialize_clue(&note.omr_clue) {
+                        Ok(ct) => messages.push(ct),
+                        Err(e) => tracing::warn!(
+                            target: "lightwalletd::unifomr",
+                            "UnifOMR clue parse failed: {e}"
+                        ),
+                    },
+                    Err(e) => tracing::warn!(
                         target: "lightwalletd::unifomr",
-                        "height {h}: {} clues exceed MAX_CLUE_LAYERS={MAX_CLUE_LAYERS}; \
-                         forcing match for all clients (fail-open, no censorship)",
-                        valid.len()
-                    );
-                    valid.clear();
-                }
-                overflow.push(over);
-                per_height.push(valid);
-            }
-            while per_height.len() < degree {
-                per_height.push(Vec::new());
-                overflow.push(false);
-            }
-
-            let max_clues = per_height.iter().map(|v| v.len()).max().unwrap_or(0).max(1);
-            debug_assert!(max_clues <= MAX_CLUE_LAYERS);
-            digest.extend_from_slice(&(max_clues as u32).to_le_bytes());
-
-            for layer in 0..max_clues {
-                let mut layer_clues: Vec<SlotClue> = Vec::with_capacity(degree);
-                for (i, height_clues) in per_height.iter().enumerate() {
-                    if overflow[i] {
-                        // Forced match on layer 0; padding on the rest.
-                        layer_clues.push(if layer == 0 {
-                            SlotClue::ForcedMatch
-                        } else {
-                            SlotClue::Impertinent
-                        });
-                    } else if layer < height_clues.len() {
-                        layer_clues.push(SlotClue::Clue(height_clues[layer].clone()));
-                    } else {
-                        // Pad shorter heights: impertinent so OR is unchanged.
-                        layer_clues.push(SlotClue::Impertinent);
-                    }
-                }
-                for bit in 0..CLUE_PLAINTEXT_BITS {
-                    let mut layer_ct = Self::partial_decrypt_simd(
-                        &self.params,
-                        &sk_cts,
-                        &layer_clues,
-                        degree,
-                        t,
-                        bit,
-                    )?;
-                    // Digest modulus-switch (paper): drop to the last BFV level
-                    // (Q ≈ 2¹²⁰ → single 40-bit modulus). Plaintext slots are
-                    // invariant; rounding noise (≈‖s‖₁/2 ≈ 2¹¹) is far below
-                    // the last-level budget (Q′/2t ≈ 2¹⁹). Shrinks each CT 3×.
-                    layer_ct
-                        .switch_to_level(layer_ct.max_switchable_level())
-                        .map_err(|e| format!("mod-switch: {e:?}"))?;
-                    let bytes = layer_ct.to_bytes();
-                    digest.extend_from_slice(&(bytes.len() as u32).to_le_bytes());
-                    digest.extend_from_slice(&bytes);
+                        "LWEmongrass rejected UnifOMR clue: {e}"
+                    ),
                 }
             }
         }
 
+        let degree = self.params.degree();
+        let t = self.params.plaintext();
+        let chunk_count = if messages.is_empty() {
+            0
+        } else {
+            messages.len().div_ceil(degree)
+        };
+        let mut digest = Vec::new();
+        digest.push(DIGEST_FORMAT_VERSION);
+        digest.extend_from_slice(&(chunk_count as u32).to_le_bytes());
+
+        for chunk in messages.chunks(degree) {
+            let mut slot_clues: Vec<SlotClue> = Vec::with_capacity(degree);
+            for ct in chunk {
+                slot_clues.push(SlotClue::Clue(ct.clone()));
+            }
+            while slot_clues.len() < degree {
+                slot_clues.push(SlotClue::Impertinent);
+            }
+            for bit in 0..CLUE_PLAINTEXT_BITS {
+                let mut ct =
+                    Self::partial_decrypt_simd(&self.params, &sk_cts, &slot_clues, degree, t, bit)?;
+                ct.switch_to_level(ct.max_switchable_level())
+                    .map_err(|e| format!("mod-switch: {e:?}"))?;
+                let bytes = ct.to_bytes();
+                digest.extend_from_slice(&(bytes.len() as u32).to_le_bytes());
+                digest.extend_from_slice(&bytes);
+            }
+        }
         Ok(digest)
     }
 
     /// Homomorphic `Enc((b − a∗sk)[bit])` packed one height per SIMD slot.
     ///
-    /// [`SlotClue::Impertinent`] slots use `a=0`, `b=t/2` (range check fails);
-    /// [`SlotClue::ForcedMatch`] slots use `a=0`, `b=0` (range check passes on
-    /// every bit for every detection key — layer-overflow fail-open).
+    /// [`SlotClue::Impertinent`] slots use `a=0`, `b=t/2` (range check fails).
     fn partial_decrypt_simd(
         params: &Arc<BfvParameters>,
         sk_cts: &[Ciphertext],
@@ -906,7 +869,6 @@ impl UnifOmrDetector {
             match clue {
                 SlotClue::Clue(ct) => b_slots[i] = ct.b[bit] % t,
                 SlotClue::Impertinent => b_slots[i] = (t / 2) % t,
-                SlotClue::ForcedMatch => b_slots[i] = 0,
             }
         }
         let pt_b = Plaintext::try_encode(&b_slots, Encoding::simd(), params)
@@ -923,10 +885,8 @@ impl UnifOmrDetector {
 enum SlotClue {
     /// A validated clue to evaluate.
     Clue(RlweCiphertext),
-    /// No clue at this (height, layer): decrypts to t/2 → never matches.
+    /// No clue at this slot: decrypts to t/2 → never matches.
     Impertinent,
-    /// Layer-overflow fail-open: decrypts to 0 → matches every detection key.
-    ForcedMatch,
 }
 
 impl UnifOmrDetector {
@@ -1073,7 +1033,7 @@ mod tests {
         // Pad to exercise S19-style single height in a chunk.
         let digest = detector.evaluate(&det_key, &notes).unwrap();
         let slots = client.decrypt_digest_slots(&digest).unwrap();
-        let matches = UnifOmrClient::range_check_matches(&slots, 100, 100);
+        let matches = UnifOmrClient::range_check_matches(&slots, &[100]).unwrap();
         assert!(
             matches.contains(&100),
             "pertinent height must match after range check; first slots={:?}",
@@ -1105,7 +1065,7 @@ mod tests {
         )];
         let digest = detector.evaluate(&det_key, &notes).unwrap();
         let slots = alice_client.decrypt_digest_slots(&digest).unwrap();
-        let matches = UnifOmrClient::range_check_matches(&slots, 77, 77);
+        let matches = UnifOmrClient::range_check_matches(&slots, &[77, 77]).unwrap();
         assert!(
             matches.contains(&77),
             "alice must match when her clue is second; slots={:?}",
@@ -1130,7 +1090,7 @@ mod tests {
             let notes = vec![(50u32, vec![ClueNote { omr_clue: clue }])];
             let digest = detector.evaluate(&det_key, &notes).unwrap();
             let slots = alice_client.decrypt_digest_slots(&digest).unwrap();
-            let matches = UnifOmrClient::range_check_matches(&slots, 50, 50);
+            let matches = UnifOmrClient::range_check_matches(&slots, &[50]).unwrap();
             assert!(
                 matches.is_empty(),
                 "false positive on seed {seed}: alice matched bob's clue"
@@ -1159,32 +1119,34 @@ mod tests {
     }
 
     #[test]
-    fn test_layer_overflow_forces_match_no_censorship() {
-        // A height stuffed with > MAX_CLUE_LAYERS clues must match every
-        // detection key (fail-open) instead of silently dropping clues.
+    fn test_many_clues_keep_the_pertinent_one() {
+        // Per-message packing gives every clue its own slot, so a height
+        // stuffed with other wallets' clues cannot hide this wallet's clue.
         let alice = [0x33u8; 32];
         let spammer = [0x44u8; 32];
         let alice_client = UnifOmrClient::from_wallet(&alice, 0x01).unwrap();
+        let (_, alice_pk) = clue_keypair_from_wallet(&alice, 0x01).unwrap();
         let (_, spam_pk) = clue_keypair_from_wallet(&spammer, 0x01).unwrap();
         let mut r = StdRng::seed_from_u64(4242);
-        let spam_clue = serialize_clue(&spam_pk.encrypt_zeros(&mut r));
-        let notes = vec![(
-            123u32,
-            vec![
-                ClueNote {
-                    omr_clue: spam_clue
-                };
-                MAX_CLUE_LAYERS + 1
-            ],
-        )];
+        let mut clues = Vec::new();
+        for _ in 0..8 {
+            clues.push(ClueNote {
+                omr_clue: serialize_clue(&spam_pk.encrypt_zeros(&mut r)),
+            });
+        }
+        clues.push(ClueNote {
+            omr_clue: serialize_clue(&alice_pk.encrypt_zeros(&mut r)),
+        });
+        let notes = vec![(123u32, clues)];
         let det_key = alice_client.build_detection_key(0x01).unwrap();
         let detector = UnifOmrDetector::new(0x01);
         let digest = detector.evaluate(&det_key, &notes).unwrap();
         let slots = alice_client.decrypt_digest_slots(&digest).unwrap();
-        let matches = UnifOmrClient::range_check_matches(&slots, 123, 123);
+        let heights = vec![123u32; 9];
+        let matches = UnifOmrClient::range_check_matches(&slots, &heights).unwrap();
         assert!(
             matches.contains(&123),
-            "overflowed height must fail open (match) — censorship otherwise"
+            "alice's clue must still match when packed after other clues"
         );
     }
 }

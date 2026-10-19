@@ -235,14 +235,33 @@ pub struct OmrDigestRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OmrDigestResponse {
     /// FHE encrypted digest containing the matching block heights.
+    /// Paper-faithful per-message packing: one clue per SIMD slot.
     /// For multi-key requests: length-prefixed frames, one digest per key
     /// ([u32 LE len][digest]…), decrypted client-side with the matching key.
-    /// The client decrypts this locally.
     #[prost(bytes = "vec", tag = "1")]
     pub encrypted_digest: ::prost::alloc::vec::Vec<u8>,
-    /// Whether the digest covers the full requested range
+    /// false ⇒ the server truncated at a whole-height boundary; clamp the
+    /// scan cursor to max(slot_heights).
     #[prost(bool, tag = "2")]
     pub complete: bool,
+    /// Packed little-endian u32 slot → block-height map.
+    #[prost(bytes = "vec", tag = "3")]
+    pub slot_heights: ::prost::alloc::vec::Vec<u8>,
+}
+/// First chunk carries the header. Later chunks carry key bytes.
+/// key_done marks the end of each detection key.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DetectionKeyChunk {
+    #[prost(uint32, tag = "1")]
+    pub start_height: u32,
+    #[prost(uint32, tag = "2")]
+    pub end_height: u32,
+    #[prost(uint32, tag = "3")]
+    pub num_keys: u32,
+    #[prost(bytes = "vec", tag = "4")]
+    pub data: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bool, tag = "5")]
+    pub key_done: bool,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OmrCapabilities {
@@ -578,9 +597,11 @@ pub mod dark_fi_light_wallet_client {
             self.inner.unary(req, path, codec).await
         }
         /// Phase 1: UnifOMR Detection (Linear Partial Decryption)
+        /// Client streams the detection key(s) in ~1 MiB chunks.
+        /// The first message MUST be a DetectionKeyChunk with header fields set.
         pub async fn get_unif_omr_digest(
             &mut self,
-            request: impl tonic::IntoRequest<super::OmrDigestRequest>,
+            request: impl tonic::IntoStreamingRequest<Message = super::DetectionKeyChunk>,
         ) -> std::result::Result<
             tonic::Response<super::OmrDigestResponse>,
             tonic::Status,
@@ -597,7 +618,7 @@ pub mod dark_fi_light_wallet_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/darkfi.lightwallet.DarkFiLightWallet/GetUnifOmrDigest",
             );
-            let mut req = request.into_request();
+            let mut req = request.into_streaming_request();
             req.extensions_mut()
                 .insert(
                     GrpcMethod::new(
@@ -605,7 +626,7 @@ pub mod dark_fi_light_wallet_client {
                         "GetUnifOmrDigest",
                     ),
                 );
-            self.inner.unary(req, path, codec).await
+            self.inner.client_streaming(req, path, codec).await
         }
         /// Phase 2: Batch PIR Fetch (Non-Linear Payload Retrieval)
         pub async fn fetch_pir_batch(

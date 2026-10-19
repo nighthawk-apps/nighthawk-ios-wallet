@@ -40,7 +40,9 @@ service DarkFiLightWallet {
   rpc GetTransaction(TxHash) returns (RawTransaction);
   
   // Phase 1: UnifOMR Detection (Linear Partial Decryption)
-  rpc GetUnifOmrDigest(OmrDigestRequest) returns (OmrDigestResponse);
+  // Client streams the detection key(s) in ~1 MiB chunks.
+  // The first message MUST be a DetectionKeyChunk with header fields set.
+  rpc GetUnifOmrDigest(stream DetectionKeyChunk) returns (OmrDigestResponse);
   
   // Phase 2: Batch PIR Fetch (Non-Linear Payload Retrieval)
   rpc FetchPirBatch(BatchPirRequest) returns (BatchPirResponse);
@@ -269,12 +271,25 @@ message OmrDigestRequest {
 
 message OmrDigestResponse {
   // FHE encrypted digest containing the matching block heights.
+  // Paper-faithful per-message packing: one clue per SIMD slot.
   // For multi-key requests: length-prefixed frames, one digest per key
   // ([u32 LE len][digest]…), decrypted client-side with the matching key.
-  // The client decrypts this locally.
   bytes encrypted_digest = 1;
-  // Whether the digest covers the full requested range
+  // false ⇒ the server truncated at a whole-height boundary; clamp the
+  // scan cursor to max(slot_heights).
   bool complete = 2;
+  // Packed little-endian u32 slot → block-height map.
+  bytes slot_heights = 3;
+}
+
+// First chunk carries the header. Later chunks carry key bytes.
+// key_done marks the end of each detection key.
+message DetectionKeyChunk {
+  uint32 start_height = 1;
+  uint32 end_height = 2;
+  uint32 num_keys = 3;
+  bytes data = 4;
+  bool key_done = 5;
 }
 
 message OmrCapabilities {

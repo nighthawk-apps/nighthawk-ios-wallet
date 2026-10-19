@@ -260,8 +260,8 @@ fn cached_or_build_detection_key(
         h.update(&[network]);
         *h.finalize().as_bytes()
     };
-    let cache = DETECTION_KEY_CACHE
-        .get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()));
+    let cache =
+        DETECTION_KEY_CACHE.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()));
     if let Ok(map) = cache.lock() {
         if let Some(k) = map.get(&cache_id) {
             return Ok(k.as_ref().clone());
@@ -389,10 +389,14 @@ async fn try_lightwallet_sync(drk: &DrkPtr, sync_engine: &SyncEngine) -> Result<
         sync_engine.rewind_to_height(rollback_height);
 
         // 2. Rewind wallet DB: delete coins created after rollback height
-        if let Err(e) = drk_guard.wallet.exec_sql(
-            "DELETE FROM money_coins WHERE creation_height > ?1",
-            rusqlite::params![rollback_height],
-        ) {
+        if let Err(e) = drk_guard
+            .wallet
+            .exec_sql(
+                "DELETE FROM money_coins WHERE creation_height > ?1",
+                vec![drk::walletdb::Value::from(i64::from(rollback_height))],
+            )
+            .await
+        {
             tracing::error!(
                 target: "wallet-sync",
                 "Failed to delete post-reorg coins: {e}",
@@ -400,11 +404,15 @@ async fn try_lightwallet_sync(drk: &DrkPtr, sync_engine: &SyncEngine) -> Result<
         }
 
         // 3. Un-spend coins that were marked spent after rollback height
-        if let Err(e) = drk_guard.wallet.exec_sql(
-            "UPDATE money_coins SET is_spent = 0, spent_height = NULL \
-             WHERE spent_height > ?1",
-            rusqlite::params![rollback_height],
-        ) {
+        if let Err(e) = drk_guard
+            .wallet
+            .exec_sql(
+                "UPDATE money_coins SET is_spent = 0, spent_height = NULL \
+                 WHERE spent_height > ?1",
+                vec![drk::walletdb::Value::from(i64::from(rollback_height))],
+            )
+            .await
+        {
             tracing::error!(
                 target: "wallet-sync",
                 "Failed to un-spend post-reorg coins: {e}",
@@ -644,7 +652,7 @@ async fn try_omr_sync(
         window /= 2;
     }
     // This sync cycle only advances through scan_end (further tip is next cycle).
-    let window_tip = scan_end;
+    let mut window_tip = scan_end;
 
     // Register UnifOMR clue PK for every wallet payment address (same wallet-level
     // sk_clue). Senders look up by payment pubkey — default-only registration missed
@@ -718,7 +726,7 @@ async fn try_omr_sync(
         // ~38MB, so requests are chunked to stay under budget and the
         // per-chunk digests are unioned. Sending all keys at once would be
         // rejected with InvalidArgument for multi-address wallets.
-        const SERVER_DETECTION_KEYS_TOTAL_BUDGET: usize = 64 * 1024 * 1024;
+        const SERVER_DETECTION_KEYS_TOTAL_BUDGET: usize = 160 * 1024 * 1024;
         let money_secrets = drk
             .get_money_secrets()
             .await
@@ -763,19 +771,19 @@ async fn try_omr_sync(
                 None => true,
             };
             if flush {
-                let digest_bytes = client
-                    .get_unif_omr_digest(
-                        std::mem::take(&mut chunk_keys),
-                        padded_start,
-                        padded_end,
-                    )
+                let (digest_bytes, slot_heights_bytes, complete) = client
+                    .get_unif_omr_digest(std::mem::take(&mut chunk_keys), padded_start, padded_end)
                     .await?;
-                let chunk_heights = decrypt_unif_omr_heights(
-                    &chunk_clients,
-                    &digest_bytes,
-                    padded_start,
-                    padded_end,
-                )?;
+                let slot_heights = crate::unifomr::unpack_slot_heights(&slot_heights_bytes)?;
+                if !complete {
+                    window_tip = clamp_omr_truncated_tip(
+                        scan_start,
+                        window_tip,
+                        slot_heights.iter().max().copied(),
+                    )?;
+                }
+                let chunk_heights =
+                    decrypt_unif_omr_heights(&chunk_clients, &digest_bytes, &slot_heights)?;
                 heights.extend(chunk_heights);
                 chunk_clients.clear();
                 chunk_bytes = 0;
@@ -805,26 +813,9 @@ async fn try_omr_sync(
         tip,
     );
 
-    // Brand-new / unused wallet: UnifOMR correctly finds nothing. Do NOT fall
-    // back to full-window trial decrypt (that caused "connection lost" while
-    // walking 0 → tip). Jump the scan cursor to tip after clue registration.
-    if matching_heights.is_empty() {
-        let coins_empty = matches!(drk.get_coins(false).await, Ok(c) if c.is_empty());
-        if coins_empty {
-            tracing::info!(
-                target: "wallet-sync",
-                "Empty wallet + 0 OMR matches — advancing scan cursor to tip {tip} \
-                 (no history to trial-decrypt)"
-            );
-            persist_scanned_height(drk, tip)?;
-            sync_engine.set_scanned_height(tip);
-            sync_engine.set_status(LightSyncStatus::Synced);
-            sync_engine.set_status_message("Synced — watching for payments");
-            return Ok(());
-        }
-    }
-
     // SECURITY (S5): empty digest means "no matches in range", not "skip work".
+    // Still walk commitments for this window so the Money tree stays aligned.
+    // Do not jump an empty wallet to the tip — that leaves a dummy-leaf tree.
     // Still fetch commitments + nullifiers for the full window; decrypt matches only.
     if scheme.contains("unifomr") {
         sync_engine.set_status_message("UnifOMR fetching 2/2…");
@@ -1202,25 +1193,25 @@ async fn apply_omr_sparse_window(
                 MONEY_COINS_COL_SPENT_HEIGHT,
             );
 
-            let spent_height: Option<u32> = None;
-            let params = rusqlite::params![
-                coin.to_bytes(),
-                serialize(&note.value),
-                serialize(&note.token_id),
-                serialize(&note.spend_hook),
-                serialize(&note.user_data),
-                serialize(&note.coin_blind),
-                serialize(&note.value_blind),
-                serialize(&note.token_blind),
-                serialize(&secret),
-                serialize(&leaf_position),
-                serialize(&note.memo),
-                height,
-                0,
-                spent_height,
+            let spent_height: Option<i64> = None;
+            let params = vec![
+                drk::walletdb::Value::from(coin.to_bytes().to_vec()),
+                drk::walletdb::Value::from(serialize(&note.value)),
+                drk::walletdb::Value::from(serialize(&note.token_id)),
+                drk::walletdb::Value::from(serialize(&note.spend_hook)),
+                drk::walletdb::Value::from(serialize(&note.user_data)),
+                drk::walletdb::Value::from(serialize(&note.coin_blind)),
+                drk::walletdb::Value::from(serialize(&note.value_blind)),
+                drk::walletdb::Value::from(serialize(&note.token_blind)),
+                drk::walletdb::Value::from(serialize(&secret)),
+                drk::walletdb::Value::from(serialize(&leaf_position)),
+                drk::walletdb::Value::from(serialize(&note.memo)),
+                drk::walletdb::Value::from(i64::from(height)),
+                drk::walletdb::Value::from(0i64),
+                drk::walletdb::Value::from(spent_height),
             ];
 
-            if let Err(e) = drk.wallet.exec_sql(&query, params) {
+            if let Err(e) = drk.wallet.exec_sql(&query, params).await {
                 return Err(format!(
                     "Inserting OMR trial-decrypted coin at height {height} failed: {e}"
                 ));
@@ -1508,25 +1499,25 @@ async fn process_compact_block(
                 MONEY_COINS_COL_SPENT_HEIGHT,
             );
 
-            let spent_height: Option<u32> = None;
-            let params = rusqlite::params![
-                coin.to_bytes(),
-                serialize(&note.value),
-                serialize(&note.token_id),
-                serialize(&note.spend_hook),
-                serialize(&note.user_data),
-                serialize(&note.coin_blind),
-                serialize(&note.value_blind),
-                serialize(&note.token_blind),
-                serialize(&secret),
-                serialize(&leaf_position),
-                serialize(&note.memo),
-                block.height,
-                0,
-                spent_height,
+            let spent_height: Option<i64> = None;
+            let params = vec![
+                drk::walletdb::Value::from(coin.to_bytes().to_vec()),
+                drk::walletdb::Value::from(serialize(&note.value)),
+                drk::walletdb::Value::from(serialize(&note.token_id)),
+                drk::walletdb::Value::from(serialize(&note.spend_hook)),
+                drk::walletdb::Value::from(serialize(&note.user_data)),
+                drk::walletdb::Value::from(serialize(&note.coin_blind)),
+                drk::walletdb::Value::from(serialize(&note.value_blind)),
+                drk::walletdb::Value::from(serialize(&note.token_blind)),
+                drk::walletdb::Value::from(serialize(&secret)),
+                drk::walletdb::Value::from(serialize(&leaf_position)),
+                drk::walletdb::Value::from(serialize(&note.memo)),
+                drk::walletdb::Value::from(i64::from(block.height)),
+                drk::walletdb::Value::from(0i64),
+                drk::walletdb::Value::from(spent_height),
             ];
 
-            if let Err(e) = drk.wallet.exec_sql(&query, params) {
+            if let Err(e) = drk.wallet.exec_sql(&query, params).await {
                 return Err(format!(
                     "Inserting trial-decrypted coin at height {} failed: {e}",
                     block.height
@@ -1640,7 +1631,7 @@ async fn fetch_blocks_via_pir(
             if max_need == 0 {
                 return Err("PIR returned empty payloads for all matching heights".into());
             }
-            needed_limbs = Some(max_need);
+            needed_limbs = Some(crate::batch_pir::padded_limb_count(max_need));
         }
         if let Some(n) = needed_limbs {
             if limb_cols.len() >= n {
@@ -1683,8 +1674,7 @@ async fn fetch_blocks_via_pir(
 fn decrypt_unif_omr_heights(
     clients: &[crate::unifomr::UnifOmrClient],
     encrypted_digest: &[u8],
-    start: u32,
-    end: u32,
+    slot_heights: &[u32],
 ) -> Result<Vec<u32>, String> {
     use std::collections::BTreeSet;
 
@@ -1695,9 +1685,7 @@ fn decrypt_unif_omr_heights(
         let slots = clients[0]
             .decrypt_digest_slots(encrypted_digest)
             .map_err(|e| format!("UnifOMR digest decrypt failed: {e}"))?;
-        return Ok(crate::unifomr::UnifOmrClient::range_check_matches(
-            &slots, start, end,
-        ));
+        return crate::unifomr::UnifOmrClient::range_check_matches(&slots, slot_heights);
     }
 
     let mut heights = BTreeSet::new();
@@ -1716,11 +1704,29 @@ fn decrypt_unif_omr_heights(
         let slots = client_crypto
             .decrypt_digest_slots(frame)
             .map_err(|e| format!("UnifOMR digest decrypt failed for key[{i}]: {e}"))?;
-        for h in crate::unifomr::UnifOmrClient::range_check_matches(&slots, start, end) {
+        for h in crate::unifomr::UnifOmrClient::range_check_matches(&slots, slot_heights)? {
             heights.insert(h);
         }
     }
     Ok(heights.into_iter().collect())
+}
+
+fn clamp_omr_truncated_tip(
+    scan_start: u32,
+    window_tip: u32,
+    covered_end: Option<u32>,
+) -> Result<u32, String> {
+    let Some(covered_end) = covered_end else {
+        return Err(
+            "UnifOMR digest truncated with empty slot_heights; refusing to skip the tail".into(),
+        );
+    };
+    if covered_end < scan_start {
+        return Err(
+            "UnifOMR digest truncated below scan cursor; retry with a smaller window".into(),
+        );
+    }
+    Ok(covered_end.min(window_tip))
 }
 
 fn redact_sync_error(error: &str) -> String {

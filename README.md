@@ -89,7 +89,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 
 | Requirement | Notes |
 |-------------|--------|
-| **macOS + Xcode 15+** | iOS 17+ SDK (`IPHONEOS_DEPLOYMENT_TARGET=17.0`) |
+| **macOS + Xcode with the iOS 27 SDK** | Minimum iOS 17.0. Base SDK is the latest iOS SDK in that Xcode (`SDKROOT = iphoneos`, currently 27.0.1). |
 | **Rust + Cargo** | [rustup](https://rustup.rs/) stable |
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
@@ -118,7 +118,7 @@ All helpers live in [`scripts/`](scripts/).
 | `DEVICE_ID` | first connected iPhone | UDID from `xcrun xctrace list devices` |
 | `DERIVED_DATA` | `build/DerivedData` | Xcode derived data path |
 | `SIM_ONLY` | `0` | `1` = simulator-only FFI |
-| `IPHONEOS_DEPLOYMENT_TARGET` | `17.0` | Must match app minimum |
+| `IPHONEOS_DEPLOYMENT_TARGET` | `17.0` | App minimum. The base SDK stays the latest iOS SDK in Xcode. |
 
 ### UniFFI native library
 

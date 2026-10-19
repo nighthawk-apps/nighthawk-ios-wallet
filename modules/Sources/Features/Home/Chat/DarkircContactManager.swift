@@ -19,7 +19,6 @@
 
 import DarkfiCore
 import Foundation
-import Security
 
 /// Manages DM contact crypto operations.
 public enum DarkircContactManager {
@@ -34,20 +33,11 @@ public enum DarkircContactManager {
     /// return (kp.secretB58, kp.publicB58)
     /// ```
     public static func generateKeypair() -> (secretB58: String, publicB58: String)? {
-        // Stub: generate 32 random bytes and base58-encode them
-        // This is cryptographically sound for key generation but won't interop
-        // with actual darkirc until the real FFI is wired.
-
-        var secretBytes = [UInt8](repeating: 0, count: 32)
-        var publicBytes = [UInt8](repeating: 0, count: 32)
-        guard SecRandomCopyBytes(kSecRandomDefault, 32, &secretBytes) == errSecSuccess,
-              SecRandomCopyBytes(kSecRandomDefault, 32, &publicBytes) == errSecSuccess else {
-            return nil
-        }
-
-        let secretB58 = Base58.encode(secretBytes)
-        let publicB58 = Base58.encode(publicBytes)
-        return (secretB58, publicB58)
+        // Real ChaCha20 keypair from the UniFFI crate. A random secret/public
+        // pair generated independently does not form a valid crypto_box key.
+        let kp = generateDmKeypair()
+        guard !kp.secretB58.isEmpty, !kp.publicB58.isEmpty else { return nil }
+        return (kp.secretB58, kp.publicB58)
     }
 
     /// Encrypt a DM message using ChaCha20 via FFI.

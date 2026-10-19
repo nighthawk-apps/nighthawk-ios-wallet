@@ -6,7 +6,7 @@
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU8, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use darkfi_serial::{deserialize_async_partial, serialize_async};
 use smol::Executor;
@@ -43,6 +43,28 @@ static EVENT_GRAPH: std::sync::LazyLock<
 > = std::sync::LazyLock::new(|| smol::lock::RwLock::new(None));
 static P2P: std::sync::LazyLock<smol::lock::RwLock<Option<darkfi::net::P2pPtr>>> =
     std::sync::LazyLock::new(|| smol::lock::RwLock::new(None));
+
+/// Datastore directory for the outbound-slot sidecar (`outbound_slots.json`).
+static DATASTORE_PATH: OnceLock<PathBuf> = OnceLock::new();
+
+/// Same three-slot density as the Android HUD and the darkfi app overlay.
+const OUTBOUND_HUD_SLOTS: usize = 3;
+const OUTBOUND_SLOTS_FILE: &str = "outbound_slots.json";
+
+#[cfg(test)]
+mod hud_tests {
+    use super::format_outbound_slots_json;
+
+    #[test]
+    fn outbound_hud_is_three_slots() {
+        let json = format_outbound_slots_json(1, false);
+        assert_eq!(json.matches("\"slot\":").count(), 3);
+        assert!(json.contains("\"state\":\"connected\""));
+        assert_eq!(json.matches("\"state\":\"sleeping\"").count(), 2);
+        let connecting = format_outbound_slots_json(0, true);
+        assert_eq!(connecting.matches("\"state\":\"connecting\"").count(), 3);
+    }
+}
 
 /// On-wire IRC PRIVMSG — imported directly from the upstream `darkirc` crate
 /// (lib name `irc2`) so the struct is always byte-for-byte compatible with the
@@ -158,6 +180,72 @@ pub fn darkirc_status() -> String {
     .to_string()
 }
 
+/// Fine-grained connect / DAG-sync phase. Matches the Android UDL contract:
+/// `stopped` | `starting` | `syncing_dag` | `connected` | `stopping` | `failed`.
+pub fn darkirc_connection_phase() -> String {
+    match DAEMON_STATUS.load(Ordering::Relaxed) {
+        STATUS_NOT_RUNNING => "stopped",
+        STATUS_STARTING => "starting",
+        STATUS_STOPPING => "stopping",
+        STATUS_FAILED => "failed",
+        STATUS_RUNNING => {
+            if DAG_SYNCED.load(Ordering::Relaxed) == 1 {
+                "connected"
+            } else {
+                "syncing_dag"
+            }
+        }
+        _ => "stopped",
+    }
+    .to_string()
+}
+
+fn snapshot_connected_peer_count() -> usize {
+    let Some(guard) = P2P.try_read() else {
+        return 0;
+    };
+    let Some(p2p) = guard.as_ref() else {
+        return 0;
+    };
+    p2p.hosts().peers().into_iter().take(OUTBOUND_HUD_SLOTS).count()
+}
+
+fn format_outbound_slots_json(connected: usize, handshake: bool) -> String {
+    let mut parts = Vec::with_capacity(OUTBOUND_HUD_SLOTS);
+    for i in 0..OUTBOUND_HUD_SLOTS {
+        let state = if i < connected {
+            "connected"
+        } else if handshake {
+            "connecting"
+        } else {
+            "sleeping"
+        };
+        parts.push(format!(
+            "{{\"slot\":{i},\"url\":null,\"state\":\"{state}\"}}"
+        ));
+    }
+    format!("[{}]", parts.join(","))
+}
+
+/// Three outbound HUD slots as JSON. Also refreshes `outbound_slots.json`.
+pub fn darkirc_outbound_slots() -> String {
+    let phase = darkirc_connection_phase();
+    let connected = if phase == "connected" {
+        snapshot_connected_peer_count().max(1).min(OUTBOUND_HUD_SLOTS)
+    } else {
+        snapshot_connected_peer_count()
+    };
+    let handshake = connected == 0 && matches!(phase.as_str(), "starting" | "syncing_dag");
+    let json = format_outbound_slots_json(connected, handshake);
+    if let Some(dir) = DATASTORE_PATH.get() {
+        let dest = dir.join(OUTBOUND_SLOTS_FILE);
+        let tmp = dir.join("outbound_slots.json.tmp");
+        if std::fs::write(&tmp, json.as_bytes()).is_ok() {
+            let _ = std::fs::rename(&tmp, dest);
+        }
+    }
+    json
+}
 
 /// Start the darkirc daemon on a background thread.
 ///
@@ -199,6 +287,7 @@ pub fn start_darkirc(
     init_logging();
 
     let db_path = PathBuf::from(&datastore_path);
+    let _ = DATASTORE_PATH.set(db_path.clone());
     let cb: Option<Arc<dyn DarkircEventCallback>> = callback.map(Arc::from);
     DAG_SYNCED.store(0, Ordering::Relaxed);
 

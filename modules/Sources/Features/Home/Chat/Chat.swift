@@ -209,9 +209,11 @@ public struct Chat {
         case newDmConversation(PresentationAction<NewDmConversation.Action>)
         case dmContactSelected(DmContact)
         case dmContactsLoaded([DmContact], [DmConversation])
+        case dmBackTapped
         case sharePubkeyTapped
         case sharePubkeyConfirmed
         case sharePubkeyCancelled
+        case dmKeypairMinted(secret: String, publicKey: String)
         case pubkeyGenerated(String)
         case dmMessageReceived(String, State.Message)  // contactId, message
     }
@@ -401,7 +403,12 @@ public struct Chat {
                     )
                 }
                 if case .error = newState {
-                    state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
+                    // Keep a specific ircBridgeError that was just recorded.
+                    // Only fill the generic hint when nothing more precise exists.
+                    let existing = state.diagnosticDetail?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    if existing.isEmpty {
+                        state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
+                    }
                 } else {
                     state.diagnosticDetail = nil
                 }
@@ -755,6 +762,11 @@ public struct Chat {
             case .newDmConversation:
                 return .none
 
+            case .dmBackTapped:
+                state.selectedDmContact = nil
+                state.messages = []
+                return .none
+
             case let .dmContactSelected(contact):
                 state.selectedDmContact = contact
                 state.messages = IdentifiedArrayOf(
@@ -776,11 +788,22 @@ public struct Chat {
 
             case .sharePubkeyConfirmed:
                 state.showSharePubkeyWarning = false
+                if let existing = userStoredPreferences.dmPublicKey()?
+                    .trimmingCharacters(in: .whitespacesAndNewlines),
+                   !existing.isEmpty {
+                    return .send(.pubkeyGenerated(existing))
+                }
                 return .run { send in
                     if let kp = DarkircContactManager.generateKeypair() {
-                        await send(.pubkeyGenerated(kp.publicB58))
+                        await send(.dmKeypairMinted(secret: kp.secretB58, publicKey: kp.publicB58))
                     }
                 }
+
+            case let .dmKeypairMinted(secret, publicKey):
+                guard !publicKey.isEmpty else { return .none }
+                userStoredPreferences.setDmSecretKey(secret)
+                userStoredPreferences.setDmPublicKey(publicKey)
+                return .send(.pubkeyGenerated(publicKey))
 
             case .sharePubkeyCancelled:
                 state.showSharePubkeyWarning = false

@@ -26,44 +26,6 @@ class ChatTests: XCTestCase {
         XCTAssertNil(store.state.diagnosticDetail)
     }
     
-    func testConnectTapped_TransitionsToConnecting() async throws {
-        let store = TestStore(
-            initialState: Chat.State(),
-            reducer: Chat.init
-        )
-        
-        await store.send(.connectTapped) { state in
-            state.connectionState = .connecting
-        }
-        
-        // Simulated connection succeeds
-        await store.receive(.connectionStateChanged(.connectedDirect)) { state in
-            state.connectionState = .connectedDirect
-            state.selectedChannel = state.channels.first
-        }
-    }
-    
-    func testRetryTapped_TransitionsToConnecting() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .error
-        initialState.diagnosticDetail = "Connection failed."
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.retryTapped) { state in
-            state.connectionState = .connecting
-        }
-        
-        await store.receive(.connectionStateChanged(.connectedDirect)) { state in
-            state.connectionState = .connectedDirect
-            state.diagnosticDetail = nil
-            state.selectedChannel = state.channels.first
-        }
-    }
-    
     func testConnectionStateError_SetsDiagnosticDetail() async throws {
         let store = TestStore(
             initialState: Chat.State(),
@@ -72,7 +34,44 @@ class ChatTests: XCTestCase {
         
         await store.send(.connectionStateChanged(.error)) { state in
             state.connectionState = .error
-            state.diagnosticDetail = "Connection failed. Check your network or Tor settings."
+            state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
+        }
+    }
+
+    func testConnectionStateError_PreservesSpecificDiagnostic() async throws {
+        let store = TestStore(
+            initialState: Chat.State(),
+            reducer: Chat.init
+        )
+
+        await store.send(.ircBridgeError("socks timeout")) { state in
+            state.diagnosticDetail = "socks timeout"
+        }
+        await store.send(.connectionStateChanged(.error)) { state in
+            state.connectionState = .error
+        }
+    }
+
+    func testDmBack_ClearsSelectedContact() async throws {
+        var initialState = Chat.State()
+        let contact = DmContact(
+            id: "c1",
+            contactLabel: "alice",
+            theirPublicB58: "peer",
+            mySecretB58: "secret",
+            myPublicB58: "mine"
+        )
+        initialState.selectedDmContact = contact
+        initialState.messages = [
+            .init(sender: "alice", content: "hi", isOutgoing: false)
+        ]
+        let store = TestStore(
+            initialState: initialState,
+            reducer: Chat.init
+        )
+        await store.send(.dmBackTapped) { state in
+            state.selectedDmContact = nil
+            state.messages = []
         }
     }
     
@@ -103,7 +102,9 @@ class ChatTests: XCTestCase {
     
     func testConnectionState_Labels() {
         XCTAssertEqual(Chat.State.ConnectionState.disconnected.label, "Disconnected")
-        XCTAssertEqual(Chat.State.ConnectionState.connecting.label, "Connecting…")
+        XCTAssertEqual(Chat.State.ConnectionState.connecting.label, "Connecting to IRC…")
+        XCTAssertEqual(Chat.State.ConnectionState.startingDaemon.label, "Starting darkirc node…")
+        XCTAssertEqual(Chat.State.ConnectionState.waitingForDagSync.label, "Syncing event graph…")
         XCTAssertEqual(Chat.State.ConnectionState.connectedDirect.label, "Connected (direct)")
         XCTAssertEqual(Chat.State.ConnectionState.connectedViaTor.label, "Connected (Tor)")
         XCTAssertEqual(Chat.State.ConnectionState.degraded.label, "Degraded")
@@ -114,6 +115,9 @@ class ChatTests: XCTestCase {
         XCTAssertEqual(Chat.State.EmbeddedNodeStatus.notUsed.label, "Not used")
         XCTAssertEqual(Chat.State.EmbeddedNodeStatus.starting.label, "Starting…")
         XCTAssertEqual(Chat.State.EmbeddedNodeStatus.running.label, "Running")
+        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.waitingForPeers.label, "Finding peers…")
+        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.syncingDag.label, "Syncing DAG…")
+        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.ready.label, "Ready")
         XCTAssertEqual(Chat.State.EmbeddedNodeStatus.missingBinary.label, "Missing binary")
         XCTAssertEqual(Chat.State.EmbeddedNodeStatus.failed.label, "Failed")
     }
@@ -158,23 +162,24 @@ class ChatTests: XCTestCase {
     
     // MARK: - Message Tests
     
-    func testSendMessage_AppendsToMessages() async throws {
+    func testSendHelp_AppendsSystemMessageWithoutNetwork() async throws {
         var initialState = Chat.State()
         initialState.connectionState = .connectedDirect
         initialState.selectedChannel = initialState.channels.first
-        initialState.composedMessage = "Hello DarkFi!"
-        
+        initialState.composedMessage = "/help"
+
         let store = TestStore(
             initialState: initialState,
             reducer: Chat.init
         )
-        
+        store.exhaustivity = .off
+
         await store.send(.sendMessage) { state in
-            XCTAssertEqual(state.messages.count, 1)
-            XCTAssertEqual(state.messages.first?.content, "Hello DarkFi!")
-            XCTAssertTrue(state.messages.first?.isOutgoing ?? false)
-            XCTAssertEqual(state.composedMessage, "")
+            state.composedMessage = ""
         }
+        XCTAssertEqual(store.state.messages.count, 1)
+        XCTAssertEqual(store.state.messages.first?.sender, "System")
+        XCTAssertTrue(store.state.messages.first?.content.contains("/nick") ?? false)
     }
     
     func testSendMessage_EmptyText_DoesNothing() async throws {
@@ -206,20 +211,31 @@ class ChatTests: XCTestCase {
         await store.send(.sendMessage)
     }
     
-    func testMessagesReceived_AppendsAll() async throws {
+    func testMessageReceived_AppendsToSelectedChannel() async throws {
         var initialState = Chat.State()
         initialState.connectionState = .connectedDirect
-        
+        let channel = initialState.channels[0]
+        initialState.selectedChannel = channel
+
         let store = TestStore(
             initialState: initialState,
             reducer: Chat.init
         )
-        
-        let msg1 = Chat.State.Message(sender: "bob", content: "hey", isOutgoing: false)
-        let msg2 = Chat.State.Message(sender: "alice", content: "hi", isOutgoing: false)
-        
-        await store.send(.messagesReceived([msg1, msg2])) { state in
-            XCTAssertEqual(state.messages.count, 2)
+
+        let msg1 = Chat.State.Message(
+            sender: "bob",
+            content: "hey",
+            channel: channel.name,
+            isOutgoing: false
+        )
+
+        await store.send(.messageReceived(msg1)) { state in
+            state.seenEventIds.insert(msg1.id)
+            state.dagSyncCount = 1
+            var bucket = state.channelMessages[channel.name] ?? []
+            bucket.append(msg1)
+            state.channelMessages[channel.name] = bucket
+            state.messages.append(msg1)
         }
     }
     

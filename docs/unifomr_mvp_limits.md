@@ -32,20 +32,22 @@ discrete Gaussian σ=0.5, `‖u‖₀ = h/2 = 40`, `‖s‖₀ = h = 80` ⇒ σ_
   are invariant; mod-switch rounding noise (≈ 2¹¹) is far below the last-level
   budget (≈ 2¹⁹). Digest CTs shrink ~3× (verified exact in
   `test_digest_mod_switch_preserves_plaintext`).
-- **All ℓ=2 bits evaluated** — the detector emits `ℓ` CTs per clue layer
+- **All ℓ=2 bits evaluated** — the detector emits `ℓ` CTs per SIMD chunk
   (negacyclic coefficients 0 and 1 of the partial decrypt); the client requires
-  **all ℓ** coefficients in range (AND) per layer, OR across layers. Digest wire:
-  `[u32 chunk_count] ( [u32 layer_count] ( [u32 len][ct] × ℓ ) × layer_count )…`
+  **all ℓ** coefficients in range (AND) for that slot. One clue occupies one
+  slot. Digest wire:
+  `[u8 version=0x01][u32 chunk_count] ( ( [u32 len][ct] ) × ℓ )…`
+  Heights come from `OmrDigestResponse.slot_heights`, not from `start + index`.
 - **Ownership-proof replay fix (v2)** — `RegisterCluePublicKey` proofs sign
   `b"DarkFi-UnifOMR-CluePK-v2" || network_byte || key_version (u32 LE) ||
   payment_pubkey || clue_public_key`. The network byte kills cross-network
   replay; `key_version` (unix seconds) is monotonic — the server only replaces
   a registration when the new version is strictly greater (signed rotation),
   and rejects lower/equal-version conflicts.
-- **Layer-overflow fail-open** — heights with more than `MAX_CLUE_LAYERS = 64`
-  valid clues are no longer silently truncated (censorship vector). The whole
-  height is forced to match for **every** detection key (client fetches it and
-  trial-decrypts), so an attacker stuffing a height cannot suppress detection.
+- **Per-message packing** — every validated clue gets its own SIMD slot.
+  Extra clues are not dropped and are not forced to match. A slot matches only
+  when all ℓ coefficients are inside `R_PRIME`. Spam clues do not hide a real
+  clue and do not mark the whole height as a match.
 
 ## Ops hardening (retained across Param2 — do not remove)
 
@@ -65,7 +67,7 @@ These are independent of Table-1 parameters:
 
 ## Protocol deviations still in place (not Param2 table params)
 
-1. **Any-match multi-clue** — per-clue BFV layers + client OR (not homomorphic product). Semantically equivalent; avoids CT×CT noise blow-up.
+1. **One BFV ciphertext per clue-secret coefficient** — not the paper's single-ciphertext secret packing (Remark 6.3). Detection keys are about 120 MiB and are streamed in 1 MiB chunks.
 2. **SealPIR-style striped PIR** — BFV stripes, length-prefixed limbs; windows up to `8 × D` (`D=4096` under Param2). Not a full SealPIR Galois expander.
 3. **Clue PK directory** — always `found=true` + decoy PK + timing pad; unregistered receivers use supplemental trial decrypt.
 4. **Digest mod-switch is BFV-level** — the paper sketches switching the clue modulus `Q→Q′=q`; here the digest is a BFV ciphertext whose *plaintext* already lives mod `q`, so the equivalent size/noise reduction is realized by switching the BFV ciphertext to its last RNS level.
@@ -84,22 +86,22 @@ These are independent of Table-1 parameters:
 | BFV moduli sizes | `[40, 40, 40]` (digest served at last level) |
 | `R_PRIME` (`r′`) | **149** (paper value, active) |
 
-Detection keys are larger than MVP (~2× BFV degree); gRPC decode/encode limits are **64 MB** (matching `MAX_DETECTION_KEYS_TOTAL_BYTES`; per-key cap 48 MB). Detection-key count remains capped at **16**, but a single Param2 det-key is ~38 MB, so clients chunk `GetUnifOmrDigest` requests to stay under the 64 MB total budget.
+A Param2 detection key is about 120 MiB. Clients stream it in 1 MiB chunks. The detection-key budget is **160 MiB** per request (one key). `GetUnifOmrDigest` is a client-streaming RPC. `complete = false` means the server stopped on a whole-height boundary; the client clamps the scan cursor to `max(slot_heights)`.
 
 ## Cross-client parity (required)
 
 | Component | LWD | Moonshine | iOS FFI | Android FFI | Desktop |
 |-----------|-----|-----------|---------|-------------|---------|
-| Param2 `unifomr` constants (σ=0.5, r′=149, ℓ=2, mod-switch) | ✓ | via LWD | ✓ (synced copy) | ✓ (synced copy) | via Android FFI |
+| Param2 `unifomr` constants (σ=0.5, r′=149, ℓ=2, mod-switch) | ✓ | via LWD | ✓ (same digest wire) | ✓ | via Android FFI |
 | Ownership proof v2 (network + key_version) | ✓ | ✓ | ✓ | ✓ | via FFI |
 | Length-prefixed PIR limbs | ✓ | via LWD | ✓ | ✓ | via FFI |
 | Ops hardening above | ✓ | ✓ | ✓ | ✓ | ✓ (TLS pin via prefs) |
-| Supplemental trial on empty OMR | — | ✓ | ✓ | ✓ | via FFI |
+| Supplemental trial on empty OMR | — | on only with `--allow-trial` | off by default | off by default (settings toggle) | via Android FFI |
 | PIR-failure fallback = full padded window (never sparse match-set fetch) | n/a | ✓ | ✓ | ✓ | via FFI |
 | Power-of-2 padded digest windows, tip-clamped (min bucket 1024) | n/a | ✓ | ✓ | ✓ | via FFI |
 | Tor (arti) routing for remote LWD traffic, default ON | n/a | ✓ (embedded arti) | socks5 route via bootstrap `use_tor` | socks5 route via bootstrap `use_tor` | ✓ (`use_tor` pref, default true) |
 
-Malformed UnifOMR clues are rejected at validation; clients fall back to trial decrypt over the window when OMR returns no matches (including decoy-directory / unregistered receivers).
+Malformed UnifOMR clues are rejected at validation. With strict UniFOMR (the default), an empty digest does not trial-decrypt the window. Android can turn strict mode off in settings for payments that carry no clue.
 
 **Round-2 privacy invariant:** the server may learn the padded digest window,
 but never which heights matched. Matched blocks are fetched via batch PIR; on

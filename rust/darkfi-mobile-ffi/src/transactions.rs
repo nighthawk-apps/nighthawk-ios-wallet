@@ -336,7 +336,7 @@ async fn decrypt_user_memo_from_tx(drk: &Drk, tx: &Transaction) -> Result<Option
 }
 
 pub async fn list_transaction_history(drk: &Drk) -> Result<Vec<DrkTransactionRecord>, String> {
-    let rows = drk.get_txs_history().map_err(|e| e.to_string())?;
+    let rows = drk.get_txs_history().await.map_err(|e| e.to_string())?;
     let mut records = Vec::with_capacity(rows.len());
 
     for (tx_hash, status, block_height) in rows {
@@ -518,24 +518,21 @@ mod tests {
 
 /// Invalidate transactions confirmed at heights above `rewind_height`.
 ///
-/// Called during chain reorg recovery to mark affected transactions as
-/// unconfirmed so the UI shows them correctly until they are re-confirmed
-/// by re-scanning the new canonical chain.
-///
-/// Returns the number of transactions affected.
+/// Uses `drk.revert_transactions_after`, which matches the status strings
+/// stored by the wallet. Returns how many history rows sat above the fork.
 pub async fn invalidate_transactions_above(drk: &Drk, rewind_height: u32) -> Result<u32, String> {
-    // Query the wallet DB for transactions that were confirmed above the fork point.
-    // The drk wallet stores tx records in the `tx_history` table.
-    let wallet = drk.wallet.clone();
-    let query = format!(
-        "UPDATE tx_history SET status = 'unconfirmed' WHERE block_height > {} AND status = 'confirmed'",
-        rewind_height
-    );
-    let affected = {
-        let conn = wallet.conn.lock().unwrap();
-        conn.execute(&query, [])
-            .map_err(|e| format!("invalidate_transactions_above: {e}"))?
-    };
+    let history = drk
+        .get_txs_history()
+        .await
+        .map_err(|e| format!("get_txs_history: {e}"))?;
+    let affected = history
+        .iter()
+        .filter(|(_, _, height)| height.is_some_and(|h| h > rewind_height))
+        .count() as u32;
+    let mut output = Vec::new();
+    drk.revert_transactions_after(&rewind_height, &mut output)
+        .await
+        .map_err(|e| format!("revert_transactions_after: {e}"))?;
 
     if affected > 0 {
         tracing::warn!(
@@ -545,5 +542,5 @@ pub async fn invalidate_transactions_above(drk: &Drk, rewind_height: u32) -> Res
         );
     }
 
-    Ok(affected as u32)
+    Ok(affected)
 }

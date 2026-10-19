@@ -21,8 +21,9 @@
 
 use std::time::{Duration, Instant};
 
-/// UnifOMR GenDetKey wire size (~19MB for n=512); raise tonic's 4MB default.
-const MAX_GRPC_MESSAGE_BYTES: usize = 64 * 1024 * 1024;
+/// Param2 detection keys are ~120 MiB and are streamed in 1 MiB chunks.
+/// The digest response for a full window still fits under this ceiling.
+const MAX_GRPC_MESSAGE_BYTES: usize = 160 * 1024 * 1024;
 
 fn lwd_client(
     channel: tonic::transport::Channel,
@@ -1094,28 +1095,54 @@ impl LightwalletClient {
         result
     }
 
+    /// Returns `(encrypted_digest, slot_heights, complete)`.
+    ///
+    /// Detection keys are streamed in 1 MiB chunks. `slot_heights` is the
+    /// packed LE-u32 map from digest slot to block height. `complete == false`
+    /// means the server stopped at a whole-height boundary.
     pub async fn get_unif_omr_digest(
         &self,
         detection_keys: Vec<Vec<u8>>,
         start_height: u32,
         end_height: u32,
-    ) -> Result<Vec<u8>, String> {
+    ) -> Result<(Vec<u8>, Vec<u8>, bool), String> {
         validate_block_range(start_height, end_height)?;
+        if detection_keys.is_empty() || detection_keys.iter().any(|k| k.is_empty()) {
+            return Err("detection_keys required".into());
+        }
         let result = async_compat::Compat::new(async {
             let channel = self.connect_channel().await?;
             let mut client = lwd_client(channel);
-            let detection_key = detection_keys.first().cloned().unwrap_or_default();
-            let request = lightwallet_proto::OmrDigestRequest {
-                detection_key,
+            let chunk_size = 1024 * 1024;
+            let num_keys = detection_keys.len() as u32;
+            let mut chunks = vec![lightwallet_proto::DetectionKeyChunk {
                 start_height,
                 end_height,
-                detection_keys,
-            };
+                num_keys,
+                data: vec![],
+                key_done: false,
+            }];
+            for key in detection_keys {
+                let mut offset = 0;
+                while offset < key.len() {
+                    let end_offset = (offset + chunk_size).min(key.len());
+                    let data = key[offset..end_offset].to_vec();
+                    offset = end_offset;
+                    chunks.push(lightwallet_proto::DetectionKeyChunk {
+                        start_height: 0,
+                        end_height: 0,
+                        num_keys: 0,
+                        data,
+                        key_done: offset == key.len(),
+                    });
+                }
+            }
             let resp = client
-                .get_unif_omr_digest(request)
+                .get_unif_omr_digest(tonic::Request::new(futures::stream::iter(chunks)))
                 .await
                 .map_err(|e| format!("GetUnifOmrDigest RPC: {e}"))?;
-            Ok(resp.into_inner().encrypted_digest)
+            let inner = resp.into_inner();
+            Ok((inner.encrypted_digest, inner.slot_heights, inner.complete))
         })
         .await;
         result

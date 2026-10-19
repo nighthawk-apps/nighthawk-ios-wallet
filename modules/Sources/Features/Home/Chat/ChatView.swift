@@ -15,21 +15,20 @@ import UIKit
 struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
     @Environment(\.scenePhase) var scenePhase
+    @State private var showPeers = false
 
     var body: some View {
         VStack(spacing: 0) {
-            // Connection status bar (always visible)
+            // Compact status header (Android CompactConnectionStatusBlock).
+            // Daemon start and DAG sync stay in this header so the channel
+            // list and transcript keep the rest of the tab.
             connectionStatusBar
 
-            switch true {
-            case store.connectionState.isConnected:
-                connectedView
-            case store.connectionState == .startingDaemon,
-                 store.connectionState == .connecting,
-                 store.connectionState == .waitingForDagSync:
-                connectingView
-            default:
+            switch store.connectionState {
+            case .disconnected, .error:
                 disconnectedView
+            default:
+                connectedView
             }
         }
         .onAppear { store.send(.onAppear) }
@@ -51,6 +50,8 @@ private extension ChatView {
                     Text("Node: \(store.embeddedNodeStatus.label)")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
             }
 
@@ -60,13 +61,22 @@ private extension ChatView {
                 Text("IRC: \(store.connectionState.label)")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
-                Spacer()
+                Spacer(minLength: 8)
 
                 // Show persistent nickname
                 Text(store.nickname)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .lineLimit(1)
+
+                Button(action: { showPeers = true }) {
+                    Text("Peers")
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                }
 
                 // Retry button
                 if store.connectionState == .error || store.connectionState == .disconnected {
@@ -78,32 +88,97 @@ private extension ChatView {
                 }
             }
 
-            // Tor routing label
-            HStack(spacing: 4) {
-                Text(store.useTor ? "Tor" : "Direct")
+            // One summary line, matching Android chatConnectionSummary.
+            Text("\(store.useTor ? "Tor" : "Direct") · \(store.connectionState.label)")
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            if let progress = store.dagSyncProgress,
+               store.connectionState == .startingDaemon
+                || store.connectionState == .connecting
+                || store.connectionState == .waitingForDagSync {
+                Text(progress)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
-                Text("·")
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.4))
-                Text(store.connectionState.label)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
 
-            // Diagnostic detail
+            // Diagnostic detail — capped like Android CONNECTION_STATUS_MAX_LINES.
             if let detail = store.diagnosticDetail {
-                Text(detail)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                    .foregroundColor(
-                        store.connectionState == .error
-                            ? Color.red.opacity(0.8)
-                            : Asset.Colors.Nighthawk.parmaviolet.color
-                    )
+                let lines = detail
+                    .split(whereSeparator: \.isNewline)
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty }
+                    .prefix(5)
+                ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                    Text(line)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                        .foregroundColor(
+                            store.connectionState == .error
+                                ? Color.red.opacity(0.8)
+                                : Asset.Colors.Nighthawk.parmaviolet.color
+                        )
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Asset.Colors.Nighthawk.navy.color.opacity(0.6))
+        .sheet(isPresented: $showPeers) {
+            peerSheet
+                .presentationDetents([.height(220)])
+                .presentationDragIndicator(.visible)
+        }
+    }
+
+    /// Three outbound slots, matching Android's peer dialog. They stay off
+    /// the transcript until Peers is tapped.
+    var peerSheet: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Outbound peers")
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                .foregroundColor(.white)
+            ForEach(peerSlots, id: \.index) { slot in
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(slot.connected ? Color.green : Color.gray.opacity(0.6))
+                        .frame(width: 8, height: 8)
+                    Text("\(slot.index)")
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    Text(slot.label)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(slot.connected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer(minLength: 0)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Asset.Colors.Nighthawk.darkNavy.color)
+    }
+
+    var peerSlots: [(index: Int, label: String, connected: Bool)] {
+        let connecting = store.connectionState == .startingDaemon
+            || store.connectionState == .connecting
+            || store.connectionState == .waitingForDagSync
+        return (0..<3).map { index in
+            if store.connectionState.isConnected && index == 0 {
+                return (index, "connected", true)
+            }
+            if connecting {
+                return (index, "connecting", false)
+            }
+            return (index, "sleeping", false)
+        }
     }
 
     var connectionDot: some View {
@@ -183,56 +258,6 @@ private extension ChatView {
             Spacer()
         }
     }
-
-    /// View shown during the multi-step connection process
-    var connectingView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            ProgressView()
-                .scaleEffect(1.5)
-                .tint(Asset.Colors.Nighthawk.peach.color)
-                .padding(.bottom, 16)
-
-            Text(store.connectionState.label)
-                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 20))
-                .foregroundColor(.white)
-
-            // Show node status details
-            VStack(spacing: 8) {
-                statusLine("You", status: store.nickname)
-                statusLine("darkirc node", status: store.embeddedNodeStatus.label)
-                statusLine("IRC bridge", status: store.connectionState.label)
-                if let dagProgress = store.dagSyncProgress {
-                    statusLine("Event graph", status: dagProgress)
-                }
-                if store.dagSyncCount > 0 {
-                    statusLine("Messages", status: "\(store.dagSyncCount) received")
-                }
-            }
-            .padding(.horizontal, 40)
-
-            Text("Connecting to the DarkFi P2P network and syncing the event graph. This may take up to 30 seconds on first launch.")
-                .multilineTextAlignment(.center)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                .padding(.horizontal, 40)
-
-            Spacer()
-        }
-    }
-
-    func statusLine(_ label: String, status: String) -> some View {
-        HStack {
-            Text(label)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-            Spacer()
-            Text(status)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                .foregroundColor(.white)
-        }
-    }
 }
 
 // MARK: - Connected State
@@ -268,10 +293,10 @@ private extension ChatView {
                 .presentationDetents([.large])
         }
         .alert("Share Your Public Key", isPresented: $store.showSharePubkeyWarning) {
-            Button("Generate & Copy", action: { store.send(.sharePubkeyConfirmed) })
+            Button("Copy public key", action: { store.send(.sharePubkeyConfirmed) })
             Button("Cancel", role: .cancel, action: { store.send(.sharePubkeyCancelled) })
         } message: {
-            Text("This will generate a new DM keypair and copy your public key to the clipboard. Share it with your peer via a secure channel. Anyone with this key can send you encrypted DMs.")
+            Text("Copies your DM public key. A keypair is created only the first time. Share it over a channel you trust. Anyone with this key can send you encrypted DMs.")
         }
     }
 
@@ -487,12 +512,7 @@ private extension ChatView {
 
     var dmConversationHeader: some View {
         HStack(spacing: 12) {
-            Button(action: {
-                // Go back to DM list
-                if let contact = store.selectedDmContact {
-                    store.send(.dmContactSelected(contact))
-                }
-            }) {
+            Button(action: { store.send(.dmBackTapped) }) {
                 Image(systemName: "chevron.left")
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
             }
@@ -535,12 +555,21 @@ private extension ChatView {
                     if store.messages.isEmpty {
                         VStack(spacing: 12) {
                             Spacer().frame(height: 60)
-                            Text("No messages yet")
-                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                            Text("Say something in \(store.selectedChannel?.name ?? store.selectedDmContact?.contactLabel ?? "this chat")")
-                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                            if store.connectionState.isConnected {
+                                Text("No messages yet")
+                                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                Text("Say something in \(store.selectedChannel?.name ?? store.selectedDmContact?.contactLabel ?? "this chat")")
+                                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                            } else {
+                                ProgressView()
+                                    .tint(Asset.Colors.Nighthawk.peach.color)
+                                Text(store.connectionState.label)
+                                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                    .lineLimit(1)
+                            }
                         }
                     } else {
                         ForEach(store.messages) { message in
@@ -612,7 +641,9 @@ private extension ChatView {
     }
 
     var composeBar: some View {
-        HStack(spacing: 12) {
+        let canSend = store.connectionState.isConnected
+            && !store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return HStack(spacing: 12) {
             TextField("Message", text: $store.composedMessage)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
                 .foregroundColor(.white)
@@ -622,18 +653,19 @@ private extension ChatView {
                     RoundedRectangle(cornerRadius: 22)
                         .fill(Asset.Colors.Nighthawk.navy.color)
                 )
+                .disabled(!store.connectionState.isConnected)
                 .onSubmit { store.send(.sendMessage) }
 
             Button(action: { store.send(.sendMessage) }) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 32))
                     .foregroundColor(
-                        store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            ? Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3)
-                            : Asset.Colors.Nighthawk.peach.color
+                        canSend
+                            ? Asset.Colors.Nighthawk.peach.color
+                            : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3)
                     )
             }
-            .disabled(store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(!canSend)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
