@@ -55,7 +55,7 @@ private extension ReviewView {
             HStack(alignment: .center) {
                 Group {
                     Text("\(store.zecAmount.decimalString())")
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                     Text(store.tokenName)
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)

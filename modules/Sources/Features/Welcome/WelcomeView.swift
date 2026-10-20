@@ -125,7 +125,7 @@ private extension WelcomeView {
                     Circle()
                         .fill(currentPage == index
                                 ? Asset.Colors.Nighthawk.peach.color
-                                : Color.white.opacity(0.3))
+                                : Asset.Colors.Nighthawk.textMuted.color)
                         .frame(width: currentPage == index ? 10 : 7,
                                height: currentPage == index ? 10 : 7)
                         .animation(.easeInOut(duration: 0.2), value: currentPage)
@@ -152,7 +152,7 @@ private extension WelcomeView {
                 .frame(width: 72, height: 72)
                 .background(
                     Circle()
-                        .fill(Color.white.opacity(0.05))
+                        .fill(Asset.Colors.Nighthawk.textHeader.color.opacity(0.06))
                         .frame(width: 88, height: 88)
                 )
                 .padding(.bottom, 8)

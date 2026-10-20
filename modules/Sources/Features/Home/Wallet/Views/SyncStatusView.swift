@@ -19,7 +19,7 @@ struct SyncStatusView: View {
                 image
                     .resizable()
                     .renderingMode(.template)
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .frame(width: 24, height: 24)
                     .aspectRatio(contentMode: .fit)
                     .padding(.bottom, 8)

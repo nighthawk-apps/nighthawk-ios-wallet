@@ -99,6 +99,7 @@ public struct UserPreferencesStorage {
 
     public func setTheme(_ theme: NighthawkSetting.Theme) {
         setValue(theme.rawValue, forKey: Constants.darkfiTheme.rawValue)
+        NotificationCenter.default.post(name: .nighthawkThemeDidChange, object: theme.rawValue)
     }
 
     public var fiatCurrency: NighthawkSetting.FiatCurrency {

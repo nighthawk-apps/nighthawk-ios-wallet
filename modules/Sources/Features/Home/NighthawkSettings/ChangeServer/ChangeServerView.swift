@@ -26,10 +26,10 @@ public struct ChangeServerView: View {
                     HStack {
                         if option == .default {
                             Text("Default (\(store.defaultServerInfo))")
-                                .paragraphMedium(color: .white)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         } else {
                             Text("Custom")
-                                .paragraphMedium(color: .white)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         }
 
                         Spacer()

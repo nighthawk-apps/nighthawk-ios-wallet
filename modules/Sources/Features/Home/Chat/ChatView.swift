@@ -142,7 +142,7 @@ private extension ChatView {
         VStack(alignment: .leading, spacing: 8) {
             Text("Outbound peers")
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             ForEach(peerSlots, id: \.index) { slot in
                 HStack(spacing: 8) {
                     Circle()
@@ -233,7 +233,7 @@ private extension ChatView {
 
             Text("DarkFi IRC")
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 28))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
             Text("End-to-end encrypted chat\npowered by the DarkFi P2P network")
                 .multilineTextAlignment(.center)
@@ -306,7 +306,7 @@ private extension ChatView {
                 Button(action: { store.send(.tabSelected(tab)) }) {
                     Text(tab.rawValue)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                        .foregroundColor(store.selectedTab == tab ? .white : Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(store.selectedTab == tab ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
@@ -346,12 +346,12 @@ private extension ChatView {
         return HStack(spacing: 4) {
             Text(channel.name)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(isSelected ? .white : Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(isSelected ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
 
             if channel.unreadCount > 0 {
                 Text("\(channel.unreadCount)")
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 11))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Asset.Colors.Nighthawk.peach.color)
@@ -423,7 +423,7 @@ private extension ChatView {
                         .tracking(1.2)
                     Text(myKey)
                         .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color.opacity(0.8))
                         .lineLimit(2)
                 }
                 .padding(.horizontal, 16)
@@ -481,7 +481,7 @@ private extension ChatView {
             VStack(alignment: .leading, spacing: 4) {
                 Text(contact.contactLabel)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                 if let lastMsg = convo?.lastMessageText {
                     Text(lastMsg)
@@ -496,7 +496,7 @@ private extension ChatView {
             if let unread = convo?.unreadCount, unread > 0 {
                 Text("\(unread)")
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 11))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Asset.Colors.Nighthawk.peach.color)
@@ -530,7 +530,7 @@ private extension ChatView {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(contact.contactLabel)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     Text("E2E encrypted")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
@@ -604,7 +604,7 @@ private extension ChatView {
 
                 Text(message.content)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(
@@ -646,7 +646,7 @@ private extension ChatView {
         return HStack(spacing: 12) {
             TextField("Message", text: $store.composedMessage)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(

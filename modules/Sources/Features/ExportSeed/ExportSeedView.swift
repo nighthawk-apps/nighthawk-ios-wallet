@@ -20,14 +20,14 @@ public struct ExportSeedView: View {
         VStack(spacing: 16) {
             HStack {
                 Text(L10n.Nighthawk.ExportSeed.title)
-                    .title(color: .white)
+                    .title(color: Asset.Colors.Nighthawk.textHeader.color)
 
                 Spacer()
             }
 
             HStack {
                 Text(L10n.Nighthawk.ExportSeed.description)
-                    .subtitle(color: .white)
+                    .subtitle(color: Asset.Colors.Nighthawk.textHeader.color)
                     .lineSpacing(4)
 
                 Spacer()

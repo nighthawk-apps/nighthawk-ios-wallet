@@ -90,7 +90,7 @@ private extension RecipientView {
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
                 .aspectRatio(contentMode: .fit)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         } else if store.hasEnteredRecipient {
             Button(action: { store.send(.clearRecipientTapped) }) {
@@ -99,7 +99,7 @@ private extension RecipientView {
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         }
     }

@@ -48,7 +48,7 @@ struct SeedGridView: View {
                                     )
 
                                 Text(group.words[0].data)
-                                    .paragraph(color: forPdf ? .black : .white)
+                                    .paragraph(color: forPdf ? .black : Asset.Colors.Nighthawk.textHeader.color)
                                     .lineLimit(1)
                             }
                             Spacer()
@@ -66,7 +66,7 @@ struct SeedGridView: View {
                                     )
 
                                 Text(group.words[1].data)
-                                    .paragraph(color: forPdf ? .black : .white)
+                                    .paragraph(color: forPdf ? .black : Asset.Colors.Nighthawk.textHeader.color)
                                     .lineLimit(1)
                             }
                             Spacer()
@@ -84,7 +84,7 @@ struct SeedGridView: View {
                                     )
 
                                 Text(group.words[2].data)
-                                    .paragraph(color: forPdf ? .black : .white)
+                                    .paragraph(color: forPdf ? .black : Asset.Colors.Nighthawk.textHeader.color)
                                     .lineLimit(1)
                             }
                             Spacer()
@@ -129,7 +129,7 @@ struct SeedBirthdayView: View {
                     .paragraphMedium(
                         color: forPdf
                             ? .black
-                            : .white
+                            : Asset.Colors.Nighthawk.textHeader.color
                     )
             }
             .lineSpacing(6)

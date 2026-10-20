@@ -26,7 +26,7 @@ struct NighthawkSettingsView: View {
 
             HStack {
                 Text(L10n.Nighthawk.SettingsTab.settings)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                 Spacer()
             }
             .padding(.bottom, 13)
@@ -144,7 +144,7 @@ private extension NighthawkSettingsView {
                             icon
                                 .resizable()
                                 .renderingMode(.template)
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 24, height: 24)
 

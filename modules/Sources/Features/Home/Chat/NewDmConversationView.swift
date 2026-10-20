@@ -174,7 +174,7 @@ struct NewDmConversationView: View {
                     // Title
                     Text("New DM Conversation")
                         .font(.custom(FontFamily.PulpDisplay.bold.name, size: 22))
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                     Text("Exchange public keys with your peer to start an end-to-end encrypted DM using ChaCha20.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
@@ -189,7 +189,7 @@ struct NewDmConversationView: View {
 
                         TextField("e.g. alice", text: $store.contactLabel)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                             .background(
@@ -208,7 +208,7 @@ struct NewDmConversationView: View {
 
                         TextField("Base58 public key", text: $store.theirPublicKey, axis: .vertical)
                             .font(.system(size: 13, design: .monospaced))
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .lineLimit(3)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
@@ -239,10 +239,10 @@ struct NewDmConversationView: View {
                                         ProgressView().tint(.white)
                                     }
                                     Image(systemName: "key.fill")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                     Text("Generate My Keys")
                                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 }
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 12)
@@ -260,7 +260,7 @@ struct NewDmConversationView: View {
 
                                 Text(store.myPublicKey)
                                     .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                     .padding(12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
@@ -301,7 +301,7 @@ struct NewDmConversationView: View {
                             }
                             Text("Start DM")
                                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)

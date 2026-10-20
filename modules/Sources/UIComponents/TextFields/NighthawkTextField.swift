@@ -52,12 +52,12 @@ public struct NighthawkTextField<InputAccessoryContent>: View where InputAccesso
             Group {
                 if isSecure {
                     SecureField("", text: text)
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                         .focused($_focusState)
                 } else {
                     TextField("", text: text)
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                         .focused($_focusState)
                 }

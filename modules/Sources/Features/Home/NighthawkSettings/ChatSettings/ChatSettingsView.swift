@@ -38,7 +38,7 @@ public struct ChatSettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("DAG history hours (1–24)")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                         Text("Each DAG is about one hour of channel history. Default is 8 (upstream darkirc).")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
@@ -89,7 +89,7 @@ public struct ChatSettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(channel.name)
                                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 if !channel.topic.isEmpty {
                                     Text(channel.topic)
                                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
@@ -132,7 +132,7 @@ public struct ChatSettingsView: View {
                         HStack {
                             Text(publicKey)
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 .lineLimit(1)
                                 .truncationMode(.middle)
 
@@ -171,7 +171,7 @@ public struct ChatSettingsView: View {
                         HStack {
                             Text(contact.nick)
                                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             Spacer()
                             Button(action: { store.send(.removeContact(contact.id)) }) {
                                 Text("Remove")
@@ -226,7 +226,7 @@ private extension ChatSettingsView {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                 Text(subtitle)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))

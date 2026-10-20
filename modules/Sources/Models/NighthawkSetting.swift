@@ -102,6 +102,7 @@ public enum NighthawkSetting {
     public enum Theme: String, CaseIterable, Equatable, Identifiable, Hashable {
         case `default`
         case dark
+        case paper
 
         public var id: String { rawValue }
 
@@ -111,12 +112,50 @@ public enum NighthawkSetting {
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.default
             case .dark:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
+            case .paper:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.paper
             }
         }
 
-        public var colorScheme: ColorScheme {
-            // DarkFi is always dark mode
-            .dark
+        /// `nil` follows the system. A light system uses Paper; a dark system uses Stealth.
+        public var colorScheme: ColorScheme? {
+            switch self {
+            case .paper:
+                .light
+            case .dark:
+                .dark
+            case .default:
+                nil
+            }
+        }
+
+        public var usesPaperTypography: Bool {
+            self == .paper
+        }
+    }
+}
+
+public extension Notification.Name {
+    static let nighthawkThemeDidChange = Notification.Name("nighthawkThemeDidChange")
+}
+
+/// Observed by the root view so a theme change repaints without restarting.
+public final class NighthawkThemeController: ObservableObject {
+    public static let shared = NighthawkThemeController()
+
+    @Published public private(set) var theme: NighthawkSetting.Theme
+
+    private init() {
+        let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? NighthawkSetting.Theme.default.rawValue
+        theme = NighthawkSetting.Theme(rawValue: raw) ?? .default
+        NotificationCenter.default.addObserver(
+            forName: .nighthawkThemeDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let raw = note.object as? String,
+                  let next = NighthawkSetting.Theme(rawValue: raw) else { return }
+            self?.theme = next
         }
     }
 }

@@ -80,7 +80,7 @@ private extension DaoHubView {
 
             Text("No DAOs found")
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
             Text("Import a wallet that participates in a DAO, or wait for sync to finish. DAOs appear here when your wallet scans governance data from darkfid.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
@@ -162,7 +162,7 @@ private extension DaoHubView {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                             .background(Color.green)
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .cornerRadius(10)
                         }
                         .disabled(store.actionInProgress)
@@ -172,7 +172,7 @@ private extension DaoHubView {
                     // Proposals section
                     Text("Proposals")
                         .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         .padding(.horizontal)
 
                     if store.proposals.isEmpty {
@@ -279,7 +279,7 @@ private extension DaoHubView {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Cast Your Vote")
                                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 16))
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                             HStack(spacing: 12) {
                                 Button {
@@ -297,7 +297,7 @@ private extension DaoHubView {
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                                     .background(Color.green)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                     .cornerRadius(8)
                                 }
                                 .disabled(store.actionInProgress)
@@ -313,7 +313,7 @@ private extension DaoHubView {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .stroke(Asset.Colors.Nighthawk.parmaviolet.color, lineWidth: 1)
                                         )
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 }
                                 .disabled(store.actionInProgress)
                             }
@@ -409,7 +409,7 @@ private extension DaoHubView {
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: 24, height: 24)
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -418,7 +418,7 @@ private extension DaoHubView {
 
             Text(title)
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 24))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
             Spacer()
         }
@@ -450,7 +450,7 @@ private extension DaoHubView {
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
             Text(value)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
@@ -464,7 +464,7 @@ private extension DaoHubView {
             HStack(spacing: 4) {
                 Text(value)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Image(systemName: "doc.on.doc")
@@ -525,13 +525,13 @@ private extension DaoHubView {
                         .foregroundColor(.green)
                     Text(msg)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 case let .error(msg):
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.red)
                     Text(msg)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(.white)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 }
                 Spacer()
                 Button {

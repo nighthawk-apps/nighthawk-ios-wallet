@@ -18,7 +18,7 @@ public struct FiatView: View {
         ScrollView([.vertical], showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.FiatCurrency.description(store.tokenName))
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
@@ -28,7 +28,7 @@ public struct FiatView: View {
                 ) { option in
                     HStack {
                         Text(option.label)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
 
                         Spacer()
                     }

@@ -23,7 +23,7 @@ public struct NighthawkTransactionAmountTextField: UIViewRepresentable {
         let view = ZecAmountRenderingView(tokenName: tokenName, decimalSeparator: decimalSeparator)
         view.delegate = context.coordinator
         view.backgroundColor = .clear
-        view.textColor = .white
+        view.textColor = Asset.Colors.Nighthawk.textHeader.systemColor
         view.font = FontFamily.PulpDisplay.medium.font(size: 28)
         view.textAlignment = .center
         view.setContentHuggingPriority(.defaultHigh, for: .vertical)

@@ -218,7 +218,7 @@ private extension TorNetworkView {
     func sectionHeading(_ title: String) -> some View {
         Text(title)
             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 15))
-            .foregroundColor(.white)
+            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
     }
 
     var sectionDivider: some View {
@@ -235,7 +235,7 @@ private extension TorNetworkView {
         HStack {
             Text(title)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                .foregroundColor(enabled ? .white : .white.opacity(0.4))
+                .foregroundColor(enabled ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.textHeader.color.opacity(0.4))
 
             Spacer()
 
@@ -261,7 +261,7 @@ private extension TorNetworkView {
 
             TextField(placeholder, text: text)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                .foregroundColor(enabled ? .white : .white.opacity(0.4))
+                .foregroundColor(enabled ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.textHeader.color.opacity(0.4))
                 .keyboardType(keyboardType)
                 .disabled(!enabled)
                 .padding(.horizontal, 16)

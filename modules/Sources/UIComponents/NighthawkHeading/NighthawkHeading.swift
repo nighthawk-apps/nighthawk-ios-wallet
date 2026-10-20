@@ -27,7 +27,7 @@ public struct NighthawkHeading: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 35, height: 35)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .padding(.bottom, 22)
                 .padding(.top, compact ? 8 : 16)
 

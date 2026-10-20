@@ -39,7 +39,7 @@ public struct TransactionBasicDetailRow: View {
                             .padding(.bottom, 4)
 
                         Text(value)
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                             .multilineTextAlignment(.leading)
                             .lineSpacing(6)

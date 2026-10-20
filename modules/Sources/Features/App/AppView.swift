@@ -18,10 +18,12 @@ import TransactionDetail
 import WalletCreated
 import Welcome
 import UIComponents
+import Models
 
 public struct AppView: View {
     @Bindable var store: StoreOf<AppReducer>
     @Environment(\.scenePhase) var scenePhase
+    @ObservedObject private var themes = NighthawkThemeController.shared
 
     public var body: some View {
         Group {
@@ -36,7 +38,11 @@ public struct AppView: View {
                 pathScreen(id: topID)
             }
         }
-        .tint(.white)
+        .tint(
+            themes.theme == .dark
+                ? Asset.Colors.Nighthawk.textHeader.color
+                : Asset.Colors.Nighthawk.accent.color
+        )
         .alert(
             $store.scope(
                 state: \.alert,
@@ -46,7 +52,7 @@ public struct AppView: View {
         .onChange(of: scenePhase) {
             store.send(.scenePhaseChanged(scenePhase))
         }
-        .preferredColorScheme(store.nighthawkColorScheme)
+        .preferredColorScheme(themes.theme.colorScheme)
     }
 
     public init(store: StoreOf<AppReducer>) {

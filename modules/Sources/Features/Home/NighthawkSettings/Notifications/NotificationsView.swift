@@ -17,19 +17,19 @@ public struct NotificationsView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(L10n.Nighthawk.SettingsTab.SyncNotifications.description)
-                .paragraphMedium(color: .white)
+                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                 .multilineTextAlignment(.leading)
                 .lineSpacing(6)
 
             switch store.selectedSyncNotificationFrequency {
             case .weekly:
                 Text(L10n.Nighthawk.SettingsTab.SyncNotifications.weeklyDescription)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
             case .monthly:
                 Text(L10n.Nighthawk.SettingsTab.SyncNotifications.monthlyDescription)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
             case .off:
@@ -44,13 +44,13 @@ public struct NotificationsView: View {
                     switch option {
                     case .weekly:
                         Text(L10n.Nighthawk.SettingsTab.SyncNotifications.weeklyOption)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .monthly:
                         Text(L10n.Nighthawk.SettingsTab.SyncNotifications.monthlyOption)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .off:
                         Text(L10n.Nighthawk.SettingsTab.SyncNotifications.offOption)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     }
 
                     Spacer()

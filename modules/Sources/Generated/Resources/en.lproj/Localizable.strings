@@ -350,7 +350,8 @@
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
 "nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
 "nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "Default";
+"nighthawk.settingsTab.advanced.theme.default" = "System";
+"nighthawk.settingsTab.advanced.theme.paper" = "Paper";
 "nighthawk.settingsTab.advanced.theme.dark" = "Dark";
 "nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: Completely nukes this wallet — seed words, SQLCipher pass, and on-device databases. You cannot recover funds without your seed. Close and relaunch the app before creating or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.title" = "Nuke wallet";

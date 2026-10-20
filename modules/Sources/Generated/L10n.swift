@@ -373,7 +373,9 @@ public enum L10n {
                     /// Dark
                     public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")
                     /// Default
-                    public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "Default")
+                    public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "System")
+                    /// Paper
+                    public static let paper = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.paper", fallback: "Paper")
                     /// Theme
                     public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.title", fallback: "Theme")
                 }

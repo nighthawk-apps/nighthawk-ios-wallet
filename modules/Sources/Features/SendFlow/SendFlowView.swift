@@ -195,7 +195,7 @@ private extension SendFlowView {
 
                 Text(store.tokenName)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 12))

@@ -46,7 +46,7 @@ public struct TransactionRowView: View {
                             .resizable()
                             .renderingMode(.template)
                             .frame(width: 16, height: 16)
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     }
                 }
 

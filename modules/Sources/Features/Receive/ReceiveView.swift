@@ -118,7 +118,7 @@ private extension ReceiveView {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 5) {

@@ -17,7 +17,7 @@ public struct AboutView: View {
         ScrollView([.vertical], showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.About.message)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
@@ -40,7 +40,7 @@ public struct AboutView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Open Source Licenses")
-                        .subtitleMedium(color: .white)
+                        .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
 
                     licenseRow(name: "DarkFi", license: "AGPL-3.0")
                     licenseRow(name: "Arti (Tor)", license: "MIT / Apache-2.0")
@@ -64,7 +64,7 @@ public struct AboutView: View {
     private func licenseRow(name: String, license: String) -> some View {
         HStack {
             Text(name)
-                .paragraphMedium(color: .white)
+                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
             Spacer()
             Text(license)
                 .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)

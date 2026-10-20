@@ -25,7 +25,7 @@ public struct WalletCreatedView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 35, height: 35)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .padding(.bottom, 22)
                 .padding(.top, 16)
 
@@ -35,7 +35,7 @@ public struct WalletCreatedView: View {
                 .paragraphMedium()
 
             Text(L10n.Nighthawk.WalletCreated.backupImmediately)
-                .paragraphBold(color: .white)
+                .paragraphBold(color: Asset.Colors.Nighthawk.textHeader.color)
                 .lineSpacing(6)
                 .multilineTextAlignment(.center)
 

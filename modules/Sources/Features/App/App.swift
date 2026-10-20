@@ -39,9 +39,8 @@ public struct AppReducer {
         public var synchronizerStopped = false
         public var unifiedAddress: UnifiedAddress?
         public var latestFiatPrice: Double?
-        public var nighthawkColorScheme: ColorScheme {
-            // DarkFi is always dark mode
-            .dark
+        public var nighthawkColorScheme: ColorScheme? {
+            NighthawkThemeController.shared.theme.colorScheme
         }
 
         var shouldResetToSplash: Bool {

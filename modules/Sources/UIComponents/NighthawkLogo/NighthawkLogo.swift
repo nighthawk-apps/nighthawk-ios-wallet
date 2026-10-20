@@ -44,7 +44,7 @@ public struct NighthawkLogo: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: size.rawValue, height: size.rawValue)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
             if showsTitle {
                 Text(L10n.Nighthawk.Splash.title)

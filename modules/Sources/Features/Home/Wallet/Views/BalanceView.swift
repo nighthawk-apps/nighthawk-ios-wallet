@@ -48,7 +48,7 @@ public struct BalanceView: View {
                         "\(balance.decimalString()) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
                     )
                 }
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
             }
 

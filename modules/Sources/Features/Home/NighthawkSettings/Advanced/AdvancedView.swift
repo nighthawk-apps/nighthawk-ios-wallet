@@ -26,7 +26,7 @@ public struct AdvancedView: View {
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.subtitle)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
@@ -38,10 +38,10 @@ public struct AdvancedView: View {
                         switch option {
                         case .keepOn:
                             Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.keepOn)
-                                .paragraphMedium(color: .white)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         case .off:
                             Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.off)
-                                .paragraphMedium(color: .white)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         }
 
                         Spacer()
@@ -55,7 +55,7 @@ public struct AdvancedView: View {
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.subtitle)
-                    .paragraphMedium(color: .white)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
@@ -65,7 +65,7 @@ public struct AdvancedView: View {
                 .buttonStyle(
                     .nighthawkPrimary(
                         backgroundColor: Asset.Colors.Nighthawk.error.color,
-                        foregroundColor: .white
+                        foregroundColor: Asset.Colors.Nighthawk.textHeader.color
                     )
                 )
 
@@ -83,7 +83,7 @@ public struct AdvancedView: View {
                 .buttonStyle(
                     .nighthawkPrimary(
                         backgroundColor: Asset.Colors.Nighthawk.error.color,
-                        foregroundColor: .white
+                        foregroundColor: Asset.Colors.Nighthawk.textHeader.color
                     )
                 )
             }
@@ -127,7 +127,7 @@ private extension AdvancedView {
                             )
 
                         Text(option.label)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
 
                         Spacer()
                     }
@@ -146,10 +146,13 @@ private extension AdvancedView {
                     switch option {
                     case .`default`:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.default)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .dark:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
-                            .paragraphMedium(color: .white)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    case .paper:
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     }
 
                     Spacer()

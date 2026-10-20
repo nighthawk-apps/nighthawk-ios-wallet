@@ -100,13 +100,13 @@ private extension RecoveryPhraseDisplayView {
             .frame(maxWidth: .infinity, alignment: .leading)
 
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
-            .caption(color: .white)
+            .caption(color: Asset.Colors.Nighthawk.textHeader.color)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 11)
 
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions2)
-            .caption(color: .white)
+            .caption(color: Asset.Colors.Nighthawk.textHeader.color)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 11)
@@ -129,7 +129,7 @@ private extension RecoveryPhraseDisplayView {
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
 
                 Text("Write down all 22 words before continuing")
-                    .subtitleMedium(color: .white)
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.center)
 
                 Text("Check the box below to confirm you have saved your recovery phrase in a safe place.")

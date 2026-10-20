@@ -225,7 +225,7 @@ private extension WalletView {
         case .hidden:
             return .clear
         default:
-            return isSelected ? .white : Asset.Colors.Nighthawk.peach.color.opacity(0.6)
+            return isSelected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.textMuted.color
         }
     }
 
@@ -277,7 +277,7 @@ private extension WalletView {
                                 .resizable()
                                 .renderingMode(.template)
                                 .frame(width: 24, height: 24)
-                                .foregroundColor(.white)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                         }
                         .padding(.vertical)
                     }

@@ -103,14 +103,14 @@ private struct TabBarItem: View {
                 .foregroundColor(
                     isSelected
                         ? Asset.Colors.Nighthawk.peach.color
-                        : .white
+                        : Asset.Colors.Nighthawk.textHeader.color
                 )
                 .frame(width: 24, height: 24)
             Text(title)
                 .caption(
                     color: isSelected
                         ? Asset.Colors.Nighthawk.peach.color
-                        : .white
+                        : Asset.Colors.Nighthawk.textHeader.color
                 )
         }
         .padding(.top, 8)

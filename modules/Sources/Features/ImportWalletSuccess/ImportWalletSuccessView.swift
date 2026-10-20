@@ -34,7 +34,7 @@ public struct ImportWalletSuccessView: View {
 
                     VStack(spacing: 16) {
                         Text(L10n.Nighthawk.ImportWalletSuccess.success)
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 24))
 
                         Button(L10n.Nighthawk.ImportWalletSuccess.viewWallet) {

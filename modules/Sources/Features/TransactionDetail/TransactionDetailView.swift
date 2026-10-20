@@ -180,14 +180,14 @@ private extension TransactionDetailView {
             summaryIcon(for: store.status)
                 .resizable()
                 .renderingMode(.template)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .frame(width: 24, height: 24)
 
             VStack {
                 HStack(alignment: .center) {
                     Group {
                         Text("\(store.zecAmount.decimalString())")
-                            .foregroundColor(.white)
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                         Text(store.tokenName)
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)

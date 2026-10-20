@@ -48,7 +48,7 @@ public struct NighthawkTextEditor: View {
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .scrollContentBackground(.hidden)
-                    .foregroundColor(.white)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                     .focused($_focusState)
                     .padding(8)

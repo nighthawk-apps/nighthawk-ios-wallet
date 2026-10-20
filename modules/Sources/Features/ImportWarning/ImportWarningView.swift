@@ -19,7 +19,7 @@ public struct ImportWarningView: View {
                 .title(color: Asset.Colors.Nighthawk.peach.color)
 
             Text(L10n.Nighthawk.ImportWarning.description)
-                .subtitle(color: .white)
+                .subtitle(color: Asset.Colors.Nighthawk.textHeader.color)
                 .lineSpacing(6)
 
             Button(L10n.Nighthawk.ImportWarning.proceed) {
