@@ -14,6 +14,10 @@ darkirc = ["dep:darkirc"]
 name = "darkfi_mobile_ffi"
 crate-type = ["lib", "cdylib", "staticlib"]
 
+[[bin]]
+name = "localnet_tx"
+path = "src/bin/localnet_tx.rs"
+
 [dependencies]
 drk = { path = "../../third_party/darkfi/bin/drk" }
 darkfi = { path = "../../third_party/darkfi", features = ["bs58", "event-graph", "p2p-tor"] }

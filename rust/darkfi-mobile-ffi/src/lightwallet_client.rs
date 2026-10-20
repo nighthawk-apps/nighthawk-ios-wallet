@@ -198,6 +198,10 @@ pub struct LightServerInfo {
     /// Backend node (darkfid) version (finding 5.9).
     /// Empty string if server doesn't report it.
     pub backend_version: String,
+    /// 32-byte directory attest public key for GetCluePublicKey proofs.
+    pub directory_attest_pubkey: Vec<u8>,
+    /// Server proto version string (e.g. "1.0.0"); empty on older servers.
+    pub proto_version: String,
 }
 
 /// OMR capabilities returned by GetOmrCapabilities.
@@ -357,7 +361,10 @@ impl LightwalletClient {
         Self {
             endpoint: parsed.grpc_url,
             connect_timeout: Duration::from_secs(10),
-            request_timeout: Duration::from_secs(30),
+            // Match lightwalletd `request_timeout_s` (1800). UnifOMR Param2
+            // GetUnifOmrDigest streams ~120 MiB detection keys and a per-message
+            // SIMD encode (D=4096) can exceed 5 minutes.
+            request_timeout: Duration::from_secs(1800),
             tls_pin_sha256: None,
             socks5_proxy,
             require_https_over_socks: true,
@@ -381,7 +388,10 @@ impl LightwalletClient {
         Self {
             endpoint: parsed.grpc_url,
             connect_timeout: Duration::from_secs(10),
-            request_timeout: Duration::from_secs(30),
+            // Match lightwalletd `request_timeout_s` (1800). UnifOMR Param2
+            // GetUnifOmrDigest streams ~120 MiB detection keys and a per-message
+            // SIMD encode (D=4096) can exceed 5 minutes.
+            request_timeout: Duration::from_secs(1800),
             tls_pin_sha256: Some(pin_sha256),
             socks5_proxy,
             require_https_over_socks: true,
@@ -717,6 +727,8 @@ impl LightwalletClient {
                 omr_supported: info.omr_supported,
                 best_block_hash: info.best_block_hash,
                 backend_version: info.backend_version,
+                directory_attest_pubkey: info.directory_attest_pubkey,
+                proto_version: info.proto_version,
             })
         })
         .await;
@@ -1097,15 +1109,17 @@ impl LightwalletClient {
 
     /// Returns `(encrypted_digest, slot_heights, complete)`.
     ///
-    /// Detection keys are streamed in 1 MiB chunks. `slot_heights` is the
-    /// packed LE-u32 map from digest slot to block height. `complete == false`
-    /// means the server stopped at a whole-height boundary.
+    /// Detection keys are streamed in 1 MiB chunks, sliced lazily so the
+    /// ~120 MiB key is never copied whole. `slot_heights` is the packed LE-u32
+    /// map from digest slot to block height. `complete == false` means the
+    /// server stopped at a whole-height boundary.
     pub async fn get_unif_omr_digest(
         &self,
-        detection_keys: Vec<Vec<u8>>,
+        detection_keys: Vec<std::sync::Arc<Vec<u8>>>,
         start_height: u32,
         end_height: u32,
     ) -> Result<(Vec<u8>, Vec<u8>, bool), String> {
+        const CHUNK_SIZE: usize = 1024 * 1024;
         validate_block_range(start_height, end_height)?;
         if detection_keys.is_empty() || detection_keys.iter().any(|k| k.is_empty()) {
             return Err("detection_keys required".into());
@@ -1113,30 +1127,27 @@ impl LightwalletClient {
         let result = async_compat::Compat::new(async {
             let channel = self.connect_channel().await?;
             let mut client = lwd_client(channel);
-            let chunk_size = 1024 * 1024;
-            let num_keys = detection_keys.len() as u32;
-            let mut chunks = vec![lightwallet_proto::DetectionKeyChunk {
+            let header = lightwallet_proto::DetectionKeyChunk {
                 start_height,
                 end_height,
-                num_keys,
+                num_keys: detection_keys.len() as u32,
                 data: vec![],
                 key_done: false,
-            }];
-            for key in detection_keys {
-                let mut offset = 0;
-                while offset < key.len() {
-                    let end_offset = (offset + chunk_size).min(key.len());
-                    let data = key[offset..end_offset].to_vec();
-                    offset = end_offset;
-                    chunks.push(lightwallet_proto::DetectionKeyChunk {
+            };
+            let data_chunks = detection_keys.into_iter().flat_map(|key| {
+                let len = key.len();
+                (0..len).step_by(CHUNK_SIZE).map(move |offset| {
+                    let end_offset = (offset + CHUNK_SIZE).min(len);
+                    lightwallet_proto::DetectionKeyChunk {
                         start_height: 0,
                         end_height: 0,
                         num_keys: 0,
-                        data,
-                        key_done: offset == key.len(),
-                    });
-                }
-            }
+                        data: key[offset..end_offset].to_vec(),
+                        key_done: end_offset == len,
+                    }
+                })
+            });
+            let chunks = std::iter::once(header).chain(data_chunks);
             let resp = client
                 .get_unif_omr_digest(tonic::Request::new(futures::stream::iter(chunks)))
                 .await
@@ -1176,7 +1187,7 @@ impl LightwalletClient {
     pub async fn get_clue_public_key(
         &self,
         payment_pubkey: Vec<u8>,
-    ) -> Result<(bool, Vec<u8>), String> {
+    ) -> Result<(bool, Vec<u8>, Vec<u8>, u64), String> {
         let result = async_compat::Compat::new(async {
             let channel = self.connect_channel().await?;
             let mut client = lwd_client(channel);
@@ -1185,7 +1196,12 @@ impl LightwalletClient {
                 .await
                 .map_err(|e| format!("GetCluePublicKey RPC: {e}"))?;
             let inner = resp.into_inner();
-            Ok((inner.found, inner.clue_public_key))
+            Ok((
+                inner.found,
+                inner.clue_public_key,
+                inner.ownership_proof,
+                inner.key_version,
+            ))
         })
         .await;
         result
@@ -1269,9 +1285,9 @@ const MIN_ENCRYPTED_NOTE_LEN: usize = 48;
 /// Returns `Ok(())` if the block passes all checks, `Err(description)` if
 /// any field has an invalid length or value.
 pub fn validate_compact_block(block: &LightCompactBlock) -> Result<(), String> {
-    if block.height == 0 {
-        return Err("Block height is 0 (genesis blocks should not appear in sync stream)".into());
-    }
+    // DarkFi lightwalletd stores genesis and returns it for ranges that start
+    // at 0. Localnet scans pad to a 1024-block bucket, so that range includes
+    // height 0. Genesis is checked like any other block below.
     if block.hash.len() != 32 {
         return Err(format!(
             "Block {}: hash is {} bytes (expected 32)",
@@ -1953,15 +1969,14 @@ mod tests {
     }
 
     // =========================================================================
-    // Block height zero (finding 5.1 gap fix)
+    // Genesis block (height 0) is served for ranges starting at 0
     // =========================================================================
 
     #[test]
-    fn validate_block_height_zero_rejected() {
+    fn validate_block_height_zero_accepted() {
         let mut block = make_valid_block();
         block.height = 0;
-        let err = validate_compact_block(&block).unwrap_err();
-        assert!(err.contains("height is 0"), "Got: {err}");
+        assert!(validate_compact_block(&block).is_ok());
     }
 
     // =========================================================================
@@ -1977,6 +1992,8 @@ mod tests {
             omr_supported: true,
             best_block_hash: vec![0xAA; 32],
             backend_version: "darkfid 0.5.0".into(),
+            directory_attest_pubkey: vec![0xBB; 32],
+            proto_version: "1.0.0".into(),
         };
         assert_eq!(info.best_block_hash.len(), 32);
         assert_eq!(info.backend_version, "darkfid 0.5.0");
@@ -1991,6 +2008,8 @@ mod tests {
             omr_supported: false,
             best_block_hash: vec![],
             backend_version: String::new(),
+            directory_attest_pubkey: vec![],
+            proto_version: String::new(),
         };
         assert!(info.best_block_hash.is_empty());
         assert!(info.backend_version.is_empty());

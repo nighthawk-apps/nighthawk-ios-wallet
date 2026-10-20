@@ -46,3 +46,56 @@ pub async fn seed_birthday_scan_cursor(drk: &Drk, birthday_height: u32) -> Resul
     // No darkfid fetch — placeholder hash is fine for LWD-first wallets.
     seed_scan_cursor(drk, cursor, None)
 }
+
+/// First height the wallet may scan / trial-decrypt.
+///
+/// `scanned == 0` means never synced (or rescan-to-genesis), not "already
+/// applied height 0". Genesis coins live at height 0, after the dummy ZERO
+/// sentinel, so a fresh scan must include it.
+pub fn clamp_scan_start(scanned: u32, birthday: u32) -> u32 {
+    if scanned == 0 {
+        birthday
+    } else {
+        scanned.saturating_add(1).max(birthday)
+    }
+}
+
+/// Inclusive LWD height range that must be in the Money tree before a scan
+/// window starting at `scan_start`. `None` when the window starts at genesis.
+pub fn pre_birthday_commitment_range(scan_start: u32) -> Option<(u32, u32)> {
+    if scan_start == 0 {
+        None
+    } else {
+        Some((0, scan_start.saturating_sub(1)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fresh_wallet_has_no_pre_birthday_range() {
+        assert_eq!(pre_birthday_commitment_range(0), None);
+    }
+
+    #[test]
+    fn birthday_one_includes_genesis_height_zero() {
+        assert_eq!(pre_birthday_commitment_range(1), Some((0, 0)));
+    }
+
+    #[test]
+    fn mid_chain_birthday_starts_at_genesis() {
+        assert_eq!(pre_birthday_commitment_range(46990), Some((0, 46989)));
+    }
+
+    #[test]
+    fn clamp_scan_start_respects_birthday() {
+        assert_eq!(clamp_scan_start(0, 0), 0);
+        assert_eq!(clamp_scan_start(0, 500), 500);
+        assert_eq!(clamp_scan_start(100, 0), 101);
+        assert_eq!(clamp_scan_start(100, 500), 500);
+        assert_eq!(clamp_scan_start(500, 500), 501);
+        assert_eq!(clamp_scan_start(u32::MAX, 0), u32::MAX);
+    }
+}

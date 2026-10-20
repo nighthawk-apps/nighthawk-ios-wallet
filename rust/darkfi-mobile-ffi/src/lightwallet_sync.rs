@@ -158,9 +158,12 @@ impl LightSyncState {
             }
             LightSyncStatus::Synced => format!("Synced · Block {}", self.chain_tip),
             LightSyncStatus::Retrying => "Connection lost, retrying…".to_string(),
-            LightSyncStatus::Degraded => {
-                "Synced (UnifOMR unavailable — using trial decryption. Prefer Nighthawk or Moonshine for fastest private sync)".to_string()
-            }
+            LightSyncStatus::Degraded => match self.sync_type {
+                LightSyncType::Omr | LightSyncType::Idle => {
+                    "Synced (UnifOMR unavailable — retrying OMR)".to_string()
+                }
+                _ => "Synced (UnifOMR unavailable — using trial decryption. Prefer Nighthawk or Moonshine for fastest private sync)".to_string(),
+            },
             LightSyncStatus::Error => "Sync error".to_string(),
         };
 
@@ -377,6 +380,18 @@ impl SyncEngine {
         reorg_detected
     }
 
+    /// Apply a `GetLightInfo` tip. The hash check must see the previous tip,
+    /// so it runs before the new height is stored.
+    pub fn observe_server_tip(&self, height: u32, hash: &[u8]) -> bool {
+        if !hash.is_empty() {
+            return self.update_chain_tip_hash(height, hash);
+        }
+        if height > 0 {
+            self.set_chain_tip(height);
+        }
+        false
+    }
+
     /// Detect if the backend (darkfid) is still catching up (finding 5.6).
     ///
     /// Adopted from zcash/lightwalletd's "graceful handling of syncing zcashd":
@@ -428,21 +443,29 @@ impl SyncEngine {
     ///
     /// If `strict_omr_only` is enabled and `max_omr_failures` is exceeded,
     /// the engine enters `LightSyncStatus::Error` and halts sync entirely.
+    /// Strict mode always returns `false` and never selects a trial-decrypt type.
     pub fn record_omr_failure(&self) -> bool {
         let mut state = self.state.lock().unwrap();
         state.omr_failure_count += 1;
 
-        // Strict mode: halt instead of degrade
+        // Strict mode: halt instead of degrade. Return false so the caller
+        // does not run trial decrypt.
         if self.strict_omr_only() && state.omr_failure_count >= self.max_omr_failures {
             state.status = LightSyncStatus::Error;
             state.sync_type = LightSyncType::Idle;
             state.refresh_messages();
-            return true;
+            return false;
         }
 
         // Exponential backoff: wait 2^n cycles (capped at 2^6 = 64)
         let exponent = state.omr_failure_count.min(MAX_BACKOFF_EXPONENT);
         state.omr_backoff_remaining = 1u32 << exponent;
+        if self.strict_omr_only() {
+            state.sync_type = LightSyncType::Omr;
+            state.status = LightSyncStatus::Degraded;
+            state.refresh_messages();
+            return false;
+        }
         state.sync_type = LightSyncType::TrialDecryptionFallback;
         state.status = LightSyncStatus::Degraded;
         state.refresh_messages();
@@ -496,7 +519,12 @@ impl SyncEngine {
         if available && state.sync_type == LightSyncType::Idle {
             state.sync_type = LightSyncType::Omr;
         } else if !available && state.sync_type == LightSyncType::Omr {
-            state.sync_type = LightSyncType::TrialDecryption;
+            if self.strict_omr_only() {
+                state.status = LightSyncStatus::Error;
+                state.sync_type = LightSyncType::Idle;
+            } else {
+                state.sync_type = LightSyncType::TrialDecryption;
+            }
         }
         state.refresh_messages();
     }
@@ -517,6 +545,9 @@ impl SyncEngine {
         }
 
         if !state.omr_available {
+            if self.strict_omr_only() {
+                return LightSyncType::Idle;
+            }
             return LightSyncType::TrialDecryption;
         }
 
@@ -528,6 +559,12 @@ impl SyncEngine {
                 state.sync_type = LightSyncType::Omr;
                 state.status = LightSyncStatus::Syncing;
                 state.refresh_messages();
+            }
+            if self.strict_omr_only() {
+                if state.omr_failure_count >= self.max_omr_failures {
+                    return LightSyncType::Idle;
+                }
+                return LightSyncType::Omr;
             }
             return LightSyncType::TrialDecryptionFallback;
         }
@@ -753,9 +790,49 @@ mod tests {
     #[test]
     fn test_set_omr_unavailable_switches_omr_to_trial() {
         let engine = SyncEngine::new("x".to_string());
+        engine.set_strict_omr_only(false);
         engine.set_omr_available(true);
         engine.set_omr_available(false);
         assert_eq!(engine.snapshot().sync_type, LightSyncType::TrialDecryption);
+    }
+
+    #[test]
+    fn test_set_omr_unavailable_strict_refuses_trial() {
+        let engine = SyncEngine::new("x".to_string());
+        engine.set_omr_available(true);
+        engine.set_omr_available(false);
+        assert_eq!(engine.snapshot().status, LightSyncStatus::Error);
+        assert_ne!(engine.snapshot().sync_type, LightSyncType::TrialDecryption);
+        assert_eq!(engine.choose_sync_type(), LightSyncType::Idle);
+    }
+
+    #[test]
+    fn test_strict_backoff_does_not_trial_decrypt() {
+        let engine = SyncEngine::new_strict("x".to_string());
+        engine.set_omr_available(true);
+        for _ in 0..DEFAULT_MAX_OMR_FAILURES + 2 {
+            assert!(!engine.record_omr_failure());
+            // The sync loop resets status to Connecting at the start of each cycle.
+            engine.set_status(LightSyncStatus::Connecting);
+            let t = engine.choose_sync_type();
+            assert!(
+                matches!(t, LightSyncType::Omr | LightSyncType::Idle),
+                "strict mode chose {t:?}"
+            );
+            assert_ne!(
+                engine.snapshot().sync_type,
+                LightSyncType::TrialDecryptionFallback
+            );
+        }
+    }
+
+    #[test]
+    fn test_degraded_message_strict_does_not_claim_trial() {
+        let engine = SyncEngine::new("x".to_string());
+        engine.set_omr_available(true);
+        engine.record_omr_failure();
+        let msg = engine.snapshot().status_message;
+        assert!(!msg.contains("trial decryption"), "{msg}");
     }
 
     #[test]
@@ -860,7 +937,15 @@ mod tests {
     #[test]
     fn test_choose_sync_type_without_omr() {
         let engine = SyncEngine::new("x".to_string());
+        engine.set_strict_omr_only(false);
         assert_eq!(engine.choose_sync_type(), LightSyncType::TrialDecryption);
+    }
+
+    #[test]
+    fn test_choose_sync_type_strict_without_omr_is_idle() {
+        let engine = SyncEngine::new("x".to_string());
+        assert!(engine.strict_omr_only());
+        assert_eq!(engine.choose_sync_type(), LightSyncType::Idle);
     }
 
     #[test]
@@ -910,6 +995,7 @@ mod tests {
     #[test]
     fn test_full_sync_lifecycle() {
         let engine = SyncEngine::new("tcp://127.0.0.1:9067".to_string());
+        engine.set_strict_omr_only(false);
         assert_eq!(engine.snapshot().status, LightSyncStatus::Disconnected);
 
         engine.set_status(LightSyncStatus::Connecting);
@@ -944,6 +1030,7 @@ mod tests {
     #[test]
     fn test_backoff_recovery_cycle() {
         let engine = SyncEngine::new("x".to_string());
+        engine.set_strict_omr_only(false);
         engine.set_omr_available(true);
         engine.set_status(LightSyncStatus::Syncing);
         engine.set_chain_tip(100);
@@ -1028,15 +1115,40 @@ mod tests {
 
     #[test]
     fn test_update_chain_tip_hash_different_height_no_reorg() {
+        // Sync loop order: the startup probe stores the tip without a hash,
+        // then every cycle calls observe_server_tip (hash check, then tip).
         let engine = SyncEngine::new("x".to_string());
-        // First call sets height=100 and hash=0xAA
+        engine.set_chain_tip(100);
+        assert!(!engine.observe_server_tip(100, &[0xAA; 32]));
+        for (h, b) in [(101u32, 0xBBu8), (102, 0xCC), (150, 0xDD)] {
+            assert!(
+                !engine.observe_server_tip(h, &[b; 32]),
+                "tip advance to {h} must not look like a reorg"
+            );
+            assert_eq!(engine.chain_tip(), h);
+        }
+        assert!(!engine.needs_reorg_recovery());
+        assert!(engine.observe_server_tip(150, &[0xEE; 32]));
+        assert!(engine.needs_reorg_recovery());
+    }
+
+    #[test]
+    fn test_set_chain_tip_before_hash_check_flags_false_reorg() {
+        // The old order (set_chain_tip, then update_chain_tip_hash) made every
+        // tip advance compare against the new height.
+        let engine = SyncEngine::new("x".to_string());
         engine.update_chain_tip_hash(100, &[0xAA; 32]);
-        // Second call advances to height=101 with hash=0xBB
-        let reorg = engine.update_chain_tip_hash(101, &[0xBB; 32]);
-        assert!(
-            !reorg,
-            "Different hash at different height is normal progression"
-        );
+        engine.set_chain_tip(101);
+        assert!(engine.update_chain_tip_hash(101, &[0xBB; 32]));
+    }
+
+    #[test]
+    fn test_observe_server_tip_without_hash() {
+        let engine = SyncEngine::new("x".to_string());
+        assert!(!engine.observe_server_tip(500, &[]));
+        assert_eq!(engine.chain_tip(), 500);
+        assert!(!engine.observe_server_tip(0, &[]));
+        assert_eq!(engine.chain_tip(), 500);
     }
 
     // =========================================================================

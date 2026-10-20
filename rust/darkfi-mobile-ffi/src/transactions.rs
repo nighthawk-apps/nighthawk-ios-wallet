@@ -66,9 +66,15 @@ pub async fn build_transfer(
     let secret_bytes: [u8; 32] = secret.inner().to_repr();
     let recipient_pk_bytes: [u8; 32] = recipient.public_key().to_bytes();
 
-    // Fail-closed: require a registered UnifOMR clue public key (no PerfOMR fallback).
+    let network_byte = match drk.network {
+        darkfi_sdk::crypto::keypair::Network::Mainnet => 0x00u8,
+        darkfi_sdk::crypto::keypair::Network::Testnet => 0x01u8,
+    };
+
+    // Fail-closed: require a registered UnifOMR clue public key (verified attestation).
     let (omr_scheme, omr_clue) = resolve_outgoing_omr_clue(
         &recipient_pk_bytes,
+        network_byte,
         lightwallet_server_url,
         lightwallet_tls_pin,
     )
@@ -119,6 +125,7 @@ pub async fn build_transfer(
 /// Look up recipient UnifOMR clue PK and build a paper clue. Fail-closed (no PerfOMR).
 async fn resolve_outgoing_omr_clue(
     recipient_pk: &[u8; 32],
+    network_byte: u8,
     lightwallet_server_url: Option<&str>,
     lightwallet_tls_pin: Option<[u8; 32]>,
 ) -> Result<(u8, Vec<u8>), String> {
@@ -137,7 +144,14 @@ async fn resolve_outgoing_omr_clue(
         lightwallet_tls_pin,
     );
 
-    let (_found, clue_pk) = client
+    let info = client
+        .get_light_info()
+        .await
+        .map_err(|e| format!("GetLightInfo failed: {e}"))?;
+    if info.directory_attest_pubkey.len() != 32 {
+        return Err("GetLightInfo missing directory_attest_pubkey; upgrade lightwalletd".into());
+    }
+    let (_found, clue_pk, ownership_proof, key_version) = client
         .get_clue_public_key(recipient_pk.to_vec())
         .await
         .map_err(|e| format!("GetCluePublicKey failed: {e}"))?;
@@ -147,12 +161,26 @@ async fn resolve_outgoing_omr_clue(
                 .into(),
         );
     }
+    crate::unifomr::verify_directory_attestation(
+        &info.directory_attest_pubkey,
+        network_byte,
+        key_version,
+        recipient_pk,
+        &clue_pk,
+        &ownership_proof,
+    )
+    .map_err(|e| {
+        format!(
+            "GetCluePublicKey directory attestation failed ({e}); treating as unregistered \
+             or MITM"
+        )
+    })?;
     let pk = crate::unifomr::deserialize_public_key(&clue_pk)
         .map_err(|e| format!("Invalid UnifOMR clue public key: {e}"))?;
     let clue = crate::unifomr::build_omr_clue_from_pk(&pk);
     tracing::info!(
         target: "wallet-tx",
-        "Using UnifOMR clue public key for recipient (directory)"
+        "Using verified UnifOMR clue public key for recipient"
     );
     Ok((SCHEME_UNIFOMR, clue))
 }

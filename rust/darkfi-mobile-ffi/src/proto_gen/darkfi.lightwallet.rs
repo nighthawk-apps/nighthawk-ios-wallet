@@ -123,6 +123,44 @@ pub struct TreeState {
     /// Serialized MerkleTree (DarkFi bridgetree format)
     #[prost(bytes = "vec", tag = "2")]
     pub tree_data: ::prost::alloc::vec::Vec<u8>,
+    /// 32-byte blake3 hash of the block header at this height
+    #[prost(bytes = "vec", tag = "3")]
+    pub block_hash: ::prost::alloc::vec::Vec<u8>,
+    /// state_root from the block header — clients verify tree_data hashes to this
+    #[prost(bytes = "vec", tag = "4")]
+    pub state_root: ::prost::alloc::vec::Vec<u8>,
+    /// Whether this is a persisted checkpoint (vs computed on-the-fly)
+    #[prost(bool, tag = "5")]
+    pub is_checkpoint: bool,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct CheckpointRequest {
+    /// Desired checkpoint height, or 0 for "latest available checkpoint"
+    #[prost(uint32, tag = "1")]
+    pub preferred_height: u32,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CheckpointSnapshot {
+    #[prost(uint32, tag = "1")]
+    pub height: u32,
+    /// 32-byte blake3 block header hash at this height
+    #[prost(bytes = "vec", tag = "2")]
+    pub block_hash: ::prost::alloc::vec::Vec<u8>,
+    /// state_root from the block header
+    #[prost(bytes = "vec", tag = "3")]
+    pub state_root: ::prost::alloc::vec::Vec<u8>,
+    /// Serialized Money Merkle tree at this height
+    #[prost(bytes = "vec", tag = "4")]
+    pub tree_data: ::prost::alloc::vec::Vec<u8>,
+    /// Serialized nullifier set (compact bloom or full set)
+    #[prost(bytes = "vec", tag = "5")]
+    pub nullifier_index: ::prost::alloc::vec::Vec<u8>,
+    /// Scan cursor value to seed after applying this snapshot
+    #[prost(uint32, tag = "6")]
+    pub scan_cursor: u32,
+    /// blake3 hash over (height LE || tree_data || nullifier_index) for integrity
+    #[prost(bytes = "vec", tag = "7")]
+    pub snapshot_hash: ::prost::alloc::vec::Vec<u8>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RawTransaction {
@@ -136,8 +174,8 @@ pub struct RawTransaction {
     /// Default 0. Change outputs must not receive the recipient clue.
     #[prost(uint32, tag = "3")]
     pub omr_clue_output_index: u32,
-    /// Recipient-encrypted OMR metadata (opaque to LWD). Merged into
-    /// CompactOutput.omr_metadata_enc on confirm when present.
+    /// Recipient-encrypted OMR metadata (scheme + clue seed + user memo).
+    /// LWD stores opaquely and merges into CompactOutput.omr_metadata_enc on confirm.
     #[prost(bytes = "vec", tag = "4")]
     pub omr_metadata_enc: ::prost::alloc::vec::Vec<u8>,
 }
@@ -207,59 +245,65 @@ pub struct LightInfo {
     /// Whether the server supports OMR detection
     #[prost(bool, tag = "6")]
     pub omr_supported: bool,
-    /// Current best block hash
+    /// / Current best block hash
     #[prost(bytes = "vec", tag = "7")]
     pub best_block_hash: ::prost::alloc::vec::Vec<u8>,
-    /// Backing node version string
+    /// / Backend node version string
     #[prost(string, tag = "8")]
     pub backend_version: ::prost::alloc::string::String,
-}
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct OmrDigestRequest {
-    /// Client's OMR detection key (scheme-dependent encoding).
-    /// Legacy single-key field; still honored when `detection_keys` is empty.
-    #[prost(bytes = "vec", tag = "1")]
-    pub detection_key: ::prost::alloc::vec::Vec<u8>,
-    /// Start height, inclusive
-    #[prost(uint32, tag = "2")]
-    pub start_height: u32,
-    /// End height, inclusive
-    #[prost(uint32, tag = "3")]
-    pub end_height: u32,
-    /// S17 Phase 2: multiple detection keys (same wallet, different address tags).
-    /// When non-empty, the server evaluates each key and returns a framed multi-digest
-    /// (or a Blake3 height-union). Prefer this over N parallel GetOmrDigest RPCs.
-    #[prost(bytes = "vec", repeated, tag = "4")]
-    pub detection_keys: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
+    /// 32-byte Schnorr public key for GetCluePublicKey directory attestations.
+    /// Clients verify ownership_proof against this key (not the payment key).
+    #[prost(bytes = "vec", tag = "9")]
+    pub directory_attest_pubkey: ::prost::alloc::vec::Vec<u8>,
+    /// Protocol version for forward-compatible version negotiation.
+    /// Clients compare against their compiled proto version.
+    #[prost(string, tag = "10")]
+    pub proto_version: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OmrDigestResponse {
     /// FHE encrypted digest containing the matching block heights.
-    /// Paper-faithful per-message packing: one clue per SIMD slot.
+    /// Paper-faithful per-message packing: window clues are flattened in canonical
+    /// order (height asc, then output order) and packed one clue per SIMD slot.
     /// For multi-key requests: length-prefixed frames, one digest per key
     /// ([u32 LE len][digest]…), decrypted client-side with the matching key.
+    /// The client decrypts this locally.
     #[prost(bytes = "vec", tag = "1")]
     pub encrypted_digest: ::prost::alloc::vec::Vec<u8>,
-    /// false ⇒ the server truncated at a whole-height boundary; clamp the
-    /// scan cursor to max(slot_heights).
+    /// Whether the digest covers the full requested range. false ⇒ the server
+    /// truncated at a whole-height boundary (> MAX_OMR_MESSAGES clues); the client
+    /// must clamp its persisted scan height to the covered range (max slot_heights).
     #[prost(bool, tag = "2")]
     pub complete: bool,
-    /// Packed little-endian u32 slot → block-height map.
+    /// Packed little-endian u32 slot → block-height map (length = message count).
+    /// slot_heights\[i\] is the block height of the clue packed into SIMD slot i;
+    /// slots beyond this length are padding. Identical for every key in a
+    /// multi-key response.
     #[prost(bytes = "vec", tag = "3")]
     pub slot_heights: ::prost::alloc::vec::Vec<u8>,
 }
-/// First chunk carries the header. Later chunks carry key bytes.
-/// key_done marks the end of each detection key.
+/// Client-streaming message for StreamDetectionKey.
+/// The first chunk MUST carry the header fields (start/end height, key count).
+/// Subsequent chunks carry raw detection key bytes.  Multiple keys are sent
+/// sequentially: finish key 0's bytes, then key 1's bytes, etc.  Each key
+/// boundary is indicated by `key_done = true` on the last chunk of that key.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DetectionKeyChunk {
+    /// Only set on the first chunk (header).  Ignored on subsequent chunks.
     #[prost(uint32, tag = "1")]
     pub start_height: u32,
     #[prost(uint32, tag = "2")]
     pub end_height: u32,
+    /// Expected number of detection keys that will follow (cap 16).
     #[prost(uint32, tag = "3")]
     pub num_keys: u32,
+    /// Raw detection key bytes (partial or complete).
+    /// Recommended chunk size: 1 MiB (1_048_576 bytes).
     #[prost(bytes = "vec", tag = "4")]
     pub data: ::prost::alloc::vec::Vec<u8>,
+    /// Set to true on the last chunk of each individual key.  The server
+    /// uses this to delimit multi-key uploads (key_done count must equal
+    /// num_keys before processing begins).
     #[prost(bool, tag = "5")]
     pub key_done: bool,
 }
@@ -268,7 +312,7 @@ pub struct OmrCapabilities {
     /// Whether OMR is currently enabled and operational
     #[prost(bool, tag = "1")]
     pub enabled: bool,
-    /// Supported OMR scheme name (e.g. "fmd" for Fuzzy Message Detection)
+    /// Supported OMR scheme name ("unifomr" when enabled)
     #[prost(string, tag = "2")]
     pub scheme: ::prost::alloc::string::String,
     /// Server-side false positive rate (informational)
@@ -310,10 +354,20 @@ pub struct CluePublicKey {
     pub clue_public_key: ::prost::alloc::vec::Vec<u8>,
     #[prost(bool, tag = "2")]
     pub found: bool,
+    /// Directory attestation (fixed padded wire length), signed by
+    /// LightInfo.directory_attest_pubkey over:
+    ///    b"DarkFi-UnifOMR-DirAttest-v1" || network || key_version || payment_pk || clue_pk
+    /// Real and decoy entries both verify. Clients MUST verify this (not a
+    /// payment-key Schnorr) before building a clue.
+    #[prost(bytes = "vec", tag = "3")]
+    pub ownership_proof: ::prost::alloc::vec::Vec<u8>,
+    /// key_version from registration, or a plausible decoy timestamp.
+    #[prost(uint64, tag = "4")]
+    pub key_version: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchPirRequest {
-    /// BFV ciphertexts: one-hot (or multi-hot) selection over \[start_height, end_height\].
+    /// BFV ciphertexts: SealPIR-style striped selection (one CT per stripe) over \[start_height, end_height\].
     /// For multi-limb payloads, client sends one query CT per request (limb_index).
     #[prost(bytes = "vec", repeated, tag = "1")]
     pub query_ciphertexts: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
@@ -322,7 +376,9 @@ pub struct BatchPirRequest {
     pub start_height: u32,
     #[prost(uint32, tag = "3")]
     pub end_height: u32,
-    /// Which u64-limb of the compact-block serialization to retrieve (0-based).
+    /// Which limb of the protobuf CompactBlock to retrieve (0-based). Limb 0 is the
+    /// byte length; limb i >= 1 is bytes [2(i-1), 2i) as a little-endian u16
+    /// (last chunk zero-padded), so every limb stays below the BFV plaintext modulus.
     #[prost(uint32, tag = "4")]
     pub limb_index: u32,
 }
@@ -597,7 +653,8 @@ pub mod dark_fi_light_wallet_client {
             self.inner.unary(req, path, codec).await
         }
         /// Phase 1: UnifOMR Detection (Linear Partial Decryption)
-        /// Client streams the detection key(s) in ~1 MiB chunks.
+        /// Client streams the detection key(s) in ~1 MiB chunks, avoiding the need
+        /// for a 160 MiB single-message gRPC limit.
         /// The first message MUST be a DetectionKeyChunk with header fields set.
         pub async fn get_unif_omr_digest(
             &mut self,
@@ -774,6 +831,8 @@ pub mod dark_fi_light_wallet_client {
             self.inner.server_streaming(req, path, codec).await
         }
         /// Get the Merkle tree state snapshot at a given height.
+        /// Currently tip-only. Historical heights return FAILED_PRECONDITION
+        /// (checkpoints are not retained on disk).
         pub async fn get_tree_state(
             &mut self,
             request: impl tonic::IntoRequest<super::BlockHeight>,
@@ -800,6 +859,39 @@ pub mod dark_fi_light_wallet_client {
                 );
             self.inner.unary(req, path, codec).await
         }
+        /// Get a checkpoint snapshot for instant wallet restore.
+        /// Tip-only: preferred_height must be 0 or equal to the current tip.
+        /// The server streams the snapshot (tree + cursor) so a new device can
+        /// skip replaying [0, tip] when the client accepts a tip snapshot.
+        pub async fn get_checkpoint_snapshot(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CheckpointRequest>,
+        ) -> std::result::Result<
+            tonic::Response<tonic::codec::Streaming<super::CheckpointSnapshot>>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/darkfi.lightwallet.DarkFiLightWallet/GetCheckpointSnapshot",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "darkfi.lightwallet.DarkFiLightWallet",
+                        "GetCheckpointSnapshot",
+                    ),
+                );
+            self.inner.server_streaming(req, path, codec).await
+        }
         /// Lookup zkas bincodes for a given contract ID.
         pub async fn lookup_zkas(
             &mut self,
@@ -824,8 +916,7 @@ pub mod dark_fi_light_wallet_client {
                 );
             self.inner.unary(req, path, codec).await
         }
-        /// Request an OMR detection digest for a height range.
-        /// Get server OMR capabilities.
+        /// Get server OMR capabilities (scheme is always "unifomr" when enabled).
         pub async fn get_omr_capabilities(
             &mut self,
             request: impl tonic::IntoRequest<super::Empty>,

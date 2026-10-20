@@ -113,23 +113,23 @@ pub type OmrError = String;
 static UNIFOMR_BFV_PARAMS: OnceLock<Arc<BfvParameters>> = OnceLock::new();
 
 /// BFV params for UnifOMR AHE — paper Param2 `D=4096`, plaintext `t=q`.
-pub fn bfv_params() -> Arc<BfvParameters> {
-    UNIFOMR_BFV_PARAMS
-        .get_or_init(|| {
-            Arc::new(
-                BfvParametersBuilder::new()
-                    .set_degree(4096)
-                    .set_plaintext_modulus(CLUE_Q)
-                    .set_moduli_sizes(&[40, 40, 40])
-                    .build()
-                    .expect("UnifOMR Param2 BFV parameters"),
-            )
-        })
-        .clone()
+pub fn bfv_params() -> Result<Arc<BfvParameters>, OmrError> {
+    if let Some(p) = UNIFOMR_BFV_PARAMS.get() {
+        return Ok(Arc::clone(p));
+    }
+    let built = BfvParametersBuilder::new()
+        .set_degree(4096)
+        .set_plaintext_modulus(CLUE_Q)
+        .set_moduli_sizes(&[40, 40, 40])
+        .build()
+        .map(Arc::new)
+        .map_err(|e| format!("UnifOMR Param2 BFV parameters: {e}"))?;
+    let _ = UNIFOMR_BFV_PARAMS.set(Arc::clone(&built));
+    Ok(UNIFOMR_BFV_PARAMS.get().map(Arc::clone).unwrap_or(built))
 }
 
-pub fn packing_degree() -> usize {
-    bfv_params().degree()
+pub fn packing_degree() -> Result<usize, OmrError> {
+    Ok(bfv_params()?.degree())
 }
 
 // ---------------------------------------------------------------------------
@@ -541,7 +541,7 @@ impl UnifOmrClient {
         let (clue_sk, _) = clue_keypair_from_wallet(wallet_secret, network)?;
         let det_seed = derive_det_seed(wallet_secret, network)?;
         let mut r = StdRng::from_seed(det_seed);
-        let params = bfv_params();
+        let params = bfv_params()?;
         let det_sk = SecretKey::random(&params, &mut r);
         let det_pk = PublicKey::new(&det_sk, &mut r);
         Ok(Self {
@@ -610,6 +610,18 @@ impl UnifOmrClient {
         let mut off = 5usize;
         let degree = self.params.degree();
         let t = self.params.plaintext();
+        if chunk_count > max_digest_chunks(degree) {
+            return Err(format!(
+                "digest chunk_count {chunk_count} exceeds max {}",
+                max_digest_chunks(degree)
+            ));
+        }
+        // Each chunk carries at least ℓ length prefixes.
+        if chunk_count.saturating_mul(CLUE_PLAINTEXT_BITS * 4) > digest.len() - off {
+            return Err(format!(
+                "digest chunk_count {chunk_count} exceeds payload size"
+            ));
+        }
 
         let in_range = |raw: u64| -> bool {
             let centered = if raw > t / 2 {
@@ -662,7 +674,7 @@ impl UnifOmrClient {
     /// Slot `i` maps to `slot_heights[i]`. Slots past that length are padding.
     /// Heights are sorted and de-duplicated.
     pub fn range_check_matches(slots: &[u64], slot_heights: &[u32]) -> Result<Vec<u32>, OmrError> {
-        let t = bfv_params().plaintext();
+        let t = bfv_params()?.plaintext();
         let mut out = Vec::new();
         for (i, &height) in slot_heights.iter().enumerate() {
             let Some(&raw) = slots.get(i) else { break };
@@ -681,6 +693,11 @@ impl UnifOmrClient {
     }
 }
 
+/// Max chunks in a well-formed digest (`MAX_OMR_MESSAGES` clues, `degree` per chunk).
+pub fn max_digest_chunks(degree: usize) -> usize {
+    MAX_OMR_MESSAGES.div_ceil(degree.max(1))
+}
+
 /// Parse the packed little-endian `u32` slot → height map.
 pub fn unpack_slot_heights(bytes: &[u8]) -> Result<Vec<u32>, String> {
     if bytes.len() % 4 != 0 {
@@ -689,10 +706,51 @@ pub fn unpack_slot_heights(bytes: &[u8]) -> Result<Vec<u32>, String> {
             bytes.len()
         ));
     }
+    if bytes.len() / 4 > MAX_OMR_MESSAGES {
+        return Err(format!(
+            "slot_heights has {} entries (max {MAX_OMR_MESSAGES})",
+            bytes.len() / 4
+        ));
+    }
     Ok(bytes
         .chunks_exact(4)
         .map(|c| u32::from_le_bytes(c.try_into().unwrap()))
         .collect())
+}
+
+/// Check `slot_heights` against the requested window and the decrypted digest.
+///
+/// `slot_count` is the number of decrypted slots (`chunk_count × degree`).
+/// Heights must be non-decreasing and inside `[start, end]`.
+pub fn validate_slot_heights(
+    slot_heights: &[u32],
+    slot_count: usize,
+    degree: usize,
+    start: u32,
+    end: u32,
+) -> Result<(), String> {
+    if slot_heights.is_empty() {
+        return Ok(());
+    }
+    let degree = degree.max(1);
+    let chunk_count = slot_count / degree;
+    if slot_count % degree != 0 || chunk_count != slot_heights.len().div_ceil(degree) {
+        return Err(format!(
+            "digest has {chunk_count} chunks but slot_heights needs {}",
+            slot_heights.len().div_ceil(degree)
+        ));
+    }
+    if slot_heights.windows(2).any(|w| w[0] > w[1]) {
+        return Err("slot_heights not sorted by height".into());
+    }
+    let first = slot_heights[0];
+    let last = slot_heights[slot_heights.len() - 1];
+    if first < start || last > end {
+        return Err(format!(
+            "slot_heights [{first}, {last}] outside requested window [{start}, {end}]"
+        ));
+    }
+    Ok(())
 }
 
 /// Parse detection key into per-coefficient broadcast ciphertexts.
@@ -746,11 +804,11 @@ pub struct UnifOmrDetector {
 }
 
 impl UnifOmrDetector {
-    pub fn new(network: u8) -> Self {
-        Self {
+    pub fn new(network: u8) -> Result<Self, OmrError> {
+        Ok(Self {
             network,
-            params: bfv_params(),
-        }
+            params: bfv_params()?,
+        })
     }
 
     /// Evaluate UnifOMD over notes with LWEmongrass pre-filter.
@@ -979,6 +1037,65 @@ pub fn verify_clue_pk_ownership(
     Ok(())
 }
 
+/// Domain-separated message prefix for lightwalletd directory attestations.
+pub const DIRECTORY_ATTEST_DOMAIN: &[u8] = b"DarkFi-UnifOMR-DirAttest-v1";
+
+fn directory_attest_message(
+    network: u8,
+    key_version: u64,
+    payment_pubkey: &[u8],
+    clue_public_key: &[u8],
+) -> Vec<u8> {
+    let mut msg = Vec::with_capacity(
+        DIRECTORY_ATTEST_DOMAIN.len() + 9 + payment_pubkey.len() + clue_public_key.len(),
+    );
+    msg.extend_from_slice(DIRECTORY_ATTEST_DOMAIN);
+    msg.push(network);
+    msg.extend_from_slice(&key_version.to_le_bytes());
+    msg.extend_from_slice(payment_pubkey);
+    msg.extend_from_slice(clue_public_key);
+    msg
+}
+
+/// Verify a `GetCluePublicKey` directory attestation against the LWD public key.
+pub fn verify_directory_attestation(
+    server_pk: &[u8],
+    network: u8,
+    key_version: u64,
+    payment_pubkey: &[u8; 32],
+    clue_public_key: &[u8],
+    attestation: &[u8],
+) -> Result<(), String> {
+    use darkfi_sdk::crypto::schnorr::SchnorrPublic;
+    use darkfi_sdk::crypto::PublicKey;
+    use darkfi_serial::deserialize;
+    const OWNERSHIP_PROOF_WIRE_LEN: usize = 128;
+    if server_pk.len() != 32 {
+        return Err("directory attest pubkey must be 32 bytes".into());
+    }
+    let mut pk_bytes = [0u8; 32];
+    pk_bytes.copy_from_slice(server_pk);
+    // Fixed-length wire: `[u16 LE len][signature][zero padding]`.
+    let proof_bytes = if attestation.len() == OWNERSHIP_PROOF_WIRE_LEN {
+        let len = u16::from_le_bytes([attestation[0], attestation[1]]) as usize;
+        if len == 0 || 2 + len > attestation.len() {
+            return Err("directory attestation length invalid".into());
+        }
+        &attestation[2..2 + len]
+    } else {
+        attestation
+    };
+    let pk = PublicKey::from_bytes(pk_bytes)
+        .map_err(|e| format!("invalid directory attest pubkey: {e}"))?;
+    let sig: darkfi_sdk::crypto::schnorr::Signature = deserialize(proof_bytes)
+        .map_err(|e| format!("invalid directory attestation encoding: {e}"))?;
+    let msg = directory_attest_message(network, key_version, payment_pubkey, clue_public_key);
+    if !pk.verify(&msg, &sig) {
+        return Err("directory attestation verification failed".into());
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1027,7 +1144,7 @@ mod tests {
         let clue = serialize_clue(&pk.encrypt_zeros(&mut r));
 
         let det_key = client.build_detection_key(0x01).unwrap();
-        let detector = UnifOmrDetector::new(0x01);
+        let detector = UnifOmrDetector::new(0x01).unwrap();
 
         let notes = vec![(100u32, vec![ClueNote { omr_clue: clue }])];
         // Pad to exercise S19-style single height in a chunk.
@@ -1053,7 +1170,7 @@ mod tests {
         let alice_clue = serialize_clue(&alice_pk.encrypt_zeros(&mut r));
 
         let det_key = alice_client.build_detection_key(0x01).unwrap();
-        let detector = UnifOmrDetector::new(0x01);
+        let detector = UnifOmrDetector::new(0x01).unwrap();
         let notes = vec![(
             77u32,
             vec![
@@ -1082,7 +1199,7 @@ mod tests {
         let alice_client = UnifOmrClient::from_wallet(&alice, 0x01).unwrap();
         let (_, bob_pk) = clue_keypair_from_wallet(&bob, 0x01).unwrap();
         let det_key = alice_client.build_detection_key(0x01).unwrap();
-        let detector = UnifOmrDetector::new(0x01);
+        let detector = UnifOmrDetector::new(0x01).unwrap();
 
         for seed in [42u64, 99, 1337] {
             let mut r = StdRng::seed_from_u64(seed);
@@ -1139,7 +1256,7 @@ mod tests {
         });
         let notes = vec![(123u32, clues)];
         let det_key = alice_client.build_detection_key(0x01).unwrap();
-        let detector = UnifOmrDetector::new(0x01);
+        let detector = UnifOmrDetector::new(0x01).unwrap();
         let digest = detector.evaluate(&det_key, &notes).unwrap();
         let slots = alice_client.decrypt_digest_slots(&digest).unwrap();
         let heights = vec![123u32; 9];
@@ -1147,6 +1264,92 @@ mod tests {
         assert!(
             matches.contains(&123),
             "alice's clue must still match when packed after other clues"
+        );
+    }
+
+    #[test]
+    fn test_digest_rejects_oversized_chunk_count() {
+        let client = UnifOmrClient::from_wallet(&[0x55u8; 32], 0x01).unwrap();
+        let mut digest = vec![DIGEST_FORMAT_VERSION];
+        digest.extend_from_slice(&u32::MAX.to_le_bytes());
+        let err = client.decrypt_digest_slots(&digest).unwrap_err();
+        assert!(err.contains("exceeds max"), "{err}");
+
+        // Within the cap but larger than the remaining bytes can hold.
+        let mut digest = vec![DIGEST_FORMAT_VERSION];
+        digest.extend_from_slice(&4u32.to_le_bytes());
+        digest.extend_from_slice(&[0u8; 8]);
+        let err = client.decrypt_digest_slots(&digest).unwrap_err();
+        assert!(err.contains("payload size"), "{err}");
+    }
+
+    #[test]
+    fn test_digest_empty_chunk_count() {
+        let client = UnifOmrClient::from_wallet(&[0x56u8; 32], 0x01).unwrap();
+        let mut digest = vec![DIGEST_FORMAT_VERSION];
+        digest.extend_from_slice(&0u32.to_le_bytes());
+        assert!(client.decrypt_digest_slots(&digest).unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_validate_slot_heights() {
+        let d = 4096;
+        assert!(validate_slot_heights(&[], 0, d, 10, 20).is_ok());
+        assert!(validate_slot_heights(&[10, 10, 15, 20], d, d, 10, 20).is_ok());
+        // Chunk count must match ceil(len / degree).
+        assert!(validate_slot_heights(&[10, 11], 2 * d, d, 10, 20).is_err());
+        assert!(validate_slot_heights(&[10, 11], 0, d, 10, 20).is_err());
+        // Non-decreasing.
+        assert!(validate_slot_heights(&[12, 11], d, d, 10, 20).is_err());
+        // Inside the requested window.
+        assert!(validate_slot_heights(&[9, 11], d, d, 10, 20).is_err());
+        assert!(validate_slot_heights(&[11, 21], d, d, 10, 20).is_err());
+        let many = vec![10u32; d + 1];
+        assert!(validate_slot_heights(&many, 2 * d, d, 10, 20).is_ok());
+        assert!(validate_slot_heights(&many, d, d, 10, 20).is_err());
+    }
+
+    #[test]
+    fn test_unpack_slot_heights_cap() {
+        let bytes = vec![0u8; (MAX_OMR_MESSAGES + 1) * 4];
+        assert!(unpack_slot_heights(&bytes).is_err());
+        assert_eq!(unpack_slot_heights(&[1, 0, 0, 0, 2, 0, 0, 0]).unwrap(), vec![1, 2]);
+    }
+
+    #[test]
+    fn test_directory_attestation_roundtrip() {
+        use darkfi_sdk::crypto::schnorr::SchnorrSecret;
+        use darkfi_sdk::crypto::{PublicKey, SecretKey};
+        use darkfi_serial::serialize;
+
+        let server_sk = SecretKey::random(&mut ::rand::rngs::OsRng);
+        let server_pk = PublicKey::from_secret(server_sk).to_bytes();
+        let payment_pk = [7u8; 32];
+        let clue_pk = vec![1u8, 2, 3, 4];
+        let msg = directory_attest_message(0x01, 42, &payment_pk, &clue_pk);
+        let sig = serialize(&server_sk.sign(&msg));
+
+        verify_directory_attestation(&server_pk, 0x01, 42, &payment_pk, &clue_pk, &sig).unwrap();
+
+        let mut wire = vec![0u8; 128];
+        wire[..2].copy_from_slice(&(sig.len() as u16).to_le_bytes());
+        wire[2..2 + sig.len()].copy_from_slice(&sig);
+        verify_directory_attestation(&server_pk, 0x01, 42, &payment_pk, &clue_pk, &wire).unwrap();
+
+        assert!(
+            verify_directory_attestation(&server_pk, 0x01, 43, &payment_pk, &clue_pk, &wire)
+                .is_err()
+        );
+        assert!(
+            verify_directory_attestation(&server_pk, 0x00, 42, &payment_pk, &clue_pk, &wire)
+                .is_err()
+        );
+        let mut decoy = vec![0xAAu8; 128];
+        decoy[0] = 64;
+        decoy[1] = 0;
+        assert!(
+            verify_directory_attestation(&server_pk, 0x01, 42, &payment_pk, &clue_pk, &decoy)
+                .is_err()
         );
     }
 }
