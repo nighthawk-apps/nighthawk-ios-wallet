@@ -89,7 +89,7 @@ private extension ChatView {
             }
 
             // One summary line, matching Android chatConnectionSummary.
-            Text("\(store.useTor ? "Tor" : "Direct") · \(store.connectionState.label)")
+            Text("\(store.privacyNetwork.chatLabel) · \(store.connectionState.label)")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
                 .lineLimit(1)
@@ -189,7 +189,7 @@ private extension ChatView {
 
     var connectionColor: Color {
         switch store.connectionState {
-        case .connectedDirect, .connectedViaTor: return .green
+        case .connectedDirect, .connectedViaTor, .connectedViaNym: return .green
         case .connecting, .startingDaemon, .waitingForDagSync, .degraded: return .yellow
         case .disconnected, .error: return .red.opacity(0.6)
         }

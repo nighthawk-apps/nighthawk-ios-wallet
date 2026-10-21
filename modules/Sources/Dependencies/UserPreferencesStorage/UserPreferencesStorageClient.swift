@@ -43,9 +43,10 @@ public struct UserPreferencesStorageClient {
     public var customLightwalletdServer: () -> String?
     public var setCustomLightwalletdServer: (String?) -> Void
 
-    // Tor network
+    // Wallet network (Nym / Tor / Direct) and Tor
+    public var walletPrivacyNetwork: () -> NighthawkSetting.PrivacyNetwork
+    public var setWalletPrivacyNetwork: (NighthawkSetting.PrivacyNetwork) -> Void
     public var torForWalletEnabled: () -> Bool
-    public var setTorForWalletEnabled: (Bool) -> Void
     public var torForChatEnabled: () -> Bool
     public var setTorForChatEnabled: (Bool) -> Void
     public var useEmbeddedTor: () -> Bool
@@ -100,8 +101,9 @@ extension UserPreferencesStorageClient: DependencyKey {
         setIsUsingCustomLightwalletd: UserPreferencesStorage.live.setIsUsingCustomLightwalletd(_:),
         customLightwalletdServer: { UserPreferencesStorage.live.customLightwalletdServer },
         setCustomLightwalletdServer: UserPreferencesStorage.live.setCustomLightwalletdServer(_:),
+        walletPrivacyNetwork: { UserPreferencesStorage.live.walletPrivacyNetwork },
+        setWalletPrivacyNetwork: UserPreferencesStorage.live.setWalletPrivacyNetwork(_:),
         torForWalletEnabled: { UserPreferencesStorage.live.torForWalletEnabled },
-        setTorForWalletEnabled: UserPreferencesStorage.live.setTorForWalletEnabled(_:),
         torForChatEnabled: { UserPreferencesStorage.live.torForChatEnabled },
         setTorForChatEnabled: UserPreferencesStorage.live.setTorForChatEnabled(_:),
         useEmbeddedTor: { UserPreferencesStorage.live.useEmbeddedTor },

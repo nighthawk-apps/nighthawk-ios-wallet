@@ -9,6 +9,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Models
 import SwiftUI
 import UIKit
 import UserPreferencesStorage
@@ -28,12 +29,13 @@ public struct Chat {
             case waitingForDagSync
             case connectedDirect
             case connectedViaTor
+            case connectedViaNym
             case degraded
             case error
 
             public var isConnected: Bool {
                 switch self {
-                case .connectedDirect, .connectedViaTor:
+                case .connectedDirect, .connectedViaTor, .connectedViaNym:
                     return true
                 default:
                     return false
@@ -48,6 +50,7 @@ public struct Chat {
                 case .waitingForDagSync: return "Syncing event graph…"
                 case .connectedDirect: return "Connected (direct)"
                 case .connectedViaTor: return "Connected (Tor)"
+                case .connectedViaNym: return "Connected (Nym)"
                 case .degraded: return "Degraded"
                 case .error: return "Error"
                 }
@@ -55,7 +58,7 @@ public struct Chat {
 
             public var indicatorColor: String {
                 switch self {
-                case .connectedDirect, .connectedViaTor: return "green"
+                case .connectedDirect, .connectedViaTor, .connectedViaNym: return "green"
                 case .connecting, .startingDaemon, .waitingForDagSync, .degraded: return "yellow"
                 case .disconnected, .error: return "red"
                 }
@@ -146,7 +149,7 @@ public struct Chat {
         public var diagnosticDetail: String?
         /// Persistent hawkXXX nickname — generated once, persists between sessions.
         public var nickname: String = DarkfiChatDefaults.persistentNickname()
-        public var useTor: Bool = false
+        public var privacyNetwork: NighthawkSetting.PrivacyNetwork = .default
         /// Number of DAG bootstrap messages received
         public var dagSyncCount: Int = 0
         /// Descriptive string for DAG sync progress (e.g. "Syncing DAG… 142 events")
@@ -254,7 +257,7 @@ public struct Chat {
                 return .none
 
             case .onAppear:
-                state.useTor = userStoredPreferences.torForChatEnabled()
+                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
                 if state.connectionState == .disconnected {
                     return .send(.connectTapped)
                 }
@@ -300,9 +303,9 @@ public struct Chat {
                 state.channelMessages = [:]
                 state.messages = []
                 state.seenEventIds = []
-                state.useTor = userStoredPreferences.torForChatEnabled()
+                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
                 let nickname = state.nickname
-                let useTor = state.useTor
+                let network = state.privacyNetwork
 
                 return .run { send in
                     // The embedded darkirc daemon relays public-channel and DM
@@ -318,8 +321,27 @@ public struct Chat {
                     let (stream, continuation) = AsyncStream<State.Message>.makeStream()
                     let relay = ChatEventRelay(continuation: continuation, myNickname: nickname)
 
+                    if network == .nym {
+                        await send(.dagSyncStatusUpdate("Waiting for the Nym mixnet…"))
+                        let ready = await waitForNymTunnel()
+                        if !ready {
+                            continuation.finish()
+                            await send(.ircBridgeError("Nym mixnet is not up"))
+                            await send(.connectionStateChanged(.error))
+                            await send(.embeddedNodeStatusChanged(.failed))
+                            return
+                        }
+                    }
+
+                    let transport: DarkircTransport = switch network {
+                    case .nym: .nym
+                    case .tor: .tor
+                    case .direct: .direct
+                    }
+                    let socksPort: UInt16 = network == .tor ? 9050 : NighthawkSetting.PrivacyNetwork.nymSocksPort
+
                     do {
-                        try await daemon.restartForChat(callback: relay, useTor: useTor)
+                        try await daemon.restartForChat(callback: relay, transport: transport, socksPort: socksPort)
                     } catch {
                         continuation.finish()
                         await send(.ircBridgeError(error.localizedDescription))
@@ -371,7 +393,12 @@ public struct Chat {
                     }
 
                     await send(.embeddedNodeStatusChanged(.ready))
-                    await send(.connectionStateChanged(useTor ? .connectedViaTor : .connectedDirect))
+                    let connected: State.ConnectionState = switch network {
+                    case .nym: .connectedViaNym
+                    case .tor: .connectedViaTor
+                    case .direct: .connectedDirect
+                    }
+                    await send(.connectionStateChanged(connected))
                     await send(.dagSyncStatusUpdate(nil))
 
                     // Consume incoming messages from the Rust daemon callback
@@ -833,5 +860,17 @@ public struct Chat {
     }
 
     public init() {}
+}
+
+/// Poll until the in-process Nym tunnel reports ready, or the native bootstrap fails.
+private func waitForNymTunnel() async -> Bool {
+    if DarkfiFfiSafe.isNymRunning() { return true }
+    _ = DarkfiFfiSafe.startNymProxySafely(socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort)
+    for _ in 0..<240 {
+        if DarkfiFfiSafe.isNymRunning() { return true }
+        if DarkfiFfiSafe.nymStatus() == "failed" { return false }
+        try? await Task.sleep(for: .milliseconds(500))
+    }
+    return DarkfiFfiSafe.isNymRunning()
 }
 // swiftlint:enable type_body_length

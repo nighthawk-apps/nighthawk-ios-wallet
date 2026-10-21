@@ -10,6 +10,7 @@ import Combine
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import Models
 import UserPreferencesStorage
 import Utils
 import WalletStorage
@@ -97,18 +98,22 @@ private final class WalletHandleManager: @unchecked Sendable {
             endpoint = "tcp://\(endpoint)"
         }
 
-        // S7: when Tor-for-wallet is on, rewrite non-loopback endpoints to
-        // socks5://proxy/dest (Android TorDarkfidEndpoint parity). Arti SOCKS
-        // host/port come from TorNetwork preferences.
-        let torForWallet = UserPreferencesStorage.live.torForWalletEnabled
+        // S7: when the wallet network is Nym or Tor, rewrite non-loopback
+        // endpoints to socks5://proxy/dest (Android TorDarkfidEndpoint parity).
+        // Arti SOCKS host/port come from TorNetwork preferences; Nym listens on
+        // loopback.
+        let walletNetwork = UserPreferencesStorage.live.walletPrivacyNetwork
+        let torForWallet = walletNetwork == .tor
+        let nymForWallet = walletNetwork == .nym
         let socksHost = UserPreferencesStorage.live.torSocksHost ?? TorDarkfidEndpoint.defaultSocksHost
         let socksPort = UInt16(UserPreferencesStorage.live.torSocksPort ?? "9050")
             ?? TorDarkfidEndpoint.defaultSocksPort
+        let nymSocksPort = NighthawkSetting.PrivacyNetwork.nymSocksPort
         endpoint = TorDarkfidEndpoint.toConnectUrl(
             endpoint: endpoint,
-            torEnabled: torForWallet,
-            socksHost: socksHost,
-            socksPort: socksPort
+            torEnabled: walletNetwork != .direct,
+            socksHost: nymForWallet ? TorDarkfidEndpoint.defaultSocksHost : socksHost,
+            socksPort: nymForWallet ? nymSocksPort : socksPort
         )
 
         // Scheme-driven network: stealth-mainnet vs stealth-testnet compilation flags.
@@ -142,6 +147,8 @@ private final class WalletHandleManager: @unchecked Sendable {
             lightwalletTlsPinSha256: LightwalletTlsPin.pinDataOrNil().map { [UInt8]($0) },
             useTor: torForWallet,
             torSocksPort: socksPort,
+            useNym: nymForWallet,
+            nymSocksPort: nymSocksPort,
             darkfidRpcUrl: nil // LWD-only; never hardcode a darkfid testnet port
         )
 

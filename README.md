@@ -2,6 +2,8 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
+**3.00.021.** Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
+
 ## Contents
 
 - [Download](#download)
@@ -211,9 +213,9 @@ In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Sw
 
 | Capability | Behavior |
 |------------|----------|
-| Transport | EventGraph P2P via `DarkfiCore.xcframework` |
-| Tor | `start_darkirc(..., useTor: true)` → arti / onion seeds |
-| Standalone Arti SOCKS | `start_arti_proxy()` for wallet/LWD HTTP clients |
+| Transport | Same app network as the wallet. **Nym** (default) dials clearnet seeds through the mixnet SOCKS proxy. **Tor** uses onion seeds. **Direct** is clearnet |
+| Nym | `start_nym_proxy` at launch (`WalletNetworkWarmStart`). Splash waits, with **Continue without Nym** |
+| Tor | `start_darkirc` with `DarkircTransport.tor` through in-process Arti |
 | Public channels | `#dev`, `#media`, `#hackers`, `#memes`, `#philosophy`, `#markets`, `#math`, `#random`, `#lunardao` |
 | E2E DMs | `chacha_encrypt_dm` / `chacha_decrypt_dm` |
 | Status | `darkirc_status()` polling |
@@ -277,9 +279,11 @@ openssl x509 -in lightwalletd.crt -outform DER | openssl dgst -sha256 -hex
 3. Runtime override: UserDefaults `lightwallet_tls_pin_sha256`
 4. Loopback may omit pin; remote HTTPS **fail closed** without it
 
-### Arti Tor
+### Nym and Arti
 
-Settings → Tor starts in-process Arti via UniFFI. Rebuild after UDL changes:
+Settings → Network privacy defaults to Nym. The splash polls `nym_status()` and will not leave for the wallet until the tunnel is up, the user taps **Continue without Nym** (direct), or bootstrap fails and they retry. Chat uses `DarkircTransport` so P2P follows that same choice. Onion-only peers need Tor.
+
+Settings → Tor (shown when Tor is selected) starts in-process Arti via UniFFI. Rebuild after UDL changes:
 
 ```bash
 SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh   # simulator
@@ -366,6 +370,7 @@ Checklist: [`docs/verification-checklist.md`](docs/verification-checklist.md).
 3. DRK fiat may show “unavailable” until pricing endpoints support DRK.
 4. Default scheme is **`stealth-testnet`**; use **`stealth-mainnet`** for mainnet.
 5. `SIM_ONLY=1` FFI builds omit the device slice — use a full script run before TestFlight / devices.
+6. DarkIRC over Nym can sit on "waiting for peers" when mixnet exits do not complete the public seed handshake. Switch the app network to Tor, or continue without Nym.
 
 ---
 

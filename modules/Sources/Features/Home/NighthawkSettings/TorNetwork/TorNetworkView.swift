@@ -8,6 +8,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 
@@ -24,18 +25,15 @@ public struct TorNetworkView: View {
                 // Intro (matches Android TorNetworkSettingsIntro)
                 introSection
 
-                // Section 1: App-wide Tor routing
-                torRoutingSection
+                // Section 0: Wallet network (Nym / Tor / Direct)
+                walletNetworkSection
 
-                sectionDivider
-
-                // Section 2: Built-in Tor (Arti)
-                builtInTorSection
-
-                sectionDivider
-
-                // Section 3: SOCKS endpoint
-                socksEndpointSection
+                if store.privacyNetwork == .tor {
+                    sectionDivider
+                    builtInTorSection
+                    sectionDivider
+                    socksEndpointSection
+                }
 
                 // Footer + Done
                 footerSection
@@ -50,7 +48,7 @@ public struct TorNetworkView: View {
 private extension TorNetworkView {
     var introSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Tor is off by default — the app uses your normal mobile network (clearnet). Turn on app-wide Tor routing only if you want wallet HTTP and DarkIRC P2P to use SOCKS (default loopback 127.0.0.1:9050). You can use built-in Arti or an external SOCKS proxy.")
+            Text("Wallet, chat, and node traffic go over the Nym mixnet by default, which hides your IP address from servers. Chat reaches the public DarkIRC seeds through that same tunnel. Onion-only peers need Tor. The first connection usually takes a few seconds and can take up to a minute.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -61,43 +59,37 @@ private extension TorNetworkView {
     }
 }
 
-// MARK: - Section 1: App-wide Tor routing
+// MARK: - Section 0: Wallet network
 private extension TorNetworkView {
-    var torRoutingSection: some View {
+    var walletNetworkSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            sectionHeading("App-wide Tor routing")
+            sectionHeading("Wallet network")
 
-            Text("Routes wallet HTTPS, embedded darkfid/darkirc P2P (onion seeds), and remote IRC hosts through SOCKS. Loopback embedded DarkIRC IRC stays direct.")
+            Text("Used for lightwalletd sync and transaction broadcast. Changing it reconnects the wallet.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 4)
 
-            // Wallet toggle
-            torSwitchRow(
-                title: "Route wallet + chat P2P through Tor SOCKS",
-                isOn: Binding(
-                    get: { store.torForWallet },
-                    set: { store.send(.torForWalletToggled($0)) }
-                )
-            )
+            ForEach(NighthawkSetting.PrivacyNetwork.allCases) { network in
+                privacyNetworkRow(network)
+            }
 
-            // Arti status indicator (when enabled)
-            if store.isTorEnabled {
+            if store.isNymEnabled {
                 HStack(spacing: 8) {
                     Circle()
-                        .fill(artiStatusColor)
+                        .fill(statusColor(store.nymStatus))
                         .frame(width: 10, height: 10)
 
-                    Text(store.artiStatus.rawValue)
+                    Text("Nym: \(store.nymStatus.rawValue)")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
-                    if store.artiStatus == .bootstrapping {
-                        ProgressView(value: store.artiBootstrapProgress)
-                            .tint(Asset.Colors.Nighthawk.peach.color)
-                            .frame(width: 60)
+                    if store.nymStatus == .failed || store.nymStatus == .stopped {
+                        Button("Retry") { store.send(.startNym) }
+                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     }
                 }
                 .padding(.top, 4)
@@ -106,12 +98,56 @@ private extension TorNetworkView {
         .padding(.horizontal)
     }
 
-    var artiStatusColor: Color {
-        switch store.artiStatus {
+    func privacyNetworkRow(_ network: NighthawkSetting.PrivacyNetwork) -> some View {
+        let selected = store.privacyNetwork == network
+        return Button(action: { store.send(.privacyNetworkSelected(network)) }) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(network.title)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    Text(network.subtitle)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+    }
+
+    func statusColor(_ status: TorNetwork.State.ArtiStatus) -> Color {
+        switch status {
         case .connected: return .green
         case .bootstrapping: return .yellow
         case .stopped: return .gray
         case .failed: return .red
+        }
+    }
+}
+
+private extension NighthawkSetting.PrivacyNetwork {
+    var title: String {
+        switch self {
+        case .nym: return "Nym mixnet (recommended)"
+        case .tor: return "Tor"
+        case .direct: return "Direct"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .nym: return "Mixes packets across five hops. Chat uses the clearnet seeds through the mixnet. Cannot reach .onion addresses."
+        case .tor: return "Onion routing through built-in Arti or the SOCKS endpoint below."
+        case .direct: return "Connects straight to the server. It sees your IP address."
         }
     }
 }

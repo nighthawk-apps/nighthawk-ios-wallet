@@ -7,6 +7,7 @@
 
 import XCTest
 import ComposableArchitecture
+import SDKSynchronizer
 @testable import stealth_testnet
 
 @MainActor
@@ -14,6 +15,9 @@ class TorNetworkTests: XCTestCase {
     
     func testInitialState() {
         let state = TorNetwork.State()
+        XCTAssertEqual(state.privacyNetwork, .nym)
+        XCTAssertTrue(state.isNymEnabled)
+        XCTAssertEqual(state.nymStatus, .stopped)
         XCTAssertFalse(state.torForWallet)
         XCTAssertFalse(state.torForChat)
         XCTAssertEqual(state.torMode, .embeddedArti)
@@ -28,12 +32,14 @@ class TorNetworkTests: XCTestCase {
         var state = TorNetwork.State()
         XCTAssertFalse(state.isTorEnabled)
         
-        state.torForWallet = true
+        state.privacyNetwork = .tor
+        XCTAssertTrue(state.torForWallet)
         XCTAssertTrue(state.isTorEnabled)
         
-        state.torForWallet = false
+        state.privacyNetwork = .nym
+        XCTAssertFalse(state.isTorEnabled)
         state.torForChat = true
-        XCTAssertTrue(state.isTorEnabled)
+        XCTAssertFalse(state.isTorEnabled)
     }
     
     func testSocksEndpoint_Embedded() {
@@ -52,7 +58,7 @@ class TorNetworkTests: XCTestCase {
     
     func testSocksDescription_EmbeddedEnabled() {
         var state = TorNetwork.State()
-        state.torForWallet = true
+        state.privacyNetwork = .tor
         state.torMode = .embeddedArti
         XCTAssertTrue(state.socksDescription.contains("Loopback"))
     }
@@ -63,22 +69,46 @@ class TorNetworkTests: XCTestCase {
         XCTAssertTrue(state.socksDescription.contains("external"))
     }
     
-    func testTorForWalletToggled_StartArti() async throws {
+    func testPrivacyNetworkSelected_TorStopsNym() async throws {
+        let store = TestStore(
+            initialState: TorNetwork.State(),
+            reducer: TorNetwork.init
+        ) {
+            $0.sdkSynchronizer = .inert
+            $0.userStoredPreferences = .liveValue
+        }
+        
+        store.exhaustivity = .off
+        
+        await store.send(.privacyNetworkSelected(.tor)) { state in
+            state.privacyNetwork = .tor
+        }
+        await store.receive(\.stopNym)
+    }
+    
+    func testPrivacyNetworkSelected_SameNetworkIsNoOp() async throws {
         let store = TestStore(
             initialState: TorNetwork.State(),
             reducer: TorNetwork.init
         )
         
-        store.exhaustivity = .off
+        await store.send(.privacyNetworkSelected(.nym))
+    }
+    
+    func testNymStatusChanged() async throws {
+        let store = TestStore(
+            initialState: TorNetwork.State(),
+            reducer: TorNetwork.init
+        )
         
-        await store.send(.torForWalletToggled(true)) { state in
-            state.torForWallet = true
+        await store.send(.nymStatusChanged(.connected)) { state in
+            state.nymStatus = .connected
         }
     }
     
     func testTorModeChanged_ToExternal() async throws {
         var initialState = TorNetwork.State()
-        initialState.torForWallet = true
+        initialState.privacyNetwork = .tor
         initialState.artiStatus = .connected
         
         let store = TestStore(

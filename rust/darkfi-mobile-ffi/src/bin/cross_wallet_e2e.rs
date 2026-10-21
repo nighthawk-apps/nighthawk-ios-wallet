@@ -77,6 +77,8 @@ async fn bootstrap_wallet(
         lightwallet_tls_pin_sha256: None,
         use_tor: false,
         tor_socks_port: 0,
+        use_nym: false,
+        nym_socks_port: 0,
         darkfid_rpc_url: None,
     };
 

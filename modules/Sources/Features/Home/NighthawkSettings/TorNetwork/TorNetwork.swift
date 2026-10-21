@@ -2,13 +2,15 @@
 //  TorNetwork.swift
 //  stealth
 //
-//  Tor network settings reducer — matches Android's AppTorCoordinator + TorNetworkSettingsScreen.
-//  Manages in-process Arti SOCKS proxy for wallet RPC and DarkIRC chat P2P routing.
+//  Network privacy settings reducer — matches Android's AppNymCoordinator, AppTorCoordinator and
+//  TorNetworkSettingsScreen. The wallet network (Nym by default, Tor, or Direct) carries
+//  lightwalletd traffic; the in-process Arti SOCKS proxy also serves DarkIRC chat P2P.
 //
 
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import Models
 import SDKSynchronizer
 import UserPreferencesStorage
 
@@ -16,9 +18,14 @@ import UserPreferencesStorage
 public struct TorNetwork {
     @ObservableState
     public struct State: Equatable {
-        // ── Routing toggle (single app-wide toggle matching Android) ────
-        public var torForWallet: Bool = false
+        // ── Wallet network and chat routing ─────────────────────────────
+        public var privacyNetwork: NighthawkSetting.PrivacyNetwork = .default
         public var torForChat: Bool = false
+
+        public var torForWallet: Bool { privacyNetwork == .tor }
+
+        // ── Nym status (wallet network = .nym) ─────────────────────────
+        public var nymStatus: ArtiStatus = .stopped
 
         // ── Tor provider ────────────────────────────────────────────────
         public enum TorMode: String, Equatable, CaseIterable {
@@ -42,7 +49,8 @@ public struct TorNetwork {
         public var artiBootstrapProgress: Double = 0.0
 
         // ── Derived ────────────────────────────────────────────────────
-        public var isTorEnabled: Bool { torForWallet || torForChat }
+        public var isTorEnabled: Bool { torForWallet }
+        public var isNymEnabled: Bool { privacyNetwork == .nym }
         public var isUsingEmbedded: Bool { torMode == .embeddedArti }
 
         public var socksEndpoint: String {
@@ -67,9 +75,14 @@ public struct TorNetwork {
         case binding(BindingAction<State>)
         case onAppear
 
-        // Route toggles
-        case torForWalletToggled(Bool)
+        // Wallet network and chat routing
+        case privacyNetworkSelected(NighthawkSetting.PrivacyNetwork)
         case torForChatToggled(Bool)
+
+        // Nym lifecycle
+        case startNym
+        case stopNym
+        case nymStatusChanged(State.ArtiStatus)
 
         // Provider
         case torModeChanged(State.TorMode)
@@ -105,7 +118,8 @@ public struct TorNetwork {
                 return .none
 
             case .onAppear:
-                state.torForWallet = userStoredPreferences.torForWalletEnabled()
+                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
+                state.nymStatus = DarkfiFfiSafe.isNymRunning() ? .connected : .stopped
                 state.torForChat = userStoredPreferences.torForChatEnabled()
                 state.torMode = userStoredPreferences.useEmbeddedTor()
                     ? .embeddedArti : .externalSocks
@@ -121,12 +135,50 @@ public struct TorNetwork {
                 }
                 return .none
 
-            case let .torForWalletToggled(enabled):
-                state.torForWallet = enabled
-                state.torForChat = enabled
-                userStoredPreferences.setTorForWalletEnabled(enabled)
-                userStoredPreferences.setTorForChatEnabled(enabled)
-                return resolveArtiLifecycle(state: &state)
+            case let .privacyNetworkSelected(network):
+                guard network != state.privacyNetwork else { return .none }
+                state.privacyNetwork = network
+                userStoredPreferences.setWalletPrivacyNetwork(network)
+                let nymEffect: Effect<Action> = network == .nym ? .send(.startNym) : .send(.stopNym)
+                return .merge(
+                    nymEffect,
+                    resolveArtiLifecycle(state: &state),
+                    .run { _ in
+                        // Reopen the wallet so Rust installs the new SOCKS route.
+                        sdkSynchronizer.stop()
+                        try? await sdkSynchronizer.start(false)
+                    }
+                )
+
+            case .startNym:
+                guard state.nymStatus != .bootstrapping,
+                      state.nymStatus != .connected else { return .none }
+                state.nymStatus = .bootstrapping
+                return .run { send in
+                    guard DarkfiFfiSafe.startNymProxySafely(socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort)
+                            || DarkfiFfiSafe.isNymRunning() else {
+                        await send(.nymStatusChanged(.failed))
+                        return
+                    }
+                    // Topology fetch, gateway handshake and IPR connect can exceed a minute.
+                    for _ in 0..<240 {
+                        if DarkfiFfiSafe.isNymRunning() {
+                            await send(.nymStatusChanged(.connected))
+                            return
+                        }
+                        try await Task.sleep(nanoseconds: 500_000_000)
+                    }
+                    await send(.nymStatusChanged(.failed))
+                }
+
+            case .stopNym:
+                DarkfiFfiSafe.stopNymProxy()
+                state.nymStatus = .stopped
+                return .none
+
+            case let .nymStatusChanged(status):
+                state.nymStatus = status
+                return .none
 
             case let .torForChatToggled(enabled):
                 state.torForChat = enabled

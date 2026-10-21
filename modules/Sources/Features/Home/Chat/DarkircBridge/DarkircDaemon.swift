@@ -86,16 +86,19 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// outgoing messages go through `send_chat_message`.
     /// Returns immediately — DAG sync proceeds asynchronously.
     ///
-    /// When `useTor` is true the Rust daemon routes all P2P traffic over
-    /// darkfi's embedded Tor (arti) transport using the `tor://` onion seeds.
-    /// When false it connects over clearnet `tcp+tls` seeds.
-    public func start(callback: DarkircEventCallback? = nil, useTor: Bool = false) throws {
+    /// `transport` follows the app network. For Nym and Tor, `socksPort` is the
+    /// local proxy that is already carrying traffic.
+    public func start(
+        callback: DarkircEventCallback? = nil,
+        transport: DarkircTransport = .direct,
+        socksPort: UInt16 = 0
+    ) throws {
         let currentStatus = status
         guard currentStatus != .running && currentStatus != .starting else {
             return // Already running
         }
 
-        try startDarkirc(datastorePath: datastorePath, useTor: useTor, torSocksPort: 9050, callback: callback)
+        try startDarkirc(datastorePath: datastorePath, transport: transport, socksPort: socksPort, callback: callback)
     }
 
     /// Stop the embedded darkirc runtime.
@@ -109,7 +112,11 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// abort or stack overflow), the drain loop will time out (10s). In that case
     /// we proceed anyway — `start_darkirc()` will return a descriptive error if
     /// the status is truly stuck.
-    public func restartForChat(callback: DarkircEventCallback, useTor: Bool) async throws {
+    public func restartForChat(
+        callback: DarkircEventCallback,
+        transport: DarkircTransport,
+        socksPort: UInt16
+    ) async throws {
         stop()
         for _ in 0..<40 {
             let status = darkircStatus()
@@ -121,7 +128,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
-        try start(callback: callback, useTor: useTor)
+        try start(callback: callback, transport: transport, socksPort: socksPort)
     }
 
     // MARK: - App Lifecycle

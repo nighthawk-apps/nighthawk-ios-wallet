@@ -88,8 +88,8 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
-                    title: "Tor Network",
-                    subtitle: "Route wallet and chat through Arti Tor",
+                    title: "Network privacy",
+                    subtitle: "Wallet over Nym, Tor or direct; chat over Tor",
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
                     action: { store.send(.rowTapped(.torNetwork)) }
                 )

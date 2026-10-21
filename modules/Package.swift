@@ -284,6 +284,7 @@ let package = Package(
                 "Receive",
                 "RecoveryPhraseDisplay",
                 "LocalAuthenticationClient",
+                "Models",
                 "SendFlow",
                 "SDKSynchronizer",
                 "UIComponents",

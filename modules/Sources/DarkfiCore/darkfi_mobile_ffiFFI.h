@@ -427,6 +427,18 @@ RustBuffer uniffi_darkfi_mobile_ffi_fn_func_chacha_decrypt_dm(RustBuffer my_secr
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_chacha_encrypt_dm(RustBuffer my_secret, RustBuffer their_public, RustBuffer plaintext, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_CONNECTION_PHASE
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_CONNECTION_PHASE
+RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_connection_phase(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_OUTBOUND_SLOTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_OUTBOUND_SLOTS
+RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_outbound_slots(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_STATUS
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_STATUS
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_status(RustCallStatus *_Nonnull out_status
@@ -462,6 +474,18 @@ int8_t uniffi_darkfi_mobile_ffi_fn_func_is_arti_running(RustCallStatus *_Nonnull
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_IS_NYM_RUNNING
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_IS_NYM_RUNNING
+int8_t uniffi_darkfi_mobile_ffi_fn_func_is_nym_running(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_NYM_STATUS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_NYM_STATUS
+RustBuffer uniffi_darkfi_mobile_ffi_fn_func_nym_status(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_SEND_CHAT_MESSAGE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_SEND_CHAT_MESSAGE
 void uniffi_darkfi_mobile_ffi_fn_func_send_chat_message(RustBuffer channel, RustBuffer nick, RustBuffer message, RustCallStatus *_Nonnull out_status
@@ -474,7 +498,12 @@ int8_t uniffi_darkfi_mobile_ffi_fn_func_start_arti_proxy(RustBuffer socks_listen
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_DARKIRC
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_DARKIRC
-void uniffi_darkfi_mobile_ffi_fn_func_start_darkirc(RustBuffer datastore_path, int8_t use_tor, uint16_t tor_socks_port, RustBuffer callback, RustCallStatus *_Nonnull out_status
+void uniffi_darkfi_mobile_ffi_fn_func_start_darkirc(RustBuffer datastore_path, RustBuffer transport, uint16_t socks_port, RustBuffer callback, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_NYM_PROXY
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_NYM_PROXY
+int8_t uniffi_darkfi_mobile_ffi_fn_func_start_nym_proxy(RustBuffer socks_listen, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_STOP_ARTI_PROXY
@@ -486,6 +515,12 @@ void uniffi_darkfi_mobile_ffi_fn_func_stop_arti_proxy(RustCallStatus *_Nonnull o
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_STOP_DARKIRC
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_STOP_DARKIRC
 void uniffi_darkfi_mobile_ffi_fn_func_stop_darkirc(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_STOP_NYM_PROXY
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_STOP_NYM_PROXY
+void uniffi_darkfi_mobile_ffi_fn_func_stop_nym_proxy(RustCallStatus *_Nonnull out_status
     
 );
 #endif
@@ -778,6 +813,18 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_chacha_encrypt_dm(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_connection_phase(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_OUTBOUND_SLOTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_OUTBOUND_SLOTS
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_outbound_slots(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_STATUS
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_STATUS
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_status(void
@@ -814,6 +861,18 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_is_arti_running(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_IS_NYM_RUNNING
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_IS_NYM_RUNNING
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_is_nym_running(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_NYM_STATUS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_NYM_STATUS
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_nym_status(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SEND_CHAT_MESSAGE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SEND_CHAT_MESSAGE
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_send_chat_message(void
@@ -832,6 +891,12 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_start_darkirc(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_START_NYM_PROXY
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_START_NYM_PROXY
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_start_nym_proxy(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_ARTI_PROXY
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_ARTI_PROXY
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_stop_arti_proxy(void
@@ -841,6 +906,12 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_stop_arti_proxy(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_DARKIRC
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_DARKIRC
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_stop_darkirc(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_NYM_PROXY
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_STOP_NYM_PROXY
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_stop_nym_proxy(void
     
 );
 #endif

@@ -10,6 +10,27 @@ import Generated
 import SwiftUI
 
 public enum NighthawkSetting {
+    /// Network for wallet traffic (lightwalletd sync and broadcast). Chat P2P keeps its own Tor
+    /// Network for the whole app: wallet, chat, and node traffic.
+    public enum PrivacyNetwork: String, CaseIterable, Identifiable, Hashable {
+        case nym
+        case tor
+        case direct
+
+        public static let `default`: PrivacyNetwork = .nym
+        public static let nymSocksPort: UInt16 = 1080
+
+        public var id: String { rawValue }
+
+        public var chatLabel: String {
+            switch self {
+            case .nym: return "Nym"
+            case .tor: return "Tor"
+            case .direct: return "Direct"
+            }
+        }
+    }
+
     public enum ScreenMode: String, CaseIterable, Identifiable, Hashable {
         case keepOn
         case off

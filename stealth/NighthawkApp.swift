@@ -54,5 +54,6 @@ struct NighthawkApp: App {
 
     init() {
         FontFamily.registerAllCustomFonts()
+        WalletNetworkWarmStart.startIfNeeded()
     }
 }

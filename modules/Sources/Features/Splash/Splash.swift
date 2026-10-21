@@ -32,6 +32,12 @@ public struct Splash {
         /// Once the user has been routed past splash, avoid sending them back to welcome
         /// when splash reappears after background lock / scene phase changes.
         public var hasCompletedInitialRoute = false
+        /// Holds the splash on a Nym bootstrap, with a progress estimate and a skip.
+        public var waitingForNym = false
+        public var nymFailed = false
+        public var nymSkipped = false
+        public var nymStartedAt: Date?
+        public var pendingLaunch: PendingLaunch?
         public var shouldHandleScenePhaseChange: Bool {
             isVisible && !isAuthenticating && !hasAttemptedAuthentication
         }
@@ -49,6 +55,10 @@ public struct Splash {
         case onAppear
         case retryTapped
         case scenePhaseChanged(ScenePhase)
+        case nymReady
+        case nymFailed
+        case retryNym
+        case continueWithoutNym
 
         public enum Alert: Equatable {}
 
@@ -98,37 +108,52 @@ public struct Splash {
                 }
                 return .none
             case .checkWalletInitialization:
+                if state.waitingForNym { return .none }
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
                     darkfiNetwork: "testnet"
                 )
-
-                switch state.initializationState {
-                case .failed:
-                    state.alert = AlertState.walletStateFailed(state.initializationState)
-                    return .none
-                case .needsMigration:
-                    return .send(.delegate(.handleMigration))
-                case .keysMissing:
-                    state.alert = AlertState.walletStateFailed(state.initializationState)
-                    return .none
-                case .initialized, .filesMissing:
-                    if !userStoredPreferences.isUserBackupComplete() {
-                        return .send(.delegate(.handleNeedsBackup))
-                    }
-                    if userStoredPreferences.areBiometricsEnabled() {
-                        return .send(.authenticate)
-                    } else {
-                        return .send(.delegate(.initializeSDKAndLaunchWallet))
-                    }
-                case .uninitialized:
-                    guard !state.hasCompletedInitialRoute else {
-                        state.alert = AlertState.walletStateFailed(.uninitialized)
-                        return .none
-                    }
-                    return .send(.delegate(.handleNewUser))
+                let pending = Splash.pendingLaunch(
+                    initializationState: state.initializationState,
+                    backupComplete: userStoredPreferences.isUserBackupComplete(),
+                    biometricsEnabled: userStoredPreferences.areBiometricsEnabled()
+                )
+                let holdForNym =
+                    !state.nymSkipped &&
+                    userStoredPreferences.walletPrivacyNetwork() == .nym &&
+                    !DarkfiFfiSafe.isNymRunning() &&
+                    !pending.isTerminalFailure
+                if holdForNym {
+                    state.pendingLaunch = pending
+                    state.waitingForNym = true
+                    state.nymFailed = false
+                    state.nymStartedAt = date()
+                    return nymPollEffect()
                 }
+                return launchEffect(pending, state: &state)
+            case .nymReady:
+                guard state.waitingForNym, let pending = state.pendingLaunch else { return .none }
+                state.waitingForNym = false
+                return launchEffect(pending, state: &state)
+            case .nymFailed:
+                state.nymFailed = true
+                return .none
+            case .retryNym:
+                guard state.waitingForNym else { return .none }
+                state.nymFailed = false
+                state.nymStartedAt = date()
+                return nymPollEffect()
+            case .continueWithoutNym:
+                guard state.waitingForNym, let pending = state.pendingLaunch else { return .none }
+                state.waitingForNym = false
+                state.nymSkipped = true
+                userStoredPreferences.setWalletPrivacyNetwork(.direct)
+                DarkfiFfiSafe.stopNymProxy()
+                return .merge(
+                    .cancel(id: CancelID.nymPoll),
+                    launchEffect(pending, state: &state)
+                )
             case .delegate:
                 return .none
             case .onAppear:
@@ -159,7 +184,89 @@ public struct Splash {
         .ifLet(\.$alert, action: \.alert)
     }
 
+    private enum CancelID { case nymPoll }
+
+    private func nymPollEffect() -> Effect<Action> {
+        .run { send in
+            if !DarkfiFfiSafe.isNymRunning() {
+                _ = DarkfiFfiSafe.startNymProxySafely(
+                    socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort
+                )
+            }
+            for _ in 0..<240 {
+                if DarkfiFfiSafe.isNymRunning() {
+                    await send(.nymReady)
+                    return
+                }
+                if DarkfiFfiSafe.nymStatus() == "failed" {
+                    await send(.nymFailed)
+                    return
+                }
+                try await Task.sleep(for: .milliseconds(500))
+            }
+            await send(.nymFailed)
+        }
+        .cancellable(id: CancelID.nymPoll, cancelInFlight: true)
+    }
+
+    private func launchEffect(_ pending: PendingLaunch, state: inout State) -> Effect<Action> {
+        switch pending {
+        case let .failed(initializationState):
+            state.alert = AlertState.walletStateFailed(initializationState)
+            return .none
+        case .migration:
+            return .send(.delegate(.handleMigration))
+        case .needsBackup:
+            return .send(.delegate(.handleNeedsBackup))
+        case .authenticate:
+            return .send(.authenticate)
+        case .launchWallet:
+            return .send(.delegate(.initializeSDKAndLaunchWallet))
+        case .newUser:
+            guard !state.hasCompletedInitialRoute else {
+                state.alert = AlertState.walletStateFailed(.uninitialized)
+                return .none
+            }
+            return .send(.delegate(.handleNewUser))
+        }
+    }
+
     public init() {}
+}
+
+public extension Splash {
+    enum PendingLaunch: Equatable {
+        case failed(InitializationState)
+        case migration
+        case needsBackup
+        case authenticate
+        case launchWallet
+        case newUser
+
+        var isTerminalFailure: Bool {
+            if case .failed = self { return true }
+            return false
+        }
+    }
+
+    static func pendingLaunch(
+        initializationState: InitializationState,
+        backupComplete: Bool,
+        biometricsEnabled: Bool
+    ) -> PendingLaunch {
+        switch initializationState {
+        case .failed, .keysMissing:
+            return .failed(initializationState)
+        case .needsMigration:
+            return .migration
+        case .initialized, .filesMissing:
+            if !backupComplete { return .needsBackup }
+            if biometricsEnabled { return .authenticate }
+            return .launchWallet
+        case .uninitialized:
+            return .newUser
+        }
+    }
 }
 
 // MARK: - Alerts

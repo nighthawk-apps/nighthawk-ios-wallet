@@ -94,6 +94,7 @@ class ChatTests: XCTestCase {
     func testConnectionState_IsConnectedProperty() {
         XCTAssertTrue(Chat.State.ConnectionState.connectedDirect.isConnected)
         XCTAssertTrue(Chat.State.ConnectionState.connectedViaTor.isConnected)
+        XCTAssertTrue(Chat.State.ConnectionState.connectedViaNym.isConnected)
         XCTAssertFalse(Chat.State.ConnectionState.disconnected.isConnected)
         XCTAssertFalse(Chat.State.ConnectionState.connecting.isConnected)
         XCTAssertFalse(Chat.State.ConnectionState.error.isConnected)
@@ -107,6 +108,7 @@ class ChatTests: XCTestCase {
         XCTAssertEqual(Chat.State.ConnectionState.waitingForDagSync.label, "Syncing event graph…")
         XCTAssertEqual(Chat.State.ConnectionState.connectedDirect.label, "Connected (direct)")
         XCTAssertEqual(Chat.State.ConnectionState.connectedViaTor.label, "Connected (Tor)")
+        XCTAssertEqual(Chat.State.ConnectionState.connectedViaNym.label, "Connected (Nym)")
         XCTAssertEqual(Chat.State.ConnectionState.degraded.label, "Degraded")
         XCTAssertEqual(Chat.State.ConnectionState.error.label, "Error")
     }

@@ -27,6 +27,7 @@ public struct UserPreferencesStorage {
         case darkfiUseCustomLightwalletd
         case darkfiCustomLightwalletdServer
         case darkfiTorForWallet
+        case darkfiWalletPrivacyNetwork
         case darkfiTorForChat
         case darkfiUseEmbeddedTor
         case darkfiTorSocksHost
@@ -186,12 +187,21 @@ public struct UserPreferencesStorage {
 
     // MARK: - Tor Network Preferences
 
-    public var torForWalletEnabled: Bool {
-        getValue(forKey: Constants.darkfiTorForWallet.rawValue, default: false)
+    /// Wallet network; Nym unless the user picked another one.
+    public var walletPrivacyNetwork: NighthawkSetting.PrivacyNetwork {
+        let rawValue = getValue(
+            forKey: Constants.darkfiWalletPrivacyNetwork.rawValue,
+            default: NighthawkSetting.PrivacyNetwork.default.rawValue
+        )
+        return NighthawkSetting.PrivacyNetwork(rawValue: rawValue) ?? .default
     }
 
-    public func setTorForWalletEnabled(_ enabled: Bool) {
-        setValue(enabled, forKey: Constants.darkfiTorForWallet.rawValue)
+    public func setWalletPrivacyNetwork(_ network: NighthawkSetting.PrivacyNetwork) {
+        setValue(network.rawValue, forKey: Constants.darkfiWalletPrivacyNetwork.rawValue)
+    }
+
+    public var torForWalletEnabled: Bool {
+        walletPrivacyNetwork == .tor
     }
 
     public var torForChatEnabled: Bool {
