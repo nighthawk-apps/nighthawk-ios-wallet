@@ -144,6 +144,27 @@ public struct Chat {
         /// All messages keyed by channel name
         public var channelMessages: [String: [Message]] = [:]
         public var composedMessage: String = ""
+        /// Per-room composer text. Keys are `ch:<channel id>` and `dm:<contact id>`.
+        public var composerDrafts: [String: String] = [:]
+
+        /// Active composer slot. Channel and DM text must not share one buffer.
+        public var composerKey: String {
+            if selectedTab == .direct {
+                return "dm:\(selectedDmContact?.id ?? "")"
+            }
+            return "ch:\(selectedChannel?.id ?? "")"
+        }
+
+        mutating func moveComposer(from previous: String) {
+            let next = composerKey
+            guard previous != next else { return }
+            if composedMessage.isEmpty {
+                composerDrafts.removeValue(forKey: previous)
+            } else {
+                composerDrafts[previous] = composedMessage
+            }
+            composedMessage = composerDrafts[next] ?? ""
+        }
         public var connectionState: ConnectionState = .disconnected
         public var embeddedNodeStatus: EmbeddedNodeStatus = .notUsed
         public var diagnosticDetail: String?
@@ -424,10 +445,12 @@ public struct Chat {
                 state.connectionState = newState
                 if newState.isConnected, state.selectedChannel == nil,
                    let first = state.channels.first {
+                    let previous = state.composerKey
                     state.selectedChannel = first
                     state.messages = IdentifiedArrayOf(
                         uniqueElements: state.channelMessages[first.name] ?? []
                     )
+                    state.moveComposer(from: previous)
                 }
                 if case .error = newState {
                     // Keep a specific ircBridgeError that was just recorded.
@@ -446,10 +469,12 @@ public struct Chat {
                 return .none
 
             case let .channelSelected(channel):
+                let previous = state.composerKey
                 state.selectedChannel = channel
                 state.messages = IdentifiedArrayOf(
                     uniqueElements: state.channelMessages[channel.name] ?? []
                 )
+                state.moveComposer(from: previous)
                 // Clear unread
                 if let idx = state.channels.index(id: channel.id) {
                     state.channels[idx].unreadCount = 0
@@ -463,6 +488,7 @@ public struct Chat {
                 }
 
                 let text = state.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+                state.composerDrafts.removeValue(forKey: state.composerKey)
                 state.composedMessage = ""
 
                 // Handle all DarkIRC slash commands as per DarkFi manual
@@ -503,6 +529,7 @@ public struct Chat {
 
                     case "/join":
                         if !arg.isEmpty {
+                            let previous = state.composerKey
                             let targetChan = arg.hasPrefix("#") ? arg : "#\(arg)"
                             if state.channels[id: targetChan] == nil {
                                 let newChan = State.Channel(name: targetChan)
@@ -512,6 +539,7 @@ public struct Chat {
                                 state.selectedChannel = ch
                                 state.messages = IdentifiedArrayOf(uniqueElements: state.channelMessages[ch.name] ?? [])
                             }
+                            state.moveComposer(from: previous)
                             let sysMsg = State.Message(
                                 id: UUID().uuidString,
                                 sender: "System",
@@ -537,9 +565,11 @@ public struct Chat {
                         return .none
 
                     case "/part", "/leave":
+                        let previous = state.composerKey
                         let targetChan = channel.name
                         state.channels.remove(id: targetChan)
                         state.channelMessages.removeValue(forKey: targetChan)
+                        state.composerDrafts.removeValue(forKey: "ch:\(channel.id)")
                         if let first = state.channels.first {
                             state.selectedChannel = first
                             state.messages = IdentifiedArrayOf(uniqueElements: state.channelMessages[first.name] ?? [])
@@ -547,6 +577,7 @@ public struct Chat {
                             state.selectedChannel = nil
                             state.messages = []
                         }
+                        state.moveComposer(from: previous)
                         return .none
 
                     case "/clear":
@@ -758,7 +789,9 @@ public struct Chat {
             // MARK: - DM actions
 
             case let .tabSelected(tab):
+                let previous = state.composerKey
                 state.selectedTab = tab
+                state.moveComposer(from: previous)
                 if tab == .direct {
                     // Load DM contacts from store
                     return .run { send in
@@ -790,12 +823,16 @@ public struct Chat {
                 return .none
 
             case .dmBackTapped:
+                let previous = state.composerKey
                 state.selectedDmContact = nil
                 state.messages = []
+                state.moveComposer(from: previous)
                 return .none
 
             case let .dmContactSelected(contact):
+                let previous = state.composerKey
                 state.selectedDmContact = contact
+                state.moveComposer(from: previous)
                 state.messages = IdentifiedArrayOf(
                     uniqueElements: state.dmMessages[contact.id] ?? []
                 )

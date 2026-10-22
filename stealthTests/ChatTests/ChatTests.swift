@@ -161,6 +161,30 @@ class ChatTests: XCTestCase {
             state.messages = []
         }
     }
+
+    func testChannelSwitch_RestoresComposerDraft() async throws {
+        var initialState = Chat.State()
+        let first = initialState.channels[0]
+        let second = initialState.channels[1]
+        initialState.selectedChannel = first
+        initialState.composedMessage = "for-first"
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: Chat.init
+        )
+
+        await store.send(.channelSelected(second)) { state in
+            state.composerDrafts["ch:\(first.id)"] = "for-first"
+            state.selectedChannel = second
+            state.composedMessage = ""
+        }
+
+        await store.send(.channelSelected(first)) { state in
+            state.selectedChannel = first
+            state.composedMessage = "for-first"
+        }
+    }
     
     // MARK: - Message Tests
     
