@@ -80,6 +80,7 @@ async fn bootstrap_wallet(
         use_nym: false,
         nym_socks_port: 0,
         darkfid_rpc_url: None,
+        strict_omr_only: true,
     };
 
     bootstrap::bootstrap_drk(&config, ex).await

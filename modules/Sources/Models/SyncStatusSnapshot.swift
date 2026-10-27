@@ -21,6 +21,8 @@ public struct SyncStatusSnapshot: Equatable {
     public let omrAvailable: Bool
     /// Canonical retrieval/encryption path currently in use (shared Rust model).
     public let syncMethod: DarkfiSyncMethod
+    /// Live lightwalletd session; the method label is green only when true.
+    public let lightwalletdConnected: Bool
 
     public init(
         _ syncStatus: SyncStatus = .unprepared,
@@ -28,7 +30,8 @@ public struct SyncStatusSnapshot: Equatable {
         lightSyncStatusMessage: String? = nil,
         lightSyncTypeMessage: String? = nil,
         omrAvailable: Bool = false,
-        syncMethod: DarkfiSyncMethod = .unknown
+        syncMethod: DarkfiSyncMethod = .unknown,
+        lightwalletdConnected: Bool = false
     ) {
         self.message = message
         self.syncStatus = syncStatus
@@ -36,6 +39,7 @@ public struct SyncStatusSnapshot: Equatable {
         self.lightSyncTypeMessage = lightSyncTypeMessage
         self.omrAvailable = omrAvailable
         self.syncMethod = syncMethod
+        self.lightwalletdConnected = lightwalletdConnected
     }
 
     public static func snapshotFor(state: SyncStatus) -> SyncStatusSnapshot {
@@ -66,7 +70,8 @@ public struct SyncStatusSnapshot: Equatable {
         lightStatusMessage: String?,
         lightTypeMessage: String?,
         omrAvailable: Bool,
-        syncMethod: DarkfiSyncMethod = .unknown
+        syncMethod: DarkfiSyncMethod = .unknown,
+        lightwalletdConnected: Bool = false
     ) -> SyncStatusSnapshot {
         let base = snapshotFor(state: state)
         return SyncStatusSnapshot(
@@ -75,7 +80,8 @@ public struct SyncStatusSnapshot: Equatable {
             lightSyncStatusMessage: lightStatusMessage,
             lightSyncTypeMessage: lightTypeMessage,
             omrAvailable: omrAvailable,
-            syncMethod: syncMethod
+            syncMethod: syncMethod,
+            lightwalletdConnected: lightwalletdConnected
         )
     }
 
@@ -87,7 +93,8 @@ public struct SyncStatusSnapshot: Equatable {
             lightStatusMessage: nil,
             lightTypeMessage: state.activeSyncMethod == .unknown ? nil : state.activeSyncMethod.displayName,
             omrAvailable: state.activeSyncMethod.isPrivateRetrieval,
-            syncMethod: state.activeSyncMethod
+            syncMethod: state.activeSyncMethod,
+            lightwalletdConnected: state.lightwalletdConnected
         )
     }
 

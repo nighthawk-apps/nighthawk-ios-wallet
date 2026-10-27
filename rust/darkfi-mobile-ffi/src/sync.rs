@@ -103,15 +103,26 @@ fn jittered_sleep_secs(base_secs: u64) -> u64 {
 /// All sync traffic goes through the lightwalletd server.
 pub async fn sync_once_via_lightwallet(drk: DrkPtr, url: &str) -> Result<(), String> {
     let engine = Arc::new(crate::lightwallet_sync::SyncEngine::new(url.to_string()));
+    let force_trial = std::env::var("E2E_FORCE_TRIAL").ok().as_deref() == Some("1");
+    if force_trial {
+        // SyncEngine::new defaults to strict OMR. Forcing OMR off while that
+        // flag is set is classified as a downgrade and the cycle stays Idle.
+        engine.set_strict_omr_only(false);
+    }
     if let Ok(info) = engine
         .lightwallet_client()
         .probe_health(1, std::time::Duration::from_secs(1))
         .await
     {
-        engine.set_omr_available(info.omr_supported);
+        if !force_trial {
+            engine.set_omr_available(info.omr_supported);
+        }
         if info.chain_tip_height > 0 {
             engine.set_chain_tip(info.chain_tip_height);
         }
+    }
+    if force_trial {
+        engine.set_omr_available(false);
     }
     run_sync_cycle_fenced(&drk, &engine)
         .await
@@ -169,23 +180,30 @@ pub fn start_background_sync(
                 let mut consecutive_failures: u32 = 0;
 
                 loop {
-                    sync_engine.set_status(LightSyncStatus::Connecting);
+                    // Keep a live connection showing as live between polls; only a
+                    // fresh or failed session reads as connecting.
+                    if !matches!(
+                        sync_engine.status(),
+                        LightSyncStatus::Synced | LightSyncStatus::Degraded | LightSyncStatus::Syncing
+                    ) {
+                        sync_engine.set_status(LightSyncStatus::Connecting);
+                    }
 
                     // Per-cycle timeout guard (finding 1.2): abort stalled
                     // sync cycles so we don't hang forever on a slow server.
-                    let cycle_result = smol::future::or(
-                        run_sync_cycle_fenced(&drk, &sync_engine),
-                        async {
+                    let cycle_result =
+                        smol::future::or(run_sync_cycle_fenced(&drk, &sync_engine), async {
                             sleep(MAX_SYNC_CYCLE_SECS).await;
                             Err("sync cycle timed out (stall guard)".to_string())
-                        },
-                    )
-                    .await;
+                        })
+                        .await;
 
                     match cycle_result {
                         Ok(()) => {
                             consecutive_failures = 0;
-                            sync_engine.set_status(LightSyncStatus::Synced);
+                            if sync_engine.status() != LightSyncStatus::Degraded {
+                                sync_engine.set_status(LightSyncStatus::Synced);
+                            }
                             let base = if sync_engine.is_behind_tip() {
                                 LIGHTWALLET_POLL_BASE_SECS
                             } else {
@@ -386,8 +404,8 @@ async fn try_lightwallet_sync(drk: &DrkPtr, sync_engine: &SyncEngine) -> Result<
     // Finding 5.3: detect tip hash changes (potential reorgs). The hash check
     // must see the previous tip height, so it runs before the tip is stored.
     // Older servers without best_block_hash (field 7) send empty bytes.
-    let reorg = sync_engine
-        .observe_server_tip(server_info.chain_tip_height, &server_info.best_block_hash);
+    let reorg =
+        sync_engine.observe_server_tip(server_info.chain_tip_height, &server_info.best_block_hash);
     if reorg {
         tracing::warn!(
             target: "wallet-sync",
@@ -483,18 +501,16 @@ async fn try_lightwallet_sync(drk: &DrkPtr, sync_engine: &SyncEngine) -> Result<
 }
 
 /// Localnet send tests set `E2E_FORCE_TRIAL=1` so the sender can see its own
-/// change (not covered by the recipient's UnifOMR clue). Ignored in strict mode.
+/// change (not covered by the recipient's UnifOMR clue).
+///
+/// Strict mode classifies turning OMR off as a downgrade and the cycle stays
+/// Idle. The harness opts in, so this clears strict before it clears OMR.
 fn e2e_force_trial(sync_engine: &SyncEngine) -> bool {
     if std::env::var("E2E_FORCE_TRIAL").ok().as_deref() != Some("1") {
         return false;
     }
-    if sync_engine.strict_omr_only() {
-        tracing::warn!(
-            target: "wallet-sync",
-            "E2E_FORCE_TRIAL ignored: strict_omr_only refuses trial decryption"
-        );
-        return false;
-    }
+    sync_engine.set_strict_omr_only(false);
+    sync_engine.set_omr_available(false);
     true
 }
 
@@ -1139,6 +1155,19 @@ async fn apply_omr_sparse_window(
             .map_err(|e| format!("Failed to load Money Merkle tree: {e}"))?
     };
 
+    // Coins recorded at broadcast (own change / fee) have a placeholder leaf.
+    // Strict UnifOMR does not trial-decrypt those heights, and INSERT OR IGNORE
+    // will not repair the placeholder.
+    let mut known_own: HashMap<Vec<u8>, Vec<u8>> = HashMap::new();
+    if let Ok(wallet_coins) = drk.get_coins(true).await {
+        for (oc, _, _, _, _) in &wallet_coins {
+            known_own.insert(
+                oc.coin.inner().to_repr().to_vec(),
+                oc.coin.to_bytes().to_vec(),
+            );
+        }
+    }
+
     let mut found = 0u32;
 
     // Walk heights in order: append commitments, decrypt matches, apply nullifiers.
@@ -1160,10 +1189,37 @@ async fn apply_omr_sparse_window(
             // Skipping a commitment would shift every later leaf position.
             let invalid = || format!("Invalid note commitment at height {height}");
             let repr: [u8; 32] = coin_bytes.as_slice().try_into().map_err(|_| invalid())?;
-            let base = Option::<pallas::Base>::from(pallas::Base::from_repr(repr))
-                .ok_or_else(invalid)?;
+            let base =
+                Option::<pallas::Base>::from(pallas::Base::from_repr(repr)).ok_or_else(invalid)?;
             let coin = Coin::from(base);
             tree.append(MerkleNode::from(coin.inner()));
+
+            let mut marked_leaf = None;
+            if let Some(sql_key) = known_own.get(coin_bytes.as_slice()) {
+                if let Some(pos) = tree.mark() {
+                    marked_leaf = Some(pos);
+                    let query = format!(
+                        "UPDATE {} SET {} = ?1 WHERE {} = ?2;",
+                        *MONEY_COINS_TABLE, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_COIN,
+                    );
+                    if let Err(e) = drk
+                        .wallet
+                        .exec_sql(
+                            &query,
+                            vec![
+                                drk::walletdb::Value::from(serialize(&pos)),
+                                drk::walletdb::Value::from(sql_key.clone()),
+                            ],
+                        )
+                        .await
+                    {
+                        tracing::warn!(
+                            target: "wallet-sync",
+                            "leaf_position update for known coin at height {height}: {e}"
+                        );
+                    }
+                }
+            }
 
             if !trial_decrypt_all && !matching_set.contains(&height) {
                 continue;
@@ -1192,7 +1248,7 @@ async fn apply_omr_sparse_window(
                 continue;
             };
 
-            let leaf_position = tree.mark().unwrap();
+            let leaf_position = marked_leaf.or_else(|| tree.mark()).unwrap();
             found += 1;
 
             let query = format!(
@@ -1349,9 +1405,7 @@ async fn try_trial_decryption_sync(
     let window_end = tip.min(td_start.saturating_add(MAX_TRIAL_WINDOW));
     sync_engine.set_status_message(&format!(
         "Trial decrypt {}–{} / tip {}",
-        td_start,
-        window_end,
-        tip
+        td_start, window_end, tip
     ));
 
     if td_start == 0 {
@@ -1461,6 +1515,146 @@ async fn ensure_merkle_caught_up(
 }
 
 /// Fresh Money tree: the contract's dummy ZERO leaf, marked, before genesis coins.
+/// Decrypt this wallet's own Money transfer and fee outputs and store them.
+///
+/// The outgoing UnifOMR clue covers output 0 (the payment), not change or the
+/// fee note. Strict sync will not trial-decrypt those, so they have to be
+/// recorded at broadcast. Leaf positions are placeholders until the commitment
+/// walk rewrites them.
+pub async fn remember_own_outputs_from_tx(
+    drk: &drk::Drk,
+    tx: &darkfi::tx::Transaction,
+) -> Result<(), String> {
+    use darkfi_money_contract::{
+        client::MoneyNote,
+        model::{MoneyFeeParamsV1, MoneyTransferParamsV1, Output},
+        MoneyFunction,
+    };
+    use darkfi_sdk::crypto::contract_id::MONEY_CONTRACT_ID;
+    use darkfi_serial::deserialize_async;
+
+    let secrets = drk.get_money_secrets().await.map_err(|e| e.to_string())?;
+    if secrets.is_empty() {
+        return Ok(());
+    }
+    let (height, _) = drk.get_last_scanned_block().map_err(|e| e.to_string())?;
+
+    for call in &tx.calls {
+        if call.data.contract_id != *MONEY_CONTRACT_ID {
+            continue;
+        }
+        let data = &call.data.data;
+        if data.is_empty() {
+            continue;
+        }
+        let outputs: Vec<Output> = match MoneyFunction::try_from(data[0]) {
+            Ok(MoneyFunction::TransferV1) => {
+                let Ok(params) = deserialize_async::<MoneyTransferParamsV1>(&data[1..]).await
+                else {
+                    continue;
+                };
+                params.outputs
+            }
+            Ok(MoneyFunction::FeeV1) => {
+                if data.len() < 10 {
+                    continue;
+                }
+                let Ok(params) = deserialize_async::<MoneyFeeParamsV1>(&data[9..]).await else {
+                    continue;
+                };
+                vec![params.output]
+            }
+            _ => continue,
+        };
+        for output in outputs {
+            if output.tx_local {
+                continue;
+            }
+            let mut matched = None;
+            for secret in &secrets {
+                if let Ok(note) = output.note.decrypt::<MoneyNote>(secret) {
+                    matched = Some((note, *secret));
+                    break;
+                }
+            }
+            if let Some((note, secret)) = matched {
+                if let Err(e) = remember_own_output(drk, height, &output.coin, &note, &secret).await
+                {
+                    tracing::warn!(target: "wallet-tx", "remember own output: {e}");
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Record a note we already decrypted. Leaf position is a placeholder until
+/// the commitment walk rewrites it from the chain.
+pub async fn remember_own_output(
+    drk: &drk::Drk,
+    height: u32,
+    coin: &darkfi_money_contract::model::Coin,
+    note: &darkfi_money_contract::client::MoneyNote,
+    secret: &darkfi_sdk::crypto::SecretKey,
+) -> Result<(), String> {
+    use darkfi_serial::serialize;
+    use drk::money::{
+        MONEY_COINS_COL_COIN, MONEY_COINS_COL_COIN_BLIND, MONEY_COINS_COL_CREATION_HEIGHT,
+        MONEY_COINS_COL_IS_SPENT, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_MEMO,
+        MONEY_COINS_COL_SECRET, MONEY_COINS_COL_SPEND_HOOK, MONEY_COINS_COL_SPENT_HEIGHT,
+        MONEY_COINS_COL_TOKEN_BLIND, MONEY_COINS_COL_TOKEN_ID, MONEY_COINS_COL_USER_DATA,
+        MONEY_COINS_COL_VALUE, MONEY_COINS_COL_VALUE_BLIND, MONEY_COINS_TABLE,
+    };
+
+    let leaf_position = {
+        let mut placeholder = empty_money_tree();
+        placeholder
+            .mark()
+            .ok_or_else(|| "placeholder merkle mark failed".to_string())?
+    };
+    let query = format!(
+        "INSERT OR IGNORE INTO {} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);",
+        *MONEY_COINS_TABLE,
+        MONEY_COINS_COL_COIN,
+        MONEY_COINS_COL_VALUE,
+        MONEY_COINS_COL_TOKEN_ID,
+        MONEY_COINS_COL_SPEND_HOOK,
+        MONEY_COINS_COL_USER_DATA,
+        MONEY_COINS_COL_COIN_BLIND,
+        MONEY_COINS_COL_VALUE_BLIND,
+        MONEY_COINS_COL_TOKEN_BLIND,
+        MONEY_COINS_COL_SECRET,
+        MONEY_COINS_COL_LEAF_POSITION,
+        MONEY_COINS_COL_MEMO,
+        MONEY_COINS_COL_CREATION_HEIGHT,
+        MONEY_COINS_COL_IS_SPENT,
+        MONEY_COINS_COL_SPENT_HEIGHT,
+    );
+    let spent_height: Option<i64> = None;
+    let params = vec![
+        drk::walletdb::Value::from(coin.to_bytes().to_vec()),
+        drk::walletdb::Value::from(serialize(&note.value)),
+        drk::walletdb::Value::from(serialize(&note.token_id)),
+        drk::walletdb::Value::from(serialize(&note.spend_hook)),
+        drk::walletdb::Value::from(serialize(&note.user_data)),
+        drk::walletdb::Value::from(serialize(&note.coin_blind)),
+        drk::walletdb::Value::from(serialize(&note.value_blind)),
+        drk::walletdb::Value::from(serialize(&note.token_blind)),
+        drk::walletdb::Value::from(serialize(secret)),
+        drk::walletdb::Value::from(serialize(&leaf_position)),
+        drk::walletdb::Value::from(serialize(&note.memo)),
+        drk::walletdb::Value::from(i64::from(height)),
+        drk::walletdb::Value::from(0i64),
+        drk::walletdb::Value::from(spent_height),
+    ];
+    drk.wallet
+        .exec_sql(&query, params)
+        .await
+        .map_err(|e| format!("remember_own_output: {e}"))?;
+    Ok(())
+}
+
 pub(crate) fn empty_money_tree() -> darkfi_sdk::crypto::MerkleTree {
     use darkfi_sdk::crypto::{MerkleNode, MerkleTree};
     use darkfi_sdk::pasta::group::ff::Field;
@@ -1591,7 +1785,9 @@ pub(crate) async fn rebuild_money_tree_to_height(
                     .ok_or_else(|| format!("Invalid note commitment at height {h}"))?;
                 tree.append(node);
                 if let Some(sql_key) = own.get(coin_bytes) {
-                    let pos = tree.mark().ok_or_else(|| "merkle mark failed".to_string())?;
+                    let pos = tree
+                        .mark()
+                        .ok_or_else(|| "merkle mark failed".to_string())?;
                     let query = format!(
                         "UPDATE {} SET {} = ?1 WHERE {} = ?2;",
                         *MONEY_COINS_TABLE, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_COIN,
@@ -1729,8 +1925,8 @@ async fn process_compact_block(
             // Skipping a commitment would shift every later leaf position.
             let invalid = || format!("Invalid note commitment in block {}", block.height);
             let repr: [u8; 32] = output.coin.as_slice().try_into().map_err(|_| invalid())?;
-            let base = Option::<pallas::Base>::from(pallas::Base::from_repr(repr))
-                .ok_or_else(invalid)?;
+            let base =
+                Option::<pallas::Base>::from(pallas::Base::from_repr(repr)).ok_or_else(invalid)?;
             let coin = Coin::from(base);
 
             // Always append the commitment so the tree stays consistent with chain order.
@@ -2223,9 +2419,18 @@ mod tests {
 
     #[test]
     fn clamp_omr_truncated_tip_clamps_within_window() {
-        assert_eq!(clamp_omr_truncated_tip(100, 200, Some(150)).unwrap(), Some(150));
-        assert_eq!(clamp_omr_truncated_tip(100, 200, Some(200)).unwrap(), Some(200));
-        assert_eq!(clamp_omr_truncated_tip(100, 200, Some(250)).unwrap(), Some(200));
+        assert_eq!(
+            clamp_omr_truncated_tip(100, 200, Some(150)).unwrap(),
+            Some(150)
+        );
+        assert_eq!(
+            clamp_omr_truncated_tip(100, 200, Some(200)).unwrap(),
+            Some(200)
+        );
+        assert_eq!(
+            clamp_omr_truncated_tip(100, 200, Some(250)).unwrap(),
+            Some(200)
+        );
     }
 
     #[test]
@@ -2244,7 +2449,10 @@ mod tests {
         use darkfi_sdk::pasta::{group::ff::Field, pallas};
         let mut expected = MerkleTree::new(u32::MAX as usize);
         expected.append(MerkleNode::from(pallas::Base::ZERO));
-        assert_eq!(empty_money_tree().root(0).unwrap(), expected.root(0).unwrap());
+        assert_eq!(
+            empty_money_tree().root(0).unwrap(),
+            expected.root(0).unwrap()
+        );
     }
 
     #[test]
@@ -2256,7 +2464,10 @@ mod tests {
 
     #[test]
     fn remove_scanned_blocks_above_rewinds_last() {
-        let db = sled_overlay::sled::Config::new().temporary(true).open().unwrap();
+        let db = sled_overlay::sled::Config::new()
+            .temporary(true)
+            .open()
+            .unwrap();
         let tree = db.open_tree("scanned").unwrap();
         for h in [100u32, 200, 300, 400] {
             tree.insert(h.to_be_bytes(), &b"-"[..]).unwrap();

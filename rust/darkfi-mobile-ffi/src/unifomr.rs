@@ -1313,7 +1313,10 @@ mod tests {
     fn test_unpack_slot_heights_cap() {
         let bytes = vec![0u8; (MAX_OMR_MESSAGES + 1) * 4];
         assert!(unpack_slot_heights(&bytes).is_err());
-        assert_eq!(unpack_slot_heights(&[1, 0, 0, 0, 2, 0, 0, 0]).unwrap(), vec![1, 2]);
+        assert_eq!(
+            unpack_slot_heights(&[1, 0, 0, 0, 2, 0, 0, 0]).unwrap(),
+            vec![1, 2]
+        );
     }
 
     #[test]

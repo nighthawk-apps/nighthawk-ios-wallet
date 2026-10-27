@@ -124,8 +124,13 @@ pub fn start_nym_proxy(socks_port: u16) -> Result<bool, crate::DarkfiWalletNativ
                     tracing::error!("nym proxy exited with error: {e}");
                     NYM_STATE.store(NYM_FAILED, Ordering::SeqCst);
                 }
-                Err(_) => {
-                    tracing::error!("nym proxy thread panicked");
+                Err(payload) => {
+                    let msg = payload
+                        .downcast_ref::<&str>()
+                        .map(|s| s.to_string())
+                        .or_else(|| payload.downcast_ref::<String>().cloned())
+                        .unwrap_or_else(|| "unknown panic".into());
+                    tracing::error!("nym proxy thread panicked: {msg}");
                     NYM_STATE.store(NYM_FAILED, Ordering::SeqCst);
                 }
             }
@@ -252,16 +257,28 @@ async fn wait_for_stop() {
 /// dial it through the mixnet, and pipe bytes both ways.
 async fn handle_socks_conn(mut inbound: TcpStream) -> Result<(), String> {
     let mut head = [0u8; 2];
-    inbound.read_exact(&mut head).await.map_err(|e| e.to_string())?;
+    inbound
+        .read_exact(&mut head)
+        .await
+        .map_err(|e| e.to_string())?;
     if head[0] != 0x05 {
         return Err("not a SOCKS5 greeting".into());
     }
     let mut methods = vec![0u8; head[1] as usize];
-    inbound.read_exact(&mut methods).await.map_err(|e| e.to_string())?;
-    inbound.write_all(&[0x05, 0x00]).await.map_err(|e| e.to_string())?;
+    inbound
+        .read_exact(&mut methods)
+        .await
+        .map_err(|e| e.to_string())?;
+    inbound
+        .write_all(&[0x05, 0x00])
+        .await
+        .map_err(|e| e.to_string())?;
 
     let mut req = [0u8; 4];
-    inbound.read_exact(&mut req).await.map_err(|e| e.to_string())?;
+    inbound
+        .read_exact(&mut req)
+        .await
+        .map_err(|e| e.to_string())?;
     if req[0] != 0x05 {
         return Err("bad SOCKS5 request version".into());
     }
@@ -273,19 +290,31 @@ async fn handle_socks_conn(mut inbound: TcpStream) -> Result<(), String> {
     let host: String = match req[3] {
         0x01 => {
             let mut addr = [0u8; 4];
-            inbound.read_exact(&mut addr).await.map_err(|e| e.to_string())?;
+            inbound
+                .read_exact(&mut addr)
+                .await
+                .map_err(|e| e.to_string())?;
             std::net::Ipv4Addr::from(addr).to_string()
         }
         0x03 => {
             let mut len = [0u8; 1];
-            inbound.read_exact(&mut len).await.map_err(|e| e.to_string())?;
+            inbound
+                .read_exact(&mut len)
+                .await
+                .map_err(|e| e.to_string())?;
             let mut domain = vec![0u8; len[0] as usize];
-            inbound.read_exact(&mut domain).await.map_err(|e| e.to_string())?;
+            inbound
+                .read_exact(&mut domain)
+                .await
+                .map_err(|e| e.to_string())?;
             String::from_utf8(domain).map_err(|e| e.to_string())?
         }
         0x04 => {
             let mut addr = [0u8; 16];
-            inbound.read_exact(&mut addr).await.map_err(|e| e.to_string())?;
+            inbound
+                .read_exact(&mut addr)
+                .await
+                .map_err(|e| e.to_string())?;
             std::net::Ipv6Addr::from(addr).to_string()
         }
         other => {
@@ -294,13 +323,18 @@ async fn handle_socks_conn(mut inbound: TcpStream) -> Result<(), String> {
         }
     };
     let mut port_bytes = [0u8; 2];
-    inbound.read_exact(&mut port_bytes).await.map_err(|e| e.to_string())?;
+    inbound
+        .read_exact(&mut port_bytes)
+        .await
+        .map_err(|e| e.to_string())?;
     let port = u16::from_be_bytes(port_bytes);
 
     // Onion services are only reachable over Tor; never fall back to clearnet.
     if host.to_ascii_lowercase().ends_with(".onion") {
         let _ = inbound.write_all(&socks_reply(0x04)).await;
-        return Err(format!("{host} is a Tor onion address; Nym cannot reach it"));
+        return Err(format!(
+            "{host} is a Tor onion address; Nym cannot reach it"
+        ));
     }
 
     let mut outbound = match nym_connect(&host, port).await {
@@ -310,7 +344,10 @@ async fn handle_socks_conn(mut inbound: TcpStream) -> Result<(), String> {
             return Err(format!("Nym connect to {host}:{port} failed: {e}"));
         }
     };
-    inbound.write_all(&socks_reply(0x00)).await.map_err(|e| e.to_string())?;
+    inbound
+        .write_all(&socks_reply(0x00))
+        .await
+        .map_err(|e| e.to_string())?;
 
     tokio::io::copy_bidirectional(&mut inbound, &mut outbound)
         .await
@@ -414,7 +451,8 @@ async fn tunnel_is_healthy(gen: u64, tunnel: &Tunnel) -> bool {
         return true;
     }
     for resolver in DNS_RESOLVERS.iter().take(2) {
-        let probe = tokio::time::timeout(DNS_TIMEOUT, dns_query(tunnel, HEALTH_PROBE_HOST, *resolver));
+        let probe =
+            tokio::time::timeout(DNS_TIMEOUT, dns_query(tunnel, HEALTH_PROBE_HOST, *resolver));
         if matches!(probe.await, Ok(Ok(_))) {
             mark_healthy(gen);
             return true;
@@ -576,9 +614,10 @@ mod tests {
         assert!(start_nym_proxy(port).unwrap());
         wait_until_running(Duration::from_secs(150)).unwrap();
         let body = tokio::runtime::Runtime::new().unwrap().block_on(async {
-            let mut s = tokio_socks::tcp::Socks5Stream::connect(("127.0.0.1", port), ("example.com", 80))
-                .await
-                .unwrap();
+            let mut s =
+                tokio_socks::tcp::Socks5Stream::connect(("127.0.0.1", port), ("example.com", 80))
+                    .await
+                    .unwrap();
             s.write_all(b"GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
                 .await
                 .unwrap();

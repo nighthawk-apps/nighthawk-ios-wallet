@@ -46,7 +46,9 @@ async fn open_wallet() -> Result<DrkWalletPtr, String> {
         tor_socks_port: 0,
         use_nym: false,
         nym_socks_port: 0,
-        darkfid_rpc_url: None,
+        // This darkfi pin's drk.transfer looks up zkas circuits over JSON-RPC.
+        darkfid_rpc_url: Some("tcp://127.0.0.1:48345".into()),
+        strict_omr_only: true,
     };
     bootstrap::bootstrap_drk(&config, &ex).await
 }
@@ -123,7 +125,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         if cmd == "send" {
             let to = arg("--to").ok_or("missing --to")?;
-            let count: u32 = arg("--count").unwrap_or_else(|| "1".into()).parse().map_err(|e: std::num::ParseIntError| e.to_string())?;
+            let count: u32 = arg("--count")
+                .unwrap_or_else(|| "1".into())
+                .parse()
+                .map_err(|e: std::num::ParseIntError| e.to_string())?;
             let amount = arg("--amount").unwrap_or_else(|| "0.01".into());
             let mut ok = 0u32;
             let mut fail = 0u32;

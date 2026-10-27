@@ -203,6 +203,9 @@ pub struct DrkBootstrapConfig {
     pub nym_socks_port: u16,
     /// Optional darkfid JSON-RPC for broadcast fallback only. Empty/`None` = LWD-only.
     pub darkfid_rpc_url: Option<String>,
+    /// When `true`, refuse supplemental trial-decrypt (UnifOMR-only).
+    /// Default is `true`. Turn off to receive payments that carry no clue.
+    pub strict_omr_only: bool,
 }
 
 /// Canonical retrieval / encryption path used for note discovery + sync.
@@ -743,6 +746,7 @@ impl DarkfiWalletHandle {
                 .ok()
                 .flatten(),
         ));
+        sync_engine.set_strict_omr_only(config.strict_omr_only);
         sync::start_background_sync(drk.clone(), ex, sync_engine.clone());
         Ok(Self {
             drk,
@@ -754,6 +758,16 @@ impl DarkfiWalletHandle {
 
     pub fn light_sync_snapshot(&self) -> DrkLightSyncState {
         self.sync_engine.snapshot().into()
+    }
+
+    /// Enable or disable strict UnifOMR-only sync (no trial-decrypt fallback).
+    pub fn set_strict_omr_only(&self, strict: bool) {
+        self.sync_engine.set_strict_omr_only(strict);
+    }
+
+    /// Whether strict UnifOMR-only sync is currently enabled.
+    pub fn strict_omr_only(&self) -> bool {
+        self.sync_engine.strict_omr_only()
     }
 
     pub fn confirmed_balance_atomic(&self) -> ResultWallet<i64> {
@@ -937,14 +951,7 @@ impl DarkfiWalletHandle {
         let drk = self.drk.clone();
         block_on(async move {
             let drk = drk.write().await;
-            let mut output = Vec::new();
-            drk.money_keygen(&mut output)
-                .await
-                .map_err(|e| e.to_string())?;
-            output
-                .last()
-                .cloned()
-                .ok_or_else(|| "No address generated".to_string())
+            crate::bootstrap::generate_hd_address(&drk).await
         })
         .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
     }
@@ -1004,6 +1011,8 @@ impl DarkfiWalletHandle {
         recipient_address: String,
     ) -> ResultWallet<String> {
         let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
         block_on(async move {
             let drk = drk.write().await;
             dao::propose_transfer(
@@ -1013,6 +1022,8 @@ impl DarkfiWalletHandle {
                 &amount,
                 token_id.as_deref(),
                 &recipient_address,
+                Some(&lw_url),
+                tls_pin,
             )
             .await
         })
@@ -1021,9 +1032,11 @@ impl DarkfiWalletHandle {
 
     pub fn dao_vote(&self, proposal_bulla_b58: String, vote_yes: bool) -> ResultWallet<String> {
         let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
         block_on(async move {
             let drk = drk.write().await;
-            dao::vote_on_proposal(&drk, &proposal_bulla_b58, vote_yes).await
+            dao::vote_on_proposal(&drk, &proposal_bulla_b58, vote_yes, Some(&lw_url), tls_pin).await
         })
         .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
     }
@@ -1073,12 +1086,20 @@ impl DarkfiWalletHandle {
             }
         });
 
-        // Step 4: Invalidate transactions above fork point via drk
+        // Step 4: Rewind coins, the Money tree, and transaction history.
         let txs_affected = block_on(async {
             let drk = drk.write().await;
-            transactions::invalidate_transactions_above(&drk, rewind_to_height).await
-        })
-        .unwrap_or(0);
+            let client = sync_engine.lightwallet_client();
+            match sync::rewind_wallet_after_reorg(&drk, Some(&client), rewind_to_height).await {
+                Ok(n) => n,
+                Err(e) => {
+                    tracing::error!(target: "reorg", "wallet rewind failed: {e}");
+                    transactions::invalidate_transactions_above(&drk, rewind_to_height)
+                        .await
+                        .unwrap_or(0)
+                }
+            }
+        });
 
         // Step 5: Build the event
         let event = ReorgEvent {
@@ -1251,6 +1272,7 @@ mod tests {
             use_nym: false,
             nym_socks_port: 1080,
             darkfid_rpc_url: None,
+            strict_omr_only: true,
         }
     }
 

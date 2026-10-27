@@ -26,10 +26,15 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let use_tor = args.get(1).map(|a| a == "tor").unwrap_or(false);
     let tor_socks_port: u16 = args.get(2).and_then(|p| p.parse().ok()).unwrap_or(9050);
+    let transport = if use_tor {
+        darkfi_mobile_ffi::DarkircTransport::Tor
+    } else {
+        darkfi_mobile_ffi::DarkircTransport::Direct
+    };
     println!("Starting darkirc (use_tor={use_tor}, socks_port={tor_socks_port})...");
     let datastore = "/tmp/darkirc_test_store".to_string();
     std::fs::remove_dir_all(&datastore).ok();
-    darkfi_mobile_ffi::start_darkirc(datastore, use_tor, tor_socks_port, Some(cb)).unwrap();
+    darkfi_mobile_ffi::start_darkirc(datastore, transport, tor_socks_port, Some(cb)).unwrap();
 
     loop {
         std::thread::sleep(std::time::Duration::from_secs(1));

@@ -260,7 +260,8 @@ impl SyncEngine {
 
     /// When true, never fall back to full-window / gap trial decrypt (privacy mode).
     pub fn strict_omr_only(&self) -> bool {
-        self.strict_omr_only.load(std::sync::atomic::Ordering::Relaxed)
+        self.strict_omr_only
+            .load(std::sync::atomic::Ordering::Relaxed)
     }
 
     /// Enable or disable strict OMR-only mode (production default is enabled).

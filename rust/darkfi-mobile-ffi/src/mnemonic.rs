@@ -46,6 +46,40 @@ pub fn secret_key_from_mnemonic(mnemonic: &[String]) -> Result<SecretKey, String
     Err("could not derive canonical SecretKey from mnemonic".into())
 }
 
+/// 32-byte HD derivation seed from mnemonic secret material.
+pub fn derivation_seed_from_mnemonic(mnemonic: &[String]) -> [u8; 32] {
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(DERIVE_CONTEXT.as_bytes());
+    hasher.update(&[0]);
+    for word in mnemonic {
+        hasher.update(word.trim().to_lowercase().as_bytes());
+        hasher.update(&[0]);
+    }
+    *hasher.finalize().as_bytes()
+}
+
+/// Derive a [`SecretKey`] from a persisted 32-byte seed and address index.
+pub fn secret_key_from_seed_index(seed32: &[u8; 32], index: u32) -> Result<SecretKey, String> {
+    let mut hasher = blake3::Hasher::new_derive_key(DERIVE_CONTEXT);
+    hasher.update(seed32);
+    hasher.update(&index.to_le_bytes());
+    let mut seed_bytes = *hasher.finalize().as_bytes();
+
+    for counter in 0u8..=255 {
+        let mut bytes = seed_bytes;
+        bytes[31] ^= counter;
+        if let Ok(key) = SecretKey::from_bytes(bytes) {
+            bytes.zeroize();
+            seed_bytes.zeroize();
+            return Ok(key);
+        }
+        bytes.zeroize();
+    }
+
+    seed_bytes.zeroize();
+    Err("could not derive canonical SecretKey from seed index".into())
+}
+
 #[derive(Error, Debug)]
 pub enum MnemonicError {
     #[error("Unsupported seed type {0}")]
@@ -307,4 +341,24 @@ fn normalize_text(seed: &str) -> String {
         })
         .collect();
     seed
+}
+
+#[cfg(test)]
+mod hd_tests {
+    use super::{derivation_seed_from_mnemonic, secret_key_from_seed_index};
+
+    #[test]
+    fn hd_index_keys_are_stable_and_distinct() {
+        let words = ["abandon".to_string(), "ability".to_string()];
+        let seed = derivation_seed_from_mnemonic(&words);
+        assert_eq!(seed, derivation_seed_from_mnemonic(&words));
+        let first = secret_key_from_seed_index(&seed, 1).expect("index 1");
+        let second = secret_key_from_seed_index(&seed, 2).expect("index 2");
+        assert_ne!(first, second);
+        assert_eq!(
+            first,
+            secret_key_from_seed_index(&seed, 1).expect("index 1 again")
+        );
+        assert_ne!(seed, derivation_seed_from_mnemonic(&["other".to_string()]));
+    }
 }

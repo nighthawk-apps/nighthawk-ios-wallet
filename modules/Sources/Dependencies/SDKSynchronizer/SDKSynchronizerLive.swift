@@ -290,7 +290,8 @@ extension SDKSynchronizerClient: DependencyKey {
                     latestBlockHeight: BlockHeight(snapshot.chainTip),
                     activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                     fallbackReason: String(describing: lightState.fallbackReason),
-                    fallbackUserMessage: lightState.fallbackUserMessage
+                    fallbackUserMessage: lightState.fallbackUserMessage,
+                    lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status)
                 ))
             } catch {
                 WalletHandleManager.shared.updateState(SynchronizerState(
@@ -323,7 +324,8 @@ extension SDKSynchronizerClient: DependencyKey {
                 latestBlockHeight: BlockHeight(snapshot.chainTip),
                 activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                 fallbackReason: String(describing: lightState.fallbackReason),
-                fallbackUserMessage: lightState.fallbackUserMessage
+                fallbackUserMessage: lightState.fallbackUserMessage,
+                lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status)
             ))
         },
         getConfirmedBalance: {
@@ -436,7 +438,8 @@ extension SDKSynchronizerClient: DependencyKey {
                 syncStatus: .upToDate,
                 confirmedBalance: newBalance,
                 latestBlockHeight: BlockHeight(snapshot.chainTip),
-                activeSyncMethod: WalletHandleManager.shared.activeSyncMethod
+                activeSyncMethod: WalletHandleManager.shared.activeSyncMethod,
+                lightwalletdConnected: SynchronizerState.lightwalletdLive(handle.lightSyncSnapshot().status)
             ))
 
             return DarkfiTransactionOverview(

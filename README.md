@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.00.021.** Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
+**3.00.025.** The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
 
 ## Contents
 
@@ -35,7 +35,7 @@ Path dependencies and sibling Nighthawk repos use these **directory names**:
 
 ```text
 parent/
-  darkfi/                 # optional upstream clone; app vendors into third_party/darkfi
+  darkfi/                 # do not clone git.dark.fi (HTTP 504). vendor-darkfi.sh uses nighthawk24/darkfi
   darkfi-lightwalletd/    # gRPC lightwalletd (local sync target)
   darkfi-mobile-ffi/      # optional sibling symlink of rust/darkfi-mobile-ffi for desktop/other clients
   nighthawk-ios-wallet/   # this repo
@@ -96,7 +96,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` (pins `docs/upstream/darkfi-revision.txt`) |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`0e87090e9`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 
@@ -320,6 +320,7 @@ Lightwallet can dial SOCKS5 the same way as Android.
 - Crypto parity with Android / moonshine / LWD (`n=1024`)
 - Sync fail-closed if clue PK registration fails; send via LWD `SendTransaction` only
 - Default local: `tcp://127.0.0.1:9067` (Change Server)
+- **Not in the 2026-10-21 localnet.** Android, desktop, and Moonshine completed 100/100 UnifOMR sends each way on that run. This app shares the UniFFI sync engine once `third_party/darkfi` is the same pin, but that run did not install or sync an iOS wallet. Strict UnifOMR hides clue-less payments until trial decrypt is allowed.
 - Limits: [`docs/unifomr_mvp_limits.md`](docs/unifomr_mvp_limits.md)
 
 | # | Feature | Status |
@@ -371,6 +372,8 @@ Checklist: [`docs/verification-checklist.md`](docs/verification-checklist.md).
 4. Default scheme is **`stealth-testnet`**; use **`stealth-mainnet`** for mainnet.
 5. `SIM_ONLY=1` FFI builds omit the device slice — use a full script run before TestFlight / devices.
 6. DarkIRC over Nym can sit on "waiting for peers" when mixnet exits do not complete the public seed handshake. Switch the app network to Tor, or continue without Nym.
+7. The 2026-10-21 UnifOMR localnet did not include iOS. Do not treat the Android/desktop 100/100 result as an iOS device pass.
+8. `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi`. `git.dark.fi` returns HTTP 504. `kvdb-overlay`, RandomX, and `rust-url` are fetched from GitLab, Codeberg, and GitHub.
 
 ---
 

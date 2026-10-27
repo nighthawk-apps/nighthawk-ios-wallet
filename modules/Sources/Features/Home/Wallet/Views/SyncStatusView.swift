@@ -50,6 +50,7 @@ struct SyncStatusView: View {
     func syncMethodLabel(for method: DarkfiSyncMethod) -> some View {
         // Surface UnifOMR phase text from the Rust sync engine when present.
         let phaseHint: String = {
+            if !status.lightwalletdConnected { return " · not connected" }
             guard let msg = status.lightSyncStatusMessage else { return "" }
             if msg.contains("1/2") { return " · scanning" }
             if msg.contains("2/2") { return " · fetching" }
@@ -61,6 +62,7 @@ struct SyncStatusView: View {
             return method.displayName
         }()
         let displayColor: Color = {
+            if !status.lightwalletdConnected { return Color.orange.opacity(0.8) }
             if method.isPrivateRetrieval { return Color.green.opacity(0.8) }
             if method == .trialDecrypt { return Color.orange.opacity(0.8) }
             return Asset.Colors.Nighthawk.peach.color.opacity(0.7)

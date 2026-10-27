@@ -207,7 +207,11 @@ fn snapshot_connected_peer_count() -> usize {
     let Some(p2p) = guard.as_ref() else {
         return 0;
     };
-    p2p.hosts().peers().into_iter().take(OUTBOUND_HUD_SLOTS).count()
+    p2p.hosts()
+        .peers()
+        .into_iter()
+        .take(OUTBOUND_HUD_SLOTS)
+        .count()
 }
 
 fn format_outbound_slots_json(connected: usize, handshake: bool) -> String {
@@ -231,7 +235,9 @@ fn format_outbound_slots_json(connected: usize, handshake: bool) -> String {
 pub fn darkirc_outbound_slots() -> String {
     let phase = darkirc_connection_phase();
     let connected = if phase == "connected" {
-        snapshot_connected_peer_count().max(1).min(OUTBOUND_HUD_SLOTS)
+        snapshot_connected_peer_count()
+            .max(1)
+            .min(OUTBOUND_HUD_SLOTS)
     } else {
         snapshot_connected_peer_count()
     };
@@ -326,7 +332,9 @@ pub fn start_darkirc(
                     })
                     .finish(|| {
                         smol::block_on(async {
-                            let result = run_darkirc_daemon(db_path, transport, socks_port, ex.clone(), cb).await;
+                            let result =
+                                run_darkirc_daemon(db_path, transport, socks_port, ex.clone(), cb)
+                                    .await;
                             // Signal workers to stop
                             drop(stop_tx);
                             result
@@ -407,11 +415,7 @@ pub fn send_chat_message(
         if let (Some(eg), Some(p2p)) = (&*eg_lock, &*p2p_lock) {
             let msg = new_privmsg(channel.clone(), nick.clone(), message.clone());
 
-            let event = match darkfi::event_graph::Event::new(
-                serialize_async(&msg).await,
-                eg,
-            )
-            .await
+            let event = match darkfi::event_graph::Event::new(serialize_async(&msg).await, eg).await
             {
                 Ok(ev) => ev,
                 Err(e) => {
@@ -432,10 +436,7 @@ pub fn send_chat_message(
             // header insert + optional RLN blob verify + body commit.
             // `dag_insert` is crate-private; with RLN disabled the blob is empty.
             let blob: Vec<u8> = Vec::new();
-            let inserted = match eg
-                .insert_signal_with_blob(&event, &blob, &dag_name)
-                .await
-            {
+            let inserted = match eg.insert_signal_with_blob(&event, &blob, &dag_name).await {
                 Ok(ids) => ids,
                 Err(e) => {
                     log::error!("Failed inserting signal event to DAG: {}", e);
@@ -843,9 +844,7 @@ async fn run_darkirc_daemon(
                 if !seen.insert(eid.clone()) {
                     continue;
                 }
-                if let Ok((privmsg, _)) =
-                    deserialize_async_partial::<Privmsg>(ev.content()).await
-                {
+                if let Ok((privmsg, _)) = deserialize_async_partial::<Privmsg>(ev.content()).await {
                     cb.on_message(
                         eid,
                         privmsg.channel,
@@ -889,9 +888,7 @@ async fn run_darkirc_daemon(
             )
             .await;
 
-            if stop_or_disc == "stop"
-                || DAEMON_STATUS.load(Ordering::Relaxed) == STATUS_STOPPING
-            {
+            if stop_or_disc == "stop" || DAEMON_STATUS.load(Ordering::Relaxed) == STATUS_STOPPING {
                 break;
             }
 
@@ -1013,7 +1010,10 @@ mod tests {
         }
         assert_eq!(plan.mixed_profiles, vec!["tcp+tls".to_string()]);
         let proxy = plan.nym_socks5_proxy.unwrap();
-        assert_eq!((proxy.scheme(), proxy.host_str(), proxy.port()), ("socks5", Some("127.0.0.1"), Some(1080)));
+        assert_eq!(
+            (proxy.scheme(), proxy.host_str(), proxy.port()),
+            ("socks5", Some("127.0.0.1"), Some(1080))
+        );
         assert!(plan.tor_socks5_proxy.is_none());
         assert!(plan.slow_links);
     }
@@ -1033,7 +1033,10 @@ mod tests {
         assert_eq!(routes[0].scheme(), "socks5+tls");
         assert_eq!(routes[0].port(), Some(1080));
         assert_eq!(routes[0].path(), "/203.0.113.7:9600");
-        let onion = url::Url::parse("tor://abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab.onion:9601").unwrap();
+        let onion = url::Url::parse(
+            "tor://abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab.onion:9601",
+        )
+        .unwrap();
         assert!(darkfi::net::hosts::HostContainer::mix_host(
             &onion,
             &[plan.profile_name.to_string()],

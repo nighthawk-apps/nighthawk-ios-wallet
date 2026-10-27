@@ -1,1 +1,5 @@
-ae0339804 (master) + bin/drk overlay @ c4d1776 (rusqlite/SQLCipher for mobile)
+0e87090e9aa550d046c707b74ef5869269205f83
+# nighthawk24/darkfi branch nighthawk-testnet (same pin as Android / Moonshine localnet).
+# git.dark.fi returns HTTP 504 and does not contain this SHA. Do not clone it.
+# Cargo deps inside the tree: kvdb-overlay from gitlab.com/nighthawk24/kvdb-overlay,
+# RandomX from codeberg.org/darkrenaissance/RandomX, rust-url from github.com/darkrenaissance/rust-url.

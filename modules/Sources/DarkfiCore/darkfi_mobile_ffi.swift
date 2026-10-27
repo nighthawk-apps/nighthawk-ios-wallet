@@ -638,6 +638,10 @@ public protocol DarkfiWalletHandleProtocol: AnyObject, Sendable {
      */
     func setReorgCallback(callback: ReorgEventCallback?) 
     
+    func setStrictOmrOnly(strict: Bool) 
+    
+    func strictOmrOnly()  -> Bool
+    
     func syncSnapshot() throws  -> DrkSyncSnapshot
     
     func transactionPaymentMemo(txHash: String) throws  -> String?
@@ -880,6 +884,22 @@ open func setReorgCallback(callback: ReorgEventCallback?)  {try! rustCall() {
 }
 }
     
+open func setStrictOmrOnly(strict: Bool)  {try! rustCall() {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_set_strict_omr_only(
+            self.uniffiCloneHandle(),
+        FfiConverterBool.lower(strict),$0
+    )
+}
+}
+    
+open func strictOmrOnly() -> Bool  {
+    return try!  FfiConverterBool.lift(try! rustCall() {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_strict_omr_only(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
 open func syncSnapshot()throws  -> DrkSyncSnapshot  {
     return try  FfiConverterTypeDrkSyncSnapshot_lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
     uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_sync_snapshot(
@@ -1033,6 +1053,10 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
      * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
      */
     public var darkfidRpcUrl: String?
+    /**
+     * When true, UnifOMR-only (no supplemental trial decrypt). Default true.
+     */
+    public var strictOmrOnly: Bool
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
@@ -1047,7 +1071,7 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
         /**
          * Optional darkfid JSON-RPC URL for broadcast fallback only.
          * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
-         */darkfidRpcUrl: String?) {
+         */darkfidRpcUrl: String?, strictOmrOnly: Bool = true) {
         self.network = network
         self.mnemonic = mnemonic
         self.walletDbPath = walletDbPath
@@ -1061,6 +1085,7 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
         self.useNym = useNym
         self.nymSocksPort = nymSocksPort
         self.darkfidRpcUrl = darkfidRpcUrl
+        self.strictOmrOnly = strictOmrOnly
     }
 
     
@@ -1091,7 +1116,8 @@ public struct FfiConverterTypeDrkBootstrapConfig: FfiConverterRustBuffer {
                 torSocksPort: FfiConverterUInt16.read(from: &buf), 
                 useNym: FfiConverterBool.read(from: &buf), 
                 nymSocksPort: FfiConverterUInt16.read(from: &buf), 
-                darkfidRpcUrl: FfiConverterOptionString.read(from: &buf)
+                darkfidRpcUrl: FfiConverterOptionString.read(from: &buf),
+                strictOmrOnly: FfiConverterBool.read(from: &buf)
         )
     }
 
@@ -1109,6 +1135,7 @@ public struct FfiConverterTypeDrkBootstrapConfig: FfiConverterRustBuffer {
         FfiConverterBool.write(value.useNym, into: &buf)
         FfiConverterUInt16.write(value.nymSocksPort, into: &buf)
         FfiConverterOptionString.write(value.darkfidRpcUrl, into: &buf)
+        FfiConverterBool.write(value.strictOmrOnly, into: &buf)
     }
 }
 
@@ -3002,6 +3029,12 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_set_reorg_callback() != 49654) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_set_strict_omr_only() != 57332) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_strict_omr_only() != 1580) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_sync_snapshot() != 34731) {

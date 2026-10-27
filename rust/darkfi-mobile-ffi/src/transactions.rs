@@ -105,15 +105,24 @@ pub async fn build_transfer(
         .filter(|s| !s.is_empty())
         .map(|s| s.as_bytes().to_vec());
 
+    if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+        if let Some(url) = lightwallet_server_url.map(str::trim).filter(|s| !s.is_empty()) {
+            let client = crate::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
+                url,
+                lightwallet_tls_pin,
+            );
+            let info = client
+                .get_light_info()
+                .await
+                .map_err(|e| format!("merkle rebuild light info: {e}"))?;
+            crate::sync::rebuild_money_tree_to_height(drk, &client, info.chain_tip_height)
+                .await
+                .map_err(|e| format!("merkle rebuild for spend: {e}"))?;
+        }
+    }
+
     let tx = drk
-        .transfer(
-            amount,
-            token,
-            *recipient.public_key(),
-            None,
-            None,
-            false,
-        )
+        .transfer(amount, token, *recipient.public_key(), None, None, false)
         .await
         .map_err(|e| format!("transfer: {e}"))?;
 
@@ -229,11 +238,7 @@ pub async fn broadcast_transfer(
         lightwallet_tls_pin,
     );
     client
-        .send_transaction(
-            raw_tx.to_vec(),
-            unifomr_clue.clone(),
-            omr_metadata_enc,
-        )
+        .send_transaction(raw_tx.to_vec(), unifomr_clue.clone(), omr_metadata_enc)
         .await
         .map_err(|e| {
             format!(
@@ -247,6 +252,13 @@ pub async fn broadcast_transfer(
     drk.mark_tx_spend(&tx, &mut output)
         .await
         .map_err(|e| format!("mark_tx_spend after broadcast: {e}"))?;
+
+    if let Err(e) = crate::sync::remember_own_outputs_from_tx(drk, &tx).await {
+        tracing::warn!(
+            target: "wallet-tx",
+            "own change/fee notes not recorded yet: {e}"
+        );
+    }
 
     let tx_hash = tx.hash().to_string();
 
