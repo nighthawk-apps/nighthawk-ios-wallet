@@ -20,9 +20,9 @@ public typealias SystemFont = FontConvertible.SystemFont
 // swiftlint:disable identifier_name line_length type_body_length
 public enum FontFamily {
     public enum PulpDisplay {
-        public static let bold = FontConvertible(name: "PulpDisplay-Bold", family: "Pulp Display", path: "PulpDisplay-Bold.ttf")
-        public static let medium = FontConvertible(name: "PulpDisplay-Medium", family: "Pulp Display", path: "PulpDisplay-Medium.ttf")
-        public static let regular = FontConvertible(name: "PulpDisplay-Regular", family: "Pulp Display", path: "PulpDisplay-Regular.ttf")
+        public static let bold = FontConvertible(name: "Outfit-Bold", family: "Outfit", path: "outfit.ttf")
+        public static let medium = FontConvertible(name: "Outfit-Medium", family: "Outfit", path: "outfit.ttf")
+        public static let regular = FontConvertible(name: "Outfit-Regular", family: "Outfit", path: "outfit.ttf")
         public static let all: [FontConvertible] = [bold, medium, regular]
     }
     public enum Roboto {
@@ -33,9 +33,9 @@ public enum FontFamily {
         public static let italic = FontConvertible(name: "Roboto-Italic", family: "Roboto", path: "Roboto-Italic.ttf")
         public static let light = FontConvertible(name: "Roboto-Light", family: "Roboto", path: "Roboto-Light.ttf")
         public static let lightItalic = FontConvertible(name: "Roboto-LightItalic", family: "Roboto", path: "Roboto-LightItalic.ttf")
-        public static let medium = FontConvertible(name: "Roboto-Medium", family: "Roboto", path: "Roboto-Medium.ttf")
+        public static let medium = FontConvertible(name: "SourceSans3-Medium", family: "Source Sans 3", path: "source_sans_3.ttf")
         public static let mediumItalic = FontConvertible(name: "Roboto-MediumItalic", family: "Roboto", path: "Roboto-MediumItalic.ttf")
-        public static let regular = FontConvertible(name: "Roboto-Regular", family: "Roboto", path: "Roboto-Regular.ttf")
+        public static let regular = FontConvertible(name: "SourceSans3-Regular", family: "Source Sans 3", path: "source_sans_3.ttf")
         public static let thin = FontConvertible(name: "Roboto-Thin", family: "Roboto", path: "Roboto-Thin.ttf")
         public static let thinItalic = FontConvertible(name: "Roboto-ThinItalic", family: "Roboto", path: "Roboto-ThinItalic.ttf")
         public static let all: [FontConvertible] = [black, blackItalic, bold, boldItalic, italic, light, lightItalic, medium, mediumItalic, regular, thin, thinItalic]
@@ -52,8 +52,8 @@ public enum FontFamily {
         public static let black = FontConvertible(name: "RubikRoman-Black", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
         public static let bold = FontConvertible(name: "RubikRoman-Bold", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
         public static let extraBold = FontConvertible(name: "RubikRoman-ExtraBold", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
-        public static let medium = FontConvertible(name: "RubikRoman-Medium", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
-        public static let regular = FontConvertible(name: "RubikRoman-Regular", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
+        public static let medium = FontConvertible(name: "SourceSans3-Medium", family: "Source Sans 3", path: "source_sans_3.ttf")
+        public static let regular = FontConvertible(name: "SourceSans3-Regular", family: "Source Sans 3", path: "source_sans_3.ttf")
         public static let semiBold = FontConvertible(name: "RubikRoman-SemiBold", family: "Rubik", path: "Rubik-VariableFont_wght.ttf")
         public static let all: [FontConvertible] = [light, lightItalic, blackItalic, boldItalic, extraBoldItalic, mediumItalic, italic, semiBoldItalic, black, bold, extraBold, medium, regular, semiBold]
     }
@@ -61,7 +61,15 @@ public enum FontFamily {
         public static let regular = FontConvertible(name: "ZbotoRegular", family: "Zboto", path: "Zboto.otf")
         public static let all: [FontConvertible] = [regular]
     }
-    public static let allCustomFonts: [FontConvertible] = [PulpDisplay.all, Roboto.all, Rubik.all, Zboto.all].flatMap { $0 }
+    public enum SourceSerif4 {
+        public static let regular = FontConvertible(name: "SourceSerif4Roman-Regular", family: "Source Serif 4", path: "source_serif_4.ttf")
+        public static let all: [FontConvertible] = [regular]
+    }
+    public enum IbmPlexMono {
+        public static let regular = FontConvertible(name: "IBMPlexMono-Regular", family: "IBM Plex Mono", path: "ibm_plex_mono.ttf")
+        public static let all: [FontConvertible] = [regular]
+    }
+    public static let allCustomFonts: [FontConvertible] = [PulpDisplay.all, Roboto.all, Rubik.all, Zboto.all, SourceSerif4.all, IbmPlexMono.all].flatMap { $0 }
     public static func registerAllCustomFonts() {
         allCustomFonts.forEach { $0.register() }
     }

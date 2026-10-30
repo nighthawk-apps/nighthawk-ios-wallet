@@ -623,7 +623,7 @@ private extension ChatView {
                                 [[UIPasteboard.typeAutomatic: message.content]],
                                 options: [
                                     .localOnly: true,
-                                    .expirationDate: Date().addingTimeInterval(60),
+                                    .expirationDate: Date().addingTimeInterval(60)
                                 ]
                             )
                         } label: {

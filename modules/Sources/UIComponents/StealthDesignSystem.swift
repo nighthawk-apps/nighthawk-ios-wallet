@@ -6,9 +6,10 @@
 //  Provides centralized color and typography tokens for the entire app.
 //
 //  Android mapping:
-//    PulpDisplay  → Orbitron (headings, titles, buttons)
-//    ShareTechMono → Share Tech Mono (body text, labels, data)
-//    Rubik        → Rubik (UI chrome, navigation)
+//    Headings → Outfit (PulpDisplay names in generated fonts point at Outfit)
+//    Body → Source Sans 3
+//    Paper headings → Source Serif 4
+//    Keys → IBM Plex Mono
 //
 
 import SwiftUI
@@ -20,7 +21,7 @@ import Generated
 public enum StealthTheme {
     // ── Typography ──────────────────────────────────────────────────
 
-    /// Heading font (Orbitron on Android, PulpDisplay on iOS)
+    /// Heading font. Outfit, same as Android stealth and midnight.
     public enum Heading {
         public static func bold(_ size: CGFloat) -> Font {
             .custom(FontFamily.PulpDisplay.bold.name, size: size)
@@ -40,7 +41,7 @@ public enum StealthTheme {
         public static let titleSmall = Font.custom(FontFamily.PulpDisplay.regular.name, size: 12)
     }
 
-    /// Body/data font (Share Tech Mono on Android, Rubik on iOS)
+    /// Body font. Source Sans 3, same as Android.
     public enum Body {
         public static func regular(_ size: CGFloat) -> Font {
             .custom(FontFamily.Rubik.regular.name, size: size)
@@ -62,7 +63,7 @@ public enum StealthTheme {
     /// Monospace font for addresses, hashes, keys
     public enum Mono {
         public static func regular(_ size: CGFloat) -> Font {
-            .system(size: size, design: .monospaced)
+            .custom("IBMPlexMono-Regular", size: size)
         }
     }
 
@@ -78,7 +79,7 @@ public enum StealthTheme {
         public static var surface: Color { Asset.Colors.Nighthawk.charcoalRaised.color }
         public static var surfaceVariant: Color { Asset.Colors.Nighthawk.elevated.color }
 
-        // Accent (teal)
+        // Accent. Stealth keeps the steel tone. Paper and light use graphite.
         public static var primary: Color { Asset.Colors.Nighthawk.accent.color }
         public static var primaryPressed: Color { Asset.Colors.Nighthawk.accentPressed.color }
         public static var primaryDeep: Color { Asset.Colors.Nighthawk.accentDeep.color }

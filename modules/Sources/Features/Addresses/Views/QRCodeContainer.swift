@@ -14,8 +14,7 @@ struct QRCodeContainer: View {
     var body: some View {
         ZStack {
             qrImage
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+                .resizable().scaledToFit()
             badge
                 .resizable()
                 .frame(width: 64, height: 64)

@@ -144,8 +144,7 @@ private extension NighthawkSettingsView {
                             icon
                                 .resizable()
                                 .renderingMode(.template)
-                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color).scaledToFit()
                                 .frame(width: 24, height: 24)
 
                             VStack(alignment: .leading, spacing: 5) {

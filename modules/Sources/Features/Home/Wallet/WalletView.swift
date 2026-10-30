@@ -93,8 +93,7 @@ private extension WalletView {
             Button(action: { store.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     .resizable()
-                    .frame(width: 22, height: 22)
-                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 22, height: 22).scaledToFit()
                     .padding(12)
                     .contentShape(Rectangle())
             }
@@ -108,8 +107,7 @@ private extension WalletView {
                 Button(action: { store.send(.scanPaymentRequestTapped) }) {
                     Asset.Assets.Icons.Nighthawk.boxedQrCode.image
                         .resizable()
-                        .frame(width: 22, height: 22)
-                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 22, height: 22).scaledToFit()
                         .padding(12)
                         .contentShape(Rectangle())
                 }

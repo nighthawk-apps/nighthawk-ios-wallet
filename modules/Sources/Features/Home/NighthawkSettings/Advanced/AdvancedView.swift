@@ -117,8 +117,7 @@ private extension AdvancedView {
                 ) { option in
                     HStack(alignment: .center) {
                         option.preview
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .resizable().scaledToFit()
                             .frame(width: 72, height: 72)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(

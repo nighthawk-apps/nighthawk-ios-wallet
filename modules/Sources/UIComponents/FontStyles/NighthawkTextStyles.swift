@@ -52,7 +52,7 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(paper
-                    ? .system(size: 21, weight: .regular, design: .serif)
+                    ? .custom("SourceSerif4Roman-Regular", size: 21)
                     : .custom(FontFamily.PulpDisplay.regular.name, size: 21))
         }
     }
@@ -87,7 +87,7 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(paper
-                    ? .system(size: 14, weight: .regular, design: .default)
+                    ? .custom("SourceSans3-Regular", size: 14)
                     : .custom(FontFamily.Rubik.regular.name, size: 14))
         }
     }

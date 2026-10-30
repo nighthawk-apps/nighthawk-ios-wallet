@@ -18,4 +18,4 @@ Copy **`target/<triple>/release/libdarkfi_android_bridge.so`** → **`darkfi-and
 
 ## Linking DarkFi
 
-Clone [nighthawk24/darkfi](https://github.com/nighthawk24/darkfi) (`0e87090e9`). `git.dark.fi` returns HTTP 504 and does not have that pin. Add path/workspace dependencies behind **`darkfi-mobile-ffi`** so Kotlin bindings stay on one UDL surface.
+Clone [nighthawk24/darkfi](https://github.com/nighthawk24/darkfi) (`8af61b3f0`). `git.dark.fi` returns HTTP 504 and does not have that pin. Add path/workspace dependencies behind **`darkfi-mobile-ffi`** so Kotlin bindings stay on one UDL surface.

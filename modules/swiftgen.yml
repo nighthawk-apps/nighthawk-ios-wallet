@@ -18,6 +18,10 @@ fonts:
     - Fonts/Rubik
     - Fonts/Roboto
     - Fonts/PulpDisplay
+    # outfit.ttf, source_sans_3.ttf, source_serif_4.ttf, and ibm_plex_mono.ttf
+    # are registered from Fonts+Generated.swift. Do not regenerate that file
+    # without keeping PulpDisplay on Outfit and Rubik/Roboto text styles on
+    # Source Sans 3.
   outputs:
       templatePath: Templates/fonts/fonts_swift5_swiftui.stencil
       params:

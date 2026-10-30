@@ -239,7 +239,7 @@ private final class WalletHandleManager: @unchecked Sendable {
         let paths = [
             docs.appendingPathComponent("darkfi_wallet.db").path,
             docs.appendingPathComponent("darkfi_cache").path,
-            docs.appendingPathComponent("ios_wallet_address.txt").path,
+            docs.appendingPathComponent("ios_wallet_address.txt").path
         ]
         for path in paths {
             try? FileManager.default.removeItem(atPath: path)

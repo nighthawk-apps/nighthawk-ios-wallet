@@ -98,8 +98,7 @@ private struct TabBarItem: View {
         VStack {
             image
                 .resizable()
-                .renderingMode(.template)
-                .aspectRatio(contentMode: .fit)
+                .renderingMode(.template).scaledToFit()
                 .foregroundColor(
                     isSelected
                         ? Asset.Colors.Nighthawk.peach.color

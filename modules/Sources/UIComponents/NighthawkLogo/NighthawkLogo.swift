@@ -41,8 +41,7 @@ public struct NighthawkLogo: View {
             Asset.Assets.Icons.Nighthawk.nighthawkSymbol
                 .image
                 .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+                .resizable().scaledToFit()
                 .frame(width: size.rawValue, height: size.rawValue)
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 

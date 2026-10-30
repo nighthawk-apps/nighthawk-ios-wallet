@@ -88,8 +88,7 @@ private extension RecipientView {
                 )
                 .resizable()
                 .renderingMode(.template)
-                .frame(width: 24, height: 24)
-                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24).scaledToFit()
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         } else if store.hasEnteredRecipient {
@@ -97,8 +96,7 @@ private extension RecipientView {
                 Asset.Assets.Icons.Nighthawk.failed.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
-                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 24, height: 24).scaledToFit()
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         }

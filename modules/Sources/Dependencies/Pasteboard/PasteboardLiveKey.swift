@@ -17,7 +17,7 @@ extension PasteboardClient: DependencyKey {
                 [[UIPasteboard.typeAutomatic: $0.data]],
                 options: [
                     .localOnly: true,
-                    .expirationDate: Date().addingTimeInterval(60),
+                    .expirationDate: Date().addingTimeInterval(60)
                 ]
             )
         },

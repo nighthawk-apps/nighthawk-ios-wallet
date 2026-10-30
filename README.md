@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.00.025.** The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
+**3.00.026.** Light and Paper use graphite and grey instead of teal. Titles are Outfit, body text is Source Sans 3, Paper titles are Source Serif 4, and keys are IBM Plex Mono. The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
 
 ## Contents
 
@@ -96,7 +96,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`0e87090e9`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`8af61b3f0`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 
