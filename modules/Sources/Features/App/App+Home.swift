@@ -19,7 +19,7 @@ extension AppReducer {
                     return .none
                 case let .unifiedAddressResponse(unifiedAddress):
                     if let unifiedAddress {
-                        state.unifiedAddress = unifiedAddress
+                        state.propagateUnifiedAddress(unifiedAddress)
                     }
                     return .none
                 case .openDaoHub:

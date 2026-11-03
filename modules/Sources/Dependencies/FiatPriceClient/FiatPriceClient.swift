@@ -36,11 +36,39 @@ extension FiatPriceClient: DependencyKey {
                     ]
                 )
 
-            let (data, _) = try await URLSession.shared.data(from: simplePriceUrl)
+            let (data, _) = try await fiatPriceSession().data(from: simplePriceUrl)
             let priceData = try JSONDecoder().decode(FiatPriceApiResponse.self, from: data)
             return priceData.data[currency.rawValue]
         }
     )
+}
+
+/// CoinGecko is clearnet. Follow the same Nym or Tor SOCKS proxy as the wallet,
+/// and only dial the network directly when the user chose Direct.
+private func fiatPriceSession() -> URLSession {
+    let config = URLSessionConfiguration.ephemeral
+    let network = UserDefaults.standard.string(forKey: "darkfiWalletPrivacyNetwork")
+        ?? NighthawkSetting.PrivacyNetwork.default.rawValue
+    switch network {
+    case NighthawkSetting.PrivacyNetwork.direct.rawValue:
+        break
+    case NighthawkSetting.PrivacyNetwork.tor.rawValue:
+        let port = Int(UserDefaults.standard.string(forKey: "darkfiTorSocksPort") ?? "") ?? 9050
+        config.connectionProxyDictionary = socksProxy(port: port)
+    default:
+        config.connectionProxyDictionary = socksProxy(
+            port: Int(NighthawkSetting.PrivacyNetwork.nymSocksPort)
+        )
+    }
+    return URLSession(configuration: config)
+}
+
+private func socksProxy(port: Int) -> [String: Any] {
+    [
+        "SOCKSEnable": 1,
+        "SOCKSProxy": "127.0.0.1",
+        "SOCKSPort": port,
+    ]
 }
 
 extension DependencyValues {

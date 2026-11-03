@@ -39,10 +39,8 @@ public struct WelcomeView: View {
             }
 
             VStack(spacing: 0) {
-                terms {
-                    store.send(.termsAndConditionsTapped)
-                }
-                .padding(.bottom, 16)
+                terms
+                    .padding(.bottom, 16)
 
                 actions {
                     store.send(.createNewWalletTapped)
@@ -172,18 +170,12 @@ private extension WelcomeView {
 
 // MARK: - Subviews
 private extension WelcomeView {
-    func terms(
-        onTermsLinkTapped: @escaping () -> Void
-    ) -> some View {
-        VStack {
-            Text(L10n.Nighthawk.Welcome.terms1)
-                .caption()
-                .padding(.bottom, 4)
-
-            Button(L10n.General.termsAndConditions, action: onTermsLinkTapped)
-                .buttonStyle(.nighthawkLink())
-                .accessibilityIdentifier("nighthawk.welcome.terms")
-        }
+    var terms: some View {
+        Text(L10n.Nighthawk.Welcome.terms1)
+            .caption()
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            .accessibilityIdentifier("nighthawk.welcome.terms")
     }
 
     func actions(

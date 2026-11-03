@@ -27,10 +27,7 @@ public struct Review {
         public var recipient: String
         public var recipientIsTransparent = false
         public var total: DrkAmount { zecAmount + fee }
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
@@ -102,6 +99,7 @@ public struct Review {
             case .delegate:
                 return .none
             case .onAppear:
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, "testnet")
                 return .none
             case .sendDrkTapped:

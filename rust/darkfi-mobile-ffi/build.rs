@@ -24,9 +24,7 @@ fn link_android_sqlcipher() {
         Ok("x86") => "x86",
         Ok("x86_64") => "x86_64",
         other => {
-            panic!(
-                "Unsupported Android target arch for SQLCipher link: {other:?}"
-            );
+            panic!("Unsupported Android target arch for SQLCipher link: {other:?}");
         }
     };
     let search = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))

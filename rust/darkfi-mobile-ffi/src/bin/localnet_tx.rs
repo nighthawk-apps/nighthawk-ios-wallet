@@ -48,7 +48,11 @@ async fn open_wallet() -> Result<DrkWalletPtr, String> {
         nym_socks_port: 0,
         // This darkfi pin's drk.transfer looks up zkas circuits over JSON-RPC.
         darkfid_rpc_url: Some("tcp://127.0.0.1:48345".into()),
-        strict_omr_only: true,
+        // Sends stay UnifOMR. Receiving must trial-decrypt: the sender's
+        // change note is not covered by the recipient clue, and a Moonshine
+        // `--no-omr` payment has no clue at all. E2E_STRICT=1 opts back into
+        // the strict path for the gap test.
+        strict_omr_only: std::env::var("E2E_STRICT").ok().as_deref() == Some("1"),
     };
     bootstrap::bootstrap_drk(&config, &ex).await
 }
@@ -69,6 +73,30 @@ async fn sync_wallet(wallet: &DrkWalletPtr) -> Result<u64, String> {
     sync::sync_once_via_lightwallet(wallet.clone(), &lwd()).await?;
     let drk = wallet.read().await;
     balance_atomic(&drk).await
+}
+
+/// One genesis replay per wallet directory. An earlier sync could mark the
+/// Money tree complete after a birthday window, and spend proofs then fail
+/// with Money `Custom(5)` (TransferMerkleRoot).
+async fn ensure_genesis_tree(wallet: &DrkWalletPtr) -> Result<(), String> {
+    let stamp = env_dir().join("merkle-rebuilt");
+    if stamp.exists() {
+        return Ok(());
+    }
+    let _ = sync_wallet(wallet).await?;
+    let client = darkfi_mobile_ffi::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
+        &lwd(),
+        None,
+    );
+    let tip = client.get_light_info().await?.chain_tip_height;
+    let drk = wallet.read().await;
+    let height = sync::spendable_rebuild_height(&drk, tip)?;
+    println!("REBUILD tree 0..={height}");
+    sync::rebuild_money_tree_to_height(&drk, &client, height).await?;
+    drop(drk);
+    std::fs::write(&stamp, format!("{height}\n")).map_err(|e| e.to_string())?;
+    println!("REBUILD done height={height}");
+    Ok(())
 }
 
 fn arg(flag: &str) -> Option<String> {
@@ -113,6 +141,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let wallet = open_wallet().await?;
         if cmd == "sync" {
+            ensure_genesis_tree(&wallet).await?;
             let bal = sync_wallet(&wallet).await?;
             let addr = {
                 let drk = wallet.read().await;
@@ -124,6 +153,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if cmd == "send" {
+            ensure_genesis_tree(&wallet).await?;
             let to = arg("--to").ok_or("missing --to")?;
             let count: u32 = arg("--count")
                 .unwrap_or_else(|| "1".into())

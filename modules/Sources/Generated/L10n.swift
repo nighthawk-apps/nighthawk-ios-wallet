@@ -51,8 +51,6 @@ public enum L10n {
         public static let skip = L10n.tr("Localizable", "general.skip", fallback: "Skip")
         /// Success
         public static let success = L10n.tr("Localizable", "general.success", fallback: "Success")
-        /// Terms and Conditions
-        public static let termsAndConditions = L10n.tr("Localizable", "general.termsAndConditions", fallback: "Terms and Conditions")
         /// Unknown
         public static let unknown = L10n.tr("Localizable", "general.unknown", fallback: "Unknown")
         /// Yes
@@ -80,6 +78,32 @@ public enum L10n {
             public static let viewLicenses = L10n.tr("Localizable", "nighthawk.about.viewLicenses", fallback: "View licenses")
             /// View Source
             public static let viewSource = L10n.tr("Localizable", "nighthawk.about.viewSource", fallback: "View Source")
+        }
+        public enum Chat {
+            public static let peers = L10n.tr("Localizable", "nighthawk.chat.peers", fallback: "Peers")
+            public static let retry = L10n.tr("Localizable", "nighthawk.chat.retry", fallback: "Retry")
+            public static let outboundPeers = L10n.tr("Localizable", "nighthawk.chat.outboundPeers", fallback: "Outbound peers")
+            public static let title = L10n.tr("Localizable", "nighthawk.chat.title", fallback: "DarkFi IRC")
+            public static let subtitle = L10n.tr("Localizable", "nighthawk.chat.subtitle", fallback: "End-to-end encrypted chat\npowered by the DarkFi P2P network")
+            public static let connect = L10n.tr("Localizable", "nighthawk.chat.connect", fallback: "Connect")
+            public static let networkHint = L10n.tr("Localizable", "nighthawk.chat.networkHint", fallback: "Check your network settings or configure Tor in Settings.")
+            public static let newDm = L10n.tr("Localizable", "nighthawk.chat.newDm", fallback: "New DM")
+            public static let shareKey = L10n.tr("Localizable", "nighthawk.chat.shareKey", fallback: "Share Key")
+            public static let noMessages = L10n.tr("Localizable", "nighthawk.chat.noMessages", fallback: "No messages yet")
+            public static func ircStatus(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.ircStatus", String(describing: p1), fallback: "IRC: %@")
+            }
+            public static func nodeStatus(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.nodeStatus", String(describing: p1), fallback: "Node: %@")
+            }
+        }
+        public enum Receive {
+            public static let sendAndReceive = L10n.tr("Localizable", "nighthawk.receive.sendAndReceive", fallback: "Send and receive DRK")
+            public static let receivePrivately = L10n.tr("Localizable", "nighthawk.receive.receivePrivately", fallback: "Receive money privately")
+            public static let showQr = L10n.tr("Localizable", "nighthawk.receive.showQr", fallback: "Show QR Code")
+            public static let showQrDetail = L10n.tr("Localizable", "nighthawk.receive.showQrDetail", fallback: "Let someone scan to send you money.")
+            public static let copyAddress = L10n.tr("Localizable", "nighthawk.receive.copyAddress", fallback: "Copy private address")
+            public static let copyAddressDetail = L10n.tr("Localizable", "nighthawk.receive.copyAddressDetail", fallback: "Your wallet address will be copied to the clipboard.")
         }
         public enum App {
             public enum DeleteWallet {
@@ -140,6 +164,190 @@ public enum L10n {
                     public static let title = L10n.tr("Localizable", "nighthawk.autoshield.alert.redirecting.title", fallback: "Redirecting to DarkFi")
                 }
             }
+        }
+        public enum Chat {
+            /// Could not decrypt
+            public static let couldNotDecrypt = L10n.tr("Localizable", "nighthawk.chat.couldNotDecrypt", fallback: "Could not decrypt")
+        }
+        public enum DaoHub {
+            /// Add funds
+            public static let addFunds = L10n.tr("Localizable", "nighthawk.daoHub.addFunds", fallback: "Add funds")
+            /// This marks the coins so the group can pay them out later.
+            public static let addFundsHint = L10n.tr("Localizable", "nighthawk.daoHub.addFundsHint", fallback: "This marks the coins so the group can pay them out later.")
+            /// Admin
+            public static let admin = L10n.tr("Localizable", "nighthawk.daoHub.admin", fallback: "Admin")
+            /// This phone holds every role, including the keys that pay from the treasury.
+            public static let allRolesHint = L10n.tr("Localizable", "nighthawk.daoHub.allRolesHint", fallback: "This phone holds every role, including the keys that pay from the treasury.")
+            /// Amount
+            public static let amount = L10n.tr("Localizable", "nighthawk.daoHub.amount", fallback: "Amount")
+            /// Block windows
+            public static let blockWindows = L10n.tr("Localizable", "nighthawk.daoHub.blockWindows", fallback: "Block windows")
+            /// Browse groups, proposals, and the treasury.
+            public static let browseDescription = L10n.tr("Localizable", "nighthawk.daoHub.browseDescription", fallback: "Browse groups, proposals, and the treasury.")
+            /// Screen recording or screenshot detected. Secret hidden.
+            public static let captured = L10n.tr("Localizable", "nighthawk.daoHub.captured", fallback: "Screen recording or screenshot detected. Secret hidden.")
+            /// Close
+            public static let close = L10n.tr("Localizable", "nighthawk.daoHub.close", fallback: "Close")
+            /// Copy
+            public static let copy = L10n.tr("Localizable", "nighthawk.daoHub.copy", fallback: "Copy")
+            /// DAO
+            public static let dao = L10n.tr("Localizable", "nighthawk.daoHub.dao", fallback: "DAO")
+            /// DAO not found
+            public static let daoNotFound = L10n.tr("Localizable", "nighthawk.daoHub.daoNotFound", fallback: "DAO not found")
+            /// Details
+            public static let details = L10n.tr("Localizable", "nighthawk.daoHub.details", fallback: "Details")
+            /// Duration
+            public static let duration = L10n.tr("Localizable", "nighthawk.daoHub.duration", fallback: "Duration")
+            /// Leave early quorum empty to use the same number as votes needed.
+            public static let earlyQuorum = L10n.tr("Localizable", "nighthawk.daoHub.earlyQuorum", fallback: "Early quorum")
+            /// Leave empty to use the same number as votes needed.
+            public static let earlyQuorumHint = L10n.tr("Localizable", "nighthawk.daoHub.earlyQuorumHint", fallback: "Leave empty to use the same number as votes needed.")
+            /// Refresh, or start a group from this wallet.
+            public static let emptyBody = L10n.tr("Localizable", "nighthawk.daoHub.emptyBody", fallback: "Refresh, or start a group from this wallet.")
+            /// Sync has not found a group yet.
+            public static let emptyTitle = L10n.tr("Localizable", "nighthawk.daoHub.emptyTitle", fallback: "Sync has not found a group yet.")
+            /// Exec height
+            public static let execHeight = L10n.tr("Localizable", "nighthawk.daoHub.execHeight", fallback: "Exec height")
+            /// Exec tx
+            public static let execTx = L10n.tr("Localizable", "nighthawk.daoHub.execTx", fallback: "Exec tx")
+            /// Executor
+            public static let executor = L10n.tr("Localizable", "nighthawk.daoHub.executor", fallback: "Executor")
+            /// Freeze supply
+            public static let freezeSupply = L10n.tr("Localizable", "nighthawk.daoHub.freezeSupply", fallback: "Freeze supply")
+            /// Full copy
+            public static let fullCopy = L10n.tr("Localizable", "nighthawk.daoHub.fullCopy", fallback: "Full copy")
+            /// Funds sent to the treasury
+            public static let fundsSent = L10n.tr("Localizable", "nighthawk.daoHub.fundsSent", fallback: "Funds sent to the treasury")
+            /// Governance token
+            public static let governanceToken = L10n.tr("Localizable", "nighthawk.daoHub.governanceToken", fallback: "Governance token")
+            /// Group id
+            public static let groupId = L10n.tr("Localizable", "nighthawk.daoHub.groupId", fallback: "Group id")
+            /// Group imported
+            public static let groupImported = L10n.tr("Localizable", "nighthawk.daoHub.groupImported", fallback: "Group imported")
+            /// Group submitted
+            public static let groupSubmitted = L10n.tr("Localizable", "nighthawk.daoHub.groupSubmitted", fallback: "Group submitted")
+            /// Groups this wallet has scanned. A payment from the treasury waits for a vote.
+            public static let hubIntro = L10n.tr("Localizable", "nighthawk.daoHub.hubIntro", fallback: "Groups this wallet has scanned. A payment from the treasury waits for a vote.")
+            /// Import group
+            public static let importGroup = L10n.tr("Localizable", "nighthawk.daoHub.importGroup", fallback: "Import group")
+            /// Group file
+            public static let importToml = L10n.tr("Localizable", "nighthawk.daoHub.importToml", fallback: "Group file")
+            /// The chain stores 8 decimals.
+            public static let issueHint = L10n.tr("Localizable", "nighthawk.daoHub.issueHint", fallback: "The chain stores 8 decimals.")
+            /// Issue more
+            public static let issueMore = L10n.tr("Localizable", "nighthawk.daoHub.issueMore", fallback: "Issue more")
+            /// Issue a token
+            public static let issueToken = L10n.tr("Localizable", "nighthawk.daoHub.issueToken", fallback: "Issue a token")
+            /// Mint height
+            public static let mintHeight = L10n.tr("Localizable", "nighthawk.daoHub.mintHeight", fallback: "Mint height")
+            /// Name
+            public static let name = L10n.tr("Localizable", "nighthawk.daoHub.name", fallback: "Name")
+            /// No votes yet.
+            public static let noVotes = L10n.tr("Localizable", "nighthawk.daoHub.noVotes", fallback: "No votes yet.")
+            /// Not scanned yet
+            public static let notScannedYet = L10n.tr("Localizable", "nighthawk.daoHub.notScannedYet", fallback: "Not scanned yet")
+            /// Observer
+            public static let observer = L10n.tr("Localizable", "nighthawk.daoHub.observer", fallback: "Observer")
+            /// 1 payment
+            public static let onePayment = L10n.tr("Localizable", "nighthawk.daoHub.onePayment", fallback: "1 payment")
+            /// Open
+            public static let statusOpen = L10n.tr("Localizable", "nighthawk.daoHub.open", fallback: "Open")
+            /// Paid
+            public static let paid = L10n.tr("Localizable", "nighthawk.daoHub.paid", fallback: "Paid")
+            /// Pay from treasury
+            public static let payFromTreasury = L10n.tr("Localizable", "nighthawk.daoHub.payFromTreasury", fallback: "Pay from treasury")
+            /// Sends the payment from the treasury.
+            public static let payHint = L10n.tr("Localizable", "nighthawk.daoHub.payHint", fallback: "Sends the payment from the treasury.")
+            /// Payment sent from the treasury
+            public static let paymentSent = L10n.tr("Localizable", "nighthawk.daoHub.paymentSent", fallback: "Payment sent from the treasury")
+            /// Proposal
+            public static let proposal = L10n.tr("Localizable", "nighthawk.daoHub.proposal", fallback: "Proposal")
+            /// Proposal id
+            public static let proposalId = L10n.tr("Localizable", "nighthawk.daoHub.proposalId", fallback: "Proposal id")
+            /// Proposal not found
+            public static let proposalNotFound = L10n.tr("Localizable", "nighthawk.daoHub.proposalNotFound", fallback: "Proposal not found")
+            /// Proposal submitted! %@…
+            public static func proposalSubmitted(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.daoHub.proposalSubmitted", String(describing: p1), fallback: "Proposal submitted! %@…")
+            }
+            /// Propose a payment
+            public static let proposePayment = L10n.tr("Localizable", "nighthawk.daoHub.proposePayment", fallback: "Propose a payment")
+            /// This will generate ZK proofs on-device and broadcast the proposal transaction.
+            public static let proposeBroadcast = L10n.tr("Localizable", "nighthawk.daoHub.proposeBroadcast", fallback: "This will generate ZK proofs on-device and broadcast the proposal transaction.")
+            /// Propose tx
+            public static let proposeTx = L10n.tr("Localizable", "nighthawk.daoHub.proposeTx", fallback: "Propose tx")
+            /// Proposer
+            public static let proposer = L10n.tr("Localizable", "nighthawk.daoHub.proposer", fallback: "Proposer")
+            /// Proposer minimum
+            public static let proposerMinimum = L10n.tr("Localizable", "nighthawk.daoHub.proposerMinimum", fallback: "Proposer minimum")
+            /// Recipient
+            public static let recipient = L10n.tr("Localizable", "nighthawk.daoHub.recipient", fallback: "Recipient")
+            /// Recipient address
+            public static let recipientAddress = L10n.tr("Localizable", "nighthawk.daoHub.recipientAddress", fallback: "Recipient address")
+            /// Refresh
+            public static let refresh = L10n.tr("Localizable", "nighthawk.daoHub.refresh", fallback: "Refresh")
+            /// This code holds the role secret.
+            public static let roleExportHint = L10n.tr("Localizable", "nighthawk.daoHub.roleExportHint", fallback: "This code holds the role secret.")
+            /// Role export
+            public static let roleExportTitle = L10n.tr("Localizable", "nighthawk.daoHub.roleExportTitle", fallback: "Role export")
+            /// Start a group
+            public static let startGroup = L10n.tr("Localizable", "nighthawk.daoHub.startGroup", fallback: "Start a group")
+            /// Supply frozen
+            public static let supplyFrozen = L10n.tr("Localizable", "nighthawk.daoHub.supplyFrozen", fallback: "Supply frozen")
+            /// DAO Hub
+            public static let title = L10n.tr("Localizable", "nighthawk.daoHub.title", fallback: "DAO Hub")
+            /// Token
+            public static let token = L10n.tr("Localizable", "nighthawk.daoHub.token", fallback: "Token")
+            /// Token created
+            public static let tokenCreated = L10n.tr("Localizable", "nighthawk.daoHub.tokenCreated", fallback: "Token created")
+            /// Token ID (default: DRK)
+            public static let tokenIdPlaceholder = L10n.tr("Localizable", "nighthawk.daoHub.tokenIdPlaceholder", fallback: "Token ID (default: DRK)")
+            /// Token (optional)
+            public static let tokenOptional = L10n.tr("Localizable", "nighthawk.daoHub.tokenOptional", fallback: "Token (optional)")
+            /// Tokens
+            public static let tokens = L10n.tr("Localizable", "nighthawk.daoHub.tokens", fallback: "Tokens")
+            /// Tokens issued
+            public static let tokensIssued = L10n.tr("Localizable", "nighthawk.daoHub.tokensIssued", fallback: "Tokens issued")
+            /// Treasury
+            public static let treasury = L10n.tr("Localizable", "nighthawk.daoHub.treasury", fallback: "Treasury")
+            /// Coins sent to the group without the treasury mark cannot be paid out later.
+            public static let treasuryHint = L10n.tr("Localizable", "nighthawk.daoHub.treasuryHint", fallback: "Coins sent to the group without the treasury mark cannot be paid out later.")
+            /// Vote NO submitted! TX: %@…
+            public static func voteNoSubmitted(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.daoHub.voteNoSubmitted", String(describing: p1), fallback: "Vote NO submitted! TX: %@…")
+            }
+            /// Your full governance token balance is the vote weight.
+            public static let voteWeight = L10n.tr("Localizable", "nighthawk.daoHub.voteWeight", fallback: "Your full governance token balance is the vote weight.")
+            /// Vote YES submitted! TX: %@…
+            public static func voteYesSubmitted(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.daoHub.voteYesSubmitted", String(describing: p1), fallback: "Vote YES submitted! TX: %@…")
+            }
+            /// Voter
+            public static let voter = L10n.tr("Localizable", "nighthawk.daoHub.voter", fallback: "Voter")
+            /// Votes
+            public static let votes = L10n.tr("Localizable", "nighthawk.daoHub.votes", fallback: "Votes")
+            /// Votes needed to count
+            public static let votesNeeded = L10n.tr("Localizable", "nighthawk.daoHub.votesNeeded", fallback: "Votes needed to count")
+            /// Voting window: %@ block windows (%@ hours).
+            public static func votingWindow(_ p1: Any, _ p2: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.daoHub.votingWindow", String(describing: p1), String(describing: p2), fallback: "Voting window: %@ block windows (%@ hours).")
+            }
+            /// Waiting
+            public static let waiting = L10n.tr("Localizable", "nighthawk.daoHub.waiting", fallback: "Waiting")
+            /// Wallet sync failed: %@
+            public static func walletSyncFailed(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.daoHub.walletSyncFailed", String(describing: p1), fallback: "Wallet sync failed: %@")
+            }
+            /// Wallet sync is still in progress. Open DAO Hub again once your wallet is up to date.
+            public static let walletSyncing = L10n.tr("Localizable", "nighthawk.daoHub.walletSyncing", fallback: "Wallet sync is still in progress. Open DAO Hub again once your wallet is up to date.")
+            /// Wallet is not ready yet. Finish setup or wait for the wallet to initialize.
+            public static let walletNotReady = L10n.tr("Localizable", "nighthawk.daoHub.walletNotReady", fallback: "Wallet is not ready yet. Finish setup or wait for the wallet to initialize.")
+            /// Wallet sync is stopped. Resume sync from the Wallet tab, then open DAO Hub again.
+            public static let walletStopped = L10n.tr("Localizable", "nighthawk.daoHub.walletStopped", fallback: "Wallet sync is stopped. Resume sync from the Wallet tab, then open DAO Hub again.")
+            /// Yes share
+            public static let yesShare = L10n.tr("Localizable", "nighthawk.daoHub.yesShare", fallback: "Yes share")
+            /// Yes share required
+            public static let yesShareRequired = L10n.tr("Localizable", "nighthawk.daoHub.yesShareRequired", fallback: "Yes share required")
         }
         public enum ExportSeed {
             /// Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.
@@ -370,10 +578,12 @@ public enum L10n {
                     public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.screenMode.title", fallback: "Keep screen on")
                 }
                 public enum Theme {
+                    /// Cyberpunk
+                    public static let cyberpunk = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.cyberpunk", fallback: "Cyberpunk")
                     /// Dark
                     public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")
                     /// Default
-                    public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "System")
+                    public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "System (Cyberpunk)")
                     /// Paper
                     public static let paper = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.paper", fallback: "Paper")
                     /// Theme
@@ -801,6 +1011,34 @@ public enum L10n {
             /// Wallet created! Congratulations!
             public static let title = L10n.tr("Localizable", "nighthawk.walletCreated.title", fallback: "Wallet created! Congratulations!")
         }
+        public enum WalletCompanion {
+            /// Block %@
+            public static func blockHeight(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.walletCompanion.blockHeight", String(describing: p1), fallback: "Block %@")
+            }
+            /// Copy memo
+            public static let copyMemo = L10n.tr("Localizable", "nighthawk.walletCompanion.copyMemo", fallback: "Copy memo")
+            /// Copy TxID
+            public static let copyTxId = L10n.tr("Localizable", "nighthawk.walletCompanion.copyTxId", fallback: "Copy TxID")
+            /// Next steps
+            public static let nextSteps = L10n.tr("Localizable", "nighthawk.walletCompanion.nextSteps", fallback: "Next steps")
+            /// Receive
+            public static let receive = L10n.tr("Localizable", "nighthawk.walletCompanion.receive", fallback: "Receive")
+            /// Send Again
+            public static let sendAgain = L10n.tr("Localizable", "nighthawk.walletCompanion.sendAgain", fallback: "Send Again")
+            /// Transfers stay shielded. UnifOMR is used when the server supports it. Trial decryption is only a fallback.
+            public static let shieldedNote = L10n.tr("Localizable", "nighthawk.walletCompanion.shieldedNote", fallback: "Transfers stay shielded. UnifOMR is used when the server supports it. Trial decryption is only a fallback.")
+            /// Synced with UnifOMR.
+            public static let syncedUnifOmr = L10n.tr("Localizable", "nighthawk.walletCompanion.syncedUnifOmr", fallback: "Synced with UnifOMR.")
+            /// Trial decryption is active instead of UnifOMR.
+            public static let trialActive = L10n.tr("Localizable", "nighthawk.walletCompanion.trialActive", fallback: "Trial decryption is active instead of UnifOMR.")
+            /// Trial decrypt
+            public static let trialDecrypt = L10n.tr("Localizable", "nighthawk.walletCompanion.trialDecrypt", fallback: "Trial decrypt")
+            /// UnifOMR
+            public static let unifOmr = L10n.tr("Localizable", "nighthawk.walletCompanion.unifOmr", fallback: "UnifOMR")
+            /// Waiting for a block height
+            public static let waitingForHeight = L10n.tr("Localizable", "nighthawk.walletCompanion.waitingForHeight", fallback: "Waiting for a block height")
+        }
         public enum WalletTab {
             /// DRK
             public static let drk = L10n.tr("Localizable", "nighthawk.walletTab.drk", fallback: "DRK")
@@ -848,8 +1086,8 @@ public enum L10n {
             public static let restore = L10n.tr("Localizable", "nighthawk.welcome.restore", fallback: "Restore From Backup")
             /// Get started
             public static let subtitle = L10n.tr("Localizable", "nighthawk.welcome.subtitle", fallback: "Get started")
-            /// By using this app you accept our
-            public static let terms1 = L10n.tr("Localizable", "nighthawk.welcome.terms1", fallback: "By using this app you accept our")
+            /// This app is free software. Use is covered only by its license.
+            public static let terms1 = L10n.tr("Localizable", "nighthawk.welcome.terms1", fallback: "This app is free software. Use is covered only by its license.")
             public enum Carousel {
                 /// All transactions are fully private. No transparent addresses, no metadata leaks. Your financial life stays yours.
                 public static let body1 = L10n.tr("Localizable", "nighthawk.welcome.carousel.body1", fallback: "All transactions are fully private. No transparent addresses, no metadata leaks. Your financial life stays yours.")

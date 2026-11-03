@@ -19,7 +19,24 @@
 //! - **Debug logging at gRPC entrypoints** (logging commit): every RPC
 //!   call is logged at DEBUG level with method name and timing.
 
+use std::sync::Mutex;
 use std::time::{Duration, Instant};
+
+/// Client proto version. Major must match darkfi-lightwalletd (`2.0.0`).
+/// A different major is refused. There is no 1.x compatibility path.
+pub const CLIENT_PROTO_VERSION: &str = "2.0.0";
+
+/// True when both sides parse as semver and the major versions differ.
+/// An empty or unparseable server version is not a mismatch.
+pub fn proto_major_mismatch(server: &str, client: &str) -> bool {
+    let Ok(server_semver) = semver::Version::parse(server) else {
+        return false;
+    };
+    let Ok(client_semver) = semver::Version::parse(client) else {
+        return false;
+    };
+    server_semver.major != client_semver.major
+}
 
 /// Param2 detection keys are ~120 MiB and are streamed in 1 MiB chunks.
 /// The digest response for a full window still fits under this ceiling.
@@ -183,6 +200,10 @@ pub struct LightCompactOutput {
     pub value_commit: Vec<u8>,
     /// Commitment for token ID (32 bytes)
     pub token_commit: Vec<u8>,
+    /// UnifOMR clue attached to this output. Empty when the sender sent none.
+    pub omr_clue: Vec<u8>,
+    /// Recipient-encrypted OMR metadata (scheme, clue binding, user memo).
+    pub omr_metadata_enc: Vec<u8>,
 }
 
 /// Server info returned by GetLightInfo.
@@ -191,6 +212,8 @@ pub struct LightServerInfo {
     pub server_version: String,
     pub chain_name: String,
     pub chain_tip_height: u32,
+    /// Seconds per block, as darkfid reports it (0 when unknown).
+    pub block_target: u32,
     pub omr_supported: bool,
     /// Best block hash at chain_tip_height (finding 5.3).
     /// May be empty if the server hasn't been updated with field 7.
@@ -200,8 +223,77 @@ pub struct LightServerInfo {
     pub backend_version: String,
     /// 32-byte directory attest public key for GetCluePublicKey proofs.
     pub directory_attest_pubkey: Vec<u8>,
-    /// Server proto version string (e.g. "1.0.0"); empty on older servers.
+    /// Server proto version (`2.0.0` on current lightwalletd).
     pub proto_version: String,
+    /// True when the server major version is not [`CLIENT_PROTO_VERSION`].
+    pub proto_version_mismatch: bool,
+}
+
+/// One `CompactOutputBody` row from proto 2.0.0.
+#[derive(Debug, Clone)]
+pub struct CompactOutputBodyDto {
+    pub height: u32,
+    pub hash: Vec<u8>,
+    pub prev_hash: Vec<u8>,
+    pub coin: Vec<u8>,
+    pub encrypted_note: Vec<u8>,
+    pub omr_clue: Vec<u8>,
+    pub omr_metadata_enc: Vec<u8>,
+    pub tx_hash: Vec<u8>,
+}
+
+struct PooledDetectionKey {
+    handle: Vec<u8>,
+    expires_unix: u64,
+}
+
+static DETECTION_KEY_POOL: Mutex<Option<PooledDetectionKey>> = Mutex::new(None);
+
+pub fn clear_detection_key_pool() {
+    if let Ok(mut guard) = DETECTION_KEY_POOL.lock() {
+        if let Some(mut pooled) = guard.take() {
+            pooled.handle.fill(0);
+        }
+    }
+}
+
+pub(crate) fn unix_now() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
+pub(crate) fn fresh_detection_handle(now_unix: u64) -> Option<Vec<u8>> {
+    let guard = DETECTION_KEY_POOL.lock().ok()?;
+    let pooled = guard.as_ref()?;
+    if pooled.handle.is_empty() {
+        return None;
+    }
+    if pooled.expires_unix > 0 && pooled.expires_unix <= now_unix {
+        return None;
+    }
+    Some(pooled.handle.clone())
+}
+
+pub(crate) fn store_detection_handle(handle: Vec<u8>, expires_unix: u64) {
+    if handle.is_empty() {
+        return;
+    }
+    if let Ok(mut guard) = DETECTION_KEY_POOL.lock() {
+        *guard = Some(PooledDetectionKey {
+            handle,
+            expires_unix,
+        });
+    }
+}
+
+pub(crate) fn pool_digest_needs_reregister(err: &str) -> bool {
+    let lower = err.to_ascii_lowercase();
+    lower.contains("not_found")
+        || lower.contains("not found")
+        || lower.contains("notfound")
+        || lower.contains("expired")
 }
 
 /// OMR capabilities returned by GetOmrCapabilities.
@@ -345,9 +437,57 @@ pub struct LightwalletClient {
     require_https_over_socks: bool,
     /// Persistent gRPC channel (P4) — reused across RPCs in a sync session.
     channel: tokio::sync::Mutex<Option<tonic::transport::Channel>>,
+    omr_limiter: SlidingWindowLimiter,
+    chain_tip_limiter: SlidingWindowLimiter,
+}
+
+/// Sliding-window client-side RPC throttle.
+#[derive(Debug)]
+pub struct SlidingWindowLimiter {
+    stamps: Mutex<std::collections::VecDeque<Instant>>,
+    max_per_window: u32,
+    window: Duration,
+}
+
+impl SlidingWindowLimiter {
+    pub fn new(max_per_window: u32, window: Duration) -> Self {
+        Self {
+            stamps: Mutex::new(std::collections::VecDeque::new()),
+            max_per_window,
+            window,
+        }
+    }
+
+    pub fn try_acquire(&self) -> Result<(), String> {
+        let now = Instant::now();
+        let mut guard = self
+            .stamps
+            .lock()
+            .map_err(|_| "rate limiter lock poisoned".to_string())?;
+        while let Some(front) = guard.front() {
+            if now.duration_since(*front) > self.window {
+                guard.pop_front();
+            } else {
+                break;
+            }
+        }
+        if guard.len() >= self.max_per_window as usize {
+            return Err(format!(
+                "rate limited: {} requests per {:?}",
+                self.max_per_window, self.window
+            ));
+        }
+        guard.push_back(now);
+        Ok(())
+    }
 }
 
 impl LightwalletClient {
+    /// UnifOMR digest / detection-key RPCs per minute (same budget as Android).
+    pub const OMR_RATE_LIMIT_PER_MIN: u32 = 6;
+    /// GetLightInfo RPCs per minute (same budget as Android).
+    pub const CHAIN_TIP_RATE_LIMIT_PER_MIN: u32 = 12;
+
     /// Create a new client targeting the given gRPC endpoint.
     ///
     /// The endpoint should be a URL like `http://127.0.0.1:9067`,
@@ -369,6 +509,14 @@ impl LightwalletClient {
             socks5_proxy,
             require_https_over_socks: true,
             channel: tokio::sync::Mutex::new(None),
+            omr_limiter: SlidingWindowLimiter::new(
+                Self::OMR_RATE_LIMIT_PER_MIN,
+                Duration::from_secs(60),
+            ),
+            chain_tip_limiter: SlidingWindowLimiter::new(
+                Self::CHAIN_TIP_RATE_LIMIT_PER_MIN,
+                Duration::from_secs(60),
+            ),
         }
     }
 
@@ -396,6 +544,14 @@ impl LightwalletClient {
             socks5_proxy,
             require_https_over_socks: true,
             channel: tokio::sync::Mutex::new(None),
+            omr_limiter: SlidingWindowLimiter::new(
+                Self::OMR_RATE_LIMIT_PER_MIN,
+                Duration::from_secs(60),
+            ),
+            chain_tip_limiter: SlidingWindowLimiter::new(
+                Self::CHAIN_TIP_RATE_LIMIT_PER_MIN,
+                Duration::from_secs(60),
+            ),
         }
     }
 
@@ -708,6 +864,7 @@ impl LightwalletClient {
     /// This is the first call the sync engine makes to determine which
     /// sync path to use.
     pub async fn get_light_info(&self) -> Result<LightServerInfo, String> {
+        self.chain_tip_limiter.try_acquire()?;
         let start = Instant::now();
         let result = async_compat::Compat::new(async {
             let channel = self.connect_channel().await?;
@@ -720,15 +877,19 @@ impl LightwalletClient {
                 .map_err(|e| format!("GetLightInfo RPC: {e}"))?;
 
             let info = resp.into_inner();
+            let proto_version = info.proto_version.clone();
+            let proto_version_mismatch = proto_major_mismatch(&proto_version, CLIENT_PROTO_VERSION);
             Ok(LightServerInfo {
                 server_version: info.version,
                 chain_name: info.chain_name,
                 chain_tip_height: info.block_height,
+                block_target: info.block_target,
                 omr_supported: info.omr_supported,
                 best_block_hash: info.best_block_hash,
                 backend_version: info.backend_version,
                 directory_attest_pubkey: info.directory_attest_pubkey,
-                proto_version: info.proto_version,
+                proto_version,
+                proto_version_mismatch,
             })
         })
         .await;
@@ -755,13 +916,38 @@ impl LightwalletClient {
         &self,
         start_height: u32,
         end_height: u32,
+        tip: u32,
     ) -> Result<Vec<LightCompactBlock>, String> {
-        // Finding 5.4: validate range before sending to server
         validate_block_range(start_height, end_height)?;
+        let (padded_start, padded_end) = pad_block_range(start_height, end_height, tip);
+        self.fetch_compact_block_range(padded_start, padded_end, start_height, end_height)
+            .await
+    }
 
+    /// Fetch an already-padded range. The server rejects a range that is not a
+    /// padded bucket, so callers must pass the result of [`pad_block_range`].
+    pub async fn get_compact_block_range_exact(
+        &self,
+        start_height: u32,
+        end_height: u32,
+    ) -> Result<Vec<LightCompactBlock>, String> {
+        validate_block_range(start_height, end_height)?;
+        self.fetch_compact_block_range(start_height, end_height, start_height, end_height)
+            .await
+    }
+
+    async fn fetch_compact_block_range(
+        &self,
+        request_start: u32,
+        request_end: u32,
+        filter_start: u32,
+        filter_end: u32,
+    ) -> Result<Vec<LightCompactBlock>, String> {
         let start = Instant::now();
-        // PRIVACY: Pad the range to hide exact wallet birthday
-        let (padded_start, padded_end) = pad_block_range(start_height, end_height);
+        let padded_start = request_start;
+        let padded_end = request_end;
+        let start_height = filter_start;
+        let end_height = filter_end;
 
         tracing::debug!(
             target: "lightwallet-client",
@@ -1057,6 +1243,69 @@ impl LightwalletClient {
         omr_clue: Vec<u8>,
         omr_metadata_enc: Vec<u8>,
     ) -> Result<Vec<u8>, String> {
+        self.send_transaction_inner(tx_data, omr_clue, 0, omr_metadata_enc, Vec::new())
+            .await
+    }
+
+    /// Broadcast `tx_data` and attach this wallet's clue on every output except
+    /// the payment output. Android and Moonshine send the same `extra_omr_clues`
+    /// field, so a change output is detectable by the sender's other devices.
+    pub async fn send_transaction_with_wallet_clues(
+        &self,
+        tx_data: Vec<u8>,
+        omr_clue: Vec<u8>,
+        omr_metadata_enc: Vec<u8>,
+        wallet_secret: &[u8],
+        network: u8,
+    ) -> Result<Vec<u8>, String> {
+        let extra =
+            match self_change_omr_clues(&tx_data, wallet_secret, network, 0, &omr_clue).await {
+                Ok(clues) => clues,
+                Err(e) => {
+                    tracing::warn!(
+                        target: "lightwallet-client",
+                        "sender change clues not attached: {e}"
+                    );
+                    Vec::new()
+                }
+            };
+        self.send_transaction_inner(tx_data, omr_clue, 0, omr_metadata_enc, extra)
+            .await
+    }
+
+    /// Broadcast a wallet-built contract transaction (DAO, token) with the
+    /// wallet's own clue on `own_indexes` and, when resolved, the recipient's
+    /// clue on its output. Strict-OMR wallets only see outputs with a clue.
+    pub async fn send_transaction_with_output_clues(
+        &self,
+        tx_data: Vec<u8>,
+        own_indexes: &[u32],
+        recipient_clue: Option<(u32, Vec<u8>)>,
+        wallet_secret: &[u8],
+        network: u8,
+    ) -> Result<Vec<u8>, String> {
+        let (_sk, pk) = crate::unifomr::clue_keypair_from_wallet(wallet_secret, network)?;
+        let own_clue = crate::unifomr::build_omr_clue_from_pk(&pk);
+        let mut extra = clues_for_indexes(own_indexes, &own_clue);
+        let (clue, clue_index) = match recipient_clue {
+            Some((index, clue)) => {
+                extra.retain(|c| c.output_index != index);
+                (clue, index)
+            }
+            None => (Vec::new(), 0),
+        };
+        self.send_transaction_inner(tx_data, clue, clue_index, Vec::new(), extra)
+            .await
+    }
+
+    async fn send_transaction_inner(
+        &self,
+        tx_data: Vec<u8>,
+        omr_clue: Vec<u8>,
+        omr_clue_output_index: u32,
+        omr_metadata_enc: Vec<u8>,
+        extra_omr_clues: Vec<lightwallet_proto::OutputOmrClue>,
+    ) -> Result<Vec<u8>, String> {
         let start = Instant::now();
         if tx_data.is_empty() {
             return Err("transaction data cannot be empty".into());
@@ -1069,8 +1318,9 @@ impl LightwalletClient {
                 .send_transaction(lightwallet_proto::RawTransaction {
                     data: tx_data,
                     omr_clue,
-                    omr_clue_output_index: 0, // payment output (not change)
+                    omr_clue_output_index,
                     omr_metadata_enc,
+                    extra_omr_clues,
                 })
                 .await
                 .map_err(|e| format!("SendTransaction RPC: {e}"))?;
@@ -1119,6 +1369,7 @@ impl LightwalletClient {
         start_height: u32,
         end_height: u32,
     ) -> Result<(Vec<u8>, Vec<u8>, bool), String> {
+        self.omr_limiter.try_acquire()?;
         const CHUNK_SIZE: usize = 1024 * 1024;
         validate_block_range(start_height, end_height)?;
         if detection_keys.is_empty() || detection_keys.iter().any(|k| k.is_empty()) {
@@ -1157,6 +1408,131 @@ impl LightwalletClient {
         })
         .await;
         result
+    }
+
+    /// Upload one detection key and receive a 24h handle. The handle is not logged.
+    pub async fn register_detection_key(
+        &self,
+        detection_key: Vec<u8>,
+    ) -> Result<(Vec<u8>, u64), String> {
+        self.omr_limiter.try_acquire()?;
+        if detection_key.is_empty() {
+            return Err("empty detection key not allowed".into());
+        }
+        let detection_key = std::sync::Arc::new(detection_key);
+        let result = async_compat::Compat::new(async move {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            const CHUNK_SIZE: usize = 1024 * 1024;
+            let header = lightwallet_proto::DetectionKeyChunk {
+                start_height: 0,
+                end_height: 0,
+                num_keys: 1,
+                data: vec![],
+                key_done: false,
+            };
+            let key = detection_key;
+            let len = key.len();
+            let data_chunks = (0..len).step_by(CHUNK_SIZE).map(move |offset| {
+                let end_offset = (offset + CHUNK_SIZE).min(key.len());
+                lightwallet_proto::DetectionKeyChunk {
+                    start_height: 0,
+                    end_height: 0,
+                    num_keys: 0,
+                    data: key[offset..end_offset].to_vec(),
+                    key_done: end_offset == key.len(),
+                }
+            });
+            let chunks = std::iter::once(header).chain(data_chunks);
+            let resp = client
+                .register_detection_key(tonic::Request::new(futures::stream::iter(chunks)))
+                .await
+                .map_err(|e| format!("RegisterDetectionKey RPC: {e}"))?;
+            let inner = resp.into_inner();
+            if inner.handle.len() != 32 {
+                return Err(format!(
+                    "RegisterDetectionKey handle is {} bytes (expected 32)",
+                    inner.handle.len()
+                ));
+            }
+            Ok((inner.handle, inner.expires_unix))
+        })
+        .await;
+        result
+    }
+
+    /// Digest for a previously registered detection key.
+    pub async fn get_unif_omr_digest_from_pool(
+        &self,
+        handle: &[u8],
+        start_height: u32,
+        end_height: u32,
+    ) -> Result<(Vec<u8>, Vec<u8>, bool), String> {
+        self.omr_limiter.try_acquire()?;
+        validate_block_range(start_height, end_height)?;
+        if handle.len() != 32 {
+            return Err(format!(
+                "detection handle is {} bytes (expected 32)",
+                handle.len()
+            ));
+        }
+        let handle = handle.to_vec();
+        let result = async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let resp = client
+                .get_unif_omr_digest_from_pool(lightwallet_proto::PoolDigestRequest {
+                    handle,
+                    start_height,
+                    end_height,
+                })
+                .await
+                .map_err(|e| format!("GetUnifOmrDigestFromPool RPC: {e}"))?;
+            let inner = resp.into_inner();
+            Ok((inner.encrypted_digest, inner.slot_heights, inner.complete))
+        })
+        .await;
+        result
+    }
+
+    /// One row per Money output. Trial decrypt uses these when PIR is unavailable.
+    pub async fn get_compact_output_bodies(
+        &self,
+        start_height: u32,
+        end_height: u32,
+    ) -> Result<Vec<CompactOutputBodyDto>, String> {
+        validate_block_range(start_height, end_height)?;
+        async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let mut stream = client
+                .get_compact_output_bodies(lightwallet_proto::BlockRange {
+                    start_height,
+                    end_height,
+                })
+                .await
+                .map_err(|e| format!("GetCompactOutputBodies RPC: {e}"))?
+                .into_inner();
+            let mut out = Vec::new();
+            while let Some(body) = stream
+                .message()
+                .await
+                .map_err(|e| format!("GetCompactOutputBodies stream: {e}"))?
+            {
+                out.push(CompactOutputBodyDto {
+                    height: body.height,
+                    hash: body.hash,
+                    prev_hash: body.prev_hash,
+                    coin: body.coin,
+                    encrypted_note: body.encrypted_note,
+                    omr_clue: body.omr_clue,
+                    omr_metadata_enc: body.omr_metadata_enc,
+                    tx_hash: body.tx_hash,
+                });
+            }
+            Ok(out)
+        })
+        .await
     }
 
     pub async fn register_clue_public_key(
@@ -1232,6 +1608,37 @@ impl LightwalletClient {
         .await;
         result
     }
+
+    /// `LookupZkas`: circuit bincodes for a deployed contract, so proofs can be
+    /// built without darkfid RPC.
+    pub async fn lookup_zkas(&self, contract_id: &str) -> Result<Vec<(String, Vec<u8>)>, String> {
+        let start = Instant::now();
+        let result = async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let resp = client
+                .lookup_zkas(lightwallet_proto::ContractId {
+                    id: contract_id.to_string(),
+                })
+                .await
+                .map_err(|e| format!("LookupZkas({contract_id}) RPC: {e}"))?;
+            let bincodes = resp
+                .into_inner()
+                .bincodes
+                .into_iter()
+                .map(|b| (b.namespace, b.bincode))
+                .collect();
+            Ok(bincodes)
+        })
+        .await;
+        tracing::debug!(
+            target: "lightwallet-client",
+            "gRPC LookupZkas({contract_id}): ok={}, elapsed={:?}",
+            result.is_ok(),
+            start.elapsed(),
+        );
+        result
+    }
 }
 
 /// Convert a protobuf CompactBlock to the local LightCompactBlock type.
@@ -1254,6 +1661,8 @@ pub(crate) fn proto_compact_to_light(pb: lightwallet_proto::CompactBlock) -> Lig
                         encrypted_note: o.encrypted_note,
                         value_commit: o.value_commit,
                         token_commit: o.token_commit,
+                        omr_clue: o.omr_clue,
+                        omr_metadata_enc: o.omr_metadata_enc,
                     })
                     .collect(),
                 nullifiers: tx.nullifiers,
@@ -1350,6 +1759,26 @@ pub fn validate_compact_block(block: &LightCompactBlock) -> Result<(), String> {
     Ok(())
 }
 
+/// Require `block.prev_hash == parent_hash` when `block.height == parent_height + 1`.
+pub fn validate_block_follows_parent(
+    block: &LightCompactBlock,
+    parent_height: u32,
+    parent_hash: &[u8],
+) -> Result<(), String> {
+    validate_compact_block(block)?;
+    if parent_hash.len() != 32 {
+        return Err("parent hash is not 32 bytes".into());
+    }
+    if block.height == parent_height.saturating_add(1) && block.prev_hash.as_slice() != parent_hash
+    {
+        return Err(format!(
+            "Block {} prev_hash does not match accepted parent at height {parent_height}",
+            block.height
+        ));
+    }
+    Ok(())
+}
+
 /// Validate a block range request before sending to the server (finding 5.4).
 ///
 /// Adopted from zcash/lightwalletd's null-argument segfault fix: check
@@ -1386,14 +1815,17 @@ const MIN_BUCKET_SIZE: u32 = 1024;
 /// ## Examples
 ///
 /// ```text
-/// pad_block_range(42000, 42500) → (41984, 43007)  // 1024-block bucket
-/// pad_block_range(0, 50000)     → (0, 65535)       // 65536-block bucket
-/// pad_block_range(100, 100)     → (0, 1023)        // minimum 1024 bucket
+/// pad_block_range(42000, 42500, u32::MAX) → (41984, 43007)
+/// pad_block_range(0, 50000, u32::MAX)     → (0, 65535)
+/// pad_block_range(100, 100, u32::MAX)     → (0, 1023)
+/// pad_block_range(42000, 42500, 42500)    → (41984, 42500)
 /// ```
 ///
-/// The server sees only the padded range. The client silently discards
-/// blocks outside the originally requested range.
-pub fn pad_block_range(start: u32, end: u32) -> (u32, u32) {
+/// The server sees only the padded range. The client discards blocks outside
+/// the original request. `tip` is public via GetLightInfo, so clamping the
+/// end to the tip does not distinguish clients. The shape matches the Android
+/// client, which darkfi-lightwalletd 2.0.0 accepts.
+pub fn pad_block_range(start: u32, end: u32, tip: u32) -> (u32, u32) {
     let range_size = end.saturating_sub(start).saturating_add(1);
 
     // Round up to next power of 2, with minimum bucket size
@@ -1409,7 +1841,186 @@ pub fn pad_block_range(start: u32, end: u32) -> (u32, u32) {
         aligned_end = aligned_end.saturating_add(bucket);
     }
 
+    aligned_end = aligned_end.min(tip);
     (aligned_start, aligned_end)
+}
+
+/// Group compact output bodies into the compact-block shape trial decrypt already uses.
+pub fn compact_bodies_to_blocks(bodies: Vec<CompactOutputBodyDto>) -> Vec<LightCompactBlock> {
+    use std::collections::BTreeMap;
+
+    let mut by_height: BTreeMap<
+        u32,
+        (Vec<u8>, Vec<u8>, BTreeMap<Vec<u8>, Vec<LightCompactOutput>>),
+    > = BTreeMap::new();
+    for body in bodies {
+        let entry = by_height
+            .entry(body.height)
+            .or_insert_with(|| (body.hash.clone(), body.prev_hash.clone(), BTreeMap::new()));
+        entry
+            .2
+            .entry(body.tx_hash)
+            .or_default()
+            .push(LightCompactOutput {
+                coin: body.coin,
+                encrypted_note: body.encrypted_note,
+                value_commit: Vec::new(),
+                token_commit: Vec::new(),
+                omr_clue: body.omr_clue,
+                omr_metadata_enc: body.omr_metadata_enc,
+            });
+    }
+    by_height
+        .into_iter()
+        .map(|(height, (hash, prev_hash, txs))| LightCompactBlock {
+            height,
+            hash,
+            prev_hash,
+            timestamp: 0,
+            txs: txs
+                .into_iter()
+                .map(|(tx_hash, outputs)| LightCompactTx {
+                    tx_hash,
+                    outputs,
+                    nullifiers: Vec::new(),
+                    fee: 0,
+                })
+                .collect(),
+        })
+        .collect()
+}
+
+pub fn non_payment_output_indexes(output_count: u32, payment_index: u32) -> Vec<u32> {
+    (0..output_count)
+        .filter(|idx| *idx != payment_index)
+        .collect()
+}
+
+pub fn clues_for_indexes(
+    indexes: &[u32],
+    wallet_clue: &[u8],
+) -> Vec<lightwallet_proto::OutputOmrClue> {
+    indexes
+        .iter()
+        .copied()
+        .map(|output_index| lightwallet_proto::OutputOmrClue {
+            output_index,
+            omr_clue: wallet_clue.to_vec(),
+        })
+        .collect()
+}
+
+/// Wallet clues for every non-payment Money output.
+pub async fn self_change_omr_clues(
+    tx_data: &[u8],
+    wallet_secret: &[u8],
+    network: u8,
+    payment_index: u32,
+    payment_clue: &[u8],
+) -> Result<Vec<lightwallet_proto::OutputOmrClue>, String> {
+    if payment_clue.is_empty() {
+        return Ok(Vec::new());
+    }
+    let indexes = money_compact_output_indexes(tx_data).await?;
+    let (_sk, pk) = crate::unifomr::clue_keypair_from_wallet(wallet_secret, network)?;
+    let clue = crate::unifomr::build_omr_clue_from_pk(&pk);
+    Ok(clues_for_indexes(
+        &non_payment_output_indexes(indexes.len() as u32, payment_index),
+        &clue,
+    ))
+}
+
+async fn money_compact_output_indexes(tx_data: &[u8]) -> Result<Vec<u32>, String> {
+    use darkfi_serial::deserialize_async;
+    let tx: darkfi::tx::Transaction = deserialize_async(tx_data)
+        .await
+        .map_err(|e| format!("decode tx for change clues: {e}"))?;
+    Ok(visible_money_outputs(&tx)
+        .await?
+        .into_iter()
+        .map(|output| output.index)
+        .collect())
+}
+
+/// One Money output as lightwalletd lists it in a compact block.
+#[derive(Debug, Clone)]
+pub struct VisibleMoneyOutput {
+    /// Position among the transaction's compact outputs.
+    pub index: u32,
+    /// `MoneyFunction` code of the call that created the output.
+    pub func_code: u8,
+    pub coin: darkfi_money_contract::model::Coin,
+    pub note: darkfi_sdk::crypto::note::AeadEncryptedNote,
+}
+
+/// Non-`tx_local` Money outputs in compact-block order. lightwalletd walks
+/// calls the same way, so `index` matches the server's output index.
+pub async fn visible_money_outputs(
+    tx: &darkfi::tx::Transaction,
+) -> Result<Vec<VisibleMoneyOutput>, String> {
+    use darkfi_money_contract::{
+        model::{MoneyFeeParamsV1, MoneyTokenMintParamsV1, MoneyTransferParamsV1},
+        MoneyFunction,
+    };
+    use darkfi_sdk::crypto::contract_id::MONEY_CONTRACT_ID;
+    use darkfi_serial::deserialize_async;
+
+    let mut outputs = Vec::new();
+    let mut next = 0u32;
+    for call in &tx.calls {
+        if call.data.contract_id != *MONEY_CONTRACT_ID {
+            continue;
+        }
+        let data = &call.data.data;
+        if data.is_empty() {
+            continue;
+        }
+        let func_code = data[0];
+        let found = match MoneyFunction::try_from(func_code) {
+            Ok(MoneyFunction::TransferV1) => {
+                let params = deserialize_async::<MoneyTransferParamsV1>(&data[1..])
+                    .await
+                    .map_err(|e| format!("transfer params: {e}"))?;
+                params
+                    .outputs
+                    .into_iter()
+                    .filter(|o| !o.tx_local)
+                    .map(|o| (o.coin, o.note))
+                    .collect()
+            }
+            Ok(MoneyFunction::FeeV1) => {
+                if data.len() < 10 {
+                    Vec::new()
+                } else {
+                    let params = deserialize_async::<MoneyFeeParamsV1>(&data[9..])
+                        .await
+                        .map_err(|e| format!("fee params: {e}"))?;
+                    if params.output.tx_local {
+                        Vec::new()
+                    } else {
+                        vec![(params.output.coin, params.output.note)]
+                    }
+                }
+            }
+            Ok(MoneyFunction::TokenMintV1) => {
+                let params = deserialize_async::<MoneyTokenMintParamsV1>(&data[1..])
+                    .await
+                    .map_err(|e| format!("token mint params: {e}"))?;
+                vec![(params.coin, params.enc_note)]
+            }
+            _ => Vec::new(),
+        };
+        for (coin, note) in found {
+            outputs.push(VisibleMoneyOutput {
+                index: next,
+                func_code,
+                coin,
+                note,
+            });
+            next = next.saturating_add(1);
+        }
+    }
+    Ok(outputs)
 }
 
 // =============================================================================
@@ -1662,7 +2273,7 @@ mod tests {
 
     #[test]
     fn pad_single_block_to_min_bucket() {
-        let (start, end) = pad_block_range(500, 500);
+        let (start, end) = pad_block_range(500, 500, u32::MAX);
         // Single block should pad to MIN_BUCKET_SIZE (1024)
         assert_eq!(start, 0);
         assert_eq!(end, 1023);
@@ -1671,7 +2282,7 @@ mod tests {
 
     #[test]
     fn pad_small_range_to_min_bucket() {
-        let (start, end) = pad_block_range(42000, 42100);
+        let (start, end) = pad_block_range(42000, 42100, u32::MAX);
         // 101 blocks → pad to 1024 bucket
         let bucket_size = end - start + 1;
         assert_eq!(bucket_size, 1024);
@@ -1684,7 +2295,7 @@ mod tests {
 
     #[test]
     fn pad_medium_range_to_power_of_2() {
-        let (start, end) = pad_block_range(10000, 12000);
+        let (start, end) = pad_block_range(10000, 12000, u32::MAX);
         // 2001 blocks → next power of 2 = 2048
         // Start aligned to 2048 boundary: (10000/2048)*2048 = 8192
         // First bucket ends at 10239, which < 12000, so extends
@@ -1695,7 +2306,7 @@ mod tests {
 
     #[test]
     fn pad_large_range() {
-        let (start, end) = pad_block_range(0, 50000);
+        let (start, end) = pad_block_range(0, 50000, u32::MAX);
         // 50001 blocks → next power of 2 = 65536
         let bucket_size = end - start + 1;
         assert_eq!(bucket_size, 65536);
@@ -1705,7 +2316,7 @@ mod tests {
 
     #[test]
     fn pad_aligned_range_stays_same_size() {
-        let (start, end) = pad_block_range(0, 1023);
+        let (start, end) = pad_block_range(0, 1023, u32::MAX);
         // Already 1024 blocks = MIN_BUCKET_SIZE
         assert_eq!(start, 0);
         assert_eq!(end, 1023);
@@ -1713,7 +2324,7 @@ mod tests {
 
     #[test]
     fn pad_range_near_boundary() {
-        let (start, end) = pad_block_range(1024, 2047);
+        let (start, end) = pad_block_range(1024, 2047, u32::MAX);
         // 1024 blocks starting at boundary
         assert_eq!(start, 1024);
         assert_eq!(end, 2047);
@@ -1722,7 +2333,7 @@ mod tests {
     #[test]
     fn pad_range_hides_birthday() {
         // Wallet born at block 42,000 syncing to tip 42,500
-        let (start, end) = pad_block_range(42000, 42500);
+        let (start, end) = pad_block_range(42000, 42500, u32::MAX);
         // Server should NOT see exact birthday (42000)
         assert!(start < 42000, "Padding must hide exact birthday");
         assert!(end > 42500, "Padding must extend past exact scan point");
@@ -1730,15 +2341,15 @@ mod tests {
 
     #[test]
     fn pad_range_is_deterministic() {
-        let r1 = pad_block_range(42000, 42500);
-        let r2 = pad_block_range(42000, 42500);
+        let r1 = pad_block_range(42000, 42500, u32::MAX);
+        let r2 = pad_block_range(42000, 42500, u32::MAX);
         assert_eq!(r1, r2, "Padding must be deterministic for same input");
     }
 
     #[test]
     fn pad_range_overflow_safety() {
         // Near u32::MAX — should not overflow
-        let (start, end) = pad_block_range(u32::MAX - 100, u32::MAX);
+        let (start, end) = pad_block_range(u32::MAX - 100, u32::MAX, u32::MAX);
         assert!(start <= u32::MAX - 100);
         assert!(end >= u32::MAX - 100);
     }
@@ -1867,6 +2478,8 @@ mod tests {
                     encrypted_note: vec![4u8; 128],
                     value_commit: vec![5u8; 33],
                     token_commit: vec![6u8; 32],
+                    omr_clue: Vec::new(),
+                    omr_metadata_enc: Vec::new(),
                 }],
                 nullifiers: vec![vec![7u8; 32]],
                 fee: 1000,
@@ -1989,11 +2602,13 @@ mod tests {
             server_version: "0.1.0".into(),
             chain_name: "testnet".into(),
             chain_tip_height: 42000,
+            block_target: 120,
             omr_supported: true,
             best_block_hash: vec![0xAA; 32],
             backend_version: "darkfid 0.5.0".into(),
             directory_attest_pubkey: vec![0xBB; 32],
-            proto_version: "1.0.0".into(),
+            proto_version: "2.0.0".into(),
+            proto_version_mismatch: false,
         };
         assert_eq!(info.best_block_hash.len(), 32);
         assert_eq!(info.backend_version, "darkfid 0.5.0");
@@ -2005,11 +2620,13 @@ mod tests {
             server_version: "0.1.0".into(),
             chain_name: "testnet".into(),
             chain_tip_height: 42000,
+            block_target: 120,
             omr_supported: false,
             best_block_hash: vec![],
             backend_version: String::new(),
             directory_attest_pubkey: vec![],
             proto_version: String::new(),
+            proto_version_mismatch: false,
         };
         assert!(info.best_block_hash.is_empty());
         assert!(info.backend_version.is_empty());

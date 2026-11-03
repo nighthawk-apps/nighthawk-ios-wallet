@@ -99,6 +99,7 @@ The darkirc daemon uses upstream defaults for P2P seeds:
 
 - **Clearnet (`tcp+tls`)**: `lilith0.dark.fi:25551`, `lilith1.dark.fi:25551`
 - **Default channels**: `#dev`, `#random`, `#lunardao` (matching upstream `autojoin`)
+- **Tests**: post only in `#random`. See [darkirc-testing.md](darkirc-testing.md).
 - **Datastore**: `{app_support}/darkirc/` — EventGraph state, P2P identity
 
 ## DM (E2E encrypted direct messages)

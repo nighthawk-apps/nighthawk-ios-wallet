@@ -7,7 +7,6 @@
 
 import ComposableArchitecture
 import Generated
-import SubsonicClient
 import SwiftUI
 import UIComponents
 

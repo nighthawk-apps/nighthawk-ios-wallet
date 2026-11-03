@@ -157,9 +157,16 @@ public struct Splash {
             case .delegate:
                 return .none
             case .onAppear:
-                defer { state.isFirstLaunch = false }
+                let alreadyVisible = state.isVisible
+                let firstLaunch = state.isFirstLaunch
                 state.isVisible = true
-                if state.isFirstLaunch || state.shouldHandleScenePhaseChange {
+                state.isFirstLaunch = false
+                // SplashView.onAppear and AppView's path onChange both send this.
+                // A second call while splash is already visible must not start another check.
+                if alreadyVisible && !firstLaunch {
+                    return .none
+                }
+                if firstLaunch || state.shouldHandleScenePhaseChange {
                     return .run { send in
                         /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
                         try await clock.sleep(for: .seconds(0.5))

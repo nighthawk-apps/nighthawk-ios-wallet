@@ -6,6 +6,7 @@
 //
 
 import Generated
+import Models
 import SwiftUI
 
 private enum Constants {
@@ -16,6 +17,7 @@ struct NighthawkTabBar: View {
     let selectedTab: Home.State.Tab
     let onSelect: (Home.State.Tab) -> Void
     let disableSend: Bool
+    @ObservedObject private var themes = NighthawkThemeController.shared
 
     init(
         selectedTab: Home.State.Tab,
@@ -58,9 +60,16 @@ struct NighthawkTabBar: View {
         .frame(maxWidth: .infinity)
         .frame(height: Constants.barHeight)
         .background {
-            Asset.Colors.Nighthawk.navy.color
-                .ignoresSafeArea(edges: .bottom)
+            Group {
+                if themes.theme.usesCyberpunkChrome {
+                    Color.black.opacity(0.32)
+                } else {
+                    Asset.Colors.Nighthawk.navy.color
+                }
+            }
+            .ignoresSafeArea(edges: .bottom)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .environment(\.layoutDirection, .leftToRight)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("nighthawk.home.tabbar")
@@ -78,7 +87,11 @@ struct NighthawkTabBar: View {
             isSelected: selectedTab == tab
         )
         .frame(maxWidth: .infinity)
+        .frame(minHeight: 44)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(title)
         .opacity(isDisabled ? 0.3 : 1.0)
         .onTapGesture {
             guard !isDisabled else { return }

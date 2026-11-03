@@ -92,6 +92,7 @@ public struct AdvancedView: View {
         }
         .padding(.horizontal, 25)
         .applyNighthawkBackground()
+        .onAppear { store.send(.onAppear) }
         .alert(
             $store.scope(
                 state: \.alert,
@@ -151,6 +152,9 @@ private extension AdvancedView {
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .paper:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    case .cyberpunk:
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     }
 

@@ -8,8 +8,10 @@
 import Addresses
 import ComposableArchitecture
 import Models
+import Pasteboard
 import ProcessInfoClient
 import SwiftUI
+import UserPreferencesStorage
 import TransactionDetail
 import Utils
 
@@ -21,9 +23,11 @@ public struct Wallet {
 
         public var balanceViewType: BalanceView.ViewType = .hidden
 
+        /// Written by the reducer. Not read from a dependency inside `State`.
+        public var isFirstSync = true
+
         public var isSyncingForFirstTime: Bool {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing && userStoredPreferences.isFirstSync()
+            walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing && isFirstSync
         }
 
         public var isSyncingFailed: Bool {
@@ -40,12 +44,16 @@ public struct Wallet {
             return false
         }
 
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
 
         public var latestFiatPrice: Double?
+        /// Right-fold selection. Compact width still pushes detail instead.
+        public var selectedTransactionID: String?
+
+        public var selectedTransaction: WalletEvent? {
+            guard let selectedTransactionID else { return nil }
+            return walletInfo.walletEvents[id: selectedTransactionID]
+        }
 
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
@@ -55,10 +63,7 @@ public struct Wallet {
             }
         }
 
-        public var showScanButton: Bool {
-            @Dependency(\.processInfo) var processInfo
-            return !processInfo.isiOSAppOnMac()
-        }
+        public var showScanButton = true
 
         public var tokenName: String {
             return "DRK"
@@ -74,14 +79,24 @@ public struct Wallet {
         case viewAddressesTapped
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
+        case transactionSelected(WalletEvent)
+        case copyTransactionId(String)
+        case copyMemo(String)
+        case refreshPreferences
+        case sendAgainTapped
 
         public enum Delegate: Equatable {
             case scanPaymentRequest
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
+            case sendAgain(recipient: String, amount: DrkAmount)
         }
     }
+
+    @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.processInfo) var processInfo
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -100,6 +115,29 @@ public struct Wallet {
                 return .send(.delegate(.showTransactionDetail(walletEvent)))
             case .viewTransactionHistoryTapped:
                 return .send(.delegate(.showTransactionHistory(state.walletInfo.walletEvents)))
+            case let .transactionSelected(event):
+                state.selectedTransactionID = event.id
+                return .none
+            case let .copyTransactionId(id):
+                pasteboard.setString(id.redacted)
+                return .none
+            case let .copyMemo(memo):
+                pasteboard.setString(memo.redacted)
+                return .none
+            case .refreshPreferences:
+                state.isFirstSync = userStoredPreferences.isFirstSync()
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
+                state.showScanButton = !processInfo.isiOSAppOnMac()
+                return .none
+            case .sendAgainTapped:
+                guard let event = state.selectedTransaction,
+                      event.transaction.isSending,
+                      let recipient = event.transaction.address,
+                      !recipient.isEmpty
+                else { return .none }
+                // The net value of a send is the amount plus the fee.
+                let amount = max(abs(event.transaction.zecAmount) - event.transaction.fee, 0)
+                return .send(.delegate(.sendAgain(recipient: recipient, amount: amount)))
             }
         }
     }

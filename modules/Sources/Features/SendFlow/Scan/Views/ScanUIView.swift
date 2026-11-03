@@ -14,6 +14,7 @@ public class ScanUIView: UIView {
     private var isConfigured = false
     private var isConfiguring = false
     private var hasDeliveredCode = false
+    private let sessionQueue = DispatchQueue(label: "nighthawk.scan.session")
 
     var onQRScanningDidFail: (() -> Void)?
     var onQRScanningSucceededWithCode: ((String) -> Void)?
@@ -27,7 +28,7 @@ public class ScanUIView: UIView {
     }
 
     deinit {
-        captureSession?.stopRunning()
+        stopSessionOffMain()
     }
 
     override public class var layerClass: AnyClass {
@@ -40,6 +41,7 @@ public class ScanUIView: UIView {
 
     override public func layoutSubviews() {
         super.layoutSubviews()
+        updateVideoOrientation()
         updateRectOfInterest()
     }
 
@@ -47,7 +49,7 @@ public class ScanUIView: UIView {
         super.willMove(toWindow: newWindow)
 
         if newWindow == nil {
-            captureSession?.stopRunning()
+            stopSessionOffMain()
         } else {
             configureIfNeeded()
         }
@@ -135,8 +137,35 @@ private extension ScanUIView {
         metadataOutput = output
         layer.session = session
         isConfigured = true
+        updateVideoOrientation()
         updateRectOfInterest()
         startSessionIfNeeded()
+    }
+
+    /// The preview connection stays in its initial orientation unless this is
+    /// set again on layout. Angles are AVCapture's rotation for UIInterfaceOrientation.
+    func updateVideoOrientation() {
+        let interfaceOrientation = window?.windowScene?.interfaceOrientation ?? .portrait
+        let angle: CGFloat
+        switch interfaceOrientation {
+        case .portrait:
+            angle = 90
+        case .portraitUpsideDown:
+            angle = 270
+        case .landscapeLeft:
+            angle = 180
+        case .landscapeRight:
+            angle = 0
+        case .unknown:
+            angle = 90
+        }
+        if let connection = layer.connection, connection.isVideoRotationAngleSupported(angle) {
+            connection.videoRotationAngle = angle
+        }
+        if let connection = metadataOutput?.connection(with: .metadata),
+           connection.isVideoRotationAngleSupported(angle) {
+            connection.videoRotationAngle = angle
+        }
     }
 
     func preferredCameraDevice() -> AVCaptureDevice? {
@@ -182,9 +211,16 @@ private extension ScanUIView {
         metadataOutput.rectOfInterest = converted
     }
 
+    func stopSessionOffMain() {
+        let session = captureSession
+        sessionQueue.async {
+            session?.stopRunning()
+        }
+    }
+
     func scanningDidFail() {
         onQRScanningDidFail?()
-        captureSession?.stopRunning()
+        stopSessionOffMain()
         captureSession = nil
         metadataOutput = nil
         isConfigured = false
@@ -193,7 +229,7 @@ private extension ScanUIView {
     func found(code: String) {
         guard !hasDeliveredCode else { return }
         hasDeliveredCode = true
-        captureSession?.stopRunning()
+        stopSessionOffMain()
         onQRScanningSucceededWithCode?(code)
     }
 }

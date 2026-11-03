@@ -20,10 +20,7 @@ public struct TransactionHistory {
     public struct State: Equatable {
         public var walletEvents: IdentifiedArrayOf<WalletEvent>
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
@@ -62,6 +59,7 @@ public struct TransactionHistory {
     @Dependency(\.diskSpaceChecker) var diskSpaceChecker
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -69,6 +67,7 @@ public struct TransactionHistory {
             case .delegate:
                 return .none
             case .onAppear:
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
                     return .publisher {
                         sdkSynchronizer.stateStream()

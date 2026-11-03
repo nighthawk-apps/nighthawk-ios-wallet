@@ -303,9 +303,7 @@ mod tests {
 // Encrypted OMR metadata — off-chain channel via LWD
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-use darkfi_sdk::crypto::SecretKey;
-use darkfi_sdk::crypto::{note::AeadEncryptedNote, PublicKey};
+use darkfi_sdk::crypto::{note::AeadEncryptedNote, PublicKey, SecretKey};
 use darkfi_serial::{serialize, Decodable, Encodable};
 
 /// Wrapper for OMR metadata bytes so we can use `AeadEncryptedNote` (which
@@ -361,9 +359,6 @@ pub fn encrypt_omr_metadata(
 /// ## Returns
 /// The plaintext OMR metadata bytes (same format as `build_omr_memo` output).
 ///
-/// The receive path recovers memos from the trial-decrypted `MoneyNote`
-/// itself, so this is only exercised as the AEAD round-trip check in tests.
-#[cfg(test)]
 pub fn decrypt_omr_metadata(encrypted_bytes: &[u8], secret_key: &SecretKey) -> Option<Vec<u8>> {
     if encrypted_bytes.len() < 48 {
         // Too short for AeadEncryptedNote (32-byte ephemeral key + 16-byte MAC minimum)
@@ -373,4 +368,81 @@ pub fn decrypt_omr_metadata(encrypted_bytes: &[u8], secret_key: &SecretKey) -> O
     let enc_note = AeadEncryptedNote::decode(&mut cursor).ok()?;
     let blob: OmrMetadataBlob = enc_note.decrypt(secret_key).ok()?;
     Some(blob.0)
+}
+
+/// Parsed UnifOMR metadata recovered from `omr_metadata_enc`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParsedOmrMetadata {
+    pub scheme: u8,
+    pub user_memo: Option<String>,
+    pub clue_hash: Option<[u8; 32]>,
+}
+
+const CLUE_BIND_MARK: &[u8] = b"|CLUE|";
+
+/// Parse `build_omr_memo` bytes, optionally followed by `|CLUE|` + 32-byte clue hash.
+pub fn parse_omr_metadata_plaintext(plain: &[u8]) -> Option<ParsedOmrMetadata> {
+    let (body, clue_hash) = if plain.len() >= CLUE_BIND_MARK.len() + 32 {
+        let split = plain.len() - 32 - CLUE_BIND_MARK.len();
+        if &plain[split..split + CLUE_BIND_MARK.len()] == CLUE_BIND_MARK {
+            let mut hash = [0u8; 32];
+            hash.copy_from_slice(&plain[split + CLUE_BIND_MARK.len()..]);
+            (&plain[..split], Some(hash))
+        } else {
+            (plain, None)
+        }
+    } else {
+        (plain, None)
+    };
+
+    if body.len() < 36 || body[0] != OMR_MEMO_MAGIC {
+        return None;
+    }
+    let scheme = body[1];
+    let flags = body[2];
+    let memo_len = body[35] as usize;
+    let user_memo =
+        if flags & FLAG_HAS_USER_MEMO != 0 && body.len() >= 36 + memo_len && memo_len > 0 {
+            String::from_utf8(body[36..36 + memo_len].to_vec())
+                .ok()
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+        } else {
+            None
+        };
+    Some(ParsedOmrMetadata {
+        scheme,
+        user_memo,
+        clue_hash,
+    })
+}
+
+/// Prefer the note memo. Otherwise decrypt `omr_metadata_enc` and take the user text.
+pub fn recover_user_memo(
+    note_memo: &[u8],
+    omr_metadata_enc: &[u8],
+    secret: &SecretKey,
+    omr_clue: &[u8],
+) -> Vec<u8> {
+    if !note_memo.is_empty() {
+        return note_memo.to_vec();
+    }
+    let Some(plain) = decrypt_omr_metadata(omr_metadata_enc, secret) else {
+        return Vec::new();
+    };
+    let Some(parsed) = parse_omr_metadata_plaintext(&plain) else {
+        return Vec::new();
+    };
+    if let Some(expected) = parsed.clue_hash {
+        if !omr_clue.is_empty() {
+            let actual = *blake3::hash(omr_clue).as_bytes();
+            if expected != actual {
+                tracing::warn!(
+                    target: "wallet-memo",
+                    "OMR metadata clue-hash mismatch (possible clue swap on the wire)"
+                );
+            }
+        }
+    }
+    parsed.user_memo.map(|s| s.into_bytes()).unwrap_or_default()
 }

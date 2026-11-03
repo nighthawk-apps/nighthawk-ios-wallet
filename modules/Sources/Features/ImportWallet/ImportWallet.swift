@@ -29,10 +29,8 @@ public struct ImportWallet {
                 .map { $0.trimmingCharacters(in: .whitespaces) }
             return trimmedPhraseWords.joined(separator: " ")
         }
-        public var isValidMnemonic: Bool {
-            @Dependency(\.mnemonic) var mnemonic
-            return mnemonic.isValid(formattedPhrase)
-        }
+        public var mnemonicIsValid = false
+        public var isValidMnemonic: Bool { mnemonicIsValid }
 
         public var isValidBirthday: Bool {
             if let birthdayHeightValue {
@@ -71,6 +69,7 @@ public struct ImportWallet {
             case .alert(.dismiss):
                 return .none
             case .binding:
+                state.mnemonicIsValid = mnemonic.isValid(state.formattedPhrase)
                 return .none
             case .continueTapped:
                 guard state.isValidForm else { return .none }

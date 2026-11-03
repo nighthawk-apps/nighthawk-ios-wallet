@@ -204,4 +204,102 @@ class DaoHubTests: XCTestCase {
             state.errorMessage = "Native library unavailable"
         }
     }
+
+    func testSubmitCreate_PassesDistinctLimitsAndReloadsHub() async {
+        let created = LockIsolated<(String, String, String, String, Double, String)?>(nil)
+        let store = TestStore(
+            initialState: DaoHub.State(),
+            reducer: DaoHub.init
+        ) {
+            $0.sdkSynchronizer.isWalletPrepared = { true }
+            $0.sdkSynchronizer.refreshNow = { }
+            $0.sdkSynchronizer.listDaos = { [] }
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .upToDate)
+            }
+            $0.sdkSynchronizer.daoCreate = { name, limit, quorum, early, ratio, token in
+                created.setValue((name, limit, quorum, early, ratio, token))
+                return "created"
+            }
+        }
+
+        await store.send(.submitCreate("Guild", "2", "5", "3", 0.5, "DRK")) { state in
+            state.actionInProgress = true
+            state.actionResult = nil
+        }
+
+        await store.receive(.proposalSubmitted(.success("Group submitted"), .hub)) { state in
+            state.actionInProgress = false
+            state.actionResult = .success("Group submitted")
+        }
+
+        await store.receive(.loadHub) { state in
+            state.isLoading = true
+            state.errorMessage = nil
+            state.screen = .hub
+        }
+
+        await store.receive(.hubLoaded([])) { state in
+            state.isLoading = false
+            state.daos = []
+        }
+
+        XCTAssertEqual(created.value?.1, "2")
+        XCTAssertEqual(created.value?.2, "5")
+        XCTAssertEqual(created.value?.3, "3")
+    }
+
+    func testSubmitCreate_IgnoredWhileActionInProgress() async {
+        var initial = DaoHub.State()
+        initial.actionInProgress = true
+        let store = TestStore(initialState: initial, reducer: DaoHub.init)
+
+        await store.send(.submitCreate("Guild", "2", "5", "", 0.5, "DRK"))
+    }
+
+    func testDaoSelected_ResetsTreasuryBeforeLoad() async {
+        var initial = DaoHub.State()
+        initial.treasuryLine = "other-dao"
+        initial.mintAuthorities = [
+            MintAuthorityBrief(tokenId: "tok", alias: "Old", frozen: false)
+        ]
+        initial.daos = [
+            DaoBrief(
+                name: "Next",
+                bullaB58: "b",
+                govTokenId: "DRK",
+                quorumDisplay: "1",
+                proposerLimitDisplay: "1",
+                approvalRatioPercent: 67,
+                mintHeight: 0,
+                canPropose: true,
+                canVote: true,
+                canExec: true
+            )
+        ]
+        let store = TestStore(initialState: initial, reducer: DaoHub.init) {
+            $0.sdkSynchronizer.listProposals = { _ in [] }
+            $0.sdkSynchronizer.daoTreasury = { _ in "treasury" }
+            $0.sdkSynchronizer.listMintAuthorities = { [] }
+        }
+
+        await store.send(.daoSelected("Next")) { state in
+            state.isLoading = true
+            state.screen = .daoDetail("Next")
+            state.proposals = []
+            state.treasuryLine = "Not scanned yet"
+            state.mintAuthorities = []
+        }
+
+        await store.receive(.daoLoaded(initial.daos[0], [])) { state in
+            state.isLoading = false
+            state.selectedDao = initial.daos[0]
+            state.proposals = []
+        }
+
+        await store.receive(.treasuryLoaded("treasury")) { state in
+            state.treasuryLine = "treasury"
+        }
+        await store.receive(.authoritiesLoaded([]))
+    }
 }

@@ -15,6 +15,9 @@ import Utils
 
 public struct ExportSeedView: View {
     @Bindable var store: StoreOf<ExportSeed>
+    /// Set only after the user taps Export with a non-empty password.
+    /// Body must not render a seed PDF while the password field changes.
+    @State private var preparedExport: URL?
 
     public var body: some View {
         VStack(spacing: 16) {
@@ -49,15 +52,41 @@ public struct ExportSeedView: View {
                     store.send(.cancelTapped)
                 }
                 .buttonStyle(.nighthawkSecondary(width: 110))
-                let groups = store.phrase.toGroups(groupSizeOverride: 3)
-                ShareLink(item: render(groups: groups, blockHeight: store.state.birthday, password: store.password)) {
-                    Text(L10n.Nighthawk.ExportSeed.export)
+
+                if let preparedExport {
+                    ShareLink(item: preparedExport) {
+                        Text(L10n.Nighthawk.ExportSeed.export)
+                    }
+                    .buttonStyle(.nighthawkPrimary(width: 110))
+                } else {
+                    Button(L10n.Nighthawk.ExportSeed.export) {
+                        prepareEncryptedPDF()
+                    }
+                    .buttonStyle(.nighthawkPrimary(width: 110))
+                    .disabled(store.password.isEmpty)
                 }
-                .buttonStyle(.nighthawkPrimary(width: 110))
-                .disabled(store.password.isEmpty)
             }
         }
         .onAppear { store.send(.onAppear) }
+        .onChange(of: store.password) { _, _ in
+            preparedExport = nil
+        }
+        .onChange(of: preparedExport) { _, url in
+            guard let url else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
+                try? FileManager.default.removeItem(at: url)
+                if preparedExport == url {
+                    preparedExport = nil
+                }
+            }
+        }
+    }
+
+    private func prepareEncryptedPDF() {
+        let password = store.password
+        guard !password.isEmpty else { return }
+        let groups = store.phrase.toGroups(groupSizeOverride: 3)
+        preparedExport = render(groups: groups, blockHeight: store.birthday, password: password)
     }
 
     public init(store: StoreOf<ExportSeed>) {
@@ -115,11 +144,6 @@ private extension ExportSeedView {
                     PDFDocumentWriteOption.ownerPasswordOption: password
                 ]
             )
-        }
-
-        // Best-effort cleanup shortly after ShareLink consumes the URL.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
-            try? FileManager.default.removeItem(at: url)
         }
 
         return url

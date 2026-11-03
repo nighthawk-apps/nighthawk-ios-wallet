@@ -45,8 +45,11 @@ extension AppReducer {
             let birthday: BlockHeight = 0 // 0 → UniFFI seeds at LWD tip (fresh wallet)
             walletStorage.deleteWallet()
             try walletStorage.importWallet(newRandomPhrase, birthday, .english)
-            userStoredPreferences.setIsUserBackupComplete(true)
-            return initializeSDK(.newWallet)
+            // Backup stays incomplete until RecoveryPhraseDisplay continue.
+            // initializeSDK(.newWallet) refuses to run before that, which used
+            // to skip the phrase because this flag was set true up front.
+            userStoredPreferences.setIsUserBackupComplete(false)
+            return .send(.createWalletSucceeded)
         } catch {
             return .send(.createWalletFailed(error.toDarkFiError()))
         }

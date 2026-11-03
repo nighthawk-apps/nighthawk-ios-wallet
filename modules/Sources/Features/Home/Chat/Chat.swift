@@ -9,6 +9,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Generated
 import Models
 import SwiftUI
 import UIKit
@@ -97,6 +98,7 @@ public struct Chat {
             public let channel: String
             public let timestamp: Date
             public let isOutgoing: Bool
+            public let failedToDecrypt: Bool
 
             public init(
                 id: String = UUID().uuidString,
@@ -104,7 +106,8 @@ public struct Chat {
                 content: String,
                 channel: String = "",
                 timestamp: Date = Date(),
-                isOutgoing: Bool = false
+                isOutgoing: Bool = false,
+                failedToDecrypt: Bool = false
             ) {
                 self.id = id
                 self.sender = sender
@@ -112,6 +115,7 @@ public struct Chat {
                 self.channel = channel
                 self.timestamp = timestamp
                 self.isOutgoing = isOutgoing
+                self.failedToDecrypt = failedToDecrypt
             }
         }
 
@@ -223,6 +227,7 @@ public struct Chat {
         case sendMessage
         case messageReceived(State.Message)
         case removeOptimisticMessage(id: String, channel: String)
+        case removeOptimisticDm(id: String, contactId: String)
         case bootstrapMessagesReceived([State.Message])
         case ircBridgeError(String)
         case dagSyncStatusUpdate(String?)
@@ -482,12 +487,14 @@ public struct Chat {
                 return .none
 
             case .sendMessage:
-                guard !state.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                      let channel = state.selectedChannel else {
-                    return .none
-                }
-
                 let text = state.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !text.isEmpty else { return .none }
+                // Direct tab always uses the open DM. Never fall through to #dev.
+                if state.selectedTab == .direct {
+                    return sendDirectMessage(state: &state, text: text)
+                }
+                guard let channel = state.selectedChannel else { return .none }
+
                 state.composerDrafts.removeValue(forKey: state.composerKey)
                 state.composedMessage = ""
 
@@ -719,6 +726,30 @@ public struct Chat {
                 }
                 state.seenEventIds.insert(message.id)
 
+                // Non-# targets are E2E DMs. Decrypt with the contact store and
+                // deliver through dmMessageReceived — do not file them on #dev.
+                if !message.channel.hasPrefix("#") {
+                    let eventId = message.id
+                    let sender = message.sender
+                    let content = message.content
+                    let channel = message.channel
+                    let timestamp = message.timestamp
+                    let isOutgoing = message.isOutgoing
+                    let viewingContactId = state.selectedTab == .direct ? state.selectedDmContact?.id : nil
+                    return .run { send in
+                        await deliverDirectMessage(
+                            send: send,
+                            eventId: eventId,
+                            sender: sender,
+                            content: content,
+                            channel: channel,
+                            timestamp: timestamp,
+                            isOutgoing: isOutgoing,
+                            viewingContactId: viewingContactId
+                        )
+                    }
+                }
+
                 // Prune to cap memory: seenEventIds grows with every received
                 // event. Once we exceed 10k we drop the set — all live messages
                 // are already in channelMessages so dups are unlikely at this
@@ -760,6 +791,14 @@ public struct Chat {
                 state.seenEventIds.remove(id)
                 state.channelMessages[channel]?.removeAll { $0.id == id }
                 if state.selectedChannel?.name == channel {
+                    state.messages.removeAll { $0.id == id }
+                }
+                return .none
+
+            case let .removeOptimisticDm(id, contactId):
+                state.seenEventIds.remove(id)
+                state.dmMessages[contactId]?.removeAll { $0.id == id }
+                if state.selectedDmContact?.id == contactId {
                     state.messages.removeAll { $0.id == id }
                 }
                 return .none
@@ -884,9 +923,29 @@ public struct Chat {
                 return .none
 
             case let .dmMessageReceived(contactId, message):
+                if state.dmMessages[contactId]?.contains(where: { $0.id == message.id }) == true {
+                    return .none
+                }
+                let isOptimisticLocal: (State.Message) -> Bool = { local in
+                    local.isOutgoing &&
+                        local.sender == message.sender &&
+                        local.content == message.content &&
+                        local.id != message.id &&
+                        UUID(uuidString: local.id) != nil
+                }
+                state.dmMessages[contactId, default: []].removeAll(where: isOptimisticLocal)
                 state.dmMessages[contactId, default: []].append(message)
-                if state.selectedDmContact?.id == contactId {
+                let viewing = state.selectedTab == .direct && state.selectedDmContact?.id == contactId
+                if viewing {
+                    state.messages.removeAll(where: isOptimisticLocal)
                     state.messages.append(message)
+                }
+                if let idx = state.dmConversations.firstIndex(where: { $0.id == contactId }) {
+                    state.dmConversations[idx].lastMessageText = message.content
+                    state.dmConversations[idx].lastMessageAt = message.timestamp
+                    if !viewing && !message.isOutgoing {
+                        state.dmConversations[idx].unreadCount += 1
+                    }
                 }
                 return .none
             }
@@ -897,6 +956,161 @@ public struct Chat {
     }
 
     public init() {}
+}
+
+/// Encrypt with the contact's ChaCha keys and PRIVMSG the contact label.
+/// Public `selectedChannel` (#dev) is not a fallback.
+private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<Chat.Action> {
+    guard let contact = state.selectedDmContact else { return .none }
+    state.composerDrafts.removeValue(forKey: state.composerKey)
+    state.composedMessage = ""
+
+    if text.hasPrefix("/") {
+        return handleDirectSlash(state: &state, contact: contact, text: text)
+    }
+
+    let message = Chat.State.Message(
+        sender: state.nickname,
+        content: text,
+        channel: contact.contactLabel,
+        isOutgoing: true
+    )
+    state.dmMessages[contact.id, default: []].append(message)
+    state.messages.append(message)
+    state.seenEventIds.insert(message.id)
+
+    let secret = contact.mySecretB58
+    let theirPublic = contact.theirPublicB58
+    let label = contact.contactLabel
+    let nick = state.nickname
+    let contactId = contact.id
+    let optimisticId = message.id
+
+    return .run { send in
+        guard let cipher = DarkircContactManager.encryptMessage(
+            mySecretB58: secret,
+            theirPublicB58: theirPublic,
+            plaintext: text
+        ) else {
+            await send(.ircBridgeError("Could not encrypt DM for \(label)"))
+            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
+            return
+        }
+        do {
+            try sendChatMessage(channel: label, nick: nick, message: cipher)
+            await DarkircCryptoStore.shared.updateConversation(
+                contactId: contactId,
+                lastMessage: text,
+                incrementUnread: false
+            )
+        } catch {
+            await send(.ircBridgeError("Send failed: \(error.localizedDescription)"))
+            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
+        }
+    }
+}
+
+private func handleDirectSlash(
+    state: inout Chat.State,
+    contact: DmContact,
+    text: String
+) -> Effect<Chat.Action> {
+    let parts = text.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
+    let cmd = parts.first?.lowercased() ?? ""
+    let arg = parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespacesAndNewlines) : ""
+
+    func local(_ content: String) {
+        let sys = Chat.State.Message(
+            sender: "System",
+            content: content,
+            channel: contact.contactLabel,
+            isOutgoing: false
+        )
+        state.dmMessages[contact.id, default: []].append(sys)
+        state.messages.append(sys)
+    }
+
+    switch cmd {
+    case "/clear":
+        state.dmMessages[contact.id] = []
+        state.messages = []
+        return .none
+    case "/help":
+        local("DM commands: /me <action>, /clear, /help. Messages are encrypted to \(contact.contactLabel).")
+        return .none
+    case "/me":
+        guard !arg.isEmpty else {
+            local("Usage: /me <action>")
+            return .none
+        }
+        return sendDirectMessage(state: &state, text: "* \(state.nickname) \(arg)")
+    default:
+        local("Command \(cmd) stays on public channels. This DM is encrypted to \(contact.contactLabel).")
+        return .none
+    }
+}
+
+private func deliverDirectMessage(
+    send: Send<Chat.Action>,
+    eventId: String,
+    sender: String,
+    content: String,
+    channel: String,
+    timestamp: Date,
+    isOutgoing: Bool,
+    viewingContactId: String?
+) async {
+    let contacts = await DarkircCryptoStore.shared.allContacts()
+    let labeled = contacts.first {
+        $0.contactLabel.compare(channel, options: .caseInsensitive) == .orderedSame
+    }
+    if let labeled {
+        let plain = DarkircContactManager.decryptMessage(
+            mySecretB58: labeled.mySecretB58,
+            theirPublicB58: labeled.theirPublicB58,
+            ciphertextB58: content
+        )
+        let failed = plain == nil
+        let decoded = Chat.State.Message(
+            id: eventId,
+            sender: failed ? "" : sender,
+            content: plain ?? L10n.Nighthawk.Chat.couldNotDecrypt,
+            channel: labeled.contactLabel,
+            timestamp: timestamp,
+            isOutgoing: isOutgoing,
+            failedToDecrypt: failed
+        )
+        let unread = !isOutgoing && viewingContactId != labeled.id
+        await DarkircCryptoStore.shared.updateConversation(
+            contactId: labeled.id,
+            lastMessage: decoded.content,
+            at: timestamp,
+            incrementUnread: unread
+        )
+        await send(.dmMessageReceived(labeled.id, decoded))
+        return
+    }
+    if let any = DarkircContactManager.tryDecryptWithAnyContact(
+        ciphertextB58: content,
+        contacts: contacts
+    ) {
+        let decoded = Chat.State.Message(
+            id: eventId,
+            sender: sender,
+            content: any.plaintext,
+            channel: any.contact.contactLabel,
+            timestamp: timestamp,
+            isOutgoing: isOutgoing
+        )
+        let unread = !isOutgoing && viewingContactId != any.contact.id
+        await DarkircCryptoStore.shared.updateConversation(
+            contactId: any.contact.id,
+            lastMessage: any.plaintext,
+            at: timestamp,
+            incrementUnread: unread
+        )
+        await send(.dmMessageReceived(any.contact.id, decoded))
+    }
 }
 
 /// Poll until the in-process Nym tunnel reports ready, or the native bootstrap fails.

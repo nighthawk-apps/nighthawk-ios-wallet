@@ -9,6 +9,8 @@ import Addresses
 import AlertToast
 import ComposableArchitecture
 import Generated
+import Receive
+import SendFlow
 import SwiftUI
 import UIComponents
 
@@ -16,22 +18,20 @@ public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            tabContent
-                .padding(.bottom, NighthawkTabBar.height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .environment(\.nighthawkSuppressNestedBackground, true)
-
-            NighthawkTabBar(
-                selectedTab: store.selectedTab,
-                onSelect: { store.send(.tabSelected($0)) },
-                disableSend: store.synchronizerFailed
-            )
-            .zIndex(1)
-        }
+        tabContent
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .environment(\.nighthawkSuppressNestedBackground, true)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                NighthawkTabBar(
+                    selectedTab: store.selectedTab,
+                    onSelect: { store.send(.tabSelected($0)) },
+                    disableSend: store.synchronizerFailed
+                )
+                .ignoresSafeArea(.keyboard, edges: .bottom)
+            }
         .background {
-            Asset.Colors.Nighthawk.darkNavy.color
-                .ignoresSafeArea(edges: [.top, .horizontal])
+            NighthawkScreenBackdrop()
+                .ignoresSafeArea()
                 .allowsHitTesting(false)
         }
         .onAppear { store.send(.onAppear) }
@@ -61,6 +61,22 @@ public struct HomeView: View {
             )
         ) { store in
             AddressesView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.transfer.destination?.send,
+                action: \.transfer.destination.send
+            )
+        ) { store in
+            SendFlowView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.transfer.destination?.receive,
+                action: \.transfer.destination.receive
+            )
+        ) { store in
+            ReceiveView(store: store)
         }
     }
 

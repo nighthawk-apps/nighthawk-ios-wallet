@@ -41,23 +41,22 @@ public enum StealthTheme {
         public static let titleSmall = Font.custom(FontFamily.PulpDisplay.regular.name, size: 12)
     }
 
-    /// Body font. Source Sans 3, same as Android.
+    /// Body font. DejaVu Sans Mono, the face the Void terminal actually draws.
     public enum Body {
         public static func regular(_ size: CGFloat) -> Font {
-            .custom(FontFamily.Rubik.regular.name, size: size)
+            .custom(FontFamily.DejaVuSansMono.regular.name, size: size)
         }
         public static func medium(_ size: CGFloat) -> Font {
-            .custom(FontFamily.Rubik.medium.name, size: size)
+            .custom(FontFamily.DejaVuSansMono.bold.name, size: size)
         }
         public static func semiBold(_ size: CGFloat) -> Font {
-            .custom(FontFamily.Rubik.semiBold.name, size: size)
+            .custom(FontFamily.DejaVuSansMono.bold.name, size: size)
         }
 
-        // Named styles matching Android Typography
-        public static let bodyLarge = Font.custom(FontFamily.Rubik.regular.name, size: 16)
-        public static let bodyMedium = Font.custom(FontFamily.Rubik.regular.name, size: 14)
-        public static let bodySmall = Font.custom(FontFamily.Rubik.regular.name, size: 12)
-        public static let labelLarge = Font.custom(FontFamily.Rubik.regular.name, size: 16)
+        public static let bodyLarge = Font.custom(FontFamily.DejaVuSansMono.regular.name, size: 16)
+        public static let bodyMedium = Font.custom(FontFamily.DejaVuSansMono.regular.name, size: 14)
+        public static let bodySmall = Font.custom(FontFamily.DejaVuSansMono.regular.name, size: 12)
+        public static let labelLarge = Font.custom(FontFamily.DejaVuSansMono.regular.name, size: 16)
     }
 
     /// Monospace font for addresses, hashes, keys

@@ -9,6 +9,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Generated
 import SDKSynchronizer
 import Utils
 
@@ -43,7 +44,14 @@ public struct DaoHub {
         public var actionResult: ActionResult?
 
         // ── Propose form ────────────────────────────────────────────────
+        public var treasuryLine: String = L10n.Nighthawk.DaoHub.notScannedYet
+        public var mintAuthorities: [MintAuthorityBrief] = []
+        public var tokenBalances: [TokenBalanceInfo] = []
+        public var roleExport: String?
         public var showProposeSheet: Bool = false
+        public var showFundSheet: Bool = false
+        public var fundAmount: String = ""
+        public var fundTokenId: String?
         public var proposeRecipient: String = ""
         public var proposeAmount: String = ""
         public var proposeTokenId: String = ""
@@ -55,6 +63,15 @@ public struct DaoHub {
     public enum ActionResult: Equatable {
         case success(String)
         case error(String)
+    }
+
+    public enum Refresh: Equatable {
+        case none
+        case hub
+        case proposals
+        case treasury
+        case authorities
+        case governance
     }
 
     public enum Action: Equatable {
@@ -71,12 +88,31 @@ public struct DaoHub {
         // ── Propose ─────────────────────────────────────────────────────
         case showProposeSheet
         case dismissProposeSheet
+        case showFundSheet
+        case dismissFundSheet
+        case setFundAmount(String)
+        case setFundTokenId(String?)
+        case tokenBalancesLoaded([TokenBalanceInfo])
+        case submitFund
+        case treasuryLoaded(String)
+        case authoritiesLoaded([MintAuthorityBrief])
+        case proposalsRefreshed([ProposalBrief])
+        case proposalRefreshed(ProposalFull)
+        case payFromTreasury(String)
+        case submitCreate(String, String, String, String, Double, String)
+        case submitImport(String, String)
+        case exportRole(String)
+        case roleExported(String)
+        case clearRoleExport
+        case submitIssue(String, String, String)
+        case submitMint(String, String, String)
+        case submitFreeze(String)
         case setProposeRecipient(String)
         case setProposeAmount(String)
         case setProposeTokenId(String)
         case setProposeDuration(String)
         case submitProposal
-        case proposalSubmitted(ActionResult)
+        case proposalSubmitted(ActionResult, Refresh)
 
         // ── Vote ────────────────────────────────────────────────────────
         case voteYes(String)
@@ -84,6 +120,12 @@ public struct DaoHub {
         case voteSubmitted(ActionResult)
 
         case clearActionResult
+    }
+
+    private enum CancelID: Hashable {
+        case daoLoad
+        case daoResources
+        case proposalLoad
     }
 
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
@@ -127,23 +169,33 @@ public struct DaoHub {
             case let .daoSelected(name):
                 state.isLoading = true
                 state.screen = .daoDetail(name)
+                state.proposals = []
+                state.treasuryLine = L10n.Nighthawk.DaoHub.notScannedYet
+                state.mintAuthorities = []
                 let dao = state.daos.first(where: { $0.name == name })
-                return .run { send in
-                    do {
-                        let proposals = try await sdkSynchronizer.listProposals(name)
-                        await send(.daoLoaded(dao, proposals))
-                    } catch {
-                        await send(.errorOccurred(error.localizedDescription))
+                return .concatenate(
+                    .cancel(id: CancelID.daoLoad),
+                    .cancel(id: CancelID.daoResources),
+                    .run { send in
+                        do {
+                            let proposals = try await sdkSynchronizer.listProposals(name)
+                            await send(.daoLoaded(dao, proposals))
+                        } catch {
+                            await send(.errorOccurred(error.localizedDescription))
+                        }
                     }
-                }
+                    .cancellable(id: CancelID.daoLoad, cancelInFlight: true)
+                )
             case let .daoLoaded(dao, proposals):
                 state.isLoading = false
                 state.selectedDao = dao
                 state.proposals = proposals
                 if dao == nil {
-                    state.errorMessage = "DAO not found"
+                    state.errorMessage = L10n.Nighthawk.DaoHub.daoNotFound
+                    return .none
                 }
-                return .none
+                let name = dao?.name ?? ""
+                return loadDaoResources(name)
             case let .proposalSelected(bulla):
                 state.isLoading = true
                 state.screen = .proposalDetail(bulla)
@@ -155,11 +207,12 @@ public struct DaoHub {
                         await send(.errorOccurred(error.localizedDescription))
                     }
                 }
+                .cancellable(id: CancelID.proposalLoad, cancelInFlight: true)
             case let .proposalLoaded(detail):
                 state.isLoading = false
                 state.proposalDetail = detail
                 if detail == nil {
-                    state.errorMessage = "Proposal not found"
+                    state.errorMessage = L10n.Nighthawk.DaoHub.proposalNotFound
                 }
                 return .none
             case .backTapped:
@@ -192,6 +245,67 @@ public struct DaoHub {
             case .dismissProposeSheet:
                 state.showProposeSheet = false
                 return .none
+            case .showFundSheet:
+                state.showFundSheet = true
+                state.fundAmount = ""
+                state.fundTokenId = nil
+                return .run { send in
+                    let balances = (try? await sdkSynchronizer.listTokenBalances()) ?? []
+                    await send(.tokenBalancesLoaded(balances))
+                }
+            case .dismissFundSheet:
+                state.showFundSheet = false
+                return .none
+            case let .setFundAmount(value):
+                state.fundAmount = value
+                return .none
+            case let .setFundTokenId(tokenId):
+                state.fundTokenId = tokenId
+                return .none
+            case let .tokenBalancesLoaded(balances):
+                state.tokenBalances = balances
+                return .none
+            case .submitFund:
+                guard !state.actionInProgress else { return .none }
+                guard let dao = state.selectedDao else { return .none }
+                guard let amount = DaoDecimalInput.normalizedPositive(state.fundAmount) else { return .none }
+                let name = dao.name
+                let tokenId = state.fundTokenId
+                state.showFundSheet = false
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.daoFund(name, amount, tokenId)
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.fundsSent), .treasury))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .treasuryLoaded(line):
+                state.treasuryLine = line
+                return .none
+            case let .authoritiesLoaded(authorities):
+                state.mintAuthorities = authorities
+                return .none
+            case let .proposalsRefreshed(proposals):
+                state.proposals = proposals
+                return .none
+            case let .proposalRefreshed(detail):
+                state.proposalDetail = detail
+                return .none
+            case let .payFromTreasury(bulla):
+                guard !state.actionInProgress else { return .none }
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.daoExec(bulla)
+                        await send(.voteSubmitted(.success(L10n.Nighthawk.DaoHub.paymentSent)))
+                    } catch {
+                        await send(.voteSubmitted(.error(error.localizedDescription)))
+                    }
+                }
             case let .setProposeRecipient(v):
                 state.proposeRecipient = v
                 return .none
@@ -205,10 +319,12 @@ public struct DaoHub {
                 state.proposeDuration = v
                 return .none
             case .submitProposal:
+                guard !state.actionInProgress else { return .none }
                 guard let dao = state.selectedDao else { return .none }
+                guard DaoDecimalInput.normalizedPositive(state.proposeAmount) != nil else { return .none }
                 let daoName = dao.name
                 let recipient = state.proposeRecipient
-                let amount = state.proposeAmount
+                let amount = DaoDecimalInput.normalizedPositive(state.proposeAmount) ?? state.proposeAmount
                 let tokenId = state.proposeTokenId.isEmpty ? nil : state.proposeTokenId
                 let duration = UInt64(state.proposeDuration) ?? 10
                 state.showProposeSheet = false
@@ -223,46 +339,149 @@ public struct DaoHub {
                             tokenId,
                             recipient
                         )
-                        await send(.proposalSubmitted(.success("Proposal submitted! \(bulla.prefix(16))…")))
+                        await send(.proposalSubmitted(
+                            .success(L10n.Nighthawk.DaoHub.proposalSubmitted(String(bulla.prefix(16)))),
+                            .proposals
+                        ))
                     } catch {
-                        await send(.proposalSubmitted(.error(error.localizedDescription)))
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
                     }
                 }
-            case let .proposalSubmitted(result):
+            case let .submitCreate(name, limit, quorum, early, ratio, token):
+                guard !state.actionInProgress else { return .none }
+                let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmedName.isEmpty,
+                      let proposerLimit = DaoDecimalInput.normalizedPositive(limit),
+                      let quorumValue = DaoDecimalInput.normalizedPositive(quorum),
+                      ratio > 0, ratio <= 1
+                else { return .none }
+                let earlyTrimmed = early.trimmingCharacters(in: .whitespacesAndNewlines)
+                let earlyValue: String
+                if earlyTrimmed.isEmpty {
+                    earlyValue = quorumValue
+                } else if let parsed = DaoDecimalInput.normalizedPositive(earlyTrimmed) {
+                    earlyValue = parsed
+                } else {
+                    return .none
+                }
+                let tokenValue = token.trimmingCharacters(in: .whitespacesAndNewlines)
+                let govToken = tokenValue.isEmpty ? "DRK" : tokenValue
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.daoCreate(
+                            trimmedName, proposerLimit, quorumValue, earlyValue, ratio, govToken
+                        )
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.groupSubmitted), .hub))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .submitImport(name, toml):
+                guard !state.actionInProgress else { return .none }
+                let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                let trimmedToml = toml.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmedName.isEmpty, !trimmedToml.isEmpty else { return .none }
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.daoImport(trimmedName, trimmedToml)
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.groupImported), .hub))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .exportRole(role):
+                guard let dao = state.selectedDao else { return .none }
+                let name = dao.name
+                return .run { send in
+                    do {
+                        let payload = try await sdkSynchronizer.daoExportRole(name, role)
+                        await send(.roleExported(payload))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .roleExported(payload):
+                state.roleExport = payload
+                return .none
+            case .clearRoleExport:
+                state.roleExport = nil
+                return .none
+            case let .submitIssue(alias, amount, recipient):
+                guard !state.actionInProgress else { return .none }
+                guard let amountValue = DaoDecimalInput.normalizedPositive(amount) else { return .none }
+                let recipientValue = recipient.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !recipientValue.isEmpty else { return .none }
+                let aliasValue = alias.trimmingCharacters(in: .whitespacesAndNewlines)
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        let tokenId = try await sdkSynchronizer.tokenGenerate(aliasValue.isEmpty ? nil : aliasValue)
+                        _ = try await sdkSynchronizer.tokenMint(tokenId, amountValue, recipientValue)
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.tokenCreated), .authorities))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .submitMint(tokenId, amount, recipient):
+                guard !state.actionInProgress else { return .none }
+                guard let amountValue = DaoDecimalInput.normalizedPositive(amount) else { return .none }
+                let recipientValue = recipient.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !tokenId.isEmpty, !recipientValue.isEmpty else { return .none }
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.tokenMint(tokenId, amountValue, recipientValue)
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.tokensIssued), .authorities))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .submitFreeze(tokenId):
+                guard !state.actionInProgress else { return .none }
+                guard !tokenId.isEmpty else { return .none }
+                state.actionInProgress = true
+                state.actionResult = nil
+                return .run { send in
+                    do {
+                        _ = try await sdkSynchronizer.tokenFreeze(tokenId)
+                        await send(.proposalSubmitted(.success(L10n.Nighthawk.DaoHub.supplyFrozen), .authorities))
+                    } catch {
+                        await send(.proposalSubmitted(.error(error.localizedDescription), .none))
+                    }
+                }
+            case let .proposalSubmitted(result, refresh):
                 state.actionInProgress = false
                 state.actionResult = result
-                if case .success = result, let dao = state.selectedDao {
-                    // Refresh proposals
-                    return .run { send in
-                        do {
-                            let proposals = try await sdkSynchronizer.listProposals(dao.name)
-                            await send(.daoLoaded(dao, proposals))
-                        } catch {
-                            // swallow
-                        }
-                    }
-                }
-                return .none
+                guard case .success = result else { return .none }
+                return followUp(refresh, state: state)
 
             // ── Vote ────────────────────────────────────────────────────────
             case let .voteYes(bulla):
+                guard !state.actionInProgress else { return .none }
                 state.actionInProgress = true
                 state.actionResult = nil
                 return .run { send in
                     do {
                         let txHash = try await sdkSynchronizer.daoVote(bulla, true)
-                        await send(.voteSubmitted(.success("Vote YES submitted! TX: \(txHash.prefix(16))…")))
+                        await send(.voteSubmitted(.success(L10n.Nighthawk.DaoHub.voteYesSubmitted(String(txHash.prefix(16))))))
                     } catch {
                         await send(.voteSubmitted(.error(error.localizedDescription)))
                     }
                 }
             case let .voteNo(bulla):
+                guard !state.actionInProgress else { return .none }
                 state.actionInProgress = true
                 state.actionResult = nil
                 return .run { send in
                     do {
                         let txHash = try await sdkSynchronizer.daoVote(bulla, false)
-                        await send(.voteSubmitted(.success("Vote NO submitted! TX: \(txHash.prefix(16))…")))
+                        await send(.voteSubmitted(.success(L10n.Nighthawk.DaoHub.voteNoSubmitted(String(txHash.prefix(16))))))
                     } catch {
                         await send(.voteSubmitted(.error(error.localizedDescription)))
                     }
@@ -270,7 +489,8 @@ public struct DaoHub {
             case let .voteSubmitted(result):
                 state.actionInProgress = false
                 state.actionResult = result
-                return .none
+                guard case .success = result else { return .none }
+                return followUp(.governance, state: state)
 
             case .clearActionResult:
                 state.actionResult = nil
@@ -280,19 +500,152 @@ public struct DaoHub {
     }
 
     public init() {}
+
+    private func followUp(_ refresh: Refresh, state: State) -> Effect<Action> {
+        switch refresh {
+        case .none:
+            return .none
+        case .hub:
+            return .send(.loadHub)
+        case .proposals:
+            guard let dao = state.selectedDao else { return .none }
+            return refreshProposals(dao.name)
+        case .treasury:
+            guard let dao = state.selectedDao else { return .none }
+            return refreshTreasury(dao.name)
+        case .authorities:
+            return refreshAuthorities()
+        case .governance:
+            let daoName = state.selectedDao?.name
+            let bulla: String?
+            if case let .proposalDetail(id) = state.screen {
+                bulla = id
+            } else {
+                bulla = nil
+            }
+            return refreshGovernance(daoName: daoName, proposalBulla: bulla)
+        }
+    }
+
+    private func loadDaoResources(_ name: String) -> Effect<Action> {
+        let sdk = sdkSynchronizer
+        return .run { send in
+            let line = (try? await sdk.daoTreasury(name)) ?? L10n.Nighthawk.DaoHub.notScannedYet
+            await send(.treasuryLoaded(line))
+            let authorities = (try? await sdk.listMintAuthorities()) ?? []
+            await send(.authoritiesLoaded(authorities))
+        }
+        .cancellable(id: CancelID.daoResources, cancelInFlight: true)
+    }
+
+    private func refreshProposals(_ name: String) -> Effect<Action> {
+        let sdk = sdkSynchronizer
+        return .run { send in
+            if let proposals = try? await sdk.listProposals(name) {
+                await send(.proposalsRefreshed(proposals))
+            }
+        }
+        .cancellable(id: CancelID.daoResources, cancelInFlight: true)
+    }
+
+    private func refreshTreasury(_ name: String) -> Effect<Action> {
+        let sdk = sdkSynchronizer
+        return .run { send in
+            if let line = try? await sdk.daoTreasury(name) {
+                await send(.treasuryLoaded(line))
+            }
+        }
+        .cancellable(id: CancelID.daoResources, cancelInFlight: true)
+    }
+
+    private func refreshAuthorities() -> Effect<Action> {
+        let sdk = sdkSynchronizer
+        return .run { send in
+            if let authorities = try? await sdk.listMintAuthorities() {
+                await send(.authoritiesLoaded(authorities))
+            }
+        }
+        .cancellable(id: CancelID.daoResources, cancelInFlight: true)
+    }
+
+    private func refreshGovernance(daoName: String?, proposalBulla: String?) -> Effect<Action> {
+        let sdk = sdkSynchronizer
+        return .run { send in
+            if let daoName, let proposals = try? await sdk.listProposals(daoName) {
+                await send(.proposalsRefreshed(proposals))
+            }
+            if let daoName, let line = try? await sdk.daoTreasury(daoName) {
+                await send(.treasuryLoaded(line))
+            }
+            if let proposalBulla {
+                do {
+                    if let detail = try await sdk.getProposal(proposalBulla) {
+                        await send(.proposalRefreshed(detail))
+                    }
+                } catch {
+                    // Keep the open proposal if the refresh fails.
+                }
+            }
+        }
+        .cancellable(id: CancelID.daoResources, cancelInFlight: true)
+    }
+}
+
+enum DaoDecimalInput {
+    /// Positive finite amount. `.` and `,` are both decimal separators.
+    /// Returns a dot-decimal string, or nil when the text is empty or not positive.
+    static func normalizedPositive(_ raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let normalized = normalizeSeparators(trimmed) else { return nil }
+        guard let value = Double(normalized), value > 0, value.isFinite else { return nil }
+        return normalized
+    }
+
+    /// Yes-share in (0, 1]. Nil when the text is empty or outside that range.
+    static func approvalRatio(_ raw: String) -> Double? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let normalized = normalizeSeparators(trimmed) else { return nil }
+        guard let value = Double(normalized), value > 0, value <= 1, value.isFinite else { return nil }
+        return value
+    }
+
+    private static func normalizeSeparators(_ trimmed: String) -> String? {
+        var working = trimmed
+        if working.contains(","), working.contains(".") {
+            guard let lastComma = working.lastIndex(of: ","),
+                  let lastDot = working.lastIndex(of: ".")
+            else { return nil }
+            if lastComma > lastDot {
+                working = working.replacingOccurrences(of: ".", with: "")
+                working = working.replacingOccurrences(of: ",", with: ".")
+            } else {
+                working = working.replacingOccurrences(of: ",", with: "")
+            }
+        } else if working.contains(",") {
+            guard working.filter({ $0 == "," }).count == 1 else { return nil }
+            working = working.replacingOccurrences(of: ",", with: ".")
+        } else if working.filter({ $0 == "." }).count > 1 {
+            return nil
+        }
+
+        let parts = working.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count == 1 || parts.count == 2 else { return nil }
+        guard parts.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return nil }
+        return working
+    }
 }
 
 private extension DaoHub {
     static func walletNotReadyMessage(for status: DarkfiSyncStatus) -> String {
         switch status {
         case .unprepared:
-            return "Wallet is not ready yet. Finish setup or wait for the wallet to initialize."
+            return L10n.Nighthawk.DaoHub.walletNotReady
         case .stopped:
-            return "Wallet sync is stopped. Resume sync from the Wallet tab, then open DAO Hub again."
+            return L10n.Nighthawk.DaoHub.walletStopped
         case .syncing:
-            return "Wallet sync is still in progress. Open DAO Hub again once your wallet is up to date."
+            return L10n.Nighthawk.DaoHub.walletSyncing
         case let .error(message):
-            return "Wallet sync failed: \(message)"
+            return L10n.Nighthawk.DaoHub.walletSyncFailed(message)
         case .upToDate:
             return ""
         }

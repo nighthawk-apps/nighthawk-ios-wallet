@@ -38,6 +38,63 @@ pub fn sent_recipient_address(tx_hash: &str) -> Option<String> {
         .and_then(|m| m.get(tx_hash).and_then(|(_, r)| r.clone()))
 }
 
+fn zkas_lookup_fallback(
+    contract_id: &darkfi_sdk::crypto::ContractId,
+) -> darkfi::Result<Vec<(String, Vec<u8>)>> {
+    let entries =
+        crate::zkas_cache::global_zkas_cache().entries_for_contract(&contract_id.to_string());
+    if entries.is_empty() {
+        return Err(darkfi::Error::Custom(format!(
+            "zkas cache empty for {contract_id}; LookupZkas prefetch required"
+        )));
+    }
+    Ok(entries)
+}
+
+async fn prefetch_money_zkas(
+    lightwallet_server_url: Option<&str>,
+    lightwallet_tls_pin: Option<[u8; 32]>,
+) -> Result<(), String> {
+    let money_id = MONEY_CONTRACT_ID.to_string();
+    prefetch_contract_zkas(lightwallet_server_url, lightwallet_tls_pin, &[&money_id]).await
+}
+
+/// Fetch circuit bincodes before a contract call. Without darkfid RPC, `drk`
+/// reads circuits only from this cache.
+pub async fn prefetch_contract_zkas(
+    lightwallet_server_url: Option<&str>,
+    lightwallet_tls_pin: Option<[u8; 32]>,
+    contract_ids: &[&str],
+) -> Result<(), String> {
+    drk::rpc::set_zkas_lookup_fallback(Some(zkas_lookup_fallback));
+    let Some(url) = lightwallet_server_url
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    else {
+        return Ok(());
+    };
+    let lw_url = crate::lightwallet_client::normalize_lightwallet_url(url);
+    let client = crate::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
+        &lw_url,
+        lightwallet_tls_pin,
+    );
+    let warmed = crate::zkas_cache::warm_zkas_cache(&client, contract_ids).await?;
+    if warmed == 0 {
+        let missing = contract_ids.iter().any(|id| {
+            crate::zkas_cache::global_zkas_cache()
+                .entries_for_contract(id)
+                .is_empty()
+        });
+        if missing {
+            return Err(format!(
+                "LookupZkas returned no circuits for {}",
+                contract_ids.join(", ")
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub async fn build_transfer(
     drk: &Drk,
     recipient_address: &str,
@@ -106,7 +163,10 @@ pub async fn build_transfer(
         .map(|s| s.as_bytes().to_vec());
 
     if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
-        if let Some(url) = lightwallet_server_url.map(str::trim).filter(|s| !s.is_empty()) {
+        if let Some(url) = lightwallet_server_url
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+        {
             let client = crate::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
                 url,
                 lightwallet_tls_pin,
@@ -115,11 +175,17 @@ pub async fn build_transfer(
                 .get_light_info()
                 .await
                 .map_err(|e| format!("merkle rebuild light info: {e}"))?;
-            crate::sync::rebuild_money_tree_to_height(drk, &client, info.chain_tip_height)
+            let height = crate::sync::spendable_rebuild_height(drk, info.chain_tip_height)?;
+            crate::sync::rebuild_money_tree_to_height(drk, &client, height)
                 .await
                 .map_err(|e| format!("merkle rebuild for spend: {e}"))?;
         }
     }
+
+    crate::sync::ensure_spendable_money_tree(drk, lightwallet_server_url, lightwallet_tls_pin)
+        .await
+        .map_err(|e| format!("merkle rebuild for spend: {e}"))?;
+    prefetch_money_zkas(lightwallet_server_url, lightwallet_tls_pin).await?;
 
     let tx = drk
         .transfer(amount, token, *recipient.public_key(), None, None, false)
@@ -132,7 +198,7 @@ pub async fn build_transfer(
 }
 
 /// Look up recipient UnifOMR clue PK and build a paper clue. Fail-closed (no PerfOMR).
-async fn resolve_outgoing_omr_clue(
+pub(crate) async fn resolve_outgoing_omr_clue(
     recipient_pk: &[u8; 32],
     network_byte: u8,
     lightwallet_server_url: Option<&str>,
@@ -237,8 +303,23 @@ pub async fn broadcast_transfer(
         &lw_url,
         lightwallet_tls_pin,
     );
+    let secret = drk
+        .default_secret()
+        .await
+        .map_err(|e| format!("wallet secret for change clues: {e}"))?;
+    let secret_bytes = secret.inner().to_repr();
+    let network_byte = match drk.network {
+        darkfi_sdk::crypto::keypair::Network::Mainnet => 0x00u8,
+        darkfi_sdk::crypto::keypair::Network::Testnet => 0x01u8,
+    };
     client
-        .send_transaction(raw_tx.to_vec(), unifomr_clue.clone(), omr_metadata_enc)
+        .send_transaction_with_wallet_clues(
+            raw_tx.to_vec(),
+            unifomr_clue.clone(),
+            omr_metadata_enc,
+            &secret_bytes,
+            network_byte,
+        )
         .await
         .map_err(|e| {
             format!(

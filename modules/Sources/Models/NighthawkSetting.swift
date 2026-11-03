@@ -124,6 +124,7 @@ public enum NighthawkSetting {
         case `default`
         case dark
         case paper
+        case cyberpunk
 
         public var id: String { rawValue }
 
@@ -135,19 +136,25 @@ public enum NighthawkSetting {
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
             case .paper:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.paper
+            case .cyberpunk:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk
             }
         }
 
-        /// `nil` follows the system. A light system uses Paper; a dark system uses Stealth.
+        /// Cyberpunk stays dark. A light system theme does not switch it to Paper.
         public var colorScheme: ColorScheme? {
             switch self {
             case .paper:
                 .light
-            case .dark:
+            case .dark, .cyberpunk, .default:
                 .dark
-            case .default:
-                nil
             }
+        }
+
+        /// System default and the Cyberpunk choice. Light and dark system
+        /// appearances both use the Void wallpaper.
+        public var usesCyberpunkChrome: Bool {
+            self == .default || self == .cyberpunk
         }
 
         public var usesPaperTypography: Bool {

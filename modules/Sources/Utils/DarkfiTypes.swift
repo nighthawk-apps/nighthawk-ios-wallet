@@ -51,6 +51,20 @@ extension DrkAmount {
         formattedDrk()
     }
 
+    /// Amount for a text field that `from(decimalString:)` reads back:
+    /// "." decimal separator, no grouping, whatever the device locale.
+    public func inputDecimalString(decimals: Int = drkDisplayDecimals) -> String {
+        let divisor = NSDecimalNumber(decimal: pow(10, decimals))
+        let value = NSDecimalNumber(value: self).dividing(by: divisor)
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        formatter.maximumFractionDigits = decimals
+        formatter.minimumFractionDigits = 0
+        return formatter.string(from: value) ?? "0"
+    }
+
     public static func from(decimalString: String) -> DrkAmount? {
         fromDecimalString(decimalString)
     }

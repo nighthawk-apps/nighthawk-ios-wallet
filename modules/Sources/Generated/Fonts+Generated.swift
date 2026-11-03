@@ -69,7 +69,12 @@ public enum FontFamily {
         public static let regular = FontConvertible(name: "IBMPlexMono-Regular", family: "IBM Plex Mono", path: "ibm_plex_mono.ttf")
         public static let all: [FontConvertible] = [regular]
     }
-    public static let allCustomFonts: [FontConvertible] = [PulpDisplay.all, Roboto.all, Rubik.all, Zboto.all, SourceSerif4.all, IbmPlexMono.all].flatMap { $0 }
+    public enum DejaVuSansMono {
+        public static let regular = FontConvertible(name: "DejaVuSansMono", family: "DejaVu Sans Mono", path: "DejaVuSansMono.ttf")
+        public static let bold = FontConvertible(name: "DejaVuSansMono-Bold", family: "DejaVu Sans Mono", path: "DejaVuSansMono-Bold.ttf")
+        public static let all: [FontConvertible] = [regular, bold]
+    }
+    public static let allCustomFonts: [FontConvertible] = [PulpDisplay.all, Roboto.all, Rubik.all, Zboto.all, SourceSerif4.all, IbmPlexMono.all, DejaVuSansMono.all].flatMap { $0 }
     public static func registerAllCustomFonts() {
         allCustomFonts.forEach { $0.register() }
     }

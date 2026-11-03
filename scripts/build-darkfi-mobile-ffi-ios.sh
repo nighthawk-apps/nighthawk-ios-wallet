@@ -48,20 +48,21 @@ fi
 mkdir -p "$MODULES"
 rm -rf "$XCFRAMEWORK"
 
-# Regenerate Swift/FFI glue from the UDL (writes DarkfiMobileFfi.* per uniffi.toml).
+# Regenerate Swift/FFI glue from the UDL. uniffi.toml names the output
+# DarkfiMobileFfi.*; the package compiles darkfi_mobile_ffi.swift and the
+# darkfi_mobile_ffiFFI module, so the fresh files replace those.
 # Host build — do NOT export IPHONEOS_DEPLOYMENT_TARGET here.
+BINDGEN_OUT="$(mktemp -d)"
 cargo run --bin uniffi-bindgen generate \
     darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
     --language swift \
     --crate darkfi_mobile_ffi \
-    --out-dir "$MODULES" \
+    --out-dir "$BINDGEN_OUT" \
     --no-format
-
-# Replace DarkfiMobileFfiFFI with darkfi_mobile_ffiFFI in the generated Swift file
-sed -i '' 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$MODULES/darkfi_mobile_ffi.swift"
-# UniFFI may also emit PascalCase DarkfiMobileFfi.swift — drop it to avoid
-# duplicate-type ambiguity in the DarkfiCore module.
-rm -f "$MODULES/DarkfiMobileFfi.swift"
+sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$BINDGEN_OUT/DarkfiMobileFfi.swift" \
+    > "$MODULES/darkfi_mobile_ffi.swift"
+cp "$BINDGEN_OUT/DarkfiMobileFfiFFI.h" "$MODULES/darkfi_mobile_ffiFFI.h"
+rm -rf "$BINDGEN_OUT"
 
 # Package the canonical FFI headers into the xcframework bundle.
 rm -rf "$ROOT/rust/target/Headers"

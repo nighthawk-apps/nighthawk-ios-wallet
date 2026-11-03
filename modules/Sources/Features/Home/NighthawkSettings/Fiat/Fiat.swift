@@ -13,20 +13,18 @@ import UserPreferencesStorage
 public struct Fiat {
     @ObservableState
     public struct State: Equatable {
-        public var selectedFiatCurrency: NighthawkSetting.FiatCurrency
+        public var selectedFiatCurrency: NighthawkSetting.FiatCurrency = .off
         public var tokenName: String {
             return "DRK"
         }
 
-        public init() {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            self.selectedFiatCurrency = userStoredPreferences.fiatCurrency()
-        }
+        public init() {}
     }
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
+        case onAppear
 
         public enum Delegate: Equatable {
             case fetchLatestFiatCurrency
@@ -46,6 +44,9 @@ public struct Fiat {
             case .binding:
                 return .none
             case .delegate:
+                return .none
+            case .onAppear:
+                state.selectedFiatCurrency = userStoredPreferences.fiatCurrency()
                 return .none
             }
         }

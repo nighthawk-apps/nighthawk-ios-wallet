@@ -599,7 +599,19 @@ public protocol DarkfiWalletHandleProtocol: AnyObject, Sendable {
     
     func confirmedBalanceAtomic() throws  -> Int64
     
+    func daoCreate(name: String, proposerLimit: String, quorum: String, earlyExecQuorum: String, approvalRatio: Double, govTokenId: String) throws  -> String
+    
+    func daoExec(proposalBullaB58: String) throws  -> String
+    
+    func daoExportRole(daoName: String, role: String) throws  -> String
+    
+    func daoFund(daoName: String, amount: String, tokenId: String?) throws  -> String
+    
+    func daoImport(name: String, toml: String) throws  -> String
+    
     func daoProposeTransfer(daoName: String, durationBlockwindows: UInt64, amount: String, tokenId: String?, recipientAddress: String) throws  -> String
+    
+    func daoTreasury(daoName: String) throws  -> String
     
     func daoVote(proposalBullaB58: String, voteYes: Bool) throws  -> String
     
@@ -622,6 +634,8 @@ public protocol DarkfiWalletHandleProtocol: AnyObject, Sendable {
     
     func listDaos() throws  -> [DrkDaoSummary]
     
+    func listMintAuthorities() throws  -> [DrkMintAuthority]
+    
     func listProposals(daoName: String?) throws  -> [DrkDaoProposalSummary]
     
     func listTokenBalances() throws  -> [DrkTokenBalance]
@@ -643,6 +657,12 @@ public protocol DarkfiWalletHandleProtocol: AnyObject, Sendable {
     func strictOmrOnly()  -> Bool
     
     func syncSnapshot() throws  -> DrkSyncSnapshot
+    
+    func tokenFreeze(tokenId: String) throws  -> String
+    
+    func tokenGenerate(alias: String?) throws  -> String
+    
+    func tokenMint(tokenId: String, amount: String, recipientAddress: String) throws  -> String
     
     func transactionPaymentMemo(txHash: String) throws  -> String?
     
@@ -741,6 +761,60 @@ open func confirmedBalanceAtomic()throws  -> Int64  {
 })
 }
     
+open func daoCreate(name: String, proposerLimit: String, quorum: String, earlyExecQuorum: String, approvalRatio: Double, govTokenId: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_create(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(name),
+        FfiConverterString.lower(proposerLimit),
+        FfiConverterString.lower(quorum),
+        FfiConverterString.lower(earlyExecQuorum),
+        FfiConverterDouble.lower(approvalRatio),
+        FfiConverterString.lower(govTokenId),$0
+    )
+})
+}
+    
+open func daoExec(proposalBullaB58: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_exec(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(proposalBullaB58),$0
+    )
+})
+}
+    
+open func daoExportRole(daoName: String, role: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_export_role(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(daoName),
+        FfiConverterString.lower(role),$0
+    )
+})
+}
+    
+open func daoFund(daoName: String, amount: String, tokenId: String?)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_fund(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(daoName),
+        FfiConverterString.lower(amount),
+        FfiConverterOptionString.lower(tokenId),$0
+    )
+})
+}
+    
+open func daoImport(name: String, toml: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_import(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(name),
+        FfiConverterString.lower(toml),$0
+    )
+})
+}
+    
 open func daoProposeTransfer(daoName: String, durationBlockwindows: UInt64, amount: String, tokenId: String?, recipientAddress: String)throws  -> String  {
     return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
     uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_propose_transfer(
@@ -750,6 +824,15 @@ open func daoProposeTransfer(daoName: String, durationBlockwindows: UInt64, amou
         FfiConverterString.lower(amount),
         FfiConverterOptionString.lower(tokenId),
         FfiConverterString.lower(recipientAddress),$0
+    )
+})
+}
+    
+open func daoTreasury(daoName: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_dao_treasury(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(daoName),$0
     )
 })
 }
@@ -831,6 +914,14 @@ open func listDaos()throws  -> [DrkDaoSummary]  {
 })
 }
     
+open func listMintAuthorities()throws  -> [DrkMintAuthority]  {
+    return try  FfiConverterSequenceTypeDrkMintAuthority.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_list_mint_authorities(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
 open func listProposals(daoName: String?)throws  -> [DrkDaoProposalSummary]  {
     return try  FfiConverterSequenceTypeDrkDaoProposalSummary.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
     uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_list_proposals(
@@ -904,6 +995,35 @@ open func syncSnapshot()throws  -> DrkSyncSnapshot  {
     return try  FfiConverterTypeDrkSyncSnapshot_lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
     uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_sync_snapshot(
             self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func tokenFreeze(tokenId: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_token_freeze(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(tokenId),$0
+    )
+})
+}
+    
+open func tokenGenerate(alias: String?)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_token_generate(
+            self.uniffiCloneHandle(),
+        FfiConverterOptionString.lower(alias),$0
+    )
+})
+}
+    
+open func tokenMint(tokenId: String, amount: String, recipientAddress: String)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+    uniffi_darkfi_mobile_ffi_fn_method_darkfiwallethandle_token_mint(
+            self.uniffiCloneHandle(),
+        FfiConverterString.lower(tokenId),
+        FfiConverterString.lower(amount),
+        FfiConverterString.lower(recipientAddress),$0
     )
 })
 }
@@ -1071,7 +1191,10 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
         /**
          * Optional darkfid JSON-RPC URL for broadcast fallback only.
          * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
-         */darkfidRpcUrl: String?, strictOmrOnly: Bool = true) {
+         */darkfidRpcUrl: String?, 
+        /**
+         * When true, UnifOMR-only (no supplemental trial decrypt). Default true.
+         */strictOmrOnly: Bool = true) {
         self.network = network
         self.mnemonic = mnemonic
         self.walletDbPath = walletDbPath
@@ -1116,7 +1239,7 @@ public struct FfiConverterTypeDrkBootstrapConfig: FfiConverterRustBuffer {
                 torSocksPort: FfiConverterUInt16.read(from: &buf), 
                 useNym: FfiConverterBool.read(from: &buf), 
                 nymSocksPort: FfiConverterUInt16.read(from: &buf), 
-                darkfidRpcUrl: FfiConverterOptionString.read(from: &buf),
+                darkfidRpcUrl: FfiConverterOptionString.read(from: &buf), 
                 strictOmrOnly: FfiConverterBool.read(from: &buf)
         )
     }
@@ -1508,6 +1631,64 @@ public func FfiConverterTypeDrkLightSyncState_lift(_ buf: RustBuffer) throws -> 
 #endif
 public func FfiConverterTypeDrkLightSyncState_lower(_ value: DrkLightSyncState) -> RustBuffer {
     return FfiConverterTypeDrkLightSyncState.lower(value)
+}
+
+
+public struct DrkMintAuthority: Equatable, Hashable {
+    public var tokenId: String
+    public var alias: String?
+    public var frozen: Bool
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(tokenId: String, alias: String?, frozen: Bool) {
+        self.tokenId = tokenId
+        self.alias = alias
+        self.frozen = frozen
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension DrkMintAuthority: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeDrkMintAuthority: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> DrkMintAuthority {
+        return
+            try DrkMintAuthority(
+                tokenId: FfiConverterString.read(from: &buf), 
+                alias: FfiConverterOptionString.read(from: &buf), 
+                frozen: FfiConverterBool.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: DrkMintAuthority, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.tokenId, into: &buf)
+        FfiConverterOptionString.write(value.alias, into: &buf)
+        FfiConverterBool.write(value.frozen, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeDrkMintAuthority_lift(_ buf: RustBuffer) throws -> DrkMintAuthority {
+    return try FfiConverterTypeDrkMintAuthority.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeDrkMintAuthority_lower(_ value: DrkMintAuthority) -> RustBuffer {
+    return FfiConverterTypeDrkMintAuthority.lower(value)
 }
 
 
@@ -2246,7 +2427,7 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
             do {
                 try FfiConverterCallbackInterfaceDarkircEventCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
-                print("Uniffi callback interface DarkircEventCallback: handle missing in uniffiFree")
+                // Callback handle was already released.
             }
         },
         uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
@@ -2393,7 +2574,7 @@ fileprivate struct UniffiCallbackInterfaceReorgEventCallback {
             do {
                 try FfiConverterCallbackInterfaceReorgEventCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
-                print("Uniffi callback interface ReorgEventCallback: handle missing in uniffiFree")
+                // Callback handle was already released.
             }
         },
         uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
@@ -2705,6 +2886,31 @@ fileprivate struct FfiConverterSequenceTypeDrkDaoSummary: FfiConverterRustBuffer
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterSequenceTypeDrkMintAuthority: FfiConverterRustBuffer {
+    typealias SwiftType = [DrkMintAuthority]
+
+    public static func write(_ value: [DrkMintAuthority], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeDrkMintAuthority.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [DrkMintAuthority] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [DrkMintAuthority]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeDrkMintAuthority.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterSequenceTypeDrkTokenBalance: FfiConverterRustBuffer {
     typealias SwiftType = [DrkTokenBalance]
 
@@ -2986,7 +3192,25 @@ private let initializationResult: InitializationResult = {
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_confirmed_balance_atomic() != 48819) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_create() != 14392) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_exec() != 5409) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_export_role() != 2019) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_fund() != 46387) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_import() != 11109) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_propose_transfer() != 16001) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_treasury() != 42940) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_dao_vote() != 28282) {
@@ -3011,6 +3235,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_list_daos() != 26155) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_list_mint_authorities() != 59144) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_list_proposals() != 62268) {
@@ -3038,6 +3265,15 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_sync_snapshot() != 34731) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_token_freeze() != 2602) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_token_generate() != 10771) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_token_mint() != 3320) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_darkfiwallethandle_transaction_payment_memo() != 63542) {

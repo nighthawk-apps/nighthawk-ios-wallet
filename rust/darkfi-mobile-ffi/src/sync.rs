@@ -184,7 +184,9 @@ pub fn start_background_sync(
                     // fresh or failed session reads as connecting.
                     if !matches!(
                         sync_engine.status(),
-                        LightSyncStatus::Synced | LightSyncStatus::Degraded | LightSyncStatus::Syncing
+                        LightSyncStatus::Synced
+                            | LightSyncStatus::Degraded
+                            | LightSyncStatus::Syncing
                     ) {
                         sync_engine.set_status(LightSyncStatus::Connecting);
                     }
@@ -308,7 +310,7 @@ fn cached_or_build_detection_key(
 }
 
 /// Session cache of clue-directory registrations so sync does not re-publish
-/// every payment pubkey (and a fresh unix `key_version`) on every cycle.
+/// every payment pubkey on every cycle.
 static CLUE_PK_REGISTERED: std::sync::Mutex<Option<std::collections::HashSet<[u8; 32]>>> =
     std::sync::Mutex::new(None);
 
@@ -360,6 +362,56 @@ fn ensure_chain_matches_wallet(
     }
 }
 
+/// Pool digest when a live handle exists. A miss registers `det_key` and retries.
+/// `GetUnifOmrDigest` remains the fallback when the pool RPC is absent.
+async fn fetch_detection_digest(
+    client: &crate::lightwallet_client::LightwalletClient,
+    det_key: Arc<Vec<u8>>,
+    padded_start: u32,
+    padded_end: u32,
+) -> Result<(Vec<u8>, Vec<u8>, bool), String> {
+    use crate::lightwallet_client::{
+        clear_detection_key_pool, fresh_detection_handle, pool_digest_needs_reregister,
+        store_detection_handle, unix_now,
+    };
+    if let Some(handle) = fresh_detection_handle(unix_now()) {
+        match client
+            .get_unif_omr_digest_from_pool(&handle, padded_start, padded_end)
+            .await
+        {
+            Ok(resp) => return Ok(resp),
+            Err(e) if pool_digest_needs_reregister(&e) => clear_detection_key_pool(),
+            Err(e) => return Err(e),
+        }
+    }
+    match client
+        .register_detection_key(det_key.as_ref().clone())
+        .await
+    {
+        Ok((handle, expires)) => {
+            store_detection_handle(handle.clone(), expires);
+            match client
+                .get_unif_omr_digest_from_pool(&handle, padded_start, padded_end)
+                .await
+            {
+                Ok(resp) => return Ok(resp),
+                Err(e) if pool_digest_needs_reregister(&e) => clear_detection_key_pool(),
+                Err(e) => return Err(e),
+            }
+        }
+        Err(e) => {
+            tracing::warn!(
+                target: "wallet-sync",
+                "RegisterDetectionKey unavailable ({}); using GetUnifOmrDigest",
+                redact_sync_error(&e)
+            );
+        }
+    }
+    client
+        .get_unif_omr_digest(vec![det_key], padded_start, padded_end)
+        .await
+}
+
 /// Attempt a sync cycle through the lightwallet server.
 ///
 /// Steps:
@@ -395,8 +447,15 @@ async fn try_lightwallet_sync(drk: &DrkPtr, sync_engine: &SyncEngine) -> Result<
         },
     );
 
-    // Fail closed if LWD chain_name does not match the wallet network (testnet/mainnet).
     ensure_chain_matches_wallet(&server_info.chain_name, drk_guard.network)?;
+    if server_info.proto_version_mismatch {
+        return Err(format!(
+            "lightwalletd proto {} does not match this wallet ({}); \
+             update the server or the app before syncing",
+            server_info.proto_version,
+            crate::lightwallet_client::CLIENT_PROTO_VERSION
+        ));
+    }
 
     // Update engine with server capabilities
     sync_engine.set_omr_available(server_info.omr_supported);
@@ -509,8 +568,7 @@ fn e2e_force_trial(sync_engine: &SyncEngine) -> bool {
     if std::env::var("E2E_FORCE_TRIAL").ok().as_deref() != Some("1") {
         return false;
     }
-    sync_engine.set_strict_omr_only(false);
-    sync_engine.set_omr_available(false);
+    sync_engine.force_local_trial();
     true
 }
 
@@ -734,12 +792,9 @@ async fn try_omr_sync(
     // scan cursor to the server). The padded window shape stays uniform.
     loop {
         scan_end = tip.min(scan_start.saturating_add(window.saturating_sub(1)));
-        let (ps, pe) = crate::lightwallet_client::pad_block_range(scan_start, scan_end);
+        let (ps, pe) = crate::lightwallet_client::pad_block_range(scan_start, scan_end, tip);
         padded_start = ps;
-        // Clamp the padded window end to the chain tip — uniform with moonshine's
-        // pad_block_range (tip is public via GetChainTip, so this is not a
-        // client-distinguishing leak; it keeps both clients' windows identical).
-        padded_end = pe.min(tip);
+        padded_end = pe;
         if padded_end.saturating_sub(ps).saturating_add(1) <= max_range || window <= 1 {
             break;
         }
@@ -758,7 +813,7 @@ async fn try_omr_sync(
             crate::unifomr::clue_keypair_from_wallet(&secret_bytes, omr_network.to_byte())
         {
             let clue_pk = crate::unifomr::serialize_public_key(&pk);
-            let key_version = crate::unifomr::clue_key_version_now();
+            let key_version = crate::unifomr::CLUE_KEY_VERSION;
             let mut registered = 0usize;
             let mut newly_registered = 0usize;
             let mut last_err: Option<String> = None;
@@ -838,9 +893,8 @@ async fn try_omr_sync(
         crate::unifomr::UnifOmrClient::from_wallet(&secret_bytes, omr_network.to_byte())?;
     let det_key =
         cached_or_build_detection_key(&client_crypto, &secret_bytes, omr_network.to_byte())?;
-    let (digest_bytes, slot_heights_bytes, complete) = client
-        .get_unif_omr_digest(vec![det_key], padded_start, padded_end)
-        .await?;
+    let (digest_bytes, slot_heights_bytes, complete) =
+        fetch_detection_digest(client, det_key, padded_start, padded_end).await?;
     let slot_heights = crate::unifomr::unpack_slot_heights(&slot_heights_bytes)?;
     if !complete && slot_heights.is_empty() {
         tracing::debug!(
@@ -890,8 +944,10 @@ async fn try_omr_sync(
     // UnifOMR clues. Privacy: this downloads the full window, so it never runs
     // in strict OMR-only mode. It is folded into the window pass below so each
     // commitment is appended to the Money tree exactly once.
-    let trial_decrypt_all = !sync_engine.strict_omr_only()
-        && omr_window_needs_supplement(scan_start, window_tip, &matching_heights);
+    //
+    // Strict off: trial-decrypt every height in the window. A gap heuristic
+    // missed clue-less payments that sat next to a UnifOMR match.
+    let trial_decrypt_all = !sync_engine.strict_omr_only();
     if trial_decrypt_all {
         tracing::warn!(
             target: "wallet-sync",
@@ -945,17 +1001,16 @@ async fn try_omr_sync(
 /// - The user's seed is shared with a non-OMR wallet (e.g. `drk` CLI)
 ///
 /// Downloads compact blocks in batches and runs trial decryption over each
-/// block's encrypted notes. Each block appends its commitments to the Money
-/// tree, so the scan cursor is persisted after every block: a failure stops
-/// the range without the retry re-appending already-applied blocks.
+/// block's encrypted notes. The returned height is the last contiguous block
+/// actually present. The caller persists that cursor; a hole is not skipped.
 async fn trial_decrypt_range(
     drk: &drk::Drk,
     client: &crate::lightwallet_client::LightwalletClient,
     start: u32,
     end: u32,
-) -> Result<(), String> {
+) -> Result<Option<u32>, String> {
     if start > end {
-        return Ok(());
+        return Ok(None);
     }
     tracing::debug!(
         target: "wallet-sync",
@@ -964,17 +1019,19 @@ async fn trial_decrypt_range(
     );
 
     // Process in batches to avoid OOM on large ranges.
+    // Returns the last contiguous height actually present, starting at `start`.
+    // A hole stops the scan so the caller does not mark missing blocks as done.
     const BATCH_SIZE: u32 = 500;
+    let mut next = start;
     let mut batch_start = start;
     while batch_start <= end {
         let batch_end = (batch_start + BATCH_SIZE - 1).min(end);
         let mut blocks = client
-            .get_compact_block_range(batch_start, batch_end)
+            .get_compact_block_range(batch_start, batch_end, end)
             .await
             .map_err(|e| format!("trial_decrypt_range: get_compact_block_range({batch_start}..={batch_end}): {e}"))?;
         blocks.sort_by_key(|b| b.height);
         blocks.dedup_by_key(|b| b.height);
-
         for block in &blocks {
             if block.height < batch_start || block.height > batch_end {
                 return Err(format!(
@@ -982,14 +1039,37 @@ async fn trial_decrypt_range(
                     block.height
                 ));
             }
-            trial_decrypt_compact_block(drk, block)
-                .await
-                .map_err(|e| format!("Trial decrypt failed for block {}: {e}", block.height))?;
-            persist_scanned_height(drk, block.height)?;
+        }
+        let heights: Vec<u32> = blocks.iter().map(|b| b.height).collect();
+        let Some(last) = contiguous_prefix_end(next, &heights) else {
+            return Ok(if next == start { None } else { Some(next - 1) });
+        };
+        let mut prev: Option<(u32, Vec<u8>)> = None;
+        for block in blocks
+            .iter()
+            .filter(|b| b.height >= next && b.height <= last)
+        {
+            if let Some((h, hash)) = &prev {
+                crate::lightwallet_client::validate_block_follows_parent(block, *h, hash)?;
+            }
+            prev = Some((block.height, block.hash.clone()));
+            crate::block_times::note_block_time(block.height, block.timestamp);
+            if let Err(e) = trial_decrypt_compact_block(drk, block).await {
+                tracing::warn!(
+                    target: "wallet-sync",
+                    "Trial decrypt failed for block {}: {e}",
+                    block.height
+                );
+            }
+        }
+        crate::block_times::flush();
+        next = last.saturating_add(1);
+        if last < batch_end {
+            return Ok(Some(last));
         }
         batch_start = batch_end + 1;
     }
-    Ok(())
+    Ok(if next == start { None } else { Some(next - 1) })
 }
 
 /// Sparse OMR window: commitments + nullifiers for `[start, tip]`, then
@@ -1022,18 +1102,20 @@ async fn apply_omr_sparse_window(
     };
     use darkfi_serial::{serialize, Decodable};
     use drk::money::{
-        MONEY_COINS_COL_COIN, MONEY_COINS_COL_COIN_BLIND, MONEY_COINS_COL_CREATION_HEIGHT,
-        MONEY_COINS_COL_IS_SPENT, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_MEMO,
-        MONEY_COINS_COL_SECRET, MONEY_COINS_COL_SPEND_HOOK, MONEY_COINS_COL_SPENT_HEIGHT,
-        MONEY_COINS_COL_TOKEN_BLIND, MONEY_COINS_COL_TOKEN_ID, MONEY_COINS_COL_USER_DATA,
-        MONEY_COINS_COL_VALUE, MONEY_COINS_COL_VALUE_BLIND, MONEY_COINS_TABLE,
-        SLED_MERKLE_TREES_MONEY,
+        KVDB_MERKLE_TREES_MONEY, MONEY_COINS_COL_COIN, MONEY_COINS_COL_COIN_BLIND,
+        MONEY_COINS_COL_CREATION_HEIGHT, MONEY_COINS_COL_IS_SPENT, MONEY_COINS_COL_LEAF_POSITION,
+        MONEY_COINS_COL_MEMO, MONEY_COINS_COL_SECRET, MONEY_COINS_COL_SPEND_HOOK,
+        MONEY_COINS_COL_SPENT_HEIGHT, MONEY_COINS_COL_TOKEN_BLIND, MONEY_COINS_COL_TOKEN_ID,
+        MONEY_COINS_COL_USER_DATA, MONEY_COINS_COL_VALUE, MONEY_COINS_COL_VALUE_BLIND,
+        MONEY_COINS_TABLE,
     };
 
     let matching_set: HashSet<u32> = matching_heights.iter().copied().collect();
 
     // 1) Note commitments for full window
-    let commitment_updates = client.get_note_commitments(scan_start, tip).await?;
+    let commitment_updates = client
+        .get_note_commitments(padded_start, padded_end)
+        .await?;
     let mut coins_by_height: BTreeMap<u32, Vec<Vec<u8>>> = BTreeMap::new();
     for (height, coins) in commitment_updates {
         if height >= scan_start && height <= tip {
@@ -1042,7 +1124,7 @@ async fn apply_omr_sparse_window(
     }
 
     // 2) Nullifiers for full window
-    let nullifier_updates = client.get_nullifiers(scan_start, tip).await?;
+    let nullifier_updates = client.get_nullifiers(padded_start, padded_end).await?;
     let mut nfs_by_height: BTreeMap<u32, Vec<Vec<u8>>> = BTreeMap::new();
     for (height, nullifiers) in nullifier_updates {
         if height >= scan_start && height <= tip {
@@ -1074,8 +1156,10 @@ async fn apply_omr_sparse_window(
                                 block.height
                             ));
                         }
+                        crate::block_times::note_block_time(block.height, block.timestamp);
                         blocks_by_height.insert(block.height, block);
                     }
+                    crate::block_times::flush();
                     fetched = true;
                     tracing::debug!(
                         target: "wallet-sync",
@@ -1105,9 +1189,38 @@ async fn apply_omr_sparse_window(
                      (privacy-preserving — does not reveal matched heights)"
                 );
             }
-            let blocks = client
-                .get_compact_block_range(padded_start, padded_end)
-                .await?;
+            let blocks = match client
+                .get_compact_output_bodies(padded_start, padded_end)
+                .await
+            {
+                Ok(bodies) => {
+                    let blocks = crate::lightwallet_client::compact_bodies_to_blocks(bodies);
+                    let valid = blocks.iter().all(|block| {
+                        crate::lightwallet_client::validate_compact_block(block).is_ok()
+                    });
+                    if valid {
+                        blocks
+                    } else {
+                        tracing::warn!(
+                            target: "wallet-sync",
+                            "GetCompactOutputBodies failed validation; using GetBlockRange"
+                        );
+                        client
+                            .get_compact_block_range_exact(padded_start, padded_end)
+                            .await?
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        target: "wallet-sync",
+                        "GetCompactOutputBodies failed ({}); using GetBlockRange",
+                        redact_sync_error(&e)
+                    );
+                    client
+                        .get_compact_block_range_exact(padded_start, padded_end)
+                        .await?
+                }
+            };
             let got: HashSet<u32> = blocks.iter().map(|b| b.height).collect();
             for h in matching_heights {
                 if !got.contains(h) {
@@ -1132,8 +1245,10 @@ async fn apply_omr_sparse_window(
                         block.height
                     ));
                 }
+                crate::block_times::note_block_time(block.height, block.timestamp);
                 blocks_by_height.insert(block.height, block);
             }
+            crate::block_times::flush();
         }
     }
 
@@ -1154,6 +1269,14 @@ async fn apply_omr_sparse_window(
             .await
             .map_err(|e| format!("Failed to load Money Merkle tree: {e}"))?
     };
+    // Leaves at or below this height are already in the tree (genesis rebuild
+    // or an earlier window). Appending them again shifts every later leaf.
+    let append_after = if scan_start == 0 {
+        None
+    } else {
+        merkle_tree_height(drk)
+    };
+    let mut needs_rebuild = false;
 
     // Coins recorded at broadcast (own change / fee) have a placeholder leaf.
     // Strict UnifOMR does not trial-decrypt those heights, and INSERT OR IGNORE
@@ -1172,18 +1295,20 @@ async fn apply_omr_sparse_window(
 
     // Walk heights in order: append commitments, decrypt matches, apply nullifiers.
     for height in scan_start..=tip {
+        let append_height = append_after.map_or(true, |floor| height > floor);
         let coins = coins_by_height.get(&height).cloned().unwrap_or_default();
         let match_block = blocks_by_height.get(&height);
         // Map coin bytes → encrypted note for matching heights (trial decrypt).
-        let enc_by_coin: HashMap<&[u8], &[u8]> = match match_block {
-            Some(block) => block
-                .txs
-                .iter()
-                .flat_map(|tx| tx.outputs.iter())
-                .map(|o| (o.coin.as_slice(), o.encrypted_note.as_slice()))
-                .collect(),
-            None => HashMap::new(),
-        };
+        let out_by_coin: HashMap<&[u8], &crate::lightwallet_client::LightCompactOutput> =
+            match match_block {
+                Some(block) => block
+                    .txs
+                    .iter()
+                    .flat_map(|tx| tx.outputs.iter())
+                    .map(|o| (o.coin.as_slice(), o))
+                    .collect(),
+                None => HashMap::new(),
+            };
 
         for coin_bytes in &coins {
             // Skipping a commitment would shift every later leaf position.
@@ -1192,31 +1317,37 @@ async fn apply_omr_sparse_window(
             let base =
                 Option::<pallas::Base>::from(pallas::Base::from_repr(repr)).ok_or_else(invalid)?;
             let coin = Coin::from(base);
-            tree.append(MerkleNode::from(coin.inner()));
 
             let mut marked_leaf = None;
-            if let Some(sql_key) = known_own.get(coin_bytes.as_slice()) {
-                if let Some(pos) = tree.mark() {
-                    marked_leaf = Some(pos);
-                    let query = format!(
-                        "UPDATE {} SET {} = ?1 WHERE {} = ?2;",
-                        *MONEY_COINS_TABLE, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_COIN,
-                    );
-                    if let Err(e) = drk
-                        .wallet
-                        .exec_sql(
-                            &query,
-                            vec![
-                                drk::walletdb::Value::from(serialize(&pos)),
-                                drk::walletdb::Value::from(sql_key.clone()),
-                            ],
-                        )
-                        .await
-                    {
-                        tracing::warn!(
-                            target: "wallet-sync",
-                            "leaf_position update for known coin at height {height}: {e}"
+            if append_height {
+                tree.append(MerkleNode::from(coin.inner()));
+                if let Some(sql_key) = known_own.get(coin_bytes.as_slice()) {
+                    if let Some(pos) = tree.mark() {
+                        marked_leaf = Some(pos);
+                        let query = format!(
+                            "UPDATE {} SET {} = ?1, {} = ?2 WHERE {} = ?3;",
+                            *MONEY_COINS_TABLE,
+                            MONEY_COINS_COL_LEAF_POSITION,
+                            MONEY_COINS_COL_CREATION_HEIGHT,
+                            MONEY_COINS_COL_COIN,
                         );
+                        if let Err(e) = drk
+                            .wallet
+                            .exec_sql(
+                                &query,
+                                vec![
+                                    drk::walletdb::Value::from(serialize(&pos)),
+                                    drk::walletdb::Value::from(i64::from(height)),
+                                    drk::walletdb::Value::from(sql_key.clone()),
+                                ],
+                            )
+                            .await
+                        {
+                            tracing::warn!(
+                                target: "wallet-sync",
+                                "leaf_position update for known coin at height {height}: {e}"
+                            );
+                        }
                     }
                 }
             }
@@ -1224,14 +1355,14 @@ async fn apply_omr_sparse_window(
             if !trial_decrypt_all && !matching_set.contains(&height) {
                 continue;
             }
-            let Some(enc_bytes) = enc_by_coin.get(coin_bytes.as_slice()) else {
+            let Some(output) = out_by_coin.get(coin_bytes.as_slice()) else {
                 continue;
             };
-            if enc_bytes.len() < 48 {
+            if output.encrypted_note.len() < 48 {
                 continue;
             }
 
-            let mut cursor = Cursor::new(*enc_bytes);
+            let mut cursor = Cursor::new(output.encrypted_note.as_slice());
             let enc_note = match AeadEncryptedNote::decode(&mut cursor) {
                 Ok(n) => n,
                 Err(_) => continue,
@@ -1248,8 +1379,19 @@ async fn apply_omr_sparse_window(
                 continue;
             };
 
-            let leaf_position = marked_leaf.or_else(|| tree.mark()).unwrap();
+            let leaf_position = if append_height {
+                marked_leaf.or_else(|| tree.mark()).unwrap()
+            } else {
+                needs_rebuild = true;
+                placeholder_leaf_position()?
+            };
             found += 1;
+            let memo_bytes = crate::memo::recover_user_memo(
+                note.memo.as_slice(),
+                &output.omr_metadata_enc,
+                &secret,
+                &output.omr_clue,
+            );
 
             let query = format!(
                 "INSERT OR IGNORE INTO {} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) \
@@ -1283,7 +1425,7 @@ async fn apply_omr_sparse_window(
                 drk::walletdb::Value::from(serialize(&note.token_blind)),
                 drk::walletdb::Value::from(serialize(&secret)),
                 drk::walletdb::Value::from(serialize(&leaf_position)),
-                drk::walletdb::Value::from(serialize(&note.memo)),
+                drk::walletdb::Value::from(serialize(&memo_bytes)),
                 drk::walletdb::Value::from(i64::from(height)),
                 drk::walletdb::Value::from(0i64),
                 drk::walletdb::Value::from(spent_height),
@@ -1342,12 +1484,18 @@ async fn apply_omr_sparse_window(
     }
 
     drk.cache
-        .insert_merkle_trees(&[(SLED_MERKLE_TREES_MONEY, &tree)])
+        .insert_merkle_trees(&[(KVDB_MERKLE_TREES_MONEY, &tree)])
         .map_err(|e| format!("Failed to persist Money Merkle tree: {e}"))?;
-    let _ = drk.cache.sled_db.flush();
+    let _ = drk.cache.kvdb.flush_default_mode();
     persist_scanned_height(drk, tip)?;
+    set_merkle_tree_height(drk, append_after.map_or(tip, |floor| floor.max(tip)))?;
     if scan_start == 0 {
         set_merkle_from_genesis(drk, true)?;
+    }
+    if needs_rebuild {
+        // A coin turned up in a height the tree already held, so its leaf is a
+        // placeholder. The next cycle rebuilds the tree and rewrites it.
+        set_merkle_from_genesis(drk, false)?;
     }
 
     if found > 0 {
@@ -1413,20 +1561,48 @@ async fn try_trial_decryption_sync(
         // retry after a partial genesis pass cannot double-append.
         persist_money_tree(drk, &empty_money_tree())?;
     }
-    trial_decrypt_range(drk, client, td_start, window_end).await?;
+    // Advance only through heights the server actually returned. Persisting
+    // `window_end` when the stream has a hole skips the block that holds
+    // our own change and never trial-decrypts it.
+    let reached = trial_decrypt_range(drk, client, td_start, window_end).await?;
     if td_start == 0 {
         set_merkle_from_genesis(drk, true)?;
     }
-
-    persist_scanned_height(drk, window_end)?;
-    sync_engine.set_scanned_height(window_end);
-    if window_end >= tip {
-        sync_engine.set_status(LightSyncStatus::Synced);
+    if let Some(last) = reached {
+        persist_scanned_height(drk, last)?;
+        sync_engine.set_scanned_height(last);
+        if last >= tip {
+            sync_engine.set_status(LightSyncStatus::Synced);
+        } else {
+            sync_engine.set_status(LightSyncStatus::Syncing);
+        }
     } else {
         sync_engine.set_status(LightSyncStatus::Syncing);
     }
 
     Ok(())
+}
+
+/// Last height of the contiguous run that begins at `start`.
+///
+/// Heights below `start` are ignored. The first missing height stops the run
+/// so a later block is not treated as scanned.
+pub(crate) fn contiguous_prefix_end(start: u32, heights: &[u32]) -> Option<u32> {
+    let mut ordered: Vec<u32> = heights.iter().copied().filter(|h| *h >= start).collect();
+    ordered.sort_unstable();
+    ordered.dedup();
+    let mut next = start;
+    for height in ordered {
+        if height > next {
+            break;
+        }
+        next = next.saturating_add(1);
+    }
+    if next == start {
+        None
+    } else {
+        Some(next - 1)
+    }
 }
 
 /// Verify fetched compact blocks cover every height in `[start, end]` (S24).
@@ -1459,19 +1635,58 @@ pub(crate) fn assert_contiguous_heights(
 const WALLET_MERKLE_META_TREE: &str = "wallet_merkle_meta";
 const KEY_MERKLE_FROM_GENESIS: &[u8] = b"merkle_from_genesis";
 
+/// Spend proofs need a Money tree whose root is on chain. Skip when that tree
+/// is already recorded; otherwise rebuild it through the last scanned height.
+///
+/// Every block root is on chain, so the scanned height is enough. Rebuilding
+/// past it would mark unscanned blocks as applied and their coins would never
+/// be recorded.
+pub(crate) async fn ensure_spendable_money_tree(
+    drk: &drk::Drk,
+    lightwallet_server_url: Option<&str>,
+    lightwallet_tls_pin: Option<[u8; 32]>,
+) -> Result<(), String> {
+    if merkle_from_genesis(drk) {
+        return Ok(());
+    }
+    let lw_url = lightwallet_server_url
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| "Merkle rebuild requires a lightwallet URL".to_string())?;
+    let lw_url = crate::lightwallet_client::normalize_lightwallet_url(lw_url);
+    let client = crate::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
+        &lw_url,
+        lightwallet_tls_pin,
+    );
+    let info = client.get_light_info().await?;
+    let height = spendable_rebuild_height(drk, info.chain_tip_height)?;
+    if height == 0 {
+        return Ok(());
+    }
+    rebuild_money_tree_to_height(drk, &client, height).await?;
+    let _ = set_merkle_from_genesis(drk, true);
+    Ok(())
+}
+
+/// Highest height a spend-time rebuild may cover: the scan cursor, capped by the tip.
+pub fn spendable_rebuild_height(drk: &drk::Drk, tip: u32) -> Result<u32, String> {
+    let (scanned, _) = drk.get_last_scanned_block().map_err(|e| e.to_string())?;
+    Ok(scanned.min(tip))
+}
+
 /// True when this wallet's Money tree was built from genesis (not dummy+post-birthday).
 pub(crate) fn merkle_from_genesis(drk: &drk::Drk) -> bool {
-    let Ok(tree) = drk.cache.sled_db.open_tree(WALLET_MERKLE_META_TREE) else {
+    let Ok(tree) = drk.cache.kvdb.open_tree_default(WALLET_MERKLE_META_TREE) else {
         return false;
     };
-    matches!(tree.get(KEY_MERKLE_FROM_GENESIS), Ok(Some(v)) if v.as_ref() == b"1")
+    matches!(tree.get(KEY_MERKLE_FROM_GENESIS), Ok(Some(v)) if v.as_slice() == b"1")
 }
 
 pub(crate) fn set_merkle_from_genesis(drk: &drk::Drk, complete: bool) -> Result<(), String> {
     let tree = drk
         .cache
-        .sled_db
-        .open_tree(WALLET_MERKLE_META_TREE)
+        .kvdb
+        .open_tree_default(WALLET_MERKLE_META_TREE)
         .map_err(|e| format!("open merkle meta: {e}"))?;
     if complete {
         tree.insert(KEY_MERKLE_FROM_GENESIS, &b"1"[..])
@@ -1479,8 +1694,95 @@ pub(crate) fn set_merkle_from_genesis(drk: &drk::Drk, complete: bool) -> Result<
     } else {
         let _ = tree.remove(KEY_MERKLE_FROM_GENESIS);
     }
-    let _ = drk.cache.sled_db.flush();
+    let _ = drk.cache.kvdb.flush_default_mode();
     Ok(())
+}
+
+const KEY_MERKLE_TREE_HEIGHT: &[u8] = b"merkle_tree_height";
+
+/// Highest block height whose note commitments are already in the Money tree.
+pub(crate) fn merkle_tree_height(drk: &drk::Drk) -> Option<u32> {
+    let tree = drk
+        .cache
+        .kvdb
+        .open_tree_default(WALLET_MERKLE_META_TREE)
+        .ok()?;
+    let raw = tree.get(KEY_MERKLE_TREE_HEIGHT).ok()??;
+    let bytes: [u8; 4] = raw.as_slice().try_into().ok()?;
+    Some(u32::from_le_bytes(bytes))
+}
+
+pub(crate) fn set_merkle_tree_height(drk: &drk::Drk, height: u32) -> Result<(), String> {
+    let tree = drk
+        .cache
+        .kvdb
+        .open_tree_default(WALLET_MERKLE_META_TREE)
+        .map_err(|e| format!("open merkle meta: {e}"))?;
+    tree.insert(KEY_MERKLE_TREE_HEIGHT, &height.to_le_bytes())
+        .map_err(|e| format!("set merkle_tree_height: {e}"))?;
+    let _ = drk.cache.kvdb.flush_default_mode();
+    Ok(())
+}
+
+/// Commitments still missing between an installed tree and note discovery.
+///
+/// `scan_start` is the first height note discovery will visit. The tree
+/// already contains `tree_height`, so the suffix is `(tree_height, scan_start)`.
+pub(crate) fn commitment_suffix_after_snapshot(
+    tree_height: u32,
+    scan_start: u32,
+) -> Option<(u32, u32)> {
+    if scan_start == 0 {
+        return None;
+    }
+    let start = tree_height.saturating_add(1);
+    let end = scan_start.saturating_sub(1);
+    if start > end {
+        None
+    } else {
+        Some((start, end))
+    }
+}
+
+/// Leaf position stored for a coin whose real position is not known yet.
+/// The next genesis rebuild rewrites it from the commitment walk.
+pub(crate) fn placeholder_leaf_position() -> Result<darkfi_sdk::bridgetree::Position, String> {
+    empty_money_tree()
+        .mark()
+        .ok_or_else(|| "placeholder merkle mark failed".to_string())
+}
+
+/// Write the real leaf and creation height for a coin row. Rows recorded at
+/// broadcast carry a placeholder until a commitment walk reaches them.
+async fn update_coin_leaf(
+    drk: &drk::Drk,
+    coin: &darkfi_money_contract::model::Coin,
+    leaf_position: &darkfi_sdk::bridgetree::Position,
+    height: u32,
+) -> Result<(), String> {
+    use darkfi_serial::serialize;
+    use drk::money::{
+        MONEY_COINS_COL_COIN, MONEY_COINS_COL_CREATION_HEIGHT, MONEY_COINS_COL_LEAF_POSITION,
+        MONEY_COINS_TABLE,
+    };
+    let query = format!(
+        "UPDATE {} SET {} = ?1, {} = ?2 WHERE {} = ?3;",
+        *MONEY_COINS_TABLE,
+        MONEY_COINS_COL_LEAF_POSITION,
+        MONEY_COINS_COL_CREATION_HEIGHT,
+        MONEY_COINS_COL_COIN,
+    );
+    drk.wallet
+        .exec_sql(
+            &query,
+            vec![
+                drk::walletdb::Value::from(serialize(leaf_position)),
+                drk::walletdb::Value::from(i64::from(height)),
+                drk::walletdb::Value::from(coin.to_bytes().to_vec()),
+            ],
+        )
+        .await
+        .map_err(|e| format!("update coin leaf at height {height}: {e}"))
 }
 
 /// If the Money tree is not known to include height 0, either rebuild through
@@ -1492,6 +1794,14 @@ async fn ensure_merkle_caught_up(
     tip: u32,
 ) -> Result<(), String> {
     if merkle_from_genesis(drk) {
+        // Only heights below `scan_start` are filled here. The scan itself
+        // appends `scan_start..=tip`; filling past it would append those
+        // blocks twice and hide every coin in them.
+        if let Some(applied) = merkle_tree_height(drk) {
+            if let Some((start, end)) = commitment_suffix_after_snapshot(applied, scan_start) {
+                append_commitment_suffix(drk, client, start, end).await?;
+            }
+        }
         return Ok(());
     }
     if scan_start > tip {
@@ -1514,8 +1824,7 @@ async fn ensure_merkle_caught_up(
     rebuild_money_tree_to_height(drk, client, end).await
 }
 
-/// Fresh Money tree: the contract's dummy ZERO leaf, marked, before genesis coins.
-/// Decrypt this wallet's own Money transfer and fee outputs and store them.
+/// Decrypt this wallet's own Money outputs (transfer, fee, token mint) and store them.
 ///
 /// The outgoing UnifOMR clue covers output 0 (the payment), not change or the
 /// fee note. Strict sync will not trial-decrypt those, so they have to be
@@ -1525,13 +1834,7 @@ pub async fn remember_own_outputs_from_tx(
     drk: &drk::Drk,
     tx: &darkfi::tx::Transaction,
 ) -> Result<(), String> {
-    use darkfi_money_contract::{
-        client::MoneyNote,
-        model::{MoneyFeeParamsV1, MoneyTransferParamsV1, Output},
-        MoneyFunction,
-    };
-    use darkfi_sdk::crypto::contract_id::MONEY_CONTRACT_ID;
-    use darkfi_serial::deserialize_async;
+    use darkfi_money_contract::client::MoneyNote;
 
     let secrets = drk.get_money_secrets().await.map_err(|e| e.to_string())?;
     if secrets.is_empty() {
@@ -1539,49 +1842,17 @@ pub async fn remember_own_outputs_from_tx(
     }
     let (height, _) = drk.get_last_scanned_block().map_err(|e| e.to_string())?;
 
-    for call in &tx.calls {
-        if call.data.contract_id != *MONEY_CONTRACT_ID {
-            continue;
+    for output in crate::lightwallet_client::visible_money_outputs(tx).await? {
+        let mut matched = None;
+        for secret in &secrets {
+            if let Ok(note) = output.note.decrypt::<MoneyNote>(secret) {
+                matched = Some((note, *secret));
+                break;
+            }
         }
-        let data = &call.data.data;
-        if data.is_empty() {
-            continue;
-        }
-        let outputs: Vec<Output> = match MoneyFunction::try_from(data[0]) {
-            Ok(MoneyFunction::TransferV1) => {
-                let Ok(params) = deserialize_async::<MoneyTransferParamsV1>(&data[1..]).await
-                else {
-                    continue;
-                };
-                params.outputs
-            }
-            Ok(MoneyFunction::FeeV1) => {
-                if data.len() < 10 {
-                    continue;
-                }
-                let Ok(params) = deserialize_async::<MoneyFeeParamsV1>(&data[9..]).await else {
-                    continue;
-                };
-                vec![params.output]
-            }
-            _ => continue,
-        };
-        for output in outputs {
-            if output.tx_local {
-                continue;
-            }
-            let mut matched = None;
-            for secret in &secrets {
-                if let Ok(note) = output.note.decrypt::<MoneyNote>(secret) {
-                    matched = Some((note, *secret));
-                    break;
-                }
-            }
-            if let Some((note, secret)) = matched {
-                if let Err(e) = remember_own_output(drk, height, &output.coin, &note, &secret).await
-                {
-                    tracing::warn!(target: "wallet-tx", "remember own output: {e}");
-                }
+        if let Some((note, secret)) = matched {
+            if let Err(e) = remember_own_output(drk, height, &output.coin, &note, &secret).await {
+                tracing::warn!(target: "wallet-tx", "remember own output: {e}");
             }
         }
     }
@@ -1655,6 +1926,7 @@ pub async fn remember_own_output(
     Ok(())
 }
 
+/// Fresh Money tree: the contract's dummy ZERO leaf, marked, before genesis coins.
 pub(crate) fn empty_money_tree() -> darkfi_sdk::crypto::MerkleTree {
     use darkfi_sdk::crypto::{MerkleNode, MerkleTree};
     use darkfi_sdk::pasta::group::ff::Field;
@@ -1674,9 +1946,9 @@ fn merkle_node_from_coin_bytes(coin_bytes: &[u8]) -> Option<darkfi_sdk::crypto::
 
 fn persist_money_tree(drk: &drk::Drk, tree: &darkfi_sdk::crypto::MerkleTree) -> Result<(), String> {
     drk.cache
-        .insert_merkle_trees(&[(drk::money::SLED_MERKLE_TREES_MONEY, tree)])
+        .insert_merkle_trees(&[(drk::money::KVDB_MERKLE_TREES_MONEY, tree)])
         .map_err(|e| format!("Failed to persist Money Merkle tree: {e}"))?;
-    let _ = drk.cache.sled_db.flush();
+    let _ = drk.cache.kvdb.flush_default_mode();
     Ok(())
 }
 
@@ -1747,7 +2019,7 @@ pub(crate) async fn rewind_wallet_after_reorg(
 
 /// Rebuild the Money tree from genesis through `height` and rewrite this
 /// wallet's leaf positions so spend proofs use an on-chain root.
-pub(crate) async fn rebuild_money_tree_to_height(
+pub async fn rebuild_money_tree_to_height(
     drk: &drk::Drk,
     client: &crate::lightwallet_client::LightwalletClient,
     height: u32,
@@ -1772,7 +2044,8 @@ pub(crate) async fn rebuild_money_tree_to_height(
     let mut start = 0u32;
     while start <= height {
         let chunk_end = height.min(start.saturating_add(CHUNK - 1));
-        let updates = client.get_note_commitments(start, chunk_end).await?;
+        let (ps, pe) = crate::lightwallet_client::pad_block_range(start, chunk_end, height);
+        let updates = client.get_note_commitments(ps, pe).await?;
         let mut by_h: BTreeMap<u32, Vec<Vec<u8>>> = BTreeMap::new();
         for (h, coins) in updates {
             if h >= start && h <= chunk_end {
@@ -1813,12 +2086,58 @@ pub(crate) async fn rebuild_money_tree_to_height(
 
     persist_money_tree(drk, &tree)?;
     set_merkle_from_genesis(drk, true)?;
+    set_merkle_tree_height(drk, height)?;
+    Ok(())
+}
+
+/// Append note commitments for `(start..=end)` onto the tree already rebuilt
+/// through `start - 1`. Compact-block sync must not append those heights again.
+async fn append_commitment_suffix(
+    drk: &drk::Drk,
+    client: &crate::lightwallet_client::LightwalletClient,
+    start: u32,
+    end: u32,
+) -> Result<(), String> {
+    if start > end {
+        return Ok(());
+    }
+    let mut tree = drk
+        .get_money_tree()
+        .await
+        .map_err(|e| format!("Failed to load Money Merkle tree: {e}"))?;
+    let mut height = start;
+    while height <= end {
+        let chunk_end = end.min(height.saturating_add(4095));
+        let (ps, pe) = crate::lightwallet_client::pad_block_range(height, chunk_end, end);
+        let updates = client.get_note_commitments(ps, pe).await?;
+        let mut by_h: std::collections::BTreeMap<u32, Vec<Vec<u8>>> =
+            std::collections::BTreeMap::new();
+        for (h, coins) in updates {
+            if h >= height && h <= chunk_end {
+                by_h.entry(h).or_default().extend(coins);
+            }
+        }
+        for h in height..=chunk_end {
+            for coin_bytes in by_h.get(&h).map(|v| v.as_slice()).unwrap_or(&[]) {
+                let Some(node) = merkle_node_from_coin_bytes(coin_bytes) else {
+                    continue;
+                };
+                tree.append(node);
+            }
+        }
+        height = match chunk_end.checked_add(1) {
+            Some(next) => next,
+            None => break,
+        };
+    }
+    persist_money_tree(drk, &tree)?;
+    set_merkle_tree_height(drk, end)?;
     Ok(())
 }
 
 /// Remove every scanned-block record above `height` (keys are BE `u32`).
 pub(crate) fn remove_scanned_blocks_above(
-    tree: &sled_overlay::sled::Tree,
+    tree: &kvdb_overlay::Tree,
     height: u32,
 ) -> Result<usize, String> {
     let Some(first) = height.checked_add(1) else {
@@ -1844,9 +2163,9 @@ fn persist_scanned_height(drk: &drk::Drk, height: u32) -> Result<(), String> {
     let value = serialize(&(String::from("-"), String::from("-")));
     drk.cache
         .scanned_blocks
-        .insert(height.to_be_bytes(), value)
+        .insert(&height.to_be_bytes(), &value)
         .map_err(|e| format!("Failed to persist scanned height: {e}"))?;
-    let _ = drk.cache.sled_db.flush();
+    let _ = drk.cache.kvdb.flush_default_mode();
     Ok(())
 }
 
@@ -1888,12 +2207,12 @@ async fn process_compact_block(
     };
     use darkfi_serial::{serialize, Decodable};
     use drk::money::{
-        MONEY_COINS_COL_COIN, MONEY_COINS_COL_COIN_BLIND, MONEY_COINS_COL_CREATION_HEIGHT,
-        MONEY_COINS_COL_IS_SPENT, MONEY_COINS_COL_LEAF_POSITION, MONEY_COINS_COL_MEMO,
-        MONEY_COINS_COL_SECRET, MONEY_COINS_COL_SPEND_HOOK, MONEY_COINS_COL_SPENT_HEIGHT,
-        MONEY_COINS_COL_TOKEN_BLIND, MONEY_COINS_COL_TOKEN_ID, MONEY_COINS_COL_USER_DATA,
-        MONEY_COINS_COL_VALUE, MONEY_COINS_COL_VALUE_BLIND, MONEY_COINS_TABLE,
-        SLED_MERKLE_TREES_MONEY,
+        KVDB_MERKLE_TREES_MONEY, MONEY_COINS_COL_COIN, MONEY_COINS_COL_COIN_BLIND,
+        MONEY_COINS_COL_CREATION_HEIGHT, MONEY_COINS_COL_IS_SPENT, MONEY_COINS_COL_LEAF_POSITION,
+        MONEY_COINS_COL_MEMO, MONEY_COINS_COL_SECRET, MONEY_COINS_COL_SPEND_HOOK,
+        MONEY_COINS_COL_SPENT_HEIGHT, MONEY_COINS_COL_TOKEN_BLIND, MONEY_COINS_COL_TOKEN_ID,
+        MONEY_COINS_COL_USER_DATA, MONEY_COINS_COL_VALUE, MONEY_COINS_COL_VALUE_BLIND,
+        MONEY_COINS_TABLE,
     };
 
     let secrets = if trial_decrypt {
@@ -1912,6 +2231,13 @@ async fn process_compact_block(
         .await
         .map_err(|e| format!("Failed to load Money Merkle tree: {e}"))?;
 
+    // Re-appending a height already in the genesis rebuild shifts every later
+    // leaf. Spends then fail Money Custom(5) (TransferMerkleRoot).
+    let append_this_block = merkle_tree_height(drk)
+        .map(|applied| block.height > applied)
+        .unwrap_or(true);
+    let mut needs_rebuild = false;
+
     let mut found = 0u32;
 
     for tx in &block.txs {
@@ -1929,8 +2255,9 @@ async fn process_compact_block(
                 Option::<pallas::Base>::from(pallas::Base::from_repr(repr)).ok_or_else(invalid)?;
             let coin = Coin::from(base);
 
-            // Always append the commitment so the tree stays consistent with chain order.
-            tree.append(MerkleNode::from(coin.inner()));
+            if append_this_block {
+                tree.append(MerkleNode::from(coin.inner()));
+            }
 
             if !trial_decrypt || output.encrypted_note.len() < 48 {
                 continue;
@@ -1954,8 +2281,19 @@ async fn process_compact_block(
                 continue;
             };
 
-            let leaf_position = tree.mark().unwrap();
+            let leaf_position = if append_this_block {
+                tree.mark().unwrap()
+            } else {
+                needs_rebuild = true;
+                placeholder_leaf_position()?
+            };
             found += 1;
+            let memo_bytes = crate::memo::recover_user_memo(
+                note.memo.as_slice(),
+                &output.omr_metadata_enc,
+                &secret,
+                &output.omr_clue,
+            );
 
             let query = format!(
                 "INSERT OR IGNORE INTO {} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) \
@@ -1989,7 +2327,7 @@ async fn process_compact_block(
                 drk::walletdb::Value::from(serialize(&note.token_blind)),
                 drk::walletdb::Value::from(serialize(&secret)),
                 drk::walletdb::Value::from(serialize(&leaf_position)),
-                drk::walletdb::Value::from(serialize(&note.memo)),
+                drk::walletdb::Value::from(serialize(&memo_bytes)),
                 drk::walletdb::Value::from(i64::from(block.height)),
                 drk::walletdb::Value::from(0i64),
                 drk::walletdb::Value::from(spent_height),
@@ -2000,6 +2338,11 @@ async fn process_compact_block(
                     "Inserting trial-decrypted coin at height {} failed: {e}",
                     block.height
                 ));
+            }
+            if append_this_block {
+                // INSERT OR IGNORE keeps the placeholder of a coin recorded at
+                // broadcast. This walk knows the real leaf.
+                update_coin_leaf(drk, &coin, &leaf_position, block.height).await?;
             }
 
             tracing::debug!(
@@ -2056,10 +2399,18 @@ async fn process_compact_block(
         }
     }
 
-    drk.cache
-        .insert_merkle_trees(&[(SLED_MERKLE_TREES_MONEY, &tree)])
-        .map_err(|e| format!("Failed to persist Money Merkle tree: {e}"))?;
-    let _ = drk.cache.sled_db.flush();
+    if append_this_block {
+        drk.cache
+            .insert_merkle_trees(&[(KVDB_MERKLE_TREES_MONEY, &tree)])
+            .map_err(|e| format!("Failed to persist Money Merkle tree: {e}"))?;
+        let _ = drk.cache.kvdb.flush_default_mode();
+        set_merkle_tree_height(drk, block.height)?;
+    }
+    if needs_rebuild {
+        // The tree already held this height, so the coin got a placeholder
+        // leaf. The next cycle rebuilds the tree and rewrites it.
+        set_merkle_from_genesis(drk, false)?;
+    }
 
     if found > 0 {
         tracing::debug!(
@@ -2205,20 +2556,6 @@ fn clamp_omr_truncated_tip(
     } else {
         Ok(Some(window_tip))
     }
-}
-
-/// True when OMR matches leave a window (or any gap > 10 blocks between,
-/// before, or after matches) where non-OMR notes could hide.
-fn omr_window_needs_supplement(scan_start: u32, window_tip: u32, matching_heights: &[u32]) -> bool {
-    const GAP: u32 = 10;
-    let (Some(&first), Some(&last)) = (matching_heights.first(), matching_heights.last()) else {
-        return window_tip > scan_start;
-    };
-    first.saturating_sub(scan_start) > GAP
-        || window_tip.saturating_sub(last) > GAP
-        || matching_heights
-            .windows(2)
-            .any(|w| w[1].saturating_sub(w[0]).saturating_sub(1) > GAP)
 }
 
 fn redact_sync_error(error: &str) -> String {
@@ -2374,6 +2711,34 @@ mod tests {
         assert!(assert_contiguous_heights(&[], 5, 4).is_ok());
     }
 
+    #[test]
+    fn commitment_suffix_fills_only_the_gap_below_scan_start() {
+        assert_eq!(
+            commitment_suffix_after_snapshot(4000, 5000),
+            Some((4001, 4999))
+        );
+        assert_eq!(commitment_suffix_after_snapshot(5000, 5001), None);
+        assert_eq!(commitment_suffix_after_snapshot(0, 0), None);
+        assert_eq!(commitment_suffix_after_snapshot(10, 10), None);
+        // A tree already past scan_start must not be extended to the tip.
+        assert_eq!(commitment_suffix_after_snapshot(6000, 5001), None);
+    }
+
+    #[test]
+    fn placeholder_leaf_is_the_dummy_position() {
+        let pos = placeholder_leaf_position().unwrap();
+        assert_eq!(u64::from(pos), 0);
+    }
+
+    #[test]
+    fn contiguous_prefix_stops_at_a_hole() {
+        assert_eq!(contiguous_prefix_end(10, &[10, 11, 13]), Some(11));
+        assert_eq!(contiguous_prefix_end(10, &[11, 12]), None);
+        assert_eq!(contiguous_prefix_end(10, &[10, 11, 12]), Some(12));
+        assert_eq!(contiguous_prefix_end(10, &[]), None);
+        assert_eq!(contiguous_prefix_end(10, &[8, 9, 10]), Some(10));
+    }
+
     // =========================================================================
     // Sync loop constants (findings 1.1, 1.2, 1.3)
     // =========================================================================
@@ -2434,16 +2799,6 @@ mod tests {
     }
 
     #[test]
-    fn omr_supplement_triggers_on_gaps_only() {
-        assert!(omr_window_needs_supplement(100, 200, &[]));
-        assert!(!omr_window_needs_supplement(100, 100, &[]));
-        assert!(!omr_window_needs_supplement(100, 120, &[105, 115]));
-        assert!(omr_window_needs_supplement(100, 200, &[105, 195]));
-        assert!(omr_window_needs_supplement(100, 120, &[111]));
-        assert!(omr_window_needs_supplement(100, 130, &[105, 125]));
-    }
-
-    #[test]
     fn empty_money_tree_root_matches_zero_leaf_only() {
         use darkfi_sdk::crypto::{MerkleNode, MerkleTree};
         use darkfi_sdk::pasta::{group::ff::Field, pallas};
@@ -2464,19 +2819,16 @@ mod tests {
 
     #[test]
     fn remove_scanned_blocks_above_rewinds_last() {
-        let db = sled_overlay::sled::Config::new()
-            .temporary(true)
-            .open()
-            .unwrap();
-        let tree = db.open_tree("scanned").unwrap();
+        let (db, _dir) = kvdb_overlay::Database::open_temp().unwrap();
+        let tree = db.open_tree_default("_scanned_blocks").unwrap();
         for h in [100u32, 200, 300, 400] {
-            tree.insert(h.to_be_bytes(), &b"-"[..]).unwrap();
+            tree.insert(&h.to_be_bytes(), b"-").unwrap();
         }
         assert_eq!(remove_scanned_blocks_above(&tree, 200).unwrap(), 2);
         let (last, _) = tree.last().unwrap().unwrap();
-        assert_eq!(last.as_ref(), 200u32.to_be_bytes());
+        assert_eq!(last, 200u32.to_be_bytes().to_vec());
         assert_eq!(remove_scanned_blocks_above(&tree, u32::MAX).unwrap(), 0);
-        assert_eq!(tree.len(), 2);
+        assert_eq!(tree.len().unwrap(), 2);
     }
 
     #[test]

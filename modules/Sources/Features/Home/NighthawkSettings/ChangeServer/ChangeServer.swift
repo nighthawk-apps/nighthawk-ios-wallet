@@ -50,11 +50,13 @@ public struct ChangeServer {
             return port == 9067
         }
 
+        public var savedUsesCustom = false
+        public var savedCustomServer = ""
+
         public var canSave: Bool {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            let isChanged = userStoredPreferences.isUsingCustomLightwalletd() && serverOption == .default
-                || !userStoredPreferences.isUsingCustomLightwalletd() && serverOption == .custom
-                || (serverOption == .custom && userStoredPreferences.customLightwalletdServer() != customServerAddress)
+            let isChanged = savedUsesCustom && serverOption == .default
+                || !savedUsesCustom && serverOption == .custom
+                || (serverOption == .custom && savedCustomServer != customServerAddress)
 
             return isChanged && (serverOption == .default || isValidHostAndPort) && !isChangingServer
         }
@@ -87,6 +89,8 @@ public struct ChangeServer {
             case .alert:
                 return .none
             case .onAppear:
+                state.savedUsesCustom = userStoredPreferences.isUsingCustomLightwalletd()
+                state.savedCustomServer = userStoredPreferences.customLightwalletdServer() ?? ""
                 state.defaultServerInfo = "127.0.0.1:9067 (lightwallet testnet)"
                 if userStoredPreferences.isUsingCustomLightwalletd(),
                    let customServer = userStoredPreferences.customLightwalletdServer() {

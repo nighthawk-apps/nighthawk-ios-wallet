@@ -4,6 +4,7 @@
 
 mod birthday;
 pub mod block_cache;
+mod block_times;
 pub mod bootstrap;
 mod dao;
 #[cfg(feature = "darkirc")]
@@ -24,6 +25,7 @@ pub mod lightwallet_client;
 pub mod lightwallet_sync;
 pub mod omr;
 pub mod unifomr;
+pub mod zkas_cache;
 
 #[cfg(feature = "darkirc")]
 pub trait DarkircEventCallback: Send + Sync {
@@ -417,6 +419,14 @@ pub struct DrkTokenBalance {
     pub balance_atomic: i64,
 }
 
+/// Mint key held by this wallet.
+#[derive(Debug, Clone)]
+pub struct DrkMintAuthority {
+    pub token_id: String,
+    pub alias: Option<String>,
+    pub frozen: bool,
+}
+
 /// Imported DAO summary (`drk dao list`).
 #[derive(Debug, Clone)]
 pub struct DrkDaoSummary {
@@ -747,7 +757,9 @@ impl DarkfiWalletHandle {
                 .flatten(),
         ));
         sync_engine.set_strict_omr_only(config.strict_omr_only);
+        zkas_cache::set_disk_cache_dir(std::path::PathBuf::from(&config.cache_path));
         sync::start_background_sync(drk.clone(), ex, sync_engine.clone());
+        block_times::set_store_directory(&config.cache_path);
         Ok(Self {
             drk,
             _sync_started: true,
@@ -1037,6 +1049,151 @@ impl DarkfiWalletHandle {
         block_on(async move {
             let drk = drk.write().await;
             dao::vote_on_proposal(&drk, &proposal_bulla_b58, vote_yes, Some(&lw_url), tls_pin).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_exec(&self, proposal_bulla_b58: String) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::exec_proposal(&drk, &proposal_bulla_b58, Some(&lw_url), tls_pin).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_treasury(&self, dao_name: String) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        block_on(async move {
+            let drk = drk.read().await;
+            dao::treasury_lines(&drk, &dao_name).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_create(
+        &self,
+        name: String,
+        proposer_limit: String,
+        quorum: String,
+        early_exec_quorum: String,
+        approval_ratio: f64,
+        gov_token_id: String,
+    ) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::create_dao(
+                &drk,
+                &name,
+                &proposer_limit,
+                &quorum,
+                &early_exec_quorum,
+                approval_ratio,
+                &gov_token_id,
+                Some(&lw_url),
+                tls_pin,
+            )
+            .await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_fund(
+        &self,
+        dao_name: String,
+        amount: String,
+        token_id: Option<String>,
+    ) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::fund_dao(
+                &drk,
+                &dao_name,
+                &amount,
+                token_id.as_deref(),
+                Some(&lw_url),
+                tls_pin,
+            )
+            .await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_export_role(&self, dao_name: String, role: String) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        block_on(async move {
+            let drk = drk.read().await;
+            dao::export_role(&drk, &dao_name, &role).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn dao_import(&self, name: String, toml: String) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::import_dao_toml(&drk, &name, &toml).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn token_generate(&self, alias: Option<String>) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::generate_token(&drk, alias.as_deref()).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn token_mint(
+        &self,
+        token_id: String,
+        amount: String,
+        recipient_address: String,
+    ) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::mint_token(
+                &drk,
+                &token_id,
+                &amount,
+                &recipient_address,
+                Some(&lw_url),
+                tls_pin,
+            )
+            .await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn token_freeze(&self, token_id: String) -> ResultWallet<String> {
+        let drk = self.drk.clone();
+        let lw_url = self.sync_engine.server_url();
+        let tls_pin = self.sync_engine.tls_pin();
+        block_on(async move {
+            let drk = drk.write().await;
+            dao::freeze_token(&drk, &token_id, Some(&lw_url), tls_pin).await
+        })
+        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+    }
+
+    pub fn list_mint_authorities(&self) -> ResultWallet<Vec<DrkMintAuthority>> {
+        let drk = self.drk.clone();
+        block_on(async move {
+            let drk = drk.read().await;
+            dao::list_mint_authorities(&drk).await
         })
         .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
     }

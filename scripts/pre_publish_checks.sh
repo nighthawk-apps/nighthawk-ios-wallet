@@ -9,7 +9,8 @@ FAILED=0
 
 # 1. Debug log scan
 echo "[1/4] Checking for debug logs (print, NSLog)..."
-if git grep -qE "(^|[[:space:]])(print|println|NSLog)\(" -- "modules/Sources/"; then
+# Generated UniFFI glue prints when a callback handle is already gone. It is regenerated from the UDL.
+if git grep -qE "(^|[[:space:]])(print|println|NSLog)\(" -- "modules/Sources/" ":!modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift"; then
     echo "❌ Found debug logging statements! These must be removed or gated."
     FAILED=1
 else

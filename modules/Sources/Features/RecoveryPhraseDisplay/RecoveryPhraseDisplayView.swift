@@ -63,9 +63,9 @@ public struct RecoveryPhraseDisplayView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-            store.send(.continuePressed)
+            isCaptured = UIScreen.main.isCaptured
+            store.send(.onAppear)
         }
-        .onAppear { store.send(.onAppear) }
         .onReceive(NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)) { _ in
             isCaptured = UIScreen.main.isCaptured
         }

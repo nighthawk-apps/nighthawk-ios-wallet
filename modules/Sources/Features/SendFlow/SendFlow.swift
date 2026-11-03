@@ -61,12 +61,9 @@ public struct SendFlow {
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.isEmpty != true }
         public var canSendEnteredAmount: Bool {
-            amountToSend < spendableBalance
+            amountToSend > .zero && amountToSend <= spendableBalance
         }
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
@@ -76,10 +73,7 @@ public struct SendFlow {
             }
         }
 
-        public var showScanButton: Bool {
-            @Dependency(\.processInfo) var processInfo
-            return !processInfo.isiOSAppOnMac()
-        }
+        public var showScanButton = true
 
         /// Selected token for sending (nil = native DRK)
         public var selectedTokenId: String?
@@ -205,6 +199,8 @@ public struct SendFlow {
                 }
             case .onAppear:
                 state.memoCharLimit = 255
+                state.preferredCurrency = userPreferencesStorage.fiatCurrency()
+                state.showScanButton = !processInfo.isiOSAppOnMac()
                 return .merge(
                     .publisher {
                         sdkSynchronizer.stateStream()
@@ -339,15 +335,7 @@ extension SendFlow {
             case let .path(.element(id: id, action: .addMemo(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .goBack:
-                    if state.path.count == 1 {
-                        // Returning from recipient will take us back to amount entry
-                        // Reset the transaction
-                        state.amountToSendInput = "0"
-                        state.recipient = nil
-                        state.memo = nil
-                        state.proposal = nil
-                    }
-
+                    // Pop the step. Amount, recipient, and memo stay in the draft.
                     _ = state.path.popLast()
                     return .none
                 case .nextScreen:
@@ -434,15 +422,6 @@ extension SendFlow {
             case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .goBack:
-                    if state.path.count == 1 {
-                        // Returning from recipient will take us back to amount entry
-                        // Reset the transaction
-                        state.amountToSendInput = "0"
-                        state.recipient = nil
-                        state.memo = nil
-                        state.proposal = nil
-                    }
-
                     _ = state.path.popLast()
                     return .none
                 case let .proceedWithRecipient(recipient):
@@ -632,15 +611,6 @@ extension SendFlow {
             case let .path(.element(id: _, action: .review(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .goBack:
-                    if state.path.count == 1 {
-                        // Returning from review will take us back to amount entry
-                        // Reset the transaction
-                        state.amountToSendInput = "0"
-                        state.recipient = nil
-                        state.memo = nil
-                        state.proposal = nil
-                    }
-
                     _ = state.path.popLast()
                     return .none
                 case .sendDrk:

@@ -7,8 +7,6 @@
 
 import ComposableArchitecture
 import Generated
-import Receive
-import SendFlow
 import SwiftUI
 
 import UIComponents
@@ -25,23 +23,6 @@ struct TransferView: View {
             Spacer()
         }
         .applyNighthawkBackground()
-        .sheet(
-            item: $store.scope(
-                state: \.destination?.receive,
-                action: \.destination.receive
-            )
-        ) { store in
-            ReceiveView(store: store)
-        }
-
-        .sheet(
-            item: $store.scope(
-                state: \.destination?.send,
-                action: \.destination.send
-            )
-        ) { store in
-            SendFlowView(store: store)
-        }
     }
 }
 
@@ -83,8 +64,8 @@ private extension TransferView {
 
             Button(action: { store.send(.daoHubTapped) }) {
                 optionRow(
-                    title: "DAO Hub",
-                    description: "Browse DAOs, proposals, and governance details for your wallet.",
+                    title: L10n.Nighthawk.DaoHub.title,
+                    description: L10n.Nighthawk.DaoHub.browseDescription,
                     icon: Image(systemName: "building.columns")
                 )
             }

@@ -18,7 +18,17 @@ public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
     @State private var balancePage: BalanceView.ViewType?
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     public var body: some View {
+        NighthawkSplitContainer {
+            walletColumn
+        } secondary: {
+            WalletCompanionPane(store: store)
+        }
+    }
+
+    private var walletColumn: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 NighthawkLogo(spacing: .compact, size: .tabHeader)
@@ -41,6 +51,7 @@ public struct WalletView: View {
                 .zIndex(1)
         }
         .applyNighthawkBackground()
+        .onAppear { store.send(.refreshPreferences) }
     }
 
     public init(store: StoreOf<Wallet>) {
@@ -97,6 +108,9 @@ private extension WalletView {
                     .padding(12)
                     .contentShape(Rectangle())
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel(L10n.Nighthawk.WalletTab.Addresses.unifiedAddress)
+            .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("nighthawk.wallet.viewAddresses")
             .padding(.top, 24)
             .padding(.leading, 13)
@@ -111,6 +125,9 @@ private extension WalletView {
                         .padding(12)
                         .contentShape(Rectangle())
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel(L10n.Nighthawk.TransferTab.Send.scanCode)
+                .accessibilityAddTraits(.isButton)
                 .accessibilityIdentifier("nighthawk.wallet.scan")
                 .padding(.top, 24)
                 .padding(.trailing, 13)
@@ -212,7 +229,10 @@ private extension WalletView {
                         )
                         .frame(width: 16, height: 16)
                 }
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(.isButton)
                 .accessibilityIdentifier("nighthawk.wallet.balance.\(viewType == .hidden ? "hidden" : "total")")
             }
         }
@@ -248,7 +268,11 @@ private extension WalletView {
 
                     ForEach(store.walletInfo.walletEvents.prefix(2)) { walletEvent in
                         Button {
-                            store.send(.viewTransactionDetailTapped(walletEvent))
+                            if horizontalSizeClass == .regular {
+                                store.send(.transactionSelected(walletEvent))
+                            } else {
+                                store.send(.viewTransactionDetailTapped(walletEvent))
+                            }
                         } label: {
                             TransactionRowView(
                                 transaction: walletEvent.transaction,
@@ -257,6 +281,11 @@ private extension WalletView {
                                 fiatConversion: store.fiatConversion
                             )
                         }
+                        .background(
+                            store.selectedTransactionID == walletEvent.id
+                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.12)
+                                : Color.clear
+                        )
 
                         Divider()
                             .frame(height: 2)

@@ -56,7 +56,8 @@ public struct TransactionDetailView: View {
 private extension StoreOf<TransactionDetail> {
     func transactionLineItems(with tokenName: String) -> [TransactionLineItem] {
         var result: [TransactionLineItem] = []
-        if let memoText = self.memo?.toString() {
+        let memoText = resolvedMemo
+        if let memoText, !memoText.isEmpty {
             result.append(
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.memo,
@@ -115,7 +116,7 @@ private extension StoreOf<TransactionDetail> {
             ]
         )
 
-        if self.isSending, let address = self.address {
+        if let address = resolvedRecipient {
             result.append(
                 contentsOf: [
                     TransactionLineItem(
@@ -170,6 +171,30 @@ private extension StoreOf<TransactionDetail> {
         }
 
         return result
+    }
+
+    var resolvedMemo: String? {
+        if let decrypted = decryptedMemo?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !decrypted.isEmpty {
+            return decrypted
+        }
+        if let fromEvent = memo?.toString()?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !fromEvent.isEmpty {
+            return fromEvent
+        }
+        return nil
+    }
+
+    /// Prefer the memo/recipient fetched on appear, then the values already on the event.
+    var resolvedRecipient: String? {
+        if let fetched = recipientAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !fetched.isEmpty {
+            return fetched
+        }
+        if let address, !address.isEmpty {
+            return address
+        }
+        return nil
     }
 }
 

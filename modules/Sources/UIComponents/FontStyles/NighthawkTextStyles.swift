@@ -43,12 +43,11 @@ public extension Text {
     }
 
     private struct TitleTextStyle: ViewModifier {
-        @Environment(\.colorScheme) private var colorScheme
         @ObservedObject private var themes = NighthawkThemeController.shared
         var color: Color
 
         func body(content: Content) -> some View {
-            let paper = themes.theme.usesPaperTypography || (themes.theme == .default && colorScheme == .light)
+            let paper = themes.theme.usesPaperTypography
             content
                 .foregroundColor(color)
                 .font(paper
@@ -78,17 +77,12 @@ public extension Text {
     }
 
     private struct ParagraphTextStyle: ViewModifier {
-        @Environment(\.colorScheme) private var colorScheme
-        @ObservedObject private var themes = NighthawkThemeController.shared
         var color: Color
 
         func body(content: Content) -> some View {
-            let paper = themes.theme.usesPaperTypography || (themes.theme == .default && colorScheme == .light)
             content
                 .foregroundColor(color)
-                .font(paper
-                    ? .custom("SourceSans3-Regular", size: 14)
-                    : .custom(FontFamily.Rubik.regular.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 14))
         }
     }
 
@@ -98,7 +92,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14))
         }
     }
 
@@ -108,7 +102,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14))
         }
     }
 
@@ -118,7 +112,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 12))
                 .lineSpacing(6)
         }
     }
@@ -129,7 +123,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
                 .lineSpacing(6)
         }
     }

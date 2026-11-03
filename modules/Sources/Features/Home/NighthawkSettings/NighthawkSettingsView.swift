@@ -95,8 +95,8 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
-                    title: "DAO Hub",
-                    subtitle: "Browse DAOs and proposals (read-only)",
+                    title: L10n.Nighthawk.DaoHub.title,
+                    subtitle: L10n.Nighthawk.DaoHub.browseDescription,
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
                     action: { store.send(.rowTapped(.daoHub)) }
                 )

@@ -49,6 +49,7 @@ private final class WalletHandleManager: @unchecked Sendable {
     func prepare(seed: [UInt8], birthday: BlockHeight, mode: WalletInitMode) throws {
         lock.lock()
         defer { lock.unlock() }
+        BlockTimestampIndex.reset()
 
         // swiftlint:disable:next force_unwrapping
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -222,6 +223,7 @@ private final class WalletHandleManager: @unchecked Sendable {
     func wipe() {
         lock.lock()
         defer { lock.unlock() }
+        BlockTimestampIndex.reset()
         _handle = nil
         stateSubject.send(.zero)
     }
@@ -231,6 +233,7 @@ private final class WalletHandleManager: @unchecked Sendable {
     func nukeLocalDatabases() {
         lock.lock()
         defer { lock.unlock() }
+        BlockTimestampIndex.reset()
         _handle = nil
         stateSubject.send(.zero)
 
@@ -356,10 +359,12 @@ extension SDKSynchronizerClient: DependencyKey {
             guard let handle = WalletHandleManager.shared.handle else { return [] }
             let records = try handle.listTransactions()
             return records.map { record in
+                let minedHeight = record.blockHeight >= 0 ? BlockHeight(record.blockHeight) : nil
+                let blockTime = minedHeight.flatMap { BlockTimestampIndex.timestamp(forBlockHeight: $0) }
                 DarkfiTransactionOverview(
                     rawId: record.txHash,
-                    minedHeight: record.blockHeight > 0 ? BlockHeight(record.blockHeight) : nil,
-                    timestampEpochSeconds: nil,  // Not available from record
+                    minedHeight: minedHeight,
+                    timestampEpochSeconds: blockTime ?? BlockTimestampIndex.timestamp(forTxHash: record.txHash),
                     totalAtomicValue: record.netValueAtomic,
                     fee: record.feeAtomic,
                     isSending: record.isSent,
@@ -442,8 +447,11 @@ extension SDKSynchronizerClient: DependencyKey {
                 lightwalletdConnected: SynchronizerState.lightwalletdLive(handle.lightSyncSnapshot().status)
             ))
 
+            let sentAt = Date().timeIntervalSince1970
+            BlockTimestampIndex.note(txHash: txHash, sentAt: sentAt)
             return DarkfiTransactionOverview(
                 rawId: txHash,
+                timestampEpochSeconds: sentAt,
                 totalAtomicValue: amount,
                 fee: (try? handle.estimateTransferFee(
                     recipientAddress: recipientAddr,
@@ -479,7 +487,7 @@ extension SDKSynchronizerClient: DependencyKey {
                     name: d.name, bullaB58: d.bullaB58, govTokenId: d.govTokenId,
                     quorumDisplay: d.quorumDisplay, proposerLimitDisplay: d.proposerLimitDisplay,
                     approvalRatioPercent: d.approvalRatioPercent,
-                    mintHeight: d.mintHeight > 0 ? d.mintHeight : nil,
+                    mintHeight: d.mintHeight >= 0 ? d.mintHeight : nil,
                     canPropose: d.canPropose, canVote: d.canVote, canExec: d.canExec
                 )
             }
@@ -495,8 +503,8 @@ extension SDKSynchronizerClient: DependencyKey {
                     daoBullaB58: p.daoBullaB58, authCallCount: Int(p.authCallCount),
                     durationBlockwindows: Int64(p.durationBlockwindows),
                     creationBlockwindow: Int64(p.creationBlockwindow),
-                    mintHeight: p.mintHeight > 0 ? p.mintHeight : nil,
-                    execHeight: p.execHeight > 0 ? p.execHeight : nil,
+                    mintHeight: p.mintHeight >= 0 ? p.mintHeight : nil,
+                    execHeight: p.execHeight >= 0 ? p.execHeight : nil,
                     isExecuted: p.isExecuted, summaryLine: p.summaryLine
                 )
             }
@@ -511,8 +519,8 @@ extension SDKSynchronizerClient: DependencyKey {
                 daoBullaB58: d.daoBullaB58, authCallCount: Int(d.authCallCount),
                 durationBlockwindows: Int64(d.durationBlockwindows),
                 creationBlockwindow: Int64(d.creationBlockwindow),
-                mintHeight: d.mintHeight > 0 ? d.mintHeight : nil,
-                execHeight: d.execHeight > 0 ? d.execHeight : nil,
+                mintHeight: d.mintHeight >= 0 ? d.mintHeight : nil,
+                execHeight: d.execHeight >= 0 ? d.execHeight : nil,
                 isExecuted: d.isExecuted, summaryLine: d.summaryLine
             )
             return ProposalFull(
@@ -542,6 +550,75 @@ extension SDKSynchronizerClient: DependencyKey {
                 proposalBullaB58: proposalBullaB58,
                 voteYes: voteYes
             )
+        },
+        daoExec: { proposalBullaB58 in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoExec(proposalBullaB58: proposalBullaB58)
+        },
+        daoTreasury: { daoName in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoTreasury(daoName: daoName)
+        },
+        daoCreate: { name, proposerLimit, quorum, earlyExecQuorum, approvalRatio, govTokenId in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoCreate(
+                name: name,
+                proposerLimit: proposerLimit,
+                quorum: quorum,
+                earlyExecQuorum: earlyExecQuorum,
+                approvalRatio: approvalRatio,
+                govTokenId: govTokenId
+            )
+        },
+        daoImport: { name, toml in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoImport(name: name, toml: toml)
+        },
+        daoFund: { daoName, amount, tokenId in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoFund(daoName: daoName, amount: amount, tokenId: tokenId)
+        },
+        daoExportRole: { daoName, role in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.daoExportRole(daoName: daoName, role: role)
+        },
+        tokenGenerate: { alias in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.tokenGenerate(alias: alias)
+        },
+        tokenMint: { tokenId, amount, recipient in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.tokenMint(tokenId: tokenId, amount: amount, recipientAddress: recipient)
+        },
+        tokenFreeze: { tokenId in
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.tokenFreeze(tokenId: tokenId)
+        },
+        listMintAuthorities: {
+            guard let handle = WalletHandleManager.shared.handle else {
+                throw SDKSynchronizerError.walletNotPrepared
+            }
+            return try handle.listMintAuthorities().map {
+                MintAuthorityBrief(tokenId: $0.tokenId, alias: $0.alias, frozen: $0.frozen)
+            }
         },
         wipe: {
             WalletHandleManager.shared.wipe()

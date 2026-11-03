@@ -6,7 +6,9 @@
 //
 
 import Generated
+import Models
 import SwiftUI
+import UIKit
 
 private struct NighthawkSuppressNestedBackgroundKey: EnvironmentKey {
     static let defaultValue = false
@@ -21,6 +23,44 @@ public extension EnvironmentValues {
     }
 }
 
+/// Full wallpaper, one image pixel per screen pixel, anchored at the top left.
+/// A taller or wider screen reveals more of the same picture. A dark veil keeps
+/// DarkIRC, Wallet, Transfer, and Settings text readable.
+public struct CyberpunkBackdrop: View {
+    public init() {}
+
+    public var body: some View {
+        let scale = UIScreen.main.scale
+        ZStack(alignment: .topLeading) {
+            Color(red: 0.02, green: 0.024, blue: 0.04)
+            Image("cyberpunk-bg", bundle: .module)
+                .resizable()
+                .interpolation(.high)
+                .frame(width: 3840 / scale, height: 2160 / scale, alignment: .topLeading)
+            Color.black.opacity(0.5)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .clipped()
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+}
+
+public struct NighthawkScreenBackdrop: View {
+    @ObservedObject private var themes = NighthawkThemeController.shared
+
+    public init() {}
+
+    public var body: some View {
+        if themes.theme.usesCyberpunkChrome {
+            CyberpunkBackdrop()
+        } else {
+            Asset.Colors.Nighthawk.darkNavy.color
+                .ignoresSafeArea(edges: [.top, .horizontal])
+        }
+    }
+}
+
 public struct NighthawkBackgroundModifier: ViewModifier {
     @Environment(\.nighthawkSuppressNestedBackground) private var suppressNestedBackground
 
@@ -29,8 +69,7 @@ public struct NighthawkBackgroundModifier: ViewModifier {
             content
         } else {
             ZStack {
-                Asset.Colors.Nighthawk.darkNavy.color
-                    .ignoresSafeArea(edges: [.top, .horizontal])
+                NighthawkScreenBackdrop()
                     .allowsHitTesting(false)
                 content
             }

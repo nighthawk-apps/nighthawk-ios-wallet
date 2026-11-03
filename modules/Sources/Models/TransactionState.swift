@@ -183,6 +183,7 @@ extension TransactionState {
             memos: memos,
             minedHeight: overview.minedHeight,
             shielded: true, // DarkFi: all transactions are private
+            zAddress: overview.recipientAddress,
             fee: overview.fee,
             id: overview.rawId,
             status: overview.isSending ? .paid(success: true) : .received,

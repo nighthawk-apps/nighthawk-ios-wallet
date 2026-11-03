@@ -59,7 +59,7 @@ public struct Home {
 
         @Presents public var alert: AlertState<Action.Alert>?
         @Presents public var destination: Destination.State?
-        public var selectedTab = Tab.chat
+        public var selectedTab = Tab.wallet
         public var toast: Toast?
 
         public var synchronizerFailedToStart = false
@@ -67,10 +67,7 @@ public struct Home {
             synchronizerFailedToStart || walletInfo.synchronizerStatusSnapshot.isSyncFailed
         }
 
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
 
         public var tokenName: String {
             return "DRK"
@@ -93,9 +90,8 @@ public struct Home {
         }
 
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
-            @Dependency(\.dataManager) var dataManager
             if let latestEventsCache = URL.latestEventsCache(for: "testnet"),
-               let cachedData = try? dataManager.load(latestEventsCache),
+               let cachedData = try? Data(contentsOf: latestEventsCache),
                let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
                 return IdentifiedArray(uniqueElements: events)
             }
@@ -122,6 +118,7 @@ public struct Home {
         case tabSelected(State.Tab)
         case transfer(Transfer.Action)
         case updateWalletEvents([WalletEvent])
+        case unifiedAddressLoaded(UnifiedAddress?)
         case wallet(Wallet.Action)
 
         public enum Alert: Equatable {}
@@ -175,6 +172,7 @@ public struct Home {
                 state.alert = .cantStartSync(error)
                 return .none
             case .fetchLatestFiatPrice:
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 guard state.preferredCurrency != .off else { return .none }
                 return .run { [preferredCurrency = state.preferredCurrency] send in
                     let price = try? await fiatPriceClient.getDrkPrice(preferredCurrency)
@@ -185,6 +183,10 @@ public struct Home {
                 state.walletInfo.latestFiatPrice = price
                 return .none
             case .onAppear:
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
+                state.wallet.isFirstSync = userStoredPreferences.isFirstSync()
+                state.wallet.preferredCurrency = state.preferredCurrency
+                state.wallet.showScanButton = !processInfo.isiOSAppOnMac()
                 state.walletInfo.requiredTransactionConfirmations = 11
                 UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
                 return .concatenate(
@@ -193,7 +195,7 @@ public struct Home {
                     // Eagerly fetch address — it's available before sync completes
                     .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.delegate(.unifiedAddressResponse(ua)))
+                        await send(.unifiedAddressLoaded(ua))
                     }
                 )
             case let .rescanDone(error):
@@ -250,20 +252,14 @@ public struct Home {
                     }
                 }
 
-                // Fetch address on every state change if not yet available
-                if state.walletInfo.unifiedAddress == nil {
+                // Address must land in walletInfo before history will load.
+                // Refresh it whenever it is missing or the chain is up to date.
+                if state.walletInfo.unifiedAddress == nil || latestState.syncStatus == .upToDate {
+                    let loadHistory = latestState.syncStatus == .upToDate
                     return .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.delegate(.unifiedAddressResponse(ua)))
-                    }
-                }
-
-                if latestState.syncStatus == .upToDate {
-                    return .run { send in
-                        let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.delegate(.unifiedAddressResponse(ua)))
-
-                        // Populate wallet events
+                        await send(.unifiedAddressLoaded(ua))
+                        guard loadHistory else { return }
                         if let overviews = try? await sdkSynchronizer.getAllTransactions() {
                             let events = overviews.map { overview in
                                 WalletEvent(transaction: TransactionState(from: overview))
@@ -274,6 +270,11 @@ public struct Home {
                 }
 
                 return .none
+            case let .unifiedAddressLoaded(unifiedAddress):
+                if let unifiedAddress {
+                    state.walletInfo.unifiedAddress = unifiedAddress
+                }
+                return .send(.delegate(.unifiedAddressResponse(unifiedAddress)))
             case let .tabSelected(tab):
                 state.selectedTab = tab
                 return .none

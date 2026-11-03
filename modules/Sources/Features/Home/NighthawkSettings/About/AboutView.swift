@@ -26,16 +26,6 @@ public struct AboutView: View {
                 }
                 .buttonStyle(.nighthawkLink())
 
-                Button(L10n.Nighthawk.About.nighthawkFriends) {
-                    store.send(.nighthawkFriendsTapped)
-                }
-                .buttonStyle(.nighthawkLink())
-
-                Button(L10n.General.termsAndConditions) {
-                    store.send(.termsAndConditionsTapped)
-                }
-                .buttonStyle(.nighthawkLink())
-
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 12) {

@@ -43,55 +43,6 @@ public struct AppReducer {
             NighthawkThemeController.shared.theme.colorScheme
         }
 
-        var shouldResetToSplash: Bool {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            guard !path.isEmpty, userStoredPreferences.areBiometricsEnabled(), splash.lastInactiveTime != nil else { return false }
-
-            // Don't reset if user was inactive less than 10 minutes
-            @Dependency(\.date) var date
-            if let lastInactiveTime = splash.lastInactiveTime {
-                let tenMinutesAgo = date().addingTimeInterval(-(10 * 60))
-                if tenMinutesAgo < lastInactiveTime {
-                    return false
-                }
-            }
-
-            // Reset to splash
-            // Any system prompt causes a scene phase change to .inactive,
-            // so don't stop synchronizer if the app is on screens where that happens:
-            // - Security screen (Face ID enable / disable)
-            // - Notification screen (system permission alert)
-            // - Transfer tab (send flow pasteboard permission alert)
-
-            if let currentScreen = path.last {
-                if let home = currentScreen[case: \.home] {
-                    return home.selectedTab != .transfer
-                }
-
-                if let _ = currentScreen[case: \.security] {
-                    return false
-                }
-
-                if let _ = currentScreen[case: \.notifications] {
-                    return false
-                }
-
-                if let _ = currentScreen[case: \.chatSettings] {
-                    return false
-                }
-
-                if let _ = currentScreen[case: \.torNetwork] {
-                    return false
-                }
-
-                if let _ = currentScreen[case: \.daoHub] {
-                    return false
-                }
-            }
-
-            return true
-        }
-
         var isWelcomeScreenShown: Bool {
             if let currentScreen = path.last {
                 return currentScreen[case: \.welcome] != nil
@@ -101,6 +52,17 @@ public struct AppReducer {
         }
 
         public init() {}
+
+        /// Keep App and the live Home wallet info on the same address so
+        /// transaction history can load after the address arrives.
+        mutating func propagateUnifiedAddress(_ unifiedAddress: UnifiedAddress) {
+            self.unifiedAddress = unifiedAddress
+            for id in path.ids {
+                guard var home = path[id: id, case: \.home] else { continue }
+                home.walletInfo.unifiedAddress = unifiedAddress
+                path[id: id, case: \.home] = home
+            }
+        }
     }
 
     public enum Action {
@@ -228,7 +190,11 @@ public struct AppReducer {
                     return .none
                 case .active:
                     defer { state.splash.lastInactiveTime = nil }
-                    if state.shouldResetToSplash {
+                    if shouldResetToSplash(
+                        state,
+                        biometricsEnabled: userStoredPreferences.areBiometricsEnabled(),
+                        now: date()
+                    ) {
                         state.splash.lastAuthenticatedTime = nil
                         state.splash.hasAttemptedAuthentication = false
                         state.splash.isAuthenticating = false
@@ -249,7 +215,7 @@ public struct AppReducer {
                 return .none
             case let .unifiedAddressResponse(unifiedAddress):
                 if let unifiedAddress {
-                    state.unifiedAddress = unifiedAddress
+                    state.propagateUnifiedAddress(unifiedAddress)
                 }
                 return .none
             }
@@ -287,15 +253,8 @@ extension AppReducer {
                     // Prepare and start
                     try await sdkSynchronizer.prepareWith(seedBytes, birthday, mode)
 
-                    // Get address
+                    // Get address. Do not write the plaintext address into Documents.
                     let address = try? await sdkSynchronizer.getAddress()
-                    if let addrStr = address?.stringEncoded {
-                        let docsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                        let fileUrl = docsUrl.appendingPathComponent("ios_wallet_address.txt")
-                        try? addrStr.write(to: fileUrl, atomically: true, encoding: .utf8)
-                    } else {
-                        // Why did it return nil?
-                    }
                     await send(.unifiedAddressResponse(address))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
@@ -339,4 +298,35 @@ private extension AppReducer {
             }
         }
     }
+}
+
+/// Biometrics lock after 10 minutes away. Preferences and the clock are read here, not on `State`.
+private func shouldResetToSplash(
+    _ state: AppReducer.State,
+    biometricsEnabled: Bool,
+    now: Date
+) -> Bool {
+    guard !state.path.isEmpty, biometricsEnabled, state.splash.lastInactiveTime != nil else { return false }
+
+    if let lastInactiveTime = state.splash.lastInactiveTime {
+        let tenMinutesAgo = now.addingTimeInterval(-(10 * 60))
+        if tenMinutesAgo < lastInactiveTime {
+            return false
+        }
+    }
+
+    if let currentScreen = state.path.last {
+        if let home = currentScreen[case: \.home] {
+            return home.selectedTab != .transfer
+        }
+        if currentScreen[case: \.security] != nil
+            || currentScreen[case: \.notifications] != nil
+            || currentScreen[case: \.chatSettings] != nil
+            || currentScreen[case: \.torNetwork] != nil
+            || currentScreen[case: \.daoHub] != nil {
+            return false
+        }
+    }
+
+    return true
 }

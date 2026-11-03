@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SendFlow
 
 extension Home {
     @ReducerBuilder<State, Action>
@@ -19,7 +20,6 @@ extension Home {
             case let .wallet(.delegate(delegateAction)):
                 switch delegateAction {
                 case .scanPaymentRequest:
-                    state.selectedTab = .transfer
                     state.transfer.destination = .send(
                         .init(
                             path: StackState([.scan(.init(backButtonType: .close))]),
@@ -39,6 +39,19 @@ extension Home {
                     return .none
                 case .showTransactionHistory:
                     return .none
+                case let .sendAgain(recipient, amount):
+                    var sendState = SendFlow.State(
+                        latestFiatPrice: state.walletInfo.latestFiatPrice,
+                        showCloseButton: true
+                    )
+                    sendState.spendableBalance = state.walletInfo.balance
+                    sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                    sendState.recipient = recipient
+                    if amount > 0 {
+                        sendState.amountToSendInput = amount.inputDecimalString()
+                    }
+                    state.transfer.destination = .send(sendState)
+                    return .none
                 }
             case .alert,
                  .binding,
@@ -57,6 +70,7 @@ extension Home {
                  .tabSelected,
                  .transfer,
                  .updateWalletEvents,
+                 .unifiedAddressLoaded,
                  .wallet:
                 return .none
             }

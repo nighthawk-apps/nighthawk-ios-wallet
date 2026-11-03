@@ -6,10 +6,7 @@
 //
 
 import ComposableArchitecture
-import Foundation
-import Generated
 import ImportWarning
-import UIKit
 
 @Reducer
 public struct Welcome {
@@ -25,7 +22,6 @@ public struct Welcome {
         case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case importExistingWalletTapped
-        case termsAndConditionsTapped
 
         public enum Delegate: Equatable {
             case createNewWallet
@@ -51,9 +47,6 @@ public struct Welcome {
             case .importExistingWalletTapped:
                 state.destination = .importSeedWarningAlert(.init())
                 return .none
-            case .termsAndConditionsTapped:
-                UIApplication.shared.open(.terms, options: [:], completionHandler: nil)
-                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -78,8 +71,7 @@ extension Welcome {
             case .createNewWalletTapped,
                  .delegate,
                  .destination,
-                 .importExistingWalletTapped,
-                 .termsAndConditionsTapped:
+                 .importExistingWalletTapped:
                 return .none
             }
         }

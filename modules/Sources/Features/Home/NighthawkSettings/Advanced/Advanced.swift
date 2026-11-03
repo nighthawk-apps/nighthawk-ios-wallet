@@ -19,21 +19,13 @@ public struct Advanced {
         public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         public var selectedAppIcon: NighthawkSetting.AppIcon = .default
         public var theme: NighthawkSetting.Theme = .default
-        public var showBanditSettings: Bool {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.isBandit()
-        }
+        public var showBanditSettings = false
 
         public var supportsAlternateIcons: Bool {
             UIApplication.shared.supportsAlternateIcons
         }
 
-        public init() {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            self.selectedScreenMode = userStoredPreferences.screenMode()
-            self.selectedAppIcon = userStoredPreferences.appIcon()
-            self.theme = userStoredPreferences.theme()
-        }
+        public init() {}
     }
 
     public enum Action: BindableAction, Equatable {
@@ -42,6 +34,7 @@ public struct Advanced {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case deleteWalletTapped
+        case onAppear
         case nukeLocalDatabasesTapped
 
         @CasePathable
@@ -80,6 +73,12 @@ public struct Advanced {
                 state.selectedAppIcon = userStoredPreferences.appIcon()
                 return .none
             case .delegate:
+                return .none
+            case .onAppear:
+                state.selectedScreenMode = userStoredPreferences.screenMode()
+                state.selectedAppIcon = userStoredPreferences.appIcon()
+                state.theme = userStoredPreferences.theme()
+                state.showBanditSettings = userStoredPreferences.isBandit()
                 return .none
             case .deleteWalletTapped:
                 state.alert = AlertState.warnBeforeDeletingWallet

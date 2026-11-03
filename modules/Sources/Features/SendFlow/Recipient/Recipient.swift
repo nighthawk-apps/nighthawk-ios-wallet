@@ -23,10 +23,7 @@ public struct Recipient {
         public var canPasteAddress: Bool { pasteboardContainsDarkFiAddress && !hasEnteredRecipient }
         public var specificValidationError: NighthawkTextFieldValidationState?
         public var isRecipientValid = false
-        public var showScanButton: Bool {
-            @Dependency(\.processInfo) var processInfo
-            return !processInfo.isiOSAppOnMac()
-        }
+        public var showScanButton = true
 
         public init() {}
     }
@@ -50,6 +47,7 @@ public struct Recipient {
 
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.pasteboard) var pasteboard
+    @Dependency(\.processInfo) var processInfo
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -64,6 +62,7 @@ public struct Recipient {
             case .delegate:
                 return .none
             case .onAppear:
+                state.showScanButton = !processInfo.isiOSAppOnMac()
                 if let contents = pasteboard.getString() {
                     state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(contents.data, "testnet")
                 }

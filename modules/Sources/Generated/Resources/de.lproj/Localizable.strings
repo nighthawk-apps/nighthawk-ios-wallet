@@ -20,7 +20,6 @@
 "balance.available" = "%@ %@ Available";
 "qrCodeFor" = "QR Code for %@";
 "general.dateNotAvailable" = "date not available";
-"general.termsAndConditions" = "Terms and Conditions";
 
 //==========================================================
 // NIGHTHAWK
@@ -81,7 +80,7 @@
 // MARK: - Welcome
 "nighthawk.welcome.subtitle" = "Get started";
 "nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "By using this app you accept our";
+"nighthawk.welcome.terms1" = "This app is free software. Use is covered only by its license.";
 "nighthawk.welcome.create" = "Create Wallet";
 "nighthawk.welcome.restore" = "Restore From Backup";
 "nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";

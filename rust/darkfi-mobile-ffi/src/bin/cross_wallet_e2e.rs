@@ -107,7 +107,7 @@ async fn default_address(drk: &Drk) -> Result<String, String> {
 }
 
 async fn sync_wallet_direct(drk: &Drk) -> Result<(), String> {
-    drk.scan_blocks(&mut Vec::new(), None, &false, None)
+    drk.scan_blocks(&mut Vec::new(), None, &false)
         .await
         .map_err(|e| format!("scan_blocks: {e}"))
 }

@@ -42,6 +42,7 @@ extension Home {
                  .tabSelected,
                  .transfer,
                  .updateWalletEvents,
+                 .unifiedAddressLoaded,
                  .wallet:
                 return .none
             }

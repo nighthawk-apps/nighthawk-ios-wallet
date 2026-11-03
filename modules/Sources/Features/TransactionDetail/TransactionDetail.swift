@@ -58,10 +58,7 @@ public struct TransactionDetail {
         public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: "testnet") }
         public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: "testnet") }
         public var zecAmount: DrkAmount { walletEvent.transaction.zecAmount }
-        public var preferredCurrency: NighthawkSetting.FiatCurrency {
-            @Dependency(\.userStoredPreferences) var userStoredPreferences
-            return userStoredPreferences.fiatCurrency()
-        }
+        public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
                 (preferredCurrency, latestFiatPrice)
@@ -110,6 +107,7 @@ public struct TransactionDetail {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.userStoredPreferences) var userStoredPreferences
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -128,7 +126,8 @@ public struct TransactionDetail {
             case .binding:
                 return .none
             case .copyReplyTo:
-                if !state.isSending, let memo = state.memo?.toString(), !memo.isEmpty {
+                let memo = state.decryptedMemo ?? state.memo?.toString()
+                if !state.isSending, let memo, !memo.isEmpty {
                     let prefix = "Reply to:"
                     let components = memo.split(separator: prefix)
                     if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), "testnet") {
@@ -140,6 +139,7 @@ public struct TransactionDetail {
             case .delegate:
                 return .none
             case .onAppear:
+                state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced
                 state.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
                 state.requiredTransactionConfirmations = 10

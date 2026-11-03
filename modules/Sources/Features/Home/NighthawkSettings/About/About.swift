@@ -18,10 +18,8 @@ public struct About {
 
     public enum Action: Equatable {
         case delegate(Delegate)
-        case nighthawkFriendsTapped
         case viewLicensesTapped
         case viewSourceTapped
-        case termsAndConditionsTapped
 
         public enum Delegate: Equatable {
             case showLicensesList
@@ -33,16 +31,10 @@ public struct About {
             switch action {
             case .delegate:
                 return .none
-            case .nighthawkFriendsTapped:
-                UIApplication.shared.open(.friends, options: [:], completionHandler: nil)
-                return .none
             case .viewLicensesTapped:
                 return .send(.delegate(.showLicensesList))
             case .viewSourceTapped:
                 UIApplication.shared.open(.source, options: [:], completionHandler: nil)
-                return .none
-            case .termsAndConditionsTapped:
-                UIApplication.shared.open(.terms, options: [:], completionHandler: nil)
                 return .none
             }
         }

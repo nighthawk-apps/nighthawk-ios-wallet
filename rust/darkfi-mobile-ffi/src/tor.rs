@@ -154,7 +154,7 @@ async fn run_socks_proxy(socks_port: u16) -> Result<(), String> {
 /// CONNECT target, dials it through Tor, and pipes bytes both ways.
 async fn handle_socks_conn(
     mut inbound: TcpStream,
-    tor_client: TorClient<tor_rtcompat::PreferredRuntime>,
+    tor_client: std::sync::Arc<TorClient<tor_rtcompat::PreferredRuntime>>,
 ) -> Result<(), String> {
     // --- Greeting: VER, NMETHODS, METHODS... ---
     let mut head = [0u8; 2];

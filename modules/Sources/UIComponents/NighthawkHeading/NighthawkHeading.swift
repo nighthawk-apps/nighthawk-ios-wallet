@@ -37,7 +37,8 @@ public struct NighthawkHeading: View {
             if let subtitle {
                 Text(subtitle)
                     .caption()
-                    .frame(width: 246)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
             }
         }
     }

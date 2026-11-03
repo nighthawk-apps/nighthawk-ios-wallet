@@ -28,10 +28,12 @@ public enum QRCodeGenerator {
         }
     }
 
+    /// Shared. Building a `CIContext` per code blocks the main thread.
+    private static let context = CIContext(options: [.useSoftwareRenderer: false])
+
     public static func generate(from string: String, scale: CGFloat = 5) -> CGImage? {
         let data = string.data(using: String.Encoding.utf8)
 
-        let context = CIContext()
         let filter = CoreImage.CIFilter.qrCodeGenerator()
         filter.setValue(data, forKey: "inputMessage")
         let transform = CGAffineTransform(scaleX: scale, y: scale)
@@ -40,6 +42,6 @@ public enum QRCodeGenerator {
             return nil
         }
 
-        return context.createCGImage(output, from: output.extent)
+        return Self.context.createCGImage(output, from: output.extent)
     }
 }

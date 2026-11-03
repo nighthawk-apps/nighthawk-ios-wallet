@@ -35,6 +35,7 @@ Index of all project documentation for the Nighthawk iOS DarkFi wallet.
 | Document | Description |
 |----------|-------------|
 | [testing/](testing/) | Test documentation and test plans |
+| [darkirc-testing.md](darkirc-testing.md) | DarkIRC tests post only in `#random` |
 
 ## Root-level docs
 

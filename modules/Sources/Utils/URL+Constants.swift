@@ -16,10 +16,6 @@ extension URL {
 
     public static let source = URL(string: "https://github.com/nighthawk-apps/nighthawk-ios-wallet")!
 
-    public static let friends = URL(string: "https://nighthawkwallet.com/credits")!
-
-    public static let terms = URL(string: "https://nighthawkwallet.com/termsconditions")!
-
     public static let coinGeckoApi = URL(string: "https://api.coingecko.com/api/v3/")!
 
     public static func latestEventsCache(for networkType: String) -> URL? {

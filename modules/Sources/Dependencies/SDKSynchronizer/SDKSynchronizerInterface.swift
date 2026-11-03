@@ -106,6 +106,17 @@ public struct SDKSynchronizerClient {
     /// Vote yes/no on a DAO proposal (full governance token weight). Returns tx hash.
     public var daoVote: (_ proposalBullaB58: String, _ voteYes: Bool) async throws -> String
 
+    public var daoExec: (_ proposalBullaB58: String) async throws -> String
+    public var daoTreasury: (_ daoName: String) async throws -> String
+    public var daoCreate: (_ name: String, _ proposerLimit: String, _ quorum: String, _ earlyExecQuorum: String, _ approvalRatio: Double, _ govTokenId: String) async throws -> String
+    public var daoImport: (_ name: String, _ toml: String) async throws -> String
+    public var daoFund: (_ daoName: String, _ amount: String, _ tokenId: String?) async throws -> String
+    public var daoExportRole: (_ daoName: String, _ role: String) async throws -> String
+    public var tokenGenerate: (_ alias: String?) async throws -> String
+    public var tokenMint: (_ tokenId: String, _ amount: String, _ recipient: String) async throws -> String
+    public var tokenFreeze: (_ tokenId: String) async throws -> String
+    public var listMintAuthorities: () async throws -> [MintAuthorityBrief]
+
     // MARK: - Wallet management
 
     /// Wipe wallet data
@@ -125,6 +136,20 @@ public struct SDKSynchronizerClient {
 }
 
 // MARK: - DAO Hub models (thin wrappers for UI)
+
+public struct MintAuthorityBrief: Equatable, Identifiable {
+    public let id: String
+    public let tokenId: String
+    public let alias: String?
+    public let frozen: Bool
+
+    public init(tokenId: String, alias: String?, frozen: Bool) {
+        self.id = tokenId
+        self.tokenId = tokenId
+        self.alias = alias
+        self.frozen = frozen
+    }
+}
 
 public struct DaoBrief: Equatable, Identifiable {
     public let id: String

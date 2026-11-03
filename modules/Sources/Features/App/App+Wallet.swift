@@ -23,6 +23,8 @@ extension AppReducer {
                 switch delegateAction {
                 case .scanPaymentRequest:
                     return .none
+                case .sendAgain:
+                    return .none
                 case .showAddresses:
                     return .none
                 case let .showTransactionHistory(walletEvents):

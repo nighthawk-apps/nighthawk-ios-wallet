@@ -15,6 +15,7 @@ import RecoveryPhraseDisplay
 import Splash
 import SwiftUI
 import TransactionDetail
+import UIKit
 import WalletCreated
 import Welcome
 import UIComponents
@@ -26,22 +27,32 @@ public struct AppView: View {
     @ObservedObject private var themes = NighthawkThemeController.shared
 
     public var body: some View {
-        Group {
-            if store.path.isEmpty {
-                SplashView(
-                    store: store.scope(
-                        state: \.splash,
-                        action: \.splash
-                    )
+        NavigationStack(
+            path: $store.scope(state: \.path, action: \.path)
+        ) {
+            SplashView(
+                store: store.scope(
+                    state: \.splash,
+                    action: \.splash
                 )
-            } else if let topID = store.path.ids.last {
-                pathScreen(id: topID)
-            }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        } destination: { pathStore in
+            pathScreen(pathStore)
+                .toolbar(.hidden, for: .navigationBar)
+                .navigationBarBackButtonHidden(true)
+                .background {
+                    NighthawkPopGestureEnabler(enabled: store.path.count > 1) {
+                        popVisible()
+                    }
+                }
         }
         .tint(
-            themes.theme == .dark
-                ? Asset.Colors.Nighthawk.textHeader.color
-                : Asset.Colors.Nighthawk.accent.color
+            themes.theme.usesCyberpunkChrome
+                ? Color(red: 0.36, green: 0.88, blue: 1)
+                : themes.theme == .dark
+                    ? Asset.Colors.Nighthawk.textHeader.color
+                    : Asset.Colors.Nighthawk.accent.color
         )
         .alert(
             $store.scope(
@@ -51,6 +62,11 @@ public struct AppView: View {
         )
         .onChange(of: scenePhase) {
             store.send(.scenePhaseChanged(scenePhase))
+        }
+        .onChange(of: store.path.isEmpty) { _, isEmpty in
+            // Splash stays mounted as the stack root. Mark it hidden once a
+            // screen is pushed so scene-phase checks do not relaunch the wallet.
+            store.send(isEmpty ? .splash(.onAppear) : .splash(.onDisappear))
         }
         .preferredColorScheme(themes.theme.colorScheme)
     }
@@ -64,40 +80,39 @@ public struct AppView: View {
 private extension AppView {
     @ViewBuilder
     // swiftlint:disable:next cyclomatic_complexity
-    func pathScreen(id: StackElementID) -> some View {
+    func pathScreen(_ pathStore: StoreOf<AppReducer.Path>) -> some View {
         let showBackButton = store.path.count > 1
 
-        if let pathStore = store.scope(state: \.path[id: id], action: \.path[id: id]) {
-            Group {
-                switch pathStore.case {
+        Group {
+            switch pathStore.case {
                 case let .about(store):
                     AboutView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.About.title) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .advanced(store):
                     AdvancedView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.advancedTitle) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .backup(store):
                     RecoveryPhraseDisplayView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .changeServer(store):
                     ChangeServerView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.changeServerTitle) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .chatSettings(store):
                     ChatSettingsView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: "Chat settings") {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .daoHub(store):
@@ -105,15 +120,15 @@ private extension AppView {
                     DaoHubView(store: store)
                         .nighthawkChrome(
                             showBack: showBackButton && store.screen == .hub,
-                            title: store.screen == .hub ? "DAO Hub" : nil
+                            title: store.screen == .hub ? L10n.Nighthawk.DaoHub.title : nil
                         ) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .fiat(store):
                     FiatView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.fiatTitle) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .home(store):
@@ -122,68 +137,128 @@ private extension AppView {
                 case let .importWallet(store):
                     ImportWalletView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .importWalletSuccess(store):
                     ImportWalletSuccessView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .migrate(store):
                     MigrateView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .notifications(store):
                     NotificationsView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.notificationsTitle) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .recoveryPhraseDisplay(store):
                     RecoveryPhraseDisplayView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .security(store):
                     SecurityView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.securityTitle) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .torNetwork(store):
                     TorNetworkView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: "Tor network") {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .transactionDetail(store):
                     TransactionDetailView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.TransactionDetails.title) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .transactionHistory(store):
                     TransactionHistoryView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.TransactionHistory.title) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .walletCreated(store):
                     WalletCreatedView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: nil) {
-                            self.store.send(.path(.popFrom(id: id)))
+                            self.popVisible()
                         }
 
                 case let .welcome(store):
                     WelcomeView(store: store)
                 }
+        }
+        .toolbarColorScheme(.dark, for: .navigationBar)
+    }
+
+    func popVisible() {
+        if let id = store.path.ids.last {
+            store.send(.path(.popFrom(id: id)))
+        }
+    }
+}
+
+/// Hidden navigation-bar back buttons disable the interactive pop gesture.
+/// Re-enable it for every pushed screen so swipe-back matches the stack.
+private struct NighthawkPopGestureEnabler: UIViewControllerRepresentable {
+    var enabled: Bool
+    var onPop: () -> Void
+
+    func makeUIViewController(context: Context) -> Controller {
+        let controller = Controller()
+        controller.onPop = onPop
+        return controller
+    }
+
+    func updateUIViewController(_ controller: Controller, context: Context) {
+        controller.enabled = enabled
+        controller.onPop = onPop
+        controller.sync()
+    }
+
+    final class Controller: UIViewController, UIGestureRecognizerDelegate {
+        var enabled = true
+        var onPop: () -> Void = {}
+        private var observing = false
+
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            sync()
+        }
+
+        func sync() {
+            guard let pop = navigationController?.interactivePopGestureRecognizer else { return }
+            pop.isEnabled = enabled && (navigationController?.viewControllers.count ?? 0) > 1
+            pop.delegate = self
+            if !observing {
+                pop.addTarget(self, action: #selector(interactivePopChanged(_:)))
+                observing = true
             }
-            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            enabled && (navigationController?.viewControllers.count ?? 0) > 1
+        }
+
+        @objc private func interactivePopChanged(_ gesture: UIGestureRecognizer) {
+            guard gesture.state == .ended,
+                  let nav = navigationController,
+                  let coordinator = nav.transitionCoordinator,
+                  !coordinator.isCancelled,
+                  let from = coordinator.viewController(forKey: .from),
+                  !nav.viewControllers.contains(from)
+            else { return }
+            onPop()
         }
     }
 }

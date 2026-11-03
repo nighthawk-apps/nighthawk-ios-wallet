@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.00.026.** Light and Paper use graphite and grey instead of teal. Titles are Outfit, body text is Source Sans 3, Paper titles are Source Serif 4, and keys are IBM Plex Mono. The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
+**3.00.027.** Cyberpunk is the default theme on a light or dark system. The Void wallpaper stays anchored at the top left and continues under the status bar and the tab bar. Body text uses DejaVu Sans Mono. Light and Paper use graphite and grey instead of teal. Titles are Outfit, body text is Source Sans 3, Paper titles are Source Serif 4, and keys are IBM Plex Mono. The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. Each channel and DM keeps its own composer draft, so switching rooms does not send the previous text. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
 
 ## Contents
 
@@ -218,6 +218,7 @@ In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Sw
 | Tor | `start_darkirc` with `DarkircTransport.tor` through in-process Arti |
 | Public channels | `#dev`, `#media`, `#hackers`, `#memes`, `#philosophy`, `#markets`, `#math`, `#random`, `#lunardao` |
 | E2E DMs | `chacha_encrypt_dm` / `chacha_decrypt_dm` |
+| Composer | A draft is stored per channel and per DM. Leaving a room keeps that text and restores it when you return |
 | Status | `darkirc_status()` polling |
 | DAG history | First P2P connect can take several minutes |
 
@@ -230,8 +231,8 @@ cd rust && cargo test -p darkfi-mobile-ffi --lib darkirc && cd ..
 
 ## Architecture
 
-- **UI:** SwiftUI + [TCA](https://github.com/pointfreeco/swift-composable-architecture). `Home.swift` scopes tabs: **Chat → Wallet → Transfer → Settings** (opens on Chat).
-- **Theme:** Stealth (default dark).
+- **UI:** SwiftUI + [TCA](https://github.com/pointfreeco/swift-composable-architecture). `Home.swift` scopes tabs: **Chat → Wallet → Transfer → Settings** (opens on Wallet). The wide wallet layout is for large iPhones in landscape. The target stays iPhone-only.
+- **Theme:** Stealth (default dark). Light and Paper use graphite and grey instead of teal. Titles are Outfit, body is Source Sans 3, Paper titles are Source Serif 4, keys are IBM Plex Mono.
 - **Settings:** Chat (identity, Tor, DMs), Change server, Security (PIN), Fiat, About.
 - **Wallet SDK:** `SDKSynchronizerLive` / `WalletHandleManager` wrapping `DarkfiWalletHandle`; Combine streams to TCA.
 - **Balance:** single confirmed/spendable DRK tally.

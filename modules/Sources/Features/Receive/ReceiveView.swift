@@ -26,12 +26,12 @@ public struct ReceiveView: View {
 
             // Subtitle & Header section
             VStack(spacing: 16) {
-                Text("Send and receive DRK")
+                Text(L10n.Nighthawk.Receive.sendAndReceive)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
-                Text("Receive money privately")
-                    .font(.custom(FontFamily.Rubik.regular.name, size: 14))
+                Text(L10n.Nighthawk.Receive.receivePrivately)
+                    .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.textMuted.color)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
@@ -42,8 +42,8 @@ public struct ReceiveView: View {
             VStack(spacing: 10) {
                 Button(action: { store.send(.showQrCodeTapped) }) {
                     optionRow(
-                        title: "Show QR Code",
-                        description: "Let someone scan to send you money.",
+                        title: L10n.Nighthawk.Receive.showQr,
+                        description: L10n.Nighthawk.Receive.showQrDetail,
                         icon: Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     )
                 }
@@ -51,8 +51,8 @@ public struct ReceiveView: View {
 
                 Button(action: { store.send(.copyAddressTapped) }) {
                     optionRow(
-                        title: "Copy private address",
-                        description: "Your wallet address will be copied to the clipboard.",
+                        title: L10n.Nighthawk.Receive.copyAddress,
+                        description: L10n.Nighthawk.Receive.copyAddressDetail,
                         icon: Asset.Assets.Icons.Nighthawk.copy.image
                     )
                 }

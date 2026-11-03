@@ -8,6 +8,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 import UIKit
@@ -16,6 +17,7 @@ struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
     @Environment(\.scenePhase) var scenePhase
     @State private var showPeers = false
+    @ObservedObject private var themes = NighthawkThemeController.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -47,7 +49,7 @@ private extension ChatView {
             if store.embeddedNodeStatus != .notUsed {
                 HStack(spacing: 8) {
                     statusDot(for: store.embeddedNodeStatus)
-                    Text("Node: \(store.embeddedNodeStatus.label)")
+                    Text(L10n.Nighthawk.Chat.nodeStatus(store.embeddedNodeStatus.label))
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         .lineLimit(1)
@@ -58,7 +60,7 @@ private extension ChatView {
             // IRC connection status + nickname
             HStack(spacing: 8) {
                 connectionDot
-                Text("IRC: \(store.connectionState.label)")
+                Text(L10n.Nighthawk.Chat.ircStatus(store.connectionState.label))
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .lineLimit(1)
@@ -73,18 +75,22 @@ private extension ChatView {
                     .lineLimit(1)
 
                 Button(action: { showPeers = true }) {
-                    Text("Peers")
+                    Text(L10n.Nighthawk.Chat.peers)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
 
                 // Retry button
                 if store.connectionState == .error || store.connectionState == .disconnected {
                     Button(action: { store.send(.retryTapped) }) {
-                        Text("Retry")
+                        Text(L10n.Nighthawk.Chat.retry)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
                             .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     }
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
                 }
             }
 
@@ -140,7 +146,7 @@ private extension ChatView {
     /// the transcript until Peers is tapped.
     var peerSheet: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Outbound peers")
+            Text(L10n.Nighthawk.Chat.outboundPeers)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             ForEach(peerSlots, id: \.index) { slot in
@@ -163,7 +169,7 @@ private extension ChatView {
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Asset.Colors.Nighthawk.darkNavy.color)
+        .background(chatBackdrop)
     }
 
     var peerSlots: [(index: Int, label: String, connected: Bool)] {
@@ -231,24 +237,24 @@ private extension ChatView {
                 )
                 .padding(.bottom, 8)
 
-            Text("DarkFi IRC")
+            Text(L10n.Nighthawk.Chat.title)
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 28))
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
-            Text("End-to-end encrypted chat\npowered by the DarkFi P2P network")
+            Text(L10n.Nighthawk.Chat.subtitle)
                 .multilineTextAlignment(.center)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .padding(.horizontal, 40)
 
             Button(action: { store.send(.connectTapped) }) {
-                Text("Connect")
+                Text(L10n.Nighthawk.Chat.connect)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
             }
             .buttonStyle(.nighthawkPrimary(width: 200))
 
             if store.connectionState == .error || store.connectionState == .degraded {
-                Text("Check your network settings or configure Tor in Settings.")
+                Text(L10n.Nighthawk.Chat.networkHint)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .multilineTextAlignment(.center)
@@ -383,7 +389,7 @@ private extension ChatView {
                     HStack(spacing: 6) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 14))
-                        Text("New DM")
+                        Text(L10n.Nighthawk.Chat.newDm)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                     }
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -398,7 +404,7 @@ private extension ChatView {
                     HStack(spacing: 6) {
                         Image(systemName: "key.fill")
                             .font(.system(size: 12))
-                        Text("Share Key")
+                        Text(L10n.Nighthawk.Chat.shareKey)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                     }
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
@@ -556,7 +562,7 @@ private extension ChatView {
                         VStack(spacing: 12) {
                             Spacer().frame(height: 60)
                             if store.connectionState.isConnected {
-                                Text("No messages yet")
+                                Text(L10n.Nighthawk.Chat.noMessages)
                                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                                 Text("Say something in \(store.selectedChannel?.name ?? store.selectedDmContact?.contactLabel ?? "this chat")")
@@ -591,7 +597,20 @@ private extension ChatView {
         }
     }
 
+    @ViewBuilder
     func messageBubble(_ message: Chat.State.Message) -> some View {
+        if message.failedToDecrypt {
+            Text(L10n.Nighthawk.Chat.couldNotDecrypt)
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 6)
+        } else {
+            messageContent(message)
+        }
+    }
+
+    func messageContent(_ message: Chat.State.Message) -> some View {
         HStack {
             if message.isOutgoing { Spacer(minLength: 60) }
 
@@ -669,6 +688,12 @@ private extension ChatView {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Asset.Colors.Nighthawk.darkNavy.color)
+        .background(chatBackdrop)
+    }
+
+    private var chatBackdrop: Color {
+        themes.theme.usesCyberpunkChrome
+            ? Color.black.opacity(0.45)
+            : Asset.Colors.Nighthawk.darkNavy.color
     }
 }
