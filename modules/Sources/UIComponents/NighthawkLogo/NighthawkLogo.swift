@@ -8,13 +8,14 @@
 import Generated
 import SwiftUI
 
+/// Wordmark header for sub-screens (logo mark removed; title only).
 public struct NighthawkLogo: View {
     public enum Spacing: CGFloat {
         case normal = 20
         case compact = 16
     }
 
-    /// Logo dimensions aligned with Android `NighthawkBrandingHeader` / `ic_nighthawk_logo`.
+    /// Retained for call-site compatibility with prior logo sizes.
     public enum Size: CGFloat {
         case standard = 35
         case splash = 40
@@ -38,17 +39,12 @@ public struct NighthawkLogo: View {
 
     public var body: some View {
         VStack(spacing: spacing.rawValue) {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbol
-                .image
-                .renderingMode(.template)
-                .resizable().scaledToFit()
-                .frame(width: size.rawValue, height: size.rawValue)
-                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-
             if showsTitle {
                 Text(L10n.Nighthawk.Splash.title)
                     .title()
             }
         }
+        // `size` kept for API compatibility after the logo mark was removed.
+        .accessibilityIdentifier("nighthawk-wordmark-\(Int(size.rawValue))")
     }
 }

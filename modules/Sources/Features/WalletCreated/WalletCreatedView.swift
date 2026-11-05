@@ -19,19 +19,11 @@ public struct WalletCreatedView: View {
 
     public var body: some View {
         VStack(spacing: 32) {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbol
-                .image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 35, height: 35)
-                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                .padding(.bottom, 22)
-                .padding(.top, 16)
-
             Spacer()
 
             Text(L10n.Nighthawk.WalletCreated.title)
                 .paragraphMedium()
+                .padding(.top, 16)
 
             Text(L10n.Nighthawk.WalletCreated.backupImmediately)
                 .paragraphBold(color: Asset.Colors.Nighthawk.textHeader.color)

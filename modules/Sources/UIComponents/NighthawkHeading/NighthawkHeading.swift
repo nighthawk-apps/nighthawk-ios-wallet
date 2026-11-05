@@ -1,7 +1,7 @@
 //
 //  NighthawkHeading.swift
 //
-//  Brand + title block for transfer/detail flows.
+//  Title block for transfer/detail flows (no logo mark).
 //  When a TopBar is present, use `compact: true` so top padding is not doubled.
 //
 
@@ -22,17 +22,9 @@ public struct NighthawkHeading: View {
 
     public var body: some View {
         VStack(spacing: 10) {
-            Asset.Assets.Icons.Nighthawk.nighthawkSymbol
-                .image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 35, height: 35)
-                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                .padding(.bottom, 22)
-                .padding(.top, compact ? 8 : 16)
-
             Text(title)
                 .paragraphMedium()
+                .padding(.top, compact ? 8 : 16)
 
             if let subtitle {
                 Text(subtitle)
