@@ -1,1 +1,6 @@
 157768f6678a17ec60a896197c729855e43fe107
+# nighthawk24/darkfi branch nighthawk-testnet (same pin as Android / Moonshine).
+# git.dark.fi returns HTTP 504 and does not contain this SHA. Do not clone it.
+# Includes set_chain_context_fallback for lightwalletd-only DAO propose.
+# Tor stays on Arti 0.48. Cargo deps: kvdb-overlay from gitlab.com/nighthawk24/kvdb-overlay,
+# RandomX from codeberg.org/darkrenaissance/RandomX, rust-url from github.com/darkrenaissance/rust-url.
