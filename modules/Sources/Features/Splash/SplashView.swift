@@ -19,14 +19,6 @@ public struct SplashView: View {
         VStack {
             Spacer()
 
-            VStack {
-                NighthawkLogo(size: .tabHeader)
-                    .padding(.bottom, 10)
-
-                Text(L10n.Nighthawk.Splash.subtitle)
-                    .paragraph()
-            }
-
             if store.hasAttemptedAuthentication && !store.authenticated {
                 Button(
                     L10n.Nighthawk.Splash.retry,

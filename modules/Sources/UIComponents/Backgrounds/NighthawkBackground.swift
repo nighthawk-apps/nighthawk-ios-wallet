@@ -8,7 +8,6 @@
 import Generated
 import Models
 import SwiftUI
-import UIKit
 
 private struct NighthawkSuppressNestedBackgroundKey: EnvironmentKey {
     static let defaultValue = false
@@ -23,8 +22,8 @@ public extension EnvironmentValues {
     }
 }
 
-/// Wallpaper anchored at the top left and scaled to the device.
-/// Extra image is clipped; the dark veil keeps text readable.
+/// Wallpaper scaled until it covers the screen, pinned at the top-left
+/// so the NIGHTHAWK title stays in frame.
 public struct CyberpunkBackdrop: View {
     public init() {}
 

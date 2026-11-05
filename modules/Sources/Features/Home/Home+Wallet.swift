@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Receive
 import SendFlow
 
 extension Home {
@@ -26,6 +27,23 @@ extension Home {
                             latestFiatPrice: state.walletInfo.latestFiatPrice
                         )
                     )
+                    return .none
+                case .receiveMoney:
+                    state.transfer.destination = .receive(
+                        .init(
+                            uAddress: state.walletInfo.unifiedAddress,
+                            showCloseButton: processInfo.isiOSAppOnMac()
+                        )
+                    )
+                    return .none
+                case .sendMoney:
+                    var sendState = SendFlow.State(
+                        latestFiatPrice: state.walletInfo.latestFiatPrice,
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                    sendState.spendableBalance = state.walletInfo.balance
+                    sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                    state.transfer.destination = .send(sendState)
                     return .none
                 case .showAddresses:
                     state.destination = .addresses(

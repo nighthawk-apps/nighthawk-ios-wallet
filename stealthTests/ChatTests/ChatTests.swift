@@ -272,5 +272,7 @@ class ChatTests: XCTestCase {
         let expected = DarkfiChatDefaults.defaultPublicChannels
         XCTAssertEqual(state.channels.count, expected.count)
         XCTAssertEqual(state.channels.map(\.name), expected)
+        XCTAssertEqual(expected.first, "#nighthawk")
+        XCTAssertEqual(state.selectedChannel?.name, "#nighthawk")
     }
 }

@@ -29,14 +29,12 @@ struct TransferView: View {
 // MARK: - Subviews
 private extension TransferView {
     @ViewBuilder var heading: some View {
-        NighthawkLogo(spacing: .compact, size: .tabHeader)
-            .padding(.vertical, 24)
-
         HStack {
             Text(L10n.Nighthawk.TransferTab.sendAndReceiveDarkFi)
                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
             Spacer()
         }
+        .padding(.top, 48)
         .padding(.horizontal, 25)
     }
 

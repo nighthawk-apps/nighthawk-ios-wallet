@@ -15,11 +15,8 @@ public struct MigrateView: View {
 
     public var body: some View {
         VStack {
-            NighthawkLogo(spacing: .compact)
-                .padding(.top, 16)
-                .padding(.bottom, 22)
-
             Text(L10n.Nighthawk.MigrateScreen.title)
+                .padding(.top, 16)
                 .paragraphMedium()
                 .padding(.bottom, 32)
 

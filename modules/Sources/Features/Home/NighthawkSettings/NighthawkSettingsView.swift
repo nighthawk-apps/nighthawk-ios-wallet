@@ -20,15 +20,28 @@ struct NighthawkSettingsView: View {
     @Bindable var store: StoreOf<NighthawkSettings>
 
     var body: some View {
-        ScrollView([.vertical], showsIndicators: false) {
-            NighthawkLogo(spacing: .compact, size: .tabHeader)
-                .padding(.vertical, 24)
+        NighthawkSplitContainer {
+            settingsColumn
+        } secondary: {
+            settingsCompanionPane
+        }
+        .onAppear { store.send(.onAppear) }
+        .alert(
+            $store.scope(
+                state: \.alert,
+                action: \.alert
+            )
+        )
+    }
 
+    private var settingsColumn: some View {
+        ScrollView([.vertical], showsIndicators: false) {
             HStack {
-                Text(L10n.Nighthawk.SettingsTab.settings)
-                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
+                    .title(color: Asset.Colors.Nighthawk.textHeader.color)
                 Spacer()
             }
+            .padding(.top, 48)
             .padding(.bottom, 13)
 
             VStack {
@@ -117,14 +130,24 @@ struct NighthawkSettingsView: View {
             }
         }
         .padding(.horizontal, 25)
-        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
-        .alert(
-            $store.scope(
-                state: \.alert,
-                action: \.alert
-            )
-        )
+    }
+
+    private var settingsCompanionPane: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                Text("Select a setting on the left to open it.")
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                Text(L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion))
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .applyNighthawkBackground()
     }
 }
 

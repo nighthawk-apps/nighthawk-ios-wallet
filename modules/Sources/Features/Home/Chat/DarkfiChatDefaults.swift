@@ -3,8 +3,8 @@
 //  stealth
 //
 //  Default configuration for DarkFi IRC chat.
-//  Matches upstream darkirc autojoin channels and provides
-//  persistent hawkXXX nickname generation.
+//  `#nighthawk` is first/selected; remaining channels follow upstream
+//  darkirc autojoin. Provides persistent hawkXXX nickname generation.
 //
 
 import Foundation
@@ -13,9 +13,10 @@ import Foundation
 public enum DarkfiChatDefaults {
     // MARK: - Channels
 
-    /// Default public channels to join — matches upstream darkirc `autojoin`
-    /// and Android `DarkfiChatDefaults.DEFAULT_PUBLIC_CHANNELS`.
+    /// Fresh-install autojoin / channel chips — matches Android
+    /// `DarkfiChatDefaults.DEFAULT_PUBLIC_CHANNELS` (`#nighthawk` first).
     public static let defaultPublicChannels: [String] = [
+        "#nighthawk",
         "#dev",
         "#media",
         "#hackers",
@@ -27,10 +28,13 @@ public enum DarkfiChatDefaults {
         "#lunardao"
     ]
 
-    /// Topic descriptions for default channels (upstream `[channel."#…"]` blocks).
+    /// Topic descriptions for default channels (upstream `[channel."#…"]` blocks
+    /// plus Nighthawk-only `#nighthawk`).
     public static let defaultChannelTopics: [String: String] = [
+        "#nighthawk": "Nighthawk wallet users",
         "#dev": "DarkFi Development HQ",
         "#media": "DarkFi Art, Fashion, Video, Memetics",
+        "#hackers": "Hacker Culture",
         "#memes": "DarkFi Meme Reality",
         "#philosophy": "Philosophy Discussions",
         "#markets": "Crypto Market Talk",

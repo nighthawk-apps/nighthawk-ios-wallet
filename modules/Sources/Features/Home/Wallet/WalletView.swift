@@ -31,22 +31,25 @@ public struct WalletView: View {
     private var walletColumn: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
-                NighthawkLogo(spacing: .compact, size: .tabHeader)
-                    .padding(.top, 24)
+                // Clears the overlaid QR actions. The wordmark is on the wallpaper.
+                Color.clear.frame(height: 56)
 
                 syncStatusDot
-                    .padding(.top, 16)
+                    .padding(.top, 8)
                     .padding(.bottom, 8)
 
-                // Balance / swipe prompt centered between branding and recent activity
-                // (same layout intent as Android WalletView).
+                // Balance sits in the space under the status dot.
                 balanceTabsView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                walletActionRow
+                    .padding(.horizontal, 25)
+                    .padding(.bottom, 8)
 
                 latestWalletEvents
             }
 
-            // Overlay QR actions in the top inset so branding Y matches other tabs.
+            // QR actions stay in the top inset.
             qrCodeButtons
                 .zIndex(1)
         }
@@ -254,6 +257,53 @@ private extension WalletView {
         default:
             return isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
         }
+    }
+
+    var walletActionRow: some View {
+        HStack(spacing: 12) {
+            walletOutlineButton(
+                title: L10n.Nighthawk.TransferTab.receiveMoneyTitle,
+                enabled: true,
+                action: { store.send(.receiveMoneyTapped) }
+            )
+            walletOutlineButton(
+                title: L10n.Nighthawk.TransferTab.sendMoneyTitle,
+                enabled: !store.isSyncingFailed && !store.isSyncingStopped,
+                action: { store.send(.sendMoneyTapped) }
+            )
+        }
+    }
+
+    func walletOutlineButton(
+        title: String,
+        enabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .textCase(.uppercase)
+                .font(.custom(FontFamily.Roboto.medium.name, size: 14))
+                .foregroundColor(
+                    enabled
+                        ? Asset.Colors.Nighthawk.textHeader.color
+                        : Asset.Colors.Nighthawk.textHeader.color.opacity(0.4)
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(
+                            enabled
+                                ? Asset.Colors.Nighthawk.peach.color
+                                : Asset.Colors.Nighthawk.peach.color.opacity(0.35),
+                            lineWidth: 1.5
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityAddTraits(.isButton)
     }
 
     var latestWalletEvents: some View {

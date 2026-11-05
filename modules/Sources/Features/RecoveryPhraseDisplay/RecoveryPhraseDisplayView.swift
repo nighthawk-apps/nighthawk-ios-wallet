@@ -27,9 +27,6 @@ public struct RecoveryPhraseDisplayView: View {
                 VStack(spacing: 0) {
                     let groups = store.phrase.toGroups(groupSizeOverride: 3)
 
-                    NighthawkLogo(spacing: .compact, showsTitle: false)
-                        .padding(.bottom, 25)
-
                     instructions
 
                     if isCaptured {

@@ -23,8 +23,6 @@ public struct ImportWalletView: View {
     public var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 24) {
-                NighthawkLogo(spacing: .compact)
-
                 instructions()
             }
             .onTapGesture {

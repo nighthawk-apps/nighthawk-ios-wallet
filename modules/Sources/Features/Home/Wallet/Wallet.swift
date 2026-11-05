@@ -76,6 +76,8 @@ public struct Wallet {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case scanPaymentRequestTapped
+        case receiveMoneyTapped
+        case sendMoneyTapped
         case viewAddressesTapped
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
@@ -87,6 +89,8 @@ public struct Wallet {
 
         public enum Delegate: Equatable {
             case scanPaymentRequest
+            case receiveMoney
+            case sendMoney
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
@@ -109,6 +113,10 @@ public struct Wallet {
                 return .none
             case .scanPaymentRequestTapped:
                 return .send(.delegate(.scanPaymentRequest))
+            case .receiveMoneyTapped:
+                return .send(.delegate(.receiveMoney))
+            case .sendMoneyTapped:
+                return .send(.delegate(.sendMoney))
             case .viewAddressesTapped:
                 return .send(.delegate(.showAddresses))
             case let .viewTransactionDetailTapped(walletEvent):

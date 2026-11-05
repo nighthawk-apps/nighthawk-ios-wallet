@@ -203,15 +203,15 @@ public struct Chat {
         public var myDmPublicKey: String?
 
         public init() {
-            // Build channels from upstream defaults
-            self.channels = IdentifiedArrayOf(
-                uniqueElements: DarkfiChatDefaults.defaultPublicChannels.map { name in
-                    Channel(
-                        name: name,
-                        topic: DarkfiChatDefaults.defaultChannelTopics[name] ?? ""
-                    )
-                }
-            )
+            // Fresh defaults: `#nighthawk` first and selected (Android/desktop parity).
+            let defaults = DarkfiChatDefaults.defaultPublicChannels.map { name in
+                Channel(
+                    name: name,
+                    topic: DarkfiChatDefaults.defaultChannelTopics[name] ?? ""
+                )
+            }
+            self.channels = IdentifiedArrayOf(uniqueElements: defaults)
+            self.selectedChannel = defaults.first
         }
     }
 

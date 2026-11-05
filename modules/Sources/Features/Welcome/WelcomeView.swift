@@ -22,9 +22,6 @@ public struct WelcomeView: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
-                NighthawkLogo(size: .tabHeader)
-                    .padding(.top, 16)
-
                 Spacer(minLength: 0)
 
                 // Onboarding carousel (matches Android OnboardingCarousel)

@@ -32,6 +32,8 @@ struct ChatView: View {
                 connectedView
             }
         }
+        // Clears the wallpaper NIGHTHAWK wordmark under the status bar.
+        .padding(.top, 48)
         .onAppear { store.send(.onAppear) }
         .onChange(of: scenePhase) { _, newPhase in
             store.send(.scenePhaseChanged(newPhase))
