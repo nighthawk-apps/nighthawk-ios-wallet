@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Generated
 import Home
 import ImportWallet
@@ -60,8 +61,12 @@ public struct AppView: View {
                 action: \.alert
             )
         )
+        .onAppear {
+            NighthawkMeshController.shared.restoreIfEnabled()
+        }
         .onChange(of: scenePhase) {
             store.send(.scenePhaseChanged(scenePhase))
+            NighthawkMeshController.shared.setForeground(scenePhase == .active)
         }
         .onChange(of: store.path.isEmpty) { _, isEmpty in
             // Splash stays mounted as the stack root. Mark it hidden once a

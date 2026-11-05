@@ -245,7 +245,7 @@ typedef void (*UniffiForeignFutureCompleteVoid)(uint64_t, UniffiForeignFutureRes
 #endif
 #ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_DARKIRC_EVENT_CALLBACK_METHOD0
 #define UNIFFI_FFIDEF_CALLBACK_INTERFACE_DARKIRC_EVENT_CALLBACK_METHOD0
-typedef void (*UniffiCallbackInterfaceDarkircEventCallbackMethod0)(uint64_t, RustBuffer, RustBuffer, RustBuffer, RustBuffer, uint64_t, void* _Nonnull, 
+typedef void (*UniffiCallbackInterfaceDarkircEventCallbackMethod0)(uint64_t, RustBuffer, RustBuffer, RustBuffer, RustBuffer, uint64_t, int8_t, void* _Nonnull, 
         RustCallStatus *_Nonnull uniffiCallStatus
     );
 

@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.00.027.** Cyberpunk is the default theme on a light or dark system. The Void wallpaper stays anchored at the top left and continues under the status bar and the tab bar. Body text uses DejaVu Sans Mono. Light and Paper use graphite and grey instead of teal. Titles are Outfit, body text is Source Sans 3, Paper titles are Source Serif 4, and keys are IBM Plex Mono. The sync light is green only while lightwalletd is connected over UnifOMR (`SynchronizerState.lightwalletdConnected`); it is orange while connecting or disconnected, and a healthy session no longer flips to Connecting every poll. Each channel and DM keeps its own composer draft, so switching rooms does not send the previous text. The iOS Rust FFI still speaks lightwalletd proto 1.x, so it needs a 0.2.x server until it is ported to proto 2.0.0. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
+**3.01.00.** Cyberpunk is the default theme on a light or dark system. The Void wallpaper stays anchored at the top left and continues under the status bar and the tab bar. Body text uses DejaVu Sans Mono. Light and Paper use graphite and grey instead of teal. Titles are Outfit, body text is Source Sans 3, Paper titles are Source Serif 4, and keys are IBM Plex Mono. The sync light is green only while lightwalletd is connected; it is orange while connecting or disconnected. Default sync is padded trial decryption over lightwalletd proto 2.1.0. Experimental UnifOMR is off unless you turn it on under Advanced settings. Embedded Tor is Arti 0.48. Nym is the default network for the wallet, DarkIRC, and node traffic. Launch shows mixnet progress and **Continue without Nym** after 20 seconds or a failed bootstrap. Settings → Network privacy is one Nym / Tor / Direct choice for the whole app. Rebuild `DarkfiCore.xcframework` before running this build on a device; the Swift bindings in this commit are newer than an older xcframework.
 
 ## Contents
 
@@ -321,7 +321,7 @@ Lightwallet can dial SOCKS5 the same way as Android.
 - Crypto parity with Android / moonshine / LWD (`n=1024`)
 - Sync fail-closed if clue PK registration fails; send via LWD `SendTransaction` only
 - Default local: `tcp://127.0.0.1:9067` (Change Server)
-- **Not in the 2026-10-21 localnet.** Android, desktop, and Moonshine completed 100/100 UnifOMR sends each way on that run. This app shares the UniFFI sync engine once `third_party/darkfi` is the same pin, but that run did not install or sync an iOS wallet. Strict UnifOMR hides clue-less payments until trial decrypt is allowed.
+- **Trial decryption is the default.** Money notes, token mints, and compact DAO calls sync without a clue. Experimental UnifOMR is off under Advanced settings and is not maintained until DarkFi mainnet contracts are live.
 - Limits: [`docs/unifomr_mvp_limits.md`](docs/unifomr_mvp_limits.md)
 
 | # | Feature | Status |

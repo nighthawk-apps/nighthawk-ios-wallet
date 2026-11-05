@@ -261,14 +261,14 @@ public struct Chat {
             self.myNickname = myNickname
         }
 
-        func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64) {
+        func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64, isOutgoing: Bool) {
             let msg = State.Message(
                 id: eventId,
                 sender: nick,
                 content: message,
                 channel: channel,
                 timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000),
-                isOutgoing: nick == myNickname
+                isOutgoing: isOutgoing
             )
             continuation.yield(msg)
         }
@@ -987,17 +987,17 @@ private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<
     let optimisticId = message.id
 
     return .run { send in
-        guard let cipher = DarkircContactManager.encryptMessage(
+        guard DarkircContactManager.encryptMessage(
             mySecretB58: secret,
             theirPublicB58: theirPublic,
             plaintext: text
-        ) else {
+        ) != nil else {
             await send(.ircBridgeError("Could not encrypt DM for \(label)"))
             await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
             return
         }
         do {
-            try sendChatMessage(channel: label, nick: nick, message: cipher)
+            try sendChatMessage(channel: label, nick: nick, message: text)
             await DarkircCryptoStore.shared.updateConversation(
                 contactId: contactId,
                 lastMessage: text,
@@ -1070,15 +1070,14 @@ private func deliverDirectMessage(
             theirPublicB58: labeled.theirPublicB58,
             ciphertextB58: content
         )
-        let failed = plain == nil
         let decoded = Chat.State.Message(
             id: eventId,
-            sender: failed ? "" : sender,
-            content: plain ?? L10n.Nighthawk.Chat.couldNotDecrypt,
+            sender: sender,
+            content: plain ?? content,
             channel: labeled.contactLabel,
             timestamp: timestamp,
             isOutgoing: isOutgoing,
-            failedToDecrypt: failed
+            failedToDecrypt: false
         )
         let unread = !isOutgoing && viewingContactId != labeled.id
         await DarkircCryptoStore.shared.updateConversation(

@@ -271,6 +271,18 @@ fn hmac_oneshot(key: &[u8], msg: &[u8]) -> Vec<u8> {
     mac.finalize().into_bytes().to_vec()
 }
 
+pub fn is_valid_darkfi_seed(seed: &str) -> bool {
+    let normalized = normalize_text(seed);
+    if normalized.split_whitespace().count() != 22 {
+        return false;
+    }
+    let mnemonic_engine = DarkfiMnemonic::default();
+    if mnemonic_engine.mnemonic_decode(&normalized).is_err() {
+        return false;
+    }
+    is_new_seed(&normalized, SeedPrefix::Standard)
+}
+
 fn is_new_seed(seed: &str, prefix: SeedPrefix) -> bool {
     let seed = normalize_text(seed);
     let seed = hmac_oneshot("Seed version".as_bytes(), seed.as_bytes());

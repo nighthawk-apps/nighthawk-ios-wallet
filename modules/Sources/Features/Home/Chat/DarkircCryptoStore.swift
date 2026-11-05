@@ -193,6 +193,11 @@ public actor DarkircCryptoStore {
         // Save contacts
         if let data = try? encoder.encode(contacts) {
             try? data.write(to: dir.appendingPathComponent("dm_contacts.json"), options: .atomic)
+            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            if let db = docs?.appendingPathComponent("darkirc_db", isDirectory: true) {
+                try? FileManager.default.createDirectory(at: db, withIntermediateDirectories: true)
+                try? data.write(to: db.appendingPathComponent("dm_contacts.json"), options: .atomic)
+            }
         }
 
         // Save conversations

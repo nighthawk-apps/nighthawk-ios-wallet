@@ -22,18 +22,17 @@
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
-/// Client proto version. Major must match darkfi-lightwalletd (`2.0.0`).
-/// A different major is refused. There is no 1.x compatibility path.
-pub const CLIENT_PROTO_VERSION: &str = "2.0.0";
+/// Client proto version. Major must match darkfi-lightwalletd.
+/// A different major is refused.
+pub const CLIENT_PROTO_VERSION: &str = "2.1.0";
 
-/// True when both sides parse as semver and the major versions differ.
-/// An empty or unparseable server version is not a mismatch.
+/// True when the server version is missing or its major differs from this wallet.
 pub fn proto_major_mismatch(server: &str, client: &str) -> bool {
     let Ok(server_semver) = semver::Version::parse(server) else {
-        return false;
+        return true;
     };
     let Ok(client_semver) = semver::Version::parse(client) else {
-        return false;
+        return true;
     };
     server_semver.major != client_semver.major
 }
@@ -204,6 +203,8 @@ pub struct LightCompactOutput {
     pub omr_clue: Vec<u8>,
     /// Recipient-encrypted OMR metadata (scheme, clue binding, user memo).
     pub omr_metadata_enc: Vec<u8>,
+    /// `MoneyFunction` discriminant. Zero when the server did not record one.
+    pub func_code: u32,
 }
 
 /// Server info returned by GetLightInfo.
@@ -240,6 +241,7 @@ pub struct CompactOutputBodyDto {
     pub omr_clue: Vec<u8>,
     pub omr_metadata_enc: Vec<u8>,
     pub tx_hash: Vec<u8>,
+    pub func_code: u32,
 }
 
 struct PooledDetectionKey {
@@ -1059,30 +1061,7 @@ impl LightwalletClient {
                     }
                     Ok(blocks)
                 }
-                Err(status) => {
-                    let code = status.code();
-                    let msg = status.message().to_lowercase();
-                    let fallback = code == tonic::Code::Unimplemented
-                        || code == tonic::Code::NotFound
-                        || msg.contains("unknown")
-                        || msg.contains("unimplemented");
-                    if !fallback {
-                        return Err(format!("GetCompactBlocksAtHeights RPC: {status}"));
-                    }
-                    tracing::debug!(
-                        target: "lightwallet-client",
-                        "GetCompactBlocksAtHeights unavailable ({status}); falling back to N× GetBlock"
-                    );
-                    let mut blocks = Vec::with_capacity(unique.len());
-                    for h in &unique {
-                        let resp = client
-                            .get_block(lightwallet_proto::BlockHeight { height: *h })
-                            .await
-                            .map_err(|e| format!("GetBlock({h}) fallback RPC: {e}"))?;
-                        blocks.push(proto_compact_to_light(resp.into_inner()));
-                    }
-                    Ok(blocks)
-                }
+                Err(status) => Err(format!("GetCompactBlocksAtHeights RPC: {status}")),
             }
         })
         .await;
@@ -1528,6 +1507,87 @@ impl LightwalletClient {
                     omr_clue: body.omr_clue,
                     omr_metadata_enc: body.omr_metadata_enc,
                     tx_hash: body.tx_hash,
+                    func_code: body.func_code,
+                });
+            }
+            Ok(out)
+        })
+        .await
+    }
+
+    /// Money outputs of one function code. Older servers do not implement this.
+    pub async fn get_compact_outputs_by_func(
+        &self,
+        start_height: u32,
+        end_height: u32,
+        func_code: u32,
+    ) -> Result<Vec<CompactOutputBodyDto>, String> {
+        validate_block_range(start_height, end_height)?;
+        async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let mut stream = client
+                .get_compact_outputs_by_func(lightwallet_proto::FuncBlockRange {
+                    start_height,
+                    end_height,
+                    func_code,
+                })
+                .await
+                .map_err(|e| format!("GetCompactOutputsByFunc RPC: {e}"))?
+                .into_inner();
+            let mut out = Vec::new();
+            while let Some(body) = stream
+                .message()
+                .await
+                .map_err(|e| format!("GetCompactOutputsByFunc stream: {e}"))?
+            {
+                out.push(CompactOutputBodyDto {
+                    height: body.height,
+                    hash: body.hash,
+                    prev_hash: body.prev_hash,
+                    coin: body.coin,
+                    encrypted_note: body.encrypted_note,
+                    omr_clue: body.omr_clue,
+                    omr_metadata_enc: body.omr_metadata_enc,
+                    tx_hash: body.tx_hash,
+                    func_code: body.func_code,
+                });
+            }
+            Ok(out)
+        })
+        .await
+    }
+
+    /// DAO calls with proofs removed.
+    pub async fn get_compact_dao_calls(
+        &self,
+        start_height: u32,
+        end_height: u32,
+    ) -> Result<Vec<crate::dao_compact::CompactDaoCall>, String> {
+        validate_block_range(start_height, end_height)?;
+        async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let mut stream = client
+                .get_compact_dao_calls(lightwallet_proto::BlockRange {
+                    start_height,
+                    end_height,
+                })
+                .await
+                .map_err(|e| format!("GetCompactDaoCalls RPC: {e}"))?
+                .into_inner();
+            let mut out = Vec::new();
+            while let Some(call) = stream
+                .message()
+                .await
+                .map_err(|e| format!("GetCompactDaoCalls stream: {e}"))?
+            {
+                out.push(crate::dao_compact::CompactDaoCall {
+                    height: call.height,
+                    tx_hash: call.tx_hash,
+                    kind: call.kind,
+                    bulla: call.bulla,
+                    payload: call.payload,
                 });
             }
             Ok(out)
@@ -1663,6 +1723,7 @@ pub(crate) fn proto_compact_to_light(pb: lightwallet_proto::CompactBlock) -> Lig
                         token_commit: o.token_commit,
                         omr_clue: o.omr_clue,
                         omr_metadata_enc: o.omr_metadata_enc,
+                        func_code: o.func_code,
                     })
                     .collect(),
                 nullifiers: tx.nullifiers,
@@ -1868,6 +1929,7 @@ pub fn compact_bodies_to_blocks(bodies: Vec<CompactOutputBodyDto>) -> Vec<LightC
                 token_commit: Vec::new(),
                 omr_clue: body.omr_clue,
                 omr_metadata_enc: body.omr_metadata_enc,
+                func_code: body.func_code,
             });
     }
     by_height
@@ -2480,6 +2542,7 @@ mod tests {
                     token_commit: vec![6u8; 32],
                     omr_clue: Vec::new(),
                     omr_metadata_enc: Vec::new(),
+                    func_code: 0,
                 }],
                 nullifiers: vec![vec![7u8; 32]],
                 fee: 1000,

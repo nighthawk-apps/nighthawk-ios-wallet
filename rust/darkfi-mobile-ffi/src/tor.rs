@@ -6,7 +6,8 @@
 //! `net` layer links), giving Tor-routed connectivity for wallet RPC and the
 //! DarkIRC P2P transport without an external Tor app.
 //!
-//! On Android, Guardian tor-android is used (bundled native binary).
+//! Each accepted SOCKS connection is dialled on [`TorClient::isolated_client`]
+//! with onion services enabled, matching the Android Arti proxy.
 //!
 //! NOTE: status is derived from the *actual* bootstrap result — it never
 //! reports `Connected` unless the Tor client genuinely bootstrapped. A failed
@@ -14,7 +15,8 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
-use arti_client::{TorClient, TorClientConfig};
+use arti_client::config::{BoolOrAuto, TorClientConfigBuilder};
+use arti_client::{StreamPrefs, TorClient, TorClientConfig};
 use futures::{AsyncReadExt, AsyncWriteExt};
 use smol::net::{TcpListener, TcpStream};
 
@@ -25,6 +27,12 @@ const ARTI_CONNECTED: u8 = 2;
 const ARTI_FAILED: u8 = 3;
 
 static ARTI_STATE: AtomicU8 = AtomicU8::new(ARTI_STOPPED);
+
+static ARTI_STORAGE_DIR: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+
+pub fn set_arti_storage_dir(path: std::path::PathBuf) {
+    let _ = ARTI_STORAGE_DIR.set(path);
+}
 
 /// Set when a stop has been requested so the accept loop can wind down.
 static ARTI_STOP_REQUESTED: std::sync::atomic::AtomicBool =
@@ -102,19 +110,20 @@ pub fn is_arti_running() -> bool {
 
 /// Bootstrap the Tor client and serve SOCKS5 CONNECT requests until stopped.
 async fn run_socks_proxy(socks_port: u16) -> Result<(), String> {
-    // Bootstrap a real Tor client. This performs directory fetch + circuit
-    // setup; it can take 10-30s on first launch.
-    let config = TorClientConfig::default();
+    // Bind before bootstrap so readiness probes succeed while directory
+    // fetch is still running. CONNECT handling starts only after bootstrap.
+    let listener = TcpListener::bind(("127.0.0.1", socks_port))
+        .await
+        .map_err(|e| format!("SOCKS bind on 127.0.0.1:{socks_port} failed: {e}"))?;
+    tracing::info!("arti SOCKS bound on 127.0.0.1:{socks_port}; bootstrapping Tor client...");
+
+    let config = arti_config()?;
     let tor_client = TorClient::create_bootstrapped(config)
         .await
         .map_err(|e| format!("Tor bootstrap failed: {e}"))?;
 
-    let listener = TcpListener::bind(("127.0.0.1", socks_port))
-        .await
-        .map_err(|e| format!("SOCKS bind on 127.0.0.1:{socks_port} failed: {e}"))?;
-
     ARTI_STATE.store(ARTI_CONNECTED, Ordering::SeqCst);
-    tracing::info!("arti SOCKS proxy bootstrapped and listening on 127.0.0.1:{socks_port}");
+    tracing::info!("arti SOCKS proxy bootstrapped and ready on 127.0.0.1:{socks_port}");
 
     loop {
         if ARTI_STOP_REQUESTED.load(Ordering::SeqCst) {
@@ -148,6 +157,23 @@ async fn run_socks_proxy(socks_port: u16) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+fn arti_config() -> Result<TorClientConfig, String> {
+    let mut builder = if let Some(base) = ARTI_STORAGE_DIR.get() {
+        let state_dir = base.join("arti").join("state");
+        let cache_dir = base.join("arti").join("cache");
+        std::fs::create_dir_all(&state_dir).map_err(|e| format!("arti state_dir: {e}"))?;
+        std::fs::create_dir_all(&cache_dir).map_err(|e| format!("arti cache_dir: {e}"))?;
+        TorClientConfigBuilder::from_directories(state_dir, cache_dir)
+    } else {
+        // Callers that have not set an app cache dir still get onion + isolation.
+        TorClientConfigBuilder::default()
+    };
+    builder.address_filter().allow_onion_addrs(true);
+    builder
+        .build()
+        .map_err(|e| format!("Tor config (onion must be enabled): {e}"))
 }
 
 /// Minimal SOCKS5 CONNECT handler: negotiates "no authentication", reads the
@@ -239,8 +265,13 @@ async fn handle_socks_conn(
         .map_err(|e| e.to_string())?;
     let port = u16::from_be_bytes(port_bytes);
 
-    // --- Dial the target through Tor ---
-    let tor_stream = match tor_client.connect((host.as_str(), port)).await {
+    // --- Dial the target through Tor (onion enabled; never fall back to clearnet) ---
+    let mut prefs = StreamPrefs::new();
+    prefs.connect_to_onion_services(BoolOrAuto::Explicit(true));
+    let tor_stream = match tor_client
+        .connect_with_prefs((host.as_str(), port), &prefs)
+        .await
+    {
         Ok(s) => s,
         Err(e) => {
             // Reply "host unreachable".

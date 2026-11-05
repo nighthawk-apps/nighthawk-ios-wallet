@@ -2410,7 +2410,7 @@ public func FfiConverterTypeSyncMethod_lower(_ value: SyncMethod) -> RustBuffer 
 
 public protocol DarkircEventCallback: AnyObject, Sendable {
     
-    func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64) 
+    func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64, isOutgoing: Bool) 
     
 }
 
@@ -2444,6 +2444,7 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
             nick: RustBuffer,
             message: RustBuffer,
             timestamp: UInt64,
+            isOutgoing: Int8,
             uniffiOutReturn: UnsafeMutableRawPointer,
             uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
         ) in
@@ -2457,7 +2458,8 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
                      channel: try FfiConverterString.lift(channel),
                      nick: try FfiConverterString.lift(nick),
                      message: try FfiConverterString.lift(message),
-                     timestamp: try FfiConverterUInt64.lift(timestamp)
+                     timestamp: try FfiConverterUInt64.lift(timestamp),
+                     isOutgoing: isOutgoing != 0
                 )
             }
 

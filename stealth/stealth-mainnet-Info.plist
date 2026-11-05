@@ -81,9 +81,15 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Nighthawk uses Bluetooth to relay DarkIRC with nearby phones when Nearby mesh is on.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Nighthawk uses Bluetooth to relay DarkIRC with nearby phones when Nearby mesh is on.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

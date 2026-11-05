@@ -1,4 +1,6 @@
 namespace darkfi_mobile_ffi {
+    void set_network_storage_dir(string path);
+
     string bridge_version();
     string bridge_ping();
     sequence<string> generate_darkfi_mnemonic();
@@ -53,7 +55,7 @@ namespace darkfi_mobile_ffi {
 };
 
 callback interface DarkircEventCallback {
-    void on_message(string event_id, string channel, string nick, string message, u64 timestamp);
+    void on_message(string event_id, string channel, string nick, string message, u64 timestamp, boolean is_outgoing);
 };
 
 dictionary DmKeypair {
@@ -80,8 +82,9 @@ dictionary DrkBootstrapConfig {
     /// Optional darkfid JSON-RPC URL for broadcast fallback only.
     /// Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
     string? darkfid_rpc_url;
-    /// When true, UnifOMR-only (no supplemental trial decrypt). Default true.
-    boolean strict_omr_only = true;
+    /// Experimental UnifOMR. Not maintained until DarkFi mainnet contracts are live.
+    /// Default false: padded trial decryption, the same scan drk uses on full blocks.
+    boolean strict_omr_only = false;
 };
 
 dictionary DrkSyncSnapshot {

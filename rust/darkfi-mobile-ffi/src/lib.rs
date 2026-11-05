@@ -7,8 +7,11 @@ pub mod block_cache;
 mod block_times;
 pub mod bootstrap;
 mod dao;
+mod dao_compact;
+mod note_batch;
 #[cfg(feature = "darkirc")]
 mod darkirc_daemon;
+mod panic_fence;
 mod memo;
 pub mod mnemonic;
 #[cfg(feature = "nym")]
@@ -26,6 +29,7 @@ pub mod lightwallet_sync;
 pub mod omr;
 pub mod unifomr;
 pub mod zkas_cache;
+pub mod mesh;
 
 #[cfg(feature = "darkirc")]
 pub trait DarkircEventCallback: Send + Sync {
@@ -36,6 +40,7 @@ pub trait DarkircEventCallback: Send + Sync {
         nick: String,
         message: String,
         timestamp: u64,
+        is_outgoing: bool,
     );
 }
 
@@ -48,6 +53,7 @@ pub trait DarkircEventCallback: Send + Sync {
         nick: String,
         message: String,
         timestamp: u64,
+        is_outgoing: bool,
     );
 }
 
@@ -617,7 +623,7 @@ fn validate_bootstrap(config: &DrkBootstrapConfig) -> ResultWallet<()> {
     }
 
     if let Some(pin) = &config.lightwallet_tls_pin_sha256 {
-        if pin.len() != 32 {
+        if pin.is_empty() || pin.len() % 32 != 0 || pin.len() > 128 {
             return Err(DarkfiWalletNativeError::InvalidBootstrapConfig);
         }
     }
@@ -646,19 +652,26 @@ fn validate_bootstrap(config: &DrkBootstrapConfig) -> ResultWallet<()> {
 }
 
 /// Parse optional 32-byte TLS pin from bootstrap / sync engine config.
-pub(crate) fn parse_tls_pin(bytes: Option<&[u8]>) -> Result<Option<[u8; 32]>, String> {
+pub(crate) fn parse_tls_pins(bytes: Option<&[u8]>) -> Result<Vec<[u8; 32]>, String> {
     match bytes {
-        None | Some([]) => Ok(None),
-        Some(b) if b.len() == 32 => {
-            let mut pin = [0u8; 32];
-            pin.copy_from_slice(b);
-            Ok(Some(pin))
-        }
+        None | Some([]) => Ok(Vec::new()),
+        Some(b) if !b.is_empty() && b.len() % 32 == 0 && b.len() <= 128 => Ok(b
+            .chunks_exact(32)
+            .map(|chunk| {
+                let mut pin = [0u8; 32];
+                pin.copy_from_slice(chunk);
+                pin
+            })
+            .collect()),
         Some(b) => Err(format!(
-            "lightwallet_tls_pin_sha256 must be 32 bytes, got {}",
+            "lightwallet_tls_pin_sha256 must be 32–128 bytes in 32-byte pins, got {}",
             b.len()
         )),
     }
+}
+
+pub(crate) fn parse_tls_pin(bytes: Option<&[u8]>) -> Result<Option<[u8; 32]>, String> {
+    Ok(parse_tls_pins(bytes)?.into_iter().next())
 }
 
 /// Prefer SyncEngine heights (lightwalletd) over darkfid RPC tip.
@@ -682,7 +695,7 @@ fn sync_snapshot_from_engine(
 /// Opaque handle for an on-device `Drk` session (upstream `bin/drk/src/lib.rs`).
 pub struct DarkfiWalletHandle {
     drk: DrkPtr,
-    _sync_started: bool,
+    sync_thread: std::sync::Mutex<Option<std::thread::JoinHandle<()>>>,
     sync_engine: Arc<crate::lightwallet_sync::SyncEngine>,
     cache_path: String,
 }
@@ -731,7 +744,7 @@ impl DarkfiWalletHandle {
         } else if config.use_tor {
             stop_nym_proxy();
             let port = if config.tor_socks_port == 0 {
-                9150
+                9050
             } else {
                 config.tor_socks_port
             };
@@ -758,11 +771,11 @@ impl DarkfiWalletHandle {
         ));
         sync_engine.set_strict_omr_only(config.strict_omr_only);
         zkas_cache::set_disk_cache_dir(std::path::PathBuf::from(&config.cache_path));
-        sync::start_background_sync(drk.clone(), ex, sync_engine.clone());
+        let sync_thread = sync::start_background_sync(drk.clone(), ex, sync_engine.clone());
         block_times::set_store_directory(&config.cache_path);
         Ok(Self {
             drk,
-            _sync_started: true,
+            sync_thread: std::sync::Mutex::new(Some(sync_thread)),
             sync_engine,
             cache_path: config.cache_path.clone(),
         })
@@ -1291,11 +1304,23 @@ impl DarkfiWalletHandle {
     /// garbage collection for deterministic cleanup. It stops background
     /// sync tasks and flushes any pending database writes.
     pub fn close(&self) -> ResultWallet<()> {
-        // Deterministic cleanup: drop the sync engine and gRPC resources.
-        // The `_sync_started` flag is a plain bool set at construction time.
-        // The actual cleanup happens when `DarkfiWalletHandle` is dropped (via Arc).
-        tracing::info!("DarkfiWalletHandle::close() called — resources will be released on drop");
+        tracing::info!("DarkfiWalletHandle::close() called — stopping background sync");
+        self.sync_engine.request_stop();
         Ok(())
+    }
+}
+
+impl Drop for DarkfiWalletHandle {
+    fn drop(&mut self) {
+        self.sync_engine.request_stop();
+        let handle = self
+            .sync_thread
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .take();
+        if let Some(handle) = handle {
+            let _ = handle.join();
+        }
     }
 }
 
@@ -1319,9 +1344,10 @@ pub fn generate_bip39_chat_mnemonic() -> Vec<String> {
 
 /// Validates a DarkFi mnemonic phrase.
 pub fn validate_darkfi_mnemonic(phrase: Vec<String>) -> bool {
-    let phrase_str = phrase.join(" ");
-    let mnemonic_engine = mnemonic::DarkfiMnemonic::default();
-    mnemonic_engine.mnemonic_decode(&phrase_str).is_ok()
+    if phrase.len() != 22 {
+        return false;
+    }
+    mnemonic::is_valid_darkfi_seed(&phrase.join(" "))
 }
 
 /// Decodes 12-word phrase to entropy bytes if valid.
@@ -1408,6 +1434,10 @@ pub fn chacha_decrypt_dm(
         .map_err(|_| DarkfiWalletNativeError::NativeDrkUnavailable("Invalid UTF8".into()))
 }
 
+pub fn set_network_storage_dir(path: String) {
+    crate::tor::set_arti_storage_dir(std::path::PathBuf::from(path));
+}
+
 uniffi::include_scaffolding!("darkfi_mobile_ffi");
 
 #[cfg(test)]
@@ -1425,7 +1455,7 @@ mod tests {
             birthday_height: -1,
             lightwallet_tls_pin_sha256: None,
             use_tor: false,
-            tor_socks_port: 9150,
+            tor_socks_port: 9050,
             use_nym: false,
             nym_socks_port: 1080,
             darkfid_rpc_url: None,
@@ -1528,8 +1558,8 @@ mod tests {
     fn mnemonic_generates_22_words() {
         let words = generate_darkfi_mnemonic();
         assert!(
-            words.len() >= 21 && words.len() <= 22,
-            "DarkFi mnemonic should be 21-22 words, got {}",
+            words.len() == 22,
+            "DarkFi mnemonic should be 22 words, got {}",
             words.len()
         );
     }

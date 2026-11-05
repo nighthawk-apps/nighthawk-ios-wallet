@@ -133,7 +133,7 @@ pub fn start_background_sync(
     drk: DrkPtr,
     _ex: Arc<Executor<'static>>,
     sync_engine: Arc<SyncEngine>,
-) {
+) -> std::thread::JoinHandle<()> {
     std::thread::Builder::new()
         .name("darkfi-wallet-sync".into())
         .spawn(move || {
@@ -180,6 +180,9 @@ pub fn start_background_sync(
                 let mut consecutive_failures: u32 = 0;
 
                 loop {
+                    if sync_engine.is_stop_requested() {
+                        break;
+                    }
                     // Keep a live connection showing as live between polls; only a
                     // fresh or failed session reads as connecting.
                     if !matches!(
@@ -203,6 +206,10 @@ pub fn start_background_sync(
                     match cycle_result {
                         Ok(()) => {
                             consecutive_failures = 0;
+                            let money_id =
+                                darkfi_sdk::crypto::contract_id::MONEY_CONTRACT_ID.to_string();
+                            let client = sync_engine.lightwallet_client();
+                            let _ = crate::zkas_cache::warm_zkas_cache(&client, &[&money_id]).await;
                             if sync_engine.status() != LightSyncStatus::Degraded {
                                 sync_engine.set_status(LightSyncStatus::Synced);
                             }
@@ -252,7 +259,7 @@ pub fn start_background_sync(
                 }
             })
         })
-        .ok();
+        .expect("spawn wallet sync thread")
 }
 
 /// Run one sync cycle, converting a panic into a cycle error so the
@@ -363,7 +370,6 @@ fn ensure_chain_matches_wallet(
 }
 
 /// Pool digest when a live handle exists. A miss registers `det_key` and retries.
-/// `GetUnifOmrDigest` remains the fallback when the pool RPC is absent.
 async fn fetch_detection_digest(
     client: &crate::lightwallet_client::LightwalletClient,
     det_key: Arc<Vec<u8>>,
@@ -399,17 +405,9 @@ async fn fetch_detection_digest(
                 Err(e) => return Err(e),
             }
         }
-        Err(e) => {
-            tracing::warn!(
-                target: "wallet-sync",
-                "RegisterDetectionKey unavailable ({}); using GetUnifOmrDigest",
-                redact_sync_error(&e)
-            );
-        }
+        Err(e) => return Err(e),
     }
-    client
-        .get_unif_omr_digest(vec![det_key], padded_start, padded_end)
-        .await
+    Err("RegisterDetectionKey did not return a detection handle".into())
 }
 
 /// Attempt a sync cycle through the lightwallet server.
@@ -1008,6 +1006,7 @@ async fn trial_decrypt_range(
     client: &crate::lightwallet_client::LightwalletClient,
     start: u32,
     end: u32,
+    tip: u32,
 ) -> Result<Option<u32>, String> {
     if start > end {
         return Ok(None);
@@ -1018,58 +1017,80 @@ async fn trial_decrypt_range(
         start, end, end - start + 1
     );
 
-    // Process in batches to avoid OOM on large ranges.
-    // Returns the last contiguous height actually present, starting at `start`.
-    // A hole stops the scan so the caller does not mark missing blocks as done.
+    let secret = drk
+        .default_secret()
+        .await
+        .map_err(|e| format!("wallet secret: {e}"))?;
+    let secret_bytes = secret.inner().to_repr();
+    let network = match drk.network {
+        darkfi_sdk::crypto::keypair::Network::Mainnet => 0u8,
+        darkfi_sdk::crypto::keypair::Network::Testnet => 1u8,
+    };
+
+    // One secret load and one Merkle load per 500-block window, via the same
+    // apply path as UnifOMR. A commitment-stream hole returns an error and the
+    // caller does not mark the missing height scanned.
     const BATCH_SIZE: u32 = 500;
-    let mut next = start;
     let mut batch_start = start;
     while batch_start <= end {
         let batch_end = (batch_start + BATCH_SIZE - 1).min(end);
-        let mut blocks = client
-            .get_compact_block_range(batch_start, batch_end, end)
-            .await
-            .map_err(|e| format!("trial_decrypt_range: get_compact_block_range({batch_start}..={batch_end}): {e}"))?;
-        blocks.sort_by_key(|b| b.height);
-        blocks.dedup_by_key(|b| b.height);
-        for block in &blocks {
-            if block.height < batch_start || block.height > batch_end {
-                return Err(format!(
-                    "trial_decrypt_range: block {} outside requested {batch_start}..={batch_end}",
-                    block.height
-                ));
-            }
-        }
-        let heights: Vec<u32> = blocks.iter().map(|b| b.height).collect();
-        let Some(last) = contiguous_prefix_end(next, &heights) else {
-            return Ok(if next == start { None } else { Some(next - 1) });
-        };
-        let mut prev: Option<(u32, Vec<u8>)> = None;
-        for block in blocks
-            .iter()
-            .filter(|b| b.height >= next && b.height <= last)
-        {
-            if let Some((h, hash)) = &prev {
-                crate::lightwallet_client::validate_block_follows_parent(block, *h, hash)?;
-            }
-            prev = Some((block.height, block.hash.clone()));
-            crate::block_times::note_block_time(block.height, block.timestamp);
-            if let Err(e) = trial_decrypt_compact_block(drk, block).await {
-                tracing::warn!(
-                    target: "wallet-sync",
-                    "Trial decrypt failed for block {}: {e}",
-                    block.height
-                );
-            }
-        }
-        crate::block_times::flush();
-        next = last.saturating_add(1);
-        if last < batch_end {
-            return Ok(Some(last));
-        }
-        batch_start = batch_end + 1;
+        let (padded_start, padded_end) =
+            crate::lightwallet_client::pad_block_range(batch_start, batch_end, tip);
+        apply_omr_sparse_window(
+            drk,
+            client,
+            batch_start,
+            batch_end,
+            padded_start,
+            padded_end,
+            &[],
+            &secret_bytes,
+            network,
+            false,
+            true,
+        )
+        .await?;
+        batch_start = batch_end.saturating_add(1);
     }
-    Ok(if next == start { None } else { Some(next - 1) })
+    Ok(Some(end))
+}
+
+fn ios_window_note_hits(
+    secrets: &[darkfi_sdk::crypto::SecretKey],
+    blocks: &std::collections::HashMap<u32, crate::lightwallet_client::LightCompactBlock>,
+    trial_decrypt_all: bool,
+    matching: &std::collections::HashSet<u32>,
+) -> std::collections::HashMap<
+    Vec<u8>,
+    (
+        darkfi_money_contract::client::MoneyNote,
+        darkfi_sdk::crypto::SecretKey,
+    ),
+> {
+    let mut jobs = Vec::new();
+    for block in blocks.values() {
+        let selected = trial_decrypt_all || matching.contains(&block.height);
+        for tx in &block.txs {
+            for output in &tx.outputs {
+                let mint = output.func_code == crate::note_batch::MONEY_FUNC_TOKEN_MINT;
+                if !selected && !mint {
+                    continue;
+                }
+                if output.encrypted_note.len() < 48 {
+                    continue;
+                }
+                jobs.push((output.coin.clone(), output.encrypted_note.clone()));
+            }
+        }
+    }
+    let decrypted = crate::note_batch::decrypt_money_notes(secrets, &jobs);
+    let mut hits = std::collections::HashMap::new();
+    for ((coin, _), hit) in jobs.into_iter().zip(decrypted) {
+        if let Some(hit) = hit {
+            hits.entry(coin).or_insert(hit);
+        }
+    }
+    hits
 }
 
 /// Sparse OMR window: commitments + nullifiers for `[start, tip]`, then
@@ -1189,38 +1210,18 @@ async fn apply_omr_sparse_window(
                      (privacy-preserving — does not reveal matched heights)"
                 );
             }
-            let blocks = match client
+            let bodies = client
                 .get_compact_output_bodies(padded_start, padded_end)
-                .await
-            {
-                Ok(bodies) => {
-                    let blocks = crate::lightwallet_client::compact_bodies_to_blocks(bodies);
-                    let valid = blocks.iter().all(|block| {
-                        crate::lightwallet_client::validate_compact_block(block).is_ok()
-                    });
-                    if valid {
-                        blocks
-                    } else {
-                        tracing::warn!(
-                            target: "wallet-sync",
-                            "GetCompactOutputBodies failed validation; using GetBlockRange"
-                        );
-                        client
-                            .get_compact_block_range_exact(padded_start, padded_end)
-                            .await?
-                    }
-                }
-                Err(e) => {
-                    tracing::warn!(
-                        target: "wallet-sync",
-                        "GetCompactOutputBodies failed ({}); using GetBlockRange",
-                        redact_sync_error(&e)
-                    );
-                    client
-                        .get_compact_block_range_exact(padded_start, padded_end)
-                        .await?
-                }
-            };
+                .await?;
+            let blocks = crate::lightwallet_client::compact_bodies_to_blocks(bodies);
+            if let Some(block) = blocks.iter().find(|block| {
+                crate::lightwallet_client::validate_compact_block(block).is_err()
+            }) {
+                return Err(format!(
+                    "GetCompactOutputBodies returned a malformed block at height {}",
+                    block.height
+                ));
+            }
             let got: HashSet<u32> = blocks.iter().map(|b| b.height).collect();
             for h in matching_heights {
                 if !got.contains(h) {
@@ -1259,6 +1260,61 @@ async fn apply_omr_sparse_window(
     if (!matching_heights.is_empty() || trial_decrypt_all) && secrets.is_empty() {
         return Err("No wallet secrets available for trial decryption".into());
     }
+    let dao_calls = client
+        .get_compact_dao_calls(padded_start, padded_end)
+        .await?;
+    let mut func_events = Vec::new();
+    for code in [
+        crate::note_batch::MONEY_FUNC_AUTH_TOKEN_MINT,
+        crate::note_batch::MONEY_FUNC_AUTH_TOKEN_FREEZE,
+    ] {
+        let bodies = client
+            .get_compact_outputs_by_func(padded_start, padded_end, code)
+            .await?;
+        for body in bodies {
+            if body.encrypted_note.is_empty() {
+                func_events.push(crate::dao_compact::CompactFuncEvent {
+                    height: body.height,
+                    tx_hash: body.tx_hash,
+                    func_code: body.func_code,
+                });
+            }
+        }
+    }
+    if !trial_decrypt_all {
+        let bodies = client
+            .get_compact_outputs_by_func(
+                padded_start,
+                padded_end,
+                crate::note_batch::MONEY_FUNC_TOKEN_MINT,
+            )
+            .await?;
+        for block in crate::lightwallet_client::compact_bodies_to_blocks(bodies) {
+            blocks_by_height
+                .entry(block.height)
+                .and_modify(|existing| {
+                    for tx in &block.txs {
+                        if let Some(dest) = existing.txs.iter_mut().find(|row| row.tx_hash == tx.tx_hash)
+                        {
+                            for output in &tx.outputs {
+                                if output.coin.len() == 32
+                                    && !dest.outputs.iter().any(|have| have.coin == output.coin)
+                                {
+                                    dest.outputs.push(output.clone());
+                                }
+                            }
+                        }
+                    }
+                })
+                .or_insert(block);
+        }
+    }
+    let hits = ios_window_note_hits(
+        &secrets,
+        &blocks_by_height,
+        trial_decrypt_all,
+        &matching_set,
+    );
 
     // Cursor 0 is "never scanned": start from the dummy-leaf tree so a retry
     // after a failed genesis window cannot double-append.
@@ -1352,30 +1408,17 @@ async fn apply_omr_sparse_window(
                 }
             }
 
-            if !trial_decrypt_all && !matching_set.contains(&height) {
+            let is_mint = out_by_coin
+                .get(coin_bytes.as_slice())
+                .map(|output| output.func_code == crate::note_batch::MONEY_FUNC_TOKEN_MINT)
+                .unwrap_or(false);
+            if !trial_decrypt_all && !matching_set.contains(&height) && !is_mint {
                 continue;
             }
             let Some(output) = out_by_coin.get(coin_bytes.as_slice()) else {
                 continue;
             };
-            if output.encrypted_note.len() < 48 {
-                continue;
-            }
-
-            let mut cursor = Cursor::new(output.encrypted_note.as_slice());
-            let enc_note = match AeadEncryptedNote::decode(&mut cursor) {
-                Ok(n) => n,
-                Err(_) => continue,
-            };
-
-            let mut matched: Option<(MoneyNote, SecretKey)> = None;
-            for secret in &secrets {
-                if let Ok(note) = enc_note.decrypt::<MoneyNote>(secret) {
-                    matched = Some((note, *secret));
-                    break;
-                }
-            }
-            let Some((note, secret)) = matched else {
+            let Some((note, secret)) = hits.get(coin_bytes.as_slice()).cloned() else {
                 continue;
             };
 
@@ -1483,6 +1526,17 @@ async fn apply_omr_sparse_window(
         }
     }
 
+    let dao_in_window: Vec<_> = dao_calls
+        .into_iter()
+        .filter(|call| call.height >= scan_start && call.height <= tip)
+        .collect();
+    crate::dao_compact::apply_dao_calls(drk, &dao_in_window).await?;
+    let events_in_window: Vec<_> = func_events
+        .into_iter()
+        .filter(|event| event.height >= scan_start && event.height <= tip)
+        .collect();
+    crate::dao_compact::record_func_events(drk, &events_in_window)?;
+
     drk.cache
         .insert_merkle_trees(&[(KVDB_MERKLE_TREES_MONEY, &tree)])
         .map_err(|e| format!("Failed to persist Money Merkle tree: {e}"))?;
@@ -1564,7 +1618,7 @@ async fn try_trial_decryption_sync(
     // Advance only through heights the server actually returned. Persisting
     // `window_end` when the stream has a hole skips the block that holds
     // our own change and never trial-decrypts it.
-    let reached = trial_decrypt_range(drk, client, td_start, window_end).await?;
+    let reached = trial_decrypt_range(drk, client, td_start, window_end, tip).await?;
     if td_start == 0 {
         set_merkle_from_genesis(drk, true)?;
     }

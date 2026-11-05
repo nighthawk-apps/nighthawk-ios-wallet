@@ -2,11 +2,12 @@ struct DummyCb;
 impl darkfi_mobile_ffi::DarkircEventCallback for DummyCb {
     fn on_message(
         &self,
+        _event_id: String,
         channel: String,
         nick: String,
         message: String,
-        _event_id: String,
         timestamp: u64,
+        _is_outgoing: bool,
     ) {
         println!(
             "Message from {}: {} (channel: {}, time: {})",
@@ -16,6 +17,7 @@ impl darkfi_mobile_ffi::DarkircEventCallback for DummyCb {
 }
 
 fn main() {
+    #[cfg(target_os = "android")]
     android_logger::init_once(
         android_logger::Config::default()
             .with_max_level(log::LevelFilter::Trace)

@@ -23,20 +23,20 @@ public extension EnvironmentValues {
     }
 }
 
-/// Full wallpaper, one image pixel per screen pixel, anchored at the top left.
-/// A taller or wider screen reveals more of the same picture. A dark veil keeps
-/// DarkIRC, Wallet, Transfer, and Settings text readable.
+/// Wallpaper anchored at the top left and scaled to the device.
+/// Extra image is clipped; the dark veil keeps text readable.
 public struct CyberpunkBackdrop: View {
     public init() {}
 
     public var body: some View {
-        let scale = UIScreen.main.scale
         ZStack(alignment: .topLeading) {
             Color(red: 0.02, green: 0.024, blue: 0.04)
             Image("cyberpunk-bg", bundle: .module)
                 .resizable()
                 .interpolation(.high)
-                .frame(width: 3840 / scale, height: 2160 / scale, alignment: .topLeading)
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .clipped()
             Color.black.opacity(0.5)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

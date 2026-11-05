@@ -9,11 +9,14 @@ import AlertToast
 import ComposableArchitecture
 import Generated
 import Models
+import DarkfiCore
+import SDKSynchronizer
 import SwiftUI
 import UIComponents
 
 public struct AdvancedView: View {
     @Bindable var store: StoreOf<Advanced>
+    @ObservedObject private var mesh = NighthawkMeshController.shared
 
     public init(store: StoreOf<Advanced>) {
         self.store = store
@@ -48,6 +51,23 @@ public struct AdvancedView: View {
                     }
                     .padding(.vertical, 12)
                 }
+
+                Text("Nearby mesh")
+                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                Text("Relay DarkIRC with nearby Nighthawk phones over Bluetooth. Share-internet stays off.")
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(6)
+
+                Toggle("Nearby mesh", isOn: Binding(
+                    get: { mesh.enabled },
+                    set: { mesh.setEnabled($0) }
+                ))
+
+                Text(mesh.statusLine)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .lineLimit(3)
 
                 banditSettings
 
@@ -134,6 +154,16 @@ private extension AdvancedView {
                     .padding(.vertical, 12)
                 }
             }
+
+            Toggle("Experimental UnifOMR", isOn: Binding(
+                get: { WalletSyncPrivacy.strictOmrOnly },
+                set: { WalletSyncPrivacy.setStrictOmrOnly($0) }
+            ))
+            .padding(.vertical, 8)
+            Text("Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. It also uploads a large detection key.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 8)
 
             Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
                 .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)

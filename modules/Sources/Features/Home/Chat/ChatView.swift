@@ -7,6 +7,7 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Generated
 import Models
 import SwiftUI
@@ -18,13 +19,11 @@ struct ChatView: View {
     @Environment(\.scenePhase) var scenePhase
     @State private var showPeers = false
     @ObservedObject private var themes = NighthawkThemeController.shared
+    @ObservedObject private var mesh = NighthawkMeshController.shared
 
     var body: some View {
         VStack(spacing: 0) {
-            // Compact status header (Android CompactConnectionStatusBlock).
-            // Daemon start and DAG sync stay in this header so the channel
-            // list and transcript keep the rest of the tab.
-            connectionStatusBar
+            inboxBar
 
             switch store.connectionState {
             case .disconnected, .error:
@@ -43,7 +42,79 @@ struct ChatView: View {
 
 // MARK: - Connection Status Bar (matches Android ChatStatusRow)
 private extension ChatView {
-    var connectionStatusBar: some View {
+    var inboxBar: some View {
+        HStack(spacing: 0) {
+            ForEach(Chat.State.ChatTab.allCases, id: \.self) { tab in
+                Button(action: { store.send(.tabSelected(tab)) }) {
+                    Text(tab.rawValue)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                        .foregroundColor(store.selectedTab == tab ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(
+                            store.selectedTab == tab
+                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.2)
+                                : Color.clear
+                        )
+                }
+            }
+            Button(action: { showPeers = true }) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .frame(width: 36, height: 36)
+            }
+            .padding(.trailing, 8)
+            .accessibilityLabel(L10n.Nighthawk.Chat.peers)
+        }
+        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.55))
+        .sheet(isPresented: $showPeers) {
+            connectionInfoSheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+    }
+
+    var connectionInfoSheet: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                connectionStatusBody
+                Text("Nearby mesh")
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .padding(.top, 8)
+                Text(mesh.statusLine)
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .lineLimit(4)
+                Text(L10n.Nighthawk.Chat.outboundPeers)
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .padding(.top, 8)
+                ForEach(peerSlots, id: \.index) { slot in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(slot.connected ? Color.green : Color.gray.opacity(0.6))
+                            .frame(width: 8, height: 8)
+                        Text("\(slot.index)")
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        Text(slot.label)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(slot.connected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .padding(16)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(chatBackdrop)
+    }
+
+    var connectionStatusBody: some View {
         VStack(alignment: .leading, spacing: 6) {
             // Embedded node status (if used)
             if store.embeddedNodeStatus != .notUsed {
@@ -73,14 +144,6 @@ private extension ChatView {
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     .lineLimit(1)
-
-                Button(action: { showPeers = true }) {
-                    Text(L10n.Nighthawk.Chat.peers)
-                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                }
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Rectangle())
 
                 // Retry button
                 if store.connectionState == .error || store.connectionState == .disconnected {
@@ -132,44 +195,6 @@ private extension ChatView {
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.6))
-        .sheet(isPresented: $showPeers) {
-            peerSheet
-                .presentationDetents([.height(220)])
-                .presentationDragIndicator(.visible)
-        }
-    }
-
-    /// Three outbound slots, matching Android's peer dialog. They stay off
-    /// the transcript until Peers is tapped.
-    var peerSheet: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(L10n.Nighthawk.Chat.outboundPeers)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-            ForEach(peerSlots, id: \.index) { slot in
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(slot.connected ? Color.green : Color.gray.opacity(0.6))
-                        .frame(width: 8, height: 8)
-                    Text("\(slot.index)")
-                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                    Text(slot.label)
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(slot.connected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                    Spacer(minLength: 0)
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(chatBackdrop)
     }
 
     var peerSlots: [(index: Int, label: String, connected: Bool)] {
@@ -270,9 +295,6 @@ private extension ChatView {
 private extension ChatView {
     var connectedView: some View {
         VStack(spacing: 0) {
-            // Channels / Direct segmented control
-            tabSelector
-
             switch store.selectedTab {
             case .channels:
                 // Channel tabs + messages + compose
@@ -303,31 +325,6 @@ private extension ChatView {
             Button("Cancel", role: .cancel, action: { store.send(.sharePubkeyCancelled) })
         } message: {
             Text("Copies your DM public key. A keypair is created only the first time. Share it over a channel you trust. Anyone with this key can send you encrypted DMs.")
-        }
-    }
-
-    var tabSelector: some View {
-        HStack(spacing: 0) {
-            ForEach(Chat.State.ChatTab.allCases, id: \.self) { tab in
-                Button(action: { store.send(.tabSelected(tab)) }) {
-                    Text(tab.rawValue)
-                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                        .foregroundColor(store.selectedTab == tab ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            store.selectedTab == tab
-                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.2)
-                                : Color.clear
-                        )
-                }
-            }
-        }
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.3))
-                .frame(height: 1)
         }
     }
 
@@ -565,9 +562,6 @@ private extension ChatView {
                                 Text(L10n.Nighthawk.Chat.noMessages)
                                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                                Text("Say something in \(store.selectedChannel?.name ?? store.selectedDmContact?.contactLabel ?? "this chat")")
-                                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
                             } else {
                                 ProgressView()
                                     .tint(Asset.Colors.Nighthawk.peach.color)

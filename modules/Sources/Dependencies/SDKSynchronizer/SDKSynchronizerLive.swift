@@ -15,6 +15,22 @@ import UserPreferencesStorage
 import Utils
 import WalletStorage
 
+public enum WalletSyncPrivacy {
+    public static let strictOmrKey = "nighthawk.strictOmrOnly"
+
+    public static var strictOmrOnly: Bool {
+        if UserDefaults.standard.object(forKey: strictOmrKey) == nil {
+            return false
+        }
+        return UserDefaults.standard.bool(forKey: strictOmrKey)
+    }
+
+    public static func setStrictOmrOnly(_ strict: Bool) {
+        UserDefaults.standard.set(strict, forKey: strictOmrKey)
+        WalletHandleManager.shared.handle?.setStrictOmrOnly(strict: strict)
+    }
+}
+
 // MARK: - Wallet Handle Manager
 
 /// Singleton manager for the DarkFi wallet handle.
@@ -150,7 +166,8 @@ private final class WalletHandleManager: @unchecked Sendable {
             torSocksPort: socksPort,
             useNym: nymForWallet,
             nymSocksPort: nymSocksPort,
-            darkfidRpcUrl: nil // LWD-only; never hardcode a darkfid testnet port
+            darkfidRpcUrl: nil, // LWD-only; never hardcode a darkfid testnet port
+            strictOmrOnly: WalletSyncPrivacy.strictOmrOnly
         )
 
         do {

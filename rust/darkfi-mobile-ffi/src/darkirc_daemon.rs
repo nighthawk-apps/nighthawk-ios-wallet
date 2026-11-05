@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, OnceLock};
 
-use darkfi_serial::{deserialize_async_partial, serialize_async};
+use darkfi_serial::{deserialize_async, deserialize_async_partial, serialize_async};
 use smol::Executor;
 
 use crate::{DarkfiWalletNativeError, DarkircEventCallback};
@@ -101,6 +101,214 @@ fn new_privmsg(channel: String, nick: String, msg: String) -> Privmsg {
     }
 }
 
+const MAX_NICK_LEN: usize = 24;
+
+struct DmContactBoxes {
+    saltbox: crypto_box::ChaChaBox,
+    self_saltbox: crypto_box::ChaChaBox,
+}
+
+static DM_CONTACTS: std::sync::LazyLock<
+    std::sync::Mutex<std::collections::HashMap<String, DmContactBoxes>>,
+> = std::sync::LazyLock::new(|| std::sync::Mutex::new(std::collections::HashMap::new()));
+
+static LAST_SELF_NICK: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
+
+/// Event ids ingested from BLE so the relay task does not mesh-gossip them again.
+static MESH_SOURCED: std::sync::LazyLock<
+    std::sync::Mutex<std::collections::HashSet<[u8; 16]>>,
+> = std::sync::LazyLock::new(|| std::sync::Mutex::new(std::collections::HashSet::new()));
+
+fn register_dm_contact(nick: &str, my_secret: &[u8], their_public: &[u8]) -> Result<(), String> {
+    let my_sk = crypto_box::SecretKey::from_slice(my_secret).map_err(|e| e.to_string())?;
+    let their_pk = crypto_box::PublicKey::from_slice(their_public).map_err(|e| e.to_string())?;
+    let boxes = DmContactBoxes {
+        saltbox: crypto_box::ChaChaBox::new(&their_pk, &my_sk),
+        self_saltbox: crypto_box::ChaChaBox::new(&my_sk.public_key(), &my_sk),
+    };
+    DM_CONTACTS
+        .lock()
+        .map_err(|e| e.to_string())?
+        .insert(nick.to_string(), boxes);
+    Ok(())
+}
+
+fn json_string_field<'a>(obj: &'a str, key: &str) -> Option<&'a str> {
+    let pat = format!("\"{key}\"");
+    let rest = obj.split(&pat).nth(1)?;
+    let rest = rest.trim_start_matches([' ', ':', '\t', '\n']);
+    let rest = rest.strip_prefix('"')?;
+    let end = rest.find('"')?;
+    Some(&rest[..end])
+}
+
+fn load_dm_contacts_from_datastore(dir: &std::path::Path) {
+    let path = dir.join("dm_contacts.json");
+    let Ok(raw) = std::fs::read_to_string(path) else {
+        return;
+    };
+    for chunk in raw.split('{').skip(1) {
+        let Some(end) = chunk.find('}') else { continue };
+        let obj = &chunk[..end];
+        let nick = json_string_field(obj, "contactLabel");
+        let secret = json_string_field(obj, "mySecretB58");
+        let public = json_string_field(obj, "theirPublicB58");
+        if let (Some(nick), Some(secret), Some(public)) = (nick, secret, public) {
+            if let (Ok(sk), Ok(pk)) = (
+                bs58::decode(secret).into_vec(),
+                bs58::decode(public).into_vec(),
+            ) {
+                if sk.len() == 32 && pk.len() == 32 {
+                    let _ = register_dm_contact(nick, &sk, &pk);
+                }
+            }
+        }
+    }
+}
+
+fn reload_dm_contacts() {
+    if let Some(dir) = DATASTORE_PATH.get() {
+        load_dm_contacts_from_datastore(dir);
+    }
+}
+
+struct PresentedPrivmsg {
+    channel: String,
+    nick: String,
+    msg: String,
+    is_outgoing: bool,
+}
+
+fn present_privmsg(privmsg: Privmsg) -> PresentedPrivmsg {
+    if privmsg.channel.starts_with('#') {
+        let self_nick = LAST_SELF_NICK.lock().map(|g| g.clone()).unwrap_or_default();
+        return PresentedPrivmsg {
+            is_outgoing: !self_nick.is_empty() && privmsg.nick == self_nick,
+            channel: privmsg.channel,
+            nick: privmsg.nick,
+            msg: privmsg.msg,
+        };
+    }
+    reload_dm_contacts();
+    let Ok(contacts) = DM_CONTACTS.lock() else {
+        return PresentedPrivmsg {
+            channel: privmsg.channel,
+            nick: privmsg.nick,
+            msg: privmsg.msg,
+            is_outgoing: false,
+        };
+    };
+    let channel_ct = bs58::decode(&privmsg.channel).into_vec().unwrap_or_default();
+    let nick_ct = bs58::decode(&privmsg.nick).into_vec().unwrap_or_default();
+    let msg_ct = bs58::decode(&privmsg.msg).into_vec().unwrap_or_default();
+    for (name, contact) in contacts.iter() {
+        if irc2::crypto::saltbox::try_decrypt(&contact.saltbox, &channel_ct).is_none() {
+            continue;
+        }
+        let outgoing =
+            irc2::crypto::saltbox::try_decrypt(&contact.self_saltbox, &nick_ct).is_some();
+        let Some(msg_dec) = irc2::crypto::saltbox::try_decrypt(&contact.saltbox, &msg_ct) else {
+            continue;
+        };
+        let self_nick = LAST_SELF_NICK.lock().map(|g| g.clone()).unwrap_or_default();
+        return PresentedPrivmsg {
+            channel: name.clone(),
+            nick: if outgoing && !self_nick.is_empty() {
+                self_nick
+            } else {
+                name.clone()
+            },
+            msg: String::from_utf8_lossy(&msg_dec).into_owned(),
+            is_outgoing: outgoing,
+        };
+    }
+    PresentedPrivmsg {
+        channel: privmsg.channel,
+        nick: privmsg.nick,
+        msg: privmsg.msg,
+        is_outgoing: false,
+    }
+}
+
+fn try_encrypt_privmsg(privmsg: &mut Privmsg) -> Result<(), String> {
+    if privmsg.channel.starts_with('#') {
+        return Ok(());
+    }
+    reload_dm_contacts();
+    let contacts = DM_CONTACTS.lock().map_err(|e| e.to_string())?;
+    let Some(contact) = contacts.get(&privmsg.channel) else {
+        return Err(format!(
+            "DM contact '{}' is not registered; refusing plaintext channel/nick on the wire",
+            privmsg.channel
+        ));
+    };
+    privmsg.channel = irc2::crypto::saltbox::encrypt(&contact.saltbox, &[0x00; MAX_NICK_LEN]);
+    privmsg.nick = irc2::crypto::saltbox::encrypt(&contact.self_saltbox, &[0x00; MAX_NICK_LEN]);
+    privmsg.msg = irc2::crypto::saltbox::encrypt(&contact.saltbox, privmsg.msg.as_bytes());
+    Ok(())
+}
+
+fn mesh_event_id16(event: &darkfi::event_graph::Event) -> [u8; 16] {
+    let mut id = [0u8; 16];
+    id.copy_from_slice(&event.id().as_bytes()[..16]);
+    id
+}
+
+async fn mesh_gossip_event(event: &darkfi::event_graph::Event, blob: &[u8]) {
+    let ev_bytes = serialize_async(event).await;
+    let Ok(payload) = crate::mesh::encode_mesh_event(&ev_bytes, blob) else {
+        return;
+    };
+    let _ = crate::mesh::mesh_publish_event(mesh_event_id16(event), payload);
+}
+
+async fn drain_mesh_inbound(eg: &darkfi::event_graph::EventGraph) {
+    while let Some((_id, payload)) = crate::mesh::mesh_pop_inbound_event() {
+        let Ok((ev_bytes, blob)) = crate::mesh::decode_mesh_event(&payload) else {
+            continue;
+        };
+        let Ok(event) = deserialize_async::<darkfi::event_graph::Event>(&ev_bytes).await else {
+            continue;
+        };
+        if blob.len() > darkfi::event_graph::EventGraph::MAX_MESH_EVENT_BLOB {
+            continue;
+        }
+        if !event.validate_new() {
+            continue;
+        }
+        let id16 = mesh_event_id16(&event);
+        let dag_name = eg.current_genesis.read().await.header.timestamp.to_string();
+        let _ = eg
+            .header_dag_insert(vec![event.header.clone()], &dag_name)
+            .await;
+        match eg.ingest_mesh_event(event, blob, &dag_name).await {
+            Ok(ids) => {
+                if !ids.is_empty() {
+                    mark_mesh_sourced(id16);
+                }
+            }
+            Err(e) => log::debug!("mesh ingest skipped: {e}"),
+        }
+    }
+}
+
+fn mark_mesh_sourced(id: [u8; 16]) {
+    if let Ok(mut g) = MESH_SOURCED.lock() {
+        g.insert(id);
+        if g.len() > 4096 {
+            g.clear();
+        }
+    }
+}
+
+fn is_mesh_sourced(id: [u8; 16]) -> bool {
+    MESH_SOURCED
+        .lock()
+        .ok()
+        .map(|g| g.contains(&id))
+        .unwrap_or(false)
+}
+
 /// Forwards `tracing` events into Android logcat.
 ///
 /// darkfi's `net`/`event_graph` modules log through the `tracing` facade, while
@@ -142,6 +350,7 @@ fn init_logging() {
         } else {
             (log::LevelFilter::Warn, "warn,rustls=off,kvdb=off,kvdb_overlay=off,mio=off,polling=off,async_io=off,want=off")
         };
+        #[cfg(target_os = "android")]
         android_logger::init_once(
             android_logger::Config::default()
                 .with_max_level(max_level)
@@ -152,6 +361,8 @@ fn init_logging() {
                         .build(),
                 ),
         );
+        #[cfg(not(target_os = "android"))]
+        let _ = (max_level, filter_spec);
 
         // `tracing` backend (darkfi net/event_graph).
         // Release: WARN+ only. Debug: INFO for P2P/DAG diagnostics.
@@ -293,6 +504,7 @@ pub fn start_darkirc(
 
     let db_path = PathBuf::from(&datastore_path);
     let _ = DATASTORE_PATH.set(db_path.clone());
+    load_dm_contacts_from_datastore(&db_path);
     let cb: Option<Arc<dyn DarkircEventCallback>> = callback.map(Arc::from);
     DAG_SYNCED.store(0, Ordering::Relaxed);
 
@@ -413,7 +625,13 @@ pub fn send_chat_message(
         let p2p_lock = P2P.read().await;
 
         if let (Some(eg), Some(p2p)) = (&*eg_lock, &*p2p_lock) {
-            let msg = new_privmsg(channel.clone(), nick.clone(), message.clone());
+            if let Ok(mut slot) = LAST_SELF_NICK.lock() {
+                *slot = nick.clone();
+            }
+            let mut msg = new_privmsg(channel.clone(), nick.clone(), message.clone());
+            if let Err(e) = try_encrypt_privmsg(&mut msg) {
+                return Err(DarkfiWalletNativeError::NativeDrkUnavailable(e));
+            }
 
             let event = match darkfi::event_graph::Event::new(serialize_async(&msg).await, eg).await
             {
@@ -461,6 +679,8 @@ pub fn send_chat_message(
                 ));
             }
 
+            mesh_gossip_event(&event, &blob).await;
+
             if let Err(e) = p2p
                 .broadcast(&darkfi::event_graph::proto::EventPut(event, blob))
                 .await
@@ -483,6 +703,7 @@ pub fn send_chat_message(
                     nick.clone(),
                     message,
                     event_ts,
+                    true,
                 );
             }
 
@@ -748,19 +969,32 @@ async fn run_darkirc_daemon(
     let relay_task = ex.spawn(async move {
         loop {
             let ev = ev_sub.receive().await;
+            if !is_mesh_sourced(mesh_event_id16(&ev)) {
+                mesh_gossip_event(&ev, &[]).await;
+            }
             if let Some(cb) = &cb_clone {
                 if let Ok((privmsg, _)) = deserialize_async_partial::<Privmsg>(ev.content()).await {
                     let eid = ev.id().to_hex().to_string();
                     relayed_ids_clone.lock().await.insert(eid.clone());
+                    let shown = present_privmsg(privmsg);
                     cb.on_message(
                         eid,
-                        privmsg.channel,
-                        privmsg.nick,
-                        privmsg.msg,
+                        shown.channel,
+                        shown.nick,
+                        shown.msg,
                         ev.header.timestamp,
+                        shown.is_outgoing,
                     );
                 }
             }
+        }
+    });
+
+    let mesh_eg = event_graph.clone();
+    let mesh_task = ex.spawn(async move {
+        loop {
+            drain_mesh_inbound(&mesh_eg).await;
+            smol::Timer::after(std::time::Duration::from_millis(250)).await;
         }
     });
 
@@ -845,12 +1079,14 @@ async fn run_darkirc_daemon(
                     continue;
                 }
                 if let Ok((privmsg, _)) = deserialize_async_partial::<Privmsg>(ev.content()).await {
+                    let shown = present_privmsg(privmsg);
                     cb.on_message(
                         eid,
-                        privmsg.channel,
-                        privmsg.nick,
-                        privmsg.msg,
+                        shown.channel,
+                        shown.nick,
+                        shown.msg,
                         ev.header.timestamp,
+                        shown.is_outgoing,
                     );
                 }
             }
@@ -910,6 +1146,7 @@ async fn run_darkirc_daemon(
 
     p2p.stop().await;
     prune_task.stop().await;
+    mesh_task.cancel().await;
     relay_task.cancel().await;
 
     // Clear globals

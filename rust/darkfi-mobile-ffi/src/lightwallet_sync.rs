@@ -6,18 +6,19 @@
 //!
 //! ## Sync modes
 //!
-//! 1. **OMR (Oblivious Message Retrieval)** — default when server supports it.
-//!    The server performs FHE-based filtering so only relevant compact blocks
-//!    are streamed. Faster sync, lower bandwidth.
-//!
-//! 2. **Trial Decryption** — automatic fallback. Client downloads all compact
-//!    blocks and attempts ChaCha20Poly1305 decryption of each encrypted note
-//!    with its secret keys.
-//!
-//! The sync engine transparently switches between modes based on server
-//! capability and health.
+//! 1. **Trial decryption** — production default. Same note scan as upstream `drk`,
+//!    over padded compact outputs.
+//! 2. **Experimental UnifOMR** — opt-in and unmaintained until DarkFi mainnet
+//!    contracts are live. Both wallets must register on the same lightwalletd.
 
 use std::fmt;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+static EXPERIMENTAL_UNIFOMR: AtomicBool = AtomicBool::new(false);
+
+pub fn experimental_unifomr() -> bool {
+    EXPERIMENTAL_UNIFOMR.load(Ordering::Relaxed)
+}
 use std::sync::{Arc, Mutex};
 
 /// The current sync status, exposed to the mobile UI.
@@ -193,6 +194,7 @@ pub struct SyncEngine {
     /// forcing the client into a less private sync mode.
     /// Production default: enabled (`true`).
     strict_omr_only: std::sync::atomic::AtomicBool,
+    stop_requested: std::sync::atomic::AtomicBool,
     /// Previous chain tip seen by the sync loop (finding 5.6).
     /// Used together with `last_tip_update` to detect rapid tip advancement.
     prev_chain_tip: std::sync::atomic::AtomicU32,
@@ -230,9 +232,10 @@ impl SyncEngine {
             server_endpoint,
             tls_pin_sha256,
             max_omr_failures: DEFAULT_MAX_OMR_FAILURES,
-            // Production default: no trial-decrypt fallback (privacy).
-            // Use SyncEngine::set_strict_omr_only(false) for recovery / tests.
-            strict_omr_only: std::sync::atomic::AtomicBool::new(true),
+            // Production default is padded trial decryption.
+            // set_strict_omr_only(true) opts into experimental UnifOMR.
+            strict_omr_only: std::sync::atomic::AtomicBool::new(false),
+            stop_requested: std::sync::atomic::AtomicBool::new(false),
             prev_chain_tip: std::sync::atomic::AtomicU32::new(0),
             last_tip_update: std::sync::atomic::AtomicU64::new(0),
             reorg_callback: std::sync::Mutex::new(None),
@@ -252,10 +255,21 @@ impl SyncEngine {
             tls_pin_sha256: None,
             max_omr_failures: DEFAULT_MAX_OMR_FAILURES,
             strict_omr_only: std::sync::atomic::AtomicBool::new(true),
+            stop_requested: std::sync::atomic::AtomicBool::new(false),
             prev_chain_tip: std::sync::atomic::AtomicU32::new(0),
             last_tip_update: std::sync::atomic::AtomicU64::new(0),
             reorg_callback: std::sync::Mutex::new(None),
         }
+    }
+
+    pub fn request_stop(&self) {
+        self.stop_requested
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    pub fn is_stop_requested(&self) -> bool {
+        self.stop_requested
+            .load(std::sync::atomic::Ordering::Relaxed)
     }
 
     /// When true, never fall back to full-window / gap trial decrypt (privacy mode).
@@ -264,10 +278,12 @@ impl SyncEngine {
             .load(std::sync::atomic::Ordering::Relaxed)
     }
 
-    /// Enable or disable strict OMR-only mode (production default is enabled).
+    /// Experimental UnifOMR. Unmaintained until DarkFi mainnet contracts ship.
+    /// Production wallets leave this false and trial-decrypt.
     pub fn set_strict_omr_only(&self, strict: bool) {
         self.strict_omr_only
             .store(strict, std::sync::atomic::Ordering::Relaxed);
+        EXPERIMENTAL_UNIFOMR.store(strict, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Local override used by `E2E_FORCE_TRIAL`. This is not a server
@@ -550,6 +566,12 @@ impl SyncEngine {
     ///    and decrement the counter. When it reaches 0, OMR is retried.
     /// 3. If OMR is available and no active backoff → Omr
     pub fn choose_sync_type(&self) -> LightSyncType {
+        if !self.strict_omr_only() {
+            let mut state = self.state.lock().unwrap();
+            state.sync_type = LightSyncType::TrialDecryption;
+            state.refresh_messages();
+            return LightSyncType::TrialDecryption;
+        }
         let mut state = self.state.lock().unwrap();
 
         // Strict mode halt
