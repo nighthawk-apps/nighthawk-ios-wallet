@@ -1,7 +1,1 @@
-8af61b3f03b47164b4e4e01fcdc84e2744cb8570
-# nighthawk24/darkfi branch nighthawk-testnet (same pin as Android / Moonshine).
-# git.dark.fi returns HTTP 504 and does not contain this SHA. Do not clone it.
-# Upstream dark.fi master through 0f985c7cf is merged here. Tor stays on Arti 0.47.
-# Fees use a tx-local change output when it covers the fee, then another DRK coin.
-# Cargo deps inside the tree: kvdb-overlay from gitlab.com/nighthawk24/kvdb-overlay,
-# RandomX from codeberg.org/darkrenaissance/RandomX, rust-url from github.com/darkrenaissance/rust-url.
+157768f6678a17ec60a896197c729855e43fe107
