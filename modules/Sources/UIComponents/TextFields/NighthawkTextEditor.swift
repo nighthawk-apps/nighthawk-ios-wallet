@@ -52,13 +52,21 @@ public struct NighthawkTextEditor: View {
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                     .focused($_focusState)
                     .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Asset.Colors.Nighthawk.navy.color)
+                    )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(
-                                _focusState || !text.wrappedValue.isEmpty
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(
+                                showError
+                                    ? Asset.Colors.Nighthawk.error.color
+                                    : _focusState
+                                    ? Asset.Colors.Nighthawk.peach.color
+                                    : !text.wrappedValue.isEmpty
                                     ? foregroundColor.opacity(0.8)
-                                    : Asset.Colors.Nighthawk.parmaviolet.color,
-                                lineWidth: 2
+                                    : Asset.Colors.Nighthawk.steelBorder.color,
+                                lineWidth: _focusState || showError ? 1.5 : 1
                             )
                     )
             }

@@ -28,9 +28,14 @@ public struct AboutView: View {
 
                 Spacer()
 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text("Open Source Licenses")
                         .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        .padding(.bottom, 12)
+
+                    Divider()
+                        .frame(height: 1)
+                        .overlay(Asset.Colors.Nighthawk.steelBorder.color)
 
                     licenseRow(name: "DarkFi", license: "AGPL-3.0")
                     licenseRow(name: "Arti (Tor)", license: "MIT / Apache-2.0")
@@ -52,12 +57,19 @@ public struct AboutView: View {
 
     @ViewBuilder
     private func licenseRow(name: String, license: String) -> some View {
-        HStack {
-            Text(name)
-                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-            Spacer()
-            Text(license)
-                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+        VStack(spacing: 0) {
+            HStack {
+                Text(name)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                Spacer()
+                Text(license)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+            .padding(.vertical, 12)
+
+            Divider()
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
     }
 

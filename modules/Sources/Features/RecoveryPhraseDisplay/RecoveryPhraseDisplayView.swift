@@ -53,10 +53,6 @@ public struct RecoveryPhraseDisplayView: View {
             .padding(.horizontal, 25)
             .padding(.top, 22)
             .padding(.bottom, 66)
-
-            if store.flow == .onboarding, !store.isConfirmSeedPhraseWrittenChecked {
-                backupConfirmationBlocker
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
@@ -115,35 +111,6 @@ private extension RecoveryPhraseDisplayView {
                 .caption()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    var backupConfirmationBlocker: some View {
-        VStack {
-            Spacer()
-            VStack(spacing: 12) {
-                Image(systemName: "exclamationmark.shield.fill")
-                    .font(.system(size: 28))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-
-                Text("Write down all 22 words before continuing")
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                    .multilineTextAlignment(.center)
-
-                Text("Check the box below to confirm you have saved your recovery phrase in a safe place.")
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(24)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Asset.Colors.Nighthawk.darkNavy.color.opacity(0.95))
-            )
-            .padding(.horizontal, 25)
-            .padding(.bottom, 140)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.45).ignoresSafeArea())
-        .allowsHitTesting(false)
     }
 
     @MainActor

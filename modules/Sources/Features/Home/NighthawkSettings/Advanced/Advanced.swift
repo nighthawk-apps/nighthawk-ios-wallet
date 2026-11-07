@@ -77,7 +77,8 @@ public struct Advanced {
             case .onAppear:
                 state.selectedScreenMode = userStoredPreferences.screenMode()
                 state.selectedAppIcon = userStoredPreferences.appIcon()
-                state.theme = userStoredPreferences.theme()
+                let storedTheme = userStoredPreferences.theme()
+                state.theme = storedTheme == .default ? .cyberpunk : storedTheme
                 state.showBanditSettings = userStoredPreferences.isBandit()
                 return .none
             case .deleteWalletTapped:

@@ -99,7 +99,16 @@ struct SeedGridView: View {
             if forPdf {
                 $0
             } else {
-                $0.background(Asset.Colors.Nighthawk.darkNavy.color)
+                $0
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Asset.Colors.Nighthawk.darkNavy.color)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+                    )
             }
         }
         .padding(.bottom, 20)

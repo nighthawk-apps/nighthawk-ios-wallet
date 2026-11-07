@@ -21,9 +21,6 @@ public struct ReceiveView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            NighthawkLogo(spacing: .compact)
-                .padding(.vertical, 32)
-
             // Subtitle & Header section
             VStack(spacing: 16) {
                 Text(L10n.Nighthawk.Receive.sendAndReceive)
@@ -36,10 +33,15 @@ public struct ReceiveView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
             }
+            .padding(.top, 20)
             .padding(.bottom, 24)
 
             // Options
-            VStack(spacing: 10) {
+            VStack(spacing: 0) {
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+
                 Button(action: { store.send(.showQrCodeTapped) }) {
                     optionRow(
                         title: L10n.Nighthawk.Receive.showQr,
@@ -112,16 +114,16 @@ private extension ReceiveView {
         description: String,
         icon: Image
     ) -> some View {
-        VStack {
-            HStack(alignment: .center) {
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 14) {
                 icon
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
+                    .scaledToFit()
+                    .frame(width: 24, height: 24, alignment: .center)
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                    .padding(.trailing, 14)
 
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .foregroundColor(Asset.Colors.Nighthawk.accent.color)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
@@ -133,10 +135,12 @@ private extension ReceiveView {
 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 14)
+            .frame(minHeight: 56)
+            .contentShape(Rectangle())
 
             Divider()
-                .frame(height: 2)
+                .frame(height: 1)
                 .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
     }

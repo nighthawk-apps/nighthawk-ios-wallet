@@ -14,6 +14,7 @@
 
 import SwiftUI
 import Generated
+import Models
 
 // MARK: - StealthTheme
 
@@ -72,17 +73,27 @@ public enum StealthTheme {
     // ── Colors ──────────────────────────────────────────────────────
 
     public enum Colors {
+        private static var activeTheme: NighthawkSetting.Theme {
+            NighthawkThemeController.shared.theme
+        }
+
         // Backgrounds (gradient: moonlit → charcoalDeep)
         public static var backgroundStart: Color { Asset.Colors.Nighthawk.moonlit.color }
         public static var backgroundEnd: Color { Asset.Colors.Nighthawk.charcoalDeep.color }
-        public static var surface: Color { Asset.Colors.Nighthawk.charcoalRaised.color }
-        public static var surfaceVariant: Color { Asset.Colors.Nighthawk.elevated.color }
+        public static var surface: Color { Asset.Colors.Nighthawk.darkNavy.color }
+        public static var surfaceVariant: Color { Asset.Colors.Nighthawk.navy.color }
 
-        // Accent. Stealth keeps the steel tone. Paper and light use graphite.
-        public static var primary: Color { Asset.Colors.Nighthawk.accent.color }
+        // Accent: Cyberpunk uses electric cyan (#5CE1FF); Stealth uses steel-blue; Paper uses graphite.
+        public static var primary: Color { activeTheme.primaryAccentColor }
+        public static var onPrimary: Color { activeTheme.onPrimaryAccentColor }
         public static var primaryPressed: Color { Asset.Colors.Nighthawk.accentPressed.color }
         public static var primaryDeep: Color { Asset.Colors.Nighthawk.accentDeep.color }
         public static var primaryMuted: Color { Asset.Colors.Nighthawk.accentMuted.color }
+
+        // Secondary selection tokens (Cyberpunk magenta / Stealth slate / Paper neutral)
+        public static var secondaryContainer: Color { activeTheme.secondaryContainerColor }
+        public static var secondaryAccent: Color { activeTheme.secondaryAccentColor }
+        public static var onSecondaryContainer: Color { activeTheme.onSecondaryContainerColor }
 
         // Text
         public static var textHeader: Color { Asset.Colors.Nighthawk.textHeader.color }
@@ -96,7 +107,11 @@ public enum StealthTheme {
         // Secondary fills
         public static var secondaryFill: Color { Asset.Colors.Nighthawk.secondaryFill.color }
 
-        // Status
+        // Semantic Status Colors
+        public static var statusSuccess: Color { activeTheme.statusSuccessColor }
+        public static var statusWarning: Color { activeTheme.statusWarningColor }
+        public static var statusDanger: Color { activeTheme.statusDangerColor }
+        public static var onDanger: Color { .white }
         public static var dangerous: Color { Asset.Colors.Nighthawk.dangerous.color }
 
         // Callout

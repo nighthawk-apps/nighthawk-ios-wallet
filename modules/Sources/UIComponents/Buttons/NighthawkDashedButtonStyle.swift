@@ -30,9 +30,9 @@ public struct NighthawkDashedButtonStyle: ButtonStyle {
         let configuration: ButtonStyle.Configuration
         var body: some View {
             configuration.label
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14, relativeTo: .subheadline))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(configuration.isPressed ? 0.5 : 1.0))
-                .frame(height: 38)
+                .frame(minHeight: 44)
                 .padding(.horizontal, 25)
                 .overlay(
                     RoundedRectangle(cornerRadius: 13)

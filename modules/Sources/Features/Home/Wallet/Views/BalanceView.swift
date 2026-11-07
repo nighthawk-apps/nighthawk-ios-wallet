@@ -39,6 +39,9 @@ public struct BalanceView: View {
         VStack {
             balanceImage(for: type)
                 .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 .frame(width: 24, height: 24)
                 .padding(.bottom, 20)
 

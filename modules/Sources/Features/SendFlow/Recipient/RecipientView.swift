@@ -41,7 +41,6 @@ public struct RecipientView: View {
                 }
             )
             .padding(.horizontal, 24)
-            .foregroundColor(.green)
             .focused($isRecipientEditorFocused)
 
             if store.canPasteAddress {

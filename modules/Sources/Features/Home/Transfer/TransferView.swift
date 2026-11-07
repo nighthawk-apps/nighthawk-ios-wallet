@@ -34,12 +34,17 @@ private extension TransferView {
                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
             Spacer()
         }
-        .padding(.top, 48)
+        .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
+        .padding(.bottom, 13)
         .padding(.horizontal, 25)
     }
 
     var optionsList: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
+            Divider()
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+
             Button(action: { store.send(.sendMoneyTapped) }) {
                 optionRow(
                     title: L10n.Nighthawk.TransferTab.sendMoneyTitle,
@@ -64,7 +69,7 @@ private extension TransferView {
                 optionRow(
                     title: L10n.Nighthawk.DaoHub.title,
                     description: L10n.Nighthawk.DaoHub.browseDescription,
-                    icon: Image(systemName: "building.columns")
+                    icon: Image(systemName: "person.3")
                 )
             }
             .buttonStyle(.plain)
@@ -78,16 +83,16 @@ private extension TransferView {
         description: String,
         icon: Image
     ) -> some View {
-        VStack {
-            HStack(alignment: .center) {
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 14) {
                 icon
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24)
+                    .scaledToFit()
+                    .frame(width: 24, height: 24, alignment: .center)
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                    .padding(.trailing, 14)
 
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
@@ -99,11 +104,13 @@ private extension TransferView {
 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 14)
+            .frame(minHeight: 56)
+            .contentShape(Rectangle())
 
             Divider()
-                .frame(height: 2)
-                .overlay(Asset.Colors.Nighthawk.navy.color)
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
     }
 }

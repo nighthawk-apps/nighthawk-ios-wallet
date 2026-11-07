@@ -48,9 +48,10 @@ public struct NighthawkPrimaryButtonStyle: ButtonStyle {
                     }
                 }
                 .textCase(.uppercase)
-                .font(.custom(FontFamily.Roboto.medium.name, size: 14))
-                .padding(.vertical, 10)
-                .padding(.horizontal, 14)
+                .font(.custom(FontFamily.Roboto.medium.name, size: 14, relativeTo: .subheadline))
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 44)
                 .background(
                     (
                         isEnabled ? backgroundColor : Asset.Colors.Nighthawk.navy.color
@@ -65,8 +66,8 @@ public struct NighthawkPrimaryButtonStyle: ButtonStyle {
 public extension ButtonStyle where Self == NighthawkPrimaryButtonStyle {
     static func nighthawkPrimary(
         width: CGFloat? = nil,
-        backgroundColor: Color = Asset.Colors.Nighthawk.peach.color,
-        foregroundColor: Color = Asset.Colors.Nighthawk.darkNavy.color
+        backgroundColor: Color = StealthTheme.Colors.primary,
+        foregroundColor: Color = StealthTheme.Colors.onPrimary
     ) -> NighthawkPrimaryButtonStyle {
         NighthawkPrimaryButtonStyle(
             width: width,

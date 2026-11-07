@@ -15,10 +15,11 @@ extension Home {
     }
 
     private func daoHubDelegateReducer() -> Reduce<Home.State, Home.Action> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
             case .transfer(.delegate(.openDaoHub)):
-                return .send(.delegate(.openDaoHub))
+                state.selectedTab = .daoHub
+                return .send(.daoHub(.onAppear))
             case .alert,
                  .binding,
                  .cancelSynchronizerUpdates,
@@ -27,6 +28,7 @@ extension Home {
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
+                 .daoHub,
                  .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,
@@ -64,6 +66,7 @@ extension Home {
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
+                 .daoHub,
                  .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,

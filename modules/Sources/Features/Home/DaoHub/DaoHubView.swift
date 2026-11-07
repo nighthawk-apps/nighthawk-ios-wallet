@@ -53,11 +53,15 @@ private extension DaoHubView {
     var hubScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .center) {
+                // Match Settings / Transfer (Dex) screen-title inset.
+                HStack {
+                    Text(L10n.Nighthawk.DaoHub.title.uppercased())
+                        .title(color: Asset.Colors.Nighthawk.textHeader.color)
                     Spacer()
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
+                .padding(.bottom, 13)
+                .padding(.horizontal, 25)
 
                 if store.isLoading {
                     daoLoading
@@ -70,7 +74,7 @@ private extension DaoHubView {
                     Text(L10n.Nighthawk.DaoHub.hubIntro)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 25)
 
                     ForEach(store.daos) { dao in
                         daoRow(dao)
@@ -134,22 +138,27 @@ private extension DaoHubView {
     }
 
     func daoRow(_ dao: DaoBrief) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(dao.name)
-                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(dao.name)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
 
-                Spacer()
+                    Spacer()
+                }
+
+                Text(dao.roleLine)
+                    .font(.custom(FontFamily.IbmPlexMono.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
             }
+            .padding(.vertical, 14)
 
-            Text(dao.roleLine)
-                .font(.custom(FontFamily.IbmPlexMono.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-
-            Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+            Divider()
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
         .contentShape(Rectangle())
     }
 }
@@ -159,8 +168,6 @@ private extension DaoHubView {
     var daoDetailScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                daoScaffoldHeader(title: store.selectedDao?.name ?? L10n.Nighthawk.DaoHub.title)
-
                 if store.isLoading {
                     daoLoading
                 } else if let error = store.errorMessage {
@@ -246,18 +253,23 @@ private extension DaoHubView {
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                             .padding(.horizontal)
                         Button(L10n.Nighthawk.DaoHub.proposer) { store.send(.exportRole("proposer")) }
+                            .buttonStyle(.nighthawkSecondary(width: 220))
                             .disabled(store.actionInProgress)
                             .padding(.horizontal)
                         Button(L10n.Nighthawk.DaoHub.voter) { store.send(.exportRole("voter")) }
+                            .buttonStyle(.nighthawkSecondary(width: 220))
                             .disabled(store.actionInProgress)
                             .padding(.horizontal)
                         Button(L10n.Nighthawk.DaoHub.executor) { store.send(.exportRole("executor")) }
+                            .buttonStyle(.nighthawkSecondary(width: 220))
                             .disabled(store.actionInProgress)
                             .padding(.horizontal)
                         Button(L10n.Nighthawk.DaoHub.fullCopy) { store.send(.exportRole("all")) }
+                            .buttonStyle(.nighthawkSecondary(width: 220))
                             .disabled(store.actionInProgress)
                             .padding(.horizontal)
                         Button(L10n.Nighthawk.DaoHub.details) { showDaoDetails.toggle() }
+                            .buttonStyle(.nighthawkLink())
                             .padding(.horizontal)
                         if showDaoDetails {
                             daoParamsCard(dao)
@@ -271,6 +283,7 @@ private extension DaoHubView {
                     daoMessage(L10n.Nighthawk.DaoHub.daoNotFound)
                 }
             }
+            .padding(.top, 8)
         }
         .sheet(isPresented: Binding(
             get: { store.showProposeSheet },
@@ -320,31 +333,55 @@ private extension DaoHubView {
 
     var fundSheet: some View {
         let amountReady = DaoDecimalInput.normalizedPositive(store.fundAmount) != nil
-        return VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.Nighthawk.DaoHub.addFunds)
-                .font(.custom(FontFamily.PulpDisplay.bold.name, size: 20))
-            Text(L10n.Nighthawk.DaoHub.addFundsHint)
-                .font(.custom(FontFamily.Roboto.regular.name, size: 14))
-            Picker(L10n.Nighthawk.DaoHub.token, selection: Binding(
-                get: { store.fundTokenId ?? "" },
-                set: { store.send(.setFundTokenId($0.isEmpty ? nil : $0)) }
-            )) {
-                ForEach(fundTokenChoices(), id: \.id) { choice in
-                    Text(choice.label).tag(choice.id)
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(L10n.Nighthawk.DaoHub.addFundsHint)
+                    .paragraph(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                HStack {
+                    Text(L10n.Nighthawk.DaoHub.token)
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    Spacer()
+                    Picker(L10n.Nighthawk.DaoHub.token, selection: Binding(
+                        get: { store.fundTokenId ?? "" },
+                        set: { store.send(.setFundTokenId($0.isEmpty ? nil : $0)) }
+                    )) {
+                        ForEach(fundTokenChoices(), id: \.id) { choice in
+                            Text(choice.label).tag(choice.id)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(Asset.Colors.Nighthawk.peach.color)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Asset.Colors.Nighthawk.navy.color)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+                )
+
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.DaoHub.amount,
+                    text: Binding(
+                        get: { store.fundAmount },
+                        set: { store.send(.setFundAmount($0)) }
+                    )
+                )
+                .keyboardType(.decimalPad)
+
+                Button(L10n.Nighthawk.DaoHub.addFunds) { store.send(.submitFund) }
+                    .buttonStyle(.nighthawkPrimary())
+                    .disabled(store.actionInProgress || !amountReady)
             }
-            .pickerStyle(.menu)
-            TextField(L10n.Nighthawk.DaoHub.amount, text: Binding(
-                get: { store.fundAmount },
-                set: { store.send(.setFundAmount($0)) }
-            ))
-            .keyboardType(.decimalPad)
-            .textFieldStyle(.roundedBorder)
-            Button(L10n.Nighthawk.DaoHub.addFunds) { store.send(.submitFund) }
-                .buttonStyle(.nighthawkPrimary())
-                .disabled(store.actionInProgress || !amountReady)
+            .padding(25)
         }
-        .padding()
+        .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.DaoHub.addFunds) {
+            store.send(.dismissFundSheet)
+        }
         .applyNighthawkBackground()
     }
 
@@ -384,14 +421,19 @@ private extension DaoHubView {
     }
 
     func proposalRow(_ proposal: ProposalBrief) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            statusBadge(for: proposal)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                statusBadge(for: proposal)
 
-            Text(paymentTitle(proposal))
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                Text(paymentTitle(proposal))
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+            .padding(.vertical, 14)
 
-            Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+            Divider()
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
         }
         .padding(.horizontal)
         .contentShape(Rectangle())
@@ -403,8 +445,6 @@ private extension DaoHubView {
     var proposalDetailScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                daoScaffoldHeader(title: L10n.Nighthawk.DaoHub.proposal)
-
                 if store.isLoading {
                     daoLoading
                 } else if let error = store.errorMessage {
@@ -420,7 +460,7 @@ private extension DaoHubView {
                         .font(.custom(FontFamily.Roboto.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     Button(L10n.Nighthawk.DaoHub.details) { showProposalDetails.toggle() }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.nighthawkLink())
                     if showProposalDetails {
                         copyableDetailLine(label: L10n.Nighthawk.DaoHub.proposalId, value: p.proposalBullaB58)
                         if let h = p.mintHeight {
@@ -465,6 +505,7 @@ private extension DaoHubView {
                     daoMessage(L10n.Nighthawk.DaoHub.proposalNotFound)
                 }
             }
+            .padding(.top, 8)
             .padding(.horizontal)
         }
     }
@@ -475,63 +516,65 @@ private extension DaoHubView {
     var proposeSheet: some View {
         let canSubmit = DaoDecimalInput.normalizedPositive(store.proposeAmount) != nil
             && !store.proposeRecipient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return NavigationView {
-            Form {
-                Section(L10n.Nighthawk.DaoHub.recipient) {
-                    TextField(L10n.Nighthawk.DaoHub.recipientAddress, text: Binding(
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(L10n.Nighthawk.DaoHub.recipient)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.DaoHub.recipientAddress,
+                    text: Binding(
                         get: { store.proposeRecipient },
                         set: { store.send(.setProposeRecipient($0)) }
-                    ))
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                }
+                    )
+                )
 
-                Section(L10n.Nighthawk.DaoHub.amount) {
-                    TextField(L10n.Nighthawk.DaoHub.amount, text: Binding(
+                Text(L10n.Nighthawk.DaoHub.amount)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.DaoHub.amount,
+                    text: Binding(
                         get: { store.proposeAmount },
                         set: { store.send(.setProposeAmount($0)) }
-                    ))
-                    .keyboardType(.decimalPad)
-                }
+                    )
+                )
+                .keyboardType(.decimalPad)
 
-                Section(L10n.Nighthawk.DaoHub.tokenOptional) {
-                    TextField(L10n.Nighthawk.DaoHub.tokenIdPlaceholder, text: Binding(
+                Text(L10n.Nighthawk.DaoHub.tokenOptional)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.DaoHub.tokenIdPlaceholder,
+                    text: Binding(
                         get: { store.proposeTokenId },
                         set: { store.send(.setProposeTokenId($0)) }
-                    ))
-                    .autocapitalization(.none)
-                }
+                    )
+                )
 
-                Section(L10n.Nighthawk.DaoHub.duration) {
-                    TextField(L10n.Nighthawk.DaoHub.blockWindows, text: Binding(
+                Text(L10n.Nighthawk.DaoHub.duration)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(
+                    placeholder: L10n.Nighthawk.DaoHub.blockWindows,
+                    text: Binding(
                         get: { store.proposeDuration },
                         set: { store.send(.setProposeDuration($0)) }
-                    ))
-                    .keyboardType(.numberPad)
-                }
+                    )
+                )
+                .keyboardType(.numberPad)
 
-                Section {
-                    Text(L10n.Nighthawk.DaoHub.proposeBroadcast)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                Text(L10n.Nighthawk.DaoHub.proposeBroadcast)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                Button(L10n.Nighthawk.DaoHub.proposePayment) {
+                    store.send(.submitProposal)
                 }
+                .buttonStyle(.nighthawkPrimary())
+                .disabled(store.actionInProgress || !canSubmit)
             }
-            .navigationTitle(L10n.Nighthawk.DaoHub.proposePayment)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.General.cancel) {
-                        store.send(.dismissProposeSheet)
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Nighthawk.DaoHub.proposePayment) {
-                        store.send(.submitProposal)
-                    }
-                    .disabled(store.actionInProgress || !canSubmit)
-                }
-            }
+            .padding(25)
         }
+        .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.DaoHub.proposePayment) {
+            store.send(.dismissProposeSheet)
+        }
+        .applyNighthawkBackground()
     }
 }
 
@@ -647,13 +690,13 @@ private extension DaoHubView {
                 switch result {
                 case let .success(msg):
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(StealthTheme.Colors.statusSuccess)
                     Text(msg)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                 case let .error(msg):
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
+                        .foregroundColor(StealthTheme.Colors.statusDanger)
                     Text(msg)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
@@ -665,12 +708,18 @@ private extension DaoHubView {
                     Image(systemName: "xmark")
                         .font(.system(size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
             }
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Asset.Colors.Nighthawk.navy.color)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
             )
             .padding(.horizontal)
         }
@@ -714,46 +763,61 @@ private struct CreateGroupSheet: View {
     }
 
     var body: some View {
-        NavigationView {
-            Form {
-                TextField(L10n.Nighthawk.DaoHub.name, text: $name)
-                TextField(L10n.Nighthawk.DaoHub.governanceToken, text: $token)
-                    .autocapitalization(.none)
-                TextField(L10n.Nighthawk.DaoHub.yesShare, text: $yesShare)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(L10n.Nighthawk.DaoHub.name)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.name, text: $name)
+
+                Text(L10n.Nighthawk.DaoHub.governanceToken)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.governanceToken, text: $token)
+
+                Text(L10n.Nighthawk.DaoHub.yesShare)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.yesShare, text: $yesShare)
                     .keyboardType(.decimalPad)
-                TextField(L10n.Nighthawk.DaoHub.votesNeeded, text: $quorum)
+
+                Text(L10n.Nighthawk.DaoHub.votesNeeded)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.votesNeeded, text: $quorum)
                     .keyboardType(.decimalPad)
-                TextField(L10n.Nighthawk.DaoHub.proposerMinimum, text: $proposerMinimum)
+
+                Text(L10n.Nighthawk.DaoHub.proposerMinimum)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.proposerMinimum, text: $proposerMinimum)
                     .keyboardType(.decimalPad)
-                TextField(L10n.Nighthawk.DaoHub.earlyQuorum, text: $earlyQuorum)
+
+                Text(L10n.Nighthawk.DaoHub.earlyQuorum)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.earlyQuorum, text: $earlyQuorum)
                     .keyboardType(.decimalPad)
+
                 Text(L10n.Nighthawk.DaoHub.earlyQuorumHint)
-                    .font(.custom(FontFamily.Roboto.regular.name, size: 13))
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 Text(L10n.Nighthawk.DaoHub.allRolesHint)
-                    .font(.custom(FontFamily.Roboto.regular.name, size: 13))
-            }
-            .navigationTitle(L10n.Nighthawk.DaoHub.startGroup)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.General.cancel) { dismiss() }
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                Button(L10n.Nighthawk.DaoHub.startGroup) {
+                    guard let proposerLimit, let quorumValue, let earlyValue, let ratio else { return }
+                    onSubmit(
+                        name.trimmingCharacters(in: .whitespacesAndNewlines),
+                        proposerLimit,
+                        quorumValue,
+                        earlyValue,
+                        ratio,
+                        token.trimmingCharacters(in: .whitespacesAndNewlines)
+                    )
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Nighthawk.DaoHub.startGroup) {
-                        guard let proposerLimit, let quorumValue, let earlyValue, let ratio else { return }
-                        onSubmit(
-                            name.trimmingCharacters(in: .whitespacesAndNewlines),
-                            proposerLimit,
-                            quorumValue,
-                            earlyValue,
-                            ratio,
-                            token.trimmingCharacters(in: .whitespacesAndNewlines)
-                        )
-                    }
-                    .disabled(!canSubmit)
-                }
+                .buttonStyle(.nighthawkPrimary())
+                .disabled(!canSubmit)
             }
+            .padding(25)
         }
+        .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.DaoHub.startGroup) {
+            dismiss()
+        }
+        .applyNighthawkBackground()
     }
 }
 
@@ -769,30 +833,29 @@ private struct ImportGroupSheet: View {
     }
 
     var body: some View {
-        NavigationView {
-            Form {
-                TextField(L10n.Nighthawk.DaoHub.name, text: $name)
-                Section(L10n.Nighthawk.DaoHub.importToml) {
-                    TextEditor(text: $toml)
-                        .frame(minHeight: 180)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(L10n.Nighthawk.DaoHub.name)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.name, text: $name)
+
+                Text(L10n.Nighthawk.DaoHub.importToml)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextEditor(placeholder: L10n.Nighthawk.DaoHub.importToml, text: $toml)
+                    .frame(minHeight: 180)
+
+                Button(L10n.Nighthawk.DaoHub.importGroup) {
+                    onSubmit(name, toml)
                 }
+                .buttonStyle(.nighthawkPrimary())
+                .disabled(!canSubmit)
             }
-            .navigationTitle(L10n.Nighthawk.DaoHub.importGroup)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.General.cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Nighthawk.DaoHub.importGroup) {
-                        onSubmit(name, toml)
-                    }
-                    .disabled(!canSubmit)
-                }
-            }
+            .padding(25)
         }
+        .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.DaoHub.importGroup) {
+            dismiss()
+        }
+        .applyNighthawkBackground()
     }
 }
 
@@ -809,30 +872,36 @@ private struct IssueTokenSheet: View {
     }
 
     var body: some View {
-        NavigationView {
-            Form {
-                TextField(L10n.Nighthawk.DaoHub.name, text: $name)
-                TextField(L10n.Nighthawk.DaoHub.amount, text: $amount)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(L10n.Nighthawk.DaoHub.name)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.name, text: $name)
+
+                Text(L10n.Nighthawk.DaoHub.amount)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.amount, text: $amount)
                     .keyboardType(.decimalPad)
-                TextField(L10n.Nighthawk.DaoHub.recipient, text: $recipient)
-                    .autocapitalization(.none)
+
+                Text(L10n.Nighthawk.DaoHub.recipient)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.recipient, text: $recipient)
+
                 Text(L10n.Nighthawk.DaoHub.issueHint)
-                    .font(.custom(FontFamily.Roboto.regular.name, size: 13))
-            }
-            .navigationTitle(L10n.Nighthawk.DaoHub.issueToken)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.General.cancel) { dismiss() }
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+                Button(L10n.Nighthawk.DaoHub.issueToken) {
+                    onSubmit(name, amount, recipient)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Nighthawk.DaoHub.issueToken) {
-                        onSubmit(name, amount, recipient)
-                    }
-                    .disabled(!canSubmit)
-                }
+                .buttonStyle(.nighthawkPrimary())
+                .disabled(!canSubmit)
             }
+            .padding(25)
         }
+        .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.DaoHub.issueToken) {
+            dismiss()
+        }
+        .applyNighthawkBackground()
     }
 }
 
@@ -850,27 +919,31 @@ private struct AmountRecipientSheet: View {
     }
 
     var body: some View {
-        NavigationView {
-            Form {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
                 Text(tokenLabel)
                     .font(.custom(FontFamily.IbmPlexMono.regular.name, size: 13))
-                TextField(L10n.Nighthawk.DaoHub.amount, text: $amount)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+
+                Text(L10n.Nighthawk.DaoHub.amount)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.amount, text: $amount)
                     .keyboardType(.decimalPad)
-                TextField(L10n.Nighthawk.DaoHub.recipient, text: $recipient)
-                    .autocapitalization(.none)
+
+                Text(L10n.Nighthawk.DaoHub.recipient)
+                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                NighthawkTextField(placeholder: L10n.Nighthawk.DaoHub.recipient, text: $recipient)
+
+                Button(title) { onSubmit(amount, recipient) }
+                    .buttonStyle(.nighthawkPrimary())
+                    .disabled(!canSubmit)
             }
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.General.cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(title) { onSubmit(amount, recipient) }
-                        .disabled(!canSubmit)
-                }
-            }
+            .padding(25)
         }
+        .nighthawkTopBar(leading: .close, title: title) {
+            dismiss()
+        }
+        .applyNighthawkBackground()
     }
 }
 
@@ -884,9 +957,11 @@ private struct RoleQrSheet: View {
         VStack(spacing: 16) {
             Text(L10n.Nighthawk.DaoHub.roleExportTitle)
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 20))
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             if isCaptured {
                 Text(L10n.Nighthawk.DaoHub.captured)
                     .font(.custom(FontFamily.Roboto.regular.name, size: 14))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .multilineTextAlignment(.center)
             } else if let image = roleQrImage(payload) {
                 image
@@ -896,6 +971,7 @@ private struct RoleQrSheet: View {
             }
             Text(L10n.Nighthawk.DaoHub.roleExportHint)
                 .font(.custom(FontFamily.Roboto.regular.name, size: 14))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .multilineTextAlignment(.center)
             if !isCaptured {
                 Button(L10n.Nighthawk.DaoHub.copy) {

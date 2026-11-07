@@ -18,7 +18,7 @@ public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
     @State private var balancePage: BalanceView.ViewType?
 
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.nighthawkUsesCompanionPane) private var usesCompanionPane
 
     public var body: some View {
         NighthawkSplitContainer {
@@ -31,8 +31,8 @@ public struct WalletView: View {
     private var walletColumn: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
-                // Clears the overlaid QR actions. The wordmark is on the wallpaper.
-                Color.clear.frame(height: 56)
+                // Clears the overlaid QR / Scan stack (top inset matches trailing = 25).
+                Color.clear.frame(height: 25 + 88)
 
                 syncStatusDot
                     .padding(.top, 8)
@@ -73,13 +73,13 @@ private extension WalletView {
     var syncStatusColor: Color {
         switch store.walletInfo.synchronizerStatusSnapshot.syncStatus {
         case .upToDate:
-            return Color(red: 0x2E / 255, green: 0x7D / 255, blue: 0x32 / 255)
+            return StealthTheme.Colors.statusSuccess
         case .syncing, .unprepared:
-            return Color(red: 0xF9 / 255, green: 0xA8 / 255, blue: 0x25 / 255)
+            return StealthTheme.Colors.statusWarning
         case .error:
-            return Color(red: 0xC6 / 255, green: 0x28 / 255, blue: 0x28 / 255)
+            return StealthTheme.Colors.statusDanger
         case .stopped:
-            return Color(red: 0x9E / 255, green: 0x9E / 255, blue: 0x9E / 255)
+            return Asset.Colors.Nighthawk.parmaviolet.color
         }
     }
 
@@ -103,39 +103,42 @@ private extension WalletView {
     }
 
     var qrCodeButtons: some View {
-        HStack {
+        // Receive QR stacked above Scan on the top-right (Scan stays in its prior slot).
+        VStack(alignment: .trailing, spacing: 0) {
             Button(action: { store.send(.viewAddressesTapped) }) {
                 Asset.Assets.Icons.Nighthawk.nhQrCode.image
                     .resizable()
-                    .frame(width: 22, height: 22).scaledToFit()
-                    .padding(12)
+                    .renderingMode(.template)
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .frame(width: 24, height: 24)
+                    .scaledToFit()
+                    .frame(width: 44, height: 44, alignment: .topTrailing)
                     .contentShape(Rectangle())
             }
-            .frame(minWidth: 44, minHeight: 44)
             .accessibilityLabel(L10n.Nighthawk.WalletTab.Addresses.unifiedAddress)
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("nighthawk.wallet.viewAddresses")
-            .padding(.top, 24)
-            .padding(.leading, 13)
-
-            Spacer()
 
             if store.showScanButton {
                 Button(action: { store.send(.scanPaymentRequestTapped) }) {
                     Asset.Assets.Icons.Nighthawk.boxedQrCode.image
                         .resizable()
-                        .frame(width: 22, height: 22).scaledToFit()
-                        .padding(12)
+                        .renderingMode(.template)
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        .frame(width: 24, height: 24)
+                        .scaledToFit()
+                        .frame(width: 44, height: 44, alignment: .topTrailing)
                         .contentShape(Rectangle())
                 }
-                .frame(minWidth: 44, minHeight: 44)
                 .accessibilityLabel(L10n.Nighthawk.TransferTab.Send.scanCode)
                 .accessibilityAddTraits(.isButton)
                 .accessibilityIdentifier("nighthawk.wallet.scan")
-                .padding(.top, 24)
-                .padding(.trailing, 13)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .topTrailing)
+        // Standard screen margin — top matches trailing (Android screen_standard_margin).
+        .padding(.top, 25)
+        .padding(.trailing, 25)
         .environment(\.layoutDirection, .leftToRight)
     }
 
@@ -242,63 +245,61 @@ private extension WalletView {
     }
 
     func fillColor(for viewType: BalanceView.ViewType, isSelected: Bool) -> Color {
-        switch viewType {
-        case .hidden:
-            return .clear
-        default:
-            return isSelected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.textMuted.color
-        }
+        isSelected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.textMuted.color
     }
 
     func strokeColor(for viewType: BalanceView.ViewType, isSelected: Bool) -> Color {
-        switch viewType {
-        case .hidden:
-            return .clear
-        default:
-            return isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
-        }
+        isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
     }
 
     var walletActionRow: some View {
-        HStack(spacing: 12) {
-            walletOutlineButton(
-                title: L10n.Nighthawk.TransferTab.receiveMoneyTitle,
+        // Money chips: same selected-chip language as Chat Channels / Direct,
+        // but teal/cyan primary (money) — never chat magenta.
+        HStack(spacing: 8) {
+            walletMoneyChip(
+                title: L10n.Nighthawk.WalletTab.actionRequest,
+                enabled: true,
+                action: { store.send(.requestMoneyTapped) }
+            )
+            walletMoneyChip(
+                title: L10n.Nighthawk.WalletTab.actionReceive,
                 enabled: true,
                 action: { store.send(.receiveMoneyTapped) }
             )
-            walletOutlineButton(
-                title: L10n.Nighthawk.TransferTab.sendMoneyTitle,
+            walletMoneyChip(
+                title: L10n.Nighthawk.WalletTab.actionSend,
                 enabled: !store.isSyncingFailed && !store.isSyncingStopped,
                 action: { store.send(.sendMoneyTapped) }
             )
         }
     }
 
-    func walletOutlineButton(
+    func walletMoneyChip(
         title: String,
         enabled: Bool,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        // Match Android Chat FilterChip / Channels·Direct (~8pt), not capsule pills.
+        let chipShape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+        let teal = StealthTheme.Colors.primary
+        return Button(action: action) {
             Text(title)
-                .textCase(.uppercase)
-                .font(.custom(FontFamily.Roboto.medium.name, size: 14))
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                 .foregroundColor(
                     enabled
                         ? Asset.Colors.Nighthawk.textHeader.color
-                        : Asset.Colors.Nighthawk.textHeader.color.opacity(0.4)
+                        : Asset.Colors.Nighthawk.textHeader.color.opacity(0.45)
                 )
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 10)
+                .background(
+                    chipShape
+                        .fill(teal.opacity(enabled ? 0.38 : 0.18))
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(
-                            enabled
-                                ? Asset.Colors.Nighthawk.peach.color
-                                : Asset.Colors.Nighthawk.peach.color.opacity(0.35),
-                            lineWidth: 1.5
-                        )
+                    chipShape
+                        .strokeBorder(teal.opacity(enabled ? 0.55 : 0.28), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
@@ -318,7 +319,7 @@ private extension WalletView {
 
                     ForEach(store.walletInfo.walletEvents.prefix(2)) { walletEvent in
                         Button {
-                            if horizontalSizeClass == .regular {
+                            if usesCompanionPane {
                                 store.send(.transactionSelected(walletEvent))
                             } else {
                                 store.send(.viewTransactionDetailTapped(walletEvent))

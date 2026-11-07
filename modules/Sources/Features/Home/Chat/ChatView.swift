@@ -33,7 +33,7 @@ struct ChatView: View {
             }
         }
         // Clears the wallpaper NIGHTHAWK wordmark under the status bar.
-        .padding(.top, 48)
+        .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
         .onAppear { store.send(.onAppear) }
         .onChange(of: scenePhase) { _, newPhase in
             store.send(.scenePhaseChanged(newPhase))
@@ -44,9 +44,10 @@ struct ChatView: View {
 
 // MARK: - Connection Status Bar (matches Android ChatStatusRow)
 private extension ChatView {
-    /// Dark pink from the Wallhaven cyberpunk wallpaper (channel / conversation selection).
-    private var chatSelectionPink: Color { Color(red: 0x6B / 255, green: 0x1A / 255, blue: 0x6B / 255) }
-    private var chatSelectionPinkBright: Color { Color(red: 0xC9 / 255, green: 0x4B / 255, blue: 0xB8 / 255) }
+    /// Theme-aware selection container & accent (magenta in Cyberpunk, slate in Stealth, neutral in Paper).
+    private var chatSelectionPink: Color { themes.theme.secondaryContainerColor }
+    private var chatSelectionPinkBright: Color { themes.theme.secondaryAccentColor }
+    private var chatSelectionOnPink: Color { themes.theme.onSecondaryContainerColor }
 
     var inboxBar: some View {
         HStack(spacing: 0) {
@@ -54,23 +55,26 @@ private extension ChatView {
                 Button(action: { store.send(.tabSelected(tab)) }) {
                     Text(tab.rawValue)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                        .foregroundColor(store.selectedTab == tab ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(store.selectedTab == tab ? chatSelectionOnPink : Asset.Colors.Nighthawk.parmaviolet.color)
                         .frame(maxWidth: .infinity)
+                        .frame(minHeight: 44)
                         .padding(.vertical, 8)
                         .background(
                             store.selectedTab == tab
-                                ? chatSelectionPink.opacity(0.55)
+                                ? chatSelectionPink.opacity(themes.theme.usesCyberpunkChrome ? 0.38 : 1.0)
                                 : Color.clear
                         )
+                        .contentShape(Rectangle())
                 }
             }
             Button(action: { showPeers = true }) {
                 Image(systemName: "info.circle")
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(chatSelectionPinkBright)
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
-            .padding(.trailing, 8)
+            .padding(.trailing, 4)
             .accessibilityLabel(L10n.Nighthawk.Chat.peers)
         }
         .background(Asset.Colors.Nighthawk.navy.color.opacity(0.55))
@@ -100,7 +104,7 @@ private extension ChatView {
                 ForEach(peerSlots, id: \.index) { slot in
                     HStack(spacing: 8) {
                         Circle()
-                            .fill(slot.connected ? Color.green : Color.gray.opacity(0.6))
+                            .fill(slot.connected ? StealthTheme.Colors.statusSuccess : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.5))
                             .frame(width: 8, height: 8)
                         Text("\(slot.index)")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
@@ -193,7 +197,7 @@ private extension ChatView {
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
                         .foregroundColor(
                             store.connectionState == .error
-                                ? Color.red.opacity(0.8)
+                                ? StealthTheme.Colors.statusDanger
                                 : Asset.Colors.Nighthawk.parmaviolet.color
                         )
                         .lineLimit(1)
@@ -226,9 +230,9 @@ private extension ChatView {
 
     var connectionColor: Color {
         switch store.connectionState {
-        case .connectedDirect, .connectedViaTor, .connectedViaNym: return .green
-        case .connecting, .startingDaemon, .waitingForDagSync, .degraded: return .yellow
-        case .disconnected, .error: return .red.opacity(0.6)
+        case .connectedDirect, .connectedViaTor, .connectedViaNym: return StealthTheme.Colors.statusSuccess
+        case .connecting, .startingDaemon, .waitingForDagSync, .degraded: return StealthTheme.Colors.statusWarning
+        case .disconnected, .error: return StealthTheme.Colors.statusDanger
         }
     }
 
@@ -240,10 +244,10 @@ private extension ChatView {
 
     func embeddedNodeColor(for status: Chat.State.EmbeddedNodeStatus) -> Color {
         switch status {
-        case .running, .ready: return .green
-        case .starting, .waitingForPeers, .syncingDag: return .yellow
-        case .notUsed: return .gray
-        case .missingBinary, .failed: return .red.opacity(0.6)
+        case .running, .ready: return StealthTheme.Colors.statusSuccess
+        case .starting, .waitingForPeers, .syncingDag: return StealthTheme.Colors.statusWarning
+        case .notUsed: return Asset.Colors.Nighthawk.parmaviolet.color
+        case .missingBinary, .failed: return StealthTheme.Colors.statusDanger
         }
     }
 }
@@ -355,12 +359,12 @@ private extension ChatView {
         return HStack(spacing: 4) {
             Text(channel.name)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(isSelected ? Asset.Colors.Nighthawk.textHeader.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(isSelected ? chatSelectionOnPink : Asset.Colors.Nighthawk.parmaviolet.color)
 
             if channel.unreadCount > 0 {
                 Text("\(channel.unreadCount)")
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .foregroundColor(StealthTheme.Colors.onPrimary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(chatSelectionPinkBright)
@@ -369,13 +373,14 @@ private extension ChatView {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
+        .frame(minHeight: 36)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(isSelected ? chatSelectionPink.opacity(0.65) : Color.clear)
+                .fill(isSelected ? chatSelectionPink.opacity(themes.theme.usesCyberpunkChrome ? 0.38 : 1.0) : Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
-                            isSelected ? chatSelectionPinkBright : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3),
+                            isSelected ? chatSelectionPinkBright.opacity(0.55) : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3),
                             lineWidth: 1
                         )
                 )
@@ -515,16 +520,19 @@ private extension ChatView {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(isSelected ? chatSelectionPink.opacity(0.4) : Color.clear)
+        .background(isSelected ? chatSelectionPink.opacity(themes.theme.usesCyberpunkChrome ? 0.32 : 0.4) : Color.clear)
     }
 
     // MARK: - DM Conversation Header
 
     var dmConversationHeader: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Button(action: { store.send(.dmBackTapped) }) {
                 Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
 
             if let contact = store.selectedDmContact {
@@ -551,10 +559,10 @@ private extension ChatView {
 
             Image(systemName: "lock.fill")
                 .font(.system(size: 14))
-                .foregroundColor(.green.opacity(0.7))
+                .foregroundColor(StealthTheme.Colors.statusSuccess)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
         .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
     }
 

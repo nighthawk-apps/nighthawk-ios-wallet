@@ -236,7 +236,8 @@ struct NewDmConversationView: View {
                             Button(action: { store.send(.generateKeysTapped) }) {
                                 HStack(spacing: 8) {
                                     if store.isBusy {
-                                        ProgressView().tint(.white)
+                                        ProgressView()
+                                            .tint(Asset.Colors.Nighthawk.peach.color)
                                     }
                                     Image(systemName: "key.fill")
                                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
@@ -246,6 +247,7 @@ struct NewDmConversationView: View {
                                 }
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 12)
+                                .frame(minHeight: 44)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.3))
@@ -288,7 +290,7 @@ struct NewDmConversationView: View {
                     if let error = store.errorMessage {
                         Text(error)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                            .foregroundColor(.red)
+                            .foregroundColor(StealthTheme.Colors.statusDanger)
                     }
 
                     Spacer().frame(height: 8)
@@ -297,17 +299,19 @@ struct NewDmConversationView: View {
                     Button(action: { store.send(.startDmTapped) }) {
                         HStack {
                             if store.isBusy {
-                                ProgressView().tint(.white)
+                                ProgressView()
+                                    .tint(canStart ? StealthTheme.Colors.onPrimary : Asset.Colors.Nighthawk.peach.color)
                             }
                             Text("Start DM")
                                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                                .foregroundColor(canStart ? StealthTheme.Colors.onPrimary : Asset.Colors.Nighthawk.parmaviolet.color)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
+                        .frame(minHeight: 44)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(canStart ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.navy.color)
+                                .fill(canStart ? StealthTheme.Colors.primary : Asset.Colors.Nighthawk.navy.color)
                         )
                     }
                     .disabled(!canStart)

@@ -74,22 +74,24 @@ private struct NymSplashProgressView: View {
         TimelineView(.periodic(from: startedAt, by: 0.5)) { context in
             let elapsed = context.date.timeIntervalSince(startedAt)
             let stuck = elapsed >= 20 || failed
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
                 ProgressView(value: NymSplashEstimate.fraction(elapsed: elapsed, ready: false))
                     .tint(Asset.Colors.Nighthawk.peach.color)
                 Text(failed ? "Nym mixnet connection failed" : "Connecting to the Nym mixnet… \(Int(elapsed)) s")
-                    .font(.footnote)
+                    .paragraph(color: failed ? StealthTheme.Colors.statusDanger : Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.center)
                 if stuck {
                     Text("Taking longer than usual. Keep waiting, or continue without Nym.")
-                        .font(.footnote)
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                         .multilineTextAlignment(.center)
                     if failed {
                         Button("Retry", action: onRetry)
+                            .buttonStyle(.nighthawkPrimary())
                     }
                     Button("Continue without Nym", action: onContinue)
+                        .buttonStyle(.nighthawkSecondary())
                     Text("Wallet and chat use your regular network. You can switch back to Nym in Settings.")
-                        .font(.caption)
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                         .multilineTextAlignment(.center)
                 }
             }

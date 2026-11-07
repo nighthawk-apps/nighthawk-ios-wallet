@@ -78,6 +78,7 @@ public struct Wallet {
         case scanPaymentRequestTapped
         case receiveMoneyTapped
         case sendMoneyTapped
+        case requestMoneyTapped
         case viewAddressesTapped
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
@@ -91,6 +92,7 @@ public struct Wallet {
             case scanPaymentRequest
             case receiveMoney
             case sendMoney
+            case requestMoney
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
@@ -117,6 +119,9 @@ public struct Wallet {
                 return .send(.delegate(.receiveMoney))
             case .sendMoneyTapped:
                 return .send(.delegate(.sendMoney))
+            case .requestMoneyTapped:
+                // Until a dedicated Request invoice screen ships, open Receive QR.
+                return .send(.delegate(.requestMoney))
             case .viewAddressesTapped:
                 return .send(.delegate(.showAddresses))
             case let .viewTransactionDetailTapped(walletEvent):

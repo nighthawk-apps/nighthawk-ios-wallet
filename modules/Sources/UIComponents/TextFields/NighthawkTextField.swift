@@ -116,14 +116,20 @@ private struct _NighthawkTextFieldStyle<InputAccessoryContent>: TextFieldStyle w
     // swiftlint:disable:next identifier_name
     func _body(configuration: TextField<Self._Label>) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 4)
-                .strokeBorder(
-                    isError
-                        ? Asset.Colors.Nighthawk.error.color
-                        : isFocused || !isEmpty
-                        ? foregroundColor.opacity(0.8)
-                        : Asset.Colors.Nighthawk.parmaviolet.color,
-                    lineWidth: 2
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Asset.Colors.Nighthawk.navy.color)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(
+                            isError
+                                ? Asset.Colors.Nighthawk.error.color
+                                : isFocused
+                                ? Asset.Colors.Nighthawk.peach.color
+                                : !isEmpty
+                                ? foregroundColor.opacity(0.8)
+                                : Asset.Colors.Nighthawk.steelBorder.color,
+                            lineWidth: isFocused || isError ? 1.5 : 1
+                        )
                 )
                 .frame(height: 56)
 

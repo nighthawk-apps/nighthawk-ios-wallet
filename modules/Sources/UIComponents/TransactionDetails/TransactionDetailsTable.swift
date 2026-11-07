@@ -76,7 +76,7 @@ public struct TransactionDetailsTable: View {
             }
         }
         .padding(.horizontal, 25)
-        .padding(.top, 55)
+        .padding(.top, 24)
         .padding(.bottom, 40)
     }
 }

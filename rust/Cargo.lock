@@ -2740,6 +2740,7 @@ dependencies = [
  "bip39 2.2.2",
  "blake3",
  "bs58",
+ "chacha20poly1305",
  "crypto_box",
  "darkfi",
  "darkfi-sdk",

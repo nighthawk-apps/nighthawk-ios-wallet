@@ -33,6 +33,7 @@ extension Home {
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
+                 .daoHub,
                  .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,

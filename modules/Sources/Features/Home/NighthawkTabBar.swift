@@ -8,71 +8,113 @@
 import Generated
 import Models
 import SwiftUI
+import UIComponents
 
 private enum Constants {
     static let barHeight: CGFloat = 54
+}
+
+enum NighthawkTabPlacement {
+    /// Phone / folded width — icons along the bottom.
+    case bottomBar
+    /// Expanded / Duo width — icons in a leading rail (Android NavigationRail).
+    case leadingRail
 }
 
 struct NighthawkTabBar: View {
     let selectedTab: Home.State.Tab
     let onSelect: (Home.State.Tab) -> Void
     let disableSend: Bool
+    var placement: NighthawkTabPlacement = .bottomBar
     @ObservedObject private var themes = NighthawkThemeController.shared
 
     init(
         selectedTab: Home.State.Tab,
         onSelect: @escaping (Home.State.Tab) -> Void,
-        disableSend: Bool
+        disableSend: Bool,
+        placement: NighthawkTabPlacement = .bottomBar
     ) {
         self.selectedTab = selectedTab
         self.onSelect = onSelect
         self.disableSend = disableSend
+        self.placement = placement
         UITabBar.appearance().isHidden = true
     }
 
     var body: some View {
-        HStack(spacing: 0) {
-            tabButton(
-                title: "Chat",
-                image: Image(systemName: "bubble.left.and.bubble.right"),
-                tab: .chat
-            )
-
-            tabButton(
-                title: L10n.Nighthawk.HomeScreen.wallet,
-                image: Asset.Assets.Icons.Nighthawk.wallet.image,
-                tab: .wallet
-            )
-
-            tabButton(
-                title: L10n.Nighthawk.HomeScreen.transfer,
-                image: Asset.Assets.Icons.Nighthawk.transfer.image,
-                tab: .transfer,
-                isDisabled: disableSend
-            )
-
-            tabButton(
-                title: L10n.Nighthawk.HomeScreen.settings,
-                image: Asset.Assets.Icons.Nighthawk.settings.image,
-                tab: .settings
-            )
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: Constants.barHeight)
-        .background {
-            Group {
-                if themes.theme.usesCyberpunkChrome {
-                    Color.black.opacity(0.32)
-                } else {
-                    Asset.Colors.Nighthawk.navy.color
-                }
+        Group {
+            switch placement {
+            case .bottomBar:
+                bottomBar
+            case .leadingRail:
+                leadingRail
             }
-            .ignoresSafeArea(edges: .bottom)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .environment(\.layoutDirection, .leftToRight)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("nighthawk.home.tabbar")
+    }
+
+    private var bottomBar: some View {
+        HStack(spacing: 0) {
+            tabButtons
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: Constants.barHeight)
+        .background { chromeBackground.ignoresSafeArea(edges: .bottom) }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+
+    private var leadingRail: some View {
+        // Pad outside the chrome so the wallpaper wordmark stays visible (Android rail parity).
+        VStack(spacing: 4) {
+            tabButtons
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background { chromeBackground }
+        .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
+    }
+
+    @ViewBuilder
+    private var tabButtons: some View {
+        tabButton(
+            title: "Chat",
+            image: Image(systemName: "bubble.left.and.bubble.right"),
+            tab: .chat
+        )
+        tabButton(
+            title: L10n.Nighthawk.HomeScreen.wallet,
+            image: Asset.Assets.Icons.Nighthawk.wallet.image,
+            tab: .wallet
+        )
+        tabButton(
+            title: L10n.Nighthawk.HomeScreen.transfer,
+            image: Asset.Assets.Icons.Nighthawk.transfer.image,
+            tab: .transfer,
+            isDisabled: disableSend
+        )
+        tabButton(
+            title: L10n.Nighthawk.DaoHub.title,
+            // SF Symbol "person.3" — DAO Hub metaphor (open Apple SF Symbols).
+            image: Image(systemName: "person.3"),
+            tab: .daoHub
+        )
+        tabButton(
+            title: L10n.Nighthawk.HomeScreen.settings,
+            image: Asset.Assets.Icons.Nighthawk.settings.image,
+            tab: .settings
+        )
+    }
+
+    private var chromeBackground: some View {
+        Group {
+            if themes.theme.usesCyberpunkChrome {
+                Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255, opacity: 0.85)
+            } else {
+                Asset.Colors.Nighthawk.navy.color
+            }
+        }
     }
 
     private func tabButton(
@@ -84,7 +126,8 @@ struct NighthawkTabBar: View {
         TabBarItem(
             title: title,
             image: image,
-            isSelected: selectedTab == tab
+            isSelected: selectedTab == tab,
+            placement: placement
         )
         .frame(maxWidth: .infinity)
         .frame(minHeight: 44)
@@ -106,6 +149,7 @@ private struct TabBarItem: View {
     let title: String
     let image: Image
     let isSelected: Bool
+    let placement: NighthawkTabPlacement
 
     var body: some View {
         VStack {
@@ -124,18 +168,26 @@ private struct TabBarItem: View {
                         ? Asset.Colors.Nighthawk.peach.color
                         : Asset.Colors.Nighthawk.textHeader.color
                 )
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
-        .padding(.top, 8)
-        .padding(.bottom, 4)
-        .overlay(alignment: .top) {
+        .padding(.top, placement == .bottomBar ? 8 : 10)
+        .padding(.bottom, placement == .bottomBar ? 4 : 8)
+        .overlay(alignment: placement == .bottomBar ? .top : .leading) {
             Rectangle()
                 .fill(
                     isSelected
                         ? Asset.Colors.Nighthawk.peach.color
                         : .clear
                 )
-                .frame(height: 4)
-                .frame(maxWidth: .infinity)
+                .frame(
+                    width: placement == .leadingRail ? 4 : nil,
+                    height: placement == .bottomBar ? 4 : nil
+                )
+                .frame(
+                    maxWidth: placement == .bottomBar ? .infinity : nil,
+                    maxHeight: placement == .leadingRail ? .infinity : nil
+                )
                 .allowsHitTesting(false)
         }
     }

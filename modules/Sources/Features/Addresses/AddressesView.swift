@@ -25,10 +25,7 @@ public struct AddressesView: View {
     }
 
     public var body: some View {
-        VStack {
-            NighthawkLogo(spacing: .compact)
-                .padding(.top, 16)
-
+        VStack(spacing: 0) {
             actionsCarousel
 
             Spacer()
@@ -108,6 +105,10 @@ private extension AddressesView {
         .padding(22)
         .background(Asset.Colors.Nighthawk.navy.color)
         .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+        )
     }
 
     func qrCode(for qrText: String) -> Image {

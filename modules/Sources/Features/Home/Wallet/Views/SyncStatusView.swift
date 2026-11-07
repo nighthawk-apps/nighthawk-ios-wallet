@@ -8,6 +8,7 @@
 import Generated
 import Models
 import SwiftUI
+import UIComponents
 import Utils
 
 struct SyncStatusView: View {
@@ -61,15 +62,14 @@ struct SyncStatusView: View {
             return method.displayName
         }()
         let displayColor: Color = {
-            if !status.lightwalletdConnected { return Color.orange.opacity(0.8) }
-            if method.isPrivateRetrieval { return Color.green.opacity(0.8) }
-            if method == .trialDecrypt { return Color.orange.opacity(0.8) }
+            if !status.lightwalletdConnected { return StealthTheme.Colors.statusWarning }
+            if method.isPrivateRetrieval { return StealthTheme.Colors.statusSuccess }
+            if method == .trialDecrypt { return StealthTheme.Colors.statusWarning }
             return Asset.Colors.Nighthawk.peach.color.opacity(0.7)
         }()
 
         Text(displayText)
-            .font(.caption2)
-            .foregroundColor(displayColor)
+            .caption(color: displayColor)
             .accessibilityIdentifier("SYNC_TYPE_TEXT")
     }
 }

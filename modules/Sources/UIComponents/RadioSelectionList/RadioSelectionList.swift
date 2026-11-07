@@ -24,10 +24,10 @@ public struct RadioSelectionList<Option: Identifiable & Hashable, OptionContent:
     }
 
     public var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             ForEach(options) { option in
                 Button(action: { selection.wrappedValue = option }) {
-                    HStack(alignment: .center) {
+                    HStack(alignment: .center, spacing: 14) {
                         ZStack {
                             Circle()
                                 .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 2)
@@ -39,13 +39,16 @@ public struct RadioSelectionList<Option: Identifiable & Hashable, OptionContent:
                                     .frame(width: 10, height: 10)
                             }
                         }
-                        .frame(width: 24, height: 24)
+                        .frame(width: 24, height: 24, alignment: .center)
 
                         optionContent(option)
 
                         Spacer()
                     }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
             }
         }
     }

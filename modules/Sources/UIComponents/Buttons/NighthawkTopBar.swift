@@ -42,8 +42,6 @@ public struct NighthawkTopBar: View {
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel(leading == .close ? "Close" : "Back")
-            } else {
-                Color.clear.frame(width: 44, height: 44)
             }
 
             if let title {

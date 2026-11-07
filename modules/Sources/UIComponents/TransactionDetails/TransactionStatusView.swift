@@ -20,6 +20,8 @@ public struct TransactionStatusView: View {
         HStack(alignment: .center) {
             statusImage
                 .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .frame(width: 16, height: 16)
 

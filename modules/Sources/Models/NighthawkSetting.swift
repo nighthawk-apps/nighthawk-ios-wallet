@@ -126,18 +126,20 @@ public enum NighthawkSetting {
         case paper
         case cyberpunk
 
+        public static var allCases: [Theme] {
+            [.cyberpunk, .dark, .paper]
+        }
+
         public var id: String { rawValue }
 
         public var label: String {
             switch self {
-            case .`default`:
-                L10n.Nighthawk.SettingsTab.Advanced.Theme.default
+            case .`default`, .cyberpunk:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk
             case .dark:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
             case .paper:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.paper
-            case .cyberpunk:
-                L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk
             }
         }
 
@@ -160,6 +162,62 @@ public enum NighthawkSetting {
         public var usesPaperTypography: Bool {
             self == .paper
         }
+
+        public var primaryAccentColor: Color {
+            usesCyberpunkChrome
+                ? Color(red: 0x5C / 255, green: 0xE1 / 255, blue: 0xFF / 255)
+                : Asset.Colors.Nighthawk.peach.color
+        }
+
+        public var onPrimaryAccentColor: Color {
+            if usesCyberpunkChrome {
+                return Color(red: 0x04 / 255, green: 0x10 / 255, blue: 0x18 / 255)
+            }
+            return self == .paper
+                ? .white
+                : Color(red: 0x08 / 255, green: 0x10 / 255, blue: 0x18 / 255)
+        }
+
+        public var secondaryContainerColor: Color {
+            if usesCyberpunkChrome {
+                return Color(red: 0x6B / 255, green: 0x1A / 255, blue: 0x6B / 255)
+            }
+            return self == .paper
+                ? Color(red: 0xE6 / 255, green: 0xE9 / 255, blue: 0xED / 255)
+                : Color(red: 0x24 / 255, green: 0x30 / 255, blue: 0x38 / 255)
+        }
+
+        public var secondaryAccentColor: Color {
+            if usesCyberpunkChrome {
+                return Color(red: 0xC9 / 255, green: 0x4B / 255, blue: 0xB8 / 255)
+            }
+            return self == .paper
+                ? Color(red: 0x5E / 255, green: 0x6A / 255, blue: 0x74 / 255)
+                : Color(red: 0x5E / 255, green: 0x9B / 255, blue: 0xAF / 255)
+        }
+
+        public var onSecondaryContainerColor: Color {
+            if usesCyberpunkChrome {
+                return Color(red: 0xFF / 255, green: 0xD6 / 255, blue: 0xF6 / 255)
+            }
+            return Asset.Colors.Nighthawk.textHeader.color
+        }
+
+        public var statusSuccessColor: Color {
+            self == .paper
+                ? Color(red: 0x1E / 255, green: 0x7E / 255, blue: 0x52 / 255)
+                : Color(red: 0x3D / 255, green: 0xDC / 255, blue: 0x97 / 255)
+        }
+
+        public var statusWarningColor: Color {
+            self == .paper
+                ? Color(red: 0xB2 / 255, green: 0x6A / 255, blue: 0x00 / 255)
+                : Color(red: 0xFF / 255, green: 0xB3 / 255, blue: 0x40 / 255)
+        }
+
+        public var statusDangerColor: Color {
+            Asset.Colors.Nighthawk.error.color
+        }
     }
 }
 
@@ -171,11 +229,17 @@ public extension Notification.Name {
 public final class NighthawkThemeController: ObservableObject {
     public static let shared = NighthawkThemeController()
 
-    @Published public private(set) var theme: NighthawkSetting.Theme
+    @Published public private(set) var theme: NighthawkSetting.Theme {
+        didSet {
+            ColorAsset.usesCyberpunkPalette = theme.usesCyberpunkChrome
+        }
+    }
 
     private init() {
         let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? NighthawkSetting.Theme.default.rawValue
-        theme = NighthawkSetting.Theme(rawValue: raw) ?? .default
+        let initial = NighthawkSetting.Theme(rawValue: raw) ?? .default
+        ColorAsset.usesCyberpunkPalette = initial.usesCyberpunkChrome
+        theme = initial
         NotificationCenter.default.addObserver(
             forName: .nighthawkThemeDidChange,
             object: nil,
@@ -183,6 +247,7 @@ public final class NighthawkThemeController: ObservableObject {
         ) { [weak self] note in
             guard let raw = note.object as? String,
                   let next = NighthawkSetting.Theme(rawValue: raw) else { return }
+            ColorAsset.usesCyberpunkPalette = next.usesCyberpunkChrome
             self?.theme = next
         }
     }

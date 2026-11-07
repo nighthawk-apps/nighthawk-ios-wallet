@@ -33,9 +33,10 @@ public struct NighthawkSecondaryButtonStyle: ButtonStyle {
                     }
                 }
                 .textCase(.uppercase)
-                .font(.custom(FontFamily.Roboto.medium.name, size: 14))
-                .padding(.vertical, 10)
-                .padding(.horizontal, 14)
+                .font(.custom(FontFamily.Roboto.medium.name, size: 14, relativeTo: .subheadline))
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 44)
                 .background(
                     (
                         isEnabled ? Asset.Colors.Nighthawk.navy.color : Asset.Colors.Nighthawk.richBlack.color
@@ -47,6 +48,13 @@ public struct NighthawkSecondaryButtonStyle: ButtonStyle {
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
                 .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(
+                            Asset.Colors.Nighthawk.steelBorder.color.opacity(isEnabled ? 1.0 : 0.4),
+                            lineWidth: 1
+                        )
+                )
         }
     }
 }

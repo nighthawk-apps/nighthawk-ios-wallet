@@ -41,10 +41,14 @@ struct NighthawkSettingsView: View {
                     .title(color: Asset.Colors.Nighthawk.textHeader.color)
                 Spacer()
             }
-            .padding(.top, 48)
+            .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
             .padding(.bottom, 13)
 
-            VStack {
+            VStack(spacing: 0) {
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.notificationsTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
@@ -94,23 +98,23 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
-                    title: "Chat Settings",
-                    subtitle: "E2E encryption, DAG sync, embedded darkirc",
-                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    title: L10n.Nighthawk.SettingsTab.chatSettingsTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.chatSettingsSubtitle,
+                    icon: Image(systemName: "bubble.left.and.bubble.right"),
                     action: { store.send(.rowTapped(.chatSettings)) }
                 )
 
                 settingRow(
-                    title: "Network privacy",
-                    subtitle: "Wallet over Nym, Tor or direct; chat over Tor",
-                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    title: L10n.Nighthawk.SettingsTab.networkPrivacyTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.networkPrivacySubtitle,
+                    icon: Image(systemName: "network"),
                     action: { store.send(.rowTapped(.torNetwork)) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.DaoHub.title,
                     subtitle: L10n.Nighthawk.DaoHub.browseDescription,
-                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
+                    icon: Image(systemName: "person.3"),
                     action: { store.send(.rowTapped(.daoHub)) }
                 )
 
@@ -138,7 +142,7 @@ struct NighthawkSettingsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
                     .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                Text("Select a setting on the left to open it.")
+                Text(L10n.Nighthawk.SettingsTab.selectSettingPrompt)
                     .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 Text(L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion))
                     .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
@@ -160,37 +164,36 @@ private extension NighthawkSettingsView {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            VStack {
-                HStack {
-                    VStack {
-                        HStack(alignment: .center, spacing: 14) {
-                            icon
-                                .resizable()
-                                .renderingMode(.template)
-                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color).scaledToFit()
-                                .frame(width: 24, height: 24)
+            VStack(spacing: 0) {
+                HStack(alignment: .center, spacing: 14) {
+                    icon
+                        .resizable()
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        .frame(width: 24, height: 24, alignment: .center)
 
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(title)
-                                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                                    .multilineTextAlignment(.leading)
-
-                                Text(subtitle)
-                                    .caption()
-                            }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                             .multilineTextAlignment(.leading)
-                        }
-                    }
-                    .padding(.vertical, 8)
 
-                    Spacer()
+                        Text(subtitle)
+                            .caption()
+                            .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .padding(.vertical, 14)
+                .frame(minHeight: 56)
+                .contentShape(Rectangle())
 
                 Divider()
-                    .frame(height: 2)
-                    .overlay(Asset.Colors.Nighthawk.navy.color)
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
             }
         }
+        .buttonStyle(.plain)
     }
 }

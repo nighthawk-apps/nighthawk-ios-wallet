@@ -45,6 +45,15 @@ extension Home {
                     sendState.unifiedAddress = state.walletInfo.unifiedAddress
                     state.transfer.destination = .send(sendState)
                     return .none
+                case .requestMoney:
+                    // Parity stub: Android has RequestMoneyScreen; iOS opens Receive until invoice UI lands.
+                    state.transfer.destination = .receive(
+                        .init(
+                            uAddress: state.walletInfo.unifiedAddress,
+                            showCloseButton: processInfo.isiOSAppOnMac()
+                        )
+                    )
+                    return .none
                 case .showAddresses:
                     state.destination = .addresses(
                         .init(
@@ -79,6 +88,7 @@ extension Home {
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,
+                 .daoHub,
                  .latestFiatResponse,
                  .listenForSynchronizerUpdates,
                  .onAppear,

@@ -21,8 +21,11 @@ public struct VisibilityToggle: View {
                     : Asset.Assets.Icons.Nighthawk.hidden.image
             )
             .resizable()
-            .renderingMode(.template).scaledToFit()
+            .renderingMode(.template)
+            .scaledToFit()
             .frame(width: 24, height: 24)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
         }
     }
 

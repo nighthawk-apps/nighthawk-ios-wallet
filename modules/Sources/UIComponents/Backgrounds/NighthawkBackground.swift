@@ -28,18 +28,20 @@ public struct CyberpunkBackdrop: View {
     public init() {}
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            Color(red: 0.02, green: 0.024, blue: 0.04)
-            Image("cyberpunk-bg", bundle: .module)
-                .resizable()
-                .interpolation(.high)
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .clipped()
-            Color.black.opacity(0.5)
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                Color(red: 0.02, green: 0.024, blue: 0.04)
+                Image("cyberpunk-bg", bundle: .module)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFill()
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+                    .clipped()
+                Color.black.opacity(0.5)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+            .clipped()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .clipped()
         .ignoresSafeArea()
         .allowsHitTesting(false)
     }

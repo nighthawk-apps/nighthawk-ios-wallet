@@ -20,7 +20,7 @@ public struct ChatSettingsView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 // Embedded Node Sync section
                 sectionHeader("EMBEDDED NODE SYNC")
                     .padding(.top, 8)
@@ -61,7 +61,6 @@ public struct ChatSettingsView: View {
                                 .frame(width: 40)
                         }
                     }
-                    .padding(.horizontal)
 
                     toggleRow(
                         title: "Fast sync (header-only)",
@@ -73,7 +72,10 @@ public struct ChatSettingsView: View {
                     )
                 }
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+                    .padding(.vertical, 8)
 
                 // Encrypted Channels section
                 sectionHeader("ENCRYPTED CHANNELS")
@@ -82,28 +84,35 @@ public struct ChatSettingsView: View {
                     Text("No encrypted channels configured.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                        .padding(.horizontal)
                 } else {
-                    ForEach(store.encryptedChannels) { channel in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(channel.name)
-                                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                                if !channel.topic.isEmpty {
-                                    Text(channel.topic)
-                                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    VStack(spacing: 0) {
+                        ForEach(store.encryptedChannels) { channel in
+                            VStack(spacing: 0) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(channel.name)
+                                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
+                                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                                        if !channel.topic.isEmpty {
+                                            Text(channel.topic)
+                                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                        }
+                                    }
+                                    Spacer()
+                                    Button(action: { store.send(.removeChannel(channel.id)) }) {
+                                        Text("Remove")
+                                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                                            .foregroundColor(StealthTheme.Colors.statusDanger)
+                                    }
                                 }
-                            }
-                            Spacer()
-                            Button(action: { store.send(.removeChannel(channel.id)) }) {
-                                Text("Remove")
-                                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                                    .foregroundColor(.red.opacity(0.8))
+                                .padding(.vertical, 12)
+
+                                Divider()
+                                    .frame(height: 1)
+                                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
                             }
                         }
-                        .padding(.horizontal)
                     }
                 }
 
@@ -115,9 +124,11 @@ public struct ChatSettingsView: View {
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 }
-                .padding(.horizontal)
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+                    .padding(.vertical, 8)
 
                 // Encrypted Contacts (DM) section
                 sectionHeader("ENCRYPTED CONTACTS (DM)")
@@ -143,14 +154,13 @@ public struct ChatSettingsView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
                 }
 
                 Button(action: { store.send(.generateDmKeysTapped) }) {
                     HStack {
                         if store.isGeneratingKeys {
                             ProgressView()
-                                .tint(.white)
+                                .tint(Asset.Colors.Nighthawk.peach.color)
                         }
                         Image(systemName: "key.fill")
                         Text("Generate my DM keys")
@@ -159,27 +169,33 @@ public struct ChatSettingsView: View {
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 }
                 .disabled(store.isGeneratingKeys)
-                .padding(.horizontal)
 
                 if store.encryptedContacts.isEmpty {
                     Text("No encrypted contacts configured.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                        .padding(.horizontal)
                 } else {
-                    ForEach(store.encryptedContacts) { contact in
-                        HStack {
-                            Text(contact.nick)
-                                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                            Spacer()
-                            Button(action: { store.send(.removeContact(contact.id)) }) {
-                                Text("Remove")
-                                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                                    .foregroundColor(.red.opacity(0.8))
+                    VStack(spacing: 0) {
+                        ForEach(store.encryptedContacts) { contact in
+                            VStack(spacing: 0) {
+                                HStack {
+                                    Text(contact.nick)
+                                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
+                                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                                    Spacer()
+                                    Button(action: { store.send(.removeContact(contact.id)) }) {
+                                        Text("Remove")
+                                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                                            .foregroundColor(StealthTheme.Colors.statusDanger)
+                                    }
+                                }
+                                .padding(.vertical, 12)
+
+                                Divider()
+                                    .frame(height: 1)
+                                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
                             }
                         }
-                        .padding(.horizontal)
                     }
                 }
 
@@ -191,9 +207,11 @@ public struct ChatSettingsView: View {
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 }
-                .padding(.horizontal)
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+                    .padding(.vertical, 8)
 
                 // Apply button
                 Button(action: { store.send(.applyAndReconnect) }) {
@@ -201,10 +219,10 @@ public struct ChatSettingsView: View {
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                 }
                 .buttonStyle(.nighthawkPrimary())
-                .padding(.horizontal)
 
                 Spacer().frame(height: 40)
             }
+            .padding(.horizontal, 25)
         }
         .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
@@ -218,7 +236,6 @@ private extension ChatSettingsView {
             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
             .foregroundColor(Asset.Colors.Nighthawk.peach.color)
             .tracking(1.5)
-            .padding(.horizontal)
     }
 
     func toggleRow(title: String, subtitle: String, isOn: Binding<Bool>) -> some View {
@@ -239,7 +256,6 @@ private extension ChatSettingsView {
                 .tint(Asset.Colors.Nighthawk.peach.color)
                 .labelsHidden()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
     }
 }

@@ -35,6 +35,10 @@ struct NighthawkAlertModifier<NighthawkAlertContent: View>: ViewModifier {
                     .padding()
                     .background(Asset.Colors.Nighthawk.darkNavy.color)
                     .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+                    )
                     .padding(24)
                     .padding(.bottom)
                     .zIndex(2)

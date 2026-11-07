@@ -51,28 +51,36 @@ public extension Text {
             content
                 .foregroundColor(color)
                 .font(paper
-                    ? .custom("SourceSerif4Roman-Regular", size: 21)
-                    : .custom(FontFamily.PulpDisplay.regular.name, size: 21))
+                    ? .custom("SourceSerif4Roman-Regular", size: 21, relativeTo: .title2)
+                    : .custom(FontFamily.PulpDisplay.regular.name, size: 21, relativeTo: .title2))
         }
     }
 
     private struct SubtitleTextStyle: ViewModifier {
+        @ObservedObject private var themes = NighthawkThemeController.shared
         var color: Color
 
         func body(content: Content) -> some View {
+            let paper = themes.theme.usesPaperTypography
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
+                .font(paper
+                    ? .custom("SourceSerif4Roman-Regular", size: 16, relativeTo: .headline)
+                    : .custom(FontFamily.PulpDisplay.regular.name, size: 16, relativeTo: .headline))
         }
     }
 
     private struct SubtitleMediumTextStyle: ViewModifier {
+        @ObservedObject private var themes = NighthawkThemeController.shared
         var color: Color
 
         func body(content: Content) -> some View {
+            let paper = themes.theme.usesPaperTypography
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                .font(paper
+                    ? .custom("SourceSerif4Roman-Semibold", size: 16, relativeTo: .headline)
+                    : .custom(FontFamily.PulpDisplay.medium.name, size: 16, relativeTo: .headline))
         }
     }
 
@@ -82,7 +90,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 14, relativeTo: .body))
         }
     }
 
@@ -92,7 +100,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14, relativeTo: .body))
         }
     }
 
@@ -102,7 +110,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 14, relativeTo: .body))
         }
     }
 
@@ -112,7 +120,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 12))
+                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 12, relativeTo: .caption))
                 .lineSpacing(6)
         }
     }
@@ -123,7 +131,7 @@ public extension Text {
         func body(content: Content) -> some View {
             content
                 .foregroundColor(color)
-                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12, relativeTo: .caption))
                 .lineSpacing(6)
         }
     }

@@ -18,17 +18,40 @@ public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
 
     public var body: some View {
-        tabContent
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .environment(\.nighthawkSuppressNestedBackground, true)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                NighthawkTabBar(
-                    selectedTab: store.selectedTab,
-                    onSelect: { store.send(.tabSelected($0)) },
-                    disableSend: store.synchronizerFailed
-                )
-                .ignoresSafeArea(.keyboard, edges: .bottom)
+        GeometryReader { proxy in
+            // Width gate matches Android `NighthawkExpandedWidth` / fold rail.
+            let useRail = proxy.size.width >= NighthawkLayout.expandedWidth
+            Group {
+                if useRail {
+                    HStack(spacing: 0) {
+                        NighthawkTabBar(
+                            selectedTab: store.selectedTab,
+                            onSelect: { store.send(.tabSelected($0)) },
+                            disableSend: store.synchronizerFailed,
+                            placement: .leadingRail
+                        )
+                        .frame(width: NighthawkLayout.navigationRailWidth)
+                        .frame(maxHeight: .infinity)
+
+                        tabContent
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    }
+                } else {
+                    tabContent
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .safeAreaInset(edge: .bottom, spacing: 0) {
+                            NighthawkTabBar(
+                                selectedTab: store.selectedTab,
+                                onSelect: { store.send(.tabSelected($0)) },
+                                disableSend: store.synchronizerFailed,
+                                placement: .bottomBar
+                            )
+                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                        }
+                }
             }
+        }
+        .environment(\.nighthawkSuppressNestedBackground, true)
         .background {
             NighthawkScreenBackdrop()
                 .ignoresSafeArea()
@@ -117,6 +140,14 @@ private extension HomeView {
                 store: store.scope(
                     state: \.transfer,
                     action: \.transfer
+                )
+            )
+
+        case .daoHub:
+            DaoHubView(
+                store: store.scope(
+                    state: \.daoHub,
+                    action: \.daoHub
                 )
             )
 

@@ -53,7 +53,7 @@ private extension TorNetworkView {
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
         .padding(.top, 8)
         .padding(.bottom, 16)
     }
@@ -72,8 +72,10 @@ private extension TorNetworkView {
 
             Spacer().frame(height: 4)
 
-            ForEach(NighthawkSetting.PrivacyNetwork.allCases) { network in
-                privacyNetworkRow(network)
+            VStack(spacing: 0) {
+                ForEach(NighthawkSetting.PrivacyNetwork.allCases) { network in
+                    privacyNetworkRow(network)
+                }
             }
 
             if store.isNymEnabled {
@@ -95,15 +97,16 @@ private extension TorNetworkView {
                 .padding(.top, 4)
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
     }
 
     func privacyNetworkRow(_ network: NighthawkSetting.PrivacyNetwork) -> some View {
         let selected = store.privacyNetwork == network
         return Button(action: { store.send(.privacyNetworkSelected(network)) }) {
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 14) {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                     .foregroundColor(selected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color)
+                    .frame(width: 24, height: 24, alignment: .center)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(network.title)
@@ -117,7 +120,8 @@ private extension TorNetworkView {
 
                 Spacer()
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 10)
+            .frame(minHeight: 48)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -126,10 +130,10 @@ private extension TorNetworkView {
 
     func statusColor(_ status: TorNetwork.State.ArtiStatus) -> Color {
         switch status {
-        case .connected: return .green
-        case .bootstrapping: return .yellow
-        case .stopped: return .gray
-        case .failed: return .red
+        case .connected: return StealthTheme.Colors.statusSuccess
+        case .bootstrapping: return StealthTheme.Colors.statusWarning
+        case .stopped: return Asset.Colors.Nighthawk.parmaviolet.color
+        case .failed: return StealthTheme.Colors.statusDanger
         }
     }
 }
@@ -184,7 +188,7 @@ private extension TorNetworkView {
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
     }
 }
 
@@ -221,7 +225,7 @@ private extension TorNetworkView {
                 keyboardType: .numberPad
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
     }
 }
 
@@ -244,7 +248,7 @@ private extension TorNetworkView {
             }
             .buttonStyle(.nighthawkPrimary())
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
         .padding(.bottom, 24)
     }
 }
@@ -261,10 +265,11 @@ private extension TorNetworkView {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
             Divider()
-                .overlay(Asset.Colors.Nighthawk.navy.color.opacity(0.5))
+                .frame(height: 1)
+                .overlay(Asset.Colors.Nighthawk.steelBorder.color)
             Spacer().frame(height: 16)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 25)
     }
 
     func torSwitchRow(title: String, isOn: Binding<Bool>, enabled: Bool = true) -> some View {

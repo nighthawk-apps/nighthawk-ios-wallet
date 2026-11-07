@@ -60,10 +60,14 @@ public struct AdvancedView: View {
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
-                Toggle("Nearby mesh", isOn: Binding(
+                Toggle(isOn: Binding(
                     get: { mesh.enabled },
                     set: { mesh.setEnabled($0) }
-                ))
+                )) {
+                    Text("Nearby mesh")
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
 
                 Text(mesh.statusLine)
                     .paragraphMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
@@ -84,8 +88,8 @@ public struct AdvancedView: View {
                 }
                 .buttonStyle(
                     .nighthawkPrimary(
-                        backgroundColor: Asset.Colors.Nighthawk.error.color,
-                        foregroundColor: Asset.Colors.Nighthawk.textHeader.color
+                        backgroundColor: StealthTheme.Colors.statusDanger,
+                        foregroundColor: StealthTheme.Colors.onDanger
                     )
                 )
 
@@ -93,7 +97,7 @@ public struct AdvancedView: View {
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.subtitle)
-                    .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
+                    .paragraphBold(color: StealthTheme.Colors.statusDanger)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
 
@@ -102,8 +106,8 @@ public struct AdvancedView: View {
                 }
                 .buttonStyle(
                     .nighthawkPrimary(
-                        backgroundColor: Asset.Colors.Nighthawk.error.color,
-                        foregroundColor: Asset.Colors.Nighthawk.textHeader.color
+                        backgroundColor: StealthTheme.Colors.statusDanger,
+                        foregroundColor: StealthTheme.Colors.onDanger
                     )
                 )
             }
@@ -155,14 +159,17 @@ private extension AdvancedView {
                 }
             }
 
-            Toggle("Experimental UnifOMR", isOn: Binding(
+            Toggle(isOn: Binding(
                 get: { WalletSyncPrivacy.strictOmrOnly },
                 set: { WalletSyncPrivacy.setStrictOmrOnly($0) }
-            ))
+            )) {
+                Text("Experimental UnifOMR")
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+            }
+            .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
             .padding(.vertical, 8)
             Text("Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. It also uploads a large detection key.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 .padding(.bottom, 8)
 
             Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
@@ -174,23 +181,19 @@ private extension AdvancedView {
             ) { option in
                 HStack {
                     switch option {
-                    case .`default`:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.default)
-                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    case .`default`, .cyberpunk:
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunkDetail)
+                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                        }
                     case .dark:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .paper:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                    case .cyberpunk:
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
-                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunkDetail)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
                     }
 
                     Spacer()

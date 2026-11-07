@@ -435,6 +435,7 @@ let package = Package(
                 "DerivationTool",
                 "LocalAuthenticationClient",
                 "MnemonicClient",
+                "Models",
                 "Pasteboard",
                 "ProcessInfoClient",
                 "SDKSynchronizer",

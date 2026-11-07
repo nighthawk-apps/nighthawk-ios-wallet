@@ -48,13 +48,7 @@ public struct AppView: View {
                     }
                 }
         }
-        .tint(
-            themes.theme.usesCyberpunkChrome
-                ? Color(red: 0.36, green: 0.88, blue: 1)
-                : themes.theme == .dark
-                    ? Asset.Colors.Nighthawk.textHeader.color
-                    : Asset.Colors.Nighthawk.accent.color
-        )
+        .tint(themes.theme.primaryAccentColor)
         .alert(
             $store.scope(
                 state: \.alert,
@@ -116,18 +110,26 @@ private extension AppView {
 
                 case let .chatSettings(store):
                     ChatSettingsView(store: store)
-                        .nighthawkChrome(showBack: showBackButton, title: "Chat settings") {
+                        .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.chatSettingsTitle) {
                             self.popVisible()
                         }
 
                 case let .daoHub(store):
-                    // DaoHub owns internal back on detail/proposal; App back only on hub.
+                    let daoTitle: String? = switch store.screen {
+                    case .hub: L10n.Nighthawk.DaoHub.title
+                    case .daoDetail: store.selectedDao?.name ?? L10n.Nighthawk.DaoHub.title
+                    case .proposalDetail: L10n.Nighthawk.DaoHub.proposal
+                    }
                     DaoHubView(store: store)
                         .nighthawkChrome(
-                            showBack: showBackButton && store.screen == .hub,
-                            title: store.screen == .hub ? L10n.Nighthawk.DaoHub.title : nil
+                            showBack: showBackButton || store.screen != .hub,
+                            title: daoTitle
                         ) {
-                            self.popVisible()
+                            if store.screen != .hub {
+                                store.send(.backTapped)
+                            } else {
+                                self.popVisible()
+                            }
                         }
 
                 case let .fiat(store):
@@ -177,7 +179,7 @@ private extension AppView {
 
                 case let .torNetwork(store):
                     TorNetworkView(store: store)
-                        .nighthawkChrome(showBack: showBackButton, title: "Tor network") {
+                        .nighthawkChrome(showBack: showBackButton, title: L10n.Nighthawk.SettingsTab.networkPrivacyTitle) {
                             self.popVisible()
                         }
 
@@ -203,7 +205,7 @@ private extension AppView {
                     WelcomeView(store: store)
                 }
         }
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarColorScheme(themes.theme.colorScheme, for: .navigationBar)
     }
 
     func popVisible() {
@@ -273,8 +275,14 @@ private extension View {
     func nighthawkChrome(showBack: Bool, title: String?, action: @escaping () -> Void) -> some View {
         if showBack {
             nighthawkTopBar(leading: .back, title: title, action: action)
+        } else if let title {
+            nighthawkTopBar(leading: .none, title: title)
         } else {
-            self
+            safeAreaInset(edge: .top, spacing: 0) {
+                if NighthawkThemeController.shared.theme.usesCyberpunkChrome {
+                    Color.clear.frame(height: NighthawkLayout.wallpaperWordmarkClearance)
+                }
+            }
         }
     }
 }

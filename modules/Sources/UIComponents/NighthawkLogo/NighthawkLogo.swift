@@ -38,13 +38,6 @@ public struct NighthawkLogo: View {
     }
 
     public var body: some View {
-        VStack(spacing: spacing.rawValue) {
-            if showsTitle {
-                Text(L10n.Nighthawk.Splash.title)
-                    .title()
-            }
-        }
-        // `size` kept for API compatibility after the logo mark was removed.
-        .accessibilityIdentifier("nighthawk-wordmark-\(Int(size.rawValue))")
+        EmptyView()
     }
 }

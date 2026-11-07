@@ -7,12 +7,14 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 import Utils
 
 public struct SendSuccessView: View {
     let store: StoreOf<SendSuccess>
+    @ObservedObject private var themes = NighthawkThemeController.shared
 
     public init(store: StoreOf<SendSuccess>) {
         self.store = store
@@ -23,6 +25,7 @@ public struct SendSuccessView: View {
             GeometryReader { geometry in
                 VStack {
                     NighthawkHeading(title: L10n.Nighthawk.TransferTab.Success.title)
+                        .padding(.top, themes.theme.usesCyberpunkChrome ? NighthawkLayout.wallpaperWordmarkClearance : 0)
 
                     Spacer()
 

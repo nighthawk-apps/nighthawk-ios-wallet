@@ -33,7 +33,9 @@ public struct TransactionRowView: View {
             icon
                 .resizable()
                 .renderingMode(.template)
+                .scaledToFit()
                 .frame(width: 24, height: 24)
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack {

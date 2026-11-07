@@ -119,6 +119,13 @@ public enum Asset {
 public final class ColorAsset {
     public fileprivate(set) var name: String
 
+    /// Updated by `NighthawkThemeController` so Cyberpunk mode uses dynamic neon/glass tokens
+    /// while `.dark` (Stealth) and `.paper` (Light) resolve from `Colors.xcassets`.
+    public static var usesCyberpunkPalette: Bool = {
+        let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? "default"
+        return raw == "default" || raw == "cyberpunk"
+    }()
+
     #if os(macOS)
     public typealias SystemColor = NSColor
     #elseif os(iOS) || os(tvOS) || os(watchOS)
@@ -133,9 +140,43 @@ public final class ColorAsset {
         return color
     }()
 
-    public private(set) lazy var color: Color = {
-        Color(systemColor)
-    }()
+    public var color: Color {
+        if Self.usesCyberpunkPalette, let cyberpunk = Self.cyberpunkColor(for: name) {
+            return cyberpunk
+        }
+        return Color(systemColor)
+    }
+
+    private static func cyberpunkColor(for name: String) -> Color? {
+        switch name {
+        case "peach", "accent":
+            return Color(red: 0x5C / 255, green: 0xE1 / 255, blue: 0xFF / 255) // #5CE1FF
+        case "accentPressed":
+            return Color(red: 0x38 / 255, green: 0xBE / 255, blue: 0xE0 / 255) // #38BEE0
+        case "accentDeep", "calloutOn":
+            return Color(red: 0x04 / 255, green: 0x10 / 255, blue: 0x18 / 255) // #041018
+        case "accentMuted", "calloutFill":
+            return Color(red: 0x6B / 255, green: 0x1A / 255, blue: 0x6B / 255) // #6B1A6B
+        case "textHeader":
+            return Color(red: 0xF7 / 255, green: 0xFB / 255, blue: 0xFF / 255) // #F7FBFF
+        case "textBody":
+            return Color(red: 0xE7 / 255, green: 0xEE / 255, blue: 0xF8 / 255) // #E7EEF8
+        case "parmaviolet", "textMuted":
+            return Color(red: 0xD5 / 255, green: 0xDE / 255, blue: 0xEA / 255) // #D5DEEA
+        case "darkNavy", "charcoalRaised":
+            return Color(red: 0x0D / 255, green: 0x11 / 255, blue: 0x1C / 255, opacity: 0.85) // #0D111CD9
+        case "navy", "elevated", "secondaryFill":
+            return Color(red: 0x16 / 255, green: 0x1C / 255, blue: 0x2B / 255, opacity: 0.85) // #161C2BD9
+        case "richBlack", "charcoalDeep", "moonlit":
+            return Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255) // #050810
+        case "steelBorder", "steelBorderMuted":
+            return Color(red: 0x3D / 255, green: 0x4C / 255, blue: 0x5C / 255) // #3D4C5C
+        case "error", "dangerous":
+            return Color(red: 0xFF / 255, green: 0x4D / 255, blue: 0x6D / 255) // #FF4D6D
+        default:
+            return nil
+        }
+    }
 
     fileprivate init(name: String) {
         self.name = name

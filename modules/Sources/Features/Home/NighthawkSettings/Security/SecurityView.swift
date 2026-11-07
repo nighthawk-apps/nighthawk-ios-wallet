@@ -15,13 +15,11 @@ public struct SecurityView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Toggle(
-                toggleTitle,
-                isOn: $store.areBiometricsEnabled
-            )
-            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-            .lineSpacing(6)
+            Toggle(isOn: $store.areBiometricsEnabled) {
+                Text(toggleTitle)
+                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    .lineSpacing(6)
+            }
             .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
 
             Spacer()

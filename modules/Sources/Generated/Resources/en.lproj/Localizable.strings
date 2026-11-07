@@ -190,6 +190,9 @@
 "nighthawk.transferTab.sendMoneyDescription" = "Scan someone's QR code to send them money.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
 "nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
+"nighthawk.walletTab.actionSend" = "Send";
+"nighthawk.walletTab.actionReceive" = "Receive";
+"nighthawk.walletTab.actionRequest" = "Request";
 "nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
 "nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
 
@@ -275,6 +278,11 @@
 "nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
 "nighthawk.settingsTab.changeServerTitle" = "Change server";
 "nighthawk.settingsTab.changeServerSubtitle" = "Change backend server";
+"nighthawk.settingsTab.chatSettingsTitle" = "Chat Settings";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "E2E encryption, DAG sync, embedded darkirc";
+"nighthawk.settingsTab.networkPrivacyTitle" = "Network privacy";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "Wallet over Nym, Tor or direct; chat over Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "Select a setting on the left to open it.";
 "nighthawk.settingsTab.externalServicesTitle" = "External services";
 "nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
 "nighthawk.settingsTab.advancedTitle" = "Advanced";
@@ -424,19 +432,19 @@
 "nighthawk.transaction.failed" = "Failed";
 
 // MARK: - DAO Hub
-"nighthawk.daoHub.title" = "DAO Hub";
-"nighthawk.daoHub.hubIntro" = "Groups this wallet has scanned. A payment from the treasury waits for a vote.";
-"nighthawk.daoHub.emptyTitle" = "Sync has not found a group yet.";
-"nighthawk.daoHub.emptyBody" = "Refresh, or start a group from this wallet.";
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "DAOs this wallet has scanned. A payment from the treasury waits for a vote.";
+"nighthawk.daoHub.emptyTitle" = "Sync has not found a DAO yet.";
+"nighthawk.daoHub.emptyBody" = "Refresh, or start a DAO from this wallet.";
 "nighthawk.daoHub.refresh" = "Refresh";
-"nighthawk.daoHub.startGroup" = "Start a group";
-"nighthawk.daoHub.importGroup" = "Import group";
+"nighthawk.daoHub.startGroup" = "Start a DAO";
+"nighthawk.daoHub.importGroup" = "Import DAO";
 "nighthawk.daoHub.treasury" = "Treasury";
-"nighthawk.daoHub.treasuryHint" = "Coins sent to the group without the treasury mark cannot be paid out later.";
+"nighthawk.daoHub.treasuryHint" = "Coins sent to the DAO without the treasury mark cannot be paid out later.";
 "nighthawk.daoHub.notScannedYet" = "Not scanned yet";
 "nighthawk.daoHub.proposePayment" = "Propose a payment";
 "nighthawk.daoHub.addFunds" = "Add funds";
-"nighthawk.daoHub.addFundsHint" = "This marks the coins so the group can pay them out later.";
+"nighthawk.daoHub.addFundsHint" = "This marks the coins so the DAO can pay them out later.";
 "nighthawk.daoHub.amount" = "Amount";
 "nighthawk.daoHub.votes" = "Votes";
 "nighthawk.daoHub.noVotes" = "No votes yet.";
@@ -451,7 +459,7 @@
 "nighthawk.daoHub.fullCopy" = "Full copy";
 "nighthawk.daoHub.observer" = "Observer";
 "nighthawk.daoHub.details" = "Details";
-"nighthawk.daoHub.groupId" = "Group id";
+"nighthawk.daoHub.groupId" = "DAO id";
 "nighthawk.daoHub.governanceToken" = "Governance token";
 "nighthawk.daoHub.votesNeeded" = "Votes needed to count";
 "nighthawk.daoHub.yesShareRequired" = "Yes share required";
@@ -491,14 +499,14 @@
 "nighthawk.daoHub.close" = "Close";
 "nighthawk.daoHub.copy" = "Copy";
 "nighthawk.daoHub.captured" = "Screen recording or screenshot detected. Secret hidden.";
-"nighthawk.daoHub.importToml" = "Group file";
+"nighthawk.daoHub.importToml" = "DAO file";
 "nighthawk.daoHub.token" = "Token";
-"nighthawk.daoHub.browseDescription" = "Browse groups, proposals, and the treasury.";
+"nighthawk.daoHub.browseDescription" = "Browse DAOs, proposals, and the treasury.";
 "nighthawk.daoHub.fundsSent" = "Funds sent to the treasury";
 "nighthawk.daoHub.paymentSent" = "Payment sent from the treasury";
 "nighthawk.daoHub.proposalSubmitted" = "Proposal submitted! %@…";
-"nighthawk.daoHub.groupSubmitted" = "Group submitted";
-"nighthawk.daoHub.groupImported" = "Group imported";
+"nighthawk.daoHub.groupSubmitted" = "DAO submitted";
+"nighthawk.daoHub.groupImported" = "DAO imported";
 "nighthawk.daoHub.tokenCreated" = "Token created";
 "nighthawk.daoHub.tokensIssued" = "Tokens issued";
 "nighthawk.daoHub.supplyFrozen" = "Supply frozen";

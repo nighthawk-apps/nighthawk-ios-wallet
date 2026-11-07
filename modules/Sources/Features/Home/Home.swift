@@ -29,6 +29,7 @@ public struct Home {
             case chat
             case wallet
             case transfer
+            case daoHub
             case settings
         }
 
@@ -80,6 +81,7 @@ public struct Home {
         public var wallet: Wallet.State = .init()
         public var transfer: Transfer.State = .init()
         public var chat: Chat.State = .init()
+        public var daoHub: DaoHub.State = .init()
         public var settings: NighthawkSettings.State = .init()
 
         public init(unifiedAddress: UnifiedAddress?) {
@@ -113,6 +115,7 @@ public struct Home {
         case onAppear
         case rescanDone(DarkFiError? = nil)
         case chat(Chat.Action)
+        case daoHub(DaoHub.Action)
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
         case tabSelected(State.Tab)
@@ -158,6 +161,10 @@ public struct Home {
 
         Scope(state: \.chat, action: \.chat) {
             Chat()
+        }
+
+        Scope(state: \.daoHub, action: \.daoHub) {
+            DaoHub()
         }
 
         Scope(state: \.settings, action: \.settings) {
@@ -277,6 +284,9 @@ public struct Home {
                 return .send(.delegate(.unifiedAddressResponse(unifiedAddress)))
             case let .tabSelected(tab):
                 state.selectedTab = tab
+                if tab == .daoHub {
+                    return .send(.daoHub(.onAppear))
+                }
                 return .none
             case let .updateWalletEvents(walletEvents):
                 let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
@@ -292,7 +302,7 @@ public struct Home {
 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .alert, .binding, .chat, .delegate, .destination, .settings, .transfer, .wallet:
+            case .alert, .binding, .chat, .delegate, .destination, .daoHub, .settings, .transfer, .wallet:
                 return .none
             }
         }
