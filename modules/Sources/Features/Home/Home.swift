@@ -28,7 +28,7 @@ public struct Home {
         public enum Tab: Equatable, Hashable {
             case chat
             case wallet
-            case transfer
+            case dex
             case daoHub
             case settings
         }

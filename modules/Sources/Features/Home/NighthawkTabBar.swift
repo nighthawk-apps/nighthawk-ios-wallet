@@ -89,10 +89,9 @@ struct NighthawkTabBar: View {
             tab: .wallet
         )
         tabButton(
-            title: L10n.Nighthawk.HomeScreen.transfer,
+            title: L10n.Nighthawk.HomeScreen.dex,
             image: Asset.Assets.Icons.Nighthawk.transfer.image,
-            tab: .transfer,
-            isDisabled: disableSend
+            tab: .dex
         )
         tabButton(
             title: L10n.Nighthawk.DaoHub.title,

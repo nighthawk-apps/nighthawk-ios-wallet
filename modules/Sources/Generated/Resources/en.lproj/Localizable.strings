@@ -146,8 +146,12 @@
 // MARK: - Home Screen
 "nighthawk.homeScreen.wallet" = "Wallet";
 "nighthawk.homeScreen.transfer" = "Transfer";
+"nighthawk.homeScreen.dex" = "DEX";
 "nighthawk.homeScreen.settings" = "Settings";
 "nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "Coming soon";
+"nighthawk.dex.comingSoonBody" = "The DarkFi DEX will live here. Send, receive, and request stay on Wallet.";
 
 // MARK: - Home Screen - Wallet tab
 "nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";

@@ -112,13 +112,6 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
-                    title: L10n.Nighthawk.DaoHub.title,
-                    subtitle: L10n.Nighthawk.DaoHub.browseDescription,
-                    icon: Image(systemName: "person.3"),
-                    action: { store.send(.rowTapped(.daoHub)) }
-                )
-
-                settingRow(
                     title: L10n.Nighthawk.SettingsTab.advancedTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,

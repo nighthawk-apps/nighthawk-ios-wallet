@@ -359,11 +359,21 @@ public enum L10n {
             /// Export as PDF
             public static let title = L10n.tr("Localizable", "nighthawk.exportSeed.title", fallback: "Export as PDF")
         }
+        public enum Dex {
+            /// Coming soon
+            public static let comingSoon = L10n.tr("Localizable", "nighthawk.dex.comingSoon", fallback: "Coming soon")
+            /// The DarkFi DEX will live here. Send, receive, and request stay on Wallet.
+            public static let comingSoonBody = L10n.tr("Localizable", "nighthawk.dex.comingSoonBody", fallback: "The DarkFi DEX will live here. Send, receive, and request stay on Wallet.")
+            /// DEX
+            public static let title = L10n.tr("Localizable", "nighthawk.dex.title", fallback: "DEX")
+        }
         public enum HomeScreen {
             /// Expecting %@ %@
             public static func expectingFunds(_ p1: Any, _ p2: Any) -> String {
                 return L10n.tr("Localizable", "nighthawk.homeScreen.expectingFunds", String(describing: p1), String(describing: p2), fallback: "Expecting %@ %@")
             }
+            /// DEX
+            public static let dex = L10n.tr("Localizable", "nighthawk.homeScreen.dex", fallback: "DEX")
             /// Settings
             public static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
             /// Transfer

@@ -23,7 +23,7 @@ final class HomeTabBarUITests: XCTestCase {
         var selected = Home.State.Tab.wallet
         let onSelect: (Home.State.Tab) -> Void = { selected = $0 }
 
-        for tab in [Home.State.Tab.settings, .chat, .transfer, .wallet] {
+        for tab in [Home.State.Tab.settings, .chat, .dex, .daoHub, .wallet] {
             onSelect(tab)
             XCTAssertEqual(selected, tab)
         }

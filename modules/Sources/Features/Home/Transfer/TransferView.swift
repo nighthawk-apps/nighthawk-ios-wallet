@@ -64,16 +64,6 @@ private extension TransferView {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("nighthawk.transfer.receive")
-
-            Button(action: { store.send(.daoHubTapped) }) {
-                optionRow(
-                    title: L10n.Nighthawk.DaoHub.title,
-                    description: L10n.Nighthawk.DaoHub.browseDescription,
-                    icon: Image(systemName: "person.3")
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("nighthawk.transfer.daoHub")
         }
         .padding(.horizontal, 25)
     }

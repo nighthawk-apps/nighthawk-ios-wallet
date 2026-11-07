@@ -116,18 +116,6 @@ extension AppReducer {
         case .chatSettings:
             state.path.append(.chatSettings(.init()))
             return .none
-        case .daoHub:
-            // Prefer the Groups tab over a pushed stack screen.
-            state.path = StackState(
-                state.path.map { element in
-                    if case var .home(homeState) = element {
-                        homeState.selectedTab = .daoHub
-                        return .home(homeState)
-                    }
-                    return element
-                }
-            )
-            return .none
         case .fiat:
             state.path.append(.fiat(.init()))
             return .none

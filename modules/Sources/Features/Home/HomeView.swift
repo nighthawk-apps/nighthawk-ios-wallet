@@ -135,13 +135,8 @@ private extension HomeView {
                 }
             }
 
-        case .transfer:
-            TransferView(
-                store: store.scope(
-                    state: \.transfer,
-                    action: \.transfer
-                )
-            )
+        case .dex:
+            DexComingSoonView()
 
         case .daoHub:
             DaoHubView(

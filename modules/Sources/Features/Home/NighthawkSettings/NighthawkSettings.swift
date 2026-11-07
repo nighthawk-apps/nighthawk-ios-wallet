@@ -31,7 +31,6 @@ public struct NighthawkSettings {
             case backup
             case changeServer
             case chatSettings
-            case daoHub
             case fiat
             case notifications
             case rescan

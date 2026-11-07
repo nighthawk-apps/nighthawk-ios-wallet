@@ -37,8 +37,11 @@ final class HomeTests: XCTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.tabSelected(.transfer)) { state in
-            state.selectedTab = .transfer
+        await store.send(.tabSelected(.dex)) { state in
+            state.selectedTab = .dex
+        }
+        await store.send(.tabSelected(.daoHub)) { state in
+            state.selectedTab = .daoHub
         }
         await store.send(.tabSelected(.chat)) { state in
             state.selectedTab = .chat

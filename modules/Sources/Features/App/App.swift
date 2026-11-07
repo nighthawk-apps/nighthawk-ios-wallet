@@ -316,8 +316,8 @@ private func shouldResetToSplash(
     }
 
     if let currentScreen = state.path.last {
-        if let home = currentScreen[case: \.home] {
-            return home.selectedTab != .transfer
+        if currentScreen[case: \.home] != nil {
+            return true
         }
         if currentScreen[case: \.security] != nil
             || currentScreen[case: \.notifications] != nil
