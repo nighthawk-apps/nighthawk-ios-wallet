@@ -184,8 +184,13 @@ private extension AdvancedView {
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     case .cyberpunk:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
-                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunkDetail)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
                     Spacer()

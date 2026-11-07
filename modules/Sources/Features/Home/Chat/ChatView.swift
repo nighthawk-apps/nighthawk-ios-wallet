@@ -44,6 +44,10 @@ struct ChatView: View {
 
 // MARK: - Connection Status Bar (matches Android ChatStatusRow)
 private extension ChatView {
+    /// Dark pink from the Wallhaven cyberpunk wallpaper (channel / conversation selection).
+    private var chatSelectionPink: Color { Color(red: 0x6B / 255, green: 0x1A / 255, blue: 0x6B / 255) }
+    private var chatSelectionPinkBright: Color { Color(red: 0xC9 / 255, green: 0x4B / 255, blue: 0xB8 / 255) }
+
     var inboxBar: some View {
         HStack(spacing: 0) {
             ForEach(Chat.State.ChatTab.allCases, id: \.self) { tab in
@@ -55,7 +59,7 @@ private extension ChatView {
                         .padding(.vertical, 8)
                         .background(
                             store.selectedTab == tab
-                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.2)
+                                ? chatSelectionPink.opacity(0.55)
                                 : Color.clear
                         )
                 }
@@ -63,7 +67,7 @@ private extension ChatView {
             Button(action: { showPeers = true }) {
                 Image(systemName: "info.circle")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(chatSelectionPinkBright)
                     .frame(width: 36, height: 36)
             }
             .padding(.trailing, 8)
@@ -359,7 +363,7 @@ private extension ChatView {
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Asset.Colors.Nighthawk.peach.color)
+                    .background(chatSelectionPinkBright)
                     .clipShape(Capsule())
             }
         }
@@ -367,11 +371,11 @@ private extension ChatView {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(isSelected ? Asset.Colors.Nighthawk.peach.color.opacity(0.2) : Color.clear)
+                .fill(isSelected ? chatSelectionPink.opacity(0.65) : Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
-                            isSelected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3),
+                            isSelected ? chatSelectionPinkBright : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3),
                             lineWidth: 1
                         )
                 )
@@ -472,15 +476,16 @@ private extension ChatView {
 
     func dmContactRow(_ contact: DmContact) -> some View {
         let convo = store.dmConversations.first { $0.id == contact.id }
+        let isSelected = store.selectedDmContact?.id == contact.id
         return HStack(spacing: 14) {
             // Avatar circle
             Circle()
-                .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.2))
+                .fill(chatSelectionPink.opacity(0.45))
                 .frame(width: 44, height: 44)
                 .overlay(
                     Text(String(contact.contactLabel.prefix(1)).uppercased())
                         .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(chatSelectionPinkBright)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
@@ -504,13 +509,13 @@ private extension ChatView {
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Asset.Colors.Nighthawk.peach.color)
+                    .background(chatSelectionPinkBright)
                     .clipShape(Capsule())
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.clear)
+        .background(isSelected ? chatSelectionPink.opacity(0.4) : Color.clear)
     }
 
     // MARK: - DM Conversation Header

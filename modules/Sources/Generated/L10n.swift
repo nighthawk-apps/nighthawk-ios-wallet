@@ -580,6 +580,8 @@ public enum L10n {
                 public enum Theme {
                     /// Cyberpunk
                     public static let cyberpunk = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.cyberpunk", fallback: "Cyberpunk")
+                    /// enter nighthawk with style
+                    public static let cyberpunkDetail = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.cyberpunkDetail", fallback: "enter nighthawk with style")
                     /// Dark
                     public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")
                     /// Default

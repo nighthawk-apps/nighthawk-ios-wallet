@@ -352,6 +352,7 @@
 "nighthawk.settingsTab.advanced.theme.default" = "System (Cyberpunk)";
 "nighthawk.settingsTab.advanced.theme.paper" = "Paper";
 "nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "enter nighthawk with style";
 "nighthawk.chat.peers" = "Peers";
 "nighthawk.chat.retry" = "Retry";
 "nighthawk.chat.outboundPeers" = "Outbound peers";
