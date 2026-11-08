@@ -154,7 +154,9 @@ public struct WalletStorage {
             /// This is recommended for items that need to be accessible only while the application is in the foreground.
             /// Items with this attribute do not migrate to a new device.
             /// Thus, after restoring from a backup of a different device, these items will not be present.
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            /// Never sync private seed material to iCloud Keychain
+            kSecAttrSynchronizable as String: kCFBooleanFalse
         ]
 
         return query

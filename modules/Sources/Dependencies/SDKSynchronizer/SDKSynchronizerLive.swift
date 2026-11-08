@@ -145,7 +145,7 @@ private final class WalletHandleManager: @unchecked Sendable {
             mnemonic: words,
             walletDbPath: walletDbPath,
             cachePath: cachePath,
-            walletPass: DrkWalletPassStore.getOrCreate(),
+            walletPass: DrkWalletPassStore.forMnemonic(words: words),
             lightwalletServerUrl: endpoint,
             // Shared birthday contract with Android / desktop:
             //   0  = fresh create → seed scan cursor at LWD tip

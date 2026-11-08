@@ -15,6 +15,6 @@ form_urlencoded = { git = "https://github.com/darkrenaissance/rust-url", branch 
 nym-smolmix = { git = "https://github.com/nymtech/nym.git", rev = "5f0dba82d7a4c3d32fb21f78a0e3ddb6320b4ae8" }
 
 [profile.release]
-opt-level = 0
-lto = false
-strip = "none"
+opt-level = 3
+lto = "thin"
+strip = "symbols"

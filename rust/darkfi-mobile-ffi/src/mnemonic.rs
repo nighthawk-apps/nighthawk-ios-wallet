@@ -212,8 +212,9 @@ impl DarkfiMnemonic {
     }
 
     pub fn mnemonic_decode(&self, seed: &str) -> Result<BigUint, MnemonicError> {
+        let normalized = normalize_text(seed);
         let n = BigUint::from(self.wordlist.len());
-        let mut words: Vec<&str> = seed.split_whitespace().collect();
+        let mut words: Vec<&str> = normalized.split_whitespace().collect();
         let mut i = BigUint::zero();
         while let Some(w) = words.pop() {
             let k = self
@@ -256,7 +257,7 @@ impl DarkfiMnemonic {
             if i != self.mnemonic_decode(&seed)? {
                 return Err(MnemonicError::EntropyMismatch);
             }
-            if is_new_seed(&seed, prefix) {
+            if is_new_seed(&seed, prefix) && seed.split_whitespace().count() == 22 {
                 break;
             }
         }

@@ -34,6 +34,9 @@ extension AppReducer {
                         }
                     )
                     return .none
+                case .openChatSettings:
+                    state.path.append(.chatSettings(.init()))
+                    return .none
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none

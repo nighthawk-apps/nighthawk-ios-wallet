@@ -88,6 +88,8 @@ public enum L10n {
             public static let connect = L10n.tr("Localizable", "nighthawk.chat.connect", fallback: "Connect")
             public static let networkHint = L10n.tr("Localizable", "nighthawk.chat.networkHint", fallback: "Check your network settings or configure Tor in Settings.")
             public static let newDm = L10n.tr("Localizable", "nighthawk.chat.newDm", fallback: "New DM")
+            public static let request = L10n.tr("Localizable", "nighthawk.chat.request", fallback: "Request")
+            public static let settings = L10n.tr("Localizable", "nighthawk.chat.settings", fallback: "Settings")
             public static let shareKey = L10n.tr("Localizable", "nighthawk.chat.shareKey", fallback: "Share Key")
             public static let noMessages = L10n.tr("Localizable", "nighthawk.chat.noMessages", fallback: "No messages yet")
             public static func ircStatus(_ p1: Any) -> String {

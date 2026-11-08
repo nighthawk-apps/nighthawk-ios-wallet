@@ -245,6 +245,14 @@ public struct Chat {
         case dmKeypairMinted(secret: String, publicKey: String)
         case pubkeyGenerated(String)
         case dmMessageReceived(String, State.Message)  // contactId, message
+        case settingsTapped
+        case requestMoneyTapped
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case openChatSettings
+            case requestMoney
+        }
     }
 
     private enum CancelID { case readLoop, connection }
@@ -843,6 +851,15 @@ public struct Chat {
 
             case .newDmTapped:
                 state.newDmConversation = NewDmConversation.State()
+                return .none
+
+            case .settingsTapped:
+                return .send(.delegate(.openChatSettings))
+
+            case .requestMoneyTapped:
+                return .send(.delegate(.requestMoney))
+
+            case .delegate:
                 return .none
 
             case .newDmConversation(.presented(.dismiss)):

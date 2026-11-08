@@ -190,19 +190,32 @@ public actor DarkircCryptoStore {
     private func saveToDisk() {
         let dir = storageDirectory()
 
-        // Save contacts
+        // Save contacts to App Support (excluded from iCloud backups) and mirror into
+        // the daemon datastore so Rust `load_dm_contacts_from_datastore` sees them.
         if let data = try? encoder.encode(contacts) {
-            try? data.write(to: dir.appendingPathComponent("dm_contacts.json"), options: .atomic)
-            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-            if let db = docs?.appendingPathComponent("darkirc_db", isDirectory: true) {
-                try? FileManager.default.createDirectory(at: db, withIntermediateDirectories: true)
-                try? data.write(to: db.appendingPathComponent("dm_contacts.json"), options: .atomic)
-            }
+            let contactsFile = dir.appendingPathComponent("dm_contacts.json")
+            try? data.write(to: contactsFile, options: .atomic)
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            var mutableFile = contactsFile
+            try? mutableFile.setResourceValues(resourceValues)
+
+            let datastore = URL(fileURLWithPath: DarkircDaemon.shared.datastorePath, isDirectory: true)
+            try? FileManager.default.createDirectory(at: datastore, withIntermediateDirectories: true)
+            let daemonContacts = datastore.appendingPathComponent("dm_contacts.json")
+            try? data.write(to: daemonContacts, options: .atomic)
+            var daemonFile = daemonContacts
+            try? daemonFile.setResourceValues(resourceValues)
         }
 
         // Save conversations
         if let data = try? encoder.encode(conversations) {
-            try? data.write(to: dir.appendingPathComponent("dm_conversations.json"), options: .atomic)
+            let convosFile = dir.appendingPathComponent("dm_conversations.json")
+            try? data.write(to: convosFile, options: .atomic)
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            var mutableFile = convosFile
+            try? mutableFile.setResourceValues(resourceValues)
         }
     }
 
@@ -211,6 +224,10 @@ public actor DarkircCryptoStore {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dir = appSupport.appendingPathComponent("darkirc", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        var mutableDir = dir
+        try? mutableDir.setResourceValues(resourceValues)
         return dir
     }
 }

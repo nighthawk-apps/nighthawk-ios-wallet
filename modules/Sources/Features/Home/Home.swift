@@ -130,6 +130,7 @@ public struct Home {
             case setLatestFiatPrice(Double?)
             case unifiedAddressResponse(UnifiedAddress?)
             case openDaoHub
+            case openChatSettings
         }
     }
 
@@ -310,6 +311,7 @@ public struct Home {
 
         transferReducer()
         walletReducer()
+        chatReducer()
         nighthawkSettingsReducer()
     }
 

@@ -373,6 +373,8 @@
 "nighthawk.chat.connect" = "Connect";
 "nighthawk.chat.networkHint" = "Check your network settings or configure Tor in Settings.";
 "nighthawk.chat.newDm" = "New DM";
+"nighthawk.chat.request" = "Request";
+"nighthawk.chat.settings" = "Settings";
 "nighthawk.chat.shareKey" = "Share Key";
 "nighthawk.chat.noMessages" = "No messages yet";
 "nighthawk.chat.ircStatus" = "IRC: %@";

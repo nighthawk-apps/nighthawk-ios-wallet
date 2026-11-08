@@ -72,7 +72,24 @@ public struct NighthawkSettings {
             case .alert(.dismiss):
                 return .none
             case .alert(.presented(.viewSeed)):
-                return .send(.delegate(.goTo(.backup)))
+                return .run { send in
+                    let context = localAuthenticationContext()
+                    do {
+                        if try context.canEvaluatePolicy(.deviceOwnerAuthentication) {
+                            let response = try await context.evaluatePolicy(
+                                .deviceOwnerAuthentication,
+                                L10n.Nighthawk.SettingsTab.Backup.viewSeedWarningAlertTitle
+                            )
+                            if response {
+                                await send(.delegate(.goTo(.backup)))
+                            }
+                        } else {
+                            await send(.delegate(.goTo(.backup)))
+                        }
+                    } catch {
+                        // Authentication failed or canceled - do not show seed
+                    }
+                }
             case .alert(.presented(.wipe)):
                 return .send(.delegate(.rescan))
             case .onAppear:

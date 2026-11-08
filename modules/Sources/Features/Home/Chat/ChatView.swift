@@ -50,13 +50,13 @@ private extension ChatView {
     private var chatSelectionOnPink: Color { themes.theme.onSecondaryContainerColor }
 
     var inboxBar: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             ForEach(Chat.State.ChatTab.allCases, id: \.self) { tab in
                 Button(action: { store.send(.tabSelected(tab)) }) {
                     Text(tab.rawValue)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                         .foregroundColor(store.selectedTab == tab ? chatSelectionOnPink : Asset.Colors.Nighthawk.parmaviolet.color)
-                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 12)
                         .frame(minHeight: 44)
                         .padding(.vertical, 8)
                         .background(
@@ -67,22 +67,57 @@ private extension ChatView {
                         .contentShape(Rectangle())
                 }
             }
-            Button(action: { showPeers = true }) {
-                Image(systemName: "info.circle")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(chatSelectionPinkBright)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+            Spacer(minLength: 0)
+            // Equal-pitch trailing actions (matches Android chat chrome).
+            HStack(spacing: 0) {
+                chatChromeIconButton(
+                    systemName: "plus",
+                    label: L10n.Nighthawk.Chat.newDm
+                ) {
+                    store.send(.newDmTapped)
+                }
+                chatChromeIconButton(
+                    systemName: "doc.text",
+                    label: L10n.Nighthawk.Chat.request
+                ) {
+                    store.send(.requestMoneyTapped)
+                }
+                chatChromeIconButton(
+                    systemName: "info.circle",
+                    label: L10n.Nighthawk.Chat.peers
+                ) {
+                    showPeers = true
+                }
+                chatChromeIconButton(
+                    systemName: "gearshape",
+                    label: L10n.Nighthawk.Chat.settings
+                ) {
+                    store.send(.settingsTapped)
+                }
             }
-            .padding(.trailing, 4)
-            .accessibilityLabel(L10n.Nighthawk.Chat.peers)
         }
+        .padding(.trailing, 4)
         .background(Asset.Colors.Nighthawk.navy.color.opacity(0.55))
         .sheet(isPresented: $showPeers) {
             connectionInfoSheet
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+    }
+
+    private func chatChromeIconButton(
+        systemName: String,
+        label: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(chatSelectionPinkBright)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel(label)
     }
 
     var connectionInfoSheet: some View {
