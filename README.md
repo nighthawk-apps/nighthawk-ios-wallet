@@ -96,7 +96,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`8af61b3f0`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`44ec78b6e`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 

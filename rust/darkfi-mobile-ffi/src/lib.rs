@@ -837,25 +837,14 @@ impl DarkfiWalletHandle {
         // SECURITY (S9): never call darkfid `scan_blocks` from the production
         // mobile path — that reveals block interest to the full node.
         // Background lightwalletd sync owns scanning; this returns a snapshot.
-        let engine = self.sync_engine.clone();
-        let drk = self.drk.clone();
-        block_on(async move {
-            let drk = drk.read().await;
-            let (scanned, _) = drk.get_last_scanned_block().map_err(|e| e.to_string())?;
-            Ok(sync_snapshot_from_engine(scanned, &engine))
-        })
-        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+        self.sync_snapshot()
     }
 
     pub fn sync_snapshot(&self) -> ResultWallet<DrkSyncSnapshot> {
-        let engine = self.sync_engine.clone();
-        let drk = self.drk.clone();
-        block_on(async move {
-            let drk = drk.read().await;
-            let (scanned, _) = drk.get_last_scanned_block().map_err(|e| e.to_string())?;
-            Ok(sync_snapshot_from_engine(scanned, &engine))
-        })
-        .map_err(DarkfiWalletNativeError::NativeDrkUnavailable)
+        // Do not touch Drk/Fjall here (no smol::block_on, no get_last_scanned_block).
+        // Nested block_on from mobile progress polling raced into SIGSEGV inside
+        // that Fjall read on Android; SyncEngine heights are authoritative for UI.
+        Ok(sync_snapshot_from_engine(0, &self.sync_engine))
     }
 
     pub fn build_transfer(
