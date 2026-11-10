@@ -46,10 +46,9 @@ extension Home {
                     state.transfer.destination = .send(sendState)
                     return .none
                 case .requestMoney:
-                    // Parity stub: Android has RequestMoneyScreen; iOS opens Receive until invoice UI lands.
-                    state.transfer.destination = .receive(
+                    state.transfer.destination = .request(
                         .init(
-                            uAddress: state.walletInfo.unifiedAddress,
+                            address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )

@@ -362,6 +362,10 @@
 "nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
 "nighthawk.settingsTab.advanced.theme.title" = "Theme";
 "nighthawk.settingsTab.advanced.theme.default" = "System (Cyberpunk)";
+"nighthawk.settingsTab.advanced.theme.light" = "Light";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "Mist neutrals with a graphite accent.";
+"nighthawk.settingsTab.advanced.theme.midnight" = "Midnight";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "Deeper base with a violet accent.";
 "nighthawk.settingsTab.advanced.theme.paper" = "Paper";
 "nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
 "nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "enter nighthawk with style";

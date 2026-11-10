@@ -191,9 +191,23 @@ private extension AdvancedView {
                     case .dark:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    case .light:
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.light)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.lightDetail)
+                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                        }
                     case .paper:
                         Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    case .midnight:
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnight)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnightDetail)
+                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                        }
                     }
 
                     Spacer()

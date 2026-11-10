@@ -340,7 +340,7 @@ impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for LogcatWriter {
 
 static LOGGING_INIT: std::sync::Once = std::sync::Once::new();
 
-fn init_logging() {
+pub(crate) fn init_logging() {
     LOGGING_INIT.call_once(|| {
         // `log` backend (rustls/sled use it).
         // Release: WARN+ only to prevent P2P metadata leaking to logcat.

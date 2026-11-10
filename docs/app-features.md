@@ -156,7 +156,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Unified address / uview | `drk` deposit address |
 | Memo field (512 bytes) | `MoneyNote::memo` (OMR-aware encrypted note memo) |
 | Lightwalletd | `darkfi-lightwalletd` gRPC **:9067** (UnifOMR) → `darkfid` |
-| Tor via librustzcash | Arti in-process (iOS) |
+| Embedded Tor | Arti in-process (iOS) |
 | ZIP-321 | Payment URI `drk:address?amount=&memo=` |
 | Orchard / Sapling | Money contract `TransferV1` |
 | — | DarkIRC chat (new) |

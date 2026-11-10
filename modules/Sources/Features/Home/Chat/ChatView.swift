@@ -24,6 +24,15 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             inboxBar
+            if let notice = store.fudNotice {
+                Text(notice)
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Asset.Colors.Nighthawk.navy.color)
+                    .onTapGesture { store.send(.dismissFudNotice) }
+            }
 
             switch store.connectionState {
             case .disconnected, .error:
@@ -645,62 +654,62 @@ private extension ChatView {
     func messageBubble(_ message: Chat.State.Message) -> some View {
         if message.failedToDecrypt {
             Text(L10n.Nighthawk.Chat.couldNotDecrypt)
-                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
         } else {
             messageContent(message)
         }
     }
 
     func messageContent(_ message: Chat.State.Message) -> some View {
-        HStack {
-            if message.isOutgoing { Spacer(minLength: 60) }
-
-            VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 4) {
-                if !message.isOutgoing {
-                    Text(message.sender)
-                        .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                }
-
-                Text(message.content)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                message.isOutgoing
-                                    ? Asset.Colors.Nighthawk.peach.color.opacity(0.25)
-                                    : Asset.Colors.Nighthawk.navy.color
-                            )
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(alignment: .top, spacing: 6) {
+                Text("<\(message.sender)>")
+                    .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 13))
+                    .foregroundColor(
+                        message.isOutgoing
+                            ? Asset.Colors.Nighthawk.peach.color
+                            : Asset.Colors.Nighthawk.parmaviolet.color
                     )
-                    .textSelection(.enabled)
-                    .contextMenu {
-                        Button {
-                            // Match DM pubkey share: local-only + 60s expiry.
-                            UIPasteboard.general.setItems(
-                                [[UIPasteboard.typeAutomatic: message.content]],
-                                options: [
-                                    .localOnly: true,
-                                    .expirationDate: Date().addingTimeInterval(60)
-                                ]
-                            )
-                        } label: {
-                            Label("Copy Message", systemImage: "doc.on.doc")
-                        }
-                    }
-
+                Text(message.content)
+                    .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text(message.timestamp, style: .time)
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                    .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
             }
+            .textSelection(.enabled)
+            .contextMenu {
+                Button {
+                    // Match DM pubkey share: local-only + 60s expiry.
+                    UIPasteboard.general.setItems(
+                        [[UIPasteboard.typeAutomatic: message.content]],
+                        options: [
+                            .localOnly: true,
+                            .expirationDate: Date().addingTimeInterval(60)
+                        ]
+                    )
+                } label: {
+                    Label("Copy Message", systemImage: "doc.on.doc")
+                }
+            }
 
-            if !message.isOutgoing { Spacer(minLength: 60) }
+            if let offer = FudUri.find(in: message.content) {
+                Button("Queue \(offer.displayName)") {
+                    store.send(.fudOfferTapped(offer.raw, meshOn: mesh.enabled))
+                }
+                .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .padding(.leading, 12)
+                .padding(.vertical, 2)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 3)
     }
 
     var composeBar: some View {

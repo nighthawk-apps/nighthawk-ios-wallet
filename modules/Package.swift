@@ -373,9 +373,11 @@ let package = Package(
             name: "Receive",
             dependencies: [
                 "Generated",
+                "Models",
                 "Pasteboard",
                 "SDKSynchronizer",
                 "UIComponents",
+                "Utils",
                 .product(name: "AlertToast", package: "AlertToast"),
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DarkfiCore"

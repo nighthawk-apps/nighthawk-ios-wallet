@@ -52,6 +52,7 @@ public struct HomeView: View {
             }
         }
         .environment(\.nighthawkSuppressNestedBackground, true)
+        .environment(\.nighthawkWindowWidth, proxy.size.width)
         .background {
             NighthawkScreenBackdrop()
                 .ignoresSafeArea()
@@ -100,6 +101,14 @@ public struct HomeView: View {
             )
         ) { store in
             ReceiveView(store: store)
+        }
+        .sheet(
+            item: $store.scope(
+                state: \.transfer.destination?.request,
+                action: \.transfer.destination.request
+            )
+        ) { store in
+            RequestMoneyView(store: store)
         }
     }
 

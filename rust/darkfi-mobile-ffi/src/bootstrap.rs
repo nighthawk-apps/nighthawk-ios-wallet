@@ -56,19 +56,35 @@ pub async fn bootstrap_drk(
     if config.birthday_height > 0 {
         let birthday = u32::try_from(config.birthday_height)
             .map_err(|_| format!("birthday_height out of range: {}", config.birthday_height))?;
-        seed_birthday_scan_cursor(&drk, birthday).await?;
+        let pin = pin_from_config(config);
+        let client =
+            LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
+        if crate::checkpoint::download_and_apply_checkpoint(&drk, &client, birthday)
+            .await
+            .is_err()
+        {
+            seed_birthday_scan_cursor(&drk, birthday).await?;
+        }
     } else if config.birthday_height == 0 {
-        // Fresh create (birthday 0): jump scan cursor to LWD tip — new wallets
-        // have no history; walking genesis → tip only causes trial-decrypt /
-        // connection-lost noise.
+        // Fresh create (birthday 0): prefer a verified checkpoint snapshot.
+        // If the server has none, jump the scan cursor to the LWD tip.
         // Non-fatal: devices often default to 127.0.0.1:9067 which is unreachable
         // until a remote LWD is configured. Sync can seed the tip later.
         let pin = pin_from_config(config);
-        if let Err(e) = seed_fresh_wallet_at_tip(&drk, &config.lightwallet_server_url, pin).await {
-            tracing::warn!(
-                target: "wallet-bootstrap",
-                "Fresh-wallet tip probe skipped (wallet still opens): {e}"
-            );
+        let client =
+            LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
+        if crate::checkpoint::download_and_apply_checkpoint(&drk, &client, 0)
+            .await
+            .is_err()
+        {
+            if let Err(e) =
+                seed_fresh_wallet_at_tip(&drk, &config.lightwallet_server_url, pin).await
+            {
+                tracing::warn!(
+                    target: "wallet-bootstrap",
+                    "Fresh-wallet tip probe skipped (wallet still opens): {e}"
+                );
+            }
         }
     }
     // birthday_height < 0 (e.g. -1): unknown restore birthday — full history scan.

@@ -169,6 +169,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let _ = sync_wallet(&wallet).await;
                     let result = {
                         let drk = wallet.read().await;
+                        let use_unifomr =
+                            std::env::var("E2E_UNIFOMR").ok().as_deref() == Some("1");
                         let built = transactions::build_transfer(
                             &drk,
                             &to,
@@ -177,6 +179,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Some(&format!("localnet-{i}")),
                             Some(&lwd()),
                             None,
+                            use_unifomr,
                         )
                         .await;
                         match built {

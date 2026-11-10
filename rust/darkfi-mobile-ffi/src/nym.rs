@@ -76,6 +76,8 @@ static DNS_CACHE: StdMutex<Option<HashMap<String, (IpAddr, Instant)>>> = StdMute
 /// proxy is already running or bootstrapping. Bootstrap proceeds on a
 /// background thread; poll [`is_nym_running`] to observe it.
 pub fn start_nym_proxy(socks_port: u16) -> Result<bool, crate::DarkfiWalletNativeError> {
+    #[cfg(feature = "darkirc")]
+    crate::darkirc_daemon::init_logging();
     let _ = rustls::crypto::ring::default_provider().install_default();
 
     // A pending stop is still winding down the previous proxy; let it exit
@@ -170,6 +172,7 @@ pub fn nym_status() -> String {
 }
 
 /// Block until the Nym tunnel is up (or `timeout` elapses / bootstrap failed).
+/// Wallet open waits on this so lightwalletd is not dialed before the tunnel exists.
 pub fn wait_until_running(timeout: Duration) -> Result<(), crate::DarkfiWalletNativeError> {
     let deadline = Instant::now() + timeout;
     loop {
@@ -212,12 +215,34 @@ async fn run_socks_proxy(socks_port: u16) -> Result<(), String> {
     tracing::info!("nym SOCKS bound on 127.0.0.1:{socks_port}; bootstrapping mixnet tunnel...");
 
     // A stop (e.g. the user continuing without Nym) abandons a slow bootstrap.
-    tokio::select! {
-        r = get_tunnel() => { r.map_err(|e| e.to_string())?; }
-        _ = wait_for_stop() => {
+    // The directory fetch times out often on mobile; one failure used to kill
+    // the proxy for the whole session, so DarkIRC never got a tunnel.
+    let mut bootstrap_err = String::new();
+    for attempt in 0..3 {
+        if NYM_STOP_REQUESTED.load(Ordering::SeqCst) {
             tracing::info!("nym bootstrap cancelled by stop request");
             return Ok(());
         }
+        match get_tunnel().await {
+            Ok(_) => {
+                bootstrap_err.clear();
+                break;
+            }
+            Err(e) => {
+                bootstrap_err = e;
+                tracing::warn!("nym tunnel bootstrap failed (attempt {attempt}): {bootstrap_err}");
+                tokio::select! {
+                    _ = tokio::time::sleep(Duration::from_secs(2)) => {}
+                    _ = wait_for_stop() => {
+                        tracing::info!("nym bootstrap cancelled by stop request");
+                        return Ok(());
+                    }
+                }
+            }
+        }
+    }
+    if !bootstrap_err.is_empty() {
+        return Err(bootstrap_err);
     }
     NYM_STATE.store(NYM_CONNECTED, Ordering::SeqCst);
     tracing::info!("nym SOCKS proxy ready on 127.0.0.1:{socks_port}");
@@ -231,7 +256,9 @@ async fn run_socks_proxy(socks_port: u16) -> Result<(), String> {
             Ok((stream, _)) => {
                 tokio::spawn(async move {
                     if let Err(e) = handle_socks_conn(stream).await {
-                        tracing::debug!("nym SOCKS connection closed: {e}");
+                        // Info, not debug: a failed dial is why DarkIRC stays on
+                        // "waiting for peers" after the tunnel itself is up.
+                        tracing::info!("nym SOCKS connection closed: {e}");
                     }
                 });
             }
@@ -408,8 +435,14 @@ async fn nym_connect(host: &str, port: u16) -> Result<MixTcpStream, String> {
         Ok(Some(ip)) => ip,
         Ok(None) => return Err(format!("no A record for {host} from mixnet DNS")),
         Err(e) => {
-            // Every resolver timed out: the tunnel is not carrying traffic.
-            invalidate_tunnel(gen).await;
+            // One dead or slow name is normal (old hostlist entries). Drop the
+            // shared tunnel only when a health probe says it is not carrying
+            // traffic, matching the TCP-connect path below. Invalidating on
+            // every DNS miss tears down in-flight peer dials and leaves
+            // DarkIRC on "waiting for peers" forever.
+            if !tunnel_is_healthy(gen, &tunnel).await {
+                invalidate_tunnel(gen).await;
+            }
             return Err(e);
         }
     };
@@ -493,6 +526,27 @@ async fn resolve_over_nym(tunnel: &Tunnel, host: &str) -> Result<Option<IpAddr>,
             }
         }
     }
+
+    // Mixnet UDP to public resolvers often blackholes while TCP to the same
+    // resolver still works. Try DNS-over-TCP before calling the tunnel dead.
+    for (attempt, resolver) in DNS_RESOLVERS.iter().take(2).enumerate() {
+        let query = tokio::time::timeout(DNS_TIMEOUT, dns_query_tcp(tunnel, host, *resolver))
+            .await
+            .map_err(|_| format!("mixnet TCP DNS lookup for {host} timed out"))
+            .and_then(|r| r);
+        match query {
+            Ok(answer) => {
+                if let Some(ip) = answer {
+                    dns_cache_put(host, ip);
+                }
+                return Ok(answer);
+            }
+            Err(e) => {
+                tracing::warn!("mixnet TCP DNS lookup for {host} failed (attempt {attempt}): {e}");
+                last_err = e;
+            }
+        }
+    }
     Err(last_err)
 }
 
@@ -503,11 +557,7 @@ async fn dns_query(
     resolver: [u8; 4],
 ) -> Result<Option<IpAddr>, String> {
     let udp = tunnel.udp_socket().await.map_err(|e| e.to_string())?;
-    let mut query = Message::query();
-    query.metadata.recursion_desired = true;
-    let name = Name::from_ascii(host).map_err(|e| e.to_string())?;
-    query.add_query(Query::query(name, RecordType::A));
-    let bytes = query.to_vec().map_err(|e| e.to_string())?;
+    let bytes = dns_query_bytes(host)?;
     udp.send_to(&bytes, SocketAddr::from((resolver, 53)))
         .await
         .map_err(|e| e.to_string())?;
@@ -515,6 +565,47 @@ async fn dns_query(
     let (len, _src) = udp.recv_from(&mut buf).await.map_err(|e| e.to_string())?;
     let response = Message::from_vec(&buf[..len]).map_err(|e| e.to_string())?;
     Ok(first_a_record(&response))
+}
+
+/// DNS over TCP (RFC 1035 length prefix) through the mixnet. Used when UDP
+/// to the resolver does not return, which is common on Nym IP exits.
+async fn dns_query_tcp(
+    tunnel: &Tunnel,
+    host: &str,
+    resolver: [u8; 4],
+) -> Result<Option<IpAddr>, String> {
+    let mut tcp = tunnel
+        .tcp_connect(SocketAddr::from((resolver, 53)))
+        .await
+        .map_err(|e| e.to_string())?;
+    let bytes = dns_query_bytes(host)?;
+    if bytes.len() > u16::MAX as usize {
+        return Err("DNS query too large".into());
+    }
+    tcp.write_all(&(bytes.len() as u16).to_be_bytes())
+        .await
+        .map_err(|e| e.to_string())?;
+    tcp.write_all(&bytes).await.map_err(|e| e.to_string())?;
+    let mut len_buf = [0u8; 2];
+    tcp.read_exact(&mut len_buf)
+        .await
+        .map_err(|e| e.to_string())?;
+    let n = u16::from_be_bytes(len_buf) as usize;
+    if n == 0 || n > 4096 {
+        return Err(format!("DNS TCP response length {n}"));
+    }
+    let mut buf = vec![0u8; n];
+    tcp.read_exact(&mut buf).await.map_err(|e| e.to_string())?;
+    let response = Message::from_vec(&buf).map_err(|e| e.to_string())?;
+    Ok(first_a_record(&response))
+}
+
+fn dns_query_bytes(host: &str) -> Result<Vec<u8>, String> {
+    let mut query = Message::query();
+    query.metadata.recursion_desired = true;
+    let name = Name::from_ascii(host).map_err(|e| e.to_string())?;
+    query.add_query(Query::query(name, RecordType::A));
+    query.to_vec().map_err(|e| e.to_string())
 }
 
 fn first_a_record(msg: &Message) -> Option<IpAddr> {
@@ -594,6 +685,15 @@ mod tests {
     }
 
     #[test]
+    fn dns_query_bytes_is_a_recursive_a_query() {
+        let bytes = dns_query_bytes("lilith0.dark.fi").unwrap();
+        let msg = Message::from_vec(&bytes).unwrap();
+        assert!(msg.metadata.recursion_desired);
+        assert_eq!(msg.queries.len(), 1);
+        assert_eq!(msg.queries[0].query_type(), RecordType::A);
+    }
+
+    #[test]
     fn resolvers_are_distinct_public_servers() {
         let mut seen = DNS_RESOLVERS.to_vec();
         seen.dedup();
@@ -610,6 +710,10 @@ mod tests {
     #[test]
     #[ignore]
     fn nym_live_http_through_socks() {
+        let _ = tracing_subscriber::fmt()
+            .with_env_filter(tracing_subscriber::EnvFilter::new("warn,nym_smolmix=info"))
+            .with_writer(std::io::stderr)
+            .try_init();
         let port = 19080;
         assert!(start_nym_proxy(port).unwrap());
         wait_until_running(Duration::from_secs(150)).unwrap();

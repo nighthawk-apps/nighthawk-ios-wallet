@@ -4,6 +4,7 @@
 
 mod birthday;
 pub mod block_cache;
+mod checkpoint;
 mod block_times;
 pub mod bootstrap;
 mod dao;
@@ -18,6 +19,7 @@ pub mod mnemonic;
 mod nym;
 mod omr_envelope;
 pub mod sync;
+mod sync_pipeline;
 mod tokens;
 mod tor;
 pub mod transactions;
@@ -211,8 +213,8 @@ pub struct DrkBootstrapConfig {
     pub nym_socks_port: u16,
     /// Optional darkfid JSON-RPC for broadcast fallback only. Empty/`None` = LWD-only.
     pub darkfid_rpc_url: Option<String>,
-    /// When `true`, refuse supplemental trial-decrypt (UnifOMR-only).
-    /// Default is `true`. Turn off to receive payments that carry no clue.
+    /// When `true`, experimental UnifOMR is the only sync and send path.
+    /// The wallet default is `false`: padded trial decryption, no clue required.
     pub strict_omr_only: bool,
 }
 
@@ -857,6 +859,7 @@ impl DarkfiWalletHandle {
         let drk = self.drk.clone();
         let lw_url = self.sync_engine.server_url();
         let tls_pin = self.sync_engine.tls_pin();
+        let experimental_unifomr = self.sync_engine.strict_omr_only();
         block_on(async move {
             // Exclusive lock while building (coin selection / note construction).
             let drk = drk.write().await;
@@ -868,6 +871,7 @@ impl DarkfiWalletHandle {
                 payment_memo.as_deref(),
                 Some(&lw_url),
                 tls_pin,
+                experimental_unifomr,
             )
             .await
         })

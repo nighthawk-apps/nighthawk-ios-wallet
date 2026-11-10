@@ -16,6 +16,7 @@ public struct Transfer {
     @Reducer(state: .equatable, action: .equatable)
     public enum Destination {
         case receive(Receive)
+        case request(RequestMoney)
         case send(SendFlow)
     }
 

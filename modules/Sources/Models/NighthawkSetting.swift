@@ -123,11 +123,13 @@ public enum NighthawkSetting {
     public enum Theme: String, CaseIterable, Equatable, Identifiable, Hashable {
         case `default`
         case dark
+        case light
         case paper
+        case midnight
         case cyberpunk
 
         public static var allCases: [Theme] {
-            [.cyberpunk, .dark, .paper]
+            [.cyberpunk, .dark, .midnight, .light, .paper]
         }
 
         public var id: String { rawValue }
@@ -138,17 +140,21 @@ public enum NighthawkSetting {
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk
             case .dark:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
+            case .light:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.light
             case .paper:
                 L10n.Nighthawk.SettingsTab.Advanced.Theme.paper
+            case .midnight:
+                L10n.Nighthawk.SettingsTab.Advanced.Theme.midnight
             }
         }
 
         /// Cyberpunk stays dark. A light system theme does not switch it to Paper.
         public var colorScheme: ColorScheme? {
             switch self {
-            case .paper:
+            case .paper, .light:
                 .light
-            case .dark, .cyberpunk, .default:
+            case .dark, .midnight, .cyberpunk, .default:
                 .dark
             }
         }
@@ -163,37 +169,76 @@ public enum NighthawkSetting {
             self == .paper
         }
 
+        /// Dynamic token set. Paper and Dark keep the asset catalog.
+        public var paletteOverride: ColorAsset.PaletteOverride {
+            switch self {
+            case .default, .cyberpunk:
+                .cyberpunk
+            case .light:
+                .light
+            case .midnight:
+                .midnight
+            case .dark, .paper:
+                .none
+            }
+        }
+
         public var primaryAccentColor: Color {
-            usesCyberpunkChrome
-                ? Color(red: 0x5C / 255, green: 0xE1 / 255, blue: 0xFF / 255)
-                : Asset.Colors.Nighthawk.peach.color
+            switch self {
+            case .default, .cyberpunk:
+                Color(red: 0x5C / 255, green: 0xE1 / 255, blue: 0xFF / 255)
+            case .midnight:
+                Color(red: 0x9B / 255, green: 0x87 / 255, blue: 0xF5 / 255)
+            case .light:
+                Color(red: 0x2C / 255, green: 0x33 / 255, blue: 0x3A / 255)
+            case .dark, .paper:
+                Asset.Colors.Nighthawk.peach.color
+            }
         }
 
         public var onPrimaryAccentColor: Color {
-            if usesCyberpunkChrome {
+            switch self {
+            case .default, .cyberpunk:
                 return Color(red: 0x04 / 255, green: 0x10 / 255, blue: 0x18 / 255)
+            case .midnight:
+                return Color(red: 0x0B / 255, green: 0x08 / 255, blue: 0x16 / 255)
+            case .light:
+                return Color(red: 0xF7 / 255, green: 0xF8 / 255, blue: 0xFA / 255)
+            case .paper:
+                return .white
+            case .dark:
+                return Color(red: 0x08 / 255, green: 0x10 / 255, blue: 0x18 / 255)
             }
-            return self == .paper
-                ? .white
-                : Color(red: 0x08 / 255, green: 0x10 / 255, blue: 0x18 / 255)
         }
 
         public var secondaryContainerColor: Color {
-            if usesCyberpunkChrome {
+            switch self {
+            case .default, .cyberpunk:
                 return Color(red: 0x6B / 255, green: 0x1A / 255, blue: 0x6B / 255)
+            case .midnight:
+                return Color(red: 0x2C / 255, green: 0x35 / 255, blue: 0x45 / 255)
+            case .light:
+                return Color(red: 0xC9 / 255, green: 0xD2 / 255, blue: 0xDC / 255)
+            case .paper:
+                return Color(red: 0xE6 / 255, green: 0xE9 / 255, blue: 0xED / 255)
+            case .dark:
+                return Color(red: 0x24 / 255, green: 0x30 / 255, blue: 0x38 / 255)
             }
-            return self == .paper
-                ? Color(red: 0xE6 / 255, green: 0xE9 / 255, blue: 0xED / 255)
-                : Color(red: 0x24 / 255, green: 0x30 / 255, blue: 0x38 / 255)
         }
 
         public var secondaryAccentColor: Color {
-            if usesCyberpunkChrome {
+            switch self {
+            case .default, .cyberpunk:
                 return Color(red: 0xC9 / 255, green: 0x4B / 255, blue: 0xB8 / 255)
+            case .midnight:
+                return Color(red: 0xB8 / 255, green: 0xA8 / 255, blue: 0xFF / 255)
+            case .light:
+                return Color(red: 0x5C / 255, green: 0x65 / 255, blue: 0x70 / 255)
+            case .paper:
+                return Color(red: 0x5E / 255, green: 0x6A / 255, blue: 0x74 / 255)
+            case .dark:
+                return Color(red: 0x5E / 255, green: 0x9B / 255, blue: 0xAF / 255)
             }
-            return self == .paper
-                ? Color(red: 0x5E / 255, green: 0x6A / 255, blue: 0x74 / 255)
-                : Color(red: 0x5E / 255, green: 0x9B / 255, blue: 0xAF / 255)
         }
 
         public var onSecondaryContainerColor: Color {
@@ -204,15 +249,21 @@ public enum NighthawkSetting {
         }
 
         public var statusSuccessColor: Color {
-            self == .paper
-                ? Color(red: 0x1E / 255, green: 0x7E / 255, blue: 0x52 / 255)
-                : Color(red: 0x3D / 255, green: 0xDC / 255, blue: 0x97 / 255)
+            switch self {
+            case .paper, .light:
+                Color(red: 0x1E / 255, green: 0x7E / 255, blue: 0x52 / 255)
+            case .dark, .midnight, .cyberpunk, .default:
+                Color(red: 0x3D / 255, green: 0xDC / 255, blue: 0x97 / 255)
+            }
         }
 
         public var statusWarningColor: Color {
-            self == .paper
-                ? Color(red: 0xB2 / 255, green: 0x6A / 255, blue: 0x00 / 255)
-                : Color(red: 0xFF / 255, green: 0xB3 / 255, blue: 0x40 / 255)
+            switch self {
+            case .paper, .light:
+                Color(red: 0xB2 / 255, green: 0x6A / 255, blue: 0x00 / 255)
+            case .dark, .midnight, .cyberpunk, .default:
+                Color(red: 0xFF / 255, green: 0xB3 / 255, blue: 0x40 / 255)
+            }
         }
 
         public var statusDangerColor: Color {
@@ -231,14 +282,14 @@ public final class NighthawkThemeController: ObservableObject {
 
     @Published public private(set) var theme: NighthawkSetting.Theme {
         didSet {
-            ColorAsset.usesCyberpunkPalette = theme.usesCyberpunkChrome
+            ColorAsset.paletteOverride = theme.paletteOverride
         }
     }
 
     private init() {
         let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? NighthawkSetting.Theme.default.rawValue
         let initial = NighthawkSetting.Theme(rawValue: raw) ?? .default
-        ColorAsset.usesCyberpunkPalette = initial.usesCyberpunkChrome
+        ColorAsset.paletteOverride = initial.paletteOverride
         theme = initial
         NotificationCenter.default.addObserver(
             forName: .nighthawkThemeDidChange,
@@ -247,7 +298,7 @@ public final class NighthawkThemeController: ObservableObject {
         ) { [weak self] note in
             guard let raw = note.object as? String,
                   let next = NighthawkSetting.Theme(rawValue: raw) else { return }
-            ColorAsset.usesCyberpunkPalette = next.usesCyberpunkChrome
+            ColorAsset.paletteOverride = next.paletteOverride
             self?.theme = next
         }
     }

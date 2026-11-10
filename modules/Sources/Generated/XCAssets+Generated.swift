@@ -119,12 +119,29 @@ public enum Asset {
 public final class ColorAsset {
     public fileprivate(set) var name: String
 
-    /// Updated by `NighthawkThemeController` so Cyberpunk mode uses dynamic neon/glass tokens
-    /// while `.dark` (Stealth) and `.paper` (Light) resolve from `Colors.xcassets`.
-    public static var usesCyberpunkPalette: Bool = {
-        let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? "default"
-        return raw == "default" || raw == "cyberpunk"
+    /// Extra palettes beyond the asset catalog. Dark and Paper stay on `Colors.xcassets`.
+    public enum PaletteOverride: Equatable {
+        case none
+        case cyberpunk
+        case light
+        case midnight
+    }
+
+    /// Updated by `NighthawkThemeController`.
+    public static var paletteOverride: PaletteOverride = {
+        switch UserDefaults.standard.string(forKey: "darkfiTheme") ?? "default" {
+        case "light":
+            return .light
+        case "midnight":
+            return .midnight
+        case "dark", "paper":
+            return .none
+        default:
+            return .cyberpunk
+        }
     }()
+
+    public static var usesCyberpunkPalette: Bool { paletteOverride == .cyberpunk }
 
     #if os(macOS)
     public typealias SystemColor = NSColor
@@ -141,10 +158,91 @@ public final class ColorAsset {
     }()
 
     public var color: Color {
-        if Self.usesCyberpunkPalette, let cyberpunk = Self.cyberpunkColor(for: name) {
-            return cyberpunk
+        if let override = Self.overrideColor(for: name, palette: Self.paletteOverride) {
+            return override
         }
         return Color(systemColor)
+    }
+
+    private static func overrideColor(for name: String, palette: PaletteOverride) -> Color? {
+        switch palette {
+        case .none:
+            return nil
+        case .cyberpunk:
+            return cyberpunkColor(for: name)
+        case .light:
+            return lightColor(for: name)
+        case .midnight:
+            return midnightColor(for: name)
+        }
+    }
+
+    private static func lightColor(for name: String) -> Color? {
+        switch name {
+        case "peach", "accent":
+            return rgb(0x2C, 0x33, 0x3A)
+        case "accentPressed":
+            return rgb(0x1C, 0x22, 0x28)
+        case "accentDeep", "calloutOn":
+            return rgb(0x12, 0x17, 0x1C)
+        case "accentMuted", "calloutFill":
+            return rgb(0xE4, 0xE9, 0xEF)
+        case "textHeader", "textBody":
+            return rgb(0x1F, 0x28, 0x32)
+        case "parmaviolet", "textMuted":
+            return rgb(0x5C, 0x65, 0x70)
+        case "darkNavy", "charcoalRaised":
+            return rgb(0xF7, 0xF8, 0xFA)
+        case "navy", "elevated", "secondaryFill":
+            return rgb(0xEE, 0xF1, 0xF5)
+        case "richBlack", "charcoalDeep", "moonlit":
+            return rgb(0xE8, 0xEA, 0xED)
+        case "steelBorder":
+            return rgb(0xC5, 0xCC, 0xD4)
+        case "steelBorderMuted":
+            return rgb(0xAD, 0xB6, 0xBF)
+        case "error", "dangerous":
+            return rgb(0xB3, 0x26, 0x1E)
+        default:
+            return nil
+        }
+    }
+
+    private static func midnightColor(for name: String) -> Color? {
+        switch name {
+        case "peach", "accent":
+            return rgb(0x9B, 0x87, 0xF5)
+        case "accentPressed":
+            return rgb(0x6B, 0x55, 0xC4)
+        case "accentDeep", "calloutOn":
+            return rgb(0x0B, 0x08, 0x16)
+        case "accentMuted", "calloutFill":
+            return rgb(0x2C, 0x35, 0x45)
+        case "textHeader":
+            return rgb(0xEA, 0xE4, 0xFF)
+        case "textBody":
+            return rgb(0xC5, 0xCB, 0xD9)
+        case "parmaviolet", "textMuted":
+            return rgb(0x93, 0x9A, 0xAF)
+        case "darkNavy", "charcoalRaised":
+            return rgb(0x10, 0x18, 0x27)
+        case "navy", "elevated", "secondaryFill":
+            return rgb(0x17, 0x20, 0x32)
+        case "richBlack", "charcoalDeep", "moonlit":
+            return rgb(0x05, 0x06, 0x0B)
+        case "steelBorder":
+            return rgb(0x30, 0x38, 0x48)
+        case "steelBorderMuted":
+            return rgb(0x25, 0x2C, 0x38)
+        case "error", "dangerous":
+            return rgb(0xCF, 0x66, 0x79)
+        default:
+            return nil
+        }
+    }
+
+    private static func rgb(_ red: Double, _ green: Double, _ blue: Double) -> Color {
+        Color(red: red / 255, green: green / 255, blue: blue / 255)
     }
 
     private static func cyberpunkColor(for name: String) -> Color? {

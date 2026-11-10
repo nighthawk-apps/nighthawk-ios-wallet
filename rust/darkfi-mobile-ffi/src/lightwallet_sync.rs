@@ -117,6 +117,8 @@ pub struct LightSyncState {
     /// True when a chain reorg was detected and the wallet needs a re-scan
     /// (security audit R1). The UI should prompt the user or auto-trigger rescan.
     pub reorg_detected: bool,
+    /// Served tip was last refreshed from darkfid more than two minutes ago.
+    pub server_tip_stale: bool,
 }
 
 impl Default for LightSyncState {
@@ -137,6 +139,7 @@ impl Default for LightSyncState {
             omr_downgrade_warning: false,
             omr_downgrade_count: 0,
             reorg_detected: false,
+            server_tip_stale: false,
         }
     }
 }
@@ -157,7 +160,16 @@ impl LightSyncState {
                     "Syncing…".to_string()
                 }
             }
-            LightSyncStatus::Synced => format!("Synced · Block {}", self.chain_tip),
+            LightSyncStatus::Synced => {
+                if self.server_tip_stale {
+                    format!(
+                        "Synced · Block {} — lightwalletd has not reached darkfid recently",
+                        self.chain_tip
+                    )
+                } else {
+                    format!("Synced · Block {}", self.chain_tip)
+                }
+            }
             LightSyncStatus::Retrying => "Connection lost, retrying…".to_string(),
             LightSyncStatus::Degraded => match self.sync_type {
                 LightSyncType::Omr | LightSyncType::Idle => {
@@ -303,6 +315,33 @@ impl SyncEngine {
         self.state.lock().unwrap().clone()
     }
 
+    /// Record how old the server's last successful darkfid tip poll is.
+    ///
+    /// `0` means the server did not report a time. A gap over two minutes
+    /// marks the served tip stale so a Synced status is not shown as current.
+    pub fn note_server_tip_age(&self, fetched_unix: u64) {
+        const STALE_AFTER_SECS: u64 = 120;
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        let age = now.saturating_sub(fetched_unix);
+        let stale = fetched_unix != 0 && age > STALE_AFTER_SECS;
+        let mut state = self.state.lock().unwrap();
+        if state.server_tip_stale == stale {
+            return;
+        }
+        state.server_tip_stale = stale;
+        state.refresh_messages();
+        drop(state);
+        if stale {
+            tracing::warn!(
+                target: "wallet-sync",
+                "lightwalletd tip last reached darkfid {age}s ago; served tip may be frozen"
+            );
+        }
+    }
+
     /// Update sync status.
     pub fn set_status(&self, status: LightSyncStatus) {
         let mut state = self.state.lock().unwrap();
@@ -423,8 +462,7 @@ impl SyncEngine {
 
     /// Detect if the backend (darkfid) is still catching up (finding 5.6).
     ///
-    /// Adopted from zcash/lightwalletd's "graceful handling of syncing zcashd":
-    /// when the backend is syncing after a restart, the tip advances rapidly.
+    /// When the backend is syncing after a restart, the tip advances rapidly.
     /// This should NOT trigger OMR failure counting or degradation — it's
     /// normal catch-up behavior, not an error.
     ///
@@ -732,6 +770,29 @@ mod tests {
         assert_eq!(snap.omr_failure_count, 0);
         assert_eq!(snap.status_message, "Server unreachable");
         assert_eq!(snap.sync_type_message, "Idle");
+        assert!(!snap.server_tip_stale);
+    }
+
+    #[test]
+    fn stale_tip_changes_synced_status() {
+        let engine = SyncEngine::new("https://localhost:9067".to_string());
+        engine.set_chain_tip(10);
+        engine.set_status(LightSyncStatus::Synced);
+        engine.note_server_tip_age(0);
+        assert_eq!(engine.snapshot().status_message, "Synced · Block 10");
+        engine.note_server_tip_age(1);
+        let snap = engine.snapshot();
+        assert!(snap.server_tip_stale);
+        assert!(snap
+            .status_message
+            .contains("has not reached darkfid recently"));
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        engine.note_server_tip_age(now);
+        assert!(!engine.snapshot().server_tip_stale);
+        assert_eq!(engine.snapshot().status_message, "Synced · Block 10");
     }
 
     #[test]

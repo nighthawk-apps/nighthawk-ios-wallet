@@ -1193,8 +1193,8 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
          * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
          */darkfidRpcUrl: String?, 
         /**
-         * When true, UnifOMR-only (no supplemental trial decrypt). Default true.
-         */strictOmrOnly: Bool = true) {
+         * When true, experimental UnifOMR is the only sync and send path. Default false.
+         */strictOmrOnly: Bool = false) {
         self.network = network
         self.mnemonic = mnemonic
         self.walletDbPath = walletDbPath

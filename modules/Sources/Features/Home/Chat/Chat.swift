@@ -170,6 +170,7 @@ public struct Chat {
             composedMessage = composerDrafts[next] ?? ""
         }
         public var connectionState: ConnectionState = .disconnected
+        public var fudNotice: String?
         public var embeddedNodeStatus: EmbeddedNodeStatus = .notUsed
         public var diagnosticDetail: String?
         /// Persistent hawkXXX nickname — generated once, persists between sessions.
@@ -222,6 +223,8 @@ public struct Chat {
         case retryTapped
         case disconnectTapped
         case connectionStateChanged(State.ConnectionState)
+        case fudOfferTapped(String, meshOn: Bool)
+        case dismissFudNotice
         case embeddedNodeStatusChanged(State.EmbeddedNodeStatus)
         case channelSelected(State.Channel)
         case sendMessage
@@ -454,6 +457,37 @@ public struct Chat {
                 state.diagnosticDetail = nil
                 return .cancel(id: CancelID.connection)
 
+            case .dismissFudNotice:
+                state.fudNotice = nil
+                return .none
+            case let .fudOfferTapped(raw, meshOn):
+                let uri = FudUri.parse(raw) ?? FudUri.find(in: raw)
+                let privateTransport =
+                    state.connectionState == .connectedViaTor ||
+                    state.connectionState == .connectedViaNym
+                switch FudTransferPolicy.decide(
+                    enabled: FudPreferences.isEnabled(),
+                    privateTransport: privateTransport,
+                    meshOn: meshOn,
+                    uri: uri
+                ) {
+                case .allowed:
+                    if let uri {
+                        do {
+                            _ = try FudOfferInbox.queue(uri: uri)
+                            state.fudNotice = "Queued \(uri.displayName). The offer is saved on this phone; the file is not downloaded yet."
+                        } catch {
+                            state.fudNotice = "Could not queue the file offer."
+                        }
+                    }
+                case .disabled:
+                    state.fudNotice = "File offers are off. Turn them on in Chat settings."
+                case .needsPrivateTransport:
+                    state.fudNotice = "File offers need Nym, Tor, or nearby mesh. Clearnet is rejected."
+                case .invalid:
+                    state.fudNotice = "That file offer is not a valid fud:// link."
+                }
+                return .none
             case let .connectionStateChanged(newState):
                 state.connectionState = newState
                 if newState.isConnected, state.selectedChannel == nil,

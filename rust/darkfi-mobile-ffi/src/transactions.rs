@@ -103,6 +103,7 @@ pub async fn build_transfer(
     payment_memo: Option<&str>,
     lightwallet_server_url: Option<&str>,
     lightwallet_tls_pin: Option<[u8; 32]>,
+    experimental_unifomr: bool,
 ) -> Result<Vec<u8>, String> {
     let recipient = Address::from_str(recipient_address.trim())
         .map_err(|e| format!("recipient address: {e}"))?;
@@ -116,11 +117,6 @@ pub async fn build_transfer(
         .await
         .map_err(|e| format!("token: {e}"))?;
 
-    let secret = drk
-        .default_secret()
-        .await
-        .map_err(|e| format!("Failed to get wallet secret for OMR clue: {e}"))?;
-    let secret_bytes: [u8; 32] = secret.inner().to_repr();
     let recipient_pk_bytes: [u8; 32] = recipient.public_key().to_bytes();
 
     let network_byte = match drk.network {
@@ -128,7 +124,44 @@ pub async fn build_transfer(
         darkfi_sdk::crypto::keypair::Network::Testnet => 0x01u8,
     };
 
-    // Fail-closed: require a registered UnifOMR clue public key (verified attestation).
+    if !experimental_unifomr {
+        if std::env::var("E2E_REBUILD_MERKLE").ok().as_deref() == Some("1") {
+            if let Some(url) = lightwallet_server_url
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+            {
+                let client = crate::lightwallet_client::LightwalletClient::from_endpoint_and_pin(
+                    url,
+                    lightwallet_tls_pin,
+                );
+                let info = client
+                    .get_light_info()
+                    .await
+                    .map_err(|e| format!("merkle rebuild light info: {e}"))?;
+                let height = crate::sync::spendable_rebuild_height(drk, info.chain_tip_height)?;
+                crate::sync::rebuild_money_tree_to_height(drk, &client, height)
+                    .await
+                    .map_err(|e| format!("merkle rebuild for spend: {e}"))?;
+            }
+        }
+        crate::sync::ensure_spendable_money_tree(drk, lightwallet_server_url, lightwallet_tls_pin)
+            .await
+            .map_err(|e| format!("merkle rebuild for spend: {e}"))?;
+        prefetch_money_zkas(lightwallet_server_url, lightwallet_tls_pin).await?;
+        let tx = drk
+            .transfer(amount, token, *recipient.public_key(), None, None, false)
+            .await
+            .map_err(|e| format!("transfer: {e}"))?;
+        return Ok(serialize_async(&tx).await);
+    }
+
+    let secret = drk
+        .default_secret()
+        .await
+        .map_err(|e| format!("Failed to get wallet secret for OMR clue: {e}"))?;
+    let secret_bytes: [u8; 32] = secret.inner().to_repr();
+
+    // Experimental UnifOMR: require a registered clue public key.
     let (omr_scheme, omr_clue) = resolve_outgoing_omr_clue(
         &recipient_pk_bytes,
         network_byte,
@@ -260,6 +293,28 @@ pub(crate) async fn resolve_outgoing_omr_clue(
     Ok((SCHEME_UNIFOMR, clue))
 }
 
+/// Compact output that this wallet cannot decrypt. That is the payment.
+/// Several foreign outputs, or none, keep the historical index 0.
+async fn payment_output_index(drk: &Drk, tx: &Transaction) -> Result<u32, String> {
+    use darkfi_money_contract::client::MoneyNote;
+
+    let secrets = drk
+        .get_money_secrets()
+        .await
+        .map_err(|e| e.to_string())?;
+    let visible = crate::lightwallet_client::visible_money_outputs(tx).await?;
+    let mut foreign = Vec::new();
+    for output in &visible {
+        let ours = secrets
+            .iter()
+            .any(|secret| output.note.decrypt::<MoneyNote>(secret).is_ok());
+        if !ours {
+            foreign.push(output.index);
+        }
+    }
+    Ok(if foreign.len() == 1 { foreign[0] } else { 0 })
+}
+
 pub async fn broadcast_transfer(
     drk: &Drk,
     tx_bytes: &[u8],
@@ -312,6 +367,7 @@ pub async fn broadcast_transfer(
         darkfi_sdk::crypto::keypair::Network::Mainnet => 0x00u8,
         darkfi_sdk::crypto::keypair::Network::Testnet => 0x01u8,
     };
+    let payment_index = payment_output_index(drk, &tx).await?;
     client
         .send_transaction_with_wallet_clues(
             raw_tx.to_vec(),
@@ -319,6 +375,7 @@ pub async fn broadcast_transfer(
             omr_metadata_enc,
             &secret_bytes,
             network_byte,
+            payment_index,
         )
         .await
         .map_err(|e| {
@@ -383,6 +440,7 @@ pub async fn estimate_transfer_fee(
         payment_memo,
         lightwallet_server_url,
         lightwallet_tls_pin,
+        false,
     )
     .await?;
     let raw_tx = strip_omr_envelope(&envelope);

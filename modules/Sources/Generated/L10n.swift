@@ -608,6 +608,14 @@ public enum L10n {
                     public static let dark = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.dark", fallback: "Dark")
                     /// Default
                     public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.default", fallback: "System (Cyberpunk)")
+                    /// Light
+                    public static let light = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.light", fallback: "Light")
+                    /// Mist neutrals with a graphite accent.
+                    public static let lightDetail = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.lightDetail", fallback: "Mist neutrals with a graphite accent.")
+                    /// Midnight
+                    public static let midnight = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.midnight", fallback: "Midnight")
+                    /// Deeper base with a violet accent.
+                    public static let midnightDetail = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.midnightDetail", fallback: "Deeper base with a violet accent.")
                     /// Paper
                     public static let paper = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.theme.paper", fallback: "Paper")
                     /// Theme

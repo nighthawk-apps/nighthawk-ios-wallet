@@ -8,6 +8,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 
@@ -18,10 +19,32 @@ public struct ChatSettingsView: View {
         self.store = store
     }
 
+    @State private var allowFud = FudPreferences.isEnabled()
+
+    private var fudToggle: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle(isOn: $allowFud) {
+                Text("Allow fud:// file offers")
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+            }
+            .tint(Asset.Colors.Nighthawk.peach.color)
+            .onChange(of: allowFud) { _, enabled in
+                FudPreferences.setEnabled(enabled)
+            }
+            Text("A tap queues the offer on this phone. It is sent only over Nym, Tor, or nearby mesh, and the file is not downloaded automatically.")
+                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+        }
+    }
+
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 // Embedded Node Sync section
+                sectionHeader("FILE OFFERS")
+                    .padding(.top, 8)
+                fudToggle
                 sectionHeader("EMBEDDED NODE SYNC")
                     .padding(.top, 8)
 

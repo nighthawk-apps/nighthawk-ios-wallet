@@ -12,6 +12,7 @@ import SwiftUI
 import UIComponents
 
 struct NighthawkSettingsView: View {
+    @Environment(\.nighthawkUsesCompanionPane) private var usesCompanionPane
     private enum Constants {
         static let faceId = "Face ID"
         static let touchId = "Touch ID"
@@ -53,14 +54,14 @@ struct NighthawkSettingsView: View {
                     title: L10n.Nighthawk.SettingsTab.notificationsTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.notificationsSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.notifications.image,
-                    action: { store.send(.rowTapped(.notifications)) }
+                    action: { open(.notifications) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.fiatTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.fiatSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.fiat.image,
-                    action: { store.send(.rowTapped(.fiat)) }
+                    action: { open(.fiat) }
                 )
 
                 if store.biometryType != .none {
@@ -72,7 +73,7 @@ struct NighthawkSettingsView: View {
                                 : Constants.touchId
                         ),
                         icon: Asset.Assets.Icons.Nighthawk.security.image,
-                        action: { store.send(.rowTapped(.security)) }
+                        action: { open(.security) }
                     )
                 }
 
@@ -94,35 +95,35 @@ struct NighthawkSettingsView: View {
                     title: L10n.Nighthawk.SettingsTab.changeServerTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.changeServerSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.server.image,
-                    action: { store.send(.rowTapped(.changeServer)) }
+                    action: { open(.changeServer) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.chatSettingsTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.chatSettingsSubtitle,
                     icon: Image(systemName: "bubble.left.and.bubble.right"),
-                    action: { store.send(.rowTapped(.chatSettings)) }
+                    action: { open(.chatSettings) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.networkPrivacyTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.networkPrivacySubtitle,
                     icon: Image(systemName: "network"),
-                    action: { store.send(.rowTapped(.torNetwork)) }
+                    action: { open(.torNetwork) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.advancedTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
-                    action: { store.send(.rowTapped(.advanced)) }
+                    action: { open(.advanced) }
                 )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.aboutTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion),
                     icon: Asset.Assets.Icons.Nighthawk.about.image,
-                    action: { store.send(.rowTapped(.about)) }
+                    action: { open(.about) }
                 )
             }
         }
@@ -130,21 +131,64 @@ struct NighthawkSettingsView: View {
         .applyNighthawkBackground()
     }
 
+    private func open(_ screen: NighthawkSettings.State.Screen) {
+        if usesCompanionPane {
+            store.send(.foldRowTapped(screen))
+        } else {
+            store.send(.rowTapped(screen))
+        }
+    }
+
     private var settingsCompanionPane: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
-                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                Text(L10n.Nighthawk.SettingsTab.selectSettingPrompt)
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                Text(L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion))
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+        VStack(spacing: 0) {
+            if store.foldDetail != nil {
+                HStack {
+                    Button("Close") { store.send(.foldClosed) }
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(20)
+            foldDetail
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .applyNighthawkBackground()
+    }
+
+    @ViewBuilder
+    private var foldDetail: some View {
+        if let store = store.scope(state: \.foldDetail?.about, action: \.foldDetail.about) {
+            AboutView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.advanced, action: \.foldDetail.advanced) {
+            AdvancedView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.changeServer, action: \.foldDetail.changeServer) {
+            ChangeServerView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.chatSettings, action: \.foldDetail.chatSettings) {
+            ChatSettingsView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.fiat, action: \.foldDetail.fiat) {
+            FiatView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.notifications, action: \.foldDetail.notifications) {
+            NotificationsView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.security, action: \.foldDetail.security) {
+            SecurityView(store: store)
+        } else if let store = store.scope(state: \.foldDetail?.torNetwork, action: \.foldDetail.torNetwork) {
+            TorNetworkView(store: store)
+        } else {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                    Text("Select a setting on the left to open it here.")
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    Text(L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion))
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(20)
+            }
+            .applyNighthawkBackground()
+        }
     }
 }
 

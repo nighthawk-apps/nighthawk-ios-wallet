@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 import Utils
@@ -49,6 +50,46 @@ public struct RecipientView: View {
                     action: { store.send(.pasteFromClipboardTapped) }
                 )
                 .buttonStyle(.nighthawkDashed())
+            }
+
+            if !store.addressBook.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Saved addresses")
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    ForEach(store.addressBook) { entry in
+                        Button {
+                            store.send(.addressBookEntryTapped(entry))
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(entry.label)
+                                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
+                                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                                Text(entry.address)
+                                    .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                    .lineLimit(1)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+            }
+
+            if store.isRecipientValid {
+                NighthawkTextField(
+                    placeholder: "Label to save",
+                    text: $store.saveLabel.sending(\.saveLabelChanged)
+                )
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+                Button("Save address") { store.send(.saveAddressTapped) }
+                    .buttonStyle(.nighthawkSecondary())
+                    .disabled(store.saveLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
             Spacer()

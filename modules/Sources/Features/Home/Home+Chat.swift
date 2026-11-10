@@ -21,9 +21,9 @@ extension Home {
                 case .openChatSettings:
                     return .send(.delegate(.openChatSettings))
                 case .requestMoney:
-                    state.transfer.destination = .receive(
+                    state.transfer.destination = .request(
                         .init(
-                            uAddress: state.walletInfo.unifiedAddress,
+                            address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )

@@ -29,6 +29,18 @@ extension AppReducer {
                     return goTo(screen: screen, state: &state)
                 case .rescan:
                     return .none
+                case .deleteWallet:
+                    return deleteWallet()
+                case .nukeLocalDatabases:
+                    return nukeLocalDatabases()
+                case .fetchLatestFiatCurrency:
+                    if let id = state.path.ids.first(where: { id in
+                        if case .home = state.path[id: id] { return true }
+                        return false
+                    }) {
+                        return .send(.path(.element(id: id, action: .home(.fetchLatestFiatPrice))))
+                    }
+                    return .none
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none

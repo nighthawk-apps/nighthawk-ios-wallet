@@ -36,7 +36,7 @@ public struct URIParser {
 
         guard
             let zaddrRegex = try? NSRegularExpression(pattern: "((?i)\(shieldedPrefix)\\w{30,})"),
-            let uriRegex = try? NSRegularExpression(pattern: "((?i)darkfi:\(shieldedPrefix)\\w{30,})"),
+            let uriRegex = try? NSRegularExpression(pattern: "((?i)(darkfi|drk):\(shieldedPrefix)\\w{30,})"),
             let memoRegex = try? NSRegularExpression(pattern: "(memo=([^&]*))"),
             let amountRegex = try? NSRegularExpression(pattern: "(amount=([^&]*))")
         else { return .failed }
@@ -50,9 +50,16 @@ public struct URIParser {
         }
 
         if let memoMatch = memoRegex.firstMatch(in: stripped, range: nsRange),
-           let range = Range(memoMatch.range(at: 2), in: stripped),
-           let data = Data(base64Encoded: String(stripped[range])) {
-            memo = String(data: data, encoding: .utf8)
+           let range = Range(memoMatch.range(at: 2), in: stripped) {
+            let rawMemo = String(stripped[range])
+            let percentDecoded = rawMemo.removingPercentEncoding ?? rawMemo
+            if let data = Data(base64Encoded: percentDecoded),
+               let text = String(data: data, encoding: .utf8),
+               !text.isEmpty {
+                memo = text
+            } else {
+                memo = percentDecoded
+            }
         }
 
         if let amountMatch = amountRegex.firstMatch(in: stripped, range: nsRange), let range = Range(amountMatch.range(at: 2), in: stripped) {

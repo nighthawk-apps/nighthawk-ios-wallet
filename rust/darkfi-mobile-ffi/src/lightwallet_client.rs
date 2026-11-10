@@ -10,14 +10,14 @@
 //!
 //! Used by `sync.rs` when the lightwallet path is active.
 //!
-//! ## Design lessons from zcash/lightwalletd
+//! ## Client behavior
 //!
-//! - **Semantic gRPC error codes** (PR #various): classify errors by
-//!   retryability so the sync loop can make smart retry decisions.
-//! - **Startup health-check** (PR #490): probe the server before
-//!   accepting wallet sync requests.
-//! - **Debug logging at gRPC entrypoints** (logging commit): every RPC
-//!   call is logged at DEBUG level with method name and timing.
+//! - **Semantic gRPC error codes**: classify errors by retryability so the
+//!   sync loop can decide whether to retry.
+//! - **Startup health-check**: probe the server before accepting wallet
+//!   sync requests.
+//! - **Debug logging at gRPC entrypoints**: every RPC call is logged at
+//!   DEBUG level with method name and timing.
 
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
@@ -53,10 +53,9 @@ fn lwd_client(
 
 /// Semantic classification of gRPC errors.
 ///
-/// Adopted from zcash/lightwalletd's systematic error code audit: the
-/// server should return `codes.Unavailable` for transient failures vs.
-/// `codes.InvalidArgument` for permanent ones, and the client should
-/// use this to decide whether to retry.
+/// The server returns Unavailable for transient failures and
+/// InvalidArgument for permanent ones. The client uses that to decide
+/// whether to retry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GrpcErrorKind {
     /// Server or backend node is temporarily unreachable.
@@ -207,8 +206,28 @@ pub struct LightCompactOutput {
     pub func_code: u32,
 }
 
-/// Server info returned by GetLightInfo.
+/// Authenticated Merkle tree state returned by GetTreeState.
 #[derive(Debug, Clone)]
+pub struct AuthenticatedTreeState {
+    pub height: u32,
+    pub tree_data: Vec<u8>,
+    pub block_hash: Vec<u8>,
+    pub state_root: Vec<u8>,
+    pub is_checkpoint: bool,
+}
+
+/// Checkpoint snapshot downloaded for instant restore.
+#[derive(Debug, Clone)]
+pub struct CheckpointSnapshotDto {
+    pub height: u32,
+    pub block_hash: Vec<u8>,
+    pub state_root: Vec<u8>,
+    pub tree_data: Vec<u8>,
+    pub nullifier_index: Vec<u8>,
+    pub scan_cursor: u32,
+    pub snapshot_hash: Vec<u8>,
+}
+
 pub struct LightServerInfo {
     pub server_version: String,
     pub chain_name: String,
@@ -228,6 +247,8 @@ pub struct LightServerInfo {
     pub proto_version: String,
     /// True when the server major version is not [`CLIENT_PROTO_VERSION`].
     pub proto_version_mismatch: bool,
+    /// Unix seconds of the server's last successful darkfid tip poll. 0 if unknown.
+    pub tip_fetched_unix: u64,
 }
 
 /// One `CompactOutputBody` row from proto 2.0.0.
@@ -801,8 +822,7 @@ impl LightwalletClient {
     /// Startup health-check: verify the server is reachable and the
     /// backend node (darkfid) has synced past genesis.
     ///
-    /// Adopted from zcash/lightwalletd's `FirstRPC()` pattern (finding 1.1/1.3):
-    /// probe the server up to `max_retries` times with backoff before
+    /// Probe the server up to `max_retries` times with backoff before
     /// accepting wallet sync requests. Returns the server info on success.
     ///
     /// This prevents the wallet from entering a sync loop against a
@@ -892,6 +912,7 @@ impl LightwalletClient {
                 directory_attest_pubkey: info.directory_attest_pubkey,
                 proto_version,
                 proto_version_mismatch,
+                tip_fetched_unix: info.tip_fetched_unix,
             })
         })
         .await;
@@ -903,6 +924,70 @@ impl LightwalletClient {
             start.elapsed(),
         );
         result
+    }
+
+    /// Retrieve and authenticate Merkle tree state at a height.
+    pub async fn get_authenticated_tree_state(
+        &self,
+        height: u32,
+    ) -> Result<AuthenticatedTreeState, String> {
+        async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let resp = client
+                .get_tree_state(lightwallet_proto::BlockHeight { height })
+                .await
+                .map_err(|e| format!("GetTreeState({height}) RPC: {e}"))?;
+            let ts = resp.into_inner();
+            if !ts.state_root.is_empty() && !ts.tree_data.is_empty() && ts.state_root.len() == 32 {
+                let computed_hash = blake3::hash(&ts.tree_data);
+                if computed_hash.as_bytes() != ts.state_root.as_slice() {
+                    return Err(format!("TreeState state_root mismatch at height {height}"));
+                }
+            }
+            Ok(AuthenticatedTreeState {
+                height: ts.height,
+                tree_data: ts.tree_data,
+                block_hash: ts.block_hash,
+                state_root: ts.state_root,
+                is_checkpoint: ts.is_checkpoint,
+            })
+        })
+        .await
+    }
+
+    /// Download a checkpoint snapshot, reassembling chunked tree bytes.
+    pub async fn get_checkpoint_snapshot(
+        &self,
+        preferred_height: u32,
+    ) -> Result<CheckpointSnapshotDto, String> {
+        async_compat::Compat::new(async {
+            let channel = self.connect_channel().await?;
+            let mut client = lwd_client(channel);
+            let resp = client
+                .get_checkpoint_snapshot(lightwallet_proto::CheckpointRequest { preferred_height })
+                .await
+                .map_err(|e| format!("GetCheckpointSnapshot({preferred_height}) RPC: {e}"))?;
+            let mut stream = resp.into_inner();
+            let mut chunks = Vec::new();
+            while let Some(chunk) = stream
+                .message()
+                .await
+                .map_err(|e| format!("Snapshot stream error: {e}"))?
+            {
+                chunks.push(CheckpointSnapshotDto {
+                    height: chunk.height,
+                    block_hash: chunk.block_hash,
+                    state_root: chunk.state_root,
+                    tree_data: chunk.tree_data,
+                    nullifier_index: chunk.nullifier_index,
+                    scan_cursor: chunk.scan_cursor,
+                    snapshot_hash: chunk.snapshot_hash,
+                });
+            }
+            crate::checkpoint::assemble_checkpoint_chunks(chunks)
+        })
+        .await
     }
 
     /// Fetch compact blocks in the given height range [start, end] inclusive.
@@ -974,7 +1059,7 @@ impl LightwalletClient {
                 .into_inner();
 
             // Pre-allocate based on expected range size to avoid
-            // per-block allocations (lesson from zcash memory fix).
+            // per-block allocations.
             let expected_count = (padded_end.saturating_sub(padded_start) + 1) as usize;
             let mut blocks = Vec::with_capacity(expected_count.min(10_000));
             while let Some(proto_block) = stream
@@ -1227,8 +1312,10 @@ impl LightwalletClient {
     }
 
     /// Broadcast `tx_data` and attach this wallet's clue on every output except
-    /// the payment output. Android and Moonshine send the same `extra_omr_clues`
-    /// field, so a change output is detectable by the sender's other devices.
+    /// the payment output. `payment_index` is where the recipient clue and
+    /// metadata are stored. Android and Moonshine send the same
+    /// `extra_omr_clues` field, so a change output is detectable by the
+    /// sender's other devices.
     pub async fn send_transaction_with_wallet_clues(
         &self,
         tx_data: Vec<u8>,
@@ -1236,20 +1323,34 @@ impl LightwalletClient {
         omr_metadata_enc: Vec<u8>,
         wallet_secret: &[u8],
         network: u8,
+        payment_index: u32,
     ) -> Result<Vec<u8>, String> {
-        let extra =
-            match self_change_omr_clues(&tx_data, wallet_secret, network, 0, &omr_clue).await {
-                Ok(clues) => clues,
-                Err(e) => {
-                    tracing::warn!(
-                        target: "lightwallet-client",
-                        "sender change clues not attached: {e}"
-                    );
-                    Vec::new()
-                }
-            };
-        self.send_transaction_inner(tx_data, omr_clue, 0, omr_metadata_enc, extra)
-            .await
+        let extra = match self_change_omr_clues(
+            &tx_data,
+            wallet_secret,
+            network,
+            payment_index,
+            &omr_clue,
+        )
+        .await
+        {
+            Ok(clues) => clues,
+            Err(e) => {
+                tracing::warn!(
+                    target: "lightwallet-client",
+                    "sender change clues not attached: {e}"
+                );
+                Vec::new()
+            }
+        };
+        self.send_transaction_inner(
+            tx_data,
+            omr_clue,
+            payment_index,
+            omr_metadata_enc,
+            extra,
+        )
+        .await
     }
 
     /// Broadcast a wallet-built contract transaction (DAO, token) with the
@@ -1264,8 +1365,7 @@ impl LightwalletClient {
         network: u8,
     ) -> Result<Vec<u8>, String> {
         let (_sk, pk) = crate::unifomr::clue_keypair_from_wallet(wallet_secret, network)?;
-        let own_clue = crate::unifomr::build_omr_clue_from_pk(&pk);
-        let mut extra = clues_for_indexes(own_indexes, &own_clue);
+        let mut extra = fresh_clues_for_indexes(own_indexes, &pk);
         let (clue, clue_index) = match recipient_clue {
             Some((index, clue)) => {
                 extra.retain(|c| c.output_index != index);
@@ -1748,9 +1848,8 @@ const MIN_ENCRYPTED_NOTE_LEN: usize = 48;
 
 /// Validate a compact block's structural integrity (finding 5.1).
 ///
-/// Adopted from zcash/lightwalletd PR #278: deserialize and validate blocks
-/// at ingest time instead of discovering corruption when a wallet requests
-/// them.
+/// Deserialize and validate blocks at ingest time instead of discovering
+/// corruption when a wallet requests them.
 ///
 /// Returns `Ok(())` if the block passes all checks, `Err(description)` if
 /// any field has an invalid length or value.
@@ -1842,8 +1941,7 @@ pub fn validate_block_follows_parent(
 
 /// Validate a block range request before sending to the server (finding 5.4).
 ///
-/// Adopted from zcash/lightwalletd's null-argument segfault fix: check
-/// inputs on the client side to avoid sending invalid requests.
+/// Check inputs on the client side before sending a range request.
 pub fn validate_block_range(start: u32, end: u32) -> Result<(), String> {
     if start > end {
         return Err(format!(
@@ -1972,6 +2070,22 @@ pub fn clues_for_indexes(
         .collect()
 }
 
+/// One fresh clue ciphertext per output. Identical bytes are dropped by older
+/// lightwalletd builds, which then omit the fee output from the digest.
+pub fn fresh_clues_for_indexes(
+    indexes: &[u32],
+    pk: &crate::unifomr::RlwePublicKey,
+) -> Vec<lightwallet_proto::OutputOmrClue> {
+    indexes
+        .iter()
+        .copied()
+        .map(|output_index| lightwallet_proto::OutputOmrClue {
+            output_index,
+            omr_clue: crate::unifomr::build_omr_clue_from_pk(pk),
+        })
+        .collect()
+}
+
 /// Wallet clues for every non-payment Money output.
 pub async fn self_change_omr_clues(
     tx_data: &[u8],
@@ -1985,10 +2099,9 @@ pub async fn self_change_omr_clues(
     }
     let indexes = money_compact_output_indexes(tx_data).await?;
     let (_sk, pk) = crate::unifomr::clue_keypair_from_wallet(wallet_secret, network)?;
-    let clue = crate::unifomr::build_omr_clue_from_pk(&pk);
-    Ok(clues_for_indexes(
+    Ok(fresh_clues_for_indexes(
         &non_payment_output_indexes(indexes.len() as u32, payment_index),
-        &clue,
+        &pk,
     ))
 }
 
@@ -2672,6 +2785,7 @@ mod tests {
             directory_attest_pubkey: vec![0xBB; 32],
             proto_version: "2.0.0".into(),
             proto_version_mismatch: false,
+            tip_fetched_unix: 0,
         };
         assert_eq!(info.best_block_hash.len(), 32);
         assert_eq!(info.backend_version, "darkfid 0.5.0");
@@ -2690,6 +2804,7 @@ mod tests {
             directory_attest_pubkey: vec![],
             proto_version: String::new(),
             proto_version_mismatch: false,
+            tip_fetched_unix: 0,
         };
         assert!(info.best_block_hash.is_empty());
         assert!(info.backend_version.is_empty());

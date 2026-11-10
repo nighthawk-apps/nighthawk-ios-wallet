@@ -151,6 +151,7 @@ async fn send(drk: &Drk, recipient: &str, amount: &str, memo: &str) -> Result<St
         Some(memo),
         Some(LW_URL),
         None,
+        false,
     )
     .await?;
     transactions::broadcast_transfer(

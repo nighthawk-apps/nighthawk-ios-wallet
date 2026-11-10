@@ -24,6 +24,8 @@ public struct NighthawkSettings {
 
         public var appVersion: String = "1.0.0"
         public var biometryType: LABiometryType = .none
+        /// Settings screen shown in the right pane when the window is wide.
+        @Presents public var foldDetail: NighthawkSettingsFoldDetail.State?
 
         public enum Screen: Equatable {
             case about
@@ -44,6 +46,9 @@ public struct NighthawkSettings {
     public enum Action: Equatable {
         case alert(PresentationAction<Alert>)
         case delegate(Delegate)
+        case foldClosed
+        case foldDetail(PresentationAction<NighthawkSettingsFoldDetail.Action>)
+        case foldRowTapped(NighthawkSettings.State.Screen)
         case onAppear
         case rescanTapped
         case rowTapped(NighthawkSettings.State.Screen)
@@ -56,6 +61,9 @@ public struct NighthawkSettings {
         public enum Delegate: Equatable {
             case rescan
             case goTo(NighthawkSettings.State.Screen)
+            case deleteWallet
+            case nukeLocalDatabases
+            case fetchLatestFiatCurrency
         }
     }
 
@@ -103,6 +111,25 @@ public struct NighthawkSettings {
             case .rescanTapped:
                 state.alert = .confirmRescan()
                 return .none
+            case .foldClosed:
+                state.foldDetail = nil
+                return .none
+            case .foldDetail(.dismiss):
+                state.foldDetail = nil
+                return .none
+            case .foldDetail(.presented(.advanced(.delegate(.deleteWallet)))):
+                return .send(.delegate(.deleteWallet))
+            case .foldDetail(.presented(.advanced(.delegate(.nukeLocalDatabases)))):
+                return .send(.delegate(.nukeLocalDatabases))
+            case .foldDetail(.presented(.fiat(.delegate(.fetchLatestFiatCurrency)))):
+                return .send(.delegate(.fetchLatestFiatCurrency))
+            case .foldDetail(.presented(.torNetwork(.delegate(.dismiss)))):
+                state.foldDetail = nil
+                return .none
+            case .foldDetail:
+                return .none
+            case let .foldRowTapped(screen):
+                return openFold(screen, state: &state)
             case .rowTapped(.backup):
                 state.alert = .confirmViewSeedWords()
                 return .none
@@ -111,9 +138,51 @@ public struct NighthawkSettings {
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$foldDetail, action: \.foldDetail)
+    }
+
+    private func openFold(
+        _ screen: State.Screen,
+        state: inout State
+    ) -> Effect<Action> {
+        switch screen {
+        case .about:
+            state.foldDetail = .about(About.State())
+        case .advanced:
+            state.foldDetail = .advanced(Advanced.State())
+        case .backup:
+            return .send(.delegate(.goTo(.backup)))
+        case .changeServer:
+            state.foldDetail = .changeServer(ChangeServer.State())
+        case .chatSettings:
+            state.foldDetail = .chatSettings(ChatSettings.State())
+        case .fiat:
+            state.foldDetail = .fiat(Fiat.State())
+        case .notifications:
+            state.foldDetail = .notifications(Notifications.State())
+        case .rescan:
+            state.alert = .confirmRescan()
+        case .security:
+            state.foldDetail = .security(Security.State())
+        case .torNetwork:
+            state.foldDetail = .torNetwork(TorNetwork.State())
+        }
+        return .none
     }
 
     public init() {}
+}
+
+@Reducer(state: .equatable, action: .equatable)
+public enum NighthawkSettingsFoldDetail {
+    case about(About)
+    case advanced(Advanced)
+    case changeServer(ChangeServer)
+    case chatSettings(ChatSettings)
+    case fiat(Fiat)
+    case notifications(Notifications)
+    case security(Security)
+    case torNetwork(TorNetwork)
 }
 
 // MARK: Alerts
