@@ -19,12 +19,12 @@ final class HomeTests: XCTestCase {
         }
     }
 
-    func testInitialSelectedTab_IsWallet() {
+    func testInitialSelectedTab_IsChat() {
         withDependencies {
             HomeTestSupport.configureDependencies(&$0)
         } operation: {
-            let state = HomeTestSupport.makeState()
-            XCTAssertEqual(state.selectedTab, .wallet)
+            let state = Home.State(unifiedAddress: nil)
+            XCTAssertEqual(state.selectedTab, .chat)
         }
     }
 

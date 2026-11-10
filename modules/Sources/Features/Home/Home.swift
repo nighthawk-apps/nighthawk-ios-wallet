@@ -60,7 +60,7 @@ public struct Home {
 
         @Presents public var alert: AlertState<Action.Alert>?
         @Presents public var destination: Destination.State?
-        public var selectedTab = Tab.wallet
+        public var selectedTab = Tab.chat
         public var toast: Toast?
 
         public var synchronizerFailedToStart = false

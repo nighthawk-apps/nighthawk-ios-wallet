@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.09** (`CURRENT_PROJECT_VERSION=30100809`). Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `44ec78b6e`, Arti 0.48. Aligns with Android 3.01.09, desktop 3.1.9, Moonshine 3.1.8, and lightwalletd 0.3.5.
+**3.01.10** (`CURRENT_PROJECT_VERSION=30100810`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `44ec78b6e`, Arti 0.48. Aligns with Android 3.01.10, desktop 3.1.10, Moonshine 3.1.8, and lightwalletd 0.3.5.
 
 ## Contents
 

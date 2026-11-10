@@ -42,7 +42,7 @@ enum HomeTestSupport {
     }
 
     static func makeState(
-        selectedTab: Home.State.Tab = .wallet,
+        selectedTab: Home.State.Tab = .chat,
         synchronizerFailedToStart: Bool = false
     ) -> Home.State {
         withDependencies {
