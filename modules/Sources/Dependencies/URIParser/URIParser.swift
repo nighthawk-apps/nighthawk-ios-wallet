@@ -7,6 +7,7 @@
 
 import Foundation
 import DerivationTool
+import Models
 
 public struct QRCodeParseResult: Equatable {
     public let memo: String?
@@ -26,46 +27,15 @@ public struct QRCodeParseResult: Equatable {
 
 public struct URIParser {
     func parseZaddrOrZIP321(from qrCode: String, network: String) -> QRCodeParseResult {
-        let stripped = qrCode.replacingOccurrences(of: " ", with: "")
-        let nsRange = NSRange(location: 0, length: stripped.utf8.count)
-        var amount: String?
-        var zaddr: String?
-        var memo: String?
-
-        let shieldedPrefix = "drk"
-
-        guard
-            let zaddrRegex = try? NSRegularExpression(pattern: "((?i)\(shieldedPrefix)\\w{30,})"),
-            let uriRegex = try? NSRegularExpression(pattern: "((?i)(darkfi|drk):\(shieldedPrefix)\\w{30,})"),
-            let memoRegex = try? NSRegularExpression(pattern: "(memo=([^&]*))"),
-            let amountRegex = try? NSRegularExpression(pattern: "(amount=([^&]*))")
-        else { return .failed }
-
-        let zAddrMatch = zaddrRegex.firstMatch(in: stripped, range: nsRange)
-        let uriMatch = uriRegex.firstMatch(in: stripped, range: nsRange)
-        guard zAddrMatch != nil || uriMatch != nil else { return .failed }
-
-        if let zAddrMatch, let range = Range(zAddrMatch.range, in: stripped) {
-            zaddr = String(stripped[range])
+        _ = network
+        let trimmed = qrCode.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lower = trimmed.lowercased()
+        guard lower.hasPrefix("drk:") || lower.hasPrefix("darkfi:") else {
+            return .failed
         }
-
-        if let memoMatch = memoRegex.firstMatch(in: stripped, range: nsRange),
-           let range = Range(memoMatch.range(at: 2), in: stripped) {
-            let rawMemo = String(stripped[range])
-            let percentDecoded = rawMemo.removingPercentEncoding ?? rawMemo
-            if let data = Data(base64Encoded: percentDecoded),
-               let text = String(data: data, encoding: .utf8),
-               !text.isEmpty {
-                memo = text
-            } else {
-                memo = percentDecoded
-            }
+        guard let parsed = PaymentRequestUri.parse(trimmed), !parsed.address.isEmpty else {
+            return .failed
         }
-
-        if let amountMatch = amountRegex.firstMatch(in: stripped, range: nsRange), let range = Range(amountMatch.range(at: 2), in: stripped) {
-            amount = String(stripped[range])
-        }
-
-        return QRCodeParseResult(memo: memo, amount: amount, address: zaddr ?? "")
+        return QRCodeParseResult(memo: parsed.memo, amount: parsed.amount, address: parsed.address)
     }
 }

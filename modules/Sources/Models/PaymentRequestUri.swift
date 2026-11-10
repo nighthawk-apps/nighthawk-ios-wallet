@@ -85,8 +85,9 @@ public enum PaymentRequestUri {
     }
 
     private static func percentEncode(_ value: String) -> String {
-        var allowed = CharacterSet.urlQueryAllowed
-        allowed.remove(charactersIn: "&=?+#")
+        // RFC 3986 unreserved only. Base64 uses '+', '/', and '=', which query
+        // parsers treat as spaces or separators when they are left raw.
+        let allowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
         return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
     }
 }

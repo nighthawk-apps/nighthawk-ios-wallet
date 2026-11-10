@@ -64,12 +64,17 @@ public struct DeviceAddressBook: Equatable {
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keychainAccount
         ]
-        SecItemDelete(query as CFDictionary)
-        var newQuery = query
-        newQuery[kSecValueData as String] = data
-        newQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        newQuery[kSecAttrSynchronizable as String] = kCFBooleanFalse
-        SecItemAdd(newQuery as CFDictionary, nil)
+        let attrs: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecAttrSynchronizable as String: kCFBooleanFalse as Any
+        ]
+        let updated = SecItemUpdate(query as CFDictionary, attrs as CFDictionary)
+        if updated == errSecItemNotFound {
+            var newQuery = query
+            newQuery.merge(attrs) { _, new in new }
+            SecItemAdd(newQuery as CFDictionary, nil)
+        }
     }
 
     private static func readFromKeychain() -> Data? {

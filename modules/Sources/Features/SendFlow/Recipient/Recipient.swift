@@ -27,6 +27,9 @@ public struct Recipient {
         public var showScanButton = true
         public var addressBook: [DeviceAddressBook.Entry] = []
         public var saveLabel = ""
+        /// Amount and memo carried by a pasted or typed `drk:` invoice.
+        public var invoiceAmount: String?
+        public var invoiceMemo: String?
 
         public init() {}
     }
@@ -47,7 +50,7 @@ public struct Recipient {
 
         public enum Delegate: Equatable {
             case goBack
-            case proceedWithRecipient(String)
+            case proceedWithRecipient(String, amount: String?, memo: String?)
             case scanCode
         }
     }
@@ -65,7 +68,11 @@ public struct Recipient {
                 state.recipient = ""
                 return .none
             case .continueTapped:
-                return .send(.delegate(.proceedWithRecipient(state.recipient)))
+                return .send(.delegate(.proceedWithRecipient(
+                    state.recipient,
+                    amount: state.invoiceAmount,
+                    memo: state.invoiceMemo
+                )))
             case .delegate:
                 return .none
             case .onAppear:
@@ -93,18 +100,36 @@ public struct Recipient {
                 guard let contents = pasteboard.getString() else { return .none }
                 let trimmed = contents.data.trimmingCharacters(in: .whitespacesAndNewlines)
                 if let parsed = PaymentRequestUri.parse(trimmed), derivationTool.isDarkFiAddress(parsed.address, "testnet") {
-                    return .send(.recipientInputChanged(parsed.address))
+                    state.recipient = parsed.address
+                    state.invoiceAmount = parsed.amount
+                    state.invoiceMemo = parsed.memo
+                    state.isRecipientValid = true
+                    return .none
                 } else if derivationTool.isDarkFiAddress(trimmed, "testnet") {
-                    return .send(.recipientInputChanged(trimmed))
+                    state.recipient = trimmed
+                    state.invoiceAmount = nil
+                    state.invoiceMemo = nil
+                    state.isRecipientValid = true
+                    return .none
                 }
                 return .none
             case let .recipientInputChanged(recipient):
                 let trimmed = recipient.trimmingCharacters(in: .whitespacesAndNewlines)
                 let parsed = PaymentRequestUri.parse(trimmed)
-                let candidate = parsed?.address ?? trimmed
-                state.recipient = candidate
-                // DarkFi: no TEX address concept — all addresses are private
-                state.isRecipientValid = derivationTool.isDarkFiAddress(candidate, "testnet")
+                let lower = trimmed.lowercased()
+                if let parsed, lower.hasPrefix("drk:") || lower.hasPrefix("darkfi:") {
+                    state.recipient = parsed.address
+                    state.invoiceAmount = parsed.amount
+                    state.invoiceMemo = parsed.memo
+                } else {
+                    let previous = state.recipient
+                    state.recipient = parsed?.address ?? trimmed
+                    if state.recipient != previous {
+                        state.invoiceAmount = nil
+                        state.invoiceMemo = nil
+                    }
+                }
+                state.isRecipientValid = derivationTool.isDarkFiAddress(state.recipient, "testnet")
                 return .none
             case .scanQRCodeTapped:
                 return .send(.delegate(.scanCode))

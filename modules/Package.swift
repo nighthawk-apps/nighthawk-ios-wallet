@@ -498,6 +498,7 @@ let package = Package(
             name: "URIParser",
             dependencies: [
                 "DerivationTool",
+                "Models",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DarkfiCore"
             ],

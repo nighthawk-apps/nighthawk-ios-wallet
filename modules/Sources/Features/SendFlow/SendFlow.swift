@@ -424,9 +424,15 @@ extension SendFlow {
                 case .goBack:
                     _ = state.path.popLast()
                     return .none
-                case let .proceedWithRecipient(recipient):
+                case let .proceedWithRecipient(recipient, amount, memo):
                     guard derivationTool.isDarkFiAddress(recipient, "testnet") else { return .none }
                     state.recipient = recipient
+                    if let amount, !amount.isEmpty {
+                        state.amountToSendInput = amount
+                    }
+                    if let memo, !memo.isEmpty {
+                        state.memo = memo.redacted
+                    }
                     if derivationTool.isTransparentAddress(recipient, "testnet") {
                         return .run { [state] send in
                             do {
@@ -468,6 +474,9 @@ extension SendFlow {
                     } else {
                         var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
                         addMemoState.memoCharLimit = state.memoCharLimit
+                        if let memo, !memo.isEmpty {
+                            addMemoState.memo = memo
+                        }
                         state.path.append(Path.State.addMemo(addMemoState))
                     }
                     return .none
