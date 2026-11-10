@@ -31,6 +31,9 @@ public final class NighthawkMeshController: ObservableObject {
         engine.sendFrame = { [weak link] linkID, frame in
             link?.write(linkID: linkID, frame: frame)
         }
+        engine.retireLink = { [weak link] linkID in
+            link?.retire(linkID: linkID)
+        }
     }
 
     public func noteStatus(_ line: String) {

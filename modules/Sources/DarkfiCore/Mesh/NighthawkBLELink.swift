@@ -87,6 +87,11 @@ final class NighthawkBLELink: NSObject {
         }
     }
 
+    /// Drop a Bluetooth address that a newer connection to the same identity replaced.
+    func retire(linkID: String) {
+        queue.async { self.drop(linkID: linkID) }
+    }
+
     func write(linkID: String, frame: Data) {
         queue.async {
             let cap = self.payloadCap(linkID)

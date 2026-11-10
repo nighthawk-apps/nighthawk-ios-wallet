@@ -45,6 +45,8 @@ private enum NighthawkMeshABI {
 final class NighthawkMeshEngine {
     let queue = DispatchQueue(label: "nh.mesh.engine")
     var sendFrame: ((String, Data) -> Void)?
+    /// Disconnect a Bluetooth address that this mesh identity has replaced.
+    var retireLink: ((String) -> Void)?
 
     private let queueKey = DispatchSpecificKey<UInt8>()
     private var running = false
@@ -119,9 +121,9 @@ final class NighthawkMeshEngine {
             self.assemblers.removeValue(forKey: linkID)
             if let meshID = self.linkToMesh.removeValue(forKey: linkID) {
                 let hex = NighthawkMeshFraming.hex(meshID)
-                if self.meshToLink[hex] == linkID {
-                    self.meshToLink.removeValue(forKey: hex)
-                }
+                // A newer radio for this identity already replaced this link.
+                guard self.meshToLink[hex] == linkID else { return }
+                self.meshToLink.removeValue(forKey: hex)
                 meshID.withUnsafeBytes { raw in
                     _ = NighthawkMeshABI.neighborDown(raw.bindMemory(to: UInt8.self).baseAddress)
                 }
@@ -155,11 +157,20 @@ final class NighthawkMeshEngine {
         if meshID == localID { return }
         let hex = NighthawkMeshFraming.hex(meshID)
         let previous = linkToMesh[linkID]
+        let stale = meshToLink[hex]
         linkToMesh[linkID] = meshID
-        if meshToLink[hex] == nil || meshToLink[hex] == linkID {
-            meshToLink[hex] = linkID
+        meshToLink[hex] = linkID
+        if let stale, stale != linkID {
+            // Newest connection wins. The older address is no longer advertised.
+            liveLinks.remove(stale)
+            linkToMesh.removeValue(forKey: stale)
+            assemblers.removeValue(forKey: stale)
+            meshID.withUnsafeBytes { raw in
+                _ = NighthawkMeshABI.neighborDown(raw.bindMemory(to: UInt8.self).baseAddress)
+            }
+            retireLink?(stale)
         }
-        let learned = previous != meshID
+        let learned = previous != meshID || stale != nil && stale != linkID
         if handshake && learned && running {
             meshID.withUnsafeBytes { raw in
                 _ = NighthawkMeshABI.neighborUp(raw.bindMemory(to: UInt8.self).baseAddress)
