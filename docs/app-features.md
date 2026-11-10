@@ -1,6 +1,6 @@
 # Nighthawk DarkFi — iOS application feature catalog
 
-Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this document alongside the [Android feature catalog](https://github.com/nighthawk-apps/nighthawk-android-wallet/blob/main/docs/app-features.md) to track cross-platform parity.
+Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this document alongside the [Android feature catalog](https://github.com/nighthawk-apps/nighthawk-android-wallet/blob/nighthawk-dark/docs/app-features.md) to track cross-platform parity.
 
 **Legend**
 
@@ -12,8 +12,9 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | 🔒 | Zcash had it; DarkFi equivalent differs (see notes) |
 | 🚀 | iOS-ahead feature (not a hard exclusive — Android may use a different implementation) |
 
-**Light client path:** wallets → **`darkfi-lightwalletd` gRPC `:9067`** (UnifOMR) → `darkfid`.  
-**Chat:** DarkIRC on both platforms (iOS in-process UniFFI; Android embedded `darkirc_exec`).
+**Light client path:** wallets → **`darkfi-lightwalletd` gRPC `:9067`** → `darkfid`. Default sync is padded trial decryption. Experimental UnifOMR is off unless Advanced settings turn it on.  
+**Network privacy:** Nym mixnet by default on Android and iOS. Tor is in-process Arti on both.  
+**Chat:** DarkIRC on both platforms is in-process UniFFI (`start_darkirc`). Optional Android `darkirc_exec` is a legacy subprocess.
 
 ## 1. Onboarding & wallet core
 
@@ -44,7 +45,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Embedded `darkfid` fullnode | ❌ | 🟡 | Android has optional foreground service; iOS not implemented |
 | Remote `darkfid` JSON-RPC | ✅ | ✅ | Via `DrkBootstrapConfig.darkfid_endpoint_url` |
 | Endpoint presets / change server | ✅ | ✅ | `ChangeServer` feature in Settings |
-| Tor for wallet RPC | 🚀 | ✅ | iOS uses **Arti in-process** (`start_arti_proxy`); Android uses tor-android |
+| Tor for wallet RPC | ✅ | ✅ | Both use in-process Arti. The app default network is Nym |
 | Keep screen on while syncing | ❌ | ✅ | Not implemented on iOS |
 
 ---
@@ -57,12 +58,12 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Send without native lib | 🟡 | 🟡 | Graceful degrade / error message |
 | Fee estimate before send | ✅ | ✅ | `estimateTransferFee` |
 | Send confirmation dialog | ✅ | ✅ | Amount, recipient, fee, memo |
-| Payment memo (private, encrypted note) | ✅ | ✅ | Up to 512 UTF-8 bytes; UniFFI + send field |
+| Payment memo | ✅ | ✅ | Up to 255 UTF-8 bytes. Experimental UnifOMR carries it. The default send leaves `MoneyNote.memo` empty |
 | Memo on transaction details | ✅ | ✅ | `transactionPaymentMemo` on history rows |
 | QR scan recipient / amount | ✅ | ✅ | `SendFlow` feature |
 | Receive QR display | ✅ | ✅ | `Receive` feature |
-| Request specific amount (payment URI) | 🟡 | 🟡 | Deep link support; full "request" UX varies |
-| Multi-token / custom assets send | 🟡 | ✅ | UDL has `list_token_balances`; UI may need token picker verification |
+| Request specific amount (payment URI) | ✅ | ✅ | Request money builds `drk:address?amount=&memo=` with a base64 memo |
+| Multi-token / custom assets send | ✅ | ✅ | Send-flow token picker. DRK is the default token |
 | ZIP-321 / unified address | 🔒 | 🔒 | Use DarkFi `drk` addresses instead |
 | Shielding / deshielding | 🔒 | 🔒 | **N/A** on DarkFi |
 
@@ -86,14 +87,14 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 
 | Feature | iOS | Android | Notes |
 |---------|-----|---------|-------|
-| Public IRC channels | ✅ | ✅ | iOS: in-process; Android: Kotlin IRC client |
-| Embedded `darkirc` | 🚀 | ✅ | iOS: **native in-process** via UniFFI callback; Android: subprocess `darkirc_exec` |
-| Tor for chat / P2P | 🚀 | ✅ | iOS: Arti in-process; Android: tor-android SOCKS |
+| Public IRC channels | ✅ | ✅ | In-process UniFFI on both |
+| Embedded `darkirc` | ✅ | ✅ | `start_darkirc` on both. Android `darkirc_exec` is legacy |
+| Tor for chat / P2P | ✅ | ✅ | In-process Arti on both. Default transport is Nym |
 | Connection status | ✅ | ✅ | `darkirc_status()` polling |
 | Chat settings navigation | ✅ | ✅ | Settings → Chat Settings (stack push) |
 | Chat settings | ✅ | ✅ | DAG hours, fast mode, E2E channels/contacts persisted |
 | E2E encrypted DMs | ✅ | ✅ | ChaCha via UniFFI; `DarkircCryptoStore` |
-| DM key generation | 🚀 | 🟡 | iOS: native `generate_dm_keypair()`; Android: CLI keygen |
+| DM key generation | ✅ | ✅ | `generate_dm_keypair` UniFFI on both |
 | DM contact management | ✅ | ✅ | `DarkircContactManager` + `NewDmConversationView` |
 | DM pubkey parser | ✅ | ✅ | `DarkircDmPubkeyParser` |
 | DAG history | ✅ | ✅ | EventGraph replays on connect |
@@ -141,9 +142,9 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Stub synchronizer fallback | ✅ | `StubDarkfiSynchronizer` |
 | SQLCipher-linked `drk` | ✅ | Same Rust crate |
 | Payment memo FFI | ✅ | Same `payment_memo` APIs |
-| Arti Tor proxy | 🚀 | ❌ (uses tor-android) |
-| DM keypair generation | 🚀 | ❌ (CLI keygen) |
-| In-process darkirc | 🚀 | ❌ (subprocess) |
+| Arti Tor proxy | ✅ | ✅ (in-process Arti; Nym is the default network) |
+| DM keypair generation | ✅ | ✅ (`generate_dm_keypair`) |
+| In-process darkirc | ✅ | ✅ (`start_darkirc`; `darkirc_exec` is legacy) |
 | DAO FFI (list/proposals/detail) | ✅ | Same UDL |
 
 ---
@@ -154,10 +155,10 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 |--------------------------|-------------------|
 | ZEC transparent + shielded pools | Single private DRK balance |
 | Unified address / uview | `drk` deposit address |
-| Memo field (512 bytes) | `MoneyNote::memo` (OMR-aware encrypted note memo) |
-| Lightwalletd | `darkfi-lightwalletd` gRPC **:9067** (UnifOMR) → `darkfid` |
-| Embedded Tor | Arti in-process (iOS) |
-| ZIP-321 | Payment URI `drk:address?amount=&memo=` |
+| Memo field (512 bytes) | Payment memo, max **255 UTF-8 bytes**. Default send leaves the on-chain note memo empty |
+| Lightwalletd | `darkfi-lightwalletd` gRPC **:9067**. Default sync is trial decryption. UnifOMR is opt-in |
+| Embedded Tor | In-process Arti on iOS and Android. The app default network is Nym |
+| ZIP-321 | Payment URI `drk:address?amount=&memo=` with memo as standard base64 |
 | Orchard / Sapling | Money contract `TransferV1` |
 | — | DarkIRC chat (new) |
 | — | DAO / custom tokens (chain; app UI read-only) |
@@ -172,7 +173,7 @@ When implementing each screen, tick against this list:
 2. Same **endpoint ports** and mismatch guard.
 3. **Memo** send + tx detail parity.
 4. **Tor** toggle behavior (wallet RPC + chat).
-5. **Chat** in-process daemon (iOS) vs subprocess (Android) — same user experience.
+5. **Chat** in-process UniFFI on both platforms.
 6. **Native library** load failure messaging (no silent wrong balances).
 7. Document any intentional **omission** (e.g. no embedded darkfid on iOS).
 

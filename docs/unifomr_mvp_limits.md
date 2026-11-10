@@ -1,5 +1,7 @@
 # UnifOMR limits (darkfi-lightwalletd)
 
+**Current product (Android/iOS 3.01.09, desktop 3.1.9, Moonshine 3.1.8, lightwalletd 0.3.5):** wallet sync is padded trial decryption. This document describes the experimental `fhe-omr` server build and the opt-in client flag. The default lightwalletd binary does not advertise UnifOMR. Android and iOS network privacy defaults to Nym. Moonshine and desktop Tor prefs default on. DarkFi pin `44ec78b6e`, Arti 0.48.
+
 **Active crypto profile:** paper Table-1 **Param2** (ePrint 2026/910), fully wired:
 discrete Gaussian σ=0.5 errors, digest modulus-switch, all ℓ=2 plaintext bits
 evaluated, `r′ = 149`.
@@ -96,12 +98,12 @@ A Param2 detection key is about 120 MiB. Clients stream it in 1 MiB chunks. The 
 | Ownership proof v2 (network + key_version) | ✓ | ✓ | ✓ | ✓ | via FFI |
 | Length-prefixed PIR limbs | ✓ | via LWD | ✓ | ✓ | via FFI |
 | Ops hardening above | ✓ | ✓ | ✓ | ✓ | ✓ (TLS pin via prefs) |
-| Supplemental trial on empty OMR | — | on only with `--allow-trial` | off by default | off by default (settings toggle) | via Android FFI |
+| Default sync | n/a | trial decrypt (`experimental_unifomr` false) | trial decrypt | trial decrypt | trial decrypt via Android FFI |
 | PIR-failure fallback = full padded window (never sparse match-set fetch) | n/a | ✓ | ✓ | ✓ | via FFI |
 | Power-of-2 padded digest windows, tip-clamped (min bucket 1024) | n/a | ✓ | ✓ | ✓ | via FFI |
-| Tor (arti) routing for remote LWD traffic, default ON | n/a | ✓ (embedded arti) | socks5 route via bootstrap `use_tor` | socks5 route via bootstrap `use_tor` | ✓ (`use_tor` pref, default true) |
+| Network privacy | n/a | Tor pref defaults on | Nym by default; Tor is in-process Arti | Nym by default; Tor is in-process Arti | Tor pref defaults on |
 
-Malformed UnifOMR clues are rejected at validation. With strict UniFOMR (the default), an empty digest does not trial-decrypt the window. Android can turn strict mode off in settings for payments that carry no clue.
+Malformed UnifOMR clues are rejected at validation. The wallet default is padded trial decryption. When experimental UnifOMR is on, an empty digest does not fall back to trial decrypt.
 
 **Round-2 privacy invariant:** the server may learn the padded digest window,
 but never which heights matched. Matched blocks are fetched via batch PIR; on
@@ -112,8 +114,7 @@ decrypt ranges that are not the OMR match set.
 
 **Wire compatibility note:** the ℓ-bit digest layout, v2 ownership proofs, and
 the `key_version` proto field are lockstep changes — server and clients must be
-deployed from the same revision (pre-adversarial-deployment; no live wire
-compatibility is claimed with earlier dev builds).
+deployed from the same revision. Testnet wallets ship this layout with proto 2.1.0.
 
 ## TLS for funded / remote e2e
 
