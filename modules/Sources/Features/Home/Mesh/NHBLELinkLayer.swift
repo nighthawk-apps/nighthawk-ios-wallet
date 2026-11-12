@@ -56,6 +56,12 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
     private var keepAlive = true
     private var lastReconnect: [UUID: Date] = [:]
     private var hasCharacteristic: Set<UUID> = []
+    private var linkMeta: [UUID: NHBLERedundantLinkPolicy.Link] = [:]
+    private var mostRecentBind: [String: String] = [:]
+    private var lastTraffic = Date.distantPast
+    private var lastConnectAttempt = Date.distantPast
+    private var appIsActive = true
+    private var dutyTimer: DispatchSourceTimer?
 
     private override init() {
         super.init()
@@ -91,6 +97,10 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
             self.attToMesh.removeAll()
             self.meshToAtt.removeAll()
             self.hasCharacteristic.removeAll()
+            self.linkMeta.removeAll()
+            self.mostRecentBind.removeAll()
+            self.dutyTimer?.cancel()
+            self.dutyTimer = nil
             self.lastReconnect.removeAll()
             self.peerCount = 0
             self.central = nil
@@ -109,10 +119,13 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
         bleQueue.async { [weak self] in
             guard let self, self.isRunning else { return }
             self.keepAlive = foreground || alwaysOn
+            self.appIsActive = foreground
             if self.keepAlive {
-                self.startScanLocked()
+                self.refreshScanDuty()
                 self.startAdvertisingLocked()
             } else {
+                self.dutyTimer?.cancel()
+                self.dutyTimer = nil
                 self.central?.stopScan()
                 self.peripheral?.stopAdvertising()
             }
@@ -123,7 +136,8 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
         bleQueue.async { [weak self] in
             guard let self, self.isRunning else { return }
             self.keepAlive = true
-            self.startScanLocked()
+            self.appIsActive = true
+            self.refreshScanDuty()
             self.startAdvertisingLocked()
             self.rediscoverRestoredLocked()
         }
@@ -202,12 +216,18 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
         attToMesh.removeAll()
         meshToAtt.removeAll()
         hasCharacteristic.removeAll()
+        linkMeta.removeAll()
+        mostRecentBind.removeAll()
         peerCount = 0
     }
 
     private func ingest(_ id: UUID, chunk: Data) {
         let asm = assemblers[id] ?? AttFrameAssembler()
         assemblers[id] = asm
+        lastTraffic = Date()
+        if dutyTimer != nil {
+            refreshScanDuty()
+        }
         let frames = asm.ingest(chunk)
         if !frames.isEmpty {
             DispatchQueue.global(qos: .utility).async { [weak self] in
@@ -225,8 +245,70 @@ public final class NHBLELinkLayer: NSObject, @unchecked Sendable {
 
     private func rememberMesh(att: UUID, mesh: Data) {
         guard mesh.count == 8 else { return }
+        let hex = meshHex(mesh)
         attToMesh[att] = mesh
-        meshToAtt[meshHex(mesh)] = att
+        meshToAtt[hex] = att
+        mostRecentBind[hex] = att.uuidString
+        var link = linkMeta[att] ?? NHBLERedundantLinkPolicy.Link(
+            uuid: att.uuidString,
+            peerID: hex,
+            isConnected: peripherals[att]?.state == .connected,
+            hasCharacteristic: hasCharacteristic.contains(att)
+        )
+        link.peerID = hex
+        linkMeta[att] = link
+        retireStaleRadios(peerHex: hex, ingress: att.uuidString)
+    }
+
+    private func retireStaleRadios(peerHex: String, ingress: String?) {
+        let links = Array(linkMeta.values)
+        guard let kept = NHBLERedundantLinkPolicy.keptUUID(
+            ingressUUID: ingress,
+            mostRecentlyBoundUUID: mostRecentBind[peerHex],
+            links: links,
+            peerID: peerHex
+        ) else { return }
+        for raw in NHBLERedundantLinkPolicy.uuidsToRetire(links: links, peerID: peerHex, keeping: kept) {
+            guard let uuid = UUID(uuidString: raw), let peri = peripherals[uuid] else { continue }
+            central?.cancelPeripheralConnection(peri)
+        }
+    }
+
+    private func refreshScanDuty() {
+        guard isRunning, keepAlive, let central, central.state == .poweredOn else { return }
+        let connected = linkMeta.values.filter(\.isConnected).count
+        let recent = Date().timeIntervalSince(lastTraffic) < 15
+        let plan = NHBLEScanDutyPolicy.plan(
+            dutyEnabled: true,
+            appIsActive: appIsActive,
+            connectedCount: connected,
+            hasRecentTraffic: recent
+        )
+        switch plan {
+        case .continuous:
+            dutyTimer?.cancel()
+            dutyTimer = nil
+            startScanLocked()
+        case let .dutyCycle(onDuration, offDuration):
+            scheduleDuty(onDuration: onDuration, offDuration: offDuration)
+        }
+    }
+
+    private func scheduleDuty(onDuration: TimeInterval, offDuration: TimeInterval) {
+        dutyTimer?.cancel()
+        startScanLocked()
+        let timer = DispatchSource.makeTimerSource(queue: bleQueue)
+        timer.schedule(deadline: .now() + onDuration, repeating: onDuration + offDuration)
+        timer.setEventHandler { [weak self] in
+            guard let self, self.isRunning, self.keepAlive else { return }
+            self.central?.stopScan()
+            self.bleQueue.asyncAfter(deadline: .now() + offDuration) { [weak self] in
+                guard let self, self.isRunning, self.keepAlive, self.dutyTimer != nil else { return }
+                self.startScanLocked()
+            }
+        }
+        dutyTimer = timer
+        timer.resume()
     }
 
     private func meshHex(_ id: Data) -> String {
@@ -272,7 +354,7 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
         switch central.state {
         case .poweredOn:
             if isRunning {
-                startScanLocked()
+                refreshScanDuty()
                 rediscoverRestoredLocked()
             }
         case .poweredOff, .unauthorized, .unsupported:
@@ -294,7 +376,7 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
         }
         peerCount = peripherals.count + centrals.count
         if central.state == .poweredOn, isRunning {
-            startScanLocked()
+            refreshScanDuty()
             rediscoverRestoredLocked()
         }
     }
@@ -308,18 +390,43 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
         let uuids = (advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]) ?? []
         guard NHBLELinkPolicy.shouldConnect(advertised: uuids) else { return }
         guard peripherals[peripheral.identifier] == nil else { return }
+        let connectedCount = linkMeta.values.filter(\.isConnected).count
+        guard NHBLEScanDutyPolicy.shouldConnect(rssi: RSSI.intValue, connectedCount: connectedCount) else { return }
         guard peripherals.count < NHBLELinkPolicy.maxConnections else { return }
+        let now = Date()
+        guard now.timeIntervalSince(lastConnectAttempt) >= NHBLEScanDutyPolicy.connectRateLimit else { return }
+        lastConnectAttempt = now
         if let svcData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data],
            let hint = svcData[NHBLELinkPolicy.serviceUUID], hint.count == 8 {
             rememberMesh(att: peripheral.identifier, mesh: hint)
         }
         peripheral.delegate = self
         peripherals[peripheral.identifier] = peripheral
+        linkMeta[peripheral.identifier] = NHBLERedundantLinkPolicy.Link(
+            uuid: peripheral.identifier.uuidString,
+            peerID: attToMesh[peripheral.identifier].map(meshHex),
+            isConnected: false,
+            hasCharacteristic: false
+        )
         peerCount = peripherals.count + centrals.count
         central.connect(peripheral, options: nil)
     }
 
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        var link = linkMeta[peripheral.identifier] ?? NHBLERedundantLinkPolicy.Link(
+            uuid: peripheral.identifier.uuidString,
+            peerID: attToMesh[peripheral.identifier].map(meshHex),
+            isConnected: true,
+            hasCharacteristic: hasCharacteristic.contains(peripheral.identifier),
+            lastConnectedAt: Date()
+        )
+        link.isConnected = true
+        link.lastConnectedAt = Date()
+        linkMeta[peripheral.identifier] = link
+        if let mesh = attToMesh[peripheral.identifier] {
+            retireStaleRadios(peerHex: meshHex(mesh), ingress: peripheral.identifier.uuidString)
+        }
+        refreshScanDuty()
         peripheral.discoverServices(NHBLELinkPolicy.scanServices())
     }
 
@@ -330,6 +437,7 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
     ) {
         let _ = error
         peripherals.removeValue(forKey: peripheral.identifier)
+        linkMeta.removeValue(forKey: peripheral.identifier)
         forgetAtt(peripheral.identifier)
         peerCount = peripherals.count + centrals.count
     }
@@ -342,6 +450,7 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
         let _ = error
         assemblers.removeValue(forKey: peripheral.identifier)
         hasCharacteristic.remove(peripheral.identifier)
+        linkMeta.removeValue(forKey: peripheral.identifier)
         forgetAtt(peripheral.identifier)
         if isRunning, keepAlive {
             reconnectIfAllowed(peripheral)
@@ -349,6 +458,7 @@ extension NHBLELinkLayer: CBCentralManagerDelegate {
             peripherals.removeValue(forKey: peripheral.identifier)
         }
         peerCount = peripherals.count + centrals.count
+        refreshScanDuty()
     }
 }
 
@@ -368,7 +478,12 @@ extension NHBLELinkLayer: CBPeripheralDelegate {
         let mtu = peripheral.maximumWriteValueLength(for: .withoutResponse)
         if mtu > 0 { writeCap = MeshAttPolicy.writePayloadCap(mtu: mtu + MeshAttPolicy.attOverhead) }
         hasCharacteristic.insert(peripheral.identifier)
+        if var link = linkMeta[peripheral.identifier] {
+            link.hasCharacteristic = true
+            linkMeta[peripheral.identifier] = link
+        }
         if let mesh = attToMesh[peripheral.identifier] {
+            retireStaleRadios(peerHex: meshHex(mesh), ingress: peripheral.identifier.uuidString)
             MeshEngineBridge.neighborUp(mesh)
             sink?.meshLinkNeedsFlush()
         }

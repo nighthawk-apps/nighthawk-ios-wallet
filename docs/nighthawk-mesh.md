@@ -36,6 +36,8 @@ Daemon: after insert, gossip Event+blob onto mesh; inbound `header_dag_insert` t
 - `NighthawkMeshController` starts the mesh engine **before** radio.
 - Ingest only Noise HS/Enc, fragment, ping/pong after DAG consider.
 - `NHBLELinkLayer`: drop characteristic `.read`; `didReceiveRead` → `.readNotPermitted`.
+- Same-role duplicates (privacy-address rotation or state restore) keep the **newest writable** central link. Consolidation waits if that newest link is still discovering its characteristic, so the fresh address is not cancelled.
+- Foreground scan stays continuous with ≤2 peers or traffic in the last 15s. Denser quiet meshes duty-cycle (5s on / 10s off, or 3s / 15s at 6+ peers). Connects are rate-limited to one every 0.5s and ignore RSSI below −90 once any peer is up.
 - Unicast by mesh-id; service-data session hint; `neighbor_up` on connect.
 - `MeshEngineBridge` uses `dlsym` for `nh_mesh_neighbor_up` / `nh_mesh_neighbor_down` / `nh_mesh_peer_id` (missing symbols on an older `.a` are OK). When those symbols are missing, Mesh settings show **mesh unavailable**.
 - CoreBluetooth restore identifier: `NHBLELinkPolicy.centralRestoreId` (`CBCentralManagerOptionRestoreIdentifierKey`). Always-on keeps scanning after restore; opportunistic radio stops when backgrounded.

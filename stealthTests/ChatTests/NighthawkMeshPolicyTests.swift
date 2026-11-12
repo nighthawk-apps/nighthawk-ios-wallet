@@ -62,21 +62,125 @@ final class NighthawkMeshPolicyTests: XCTestCase {
     }
 
     func testControllerBackgroundSlowsGcs() {
-        let c = NighthawkMeshController.shared
-        c.handleScene(.active)
-        XCTAssertEqual(c.gcsInterval, 15)
-        c.handleScene(.background)
-        XCTAssertEqual(c.gcsInterval, 60)
-        XCTAssertTrue(c.backgroundDrainRequested)
+        let controller = NighthawkMeshController.shared
+        controller.handleScene(.active)
+        XCTAssertEqual(controller.gcsInterval, 15)
+        controller.handleScene(.background)
+        XCTAssertEqual(controller.gcsInterval, 60)
+        XCTAssertTrue(controller.backgroundDrainRequested)
         XCTAssertFalse(NighthawkMeshPolicy.mayStartUnifOmrBulk(
             sceneForeground: false, gatewayReady: true
         ))
-        c.handleScene(.active)
-        XCTAssertFalse(c.backgroundDrainRequested)
+        controller.handleScene(.active)
+        XCTAssertFalse(controller.backgroundDrainRequested)
     }
 
     func testBackgroundDrainBudgetIsThirtySeconds() {
         XCTAssertEqual(NighthawkMeshPolicy.backgroundDrainBudgetSeconds, 30)
+    }
+
+    func testRedundantLinkKeepsNewestWritableRadio() {
+        let older = Date(timeIntervalSince1970: 1_000)
+        let newer = Date(timeIntervalSince1970: 2_000)
+        let links = [
+            NHBLERedundantLinkPolicy.Link(
+                uuid: "old",
+                peerID: "aa",
+                isConnected: true,
+                hasCharacteristic: true,
+                lastConnectedAt: older
+            ),
+            NHBLERedundantLinkPolicy.Link(
+                uuid: "new",
+                peerID: "aa",
+                isConnected: true,
+                hasCharacteristic: true,
+                lastConnectedAt: newer
+            )
+        ]
+        XCTAssertEqual(
+            NHBLERedundantLinkPolicy.keptUUID(
+                ingressUUID: "old",
+                mostRecentlyBoundUUID: "old",
+                links: links,
+                peerID: "aa"
+            ),
+            "new"
+        )
+        XCTAssertEqual(
+            NHBLERedundantLinkPolicy.uuidsToRetire(links: links, peerID: "aa", keeping: "new"),
+            ["old"]
+        )
+    }
+
+    func testRedundantLinkDefersWhileNewestIsDiscovering() {
+        let older = Date(timeIntervalSince1970: 1_000)
+        let newer = Date(timeIntervalSince1970: 2_000)
+        let links = [
+            NHBLERedundantLinkPolicy.Link(
+                uuid: "old",
+                peerID: "aa",
+                isConnected: true,
+                hasCharacteristic: true,
+                lastConnectedAt: older
+            ),
+            NHBLERedundantLinkPolicy.Link(
+                uuid: "new",
+                peerID: "aa",
+                isConnected: true,
+                hasCharacteristic: false,
+                lastConnectedAt: newer
+            )
+        ]
+        XCTAssertNil(
+            NHBLERedundantLinkPolicy.keptUUID(
+                ingressUUID: nil,
+                mostRecentlyBoundUUID: "new",
+                links: links,
+                peerID: "aa"
+            )
+        )
+    }
+
+    func testScanDutyMatchesDenseQuietMesh() {
+        XCTAssertEqual(
+            NHBLEScanDutyPolicy.plan(
+                dutyEnabled: true,
+                appIsActive: true,
+                connectedCount: 2,
+                hasRecentTraffic: false
+            ),
+            .continuous
+        )
+        XCTAssertEqual(
+            NHBLEScanDutyPolicy.plan(
+                dutyEnabled: true,
+                appIsActive: true,
+                connectedCount: 4,
+                hasRecentTraffic: true
+            ),
+            .continuous
+        )
+        XCTAssertEqual(
+            NHBLEScanDutyPolicy.plan(
+                dutyEnabled: true,
+                appIsActive: true,
+                connectedCount: 4,
+                hasRecentTraffic: false
+            ),
+            .dutyCycle(onDuration: 5, offDuration: 10)
+        )
+        XCTAssertEqual(
+            NHBLEScanDutyPolicy.plan(
+                dutyEnabled: true,
+                appIsActive: true,
+                connectedCount: 6,
+                hasRecentTraffic: false
+            ),
+            .dutyCycle(onDuration: 3, offDuration: 15)
+        )
+        XCTAssertTrue(NHBLEScanDutyPolicy.shouldConnect(rssi: -95, connectedCount: 0))
+        XCTAssertFalse(NHBLEScanDutyPolicy.shouldConnect(rssi: -95, connectedCount: 1))
     }
 
     func testRadioUserStateMapsCoreBluetoothRawValues() {

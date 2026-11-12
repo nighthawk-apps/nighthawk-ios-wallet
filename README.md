@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.01.12 (build 16):** `#nighthawk` default chat, opens on Chat, Cyberpunk default + theme picker, wallet Request→Receive→Send, Android 3.01.x UX parity (DAO hub tab, Nym default, synced-block status). Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.01.13 (build 17):** Mesh keeps the newest writable Bluetooth link and duty-cycles scans on a quiet dense mesh. Includes 3.01.12 chat, theme, and wallet parity. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
