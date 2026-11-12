@@ -39,18 +39,18 @@ public enum MeshRadioScenario {
 
     public static func runThreePhoneScript() -> [String] {
         var log: [String] = []
-        var a = Phone(id: "a")
-        var r = Phone(id: "r")
-        var g = Phone(id: "g")
-        let idA = Data(repeating: 0x0A, count: 8)
-        r.peers.formUnion(["a", "g"])
-        a.peers.insert("r")
-        g.peers.insert("r")
+        var alice = Phone(id: "a")
+        var relay = Phone(id: "r")
+        var gateway = Phone(id: "g")
+        let idAlice = Data(repeating: 0x0A, count: 8)
+        relay.peers.formUnion(["a", "g"])
+        alice.peers.insert("r")
+        gateway.peers.insert("r")
         log.append("connect a-r-g")
 
-        let chat = chatFrame(from: idA, body: "#dev ping")
-        precondition(deliver(from: a, to: &r, frame: chat))
-        precondition(deliver(from: r, to: &g, frame: chat))
+        let chat = chatFrame(from: idAlice, body: "#dev ping")
+        precondition(deliver(from: alice, to: &relay, frame: chat))
+        precondition(deliver(from: relay, to: &gateway, frame: chat))
         log.append("chat")
 
         let sync = MeshWireCodec.encode(MeshWirePacket(
@@ -58,26 +58,26 @@ public enum MeshRadioScenario {
             ttl: 7,
             flags: 0,
             timestampMs: 0,
-            sender: idA,
+            sender: idAlice,
             recipient: nil,
             payload: Data([0x01, 0, 0, 0, 1, 0, 0])
         ))!
-        precondition(deliver(from: a, to: &r, frame: sync))
-        precondition(deliver(from: r, to: &g, frame: sync))
+        precondition(deliver(from: alice, to: &relay, frame: sync))
+        precondition(deliver(from: relay, to: &gateway, frame: sync))
         log.append("dag-sync")
 
-        r.meshOn = false
-        precondition(!deliver(from: a, to: &r, frame: chatFrame(from: idA, body: "lost")))
+        relay.meshOn = false
+        precondition(!deliver(from: alice, to: &relay, frame: chatFrame(from: idAlice, body: "lost")))
         log.append("lost")
 
-        r.meshOn = true
-        r.peers = ["a", "g"]
-        precondition(deliver(from: a, to: &r, frame: chatFrame(from: idA, body: "rejoin")))
+        relay.meshOn = true
+        relay.peers = ["a", "g"]
+        precondition(deliver(from: alice, to: &relay, frame: chatFrame(from: idAlice, body: "rejoin")))
         log.append("reconnect")
 
-        r.peers = ["a", "g"]
-        let idG = Data(repeating: 0x0C, count: 8)
-        precondition(deliver(from: g, to: &r, frame: chatFrame(from: idG, body: "after-reset")))
+        relay.peers = ["a", "g"]
+        let idGateway = Data(repeating: 0x0C, count: 8)
+        precondition(deliver(from: gateway, to: &relay, frame: chatFrame(from: idGateway, body: "after-reset")))
         log.append("reset")
         return log
     }

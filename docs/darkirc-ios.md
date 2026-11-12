@@ -101,7 +101,7 @@ Because the daemon reports `running` (and the UI flips to "Connected (Tor)") onl
 The darkirc daemon uses upstream defaults for P2P seeds:
 
 - **Clearnet (`tcp+tls`)**: `lilith0.dark.fi:25551`, `lilith1.dark.fi:25551`
-- **Default channels**: `#dev`, `#random`, `#lunardao` (matching upstream `autojoin`)
+- **Default channels**: `#nighthawk` first (selected by default), then upstream `autojoin` through `#lunardao`
 - **Datastore**: `{app_support}/darkirc/` — EventGraph state, P2P identity
 
 ## DM (E2E encrypted direct messages)

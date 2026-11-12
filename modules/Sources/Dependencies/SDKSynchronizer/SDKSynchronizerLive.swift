@@ -153,16 +153,23 @@ private final class WalletHandleManager: @unchecked Sendable {
         // S7: when Tor-for-wallet is on, rewrite non-loopback endpoints to
         // socks5://proxy/dest (Android TorDarkfidEndpoint parity). Arti SOCKS
         // host/port come from TorNetwork preferences.
-        let torForWallet = UserPreferencesStorage.live.torForWalletEnabled
+        let privacy = UserPreferencesStorage.live.privacyNetwork
+        let torForWallet = privacy == .tor
+        let useNym = privacy == .nym
         let socksHost = UserPreferencesStorage.live.torSocksHost ?? TorDarkfidEndpoint.defaultSocksHost
         let socksPort = UInt16(UserPreferencesStorage.live.torSocksPort ?? "9050")
             ?? TorDarkfidEndpoint.defaultSocksPort
-        endpoint = TorDarkfidEndpoint.toConnectUrl(
-            endpoint: endpoint,
-            torEnabled: torForWallet,
-            socksHost: socksHost,
-            socksPort: socksPort
-        )
+        // TLS URLs stay intact so cert pinning runs. Rust installs the Nym or
+        // Tor SOCKS proxy when useNym / useTor is set (Android parity).
+        if torForWallet && !endpoint.lowercased().hasPrefix("https://")
+            && !endpoint.lowercased().hasPrefix("tcp+tls://") {
+            endpoint = TorDarkfidEndpoint.toConnectUrl(
+                endpoint: endpoint,
+                torEnabled: true,
+                socksHost: socksHost,
+                socksPort: socksPort
+            )
+        }
 
         // Scheme-driven network: stealth-mainnet vs stealth-testnet compilation flags.
         #if STEALTH_MAINNET
@@ -195,6 +202,8 @@ private final class WalletHandleManager: @unchecked Sendable {
             lightwalletTlsPinSha256: LightwalletTlsPin.pinDataOrNil().map { [UInt8]($0) },
             useTor: torForWallet,
             torSocksPort: socksPort,
+            useNym: useNym,
+            nymSocksPort: UInt16(UserPreferencesStorage.live.nymSocksPort),
             darkfidRpcUrl: nil, // LWD-only; never hardcode a darkfid testnet port
             strictOmrOnly: UserPreferencesStorage.live.strictOmrOnly
         )
@@ -341,6 +350,7 @@ extension SDKSynchronizerClient: DependencyKey {
                         activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                         fallbackReason: String(describing: lightState.fallbackReason),
                         fallbackUserMessage: lightState.fallbackUserMessage,
+                        lightStatusMessage: lightState.statusMessage,
                         protoVersionMismatch: lightState.protoVersionMismatch
                     ))
                 } catch {
@@ -378,6 +388,7 @@ extension SDKSynchronizerClient: DependencyKey {
                         activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                         fallbackReason: String(describing: lightState.fallbackReason),
                         fallbackUserMessage: lightState.fallbackUserMessage,
+                        lightStatusMessage: lightState.statusMessage,
                         protoVersionMismatch: lightState.protoVersionMismatch
                     ))
                 }

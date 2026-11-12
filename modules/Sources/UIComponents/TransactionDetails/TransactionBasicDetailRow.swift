@@ -59,7 +59,7 @@ public struct TransactionBasicDetailRow: View {
                     if showBorder {
                         Divider()
                             .frame(height: 1)
-                            .overlay(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .overlay(CyberpunkPalette.muted)
                     }
                 }
             }

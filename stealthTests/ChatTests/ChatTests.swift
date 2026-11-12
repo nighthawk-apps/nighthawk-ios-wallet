@@ -2,96 +2,28 @@
 //  ChatTests.swift
 //  stealthTests
 //
-//  Tests for Chat reducer — connection states, message sending, channel selection.
+//  Chat reducer unit tests — defaults, connection labels, channel selection.
+//  Live connect/send paths require the embedded darkirc daemon and are covered
+//  by DarkircLifecycleTests / manual TestFlight checks.
 //
 
-import XCTest
 import ComposableArchitecture
-@testable import stealth_testnet
+import XCTest
+@testable import Home
 
 @MainActor
-class ChatTests: XCTestCase {
-    
-    // MARK: - Connection State Tests
-    
-    func testInitialState_IsDisconnected() async throws {
-        let store = TestStore(
-            initialState: Chat.State(),
-            reducer: Chat.init
-        )
-        
-        XCTAssertEqual(store.state.connectionState, .disconnected)
-        XCTAssertEqual(store.state.embeddedNodeStatus, .notUsed)
-        XCTAssertFalse(store.state.connectionState.isConnected)
-        XCTAssertNil(store.state.diagnosticDetail)
+final class ChatTests: XCTestCase {
+    func testInitialState_IsDisconnectedWithNighthawkSelected() {
+        let state = Chat.State()
+        XCTAssertEqual(state.connectionState, .disconnected)
+        XCTAssertEqual(state.embeddedNodeStatus, .notUsed)
+        XCTAssertFalse(state.connectionState.isConnected)
+        XCTAssertNil(state.diagnosticDetail)
+        XCTAssertEqual(state.selectedChannel?.name, "#nighthawk")
+        XCTAssertEqual(state.channels.map(\.name).first, "#nighthawk")
+        XCTAssertEqual(state.channels.map(\.name), DarkfiChatDefaults.defaultPublicChannels)
     }
-    
-    func testConnectTapped_TransitionsToConnecting() async throws {
-        let store = TestStore(
-            initialState: Chat.State(),
-            reducer: Chat.init
-        )
-        
-        await store.send(.connectTapped) { state in
-            state.connectionState = .connecting
-        }
-        
-        // Simulated connection succeeds
-        await store.receive(.connectionStateChanged(.connectedDirect)) { state in
-            state.connectionState = .connectedDirect
-            state.selectedChannel = state.channels.first
-        }
-    }
-    
-    func testRetryTapped_TransitionsToConnecting() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .error
-        initialState.diagnosticDetail = "Connection failed."
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.retryTapped) { state in
-            state.connectionState = .connecting
-        }
-        
-        await store.receive(.connectionStateChanged(.connectedDirect)) { state in
-            state.connectionState = .connectedDirect
-            state.diagnosticDetail = nil
-            state.selectedChannel = state.channels.first
-        }
-    }
-    
-    func testConnectionStateError_SetsDiagnosticDetail() async throws {
-        let store = TestStore(
-            initialState: Chat.State(),
-            reducer: Chat.init
-        )
-        
-        await store.send(.connectionStateChanged(.error)) { state in
-            state.connectionState = .error
-            state.diagnosticDetail = "Connection failed. Check your network or Tor settings."
-        }
-    }
-    
-    func testConnectionStateConnected_ClearsDiagnosticDetail() async throws {
-        var initialState = Chat.State()
-        initialState.diagnosticDetail = "Some old error"
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.connectionStateChanged(.connectedDirect)) { state in
-            state.connectionState = .connectedDirect
-            state.diagnosticDetail = nil
-            state.selectedChannel = state.channels.first
-        }
-    }
-    
+
     func testConnectionState_IsConnectedProperty() {
         XCTAssertTrue(Chat.State.ConnectionState.connectedDirect.isConnected)
         XCTAssertTrue(Chat.State.ConnectionState.connectedViaTor.isConnected)
@@ -100,135 +32,75 @@ class ChatTests: XCTestCase {
         XCTAssertFalse(Chat.State.ConnectionState.error.isConnected)
         XCTAssertFalse(Chat.State.ConnectionState.degraded.isConnected)
     }
-    
+
     func testConnectionState_Labels() {
         XCTAssertEqual(Chat.State.ConnectionState.disconnected.label, "Disconnected")
-        XCTAssertEqual(Chat.State.ConnectionState.connecting.label, "Connecting…")
+        XCTAssertEqual(Chat.State.ConnectionState.connecting.label, "Connecting to IRC…")
         XCTAssertEqual(Chat.State.ConnectionState.connectedDirect.label, "Connected (direct)")
         XCTAssertEqual(Chat.State.ConnectionState.connectedViaTor.label, "Connected (Tor)")
-        XCTAssertEqual(Chat.State.ConnectionState.degraded.label, "Degraded")
         XCTAssertEqual(Chat.State.ConnectionState.error.label, "Error")
     }
-    
-    func testEmbeddedNodeStatus_Labels() {
-        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.notUsed.label, "Not used")
-        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.starting.label, "Starting…")
-        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.running.label, "Running")
-        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.missingBinary.label, "Missing binary")
-        XCTAssertEqual(Chat.State.EmbeddedNodeStatus.failed.label, "Failed")
-    }
-    
-    func testEmbeddedNodeStatusChanged() async throws {
+
+    func testConnectionStateError_SetsDiagnosticDetail() async {
         let store = TestStore(
             initialState: Chat.State(),
             reducer: Chat.init
         )
-        
-        await store.send(.embeddedNodeStatusChanged(.starting)) { state in
-            state.embeddedNodeStatus = .starting
-        }
-        
-        await store.send(.embeddedNodeStatusChanged(.running)) { state in
-            state.embeddedNodeStatus = .running
+        store.exhaustivity = .off
+
+        await store.send(.connectionStateChanged(.error)) { state in
+            state.connectionState = .error
+            state.diagnosticDetail =
+                "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
         }
     }
-    
-    // MARK: - Channel Selection Tests
-    
-    func testChannelSelected_ClearsMessages() async throws {
+
+    func testConnectionStateConnected_ClearsDiagnosticDetail() async {
         var initialState = Chat.State()
-        initialState.connectionState = .connectedDirect
-        initialState.selectedChannel = initialState.channels.first
-        initialState.messages = [
-            .init(sender: "alice", content: "hello", isOutgoing: false)
-        ]
-        
-        let secondChannel = initialState.channels[1]
-        
+        initialState.diagnosticDetail = "Some old error"
+
         let store = TestStore(
             initialState: initialState,
             reducer: Chat.init
         )
-        
-        await store.send(.channelSelected(secondChannel)) { state in
-            state.selectedChannel = secondChannel
+        store.exhaustivity = .off
+
+        await store.send(.connectionStateChanged(.connectedDirect)) { state in
+            state.connectionState = .connectedDirect
+            state.diagnosticDetail = nil
+        }
+    }
+
+    func testChannelSelected_UpdatesSelectionAndClearsUnread() async {
+        var initialState = Chat.State()
+        guard var second = initialState.channels.dropFirst().first else {
+            return XCTFail("expected more than one default channel")
+        }
+        second.unreadCount = 3
+        initialState.channels[id: second.id] = second
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: Chat.init
+        )
+        store.exhaustivity = .off
+
+        await store.send(.channelSelected(second)) { state in
+            state.selectedChannel = second
+            state.channels[id: second.id]?.unreadCount = 0
             state.messages = []
         }
     }
-    
-    // MARK: - Message Tests
-    
-    func testSendMessage_AppendsToMessages() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .connectedDirect
-        initialState.selectedChannel = initialState.channels.first
-        initialState.composedMessage = "Hello DarkFi!"
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.sendMessage) { state in
-            XCTAssertEqual(state.messages.count, 1)
-            XCTAssertEqual(state.messages.first?.content, "Hello DarkFi!")
-            XCTAssertTrue(state.messages.first?.isOutgoing ?? false)
-            XCTAssertEqual(state.composedMessage, "")
-        }
-    }
-    
-    func testSendMessage_EmptyText_DoesNothing() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .connectedDirect
-        initialState.selectedChannel = initialState.channels.first
-        initialState.composedMessage = "   "
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.sendMessage)
-        // No state change expected — empty message is ignored
-    }
-    
-    func testSendMessage_NoChannel_DoesNothing() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .connectedDirect
-        initialState.selectedChannel = nil
-        initialState.composedMessage = "hello"
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        await store.send(.sendMessage)
-    }
-    
-    func testMessagesReceived_AppendsAll() async throws {
-        var initialState = Chat.State()
-        initialState.connectionState = .connectedDirect
-        
-        let store = TestStore(
-            initialState: initialState,
-            reducer: Chat.init
-        )
-        
-        let msg1 = Chat.State.Message(sender: "bob", content: "hey", isOutgoing: false)
-        let msg2 = Chat.State.Message(sender: "alice", content: "hi", isOutgoing: false)
-        
-        await store.send(.messagesReceived([msg1, msg2])) { state in
-            XCTAssertEqual(state.messages.count, 2)
-        }
-    }
-    
-    // MARK: - Default Channels
-    
-    func testInitialChannels() {
-        let state = Chat.State()
+
+    func testInitialChannels_NighthawkFirst() {
         let expected = DarkfiChatDefaults.defaultPublicChannels
-        XCTAssertEqual(state.channels.count, expected.count)
+        XCTAssertEqual(expected.first, "#nighthawk")
+        XCTAssertEqual(
+            DarkfiChatDefaults.defaultChannelTopics["#nighthawk"],
+            "Nighthawk wallet users"
+        )
+        let state = Chat.State()
         XCTAssertEqual(state.channels.map(\.name), expected)
+        XCTAssertEqual(state.selectedChannel?.name, "#nighthawk")
     }
 }

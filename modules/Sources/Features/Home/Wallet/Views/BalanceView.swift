@@ -5,6 +5,7 @@
 
 import Generated
 import SwiftUI
+import UIComponents
 import Utils
 
 public struct BalanceView: View {
@@ -43,7 +44,7 @@ public struct BalanceView: View {
             if !isBalanceHidden {
                 VStack {
                     Text(
-                        "\(balance.decimalString()) \(Text(tokenName).foregroundColor(Asset.Colors.Nighthawk.peach.color))"
+                        "\(balance.decimalString()) \(Text(tokenName).foregroundColor(CyberpunkPalette.primary))"
                     )
                 }
                 .foregroundColor(.white)
@@ -76,6 +77,6 @@ private extension BalanceView {
         }
 
         return Text(balanceString)
-            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .caption(color: CyberpunkPalette.muted)
     }
 }

@@ -1125,6 +1125,12 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
     public var useTor: Bool
     public var torSocksPort: UInt16
     /**
+     * Route remote lightwalletd through the in-process Nym mixnet proxy.
+     * Takes precedence over `use_tor`. Default on, matching Android.
+     */
+    public var useNym: Bool
+    public var nymSocksPort: UInt16
+    /**
      * Optional darkfid JSON-RPC URL for broadcast fallback only.
      * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
      */
@@ -1140,6 +1146,10 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
         /**
          * Optional SHA-256 of lightwalletd leaf cert DER (32 bytes). Required for remote HTTPS.
          */lightwalletTlsPinSha256: [UInt8]?, useTor: Bool, torSocksPort: UInt16, 
+        /**
+         * Route remote lightwalletd through the in-process Nym mixnet proxy.
+         * Takes precedence over `use_tor`. Default on, matching Android.
+         */useNym: Bool = true, nymSocksPort: UInt16 = UInt16(1080), 
         /**
          * Optional darkfid JSON-RPC URL for broadcast fallback only.
          * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
@@ -1157,6 +1167,8 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
         self.lightwalletTlsPinSha256 = lightwalletTlsPinSha256
         self.useTor = useTor
         self.torSocksPort = torSocksPort
+        self.useNym = useNym
+        self.nymSocksPort = nymSocksPort
         self.darkfidRpcUrl = darkfidRpcUrl
         self.strictOmrOnly = strictOmrOnly
     }
@@ -1187,6 +1199,8 @@ public struct FfiConverterTypeDrkBootstrapConfig: FfiConverterRustBuffer {
                 lightwalletTlsPinSha256: FfiConverterOptionSequenceUInt8.read(from: &buf), 
                 useTor: FfiConverterBool.read(from: &buf), 
                 torSocksPort: FfiConverterUInt16.read(from: &buf), 
+                useNym: FfiConverterBool.read(from: &buf), 
+                nymSocksPort: FfiConverterUInt16.read(from: &buf), 
                 darkfidRpcUrl: FfiConverterOptionString.read(from: &buf), 
                 strictOmrOnly: FfiConverterBool.read(from: &buf)
         )
@@ -1203,6 +1217,8 @@ public struct FfiConverterTypeDrkBootstrapConfig: FfiConverterRustBuffer {
         FfiConverterOptionSequenceUInt8.write(value.lightwalletTlsPinSha256, into: &buf)
         FfiConverterBool.write(value.useTor, into: &buf)
         FfiConverterUInt16.write(value.torSocksPort, into: &buf)
+        FfiConverterBool.write(value.useNym, into: &buf)
+        FfiConverterUInt16.write(value.nymSocksPort, into: &buf)
         FfiConverterOptionString.write(value.darkfidRpcUrl, into: &buf)
         FfiConverterBool.write(value.strictOmrOnly, into: &buf)
     }
@@ -2842,6 +2858,20 @@ public func isArtiRunning() -> Bool  {
     )
 })
 }
+public func isNymRunning() -> Bool  {
+    return try!  FfiConverterBool.lift(try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_is_nym_running(uniffiCallStatus
+    )
+})
+}
+public func nymStatus() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_nym_status(uniffiCallStatus
+    )
+})
+}
 public func sendChatMessage(channel: String, nick: String, message: String)throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
         uniffiCallStatus in
     uniffi_darkfi_mobile_ffi_fn_func_send_chat_message(
@@ -2859,15 +2889,25 @@ public func startArtiProxy(socksListen: String)throws  -> Bool  {
     )
 })
 }
-public func startDarkirc(datastorePath: String, useTor: Bool, torSocksPort: UInt16, callback: DarkircEventCallback?)throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+public func startDarkirc(datastorePath: String, useTor: Bool, torSocksPort: UInt16, useNym: Bool, nymSocksPort: UInt16, callback: DarkircEventCallback?)throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
         uniffiCallStatus in
     uniffi_darkfi_mobile_ffi_fn_func_start_darkirc(
         FfiConverterString.lower(datastorePath),
         FfiConverterBool.lower(useTor),
         FfiConverterUInt16.lower(torSocksPort),
+        FfiConverterBool.lower(useNym),
+        FfiConverterUInt16.lower(nymSocksPort),
         FfiConverterOptionCallbackInterfaceDarkircEventCallback.lower(callback),uniffiCallStatus
     )
 }
+}
+public func startNymProxy(socksListen: String)throws  -> Bool  {
+    return try  FfiConverterBool.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_start_nym_proxy(
+        FfiConverterString.lower(socksListen),uniffiCallStatus
+    )
+})
 }
 public func stopArtiProxy()  {try! rustCall() {
         uniffiCallStatus in
@@ -2878,6 +2918,12 @@ public func stopArtiProxy()  {try! rustCall() {
 public func stopDarkirc()throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
         uniffiCallStatus in
     uniffi_darkfi_mobile_ffi_fn_func_stop_darkirc(uniffiCallStatus
+    )
+}
+}
+public func stopNymProxy()  {try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_stop_nym_proxy(uniffiCallStatus
     )
 }
 }
@@ -2941,19 +2987,31 @@ private let initializationResult: InitializationResult = {
     if (uniffi_darkfi_mobile_ffi_checksum_func_is_arti_running() != 33624) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_is_nym_running() != 15495) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_nym_status() != 41601) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_darkfi_mobile_ffi_checksum_func_send_chat_message() != 4769) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_start_arti_proxy() != 48169) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_darkfi_mobile_ffi_checksum_func_start_darkirc() != 62586) {
+    if (uniffi_darkfi_mobile_ffi_checksum_func_start_darkirc() != 33220) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_start_nym_proxy() != 34512) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_stop_arti_proxy() != 38081) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_stop_darkirc() != 44306) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_stop_nym_proxy() != 27552) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_validate_darkfi_mnemonic() != 33875) {

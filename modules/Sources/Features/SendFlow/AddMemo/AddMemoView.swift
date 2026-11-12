@@ -30,7 +30,7 @@ public struct AddMemoView: View {
             NighthawkTextEditor(
                 placeholder: L10n.Nighthawk.TransferTab.AddMemo.writeSomething,
                 text: $store.memo,
-                foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color
+                foregroundColor: CyberpunkPalette.muted
             )
             .frame(width: nil, height: 120, alignment: .center)
             .padding(.horizontal, 24)
@@ -40,7 +40,7 @@ public struct AddMemoView: View {
                 Spacer()
                 Text("\(store.memo.utf8.count) / \(store.memoCharLimit)")
                     .caption()
-                    .foregroundColor(store.memo.utf8.count >= store.memoCharLimit ? .red : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                    .foregroundColor(store.memo.utf8.count >= store.memoCharLimit ? .red : CyberpunkPalette.muted.opacity(0.6))
             }
             .padding(.horizontal, 28)
             .padding(.top, 2)

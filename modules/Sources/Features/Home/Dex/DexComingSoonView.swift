@@ -21,7 +21,7 @@ struct DexComingSoonView: View {
             .padding(.horizontal, 25)
 
             Text(L10n.Nighthawk.DexTab.comingSoon)
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .foregroundColor(CyberpunkPalette.primary)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 18))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 25)

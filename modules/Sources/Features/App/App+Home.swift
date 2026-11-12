@@ -19,9 +19,6 @@ extension AppReducer {
                         state.unifiedAddress = unifiedAddress
                     }
                     return .none
-                case .openDaoHub:
-                    state.path.append(.daoHub(.init()))
-                    return .none
                 }
             case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
                 return .none

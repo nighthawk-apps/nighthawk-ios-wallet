@@ -52,7 +52,7 @@ private extension TorNetworkView {
         VStack(alignment: .leading, spacing: 8) {
             Text("Tor is on by default for wallet sync and DarkIRC (embedded Arti SOCKS at 127.0.0.1:9050). Turn it off only for local clearnet testing. You can use built-in Arti or an external SOCKS proxy.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal)
@@ -69,7 +69,7 @@ private extension TorNetworkView {
 
             Text("Routes wallet HTTPS, embedded darkfid/darkirc P2P (onion seeds), and remote IRC hosts through SOCKS. Loopback embedded DarkIRC IRC stays direct.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer().frame(height: 8)
@@ -99,11 +99,11 @@ private extension TorNetworkView {
 
                     Text(store.artiStatus.rawValue)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
 
                     if store.artiStatus == .bootstrapping {
                         ProgressView(value: store.artiBootstrapProgress)
-                            .tint(Asset.Colors.Nighthawk.peach.color)
+                            .tint(CyberpunkPalette.primary)
                             .frame(width: 60)
                     }
                 }
@@ -131,7 +131,7 @@ private extension TorNetworkView {
 
             Text("Runs Arti (Rust Tor) inside the app and exposes a loopback SOCKS listener. This is separate from an external Tor/SOCKS app you configure below.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer().frame(height: 8)
@@ -150,7 +150,7 @@ private extension TorNetworkView {
                 if !store.isTorEnabled {
                     Text("Enable app-wide Tor routing above to use built-in Arti.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
+                        .foregroundColor(CyberpunkPalette.muted.opacity(0.7))
                         .padding(.leading, 4)
                 }
             }
@@ -167,7 +167,7 @@ private extension TorNetworkView {
 
             Text(store.socksDescription)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer().frame(height: 8)
@@ -204,7 +204,7 @@ private extension TorNetworkView {
 
             Text("Changing built-in Tor or SOCKS restarts embedded DarkIRC when enabled so P2P/event-graph transport matches. Open Chat to verify green status lights.")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
+                .foregroundColor(CyberpunkPalette.muted.opacity(0.7))
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer().frame(height: 12)
@@ -232,7 +232,7 @@ private extension TorNetworkView {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
             Divider()
-                .overlay(Asset.Colors.Nighthawk.navy.color.opacity(0.5))
+                .overlay(CyberpunkPalette.outline)
             Spacer().frame(height: 16)
         }
         .padding(.horizontal)
@@ -247,7 +247,7 @@ private extension TorNetworkView {
             Spacer()
 
             Toggle("", isOn: isOn)
-                .tint(Asset.Colors.Nighthawk.peach.color)
+                .tint(CyberpunkPalette.primary)
                 .labelsHidden()
                 .disabled(!enabled)
         }
@@ -264,7 +264,7 @@ private extension TorNetworkView {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
 
             TextField(placeholder, text: text)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
@@ -275,12 +275,12 @@ private extension TorNetworkView {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Asset.Colors.Nighthawk.navy.color.opacity(enabled ? 1.0 : 0.5))
+                        .fill(CyberpunkPalette.surface.opacity(enabled ? 1.0 : 0.5))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .strokeBorder(
-                            Asset.Colors.Nighthawk.parmaviolet.color.opacity(enabled ? 0.3 : 0.1),
+                            CyberpunkPalette.muted.opacity(enabled ? 0.3 : 0.1),
                             lineWidth: 1
                         )
                 )

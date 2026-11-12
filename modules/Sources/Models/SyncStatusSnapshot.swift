@@ -86,9 +86,20 @@ public struct SyncStatusSnapshot: Equatable {
     /// Convenience: enrich a snapshot with the live sync method drawn from the
     /// synchronizer state (used by the home-screen indicator).
     public static func snapshotFor(state: SynchronizerState) -> SyncStatusSnapshot {
-        snapshotFor(
+        let custom: String? = {
+            let light = state.lightStatusMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !light.isEmpty { return light }
+            let fallback = state.fallbackUserMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !fallback.isEmpty { return fallback }
+            // Android `ns_sync_synced_block` when idle with a known tip.
+            if state.syncStatus == .upToDate, state.latestBlockHeight > 0 {
+                return "Synced · Block \(state.latestBlockHeight)"
+            }
+            return nil
+        }()
+        return snapshotFor(
             state: state.syncStatus,
-            lightStatusMessage: state.fallbackUserMessage.isEmpty ? nil : state.fallbackUserMessage,
+            lightStatusMessage: custom,
             lightTypeMessage: state.activeSyncMethod == .unknown ? nil : state.activeSyncMethod.displayName,
             omrAvailable: state.activeSyncMethod.isPrivateRetrieval,
             syncMethod: state.activeSyncMethod,

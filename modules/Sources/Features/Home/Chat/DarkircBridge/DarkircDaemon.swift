@@ -113,7 +113,9 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     public func start(
         callback: DarkircEventCallback? = nil,
         useTor: Bool = false,
-        torSocksPort: UInt16 = 9050
+        torSocksPort: UInt16 = 9050,
+        useNym: Bool = false,
+        nymSocksPort: UInt16 = NymBootstrap.defaultSocksPort
     ) throws {
         let currentStatus = status
         guard currentStatus != .running && currentStatus != .starting else {
@@ -124,6 +126,8 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             datastorePath: datastorePath,
             useTor: useTor,
             torSocksPort: torSocksPort,
+            useNym: useNym,
+            nymSocksPort: nymSocksPort,
             callback: callback
         )
     }
@@ -142,7 +146,9 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     public func restartForChat(
         callback: DarkircEventCallback,
         useTor: Bool,
-        torSocksPort: UInt16 = 9050
+        torSocksPort: UInt16 = 9050,
+        useNym: Bool = false,
+        nymSocksPort: UInt16 = NymBootstrap.defaultSocksPort
     ) async throws {
         stop()
         // 20 × 250ms = 5s max drain — matches Android's awaitDaemonNotRunning(5_000).
@@ -158,7 +164,17 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(250))
         }
         try Task.checkCancellation()
-        if useTor {
+        if useNym {
+            let ready = await NymBootstrap.ensureReady(socksPort: nymSocksPort)
+            try Task.checkCancellation()
+            guard ready else {
+                throw NSError(
+                    domain: "DarkircDaemon",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Nym mixnet failed to connect for chat"]
+                )
+            }
+        } else if useTor {
             let ready = await TorBootstrap.ensureReady(socksPort: torSocksPort)
             guard ready else {
                 throw NSError(
@@ -168,7 +184,13 @@ public final class DarkircDaemonManager: @unchecked Sendable {
                 )
             }
         }
-        try start(callback: callback, useTor: useTor, torSocksPort: torSocksPort)
+        try start(
+            callback: callback,
+            useTor: useTor,
+            torSocksPort: torSocksPort,
+            useNym: useNym,
+            nymSocksPort: nymSocksPort
+        )
     }
 
     // MARK: - App Lifecycle

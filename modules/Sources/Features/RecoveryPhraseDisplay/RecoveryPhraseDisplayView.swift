@@ -22,41 +22,44 @@ public struct RecoveryPhraseDisplayView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    let groups = store.phrase.toGroups(groupSizeOverride: 3)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                let groups = store.phrase.toGroups(groupSizeOverride: 3)
 
-                    NighthawkLogo(spacing: .compact, showsTitle: false)
-                        .padding(.bottom, 25)
+                // Android SeedBackup: Spacer(44.dp) — no in-app logo; wallpaper
+                // wordmark clearance only.
+                Color.clear
+                    .frame(height: NighthawkLogo.wordmarkClearance)
+                    .frame(maxWidth: .infinity)
 
-                    instructions
+                instructions
 
-                    if isCaptured {
-                        // When screen is being captured/recorded, hide the seed
-                        Text("Screen recording or screenshot detected.\nSeed phrase hidden for security.")
-                            .caption(color: Asset.Colors.Nighthawk.peach.color)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 25)
-                            .padding(.horizontal, 16)
-                    } else {
-                        SeedView(groups: groups, birthday: store.birthday)
-                            .padding(.top, 25)
-                    }
-
-                    if store.flow == .settings {
-                        actions()
-                            .padding(.top, 24)
-                    }
+                if isCaptured {
+                    Text("Screen recording or screenshot detected.\nSeed phrase hidden for security.")
+                        .caption(color: CyberpunkPalette.primary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 25)
+                        .padding(.horizontal, 16)
+                } else {
+                    SeedView(groups: groups, birthday: store.birthday)
+                        .padding(.top, 25)
                 }
-                .padding(.horizontal, 25)
-                .padding(.top, 22)
-                .padding(.bottom, 24)
-            }
 
-            if store.flow == .onboarding {
-                onboardingFooter
+                if store.flow == .settings {
+                    actions()
+                        .padding(.top, 24)
+                } else {
+                    // Checkbox + Continue live in the scroll (Android SeedBackup
+                    // parity). A sticky navy footer made the checkbox hard to
+                    // hit in the simulator and left Continue looking permanently
+                    // disabled.
+                    onboardingConfirmAndContinue
+                        .padding(.top, 24)
+                }
             }
+            .padding(.horizontal, 25)
+            .padding(.top, 22)
+            .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { store.send(.onAppear) }
@@ -64,10 +67,7 @@ public struct RecoveryPhraseDisplayView: View {
             isCaptured = ScreenCapture.isCaptured
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)) { _ in
-            // Screenshot already taken — we can't prevent it, but we can
-            // hide the seed going forward so repeated screenshots fail.
             isCaptured = true
-            // Re-show after a short delay so the user can continue
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 isCaptured = ScreenCapture.isCaptured
             }
@@ -88,10 +88,9 @@ public struct RecoveryPhraseDisplayView: View {
 
 // MARK: - Subviews
 private extension RecoveryPhraseDisplayView {
-    @ViewBuilder
-    var instructions: some View {
+    @ViewBuilder var instructions: some View {
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.title)
-            .paragraphMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .paragraphMedium(color: CyberpunkPalette.muted)
             .frame(maxWidth: .infinity, alignment: .leading)
 
         Text(L10n.Nighthawk.RecoveryPhraseDisplay.instructions1)
@@ -107,38 +106,48 @@ private extension RecoveryPhraseDisplayView {
             .padding(.top, 11)
     }
 
-    /// Checkbox + Continue stay on-screen. A previous full-screen overlay sat on top of
-    /// those controls (`allowsHitTesting(false)`), so taps hit the disabled Continue
-    /// button instead of the checkbox — Continue appeared to do nothing.
-    var onboardingFooter: some View {
+    var onboardingConfirmAndContinue: some View {
         VStack(spacing: 16) {
             confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
                 .disabled(store.isOpeningWallet)
 
             if store.isOpeningWallet {
                 ProgressView()
-                    .tint(Asset.Colors.Nighthawk.peach.color)
+                    .tint(CyberpunkPalette.primary)
                 Text("Opening wallet…")
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .caption(color: CyberpunkPalette.muted)
             }
 
             actions()
         }
-        .padding(.horizontal, 25)
-        .padding(.top, 12)
-        .padding(.bottom, 24)
         .frame(maxWidth: .infinity)
-        .background(Asset.Colors.Nighthawk.navy.color)
     }
 
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {
-        CheckBox(isChecked: isChecked) {
-            Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
-                .caption()
+        Button {
+            isChecked.wrappedValue.toggle()
+        } label: {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: isChecked.wrappedValue ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 24, weight: .regular))
+                    .foregroundStyle(
+                        isChecked.wrappedValue
+                            ? CyberpunkPalette.primary
+                            : Color.white
+                    )
+                    .frame(width: 28, height: 28)
+
+                Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
+                    .caption()
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .contentShape(Rectangle())
+            .frame(minHeight: 44)
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityIdentifier("recoveryPhraseConfirmCheckbox")
+        .accessibilityAddTraits(.isButton)
     }
 
     @MainActor

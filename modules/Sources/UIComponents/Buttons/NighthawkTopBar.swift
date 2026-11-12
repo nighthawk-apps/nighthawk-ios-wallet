@@ -38,7 +38,7 @@ public struct NighthawkTopBar: View {
                         .renderingMode(.template)
                         .foregroundColor(.white)
                         .frame(width: 24, height: 24)
-                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -49,7 +49,7 @@ public struct NighthawkTopBar: View {
 
             if let title {
                 Text(title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
                     .lineLimit(1)
                 Spacer(minLength: 0)
             } else {

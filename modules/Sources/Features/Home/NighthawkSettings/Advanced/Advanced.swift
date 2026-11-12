@@ -16,7 +16,7 @@ public struct Advanced {
         @Presents public var alert: AlertState<Action.Alert>?
         public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         public var selectedAppIcon: NighthawkSetting.AppIcon = .default
-        public var theme: NighthawkSetting.Theme = .default
+        public var theme: NighthawkSetting.Theme = .cyberpunk
         public var strictOmrOnly: Bool = false
         public var showBanditSettings: Bool {
             @Dependency(\.userStoredPreferences) var userStoredPreferences

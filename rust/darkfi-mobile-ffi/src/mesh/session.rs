@@ -53,6 +53,7 @@ enum SessState {
         their_static: [u8; 32],
         send_seq: u64,
         recv_seq: u64,
+        ready_since_ms: u64,
     },
 }
 
@@ -84,6 +85,27 @@ impl SessionTable {
             .filter_map(|(k, s)| match &s.state {
                 SessState::InitSent { started_ms, .. } | SessState::WaitHs3 { started_ms, .. }
                     if now_ms.saturating_sub(*started_ms) > timeout_ms =>
+                {
+                    Some(*k)
+                }
+                _ => None,
+            })
+            .collect();
+        let n = stale.len();
+        for k in stale {
+            self.drop_peer(&k);
+        }
+        n
+    }
+
+    /// Drop Ready sessions older than `max_age_ms`. The next send starts a new handshake.
+    pub fn expire_aged(&mut self, now_ms: u64, max_age_ms: u64) -> usize {
+        let stale: Vec<[u8; SENDER_LEN]> = self
+            .map
+            .iter()
+            .filter_map(|(k, s)| match &s.state {
+                SessState::Ready { ready_since_ms, .. }
+                    if now_ms.saturating_sub(*ready_since_ms) > max_age_ms =>
                 {
                     Some(*k)
                 }
@@ -342,6 +364,7 @@ impl SessionTable {
                     their_static,
                     send_seq: 0,
                     recv_seq: 0,
+                    ready_since_ms: super::types::unix_ms(),
                 },
             },
         );
@@ -360,11 +383,10 @@ impl SessionTable {
     ) -> Result<HsOutcome, SessionError> {
         let (their_eph, our_eph) = match self.map.remove(&from) {
             Some(Session {
-                state: SessState::WaitHs3 {
-                    their_eph,
-                    our_eph,
-                    ..
-                },
+                state:
+                    SessState::WaitHs3 {
+                        their_eph, our_eph, ..
+                    },
             }) => (their_eph, our_eph),
             other => {
                 if let Some(s) = other {
@@ -387,6 +409,7 @@ impl SessionTable {
                     their_static,
                     send_seq: 0,
                     recv_seq: 0,
+                    ready_since_ms: super::types::unix_ms(),
                 },
             },
         );
@@ -402,12 +425,21 @@ impl SessionTable {
         self.lru.push_back(peer);
     }
 
+    fn is_handshake(&self, peer: &[u8; SENDER_LEN]) -> bool {
+        matches!(
+            self.map.get(peer).map(|s| &s.state),
+            Some(SessState::InitSent { .. } | SessState::WaitHs3 { .. })
+        )
+    }
+
+    /// Handshake slots are separate from authenticated Ready sessions.
+    /// A flood of HS1 frames cannot evict a live session.
     fn evict_if_needed(&mut self) {
-        while self.map.len() >= MAX_SESSIONS {
-            let Some(k) = self.lru.pop_front() else {
+        while self.lru.iter().filter(|k| self.is_handshake(k)).count() >= MAX_SESSIONS {
+            let Some(k) = self.lru.iter().copied().find(|k| self.is_handshake(k)) else {
                 break;
             };
-            self.map.remove(&k);
+            self.drop_peer(&k);
         }
     }
 }
@@ -472,7 +504,11 @@ fn box_seal_hs(their_pk: &[u8; 32], our_sk: &[u8; 32], pt: &[u8]) -> Result<Vec<
     Ok(out)
 }
 
-fn box_open_hs(their_pk: &[u8; 32], our_sk: &[u8; 32], payload: &[u8]) -> Result<Vec<u8>, SessionError> {
+fn box_open_hs(
+    their_pk: &[u8; 32],
+    our_sk: &[u8; 32],
+    payload: &[u8],
+) -> Result<Vec<u8>, SessionError> {
     if payload.len() < 24 {
         return Err(SessionError::Truncated);
     }

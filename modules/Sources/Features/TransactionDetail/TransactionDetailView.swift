@@ -184,7 +184,7 @@ private extension TransactionDetailView {
                             .foregroundColor(.white)
 
                         Text(store.tokenName)
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
                 }

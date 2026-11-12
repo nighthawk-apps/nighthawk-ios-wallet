@@ -13,9 +13,11 @@ import Foundation
 public enum DarkfiChatDefaults {
     // MARK: - Channels
 
-    /// Default public channels to join — matches upstream darkirc `autojoin`
-    /// and Android `DarkfiChatDefaults.DEFAULT_PUBLIC_CHANNELS`.
+    /// Fresh-install autojoin / channel chips.
+    /// `#nighthawk` is Nighthawk-first (selected by default); the rest follow upstream
+    /// `darkirc_config.toml` `autojoin` order — matches Android `DarkfiChatDefaults`.
     public static let defaultPublicChannels: [String] = [
+        "#nighthawk",
         "#dev",
         "#media",
         "#hackers",
@@ -28,8 +30,9 @@ public enum DarkfiChatDefaults {
     ]
 
     /// Topic descriptions for default channels (upstream `[channel."#…"]` blocks),
-    /// plus a Nighthawk-only fill for `#hackers` (autojoin upstream, no topic block).
+    /// plus Nighthawk-only fills for `#nighthawk` and `#hackers`.
     public static let defaultChannelTopics: [String: String] = [
+        "#nighthawk": "Nighthawk wallet users",
         "#dev": "DarkFi Development HQ",
         "#media": "DarkFi Art, Fashion, Video, Memetics",
         // Nighthawk fill — not present in upstream darkirc_config.toml.

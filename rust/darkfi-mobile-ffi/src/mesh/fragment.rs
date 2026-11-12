@@ -6,6 +6,7 @@ use super::types::{
 };
 
 const FRAG_HDR: usize = 8 + 2 + 2 + 1;
+const _: () = assert!(FRAG_HDR == super::types::FRAGMENT_HEADER);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FragError {
@@ -21,7 +22,7 @@ pub fn split(original: &MeshPacket, chunk: usize) -> Result<Vec<MeshPacket>, Fra
     if encoded_payload.is_empty() {
         return Err(FragError::Empty);
     }
-    if encoded_payload.len() > MAX_PAYLOAD {
+    if encoded_payload.len() > original.typ.payload_limit() || encoded_payload.len() > MAX_PAYLOAD {
         return Err(FragError::TooLarge);
     }
     let size = chunk.max(1).min(FRAGMENT_CHUNK);
@@ -61,11 +62,15 @@ struct Assembly {
 
 #[derive(Default)]
 pub struct FragmentAssembler {
-    inflight: std::collections::HashMap<[u8; 8], Assembly>,
+    inflight: std::collections::HashMap<([u8; SENDER_LEN], [u8; 8]), Assembly>,
 }
 
 impl FragmentAssembler {
-    pub fn ingest(&mut self, pkt: &MeshPacket, now_ms: u64) -> Result<Option<MeshPacket>, FragError> {
+    pub fn ingest(
+        &mut self,
+        pkt: &MeshPacket,
+        now_ms: u64,
+    ) -> Result<Option<MeshPacket>, FragError> {
         self.gc(now_ms);
         if pkt.typ != PacketType::Fragment {
             return Ok(Some(pkt.clone()));
@@ -81,18 +86,21 @@ impl FragmentAssembler {
         if total == 0 || index >= total || total > MAX_FRAGMENTS {
             return Err(FragError::BadHeader);
         }
-        if self.inflight.len() >= MAX_IN_FLIGHT_ASSEMBLIES && !self.inflight.contains_key(&stream)
-        {
+        if pkt.payload.len() - FRAG_HDR > FRAGMENT_CHUNK {
+            return Err(FragError::TooLarge);
+        }
+        let key = (pkt.sender, stream);
+        if self.inflight.len() >= MAX_IN_FLIGHT_ASSEMBLIES && !self.inflight.contains_key(&key) {
             return Err(FragError::TooManyFragments);
         }
-        let entry = self.inflight.entry(stream).or_insert_with(|| Assembly {
+        let entry = self.inflight.entry(key).or_insert_with(|| Assembly {
             sender: pkt.sender,
             original,
             total,
             chunks: vec![None; total as usize],
             started_ms: now_ms,
         });
-        if entry.total != total || entry.original != original {
+        if entry.sender != pkt.sender || entry.total != total || entry.original != original {
             return Err(FragError::BadHeader);
         }
         entry.chunks[index as usize] = Some(pkt.payload[FRAG_HDR..].to_vec());
@@ -103,11 +111,17 @@ impl FragmentAssembler {
         for c in entry.chunks.iter().flatten() {
             body.extend_from_slice(c);
         }
-        if body.len() > MAX_PAYLOAD {
-            self.inflight.remove(&stream);
+        let typ = match PacketType::from_u8(original) {
+            Some(t) => t,
+            None => {
+                self.inflight.remove(&key);
+                return Err(FragError::BadHeader);
+            }
+        };
+        if body.len() > typ.payload_limit() || body.len() > MAX_PAYLOAD {
+            self.inflight.remove(&key);
             return Err(FragError::TooLarge);
         }
-        let typ = PacketType::from_u8(original).ok_or(FragError::BadHeader)?;
         let rebuilt = MeshPacket {
             typ,
             ttl: pkt.ttl,
@@ -117,7 +131,7 @@ impl FragmentAssembler {
             recipient: pkt.recipient,
             payload: body,
         };
-        self.inflight.remove(&stream);
+        self.inflight.remove(&key);
         if rebuilt.payload.is_empty() {
             return Err(FragError::CompleteButShort);
         }

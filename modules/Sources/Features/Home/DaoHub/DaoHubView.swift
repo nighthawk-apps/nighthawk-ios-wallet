@@ -44,11 +44,7 @@ private extension DaoHubView {
     var hubScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .center) {
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
+                NighthawkLogo(spacing: .compact, size: .tabHeader)
 
                 if store.isLoading {
                     daoLoading
@@ -59,7 +55,7 @@ private extension DaoHubView {
                 } else {
                     Text("Governance imported with your wallet. Create proposals and vote on active proposals.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .padding(.horizontal)
 
                     ForEach(store.daos) { dao in
@@ -83,9 +79,14 @@ private extension DaoHubView {
                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
                 .foregroundColor(.white)
 
-            Text("Import a wallet that participates in a DAO, or wait for sync to finish. DAOs appear here when your wallet scans governance data from darkfid.")
+            Text(
+                """
+                Import a wallet that participates in a DAO, or wait for sync to finish. \
+                DAOs appear here when your wallet scans governance data from darkfid.
+                """
+            )
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -105,14 +106,14 @@ private extension DaoHubView {
             HStack {
                 Text(dao.name)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
 
                 Spacer()
             }
 
             Text("Quorum \(dao.quorumDisplay) · Approval \(String(format: "%.0f", dao.approvalRatioPercent))%")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
 
             // Role badges
             HStack(spacing: 6) {
@@ -120,11 +121,11 @@ private extension DaoHubView {
                 if dao.canVote { roleBadge("Voter", color: .blue) }
                 if dao.canExec { roleBadge("Executor", color: .orange) }
                 if !dao.canPropose && !dao.canVote && !dao.canExec {
-                    roleBadge("Observer", color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    roleBadge("Observer", color: CyberpunkPalette.muted)
                 }
             }
 
-            Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+            Divider().overlay(CyberpunkPalette.outline)
         }
         .padding(.horizontal)
         .contentShape(Rectangle())
@@ -179,7 +180,7 @@ private extension DaoHubView {
                     if store.proposals.isEmpty {
                         Text("No proposals for this DAO.")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                             .padding(.horizontal)
                     } else {
                         ForEach(store.proposals) { proposal in
@@ -215,17 +216,17 @@ private extension DaoHubView {
 
             Text("Your roles")
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
             HStack(spacing: 6) {
                 if dao.canPropose { roleBadge("Proposer", color: .green) }
                 if dao.canVote { roleBadge("Voter", color: .blue) }
                 if dao.canExec { roleBadge("Executor", color: .orange) }
                 if !dao.canPropose && !dao.canVote && !dao.canExec {
-                    roleBadge("None", color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    roleBadge("None", color: CyberpunkPalette.muted)
                 }
             }
 
-            Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+            Divider().overlay(CyberpunkPalette.outline)
         }
         .padding(.horizontal)
     }
@@ -236,9 +237,9 @@ private extension DaoHubView {
 
             Text(proposal.summaryLine)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
 
-            Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+            Divider().overlay(CyberpunkPalette.outline)
         }
         .padding(.horizontal)
         .contentShape(Rectangle())
@@ -312,7 +313,7 @@ private extension DaoHubView {
                                         .padding(.vertical, 10)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 8)
-                                                .stroke(Asset.Colors.Nighthawk.parmaviolet.color, lineWidth: 1)
+                                                .stroke(CyberpunkPalette.muted, lineWidth: 1)
                                         )
                                         .foregroundColor(.white)
                                 }
@@ -321,7 +322,7 @@ private extension DaoHubView {
 
                             Text("Your full governance token balance will be used as vote weight.")
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                .foregroundColor(CyberpunkPalette.muted)
                         }
                         .padding(.horizontal)
                         .padding(.top, 8)
@@ -431,7 +432,7 @@ private extension DaoHubView {
         HStack {
             Spacer()
             ProgressView()
-                .tint(Asset.Colors.Nighthawk.peach.color)
+                .tint(CyberpunkPalette.primary)
                 .frame(height: 120)
             Spacer()
         }
@@ -440,7 +441,7 @@ private extension DaoHubView {
     func daoMessage(_ text: String) -> some View {
         Text(text)
             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            .foregroundColor(CyberpunkPalette.muted)
             .padding(.horizontal)
     }
 
@@ -448,7 +449,7 @@ private extension DaoHubView {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
             Text(value)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                 .foregroundColor(.white)
@@ -461,7 +462,7 @@ private extension DaoHubView {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
             HStack(spacing: 4) {
                 Text(value)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
@@ -470,7 +471,7 @@ private extension DaoHubView {
                     .truncationMode(.middle)
                 Image(systemName: "doc.on.doc")
                     .font(.system(size: 11))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
             }
             .onTapGesture {
                 UIPasteboard.general.setItems(
@@ -510,7 +511,7 @@ private extension DaoHubView {
         switch status {
         case "Executed": return .green
         case "Active": return .orange
-        default: return Asset.Colors.Nighthawk.parmaviolet.color
+        default: return CyberpunkPalette.muted
         }
     }
 
@@ -522,8 +523,7 @@ private extension DaoHubView {
 
     // ── Action Result Banner ────────────────────────────────────────────
 
-    @ViewBuilder
-    var actionResultBanner: some View {
+    @ViewBuilder var actionResultBanner: some View {
         if let result = store.actionResult {
             HStack {
                 switch result {
@@ -546,13 +546,13 @@ private extension DaoHubView {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                 }
             }
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Asset.Colors.Nighthawk.navy.color)
+                    .fill(CyberpunkPalette.surface)
             )
             .padding(.horizontal)
         }

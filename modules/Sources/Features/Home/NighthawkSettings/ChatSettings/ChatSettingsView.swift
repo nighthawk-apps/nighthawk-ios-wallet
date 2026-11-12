@@ -26,10 +26,10 @@ public struct ChatSettingsView: View {
 
                 Text(L10n.Nighthawk.Chat.threeSecretsBody)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .padding(.horizontal)
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 // Embedded Node Sync section
                 sectionHeader("EMBEDDED NODE SYNC")
@@ -52,7 +52,7 @@ public struct ChatSettingsView: View {
 
                         Text("Each DAG is about one hour of channel history. Default is 8 (upstream darkirc).")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
 
                         HStack {
                             Slider(
@@ -63,11 +63,11 @@ public struct ChatSettingsView: View {
                                 in: 1...24,
                                 step: 1
                             )
-                            .tint(Asset.Colors.Nighthawk.peach.color)
+                            .tint(CyberpunkPalette.primary)
 
                             Text("\(store.dagHistoryHours)h")
                                 .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
-                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                .foregroundColor(CyberpunkPalette.primary)
                                 .frame(width: 40)
                         }
                     }
@@ -83,7 +83,7 @@ public struct ChatSettingsView: View {
                     )
                 }
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 sectionHeader("NIGHTHAWK MESH (BETA)")
 
@@ -107,23 +107,23 @@ public struct ChatSettingsView: View {
                     )
                     Text("Nearby peers: \(NighthawkMeshController.shared.peerCount). Full mesh controls: Settings → Nighthawk Mesh.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .padding(.horizontal)
                     if let banner = NighthawkMeshController.shared.radioBanner {
                         Text(banner)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                             .padding(.horizontal)
                         Button("Open Settings") {
                             NighthawkMeshController.shared.openSystemSettings()
                         }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(CyberpunkPalette.primary)
                         .padding(.horizontal)
                     }
                 }
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 sectionHeader("FILE OFFERS (FUD)")
 
@@ -136,7 +136,7 @@ public struct ChatSettingsView: View {
                     )
                 )
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 // Encrypted Channels section
                 sectionHeader("ENCRYPTED CHANNELS")
@@ -144,7 +144,7 @@ public struct ChatSettingsView: View {
                 if store.encryptedChannels.isEmpty {
                     Text("No encrypted channels configured.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .padding(.horizontal)
                 } else {
                     ForEach(store.encryptedChannels) { channel in
@@ -156,7 +156,7 @@ public struct ChatSettingsView: View {
                                 if !channel.topic.isEmpty {
                                     Text(channel.topic)
                                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                        .foregroundColor(CyberpunkPalette.muted)
                                 }
                             }
                             Spacer()
@@ -176,11 +176,11 @@ public struct ChatSettingsView: View {
                         Text("Add encrypted channel")
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
                 }
                 .padding(.horizontal)
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 // Encrypted Contacts (DM) section
                 sectionHeader("ENCRYPTED CONTACTS (DM)")
@@ -190,7 +190,7 @@ public struct ChatSettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your public key (share with contact):")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
 
                         HStack {
                             Text(publicKey)
@@ -202,7 +202,7 @@ public struct ChatSettingsView: View {
                             Button(action: { store.send(.copyPublicKeyTapped) }) {
                                 Image(systemName: "doc.on.doc")
                                     .font(.system(size: 14))
-                                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                    .foregroundColor(CyberpunkPalette.primary)
                             }
                         }
                     }
@@ -219,7 +219,7 @@ public struct ChatSettingsView: View {
                         Text("Generate my DM keys")
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
                 }
                 .disabled(store.isGeneratingKeys)
                 .padding(.horizontal)
@@ -227,7 +227,7 @@ public struct ChatSettingsView: View {
                 if store.encryptedContacts.isEmpty {
                     Text("No encrypted contacts configured.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .padding(.horizontal)
                 } else {
                     ForEach(store.encryptedContacts) { contact in
@@ -252,11 +252,11 @@ public struct ChatSettingsView: View {
                         Text("Add encrypted contact")
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
                 }
                 .padding(.horizontal)
 
-                Divider().overlay(Asset.Colors.Nighthawk.navy.color)
+                Divider().overlay(CyberpunkPalette.outline)
 
                 // Apply button
                 Button(action: { store.send(.applyAndReconnect) }) {
@@ -330,7 +330,7 @@ private extension ChatSettingsView {
     func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
-            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            .foregroundColor(CyberpunkPalette.primary)
             .tracking(1.5)
             .padding(.horizontal)
     }
@@ -344,13 +344,13 @@ private extension ChatSettingsView {
 
                 Text(subtitle)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
             }
 
             Spacer()
 
             Toggle("", isOn: isOn)
-                .tint(Asset.Colors.Nighthawk.peach.color)
+                .tint(CyberpunkPalette.primary)
                 .labelsHidden()
         }
         .padding(.horizontal)

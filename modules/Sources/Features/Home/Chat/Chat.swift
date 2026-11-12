@@ -147,7 +147,7 @@ public struct Chat {
         public var diagnosticDetail: String?
         /// Persistent hawkXXX nickname — generated once, persists between sessions.
         public var nickname: String = DarkfiChatDefaults.persistentNickname()
-        public var useTor: Bool = true
+        public var useTor: Bool = false
         /// Number of DAG bootstrap messages received
         public var dagSyncCount: Int = 0
         /// Descriptive string for DAG sync progress (e.g. "Syncing DAG… 142 events")
@@ -182,14 +182,14 @@ public struct Chat {
             phase: "stopped",
             daemonRunning: false
         )
-        public var showNetworkHud: Bool = true
+        public var showNetworkHud: Bool = false
         public var encryptChannelName: String?
         var allowFudTransfers: Bool = false
         var fudPrompt: ChatFudPrompt?
         @Shared(.walletInfo) var walletInfo = Home.State.WalletInfo()
 
         public init() {
-            // Build channels from upstream defaults
+            // Build channels from upstream defaults (#nighthawk first, then autojoin).
             self.channels = IdentifiedArrayOf(
                 uniqueElements: DarkfiChatDefaults.defaultPublicChannels.map { name in
                     Channel(
@@ -198,6 +198,12 @@ public struct Chat {
                     )
                 }
             )
+            self.selectedChannel = channels.first
+            if let selected = selectedChannel {
+                self.messages = IdentifiedArrayOf(
+                    uniqueElements: channelMessages[selected.name] ?? []
+                )
+            }
         }
     }
 
@@ -232,7 +238,9 @@ public struct Chat {
         case confirmPublicPay
         case cancelPublicPay
         case payInvoice(String)
+        case payInvoiceFromToolbar
         case invoiceTapped(String)
+        case openChatSettings
         case setLocalDisplayName(String)
         case toggleNetworkHud
         case setChatTransport(Bool)
@@ -336,10 +344,13 @@ public struct Chat {
                 // Do not wipe channelMessages or seenEventIds: reconnect
                 // must keep scrollback, and replay uses seenEventIds to
                 // skip events already shown.
-                state.useTor = userStoredPreferences.torForChatEnabled()
+                let privacy = UserPreferencesStorage.live.privacyNetwork
+                state.useTor = privacy == .tor
                 let nickname = state.nickname
                 let useTor = state.useTor
+                let useNym = privacy == .nym
                 let socksPort = UInt16(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
+                let nymPort = UInt16(UserPreferencesStorage.live.nymSocksPort)
 
                 return .run { send in
                     // The embedded darkirc daemon relays public-channel and DM
@@ -350,7 +361,9 @@ public struct Chat {
                     let daemon = DarkircDaemonManager.shared
 
                     await send(.embeddedNodeStatusChanged(.starting))
-                    if useTor {
+                    if useNym {
+                        await send(.dagSyncStatusUpdate("Connecting to the Nym mixnet…"))
+                    } else if useTor {
                         await send(.dagSyncStatusUpdate("Tor bootstrapping…"))
                     } else {
                         await send(.dagSyncStatusUpdate("Starting darkirc node…"))
@@ -363,7 +376,9 @@ public struct Chat {
                         try await daemon.restartForChat(
                             callback: relay,
                             useTor: useTor,
-                            torSocksPort: socksPort
+                            torSocksPort: socksPort,
+                            useNym: useNym,
+                            nymSocksPort: nymPort
                         )
                     } catch is CancellationError {
                         continuation.finish()
@@ -891,7 +906,10 @@ public struct Chat {
                 let shareText = DarkircDmPubkeyParser.formatForSharing(publicKey)
                 UIPasteboard.general.setItems(
                     [[UIPasteboard.typeAutomatic: shareText]],
-                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                    options: [
+                        .localOnly: true,
+                        .expirationDate: Date().addingTimeInterval(60)
+                    ]
                 )
                 return .none
 
@@ -936,10 +954,34 @@ public struct Chat {
             case .payInvoice(_):
                 return .none
 
+            case .payInvoiceFromToolbar:
+                let fromDraft = state.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+                if fromDraft.lowercased().hasPrefix("drk:") {
+                    return .send(.payInvoice(fromDraft))
+                }
+                let history: [State.Message] = {
+                    if state.selectedTab == .direct, let id = state.selectedDmContact?.id {
+                        return state.dmMessages[id] ?? []
+                    }
+                    if let name = state.selectedChannel?.name {
+                        return state.channelMessages[name] ?? []
+                    }
+                    return []
+                }()
+                if let uri = history.reversed().first(where: {
+                    $0.content.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().hasPrefix("drk:")
+                })?.content.trimmingCharacters(in: .whitespacesAndNewlines) {
+                    return .send(.payInvoice(uri))
+                }
+                return .none
+
             case let .invoiceTapped(uri):
                 let trimmed = uri.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard trimmed.lowercased().hasPrefix("drk:") else { return .none }
                 state.composedMessage = trimmed
+                return .none
+
+            case .openChatSettings:
                 return .none
 
             case .toggleNetworkHud:

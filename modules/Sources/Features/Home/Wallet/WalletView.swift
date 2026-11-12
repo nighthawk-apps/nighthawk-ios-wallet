@@ -33,7 +33,7 @@ public struct WalletView: View {
                     (store.isSyncingFailed || store.isSyncingStopped || store.walletInfo.synchronizerStatusSnapshot.syncStatus == .unprepared) {
                     Text(L10n.Nighthawk.Chat.walletMeshChatOnly)
                         .font(.caption)
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                         .padding(.bottom, 8)
@@ -274,7 +274,7 @@ private extension WalletView {
         case .hidden:
             return .clear
         default:
-            return isSelected ? .white : Asset.Colors.Nighthawk.peach.color.opacity(0.6)
+            return isSelected ? .white : CyberpunkPalette.primary.opacity(0.6)
         }
     }
 
@@ -283,34 +283,31 @@ private extension WalletView {
         case .hidden:
             return .clear
         default:
-            return isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
+            return isSelected ? CyberpunkPalette.muted : .clear
         }
     }
 
     var walletActions: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 12) {
-                Button(L10n.Nighthawk.TransferTab.receiveMoneyTitle) {
-                    store.send(.receiveMoneyTapped)
-                }
-                .buttonStyle(.nighthawkPrimary())
-                .accessibilityIdentifier("nighthawk.wallet.receive")
-
-                Button(L10n.Nighthawk.TransferTab.sendMoneyTitle) {
-                    store.send(.sendMoneyTapped)
-                }
-                .buttonStyle(.nighthawkPrimary())
-                .disabled(sendDisabled)
-                .accessibilityIdentifier("nighthawk.wallet.send")
+        // Android WalletView: Request → Receive → Send as equal FilterChip-style actions.
+        HStack(spacing: 8) {
+            Button(L10n.Nighthawk.TransferTab.requestMoneyTitle) {
+                store.send(.requestMoneyTapped)
             }
-
-            Button(action: { store.send(.requestMoneyTapped) }) {
-                Text(L10n.Nighthawk.TransferTab.requestMoneyTitle)
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-            }
-            .buttonStyle(.plain)
+            .buttonStyle(.nighthawkPrimary())
             .accessibilityIdentifier("nighthawk.wallet.request")
+
+            Button(L10n.Nighthawk.TransferTab.receiveMoneyTitle) {
+                store.send(.receiveMoneyTapped)
+            }
+            .buttonStyle(.nighthawkPrimary())
+            .accessibilityIdentifier("nighthawk.wallet.receive")
+
+            Button(L10n.Nighthawk.TransferTab.sendMoneyTitle) {
+                store.send(.sendMoneyTapped)
+            }
+            .buttonStyle(.nighthawkPrimary())
+            .disabled(sendDisabled)
+            .accessibilityIdentifier("nighthawk.wallet.send")
         }
         .padding(.horizontal, 25)
         .padding(.bottom, 8)
@@ -340,13 +337,13 @@ private extension WalletView {
 
                         Divider()
                             .frame(height: 2)
-                            .overlay(Asset.Colors.Nighthawk.navy.color)
+                            .overlay(CyberpunkPalette.outline)
                     }
 
                     Button(action: { store.send(.viewTransactionHistoryTapped) }) {
                         HStack(alignment: .center) {
                             Text(L10n.Nighthawk.WalletTab.viewTransactionHistory)
-                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                .foregroundColor(CyberpunkPalette.primary)
                                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
                             Spacer()

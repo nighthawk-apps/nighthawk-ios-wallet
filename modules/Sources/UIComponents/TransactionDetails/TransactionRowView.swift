@@ -36,7 +36,7 @@ public struct TransactionRowView: View {
             VStack(alignment: .leading, spacing: 5) {
                 HStack {
                     Text(operationTitle)
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(CyberpunkPalette.primary)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
                     if transaction.textMemo != nil {
@@ -57,7 +57,7 @@ public struct TransactionRowView: View {
             VStack(alignment: .trailing, spacing: 5) {
                 if showAmount {
                     Text(L10n.balance(transaction.zecAmount.decimalString(), tokenName))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
                     if let (currency, price) = fiatConversion {
@@ -71,7 +71,7 @@ public struct TransactionRowView: View {
                     }
                 } else {
                     Text(L10n.balance("---", tokenName))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
                     if let (currency, _) = fiatConversion {

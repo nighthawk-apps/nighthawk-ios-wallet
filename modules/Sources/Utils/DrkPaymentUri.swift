@@ -22,11 +22,10 @@ public enum DrkPaymentUri {
                 query.append("memo=\(b64)")
             }
         }
-        var uri = "drk:\(addr)"
-        if !query.isEmpty {
-            uri += "?" + query.joined(separator: "&")
+        if query.isEmpty {
+            return "drk:\(addr)"
         }
-        return uri
+        return "drk:\(addr)?\(query.joined(separator: "&"))"
     }
 
     public static func parse(_ raw: String) -> (address: String, amount: String?, memo: String?)? {

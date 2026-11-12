@@ -14,6 +14,8 @@ pub mod mnemonic;
 mod omr_envelope;
 pub mod sync;
 pub use sync::{apply_full_block, redact_sync_error};
+#[cfg(feature = "nym")]
+mod nym;
 mod tokens;
 mod tor;
 pub mod transactions;
@@ -87,6 +89,8 @@ pub fn start_darkirc(
     _datastore_path: String,
     _use_tor: bool,
     _tor_socks_port: u16,
+    _use_nym: bool,
+    _nym_socks_port: u16,
     _callback: Option<Box<dyn DarkircEventCallback>>,
 ) -> Result<(), DarkfiWalletNativeError> {
     Err(DarkfiWalletNativeError::CryptoError(
@@ -203,6 +207,12 @@ pub struct DrkBootstrapConfig {
     pub use_tor: bool,
     /// SOCKS5 port for the arti proxy (default: 9050). Ignored when `use_tor` is false.
     pub tor_socks_port: u16,
+    /// If true, start the in-process Nym mixnet SOCKS proxy and route all
+    /// remote lightwalletd traffic through it. Takes precedence over
+    /// `use_tor`, and fails closed the same way. Default on (Android parity).
+    pub use_nym: bool,
+    /// SOCKS5 port for the Nym proxy (default: 1080). Ignored when `use_nym` is false.
+    pub nym_socks_port: u16,
     /// Optional darkfid JSON-RPC for broadcast fallback only. Empty/`None` = LWD-only.
     pub darkfid_rpc_url: Option<String>,
     /// When `true`, refuse supplemental trial-decrypt (UnifOMR-only).
@@ -226,6 +236,8 @@ impl std::fmt::Debug for DrkBootstrapConfig {
             )
             .field("use_tor", &self.use_tor)
             .field("tor_socks_port", &self.tor_socks_port)
+            .field("use_nym", &self.use_nym)
+            .field("nym_socks_port", &self.nym_socks_port)
             .field("darkfid_rpc_url", &self.darkfid_rpc_url)
             .field("strict_omr_only", &self.strict_omr_only)
             .finish()
@@ -553,6 +565,69 @@ pub fn is_arti_running() -> bool {
     crate::tor::is_arti_running()
 }
 
+#[cfg(feature = "nym")]
+pub fn start_nym_proxy(socks_listen: String) -> Result<bool, DarkfiWalletNativeError> {
+    crate::panic_fence::catch_wallet("start_nym_proxy", || {
+        let port = parse_socks_listen_port(&socks_listen).map_err(|e| {
+            DarkfiWalletNativeError::NativeDrkUnavailable(format!("invalid socks_listen: {e}"))
+        })?;
+        crate::nym::start_nym_proxy(port)
+    })
+}
+
+#[cfg(feature = "nym")]
+pub fn stop_nym_proxy() {
+    crate::nym::stop_nym_proxy();
+}
+
+#[cfg(feature = "nym")]
+pub fn is_nym_running() -> bool {
+    crate::nym::is_nym_running()
+}
+
+#[cfg(feature = "nym")]
+pub fn nym_status() -> String {
+    crate::nym::nym_status()
+}
+
+#[cfg(not(feature = "nym"))]
+pub fn start_nym_proxy(_socks_listen: String) -> Result<bool, DarkfiWalletNativeError> {
+    Err(DarkfiWalletNativeError::NativeDrkUnavailable(
+        "nym feature not compiled".to_string(),
+    ))
+}
+
+#[cfg(not(feature = "nym"))]
+pub fn stop_nym_proxy() {}
+
+#[cfg(not(feature = "nym"))]
+pub fn is_nym_running() -> bool {
+    false
+}
+
+#[cfg(not(feature = "nym"))]
+pub fn nym_status() -> String {
+    "stopped".to_string()
+}
+
+#[cfg(feature = "nym")]
+fn start_nym_route(requested_port: u16) -> ResultWallet<u16> {
+    let port = if requested_port == 0 {
+        crate::nym::DEFAULT_NYM_SOCKS_PORT
+    } else {
+        requested_port
+    };
+    crate::nym::start_nym_proxy(port)?;
+    Ok(port)
+}
+
+#[cfg(not(feature = "nym"))]
+fn start_nym_route(_requested_port: u16) -> ResultWallet<u16> {
+    Err(DarkfiWalletNativeError::NativeDrkUnavailable(
+        "Nym routing was requested but the nym feature is not compiled".to_string(),
+    ))
+}
+
 fn block_on<F: std::future::Future>(future: F) -> F::Output {
     smol::block_on(future)
 }
@@ -669,6 +744,22 @@ impl std::fmt::Debug for DarkfiWalletHandle {
     }
 }
 
+/// True when the lightwalletd URL host is loopback. Those dials stay direct.
+fn lightwallet_url_is_loopback(url: &str) -> bool {
+    let rest = url
+        .trim()
+        .trim_start_matches("https://")
+        .trim_start_matches("http://")
+        .trim_start_matches("tcp+tls://")
+        .trim_start_matches("tcp://");
+    let host = if let Some(v6) = rest.strip_prefix('[') {
+        v6.split(']').next().unwrap_or("")
+    } else {
+        rest.split(['/', ':']).next().unwrap_or("")
+    };
+    crate::lightwallet_client::is_loopback_host(host)
+}
+
 impl DarkfiWalletHandle {
     pub fn new(config: DrkBootstrapConfig) -> ResultWallet<Self> {
         install_panic_hook_once();
@@ -676,21 +767,28 @@ impl DarkfiWalletHandle {
         crate::sync::clear_detection_key_cache();
         validate_bootstrap(&config)?;
 
-        // Tor routing (fail-closed): start the in-process arti SOCKS proxy and
-        // install it as the process-wide route for ALL remote lightwalletd
-        // traffic (sync, broadcast, clue lookups, bootstrap probes). The SOCKS
-        // listener only binds after the Tor circuit is bootstrapped, so remote
-        // connections either go through Tor or fail — they never silently
-        // downgrade to a direct connection.
-        if config.use_tor {
+        // Nym or Tor (fail-closed) for remote lightwalletd. Loopback stays direct.
+        // Nym wins when both are requested (Android `DarkfiWalletHandle::new`).
+        let remote_lwd = !lightwallet_url_is_loopback(&config.lightwallet_server_url);
+        if remote_lwd && config.use_nym {
+            let port = start_nym_route(config.nym_socks_port)?;
+            #[cfg(feature = "nym")]
+            crate::nym::wait_until_running(std::time::Duration::from_secs(120))?;
+            crate::lightwallet_client::set_default_socks5_proxy(Some((
+                "127.0.0.1".to_string(),
+                port,
+            )));
+            tracing::info!(
+                "Nym routing enabled: remote lightwalletd traffic via mixnet SOCKS5 on 127.0.0.1:{port}"
+            );
+        } else if remote_lwd && config.use_tor {
+            stop_nym_proxy();
             let port = if config.tor_socks_port == 0 {
                 9050
             } else {
                 config.tor_socks_port
             };
             crate::tor::start_arti_proxy(port)?;
-            // Bind happens quickly; circuit bootstrap can take up to ~2 minutes
-            // on first launch. Do not dial lightwalletd until SOCKS CONNECT works.
             crate::tor::wait_until_running(std::time::Duration::from_secs(120))?;
             crate::lightwallet_client::set_default_socks5_proxy(Some((
                 "127.0.0.1".to_string(),
@@ -1252,6 +1350,8 @@ mod tests {
             lightwallet_tls_pin_sha256: None,
             use_tor: false,
             tor_socks_port: 9050,
+            use_nym: false,
+            nym_socks_port: 1080,
             darkfid_rpc_url: None,
             strict_omr_only: false,
         }

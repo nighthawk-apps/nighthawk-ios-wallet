@@ -6,6 +6,11 @@ resolver = "2"
 halo2_proofs = { git = "https://github.com/parazyd/halo2", branch = "v050" }
 halo2_gadgets = { git = "https://github.com/parazyd/halo2", branch = "v050" }
 url = { git = "https://github.com/darkrenaissance/rust-url", branch = "v258" }
+# Keep one form_urlencoded: the url fork's copy, so serde_urlencoded (reqwest,
+# pulled in by nym) agrees with url::form_urlencoded.
+form_urlencoded = { git = "https://github.com/darkrenaissance/rust-url", branch = "v258" }
+# crates.io nym-smolmix stops at 1.21.6. Same rev as the Android wallet.
+nym-smolmix = { git = "https://github.com/nymtech/nym.git", rev = "5f0dba82d7a4c3d32fb21f78a0e3ddb6320b4ae8" }
 
 [profile.release]
 opt-level = 3

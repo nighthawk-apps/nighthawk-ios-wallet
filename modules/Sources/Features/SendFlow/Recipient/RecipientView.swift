@@ -32,7 +32,7 @@ public struct RecipientView: View {
                 placeholder: L10n.Nighthawk.TransferTab.Recipient.addAddress,
                 text: $store.recipient.sending(\.recipientInputChanged),
                 isValid: store.validateRecipient(),
-                foregroundColor: Asset.Colors.Nighthawk.parmaviolet.color,
+                foregroundColor: CyberpunkPalette.muted,
                 inputAccessoryView: {
                     addressFieldAccessoryView
                 }
@@ -55,7 +55,7 @@ public struct RecipientView: View {
                         Text(entry.label)
                             .paragraphMedium(color: .white)
                         Spacer()
-                        Text(String(entry.address.prefix(12)) + "…")
+                        Text("\(entry.address.prefix(12))…")
                             .caption()
                     }
                     .padding(.horizontal, 24)
@@ -100,7 +100,7 @@ private extension RecipientView {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .foregroundColor(.white)
             }
         } else if store.hasEnteredRecipient {
@@ -109,7 +109,7 @@ private extension RecipientView {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
-                    .aspectRatio(contentMode: .fit)
+                    .scaledToFit()
                     .foregroundColor(.white)
             }
         }

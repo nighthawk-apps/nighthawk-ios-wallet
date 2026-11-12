@@ -21,7 +21,7 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Connection status bar (always visible)
+            NighthawkLogo(spacing: .compact, size: .tabHeader)
             connectionStatusBar
 
             switch true {
@@ -111,7 +111,7 @@ private extension ChatView {
                     statusDot(for: store.embeddedNodeStatus)
                     Text("Node: \(store.embeddedNodeStatus.label)")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                 }
             }
 
@@ -121,7 +121,7 @@ private extension ChatView {
                 Button(action: { store.send(.toggleNetworkHud) }) {
                     Text("IRC: \(store.connectionState.label)")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                 }
                 .buttonStyle(.plain)
 
@@ -130,22 +130,22 @@ private extension ChatView {
                 // Show persistent nickname
                 Text(store.nickname)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
 
                 if NighthawkMeshController.shared.meshOn {
                     HStack(spacing: 4) {
                         Image(systemName: "point.3.connected.trianglepath.dotted")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                         Text(L10n.Nighthawk.Chat.meshBadge)
                             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 11))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(Asset.Colors.Nighthawk.peach.color.opacity(0.5), lineWidth: 1)
+                            .stroke(CyberpunkPalette.primary.opacity(0.5), lineWidth: 1)
                     )
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel(L10n.Nighthawk.Chat.meshOn)
@@ -156,7 +156,7 @@ private extension ChatView {
                     Button(action: { store.send(.retryTapped) }) {
                         Text("Retry")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                     }
                 }
             }
@@ -175,7 +175,7 @@ private extension ChatView {
                             Text(L10n.Nighthawk.Chat.hudPeers)
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
                                 .underline()
-                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                .foregroundColor(CyberpunkPalette.primary)
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("nighthawk_hud_peers_link")
@@ -194,13 +194,13 @@ private extension ChatView {
                     .foregroundColor(
                         store.connectionState == .error
                             ? Color.red.opacity(0.8)
-                            : Asset.Colors.Nighthawk.parmaviolet.color
+                            : CyberpunkPalette.muted
                     )
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.6))
+        .background(CyberpunkPalette.surface)
     }
 
     var connectionDot: some View {
@@ -244,8 +244,8 @@ private extension ChatView {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Asset.Colors.Nighthawk.peach.color,
-                            Asset.Colors.Nighthawk.parmaviolet.color
+                            CyberpunkPalette.primary,
+                            CyberpunkPalette.muted
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -260,7 +260,7 @@ private extension ChatView {
             Text("End-to-end encrypted chat\npowered by the DarkFi P2P network")
                 .multilineTextAlignment(.center)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .padding(.horizontal, 40)
 
             Button(action: { store.send(.connectTapped) }) {
@@ -272,7 +272,7 @@ private extension ChatView {
             if store.connectionState == .error || store.connectionState == .degraded {
                 Text("Check your network settings or configure Tor in Settings.")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
@@ -288,7 +288,7 @@ private extension ChatView {
 
             ProgressView()
                 .scaleEffect(1.5)
-                .tint(Asset.Colors.Nighthawk.peach.color)
+                .tint(CyberpunkPalette.primary)
                 .padding(.bottom, 16)
 
             Text(store.connectionState.label)
@@ -312,7 +312,7 @@ private extension ChatView {
             Text("Connecting to the DarkFi P2P network and syncing the event graph. This may take up to 30 seconds on first launch.")
                 .multilineTextAlignment(.center)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .padding(.horizontal, 40)
 
             Spacer()
@@ -323,7 +323,7 @@ private extension ChatView {
         HStack {
             Text(label)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
             Spacer()
             Text(status)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
@@ -368,7 +368,12 @@ private extension ChatView {
             Button("Generate & Copy", action: { store.send(.sharePubkeyConfirmed) })
             Button("Cancel", role: .cancel, action: { store.send(.sharePubkeyCancelled) })
         } message: {
-            Text("This will generate a new DM keypair and copy your public key to the clipboard. Share it with your peer via a secure channel. Anyone with this key can send you encrypted DMs.")
+            Text(
+                """
+                This will generate a new DM keypair and copy your public key to the clipboard. \
+                Share it with your peer via a secure channel. Anyone with this key can send you encrypted DMs.
+                """
+            )
         }
         .alert(L10n.Nighthawk.Chat.publicPayTitle, isPresented: $store.showPublicPayWarning) {
             Button(L10n.Nighthawk.Chat.publicPayConfirm, action: { store.send(.confirmPublicPay) })
@@ -391,28 +396,56 @@ private extension ChatView {
     }
 
     var tabSelector: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             ForEach(Chat.State.ChatTab.allCases, id: \.self) { tab in
                 Button(action: { store.send(.tabSelected(tab)) }) {
                     Text(tab.rawValue)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                        .foregroundColor(store.selectedTab == tab ? .white : Asset.Colors.Nighthawk.parmaviolet.color)
-                        .frame(maxWidth: .infinity)
+                        .foregroundColor(store.selectedTab == tab ? CyberpunkPalette.chipLabel : CyberpunkPalette.muted)
+                        .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .background(
-                            store.selectedTab == tab
-                                ? Asset.Colors.Nighthawk.peach.color.opacity(0.2)
-                                : Color.clear
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(store.selectedTab == tab ? CyberpunkPalette.chipFill : Color.clear)
                         )
                 }
             }
+            Spacer(minLength: 0)
+            // Android Chat: equal-pitch + / request / pay / info / settings.
+            chatToolbarIcon("plus", label: "New DM") {
+                store.send(.newDmTapped)
+            }
+            chatToolbarIcon("doc.text", label: L10n.Nighthawk.Chat.attachRequest) {
+                store.send(.attachPaymentRequest)
+            }
+            chatToolbarIcon("creditcard", label: L10n.Nighthawk.Chat.payInvoice) {
+                store.send(.payInvoiceFromToolbar)
+            }
+            chatToolbarIcon("info.circle", label: L10n.Nighthawk.Chat.hudTitle) {
+                store.send(.toggleNetworkHud)
+            }
+            chatToolbarIcon("gearshape", label: "Chat settings") {
+                store.send(.openChatSettings)
+            }
         }
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
+        .padding(.horizontal, 12)
+        .background(CyberpunkPalette.surface)
         .overlay(alignment: .bottom) {
             Rectangle()
-                .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.3))
+                .fill(CyberpunkPalette.reference.opacity(0.45))
                 .frame(height: 1)
         }
+    }
+
+    func chatToolbarIcon(_ systemName: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundColor(CyberpunkPalette.primary)
+                .frame(width: 36, height: 36)
+        }
+        .accessibilityLabel(label)
+        .buttonStyle(.plain)
     }
 
     var channelBar: some View {
@@ -429,14 +462,14 @@ private extension ChatView {
             .padding(.trailing, 88)
             .padding(.vertical, 10)
         }
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
+        .background(CyberpunkPalette.surface)
         .overlay(alignment: .trailing) {
             if store.selectedTab == .channels, store.selectedChannel?.name.hasPrefix("#") == true {
                 Button(L10n.Nighthawk.Chat.encryptChannel) {
                     store.send(.encryptChannelTapped)
                 }
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                .foregroundColor(CyberpunkPalette.primary)
                 .padding(.trailing, 12)
             }
         }
@@ -447,7 +480,7 @@ private extension ChatView {
         return HStack(spacing: 4) {
             Text(channel.name)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(isSelected ? .white : Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(isSelected ? CyberpunkPalette.chipLabel : CyberpunkPalette.muted)
 
             if channel.unreadCount > 0 {
                 Text("\(channel.unreadCount)")
@@ -455,7 +488,7 @@ private extension ChatView {
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Asset.Colors.Nighthawk.peach.color)
+                    .background(CyberpunkPalette.primary)
                     .clipShape(Capsule())
             }
         }
@@ -463,11 +496,11 @@ private extension ChatView {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(isSelected ? Asset.Colors.Nighthawk.peach.color.opacity(0.2) : Color.clear)
+                .fill(isSelected ? CyberpunkPalette.chipFill : Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
-                            isSelected ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3),
+                            isSelected ? CyberpunkPalette.reference : CyberpunkPalette.muted.opacity(0.3),
                             lineWidth: 1
                         )
                 )
@@ -487,11 +520,11 @@ private extension ChatView {
                         Text("New DM")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                     }
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(
-                        Capsule().fill(Asset.Colors.Nighthawk.peach.color.opacity(0.15))
+                        Capsule().fill(CyberpunkPalette.primary.opacity(0.15))
                     )
                 }
 
@@ -502,11 +535,11 @@ private extension ChatView {
                         Text("Share Key")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                     }
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(
-                        Capsule().stroke(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3))
+                        Capsule().stroke(CyberpunkPalette.muted.opacity(0.3))
                     )
                 }
 
@@ -520,7 +553,7 @@ private extension ChatView {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("MY PUBLIC KEY (copied)")
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .tracking(1.2)
                     Text(myKey)
                         .font(.system(size: 11, design: .monospaced))
@@ -529,7 +562,7 @@ private extension ChatView {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Asset.Colors.Nighthawk.navy.color.opacity(0.5))
+                .background(CyberpunkPalette.surface)
             }
 
             // Contact list
@@ -538,16 +571,16 @@ private extension ChatView {
                     Spacer()
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 48))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.4))
+                        .foregroundColor(CyberpunkPalette.muted.opacity(0.4))
 
                     Text("No DM contacts")
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
 
                     Text("Tap \"New DM\" to exchange ChaCha20 public keys with a peer and start an encrypted conversation.")
                         .multilineTextAlignment(.center)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                        .foregroundColor(CyberpunkPalette.muted.opacity(0.6))
                         .padding(.horizontal, 40)
                     Spacer()
                 }
@@ -571,12 +604,12 @@ private extension ChatView {
         return HStack(spacing: 14) {
             // Avatar circle
             Circle()
-                .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.2))
+                .fill(CyberpunkPalette.primary.opacity(0.2))
                 .frame(width: 44, height: 44)
                 .overlay(
                     Text(String(contact.contactLabel.prefix(1)).uppercased())
                         .font(.custom(FontFamily.PulpDisplay.bold.name, size: 18))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(CyberpunkPalette.primary)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
@@ -587,7 +620,7 @@ private extension ChatView {
                 if let lastMsg = convo?.lastMessageText {
                     Text(lastMsg)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .lineLimit(1)
                 }
             }
@@ -600,7 +633,7 @@ private extension ChatView {
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Asset.Colors.Nighthawk.peach.color)
+                    .background(CyberpunkPalette.primary)
                     .clipShape(Capsule())
             }
         }
@@ -620,17 +653,17 @@ private extension ChatView {
                 }
             }) {
                 Image(systemName: "chevron.left")
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
             }
 
             if let contact = store.selectedDmContact {
                 Circle()
-                    .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.2))
+                    .fill(CyberpunkPalette.primary.opacity(0.2))
                     .frame(width: 32, height: 32)
                     .overlay(
                         Text(String(contact.contactLabel.prefix(1)).uppercased())
                             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -639,7 +672,7 @@ private extension ChatView {
                         .foregroundColor(.white)
                     Text("E2E encrypted")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
+                        .foregroundColor(CyberpunkPalette.muted.opacity(0.7))
                 }
             }
 
@@ -647,7 +680,7 @@ private extension ChatView {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Asset.Colors.Nighthawk.navy.color.opacity(0.8))
+        .background(CyberpunkPalette.surface)
     }
 
     var messagesList: some View {
@@ -659,10 +692,10 @@ private extension ChatView {
                             Spacer().frame(height: 60)
                             Text("No messages yet")
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                .foregroundColor(CyberpunkPalette.muted)
                             Text("Say something in \(store.selectedChannel?.name ?? store.selectedDmContact?.contactLabel ?? "this chat")")
                                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.6))
+                                .foregroundColor(CyberpunkPalette.muted.opacity(0.6))
                         }
                     } else {
                         ForEach(store.messages) { message in
@@ -808,21 +841,6 @@ private extension ChatView {
                         store.send(.setLocalDisplayName(newValue))
                     }
             }
-            HStack(spacing: 8) {
-                Button(L10n.Nighthawk.Chat.attachRequest) { store.send(.attachPaymentRequest) }
-                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                Button(L10n.Nighthawk.Chat.payInvoice) {
-                    let fromDraft = store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if fromDraft.lowercased().hasPrefix("drk:") {
-                        store.send(.payInvoice(fromDraft))
-                    }
-                }
-                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
             HStack(spacing: 12) {
             TextField("Message", text: $store.composedMessage)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
@@ -831,7 +849,7 @@ private extension ChatView {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 22)
-                        .fill(Asset.Colors.Nighthawk.navy.color)
+                        .fill(CyberpunkPalette.surface)
                 )
                 .onSubmit { store.send(.sendMessage) }
 
@@ -840,8 +858,8 @@ private extension ChatView {
                     .font(.system(size: 32))
                     .foregroundColor(
                         store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            ? Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.3)
-                            : Asset.Colors.Nighthawk.peach.color
+                            ? CyberpunkPalette.muted.opacity(0.3)
+                            : CyberpunkPalette.primary
                     )
             }
             .disabled(store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -849,7 +867,7 @@ private extension ChatView {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Asset.Colors.Nighthawk.darkNavy.color)
+        .background(CyberpunkPalette.surface)
     }
 }
 
@@ -864,7 +882,7 @@ private struct PeerNamesDialog: View {
                 if slots.allSatisfy({ $0.url == nil || $0.url?.isEmpty == true }) {
                     Text(L10n.Nighthawk.Chat.hudPeersEmpty)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                 }
                 ForEach(Array(slots.enumerated()), id: \.element.id) { index, slot in
                     PeerSlotRow(
@@ -878,7 +896,7 @@ private struct PeerNamesDialog: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Asset.Colors.Nighthawk.navy.color)
+            .background(CyberpunkPalette.surface)
             .navigationTitle(L10n.Nighthawk.Chat.hudPeers)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

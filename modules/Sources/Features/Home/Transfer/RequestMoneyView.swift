@@ -18,7 +18,7 @@ struct RequestMoneyView: View {
 
             Text(L10n.Nighthawk.TransferTab.requestMoneySingleAddress)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -26,14 +26,14 @@ struct RequestMoneyView: View {
                 .keyboardType(.decimalPad)
                 .foregroundColor(.white)
                 .padding()
-                .background(Asset.Colors.Nighthawk.navy.color)
+                .background(CyberpunkPalette.surface)
                 .cornerRadius(8)
                 .padding(.horizontal, 25)
 
             TextField(L10n.Nighthawk.TransferTab.requestMemoHint, text: $store.memo)
                 .foregroundColor(.white)
                 .padding()
-                .background(Asset.Colors.Nighthawk.navy.color)
+                .background(CyberpunkPalette.surface)
                 .cornerRadius(8)
                 .padding(.horizontal, 25)
 
@@ -47,7 +47,7 @@ struct RequestMoneyView: View {
                 }
                 Text(store.uri)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .textSelection(.enabled)
                     .padding(.horizontal, 25)
 

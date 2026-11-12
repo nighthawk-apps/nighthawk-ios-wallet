@@ -24,7 +24,7 @@ public struct NighthawkTextField<InputAccessoryContent>: View where InputAccesso
         text: Binding<String>,
         isValid: NighthawkTextFieldValidationState = .valid,
         isSecure: Bool = false,
-        foregroundColor: Color = Asset.Colors.Nighthawk.peach.color,
+        foregroundColor: Color = CyberpunkPalette.primary,
         inputAccessoryView: @escaping () -> InputAccessoryContent = { EmptyView() }
     ) {
         self.placeholder = placeholder
@@ -75,7 +75,7 @@ public struct NighthawkTextField<InputAccessoryContent>: View where InputAccesso
                         .subtitle(
                             color: _focusState || !text.wrappedValue.isEmpty
                                 ? foregroundColor.opacity(0.8)
-                                : Asset.Colors.Nighthawk.parmaviolet.color
+                                : CyberpunkPalette.muted
                         )
                         .padding(.leading, 16)
                 }
@@ -120,7 +120,7 @@ private struct _NighthawkTextFieldStyle<InputAccessoryContent>: TextFieldStyle w
                         ? Asset.Colors.Nighthawk.error.color
                         : isFocused || !isEmpty
                         ? foregroundColor.opacity(0.8)
-                        : Asset.Colors.Nighthawk.parmaviolet.color,
+                        : CyberpunkPalette.muted,
                     lineWidth: 2
                 )
                 .frame(height: 56)

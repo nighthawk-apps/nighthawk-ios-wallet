@@ -28,6 +28,7 @@ public struct Home {
             case chat
             case wallet
             case dex
+            case dao
             case settings
         }
 
@@ -81,6 +82,7 @@ public struct Home {
         // Tab states
         public var wallet: Wallet.State = .init()
         public var chat: Chat.State = .init()
+        public var daoHub: DaoHub.State = .init()
         public var settings: NighthawkSettings.State = .init()
 
         public init(unifiedAddress: UnifiedAddress?) {
@@ -115,6 +117,7 @@ public struct Home {
         case onAppear
         case rescanDone(DarkFiError? = nil)
         case chat(Chat.Action)
+        case daoHub(DaoHub.Action)
         case settings(NighthawkSettings.Action)
         case synchronizerStateChanged(SynchronizerState)
         case tabSelected(State.Tab)
@@ -126,7 +129,6 @@ public struct Home {
         public enum Delegate: Equatable {
             case setLatestFiatPrice(Double?)
             case unifiedAddressResponse(UnifiedAddress?)
-            case openDaoHub
         }
     }
 
@@ -154,6 +156,10 @@ public struct Home {
 
         Scope(state: \.chat, action: \.chat) {
             Chat()
+        }
+
+        Scope(state: \.daoHub, action: \.daoHub) {
+            DaoHub()
         }
 
         Scope(state: \.settings, action: \.settings) {
@@ -285,7 +291,7 @@ public struct Home {
 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
                 return .none
-            case .alert, .binding, .delegate, .destination, .settings, .wallet:
+            case .alert, .binding, .daoHub, .delegate, .destination, .settings, .wallet:
                 return .none
             case let .chat(.payInvoice(uri)):
                 guard let parsed = DrkPaymentUri.parse(uri) else { return .none }
@@ -302,6 +308,9 @@ public struct Home {
                 state.wallet.destination = .send(sendState)
                 state.selectedTab = .wallet
                 return .none
+            case .chat(.openChatSettings):
+                state.selectedTab = .settings
+                return .send(.settings(.delegate(.goTo(.chatSettings))))
             case .chat:
                 return .none
             }

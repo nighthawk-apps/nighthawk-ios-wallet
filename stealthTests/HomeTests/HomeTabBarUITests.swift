@@ -20,10 +20,10 @@ final class HomeTabBarUITests: XCTestCase {
     }
 
     func testTabBar_OnSelectUpdatesBoundSelection() {
-        var selected = Home.State.Tab.wallet
+        var selected = Home.State.Tab.chat
         let onSelect: (Home.State.Tab) -> Void = { selected = $0 }
 
-        for tab in [Home.State.Tab.settings, .chat, .dex, .wallet] {
+        for tab in [Home.State.Tab.settings, .chat, .dex, .dao, .wallet] {
             onSelect(tab)
             XCTAssertEqual(selected, tab)
         }
@@ -32,6 +32,6 @@ final class HomeTabBarUITests: XCTestCase {
     func testHomeView_SynchronizerFailureDoesNotDisableWalletTab() {
         let state = HomeTestSupport.makeState(synchronizerFailedToStart: true)
         XCTAssertTrue(state.synchronizerFailed)
-        XCTAssertEqual(state.selectedTab, .wallet)
+        XCTAssertEqual(state.selectedTab, .chat)
     }
 }

@@ -100,13 +100,6 @@ struct NighthawkSettingsView: View {
                 )
 
                 settingRow(
-                    title: "DAO Hub",
-                    subtitle: "Browse DAOs and proposals (read-only)",
-                    icon: Asset.Assets.Icons.Nighthawk.settings.image,
-                    action: { store.send(.rowTapped(.daoHub)) }
-                )
-
-                settingRow(
                     title: L10n.Nighthawk.SettingsTab.advancedTitle,
                     subtitle: L10n.Nighthawk.SettingsTab.advancedSubtitle,
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
@@ -155,7 +148,7 @@ private extension NighthawkSettingsView {
 
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(title)
-                                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                    .foregroundColor(CyberpunkPalette.primary)
                                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                                     .multilineTextAlignment(.leading)
 
@@ -172,7 +165,7 @@ private extension NighthawkSettingsView {
 
                 Divider()
                     .frame(height: 2)
-                    .overlay(Asset.Colors.Nighthawk.navy.color)
+                    .overlay(CyberpunkPalette.outline)
             }
         }
     }

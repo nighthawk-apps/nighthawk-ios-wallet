@@ -4,6 +4,7 @@
 
 import AppVersion
 import ComposableArchitecture
+import DarkfiCore
 import DatabaseFiles
 import Generated
 import LocalAuthenticationClient
@@ -26,9 +27,11 @@ public struct Splash {
         public var lastInactiveTime: Date?
         public var phase = ScenePhase.background
         public var isVisible = true
-        /// Status line under the logo (Tor bootstrap, matching Android splash).
+        /// Status line under the logo (Nym by default, Tor only when selected).
         public var statusMessage: String?
-        /// Show “Continue without Tor” while bootstrap is in progress or failed.
+        /// Which anonymity network the splash is waiting on. Direct skips the gate.
+        public var networkGate: UserPreferencesStorage.PrivacyNetwork = .nym
+        /// Show “Continue without …” while bootstrap is in progress or failed.
         public var showDisableTorButton = false
         /// `vX.Y.Z` footer (Android `splash_app_version` parity).
         public var appVersion: String = ""
@@ -91,6 +94,8 @@ public struct Splash {
     @Dependency(\.date) var date
     @Dependency(\.databaseFiles) var databaseFiles
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.nymBootstrap) var nymBootstrap
+    @Dependency(\.privacyNetwork) var privacyNetwork
     @Dependency(\.torBootstrap) var torBootstrap
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.walletStorage) var walletStorage
@@ -126,19 +131,28 @@ public struct Splash {
                 }
                 return .none
             case .bootstrapTorThenLaunch:
+                if state.networkGate == .nym {
+                    return startNymBootstrap(state: &state)
+                }
                 return startTorBootstrap(state: &state)
             case .torBootstrapSucceeded:
-                state.statusMessage = L10n.Nighthawk.Splash.torReady
+                state.statusMessage = state.networkGate == .nym
+                    ? L10n.Nighthawk.Splash.nymReady
+                    : L10n.Nighthawk.Splash.torReady
                 state.showDisableTorButton = false
                 state.torGateOpen = true
                 return continueAfterGates(state: &state)
             case .torBootstrapFailed:
-                state.statusMessage = L10n.Nighthawk.Splash.torFailed
+                state.statusMessage = state.networkGate == .nym
+                    ? L10n.Nighthawk.Splash.nymFailed
+                    : L10n.Nighthawk.Splash.torFailed
                 state.showDisableTorButton = true
                 return .none
             case .disableTorAndContinue:
+                privacyNetwork.setDirect()
                 userStoredPreferences.setTorForWalletEnabled(false)
                 userStoredPreferences.setTorForChatEnabled(false)
+                nymBootstrap.stop()
                 torBootstrap.stop()
                 state.statusMessage = nil
                 state.showDisableTorButton = false
@@ -200,20 +214,40 @@ public struct Splash {
 // MARK: - Launch gates (Android splash parity)
 private extension Splash {
     func startLaunch(state: inout State) -> Effect<Action> {
-        let torOn = userStoredPreferences.torForWalletEnabled()
-            || userStoredPreferences.torForChatEnabled()
+        let network = privacyNetwork.current()
+        state.networkGate = network
         let walletCheck = Effect<Action>.run { send in
             /// Keychain can lag on first process start; delay matches the historic splash path.
             try await clock.sleep(for: .seconds(0.5))
             await send(.checkWalletInitialization)
         }
-        if torOn {
+        switch network {
+        case .nym:
+            return .merge(startNymBootstrap(state: &state), walletCheck)
+        case .tor:
             return .merge(startTorBootstrap(state: &state), walletCheck)
+        case .direct:
+            state.statusMessage = nil
+            state.showDisableTorButton = false
+            state.torGateOpen = true
+            return walletCheck
         }
-        state.statusMessage = nil
-        state.showDisableTorButton = false
-        state.torGateOpen = true
-        return walletCheck
+    }
+
+    func startNymBootstrap(state: inout State) -> Effect<Action> {
+        let socksPort = privacyNetwork.nymSocksPort()
+        state.statusMessage = L10n.Nighthawk.Splash.nymBootstrapping
+        state.showDisableTorButton = true
+        state.torGateOpen = false
+        return .run { [nymBootstrap] send in
+            let ready = await nymBootstrap.ensureReady(socksPort)
+            if ready {
+                await send(.torBootstrapSucceeded)
+            } else {
+                await send(.torBootstrapFailed)
+            }
+        }
+        .cancellable(id: CancelID.torBootstrap, cancelInFlight: true)
     }
 
     func startTorBootstrap(state: inout State) -> Effect<Action> {

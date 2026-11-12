@@ -116,9 +116,6 @@ extension AppReducer {
         case .meshSettings:
             state.path.append(.meshSettings(.init()))
             return .none
-        case .daoHub:
-            state.path.append(.daoHub(.init()))
-            return .none
         case .fiat:
             state.path.append(.fiat(.init()))
             return .none

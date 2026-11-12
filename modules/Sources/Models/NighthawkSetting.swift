@@ -96,24 +96,59 @@ public enum NighthawkSetting {
         }
     }
 
+    /// Matches Android `AppThemeVariant`. Cyberpunk is the fresh-install default.
     public enum Theme: String, CaseIterable, Equatable, Identifiable, Hashable {
+        case cyberpunk
+        case stealth
+        case light
+        case paper
+        case midnight
+        /// Legacy storage values — migrated by `UserPreferencesStorage.theme`.
         case `default`
         case dark
 
         public var id: String { rawValue }
 
+        /// Themes shown in Advanced settings (legacy cases hidden).
+        public static var selectableCases: [Theme] {
+            [.cyberpunk, .stealth, .light, .paper, .midnight]
+        }
+
         public var label: String {
             switch self {
-            case .`default`:
-                L10n.Nighthawk.SettingsTab.Advanced.Theme.default
-            case .dark:
-                L10n.Nighthawk.SettingsTab.Advanced.Theme.dark
+            case .cyberpunk, .`default`:
+                "Cyberpunk"
+            case .stealth, .dark:
+                "Stealth"
+            case .light:
+                "Light"
+            case .paper:
+                "Paper"
+            case .midnight:
+                "Midnight"
             }
         }
 
+        /// Canonical theme after migrating legacy `default` / `dark` storage values.
+        public var canonical: Theme {
+            switch self {
+            case .`default`: return .cyberpunk
+            case .dark: return .stealth
+            default: return self
+            }
+        }
+
+        public var usesCyberpunkWallpaper: Bool {
+            canonical == .cyberpunk
+        }
+
         public var colorScheme: ColorScheme {
-            // DarkFi is always dark mode
-            .dark
+            switch canonical {
+            case .light, .paper:
+                return .light
+            default:
+                return .dark
+            }
         }
     }
 }

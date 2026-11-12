@@ -5,6 +5,7 @@
 
 import Generated
 import SwiftUI
+import UIComponents
 
 private enum Constants {
     static let barHeight: CGFloat = 54
@@ -44,6 +45,12 @@ struct NighthawkTabBar: View {
             )
 
             tabButton(
+                title: "DAO",
+                image: Image(systemName: "building.columns"),
+                tab: .dao
+            )
+
+            tabButton(
                 title: L10n.Nighthawk.HomeScreen.settings,
                 image: Asset.Assets.Icons.Nighthawk.settings.image,
                 tab: .settings
@@ -52,7 +59,7 @@ struct NighthawkTabBar: View {
         .frame(maxWidth: .infinity)
         .frame(height: Constants.barHeight)
         .background {
-            Asset.Colors.Nighthawk.navy.color
+            CyberpunkPalette.navigationContainer
                 .ignoresSafeArea(edges: .bottom)
         }
         .environment(\.layoutDirection, .leftToRight)
@@ -90,18 +97,18 @@ private struct TabBarItem: View {
             image
                 .resizable()
                 .renderingMode(.template)
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .foregroundColor(
                     isSelected
-                        ? Asset.Colors.Nighthawk.peach.color
-                        : .white
+                        ? CyberpunkPalette.primary
+                        : CyberpunkPalette.navigationIcon
                 )
                 .frame(width: 24, height: 24)
             Text(title)
                 .caption(
                     color: isSelected
-                        ? Asset.Colors.Nighthawk.peach.color
-                        : .white
+                        ? CyberpunkPalette.primary
+                        : CyberpunkPalette.navigationIcon
                 )
         }
         .padding(.top, 8)
@@ -110,7 +117,7 @@ private struct TabBarItem: View {
             Rectangle()
                 .fill(
                     isSelected
-                        ? Asset.Colors.Nighthawk.peach.color
+                        ? CyberpunkPalette.primary
                         : .clear
                 )
                 .frame(height: 4)

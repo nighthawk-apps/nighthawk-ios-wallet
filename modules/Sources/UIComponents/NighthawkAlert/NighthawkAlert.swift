@@ -30,7 +30,7 @@ struct NighthawkAlertModifier<NighthawkAlertContent: View>: ViewModifier {
                 self.content()
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Asset.Colors.Nighthawk.darkNavy.color)
+                    .background(CyberpunkPalette.surface)
                     .cornerRadius(10)
                     .padding(24)
                     .padding(.bottom)

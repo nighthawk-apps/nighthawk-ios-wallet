@@ -19,7 +19,7 @@ public struct NighthawkLinkButtonStyle: ButtonStyle {
                 .font(.custom(FontFamily.Roboto.regular.name, size: 12))
                 .foregroundColor(
                     (
-                        isEnabled ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color
+                        isEnabled ? CyberpunkPalette.primary : CyberpunkPalette.muted
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
                 .cornerRadius(4)

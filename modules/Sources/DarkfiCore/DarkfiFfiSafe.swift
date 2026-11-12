@@ -7,6 +7,8 @@ import Foundation
 private let ffiIsArtiRunning: () -> Bool = { isArtiRunning() }
 private let ffiStopArtiProxy: () -> Void = { stopArtiProxy() }
 private let ffiStartArtiProxy: (String) throws -> Bool = { try startArtiProxy(socksListen: $0) }
+private let ffiStartNymProxy: (String) throws -> Bool = { try startNymProxy(socksListen: $0) }
+private let ffiStopNymProxy: () -> Void = { stopNymProxy() }
 
 public struct DarkfiFfiSafe {
     public static func isArtiRunning() -> Bool {
@@ -23,5 +25,17 @@ public struct DarkfiFfiSafe {
 
     public static func stopArtiProxy() {
         ffiStopArtiProxy()
+    }
+
+    public static func startNymProxySafely(socksPort: UInt16) -> Bool {
+        do {
+            return try ffiStartNymProxy(String(socksPort))
+        } catch {
+            return false
+        }
+    }
+
+    public static func stopNymProxy() {
+        ffiStopNymProxy()
     }
 }

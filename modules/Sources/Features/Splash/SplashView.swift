@@ -18,16 +18,11 @@ public struct SplashView: View {
                 Spacer()
 
                 VStack {
-                    NighthawkLogo(size: .tabHeader)
-                        .padding(.bottom, 10)
-
-                    Text(L10n.Nighthawk.Splash.subtitle)
-                        .paragraph()
-
                     if let status = store.statusMessage {
                         Text(status)
-                            .paragraph()
-                            .padding(.top, 12)
+                            .paragraph(color: CyberpunkPalette.tagline)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
                             .accessibilityLabel(status)
                     }
                 }
@@ -39,7 +34,8 @@ public struct SplashView: View {
                     )
                     .buttonStyle(.nighthawkPrimary())
                     .padding(.top, 8)
-                } else if store.statusMessage == L10n.Nighthawk.Splash.torFailed {
+                } else if store.statusMessage == L10n.Nighthawk.Splash.torFailed
+                    || store.statusMessage == L10n.Nighthawk.Splash.nymFailed {
                     Button(
                         L10n.Nighthawk.Splash.retry,
                         action: { store.send(.bootstrapTorThenLaunch) }
@@ -53,20 +49,28 @@ public struct SplashView: View {
 
             VStack(spacing: 8) {
                 if store.showDisableTorButton {
-                    Button(L10n.Nighthawk.Splash.continueWithoutTor) {
+                    Button(
+                        store.networkGate == .nym
+                            ? L10n.Nighthawk.Splash.continueWithoutNym
+                            : L10n.Nighthawk.Splash.continueWithoutTor
+                    ) {
                         store.send(.disableTorAndContinue)
                     }
-                    .buttonStyle(.nighthawkSecondary())
+                    .buttonStyle(.nighthawkLink())
 
-                    Text(L10n.Nighthawk.Splash.continueWithoutTorHint)
-                        .paragraph()
+                    Text(
+                        store.networkGate == .nym
+                            ? L10n.Nighthawk.Splash.continueWithoutNymHint
+                            : L10n.Nighthawk.Splash.continueWithoutTorHint
+                    )
+                        .caption(color: CyberpunkPalette.tagline)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
 
                 if !store.appVersion.isEmpty {
                     Text(L10n.Nighthawk.Splash.version(store.appVersion))
-                        .caption(color: Color.white.opacity(0.7))
+                        .caption(color: CyberpunkPalette.tagline)
                         .accessibilityLabel(L10n.Nighthawk.Splash.version(store.appVersion))
                 }
             }

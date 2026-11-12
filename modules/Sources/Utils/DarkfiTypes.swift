@@ -46,7 +46,7 @@ extension DrkAmount {
         let whole = parts[0].isEmpty ? "0" : String(parts[0])
         var frac = parts.count == 2 ? String(parts[1]) : ""
         if frac.count > decimals { return nil }
-        frac = frac + String(repeating: "0", count: decimals - frac.count)
+        frac += String(repeating: "0", count: decimals - frac.count)
         let digits = whole + frac
         guard let atomic = Int64(digits), atomic > 0 else { return nil }
         return atomic
@@ -229,6 +229,8 @@ public struct SynchronizerState: Equatable {
     public var fallbackReason: String
     /// User-facing message explaining the fallback. Empty when no fallback.
     public var fallbackUserMessage: String
+    /// Live lightwalletd status line (Android `syncStatusMessage`), including stale-tip copy.
+    public var lightStatusMessage: String
     /// True when lightwalletd's proto major version disagrees with the client.
     public var protoVersionMismatch: Bool
 
@@ -243,6 +245,7 @@ public struct SynchronizerState: Equatable {
         activeSyncMethod: DarkfiSyncMethod = .unknown,
         fallbackReason: String = "None",
         fallbackUserMessage: String = "",
+        lightStatusMessage: String = "",
         protoVersionMismatch: Bool = false
     ) {
         self.syncStatus = syncStatus
@@ -251,6 +254,7 @@ public struct SynchronizerState: Equatable {
         self.activeSyncMethod = activeSyncMethod
         self.fallbackReason = fallbackReason
         self.fallbackUserMessage = fallbackUserMessage
+        self.lightStatusMessage = lightStatusMessage
         self.protoVersionMismatch = protoVersionMismatch
     }
 }

@@ -32,6 +32,8 @@ final class DarkfiTransferTests: XCTestCase {
             lightwalletTlsPinSha256: nil,
             useTor: false,
             torSocksPort: 9050,
+            useNym: false,
+            nymSocksPort: 1080,
             darkfidRpcUrl: nil,
             strictOmrOnly: false
         )

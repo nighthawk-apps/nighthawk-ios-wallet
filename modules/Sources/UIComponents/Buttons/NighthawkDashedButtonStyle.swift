@@ -9,14 +9,14 @@ public struct NighthawkDashedButtonStyle: ButtonStyle {
     public func makeBody(configuration: Configuration) -> some View {
         DashedButton(configuration: configuration)
             .foregroundColor(
-                Asset.Colors.Nighthawk.peach.color.opacity(
+                CyberpunkPalette.primary.opacity(
                     configuration.isPressed ? 0.5 : 1.0
                 )
             )
             .background(
                 RoundedRectangle(cornerRadius: 13)
                     .fill(
-                        Asset.Colors.Nighthawk.navy.color.opacity(
+                        CyberpunkPalette.surface.opacity(
                             configuration.isPressed ? 0.5 : 1.0
                         )
                     )
@@ -28,13 +28,13 @@ public struct NighthawkDashedButtonStyle: ButtonStyle {
         var body: some View {
             configuration.label
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(configuration.isPressed ? 0.5 : 1.0))
+                .foregroundColor(CyberpunkPalette.muted.opacity(configuration.isPressed ? 0.5 : 1.0))
                 .frame(height: 38)
                 .padding(.horizontal, 25)
                 .overlay(
                     RoundedRectangle(cornerRadius: 13)
                         .strokeBorder(
-                            Asset.Colors.Nighthawk.peach.color.opacity(
+                            CyberpunkPalette.primary.opacity(
                                 configuration.isPressed ? 0.5 : 1.0
                             ),
                             style: StrokeStyle(lineWidth: 1, dash: [4])

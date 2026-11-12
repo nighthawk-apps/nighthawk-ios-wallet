@@ -41,36 +41,38 @@ public struct WelcomeView: View {
 // MARK: - Get started (create / restore)
 private extension WelcomeView {
     var getStartedContent: some View {
-        VStack(spacing: 0) {
-            NighthawkLogo(size: .tabHeader)
-                .padding(.top, 16)
+        GeometryReader { geo in
+            VStack(spacing: 0) {
+                // Android leaves the wallpaper's NIGHTHAWK mark in the top
+                // corner and starts the copy about a tenth of the way down.
+                Spacer().frame(height: geo.size.height * 0.10)
 
-            Spacer(minLength: 0)
-
-            VStack(spacing: 16) {
                 Text(L10n.Nighthawk.Welcome.subtitle)
-                    .subtitle()
+                    .subtitleMedium(color: CyberpunkPalette.header)
                     .multilineTextAlignment(.center)
 
                 Text(L10n.Nighthawk.Welcome.body)
-                    .paragraph()
+                    .paragraph(color: CyberpunkPalette.body)
                     .lineSpacing(6)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-            }
+                    .frame(maxWidth: geo.size.width * 0.7)
+                    .padding(.top, 16)
 
-            Spacer(minLength: 0)
+                Text(L10n.Nighthawk.Welcome.footer)
+                    .caption(color: CyberpunkPalette.tagline)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: geo.size.width * 0.7)
+                    .padding(.top, 64)
 
-            terms {
-                store.send(.termsAndConditionsTapped)
-            }
-            .padding(.bottom, 16)
+                Spacer(minLength: 0)
 
-            actions {
-                store.send(.createNewWalletTapped)
-            } onRestore: {
-                store.send(.importExistingWalletTapped)
+                actions {
+                    store.send(.createNewWalletTapped)
+                } onRestore: {
+                    store.send(.importExistingWalletTapped)
+                }
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
     }
 }
@@ -165,11 +167,15 @@ private extension WelcomeView {
             HStack(spacing: 8) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(currentPage == index
-                                ? Asset.Colors.Nighthawk.peach.color
-                                : Color.white.opacity(0.3))
-                        .frame(width: currentPage == index ? 10 : 7,
-                               height: currentPage == index ? 10 : 7)
+                        .fill(
+                            currentPage == index
+                                ? CyberpunkPalette.primary
+                                : Color.white.opacity(0.3)
+                        )
+                        .frame(
+                            width: currentPage == index ? 10 : 7,
+                            height: currentPage == index ? 10 : 7
+                        )
                         .animation(.easeInOut(duration: 0.2), value: currentPage)
                 }
             }
@@ -184,8 +190,8 @@ private extension WelcomeView {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Asset.Colors.Nighthawk.peach.color,
-                            Asset.Colors.Nighthawk.peach.color.opacity(0.6)
+                            CyberpunkPalette.primary,
+                            CyberpunkPalette.primary.opacity(0.6)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -214,20 +220,6 @@ private extension WelcomeView {
 
 // MARK: - Subviews
 private extension WelcomeView {
-    func terms(
-        onTermsLinkTapped: @escaping () -> Void
-    ) -> some View {
-        VStack {
-            Text(L10n.Nighthawk.Welcome.terms1)
-                .caption()
-                .padding(.bottom, 4)
-
-            Button(L10n.General.termsAndConditions, action: onTermsLinkTapped)
-                .buttonStyle(.nighthawkLink())
-                .accessibilityIdentifier("nighthawk.welcome.terms")
-        }
-    }
-
     func actions(
         onCreate: @escaping () -> Void,
         onRestore: @escaping () -> Void
@@ -238,7 +230,7 @@ private extension WelcomeView {
                 .accessibilityIdentifier("nighthawk.welcome.create")
 
             Button(L10n.Nighthawk.Welcome.restore, action: onRestore)
-                .buttonStyle(.nighthawkSecondary(width: 210))
+                .buttonStyle(.nighthawkTertiary(width: 210))
                 .accessibilityIdentifier("nighthawk.welcome.restore")
         }
         .padding(.bottom, 64)

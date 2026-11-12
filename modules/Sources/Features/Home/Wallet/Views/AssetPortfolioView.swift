@@ -30,7 +30,7 @@ struct AssetPortfolioView: View {
                         Spacer()
                         Text(token.balanceFormatted)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                     }
                     .frame(minHeight: 44)
                     .contentShape(Rectangle())

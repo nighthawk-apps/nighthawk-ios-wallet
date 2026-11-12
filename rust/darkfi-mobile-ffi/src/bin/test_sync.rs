@@ -2,11 +2,12 @@ struct DummyCb;
 impl darkfi_mobile_ffi::DarkircEventCallback for DummyCb {
     fn on_message(
         &self,
+        _event_id: String,
         channel: String,
         nick: String,
         message: String,
-        _event_id: String,
         timestamp: u64,
+        _is_outgoing: bool,
     ) {
         println!(
             "Message from {}: {} (channel: {}, time: {})",
@@ -25,12 +26,22 @@ fn main() {
     let cb = Box::new(DummyCb);
     // Clearnet by default; pass `tor <socks_port>` to exercise the SOCKS path.
     let args: Vec<String> = std::env::args().collect();
-    let use_tor = args.get(1).map(|a| a == "tor").unwrap_or(false);
-    let tor_socks_port: u16 = args.get(2).and_then(|p| p.parse().ok()).unwrap_or(9050);
-    println!("Starting darkirc (use_tor={use_tor}, socks_port={tor_socks_port})...");
+    let mode = args.get(1).map(|s| s.as_str()).unwrap_or("direct");
+    let socks_port: u16 = args.get(2).and_then(|p| p.parse().ok()).unwrap_or(9050);
+    let use_tor = mode == "tor";
+    let use_nym = mode == "nym";
+    println!("Starting darkirc (mode={mode}, socks_port={socks_port})...");
     let datastore = "/tmp/darkirc_test_store".to_string();
     std::fs::remove_dir_all(&datastore).ok();
-    darkfi_mobile_ffi::start_darkirc(datastore, use_tor, tor_socks_port, Some(cb)).unwrap();
+    darkfi_mobile_ffi::start_darkirc(
+        datastore,
+        use_tor,
+        socks_port,
+        use_nym,
+        if use_nym { socks_port } else { 1080 },
+        Some(cb),
+    )
+    .unwrap();
 
     loop {
         std::thread::sleep(std::time::Duration::from_secs(1));

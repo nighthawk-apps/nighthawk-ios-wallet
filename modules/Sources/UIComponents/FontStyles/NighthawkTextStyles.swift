@@ -7,11 +7,11 @@ import SwiftUI
 import Generated
 
 public extension Text {
-    func title(color: Color = Asset.Colors.Nighthawk.peach.color) -> some View {
+    func title(color: Color = CyberpunkPalette.header) -> some View {
         self.modifier(TitleTextStyle(color: color))
     }
 
-    func subtitle(color: Color = Asset.Colors.Nighthawk.peach.color) -> some View {
+    func subtitle(color: Color = CyberpunkPalette.header) -> some View {
         self.modifier(SubtitleTextStyle(color: color))
     }
 
@@ -23,11 +23,11 @@ public extension Text {
         self.modifier(ParagraphTextStyle(color: color))
     }
 
-    func paragraphMedium(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
+    func paragraphMedium(color: Color = CyberpunkPalette.muted) -> some View {
         self.modifier(ParagraphMediumTextStyle(color: color))
     }
 
-    func paragraphBold(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
+    func paragraphBold(color: Color = CyberpunkPalette.muted) -> some View {
         self.modifier(ParagraphBoldTextStyle(color: color))
     }
 

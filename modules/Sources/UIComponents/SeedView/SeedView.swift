@@ -41,7 +41,7 @@ struct SeedGridView: View {
                                     .paragraph(
                                         color: forPdf
                                             ? .black
-                                            : Asset.Colors.Nighthawk.parmaviolet.color
+                                            : CyberpunkPalette.muted
                                     )
 
                                 Text(group.words[0].data)
@@ -59,7 +59,7 @@ struct SeedGridView: View {
                                     .paragraph(
                                         color: forPdf
                                             ? .black
-                                            : Asset.Colors.Nighthawk.parmaviolet.color
+                                            : CyberpunkPalette.muted
                                     )
 
                                 Text(group.words[1].data)
@@ -77,7 +77,7 @@ struct SeedGridView: View {
                                     .paragraph(
                                         color: forPdf
                                             ? .black
-                                            : Asset.Colors.Nighthawk.parmaviolet.color
+                                            : CyberpunkPalette.muted
                                     )
 
                                 Text(group.words[2].data)
@@ -96,7 +96,7 @@ struct SeedGridView: View {
             if forPdf {
                 $0
             } else {
-                $0.background(Asset.Colors.Nighthawk.darkNavy.color)
+                $0.background(CyberpunkPalette.surface)
             }
         }
         .padding(.bottom, 20)
@@ -119,7 +119,7 @@ struct SeedBirthdayView: View {
                     .paragraphMedium(
                         color: forPdf
                             ? .black
-                            : Asset.Colors.Nighthawk.parmaviolet.color
+                            : CyberpunkPalette.muted
                     )
 
                 Text("\(birthday)")

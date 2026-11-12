@@ -88,10 +88,6 @@ public struct AppReducer {
                 if let _ = currentScreen[case: \.torNetwork] {
                     return false
                 }
-
-                if let _ = currentScreen[case: \.daoHub] {
-                    return false
-                }
             }
 
             return true
@@ -133,7 +129,6 @@ public struct AppReducer {
         case backup(RecoveryPhraseDisplay)
         case chatSettings(ChatSettings)
         case changeServer(ChangeServer)
-        case daoHub(DaoHub)
         case fiat(Fiat)
         case home(Home)
         case importWallet(ImportWallet)

@@ -76,7 +76,14 @@ let package = Package(
                 "darkfi_mobile_ffiFFI"
             ],
             path: "Sources/DarkfiCore",
-            exclude: ["DarkfiCore.xcframework"]
+            exclude: ["DarkfiCore.xcframework"],
+            linkerSettings: [
+                // nym-smolmix / hickory-resolver resolve DNS through Apple's
+                // SystemConfiguration (SCDynamicStore, SCNetworkReachability).
+                // The staticlib references those symbols; the app must link them.
+                .linkedFramework("SystemConfiguration"),
+                .linkedFramework("Security"),
+            ]
         ),
         .binaryTarget(
             name: "darkfi_mobile_ffiFFI",

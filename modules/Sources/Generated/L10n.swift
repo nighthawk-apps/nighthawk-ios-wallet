@@ -524,6 +524,16 @@ public enum L10n {
             public static let subtitle = L10n.tr("Localizable", "nighthawk.splash.subtitle", fallback: "Private money in your pocket.")
             /// Nighthawk
             public static let title = L10n.tr("Localizable", "nighthawk.splash.title", fallback: "Nighthawk")
+            /// Connecting to the Nym mixnet…
+            public static let nymBootstrapping = L10n.tr("Localizable", "nighthawk.splash.nymBootstrapping", fallback: "Connecting to the Nym mixnet…")
+            /// Nym mixnet ready
+            public static let nymReady = L10n.tr("Localizable", "nighthawk.splash.nymReady", fallback: "Nym mixnet ready")
+            /// Nym mixnet connection failed
+            public static let nymFailed = L10n.tr("Localizable", "nighthawk.splash.nymFailed", fallback: "Nym mixnet connection failed")
+            /// Continue without Nym
+            public static let continueWithoutNym = L10n.tr("Localizable", "nighthawk.splash.continueWithoutNym", fallback: "Continue without Nym")
+            /// Wallet and chat use your regular network. You can switch back to Nym in Settings.
+            public static let continueWithoutNymHint = L10n.tr("Localizable", "nighthawk.splash.continueWithoutNymHint", fallback: "Wallet and chat use your regular network. You can switch back to Nym in Settings.")
             /// Tor bootstrapping…
             public static let torBootstrapping = L10n.tr("Localizable", "nighthawk.splash.torBootstrapping", fallback: "Tor bootstrapping…")
             /// Tor ready
@@ -898,14 +908,16 @@ public enum L10n {
             }
         }
         public enum Welcome {
-            /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.
-            public static let body = L10n.tr("Localizable", "nighthawk.welcome.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.")
+            /// If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can try to restore your previous wallet.
+            public static let body = L10n.tr("Localizable", "nighthawk.welcome.body", fallback: "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can try to restore your previous wallet.")
             /// Create Wallet
             public static let create = L10n.tr("Localizable", "nighthawk.welcome.create", fallback: "Create Wallet")
-            /// Restore From Backup
-            public static let restore = L10n.tr("Localizable", "nighthawk.welcome.restore", fallback: "Restore From Backup")
-            /// Get started
-            public static let subtitle = L10n.tr("Localizable", "nighthawk.welcome.subtitle", fallback: "Get started")
+            /// This app is free software. Licences are listed under Settings > About > Licences.
+            public static let footer = L10n.tr("Localizable", "nighthawk.welcome.footer", fallback: "This app is free software. Licences are listed under Settings > About > Licences.")
+            /// Restore from Backup
+            public static let restore = L10n.tr("Localizable", "nighthawk.welcome.restore", fallback: "Restore from Backup")
+            /// Get Started
+            public static let subtitle = L10n.tr("Localizable", "nighthawk.welcome.subtitle", fallback: "Get Started")
             /// By using this app you accept our
             public static let terms1 = L10n.tr("Localizable", "nighthawk.welcome.terms1", fallback: "By using this app you accept our")
             public enum Carousel {

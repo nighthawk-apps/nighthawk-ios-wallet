@@ -48,6 +48,8 @@ final class LiveUnifOmrE2eTests: XCTestCase {
             lightwalletTlsPinSha256: nil,
             useTor: false,
             torSocksPort: 0,
+            useNym: false,
+            nymSocksPort: 1080,
             darkfidRpcUrl: darkfid,
             strictOmrOnly: false
         )
@@ -254,8 +256,8 @@ final class LiveUnifOmrE2eTests: XCTestCase {
         let req = "{\"jsonrpc\":\"2.0\",\"method\":\"blockchain.get_tx\",\"params\":[\"\(txHash)\"],\"id\":1}\n"
         guard req.withCString({ send(fd, $0, strlen($0), 0) }) > 0 else { return false }
         var buf = [CChar](repeating: 0, count: 512)
-        let n = recv(fd, &buf, buf.count - 1, 0)
-        guard n > 0 else { return false }
+        let received = recv(fd, &buf, buf.count - 1, 0)
+        guard received > 0 else { return false }
         let resp = String(cString: buf)
         return resp.contains("\"result\"") && !resp.contains("\"error\"")
     }
@@ -288,8 +290,8 @@ final class LiveUnifOmrE2eTests: XCTestCase {
         let req = "{\"jsonrpc\":\"2.0\",\"method\":\"tx.pending\",\"params\":[],\"id\":1}\n"
         guard req.withCString({ send(fd, $0, strlen($0), 0) }) > 0 else { return false }
         var buf = [CChar](repeating: 0, count: 2048)
-        let n = recv(fd, &buf, buf.count - 1, 0)
-        guard n > 0 else { return false }
+        let received = recv(fd, &buf, buf.count - 1, 0)
+        guard received > 0 else { return false }
         return String(cString: buf).contains(txHash)
     }
 }

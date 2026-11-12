@@ -33,7 +33,7 @@ public struct AppView: View {
                 pathScreen(id: topID)
             }
         }
-        .tint(.white)
+        .tint(CyberpunkPalette.primary)
         .alert(
             $store.scope(
                 state: \.alert,
@@ -94,16 +94,6 @@ private extension AppView {
                 case let .meshSettings(store):
                     MeshSettingsView(store: store)
                         .nighthawkChrome(showBack: showBackButton, title: "Nighthawk Mesh") {
-                            self.store.send(.path(.popFrom(id: id)))
-                        }
-
-                case let .daoHub(store):
-                    // DaoHub owns internal back on detail/proposal; App back only on hub.
-                    DaoHubView(store: store)
-                        .nighthawkChrome(
-                            showBack: showBackButton && store.screen == .hub,
-                            title: store.screen == .hub ? "DAO Hub" : nil
-                        ) {
                             self.store.send(.path(.popFrom(id: id)))
                         }
 

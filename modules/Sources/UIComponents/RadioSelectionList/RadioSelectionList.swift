@@ -27,12 +27,12 @@ public struct RadioSelectionList<Option: Identifiable & Hashable, OptionContent:
                     HStack(alignment: .center) {
                         ZStack {
                             Circle()
-                                .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 2)
+                                .stroke(CyberpunkPalette.primary, lineWidth: 2)
                                 .frame(width: 20, height: 20)
 
                             if option == selection.wrappedValue {
                                 Circle()
-                                    .fill(Asset.Colors.Nighthawk.peach.color)
+                                    .fill(CyberpunkPalette.primary)
                                     .frame(width: 10, height: 10)
                             }
                         }

@@ -65,7 +65,10 @@ fn gcs_roundtrip_membership() {
         .collect();
     let (p, m, data) = crate::mesh::gcs::encode_gcs(&ids);
     for id in &ids {
-        assert!(crate::mesh::gcs::gcs_contains(p, m, &data, id), "false negative");
+        assert!(
+            crate::mesh::gcs::gcs_contains(p, m, &data, id),
+            "false negative"
+        );
     }
     let mut missing = [0u8; 16];
     missing[0] = 0xFF;
@@ -235,7 +238,10 @@ fn plaintext_dag_event_is_ignored() {
     let pkt = MeshPacket::new(PacketType::DagEvent, [5u8; 8], b"#dev\nnick\nhi".to_vec());
     let bytes = encode(&pkt).unwrap();
     e.ingest_bytes(&bytes).unwrap();
-    assert!(!e.pop_events().iter().any(|ev| matches!(ev, EngineEvent::EventPut { .. })));
+    assert!(!e
+        .pop_events()
+        .iter()
+        .any(|ev| matches!(ev, EngineEvent::EventPut { .. })));
 }
 
 #[test]
@@ -354,7 +360,13 @@ fn plaintext_bulk_on_ble_is_ignored() {
     let pkt = MeshPacket::new(PacketType::BulkOffer, [3u8; 8], b"ssid=leak".to_vec());
     let bytes = encode(&pkt).unwrap();
     e.ingest_bytes(&bytes).unwrap();
-    assert!(e.pop_events().is_empty() || !e.pop_events().iter().any(|ev| matches!(ev, EngineEvent::EventPut { .. })));
+    assert!(
+        e.pop_events().is_empty()
+            || !e
+                .pop_events()
+                .iter()
+                .any(|ev| matches!(ev, EngineEvent::EventPut { .. }))
+    );
 }
 
 #[test]
@@ -420,7 +432,9 @@ fn replayed_noise_enc_is_dropped() {
         let _ = b.ingest_bytes(f);
     }
     let first = b.pop_events();
-    assert!(first.iter().any(|e| matches!(e, EngineEvent::EventPut { .. })));
+    assert!(first
+        .iter()
+        .any(|e| matches!(e, EngineEvent::EventPut { .. })));
     for f in &frames {
         let _ = b.ingest_bytes(f);
     }
@@ -431,12 +445,7 @@ fn replayed_noise_enc_is_dropped() {
 }
 
 /// Star topology: A and G only talk through relay R.
-fn hop_star(
-    a: &mut MeshEngine,
-    relay: &mut MeshEngine,
-    g: &mut MeshEngine,
-    rounds: usize,
-) {
+fn hop_star(a: &mut MeshEngine, relay: &mut MeshEngine, g: &mut MeshEngine, rounds: usize) {
     for _ in 0..rounds {
         for f in a.pop_outbound() {
             let _ = relay.ingest_bytes(&f);
@@ -505,13 +514,15 @@ fn three_device_connect_handshake() {
 fn three_device_chat_via_relay() {
     let (mut a, mut relay, mut g) = arm_three();
     handshake_star(&mut a, &mut relay, &mut g);
-    a.publish_event([10u8; 16], b"event-from-a".to_vec()).unwrap();
+    a.publish_event([10u8; 16], b"event-from-a".to_vec())
+        .unwrap();
     hop_star(&mut a, &mut relay, &mut g, 16);
     assert!(g.pop_events().iter().any(|e| matches!(
         e,
         EngineEvent::EventPut { payload, .. } if payload == b"event-from-a"
     )));
-    g.publish_event([11u8; 16], b"event-from-g".to_vec()).unwrap();
+    g.publish_event([11u8; 16], b"event-from-g".to_vec())
+        .unwrap();
     hop_star(&mut a, &mut relay, &mut g, 16);
     assert!(a.pop_events().iter().any(|e| matches!(
         e,
@@ -523,7 +534,8 @@ fn three_device_chat_via_relay() {
 fn three_device_relay_reseals_not_forwards_ciphertext() {
     let (mut a, mut relay, mut g) = arm_three();
     handshake_star(&mut a, &mut relay, &mut g);
-    a.publish_event([12u8; 16], b"unique-payload-xyz".to_vec()).unwrap();
+    a.publish_event([12u8; 16], b"unique-payload-xyz".to_vec())
+        .unwrap();
     let a_frames = a.pop_outbound();
     assert!(!a_frames.is_empty());
     for f in &a_frames {
@@ -533,7 +545,10 @@ fn three_device_relay_reseals_not_forwards_ciphertext() {
     assert!(!relay_out.is_empty());
     for f in &a_frames {
         for r in &relay_out {
-            assert_ne!(f, r, "relay must not forward initiator ciphertext unchanged");
+            assert_ne!(
+                f, r,
+                "relay must not forward initiator ciphertext unchanged"
+            );
         }
     }
     for f in relay_out {
@@ -549,7 +564,8 @@ fn three_device_relay_reseals_not_forwards_ciphertext() {
 fn three_device_periodic_dag_sync() {
     let (mut a, mut relay, mut g) = arm_three();
     handshake_star(&mut a, &mut relay, &mut g);
-    a.publish_event([20u8; 16], b"chat-round-1".to_vec()).unwrap();
+    a.publish_event([20u8; 16], b"chat-round-1".to_vec())
+        .unwrap();
     hop_star(&mut a, &mut relay, &mut g, 16);
     assert!(g.pop_events().iter().any(|e| matches!(
         e,
@@ -567,7 +583,8 @@ fn three_device_periodic_dag_sync() {
 fn three_device_link_lost_and_reconnect() {
     let (mut a, mut relay, mut g) = arm_three();
     handshake_star(&mut a, &mut relay, &mut g);
-    a.publish_event([21u8; 16], b"before-loss".to_vec()).unwrap();
+    a.publish_event([21u8; 16], b"before-loss".to_vec())
+        .unwrap();
     hop_star(&mut a, &mut relay, &mut g, 16);
     assert!(g.pop_events().iter().any(|e| matches!(
         e,
@@ -575,7 +592,8 @@ fn three_device_link_lost_and_reconnect() {
     )));
 
     relay.set_mesh_on(false);
-    a.publish_event([22u8; 16], b"during-loss".to_vec()).unwrap();
+    a.publish_event([22u8; 16], b"during-loss".to_vec())
+        .unwrap();
     hop_star(&mut a, &mut relay, &mut g, 8);
     assert!(!g.pop_events().iter().any(|e| matches!(
         e,
@@ -650,6 +668,104 @@ fn handshake_timeout_drops_unfinished() {
     let n = t.expire_handshakes(unix_ms() + HANDSHAKE_TIMEOUT_MS + 1, HANDSHAKE_TIMEOUT_MS);
     assert_eq!(n, 1);
     assert!(!t.is_init_sent(&peer));
+}
+
+#[test]
+fn oversized_ping_is_rejected() {
+    let pkt = MeshPacket::new(PacketType::Ping, [1u8; 8], vec![0u8; 65]);
+    assert!(matches!(encode(&pkt), Err(CodecError::PayloadTooLarge)));
+    let mut raw = encode(&MeshPacket::new(PacketType::Ping, [1u8; 8], vec![0u8; 64])).unwrap();
+    let len_at = raw.len() - 64 - 4;
+    raw[len_at..len_at + 4].copy_from_slice(&65u32.to_be_bytes());
+    raw.push(0);
+    assert!(matches!(decode(&raw), Err(CodecError::PayloadTooLarge)));
+}
+
+#[test]
+fn dedup_ignores_timestamp() {
+    let mut e = MeshEngine::new();
+    e.set_mesh_on(true);
+    let mut pkt = MeshPacket::new(PacketType::Ping, [7u8; 8], b"same".to_vec());
+    let id = pkt.packet_id();
+    e.ingest_bytes(&encode(&pkt).unwrap()).unwrap();
+    pkt.timestamp_ms = unix_ms().saturating_add(1_000);
+    assert_eq!(pkt.packet_id(), id);
+    assert!(matches!(
+        e.ingest_bytes(&encode(&pkt).unwrap()),
+        Err(IngestError::DroppedDuplicate)
+    ));
+}
+
+#[test]
+fn future_and_stale_timestamps_are_dropped_before_dedup() {
+    use super::types::{timestamp_in_window, TIMESTAMP_SKEW_MS};
+    let mut e = MeshEngine::new();
+    e.set_mesh_on(true);
+    let mut pkt = MeshPacket::new(PacketType::Ping, [3u8; 8], b"later".to_vec());
+    let now = unix_ms();
+    pkt.timestamp_ms = now.saturating_add(TIMESTAMP_SKEW_MS + 5_000);
+    assert!(!timestamp_in_window(pkt.timestamp_ms, now));
+    assert!(matches!(
+        e.ingest_bytes(&encode(&pkt).unwrap()),
+        Err(IngestError::Timestamp)
+    ));
+    pkt.timestamp_ms = now.saturating_sub(TIMESTAMP_SKEW_MS + 5_000);
+    assert!(matches!(
+        e.ingest_bytes(&encode(&pkt).unwrap()),
+        Err(IngestError::Timestamp)
+    ));
+    pkt.timestamp_ms = unix_ms();
+    e.ingest_bytes(&encode(&pkt).unwrap()).unwrap();
+}
+
+#[test]
+fn reassembled_ping_over_type_cap_is_dropped() {
+    let mut payload = Vec::new();
+    payload.extend_from_slice(&[9u8; 8]);
+    payload.extend_from_slice(&0u16.to_be_bytes());
+    payload.extend_from_slice(&1u16.to_be_bytes());
+    payload.push(PacketType::Ping.as_u8());
+    payload.extend_from_slice(&[0u8; 65]);
+    let frag = MeshPacket::new(PacketType::Fragment, [1u8; 8], payload);
+    let mut asm = FragmentAssembler::default();
+    assert!(matches!(asm.ingest(&frag, 1_000), Err(FragError::TooLarge)));
+}
+
+#[test]
+fn ready_session_expires_on_absolute_age() {
+    use super::identity::MeshIdentity;
+    use super::session::{HsOutcome, SessionTable};
+    use super::types::SESSION_MAX_AGE_MS;
+
+    let a = MeshIdentity::generate();
+    let b = MeshIdentity::generate();
+    let mut sa = SessionTable::default();
+    let mut sb = SessionTable::default();
+    let peer_b = b.peer_id();
+    let peer_a = a.peer_id();
+    let hs1 = sa.begin_initiator(peer_b, Vec::new()).unwrap();
+    let hs2 = match sb.ingest_hs(&b, peer_a, &hs1).unwrap() {
+        HsOutcome::Reply(p) => p,
+        HsOutcome::Established { .. } => panic!("expected hs2 reply"),
+    };
+    let hs3 = match sa.ingest_hs(&a, peer_b, &hs2).unwrap() {
+        HsOutcome::Established { reply, .. } => reply.expect("hs3"),
+        HsOutcome::Reply(_) => panic!("expected established"),
+    };
+    sb.ingest_hs(&b, peer_a, &hs3).unwrap();
+    assert!(sa.is_ready(&peer_b));
+    assert!(sb.is_ready(&peer_a));
+    let now = unix_ms();
+    assert_eq!(sa.expire_aged(now, SESSION_MAX_AGE_MS), 0);
+    assert!(sa.is_ready(&peer_b));
+    assert_eq!(
+        sa.expire_aged(now + SESSION_MAX_AGE_MS + 60_000, SESSION_MAX_AGE_MS),
+        1
+    );
+    assert!(!sa.is_ready(&peer_b));
+    assert!(sb.is_ready(&peer_a));
+    sa.begin_initiator(peer_b, Vec::new()).unwrap();
+    assert!(sa.is_init_sent(&peer_b));
 }
 
 #[test]

@@ -116,7 +116,10 @@ public struct NewDmConversation {
                 let shareText = DarkircDmPubkeyParser.formatForSharing(state.myPublicKey)
                 UIPasteboard.general.setItems(
                     [[UIPasteboard.typeAutomatic: shareText]],
-                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                    options: [
+                        .localOnly: true,
+                        .expirationDate: Date().addingTimeInterval(60)
+                    ]
                 )
                 return .none
 
@@ -178,13 +181,13 @@ struct NewDmConversationView: View {
 
                     Text("Exchange public keys with your peer to start an end-to-end encrypted DM using ChaCha20.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
 
                     // Contact label
                     VStack(alignment: .leading, spacing: 6) {
                         Text("CONTACT LABEL")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                             .tracking(1.5)
 
                         TextField("e.g. alice", text: $store.contactLabel)
@@ -194,7 +197,7 @@ struct NewDmConversationView: View {
                             .padding(.vertical, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Asset.Colors.Nighthawk.navy.color)
+                                    .fill(CyberpunkPalette.surface)
                             )
                             .disabled(store.isBusy)
                     }
@@ -203,7 +206,7 @@ struct NewDmConversationView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("PEER'S PUBLIC KEY")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                             .tracking(1.5)
 
                         TextField("Base58 public key", text: $store.theirPublicKey, axis: .vertical)
@@ -214,7 +217,7 @@ struct NewDmConversationView: View {
                             .padding(.vertical, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Asset.Colors.Nighthawk.navy.color)
+                                    .fill(CyberpunkPalette.surface)
                             )
                             .disabled(store.isBusy)
 
@@ -222,14 +225,14 @@ struct NewDmConversationView: View {
                             store.send(.pasteFromClipboardTapped)
                         }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(CyberpunkPalette.primary)
                     }
 
                     // Generate my keys
                     VStack(alignment: .leading, spacing: 6) {
                         Text("MY KEYPAIR")
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                             .tracking(1.5)
 
                         if store.myPublicKey.isEmpty {
@@ -248,7 +251,7 @@ struct NewDmConversationView: View {
                                 .padding(.vertical, 12)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(Asset.Colors.Nighthawk.peach.color.opacity(0.3))
+                                        .fill(CyberpunkPalette.primary.opacity(0.3))
                                 )
                             }
                             .disabled(store.isBusy)
@@ -256,7 +259,7 @@ struct NewDmConversationView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("My Public Key:")
                                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                                    .foregroundColor(CyberpunkPalette.muted)
 
                                 Text(store.myPublicKey)
                                     .font(.system(size: 12, design: .monospaced))
@@ -264,7 +267,7 @@ struct NewDmConversationView: View {
                                     .padding(12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(Asset.Colors.Nighthawk.navy.color)
+                                            .fill(CyberpunkPalette.surface)
                                     )
 
                                 Button(action: { store.send(.copyMyPublicKeyTapped) }) {
@@ -274,12 +277,12 @@ struct NewDmConversationView: View {
                                         Text("Copy to Share")
                                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                                     }
-                                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                                    .foregroundColor(CyberpunkPalette.primary)
                                 }
 
                                 Text("Share this key with your peer so they can message you.")
                                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
+                                    .foregroundColor(CyberpunkPalette.muted.opacity(0.7))
                             }
                         }
                     }
@@ -307,7 +310,7 @@ struct NewDmConversationView: View {
                         .padding(.vertical, 14)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(canStart ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.navy.color)
+                                .fill(canStart ? CyberpunkPalette.primary : CyberpunkPalette.surface)
                         )
                     }
                     .disabled(!canStart)

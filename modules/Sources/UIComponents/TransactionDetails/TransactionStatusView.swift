@@ -17,7 +17,7 @@ public struct TransactionStatusView: View {
         HStack(alignment: .center) {
             statusImage
                 .resizable()
-                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(CyberpunkPalette.muted)
                 .frame(width: 16, height: 16)
 
             Text(statusText)
@@ -25,12 +25,12 @@ public struct TransactionStatusView: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 26)
-        .background(Asset.Colors.Nighthawk.navy.color)
+        .background(CyberpunkPalette.surface)
         .cornerRadius(13)
         .overlay(
             RoundedRectangle(cornerRadius: 13)
                 .strokeBorder(
-                    Asset.Colors.Nighthawk.parmaviolet.color,
+                    CyberpunkPalette.muted,
                     style: StrokeStyle(lineWidth: 1, dash: [4])
                 )
         )

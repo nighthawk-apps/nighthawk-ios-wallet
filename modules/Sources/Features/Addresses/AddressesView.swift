@@ -104,7 +104,7 @@ private extension AddressesView {
         }
         .frame(maxHeight: .infinity)
         .padding(22)
-        .background(Asset.Colors.Nighthawk.navy.color)
+        .background(CyberpunkPalette.surface)
         .cornerRadius(10)
     }
 

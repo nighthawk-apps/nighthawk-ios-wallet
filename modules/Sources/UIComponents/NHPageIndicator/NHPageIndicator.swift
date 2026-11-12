@@ -36,10 +36,10 @@ public struct NHPageIndicator<Page: NHPage>: View where Page.AllCases == [Page] 
 // MARK: - Implementation
 private extension NHPageIndicator {
     func fillColor(isSelected: Bool) -> Color {
-        isSelected ? .white : Asset.Colors.Nighthawk.peach.color.opacity(0.6)
+        isSelected ? .white : CyberpunkPalette.primary.opacity(0.6)
     }
 
     func strokeColor(isSelected: Bool) -> Color {
-        isSelected ? Asset.Colors.Nighthawk.parmaviolet.color : .clear
+        isSelected ? CyberpunkPalette.muted : .clear
     }
 }

@@ -77,9 +77,9 @@ enum MeshEngineBridge {
         guard let popFn else { return }
         var buf = [UInt8](repeating: 0, count: 64 * 1024)
         for _ in 0..<32 {
-            let n = buf.withUnsafeMutableBufferPointer { popFn($0.baseAddress, Int32($0.count)) }
-            if n <= 0 { return }
-            send(Data(buf.prefix(Int(n))))
+            let written = buf.withUnsafeMutableBufferPointer { popFn($0.baseAddress, Int32($0.count)) }
+            if written <= 0 { return }
+            send(Data(buf.prefix(Int(written))))
         }
     }
 
@@ -90,9 +90,9 @@ enum MeshEngineBridge {
     static func popEventsJson() -> String? {
         guard let eventsFn else { return nil }
         var buf = [UInt8](repeating: 0, count: 64 * 1024)
-        let n = buf.withUnsafeMutableBufferPointer { eventsFn($0.baseAddress, Int32($0.count)) }
-        if n <= 0 { return nil }
-        return String(bytes: buf.prefix(Int(n)), encoding: .utf8)
+        let written = buf.withUnsafeMutableBufferPointer { eventsFn($0.baseAddress, Int32($0.count)) }
+        if written <= 0 { return nil }
+        return String(bytes: buf.prefix(Int(written)), encoding: .utf8)
     }
 
     static func setBulkTcp(host: String?, port: Int32) {
@@ -104,8 +104,8 @@ enum MeshEngineBridge {
         }
     }
 
-    static func recordBulkBytes(_ n: UInt64) -> Bool {
-        (recordFn?(n) ?? 0) == 1
+    static func recordBulkBytes(_ byteCount: UInt64) -> Bool {
+        (recordFn?(byteCount) ?? 0) == 1
     }
 
     static func wipe() {
@@ -116,8 +116,8 @@ enum MeshEngineBridge {
     static func lastGatewayPeer() -> Data? {
         guard let lastGwFn else { return nil }
         var buf = [UInt8](repeating: 0, count: 8)
-        let n = buf.withUnsafeMutableBufferPointer { lastGwFn($0.baseAddress, Int32($0.count)) }
-        guard n == 8 else { return nil }
+        let written = buf.withUnsafeMutableBufferPointer { lastGwFn($0.baseAddress, Int32($0.count)) }
+        guard written == 8 else { return nil }
         return Data(buf)
     }
 
@@ -187,8 +187,8 @@ enum MeshEngineBridge {
     static func peerId() -> Data? {
         guard let peerIdFn else { return nil }
         var buf = [UInt8](repeating: 0, count: 8)
-        let n = buf.withUnsafeMutableBufferPointer { peerIdFn($0.baseAddress, Int32($0.count)) }
-        guard n == 8 else { return nil }
+        let written = buf.withUnsafeMutableBufferPointer { peerIdFn($0.baseAddress, Int32($0.count)) }
+        guard written == 8 else { return nil }
         return Data(buf)
     }
 
@@ -198,9 +198,9 @@ enum MeshEngineBridge {
     static func drainEvents() {
         guard let eventsFn else { return }
         var buf = [UInt8](repeating: 0, count: 16 * 1024)
-        let n = buf.withUnsafeMutableBufferPointer { eventsFn($0.baseAddress, Int32($0.count)) }
-        guard n > 0 else { return }
-        let json = String(bytes: buf.prefix(Int(n)), encoding: .utf8) ?? ""
+        let written = buf.withUnsafeMutableBufferPointer { eventsFn($0.baseAddress, Int32($0.count)) }
+        guard written > 0 else { return }
+        let json = String(bytes: buf.prefix(Int(written)), encoding: .utf8) ?? ""
         if json.contains("\"cache_full\"") {
             cacheEvicted = true
         }

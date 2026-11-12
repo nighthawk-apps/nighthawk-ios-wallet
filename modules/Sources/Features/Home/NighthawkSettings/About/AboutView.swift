@@ -65,7 +65,7 @@ public struct AboutView: View {
                 .paragraphMedium(color: .white)
             Spacer()
             Text(license)
-                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                .caption(color: CyberpunkPalette.muted)
         }
     }
 

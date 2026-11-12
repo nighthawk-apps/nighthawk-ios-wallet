@@ -32,6 +32,8 @@ public enum Asset {
             public static let calloutBackupFailed = ImageAsset(name: "calloutBackupFailed")
             public static let calloutBackupFlow1 = ImageAsset(name: "calloutBackupFlow1")
             public static let calloutBackupSucceeded = ImageAsset(name: "calloutBackupSucceeded")
+            /// Rainy neon street. Same asset as Android `cyberpunk_bg`.
+            public static let cyberpunkBg = ImageAsset(name: "cyberpunk_bg")
         }
         public enum Icons {
             public enum Nighthawk {

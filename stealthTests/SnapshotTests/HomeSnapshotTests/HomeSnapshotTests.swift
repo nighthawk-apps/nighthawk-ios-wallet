@@ -33,6 +33,10 @@ final class HomeSnapshotTests: XCTestCase {
         }
     }
 
+    func testHomeSnapshot_ChatTab() {
+        captureSnapshot(selectedTab: .chat)
+    }
+
     func testHomeSnapshot_WalletTab() {
         captureSnapshot(selectedTab: .wallet)
     }

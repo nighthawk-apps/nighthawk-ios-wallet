@@ -71,18 +71,18 @@ public final class NHBulkLink: NSObject, @unchecked Sendable {
         }
     }
 
-    public func noteBytes(_ n: UInt64) -> Bool {
+    public func noteBytes(_ byteCount: UInt64) -> Bool {
         guard running, let startedAt else { return false }
         if Date().timeIntervalSince(startedAt) > NHBulkPolicy.maxSeconds {
             stop()
             return false
         }
-        bytes += n
+        bytes += byteCount
         if bytes > NHBulkPolicy.maxBytes {
             stop()
             return false
         }
-        return MeshEngineBridge.recordBulkBytes(n)
+        return MeshEngineBridge.recordBulkBytes(byteCount)
     }
 
     public func stop() {

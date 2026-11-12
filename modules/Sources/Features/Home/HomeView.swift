@@ -28,11 +28,7 @@ public struct HomeView: View {
                 .zIndex(1)
             }
         }
-        .background {
-            Asset.Colors.Nighthawk.darkNavy.color
-                .ignoresSafeArea(edges: [.top, .horizontal])
-                .allowsHitTesting(false)
-        }
+        .applyNighthawkBackground()
         .onAppear { store.send(.onAppear) }
         .toast(
             unwrapping: $store.toast,
@@ -74,8 +70,7 @@ public struct HomeView: View {
 
 // MARK: - Tab content
 private extension HomeView {
-    @ViewBuilder
-    var tabContent: some View {
+    @ViewBuilder var tabContent: some View {
         switch store.selectedTab {
         case .chat:
             ChatView(
@@ -102,6 +97,14 @@ private extension HomeView {
 
         case .dex:
             DexComingSoonView()
+
+        case .dao:
+            DaoHubView(
+                store: store.scope(
+                    state: \.daoHub,
+                    action: \.daoHub
+                )
+            )
 
         case .settings:
             NighthawkSettingsView(

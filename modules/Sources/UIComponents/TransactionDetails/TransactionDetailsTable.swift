@@ -90,7 +90,7 @@ struct TransactionDetailsTextStyle: ViewModifier {
 }
 
 extension Text {
-    func details(color: Color = Asset.Colors.Nighthawk.parmaviolet.color) -> some View {
+    func details(color: Color = CyberpunkPalette.muted) -> some View {
         self.modifier(TransactionDetailsTextStyle(color: color))
     }
 }
@@ -105,7 +105,7 @@ struct TxnDetailsButtonStyle: ButtonStyle {
         var body: some View {
             configuration.label
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 12))
-                .foregroundColor(Asset.Colors.Nighthawk.peach.color.opacity(configuration.isPressed ? 0.5 : 1.0))
+                .foregroundColor(CyberpunkPalette.primary.opacity(configuration.isPressed ? 0.5 : 1.0))
         }
     }
 }

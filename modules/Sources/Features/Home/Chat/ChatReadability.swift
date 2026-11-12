@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIComponents
 
 public enum OutboundPeerState: String, Equatable, Sendable {
     case connected
@@ -161,17 +162,17 @@ enum ChatTimelineItem: Equatable, Identifiable {
 
 enum ChatTimeline {
     private static let labelFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "d MMM yyyy"
-        return f
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "d MMM yyyy"
+        return formatter
     }()
 
     private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "HH:mm"
-        return f
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "HH:mm"
+        return formatter
     }()
 
     static func group(_ messages: [Chat.State.Message], calendar: Calendar = .current) -> [ChatTimelineItem] {
@@ -198,24 +199,24 @@ enum ChatTimeline {
 /// Own nick is always accent; peers hash into a cool slate palette (no cyan `#00F0FF`).
 /// Incoming/outgoing body is the same two-tone for public group chat and encrypted DMs.
 enum ChatChrome {
-    static let ownNick = Color(red: 94 / 255, green: 155 / 255, blue: 175 / 255) // #5E9BAF
-    static let link = Color(red: 125 / 255, green: 173 / 255, blue: 185 / 255) // #7DADB9
-    static let fud = Color(red: 143 / 255, green: 152 / 255, blue: 163 / 255) // #8F98A3
-    static let bodyIncoming = Color(red: 196 / 255, green: 203 / 255, blue: 212 / 255) // #C4CBD4
-    static let bodyOutgoing = Color(red: 232 / 255, green: 235 / 255, blue: 239 / 255) // #E8EBEF
-    static let timestamp = Color(red: 143 / 255, green: 152 / 255, blue: 163 / 255)
-    static let bubbleIncoming = Color(red: 23 / 255, green: 28 / 255, blue: 34 / 255) // #171C22
-    static let bubbleOutgoing = Color(red: 36 / 255, green: 48 / 255, blue: 56 / 255) // #243038
+    static let ownNick = CyberpunkPalette.primary
+    static let link = CyberpunkPalette.primary
+    static let fud = CyberpunkPalette.reference
+    static let bodyIncoming = CyberpunkPalette.muted
+    static let bodyOutgoing = CyberpunkPalette.body
+    static let timestamp = CyberpunkPalette.muted.opacity(0.7)
+    static let bubbleIncoming = CyberpunkPalette.surface
+    static let bubbleOutgoing = CyberpunkPalette.surfaceVariant
 
     static let peerNicks: [Color] = [
-        Color(red: 125 / 255, green: 173 / 255, blue: 185 / 255), // accent muted
-        Color(red: 122 / 255, green: 163 / 255, blue: 243 / 255), // bright blue
-        Color(red: 155 / 255, green: 189 / 255, blue: 207 / 255), // cool slate
-        Color(red: 157 / 255, green: 234 / 255, blue: 121 / 255), // bright green
-        Color(red: 168 / 255, green: 178 / 255, blue: 189 / 255), // navigation muted
-        Color(red: 156 / 255, green: 87 / 255, blue: 118 / 255), // plum
-        Color(red: 79 / 255, green: 135 / 255, blue: 153 / 255), // accent pressed
-        Color(red: 197 / 255, green: 206 / 255, blue: 214 / 255) // parmaviolet
+        CyberpunkPalette.primary,
+        CyberpunkPalette.reference,
+        CyberpunkPalette.chipLabel,
+        CyberpunkPalette.body,
+        CyberpunkPalette.muted,
+        CyberpunkPalette.navigationIcon,
+        CyberpunkPalette.primary.opacity(0.75),
+        CyberpunkPalette.reference.opacity(0.75)
     ]
 
     static func isOwnNick(_ nick: String, myNick: String) -> Bool {

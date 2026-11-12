@@ -6,6 +6,7 @@
 import Generated
 import Models
 import SwiftUI
+import UIComponents
 import Utils
 
 struct SyncStatusView: View {
@@ -26,12 +27,12 @@ struct SyncStatusView: View {
             // Sync status message — from lightwallet sync engine
             if let lightSyncMessage = status.lightSyncStatusMessage, !lightSyncMessage.isEmpty {
                 Text(lightSyncMessage)
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .caption(color: CyberpunkPalette.muted)
                     .padding(.horizontal, 25)
                     .accessibilityIdentifier("SYNC_STATUS_TEXT")
             } else {
                 Text(status.message)
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .caption(color: CyberpunkPalette.muted)
                     .padding(.horizontal, 25)
             }
 
@@ -66,7 +67,7 @@ struct SyncStatusView: View {
         let displayColor: Color = {
             if method.isPrivateRetrieval { return Color.green.opacity(0.8) }
             if method == .trialDecrypt { return Color.orange.opacity(0.8) }
-            return Asset.Colors.Nighthawk.peach.color.opacity(0.7)
+            return CyberpunkPalette.primary.opacity(0.7)
         }()
 
         Text(displayText)

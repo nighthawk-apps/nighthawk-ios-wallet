@@ -61,6 +61,9 @@
 		D4A1C7B2E5F60025 /* MeshRadioScenarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60024 /* MeshRadioScenarioTests.swift */; };
 		D4A1C7B2E5F60031 /* DarkFiExplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */; };
 		D4A1C7B2E5F60033 /* ScreenCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */; };
+		D4A1C7B2E5F60041 /* ChatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60040 /* ChatTests.swift */; };
+		D4A1C7B2E5F60043 /* SyncStatusSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60042 /* SyncStatusSnapshotTests.swift */; };
+		D4A1C7B2E5F60045 /* ThemeDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A1C7B2E5F60044 /* ThemeDefaultsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,6 +137,9 @@
 		D4A1C7B2E5F60024 /* MeshRadioScenarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshRadioScenarioTests.swift; sourceTree = "<group>"; };
 		D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkFiExplorerTests.swift; sourceTree = "<group>"; };
 		D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureTests.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60040 /* ChatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTests.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60042 /* SyncStatusSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusSnapshotTests.swift; sourceTree = "<group>"; };
+		D4A1C7B2E5F60044 /* ThemeDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeDefaultsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -418,6 +424,8 @@
 				9E39112D283F91600073DD9A /* ZatoshiTests.swift */,
 				D4A1C7B2E5F60030 /* DarkFiExplorerTests.swift */,
 				D4A1C7B2E5F60032 /* ScreenCaptureTests.swift */,
+				D4A1C7B2E5F60042 /* SyncStatusSnapshotTests.swift */,
+				D4A1C7B2E5F60044 /* ThemeDefaultsTests.swift */,
 			);
 			path = UtilTests;
 			sourceTree = "<group>";
@@ -445,6 +453,7 @@
 			children = (
 				D4A1C7B2E5F60001 /* DarkircLifecycleTests.swift */,
 				D4A1C7B2E5F60004 /* ChatChromeTests.swift */,
+				D4A1C7B2E5F60040 /* ChatTests.swift */,
 				D4A1C7B2E5F60020 /* NighthawkMeshPolicyTests.swift */,
 				D4A1C7B2E5F60022 /* MeshWireCodecTests.swift */,
 				D4A1C7B2E5F60024 /* MeshRadioScenarioTests.swift */,
@@ -674,6 +683,9 @@
 				D4A1C7B2E5F60025 /* MeshRadioScenarioTests.swift in Sources */,
 				D4A1C7B2E5F60031 /* DarkFiExplorerTests.swift in Sources */,
 				D4A1C7B2E5F60033 /* ScreenCaptureTests.swift in Sources */,
+				D4A1C7B2E5F60041 /* ChatTests.swift in Sources */,
+				D4A1C7B2E5F60043 /* SyncStatusSnapshotTests.swift in Sources */,
+				D4A1C7B2E5F60045 /* ThemeDefaultsTests.swift in Sources */,
 				D4A1C7B2E5F60011 /* WalletStorageKeychainQueryTests.swift in Sources */,
 				B1C2D3E4F5A60008 /* UIView+Accessibility.swift in Sources */,
 				9E3451C429C857DF00177D16 /* View+UIImage.swift in Sources */,
@@ -700,7 +712,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
@@ -713,7 +725,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.015;
+				MARKETING_VERSION = 3.01.12;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -732,7 +744,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
@@ -744,7 +756,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.015;
+				MARKETING_VERSION = 3.01.12;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -887,7 +899,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
@@ -900,7 +912,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.015;
+				MARKETING_VERSION = 3.01.12;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -919,7 +931,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"stealth/Preview Content\"";
 				DEVELOPMENT_TEAM = QKFHD72H66;
 				ENABLE_BITCODE = NO;
@@ -931,7 +943,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.00.015;
+				MARKETING_VERSION = 3.01.12;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nighthawkapps.wallet.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";

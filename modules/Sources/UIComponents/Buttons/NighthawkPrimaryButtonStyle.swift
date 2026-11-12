@@ -51,10 +51,10 @@ public struct NighthawkPrimaryButtonStyle: ButtonStyle {
                 .padding(.horizontal, 14)
                 .background(
                     (
-                        isEnabled ? backgroundColor : Asset.Colors.Nighthawk.navy.color
+                        isEnabled ? backgroundColor : CyberpunkPalette.surface
                     ).opacity(configuration.isPressed ? 0.5 : 1.0)
                 )
-                .foregroundColor(isEnabled ? foregroundColor : Asset.Colors.Nighthawk.parmaviolet.color)
+                .foregroundColor(isEnabled ? foregroundColor : CyberpunkPalette.muted)
                 .cornerRadius(8)
         }
     }
@@ -63,8 +63,8 @@ public struct NighthawkPrimaryButtonStyle: ButtonStyle {
 public extension ButtonStyle where Self == NighthawkPrimaryButtonStyle {
     static func nighthawkPrimary(
         width: CGFloat? = nil,
-        backgroundColor: Color = Asset.Colors.Nighthawk.peach.color,
-        foregroundColor: Color = Asset.Colors.Nighthawk.darkNavy.color
+        backgroundColor: Color = CyberpunkPalette.primary,
+        foregroundColor: Color = CyberpunkPalette.onPrimary
     ) -> NighthawkPrimaryButtonStyle {
         NighthawkPrimaryButtonStyle(
             width: width,

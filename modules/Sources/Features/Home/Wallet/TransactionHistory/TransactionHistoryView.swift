@@ -27,7 +27,7 @@ public struct TransactionHistoryView: View {
 
                     Divider()
                         .frame(height: 2)
-                        .overlay(Asset.Colors.Nighthawk.navy.color)
+                        .overlay(CyberpunkPalette.outline)
                 }
             }
         }

@@ -21,7 +21,7 @@ public struct IndeterminateProgress: View {
 
     public var body: some View {
         Rectangle()
-            .foregroundColor(Asset.Colors.Nighthawk.peach.color.opacity(0.2))
+            .foregroundColor(CyberpunkPalette.primary.opacity(0.2))
             .frame(height: Constants.height)
             .overlay(
                 GeometryReader { geometry in
@@ -36,7 +36,7 @@ private extension IndeterminateProgress {
     func rect(in rect: CGRect) -> some View {
         let width = rect.width * Constants.coverPercentage
         return Rectangle()
-            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            .foregroundColor(CyberpunkPalette.primary)
             .frame(width: width)
             .scaleEffect(x: scaleX)
             .offset(x: width * offset)

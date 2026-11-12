@@ -21,7 +21,7 @@ public struct NighthawkTextEditor: View {
         placeholder: String? = nil,
         text: Binding<String>,
         isValid: NighthawkTextEditor.ValidationState = .valid,
-        foregroundColor: Color = Asset.Colors.Nighthawk.peach.color
+        foregroundColor: Color = CyberpunkPalette.primary
     ) {
         self.placeholder = placeholder
         self.text = text
@@ -55,7 +55,7 @@ public struct NighthawkTextEditor: View {
                             .stroke(
                                 _focusState || !text.wrappedValue.isEmpty
                                     ? foregroundColor.opacity(0.8)
-                                    : Asset.Colors.Nighthawk.parmaviolet.color,
+                                    : CyberpunkPalette.muted,
                                 lineWidth: 2
                             )
                     )
@@ -66,7 +66,7 @@ public struct NighthawkTextEditor: View {
                         .subtitle(
                             color: _focusState || !text.wrappedValue.isEmpty
                                 ? foregroundColor.opacity(0.8)
-                                : Asset.Colors.Nighthawk.parmaviolet.color
+                                : CyberpunkPalette.muted
                         )
                         .padding(.leading, 14)
                         .padding(.top, 18)

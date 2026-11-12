@@ -13,7 +13,7 @@ public struct ImportWarningView: View {
     public var body: some View {
         VStack(spacing: 16) {
             Text(L10n.Nighthawk.ImportWarning.title)
-                .title(color: Asset.Colors.Nighthawk.peach.color)
+                .title(color: CyberpunkPalette.primary)
 
             Text(L10n.Nighthawk.ImportWarning.description)
                 .subtitle(color: .white)

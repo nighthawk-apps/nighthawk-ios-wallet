@@ -23,6 +23,8 @@ public struct UserPreferencesStorage {
         case darkfiIsFirstSync
         case darkfiUseCustomLightwalletd
         case darkfiCustomLightwalletdServer
+        case darkfiPrivacyNetwork
+        case darkfiNymSocksPort
         case darkfiTorForWallet
         case darkfiTorForChat
         case darkfiUseEmbeddedTor
@@ -92,11 +94,12 @@ public struct UserPreferencesStorage {
 
     public var theme: NighthawkSetting.Theme {
         let rawValue = getValue(forKey: Constants.darkfiTheme.rawValue, default: defaultTheme.rawValue)
-        return NighthawkSetting.Theme(rawValue: rawValue) ?? .default
+        let parsed = NighthawkSetting.Theme(rawValue: rawValue) ?? .cyberpunk
+        return parsed.canonical
     }
 
     public func setTheme(_ theme: NighthawkSetting.Theme) {
-        setValue(theme.rawValue, forKey: Constants.darkfiTheme.rawValue)
+        setValue(theme.canonical.rawValue, forKey: Constants.darkfiTheme.rawValue)
     }
 
     public var fiatCurrency: NighthawkSetting.FiatCurrency {
@@ -173,22 +176,63 @@ public struct UserPreferencesStorage {
         }
     }
 
-    // MARK: - Tor Network Preferences
+    // MARK: - Network privacy (Android `PrivacyNetwork`: Nym default, Tor optional)
+
+    /// App-wide route for wallet and chat. Unset installs follow Android: Nym.
+    /// An explicitly stored Tor flag from an older build is kept.
+    public enum PrivacyNetwork: String {
+        case nym
+        case tor
+        case direct
+    }
+
+    public static let defaultNymSocksPort = 1080
+
+    public var privacyNetwork: PrivacyNetwork {
+        if let raw: String = getValue(forKey: Constants.darkfiPrivacyNetwork.rawValue, default: nil) {
+            return PrivacyNetwork(rawValue: raw) ?? .nym
+        }
+        if userDefaults.objectForKey(Constants.darkfiTorForWallet.rawValue) as? Bool == true {
+            return .tor
+        }
+        if userDefaults.objectForKey(Constants.darkfiTorForWallet.rawValue) as? Bool == false {
+            return .direct
+        }
+        return .nym
+    }
+
+    public func setPrivacyNetwork(_ network: PrivacyNetwork) {
+        setValue(network.rawValue, forKey: Constants.darkfiPrivacyNetwork.rawValue)
+        setValue(network == .tor, forKey: Constants.darkfiTorForWallet.rawValue)
+        setValue(network == .tor, forKey: Constants.darkfiTorForChat.rawValue)
+    }
+
+    public var nymSocksPort: Int {
+        let stored: Int = getValue(
+            forKey: Constants.darkfiNymSocksPort.rawValue,
+            default: Self.defaultNymSocksPort
+        )
+        return (1...65535).contains(stored) ? stored : Self.defaultNymSocksPort
+    }
+
+    public func setNymSocksPort(_ port: Int) {
+        setValue(min(max(port, 1), 65535), forKey: Constants.darkfiNymSocksPort.rawValue)
+    }
 
     public var torForWalletEnabled: Bool {
-        getValue(forKey: Constants.darkfiTorForWallet.rawValue, default: true)
+        privacyNetwork == .tor
     }
 
     public func setTorForWalletEnabled(_ enabled: Bool) {
-        setValue(enabled, forKey: Constants.darkfiTorForWallet.rawValue)
+        setPrivacyNetwork(enabled ? .tor : .direct)
     }
 
     public var torForChatEnabled: Bool {
-        getValue(forKey: Constants.darkfiTorForChat.rawValue, default: true)
+        privacyNetwork == .tor
     }
 
     public func setTorForChatEnabled(_ enabled: Bool) {
-        setValue(enabled, forKey: Constants.darkfiTorForChat.rawValue)
+        setPrivacyNetwork(enabled ? .tor : .direct)
     }
 
     public var useEmbeddedTor: Bool {
@@ -334,7 +378,7 @@ public struct UserPreferencesStorage {
 extension UserPreferencesStorage {
     public static let live = UserPreferencesStorage(
         icon: .default,
-        defaultTheme: .default,
+        defaultTheme: .cyberpunk,
         currency: .off,
         selectedScreenMode: .keepOn,
         selectedSyncNotificationFrequency: .off,

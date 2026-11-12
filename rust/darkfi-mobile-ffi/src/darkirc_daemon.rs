@@ -356,8 +356,10 @@ fn is_mesh_sourced(id: [u8; 16]) -> bool {
 /// `android_logger` only backs the `log` facade. Without this bridge none of
 /// the P2P/DAG-sync diagnostics reach logcat, which makes connection failures
 /// effectively invisible on-device.
+#[cfg(target_os = "android")]
 struct LogcatWriter;
 
+#[cfg(target_os = "android")]
 impl std::io::Write for LogcatWriter {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let line = String::from_utf8_lossy(buf);
@@ -372,6 +374,7 @@ impl std::io::Write for LogcatWriter {
     }
 }
 
+#[cfg(target_os = "android")]
 impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for LogcatWriter {
     type Writer = LogcatWriter;
     fn make_writer(&'a self) -> Self::Writer {
@@ -381,7 +384,7 @@ impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for LogcatWriter {
 
 static LOGGING_INIT: std::sync::Once = std::sync::Once::new();
 
-fn init_logging() {
+pub(crate) fn init_logging() {
     LOGGING_INIT.call_once(|| {
         // `log` backend (rustls/kvdb use it).
         // Release: WARN+ only to prevent P2P metadata leaking to logcat.
@@ -405,15 +408,42 @@ fn init_logging() {
             );
         }
         #[cfg(not(target_os = "android"))]
-        let _ = (max_level, filter_spec);
+        {
+            // iOS and host have no logcat. A stderr logger is the only way
+            // darkirc dial failures show up in `simctl` / cargo output.
+            struct StderrLog;
+            impl log::Log for StderrLog {
+                fn enabled(&self, metadata: &log::Metadata) -> bool {
+                    metadata.level() <= log::max_level()
+                }
+                fn log(&self, record: &log::Record) {
+                    if self.enabled(record.metadata()) {
+                        eprintln!(
+                            "[{}] {}: {}",
+                            record.level(),
+                            record.target(),
+                            record.args()
+                        );
+                    }
+                }
+                fn flush(&self) {}
+            }
+            let _ = log::set_boxed_logger(Box::new(StderrLog));
+            log::set_max_level(max_level);
+            let _ = filter_spec;
+        }
 
         // `tracing` backend (darkfi net/event_graph).
         // Release: WARN+ only. Debug: INFO for P2P/DAG diagnostics.
         let level = if cfg!(debug_assertions) { "info" } else { "warn" };
         let filter = tracing_subscriber::EnvFilter::new(level);
+        #[cfg(target_os = "android")]
+        let writer = LogcatWriter;
+        #[cfg(not(target_os = "android"))]
+        let writer = std::io::stderr;
         let _ = tracing_subscriber::fmt()
             .with_env_filter(filter)
-            .with_writer(LogcatWriter)
+            .with_writer(writer)
             .with_ansi(false)
             .with_target(true)
             .without_time()
@@ -478,10 +508,19 @@ pub fn start_darkirc(
     datastore_path: String,
     use_tor: bool,
     tor_socks_port: u16,
+    use_nym: bool,
+    nym_socks_port: u16,
     callback: Option<Box<dyn DarkircEventCallback>>,
 ) -> Result<(), DarkfiWalletNativeError> {
     crate::panic_fence::catch_wallet("start_darkirc", || {
-        start_darkirc_inner(datastore_path, use_tor, tor_socks_port, callback)
+        start_darkirc_inner(
+            datastore_path,
+            use_tor,
+            tor_socks_port,
+            use_nym,
+            nym_socks_port,
+            callback,
+        )
     })
 }
 
@@ -489,6 +528,8 @@ fn start_darkirc_inner(
     datastore_path: String,
     use_tor: bool,
     tor_socks_port: u16,
+    use_nym: bool,
+    nym_socks_port: u16,
     callback: Option<Box<dyn DarkircEventCallback>>,
 ) -> Result<(), DarkfiWalletNativeError> {
     let mut current = DAEMON_STATUS.load(Ordering::SeqCst);
@@ -561,6 +602,8 @@ fn start_darkirc_inner(
                                     db_path,
                                     use_tor,
                                     tor_socks_port,
+                                    use_nym,
+                                    nym_socks_port,
                                     ex.clone(),
                                     cb,
                                     daemon_stop_rx,
@@ -805,6 +848,8 @@ async fn run_darkirc_daemon(
     datastore_path: PathBuf,
     use_tor: bool,
     tor_socks_port: u16,
+    use_nym: bool,
+    nym_socks_port: u16,
     ex: Arc<Executor<'static>>,
     callback: Option<Arc<dyn DarkircEventCallback>>,
     stop_rx: smol::channel::Receiver<()>,
@@ -847,7 +892,22 @@ async fn run_darkirc_daemon(
     // disconnect); real outbound connections are then opened to discovered
     // peers over the same active profile, so with the `socks5` profile every
     // connection stays inside Tor.
-    let (profile_name, seeds): (&str, Vec<Url>) = if use_tor {
+    // Nym exits reach clearnet only (Android `DarkircTransport::Nym`).
+    let (profile_name, seeds): (&str, Vec<Url>) = if use_nym {
+        (
+            "socks5+tls",
+            vec![
+                Url::parse(&format!(
+                    "socks5+tls://127.0.0.1:{nym_socks_port}/lilith0.dark.fi:9600"
+                ))
+                .unwrap(),
+                Url::parse(&format!(
+                    "socks5+tls://127.0.0.1:{nym_socks_port}/lilith1.dark.fi:9600"
+                ))
+                .unwrap(),
+            ],
+        )
+    } else if use_tor {
         ("socks5", tor_socks5_seeds(tor_socks_port))
     } else {
         (
@@ -882,7 +942,7 @@ async fn run_darkirc_daemon(
 
     // Tor circuits are slow to build, so use the longer upstream tor timeouts
     // for the SOCKS profile; clearnet keeps the snappier values.
-    let mut profile = if use_tor {
+    let mut profile = if use_tor || use_nym {
         NetworkProfile::tor_default()
     } else {
         NetworkProfile {
@@ -891,9 +951,15 @@ async fn run_darkirc_daemon(
             ..Default::default()
         }
     };
-    if use_tor {
+    if use_nym {
+        // A mixnet TLS + version exchange is several round trips. Two seeds
+        // dialed together exceeded the 75s slow-link handshake and both died
+        // with "Channel timed out", so darkirc never counted a peer.
+        profile.outbound_connect_timeout = 180;
+        profile.channel_handshake_timeout = 150;
+    } else if use_tor {
         // Onion handshakes (circuit build + version exchange) can exceed the
-        // 65s tor default on mobile networks; give them headroom.
+        // 55s tor-profile default. Same headroom Android uses for slow links.
         profile.outbound_connect_timeout = 90;
         profile.channel_handshake_timeout = 75;
     }
@@ -906,7 +972,13 @@ async fn run_darkirc_daemon(
     // those hosts are darklisted (socks5 != tor) and `is_connected()` never
     // becomes true, so DAG sync never starts. Enable transport mixing through
     // the local SOCKS5 proxy (matches upstream darkirc socks5+tor mixing).
-    if use_tor {
+    if use_nym {
+        p2p_settings.mixed_profiles = vec!["tcp+tls".to_string()];
+        p2p_settings.nym_socks5_proxy = Some(
+            Url::parse(&format!("socks5://127.0.0.1:{nym_socks_port}"))
+                .map_err(|e| format!("nym socks5 proxy url: {e}"))?,
+        );
+    } else if use_tor {
         p2p_settings.mixed_profiles = vec!["tor".to_string()];
         p2p_settings.tor_socks5_proxy = Some(
             Url::parse(&format!("socks5://127.0.0.1:{tor_socks_port}"))

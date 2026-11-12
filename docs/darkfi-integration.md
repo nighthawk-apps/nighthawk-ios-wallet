@@ -122,7 +122,7 @@ This table closes the audit loop against the pinned `third_party/darkfi/` revisi
 | **`drk` wallet operations** | **Aligned** | Balance, scan, keys, signing all via UniFFI `DarkfiWalletHandle` |
 | **`drk` endpoint ports** | **Aligned** | 8345 / 18345 match `drk_config.toml` |
 | **`darkirc` in-process** | **Aligned** | EventGraph + P2P via UniFFI; Android same |
-| **`darkirc` channel presets** | **Aligned** | `#dev`, `#random`, `#lunardao` match upstream `autojoin` |
+| **`darkirc` channel presets** | **Aligned + `#nighthawk`** | `#nighthawk` first (selected), then upstream `autojoin` through `#lunardao` |
 | **Nighthawk Mesh** | **EventGraph hop** | Encrypted BLE; LWD/SoftAP **off** |
 | **Arti Tor** | **iOS in-process** | Android uses tor-android SOCKS |
 | **Embedded `darkfid`** | **Not implemented** | Android has optional foreground service |

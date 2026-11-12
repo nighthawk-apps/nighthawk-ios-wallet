@@ -48,7 +48,7 @@ public struct ChangeServerView: View {
 
                 if store.usesRemoteHttps {
                     Text("Remote HTTPS needs LightwalletTlsPinSha256 in Info.plist (fail-closed without a pin).")
-                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                        .caption(color: CyberpunkPalette.muted)
                 }
 
                 VStack(alignment: .center) {
@@ -63,7 +63,7 @@ public struct ChangeServerView: View {
                 .padding(.bottom, 20)
 
                 Text(L10n.Nighthawk.SettingsTab.ChangeServer.disclaimer)
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .caption(color: CyberpunkPalette.muted)
 
                 Spacer()
             }

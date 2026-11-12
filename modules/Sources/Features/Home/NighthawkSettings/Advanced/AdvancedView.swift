@@ -20,7 +20,7 @@ public struct AdvancedView: View {
         ScrollView([.vertical], showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
                 Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.ScreenMode.subtitle)
                     .paragraphMedium(color: .white)
@@ -47,7 +47,7 @@ public struct AdvancedView: View {
                 }
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.subtitle)
                     .paragraphMedium(color: .white)
@@ -58,12 +58,12 @@ public struct AdvancedView: View {
                     Text(L10n.Nighthawk.SettingsTab.Advanced.StrictOmr.toggle)
                         .paragraphMedium(color: .white)
                 }
-                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+                .toggleStyle(SwitchToggleStyle(tint: CyberpunkPalette.primary))
 
                 banditSettings
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.subtitle)
                     .paragraphMedium(color: .white)
@@ -81,7 +81,7 @@ public struct AdvancedView: View {
                 )
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.DeleteWallet.subtitle)
                     .paragraphBold(color: Asset.Colors.Nighthawk.error.color)
@@ -120,7 +120,7 @@ private extension AdvancedView {
         if store.showBanditSettings {
             if store.supportsAlternateIcons {
                 Text(L10n.Nighthawk.SettingsTab.Advanced.AppIcon.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    .subtitleMedium(color: CyberpunkPalette.muted)
 
                 RadioSelectionList(
                     options: NighthawkSetting.AppIcon.allCases,
@@ -147,22 +147,15 @@ private extension AdvancedView {
             }
 
             Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
-                .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                .subtitleMedium(color: CyberpunkPalette.muted)
 
             RadioSelectionList(
-                options: NighthawkSetting.Theme.allCases,
+                options: NighthawkSetting.Theme.selectableCases,
                 selection: $store.theme
             ) { option in
                 HStack {
-                    switch option {
-                    case .`default`:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.default)
-                            .paragraphMedium(color: .white)
-                    case .dark:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
-                            .paragraphMedium(color: .white)
-                    }
-
+                    Text(option.label)
+                        .paragraphMedium(color: .white)
                     Spacer()
                 }
                 .padding(.vertical, 12)

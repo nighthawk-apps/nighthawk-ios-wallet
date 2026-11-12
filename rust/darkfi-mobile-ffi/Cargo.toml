@@ -7,8 +7,9 @@ license = "MIT OR Apache-2.0"
 publish = false
 
 [features]
-default = ["darkirc"]
+default = ["darkirc", "nym"]
 darkirc = ["dep:darkirc"]
+nym = ["dep:nym-smolmix", "dep:hickory-proto", "dep:rustls-platform-verifier"]
 
 [lib]
 name = "darkfi_mobile_ffi"
@@ -32,7 +33,7 @@ darkfi-serial = { path = "../../third_party/darkfi/src/serial" }
 darkfi_money_contract = { path = "../../third_party/darkfi/src/contract/money", features = ["no-entrypoint", "client"] }
 darkfi_dao_contract = { path = "../../third_party/darkfi/src/contract/dao", features = ["no-entrypoint", "client"] }
 bip39 = "2.2.2"
-blake3 = "1.8.6"
+blake3 = "=1.8.3"
 bs58 = "0.5.1"
 crypto_box = { version = "0.9.1", features = ["chacha20"] }
 futures = "0.3.32"
@@ -69,6 +70,11 @@ tower = { version = "0.5", features = ["util"] }
 rand09 = { package = "rand", version = "0.9" }
 hyper-util = { version = "0.1", features = ["tokio"] }
 tokio-socks = "0.5"
+# Nym mixnet transport, as in zkool2 / Android: a nym-smolmix tunnel exits
+# through an IPR gateway and hostnames resolve over the mixnet.
+nym-smolmix = { version = "2.0.0", optional = true }
+hickory-proto = { version = "0.26", optional = true }
+rustls-platform-verifier = { version = "0.7", optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "0.15"

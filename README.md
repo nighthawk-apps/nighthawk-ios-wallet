@@ -30,7 +30,7 @@ Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nightha
 
 <a href="https://testflight.apple.com" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Nighthawk DarkFi TestFlight" style="border-radius: 13px; width: 250px; height: 83px;"></a>
 
-**TestFlight 3.00.015 (build 15):** DarkFi pin `f0978c222` (public `scan_block`, darkfid sync hardening). Wallet send/receive/request, DEX placeholder tab, DAO Hub in Settings. Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
+**TestFlight 3.01.12 (build 16):** `#nighthawk` default chat, opens on Chat, Cyberpunk default + theme picker, wallet Request→Receive→Send, Android 3.01.x UX parity (DAO hub tab, Nym default, synced-block status). Testnet explorer: [explorer.testnet.dark.fi](https://explorer.testnet.dark.fi).
 
 ---
 
@@ -234,7 +234,7 @@ In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Sw
 | Nearby hop | Optional BLE **Nighthawk Mesh** — encrypted EventGraph only (no share-internet this pass) |
 | Tor | `start_darkirc(..., useTor: true)` → arti / onion seeds |
 | Standalone Arti SOCKS | `start_arti_proxy()` for wallet/LWD HTTP clients |
-| Public channels | `#dev`, `#media`, `#hackers`, `#memes`, `#philosophy`, `#markets`, `#math`, `#random`, `#lunardao` |
+| Public channels | `#nighthawk` (default), then `#dev`, `#media`, `#hackers`, `#memes`, `#philosophy`, `#markets`, `#math`, `#random`, `#lunardao` |
 | E2E DMs | `chacha_encrypt_dm` / `chacha_decrypt_dm`; daemon refuses plaintext DMs |
 | Status | `darkirc_status()` polling |
 | DAG history | First P2P connect can take several minutes |

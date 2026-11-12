@@ -29,7 +29,6 @@ public struct NighthawkSettings {
             case backup
             case changeServer
             case chatSettings
-            case daoHub
             case fiat
             case meshSettings
             case notifications

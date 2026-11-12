@@ -15,7 +15,7 @@ public struct MeshSettingsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Nearby encrypted DarkIRC DAG over Bluetooth. Radios stay off until you enable Bluetooth mesh.")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .fixedSize(horizontal: false, vertical: true)
 
                 toggleRow(
@@ -39,43 +39,43 @@ public struct MeshSettingsView: View {
 
                     Text("Nearby peers: \(store.peerCount). Mesh works best with Nighthawk open.")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
 
                     if let banner = store.radioBanner {
                         Text(banner)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                             .fixedSize(horizontal: false, vertical: true)
                         Button("Open Settings") {
                             store.send(.openSettings)
                         }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .foregroundColor(CyberpunkPalette.primary)
                     }
 
                     if store.engineUnavailable {
                         Text(L10n.Nighthawk.Chat.meshUnavailable)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     if store.cacheFull {
                         Text(L10n.Nighthawk.Chat.meshCacheFull)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .foregroundColor(CyberpunkPalette.primary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     if store.idleBecauseChatOff {
                         Text(L10n.Nighthawk.Chat.meshIdle)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .foregroundColor(CyberpunkPalette.muted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
 
                 Text("If mesh stops after you lock the screen, check Settings → Battery and allow Nighthawk to run in the background. Nearby / local-network access is used only to talk to other Nighthawk wallets, not to determine your location.")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal)
@@ -98,11 +98,11 @@ public struct MeshSettingsView: View {
                         .foregroundColor(.white)
                     Text(subtitle)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .foregroundColor(CyberpunkPalette.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .tint(Asset.Colors.Nighthawk.peach.color)
+            .tint(CyberpunkPalette.primary)
         }
     }
 }

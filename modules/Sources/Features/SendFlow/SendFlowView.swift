@@ -188,7 +188,7 @@ private extension SendFlowView {
             HStack(spacing: 8) {
                 Text("Token:")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .foregroundColor(CyberpunkPalette.muted)
 
                 Text(store.tokenName)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 14))
@@ -196,13 +196,13 @@ private extension SendFlowView {
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 12))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    .foregroundColor(CyberpunkPalette.primary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.5))
+                    .fill(CyberpunkPalette.surface)
             )
         }
     }

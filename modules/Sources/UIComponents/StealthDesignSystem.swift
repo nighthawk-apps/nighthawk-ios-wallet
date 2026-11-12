@@ -72,51 +72,39 @@ public enum StealthTheme {
     // ── Colors ──────────────────────────────────────────────────────
 
     public enum Colors {
-        // Backgrounds (gradient: moonlit → charcoalDeep)
-        public static var backgroundStart: Color { Asset.Colors.Nighthawk.moonlit.color }
-        public static var backgroundEnd: Color { Asset.Colors.Nighthawk.charcoalDeep.color }
-        public static var surface: Color { Asset.Colors.Nighthawk.charcoalRaised.color }
-        public static var surfaceVariant: Color { Asset.Colors.Nighthawk.elevated.color }
+        /// Cyberpunk wallpaper letterbox. Panels stay translucent so the
+        /// wallpaper shows through, matching Android `LocalCyberpunkChrome`.
+        public static var backgroundStart: Color { CyberpunkPalette.backdrop }
+        public static var backgroundEnd: Color { CyberpunkPalette.backdrop }
+        public static var surface: Color { CyberpunkPalette.surface }
+        public static var surfaceVariant: Color { CyberpunkPalette.surfaceVariant }
 
-        // Accent (teal)
-        public static var primary: Color { Asset.Colors.Nighthawk.accent.color }
-        public static var primaryPressed: Color { Asset.Colors.Nighthawk.accentPressed.color }
-        public static var primaryDeep: Color { Asset.Colors.Nighthawk.accentDeep.color }
-        public static var primaryMuted: Color { Asset.Colors.Nighthawk.accentMuted.color }
+        public static var primary: Color { CyberpunkPalette.primary }
+        public static var primaryPressed: Color { CyberpunkPalette.primary.opacity(0.8) }
+        public static var primaryDeep: Color { CyberpunkPalette.onPrimary }
+        public static var primaryMuted: Color { CyberpunkPalette.primary.opacity(0.45) }
 
-        // Text
-        public static var textHeader: Color { Asset.Colors.Nighthawk.textHeader.color }
-        public static var textBody: Color { Asset.Colors.Nighthawk.textBody.color }
-        public static var textMuted: Color { Asset.Colors.Nighthawk.textMuted.color }
+        public static var textHeader: Color { CyberpunkPalette.header }
+        public static var textBody: Color { CyberpunkPalette.body }
+        public static var textMuted: Color { CyberpunkPalette.muted }
 
-        // Borders
-        public static var border: Color { Asset.Colors.Nighthawk.steelBorder.color }
-        public static var borderMuted: Color { Asset.Colors.Nighthawk.steelBorderMuted.color }
+        public static var border: Color { CyberpunkPalette.outline }
+        public static var borderMuted: Color { CyberpunkPalette.outline.opacity(0.6) }
 
-        // Secondary fills
-        public static var secondaryFill: Color { Asset.Colors.Nighthawk.secondaryFill.color }
+        public static var secondaryFill: Color { CyberpunkPalette.tertiaryFill }
 
-        // Status
         public static var dangerous: Color { Asset.Colors.Nighthawk.dangerous.color }
 
-        // Callout
-        public static var callout: Color { Asset.Colors.Nighthawk.calloutFill.color }
-        public static var onCallout: Color { Asset.Colors.Nighthawk.calloutOn.color }
+        public static var callout: Color { CyberpunkPalette.surfaceVariant }
+        public static var onCallout: Color { CyberpunkPalette.body }
     }
 }
 
 // MARK: - View Modifiers
 
 public extension View {
-    /// Apply the stealth gradient background matching Android's backgroundStart → backgroundEnd
+    /// Cyberpunk wallpaper. Same treatment as `applyNighthawkBackground()`.
     func stealthBackground() -> some View {
-        self.background(
-            LinearGradient(
-                colors: [StealthTheme.Colors.backgroundStart, StealthTheme.Colors.backgroundEnd],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        )
+        applyNighthawkBackground()
     }
 }

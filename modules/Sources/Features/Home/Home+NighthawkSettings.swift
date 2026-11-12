@@ -27,6 +27,7 @@ extension Home {
                  .cancelSynchronizerUpdates,
                  .cantStartSync,
                  .chat,
+                 .daoHub,
                  .delegate,
                  .destination,
                  .fetchLatestFiatPrice,

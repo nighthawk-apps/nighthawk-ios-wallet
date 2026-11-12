@@ -36,7 +36,7 @@ public struct ScanView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay {
                         CornerStrokeSquare()
-                            .stroke(Asset.Colors.Nighthawk.peach.color, lineWidth: 5)
+                            .stroke(CyberpunkPalette.primary, lineWidth: 5)
                             .padding(18)
                     }
 

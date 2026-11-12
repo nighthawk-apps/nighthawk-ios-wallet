@@ -9,7 +9,10 @@ FAILED=0
 
 # 1. Debug log scan
 echo "[1/4] Checking for debug logs (print, NSLog)..."
-if git grep -qE "(^|[[:space:]])(print|println|NSLog)\(" -- "modules/Sources/"; then
+# Generated UniFFI glue may contain callback free() prints — skip DarkfiCore bindings.
+if git grep -qE "(^|[[:space:]])(print|println|NSLog)\(" -- "modules/Sources/" \
+    ":!modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift" \
+    ":!modules/Sources/DarkfiCore/DarkfiCore.xcframework/**"; then
     echo "❌ Found debug logging statements! These must be removed or gated."
     FAILED=1
 else

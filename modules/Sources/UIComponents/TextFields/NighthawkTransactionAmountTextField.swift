@@ -58,7 +58,7 @@ public class ZecAmountRenderingView: UILabel {
     var input: String = "0" {
         didSet {
             text = "\(input) \(tokenName)"
-            set(color: Asset.Colors.Nighthawk.peach.systemColor, on: [tokenName])
+            set(color: UIColor(CyberpunkPalette.primary), on: [tokenName])
         }
     }
 
