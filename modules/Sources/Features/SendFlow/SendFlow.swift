@@ -135,6 +135,7 @@ public struct SendFlow {
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
+    @Dependency(\.processInfo) var processInfo
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.walletStorage) var walletStorage
 

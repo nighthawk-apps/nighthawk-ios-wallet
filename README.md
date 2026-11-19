@@ -52,17 +52,23 @@ UniFFI crate from `rust/darkfi-mobile-ffi`, or via a sibling checkout named `dar
 From the repository root (first-time or after native code changes):
 
 ```bash
-# 1) Pin upstream DarkFi into third_party/darkfi
+# 1) Set developer dir if Command Line Tools or multiple Xcodes are installed
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+
+# 2) Pin upstream DarkFi into third_party/darkfi
 ./scripts/vendor-darkfi.sh
 
-# 2) Rust iOS targets (once per machine)
+# 3) Rust iOS targets (once per machine)
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 
-# 3) UniFFI wallet native lib
+# 4) UniFFI wallet native lib
 ./scripts/build-darkfi-mobile-ffi-ios.sh
 # Faster simulator-only: SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 
-# 4) Open Xcode
+# 5) Resolve Swift package dependencies
+xcodebuild -resolvePackageDependencies -project stealth.xcodeproj
+
+# 6) Open Xcode
 open stealth.xcodeproj
 # Scheme: stealth-testnet (default) or stealth-mainnet
 # Destination: simulator or device → ⌘B / ⌘R
@@ -142,11 +148,24 @@ Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/
 ```bash
 xcodebuild -project stealth.xcodeproj \
   -scheme stealth-testnet \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' \
   -derivedDataPath build/DerivedData \
   -skipMacroValidation \
   build
 ```
+
+**Running Tests (CLI):**
+
+```bash
+xcodebuild -project stealth.xcodeproj \
+  -scheme stealth-testnet \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' \
+  -derivedDataPath build/DerivedData \
+  -skipMacroValidation \
+  test
+```
+
+> **Note on Rust FFI & SystemConfiguration:** The UniFFI module `DarkfiCore` links with `SystemConfiguration.framework` for network status and DNS resolution. This is preconfigured in `modules/Package.swift`.
 
 **Physical device (CLI):** unlock the iPhone, trust the Mac, then `./scripts/deploy-ios-device.sh` or:
 

@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import XCTestDynamicOverlay
+import IssueReporting
 import Utils
 
 extension PasteboardClient: TestDependencyKey {

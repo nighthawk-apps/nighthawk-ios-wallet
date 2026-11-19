@@ -1289,9 +1289,10 @@ async fn apply_omr_sparse_window(
                 .get_compact_output_bodies(padded_start, padded_end)
                 .await?;
             let blocks = crate::lightwallet_client::compact_bodies_to_blocks(bodies);
-            if let Some(block) = blocks.iter().find(|block| {
-                crate::lightwallet_client::validate_compact_block(block).is_err()
-            }) {
+            if let Some(block) = blocks
+                .iter()
+                .find(|block| crate::lightwallet_client::validate_compact_block(block).is_err())
+            {
                 return Err(format!(
                     "GetCompactOutputBodies returned a malformed block at height {}",
                     block.height
@@ -1369,7 +1370,10 @@ async fn apply_omr_sparse_window(
                 .entry(block.height)
                 .and_modify(|existing| {
                     for tx in &block.txs {
-                        if let Some(dest) = existing.txs.iter_mut().find(|row| row.tx_hash == tx.tx_hash)
+                        if let Some(dest) = existing
+                            .txs
+                            .iter_mut()
+                            .find(|row| row.tx_hash == tx.tx_hash)
                         {
                             for output in &tx.outputs {
                                 if output.coin.len() == 32

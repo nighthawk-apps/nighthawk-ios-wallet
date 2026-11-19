@@ -378,7 +378,7 @@ extension SDKSynchronizerClient: DependencyKey {
             return records.map { record in
                 let minedHeight = record.blockHeight >= 0 ? BlockHeight(record.blockHeight) : nil
                 let blockTime = minedHeight.flatMap { BlockTimestampIndex.timestamp(forBlockHeight: $0) }
-                DarkfiTransactionOverview(
+                return DarkfiTransactionOverview(
                     rawId: record.txHash,
                     minedHeight: minedHeight,
                     timestampEpochSeconds: blockTime ?? BlockTimestampIndex.timestamp(forTxHash: record.txHash),

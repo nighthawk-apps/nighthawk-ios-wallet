@@ -1,9 +1,9 @@
 //! Transfer build/broadcast and wallet transaction history for UniFFI.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::LazyLock;
-use std::sync::RwLock;
+use std::sync::{Mutex, RwLock};
 
 use darkfi::tx::Transaction;
 use darkfi_money_contract::{client::MoneyNote, model::MoneyTransferParamsV1, MoneyFunction};
@@ -29,6 +29,41 @@ static SENT_SYNC_SCHEMES: LazyLock<RwLock<HashMap<String, u8>>> =
 #[allow(clippy::type_complexity)]
 static SENT_PAYMENT_META: LazyLock<RwLock<HashMap<String, (Option<String>, Option<String>)>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
+
+/// Session set of tx hashes confirmed to have landed in lightwalletd mempool.
+static CONFIRMED_BROADCASTS: LazyLock<RwLock<HashMap<String, ()>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
+
+/// Prevents concurrent duplicate broadcasts of the same tx while the first is in flight
+/// without ever returning `Ok` before mempool confirmation succeeds.
+static IN_FLIGHT_BROADCASTS: LazyLock<Mutex<HashSet<String>>> =
+    LazyLock::new(|| Mutex::new(HashSet::new()));
+
+struct InFlightBroadcastGuard {
+    tx_hash: String,
+}
+
+impl InFlightBroadcastGuard {
+    fn try_acquire(tx_hash: &str) -> Result<Self, String> {
+        let mut guard = IN_FLIGHT_BROADCASTS
+            .lock()
+            .map_err(|_| "broadcast guard mutex poisoned".to_string())?;
+        if !guard.insert(tx_hash.to_string()) {
+            return Err(format!("broadcast already in progress for {tx_hash}"));
+        }
+        Ok(Self {
+            tx_hash: tx_hash.to_string(),
+        })
+    }
+}
+
+impl Drop for InFlightBroadcastGuard {
+    fn drop(&mut self) {
+        if let Ok(mut guard) = IN_FLIGHT_BROADCASTS.lock() {
+            guard.remove(&self.tx_hash);
+        }
+    }
+}
 
 /// Look up a recipient address persisted at broadcast time (session cache).
 pub fn sent_recipient_address(tx_hash: &str) -> Option<String> {
@@ -298,10 +333,7 @@ pub(crate) async fn resolve_outgoing_omr_clue(
 async fn payment_output_index(drk: &Drk, tx: &Transaction) -> Result<u32, String> {
     use darkfi_money_contract::client::MoneyNote;
 
-    let secrets = drk
-        .get_money_secrets()
-        .await
-        .map_err(|e| e.to_string())?;
+    let secrets = drk.get_money_secrets().await.map_err(|e| e.to_string())?;
     let visible = crate::lightwallet_client::visible_money_outputs(tx).await?;
     let mut foreign = Vec::new();
     for output in &visible {
@@ -333,6 +365,20 @@ pub async fn broadcast_transfer(
         .await
         .map_err(|e| format!("decode tx: {e}"))?;
 
+    let tx_hash = tx.hash().to_string();
+
+    // Idempotency: return Ok only if this tx was already confirmed in lightwalletd mempool.
+    if let Ok(map) = CONFIRMED_BROADCASTS.read() {
+        if map.contains_key(&tx_hash) {
+            tracing::warn!(
+                target: "wallet-tx",
+                "broadcast_transfer: txid {tx_hash} already confirmed in mempool this session"
+            );
+            return Ok(tx_hash);
+        }
+    }
+    let _in_flight_guard = InFlightBroadcastGuard::try_acquire(&tx_hash)?;
+
     drk.simulate_tx(&tx)
         .await
         .map_err(|e| format!("simulate_tx: {e}"))?;
@@ -344,8 +390,8 @@ pub async fn broadcast_transfer(
     // only merged when SendTransaction stores the hint and the confirming block
     // is indexed. Darkfid-only broadcast cannot carry the clue — fail closed.
     //
-    // Mark coins spent ONLY after lightwalletd accepts the tx (and clue when
-    // present). Marking first left local spent state on broadcast failure.
+    // Mark coins spent ONLY after lightwalletd mempool confirmation succeeds.
+    // Marking first left local spent state on broadcast failure.
     let lw_url = lightwallet_server_url
         .map(str::trim)
         .filter(|s| !s.is_empty())
@@ -368,7 +414,7 @@ pub async fn broadcast_transfer(
         darkfi_sdk::crypto::keypair::Network::Testnet => 0x01u8,
     };
     let payment_index = payment_output_index(drk, &tx).await?;
-    client
+    let tx_hash_bytes = client
         .send_transaction_with_wallet_clues(
             raw_tx.to_vec(),
             unifomr_clue.clone(),
@@ -386,6 +432,20 @@ pub async fn broadcast_transfer(
             )
         })?;
 
+    client
+        .confirm_transaction_in_mempool(&tx_hash_bytes)
+        .await
+        .map_err(|e| {
+            format!(
+                "Transaction was not confirmed in lightwalletd mempool ({e}). \
+                 Not marking as broadcasted."
+            )
+        })?;
+
+    if let Ok(mut map) = CONFIRMED_BROADCASTS.write() {
+        map.insert(tx_hash.clone(), ());
+    }
+
     let mut output = Vec::new();
     drk.mark_tx_spend(&tx, &mut output)
         .await
@@ -397,8 +457,6 @@ pub async fn broadcast_transfer(
             "own change/fee notes not recorded yet: {e}"
         );
     }
-
-    let tx_hash = tx.hash().to_string();
 
     if let Some(scheme) = sent_scheme {
         if let Ok(mut map) = SENT_SYNC_SCHEMES.write() {

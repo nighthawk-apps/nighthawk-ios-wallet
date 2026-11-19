@@ -551,6 +551,11 @@ RustBuffer uniffi_darkfi_mobile_ffi_fn_func_nym_status(RustCallStatus *_Nonnull 
 void uniffi_darkfi_mobile_ffi_fn_func_send_chat_message(RustBuffer channel, RustBuffer nick, RustBuffer message, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_SET_NETWORK_STORAGE_DIR
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_SET_NETWORK_STORAGE_DIR
+void uniffi_darkfi_mobile_ffi_fn_func_set_network_storage_dir(RustBuffer path, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_ARTI_PROXY
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_START_ARTI_PROXY
 int8_t uniffi_darkfi_mobile_ffi_fn_func_start_arti_proxy(RustBuffer socks_listen, RustCallStatus *_Nonnull out_status
@@ -936,6 +941,12 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_nym_status(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SEND_CHAT_MESSAGE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SEND_CHAT_MESSAGE
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_send_chat_message(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SET_NETWORK_STORAGE_DIR
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_SET_NETWORK_STORAGE_DIR
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_set_network_storage_dir(void
     
 );
 #endif

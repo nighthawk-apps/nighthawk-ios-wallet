@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import DatabaseFiles
 import Generated
 import LocalAuthenticationClient

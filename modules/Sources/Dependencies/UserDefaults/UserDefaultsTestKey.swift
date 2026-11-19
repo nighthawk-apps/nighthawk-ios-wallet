@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import XCTestDynamicOverlay
+import IssueReporting
 
 extension UserDefaultsClient: TestDependencyKey {
     public static let testValue = Self(

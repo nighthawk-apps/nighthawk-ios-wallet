@@ -2,7 +2,7 @@
 //  DarkfiTransferTests.swift
 //  stealthTests
 //
-//  Created by Antigravity on 2026-07-08.
+//  Created by Matthew Watt on 2026-07-08.
 //
 
 import XCTest
@@ -87,9 +87,11 @@ final class DarkfiTransferTests: XCTestCase {
                     if msg.contains("Did not find any unspent coins") ||
                         msg.contains("state transition") ||
                         msg.contains("0x5") ||
-                        msg.contains("JSON-RPC client stopped") {
+                        msg.contains("JSON-RPC client stopped") ||
+                        msg.contains("transport error") ||
+                        msg.contains("gRPC connect") {
                         print("Waiting for unspent coins / node... attempt \(attempts + 1): \(msg)")
-                        Thread.sleep(forTimeInterval: 5.0)
+                        Thread.sleep(forTimeInterval: 1.0)
                         attempts += 1
                         continue
                     }

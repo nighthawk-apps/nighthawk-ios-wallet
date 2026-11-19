@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import XCTestDynamicOverlay
+import IssueReporting
 import Utils
 
 extension DatabaseFilesClient: TestDependencyKey {

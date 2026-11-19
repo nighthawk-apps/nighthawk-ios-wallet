@@ -14,7 +14,7 @@ extension SDKSynchronizerClient: TestDependencyKey {
     public static let previewValue: SDKSynchronizerClient = Self.mock()
 
     public static let testValue: SDKSynchronizerClient = Self(
-        stateStream: unimplemented("\(Self.self).stateStream"),
+        stateStream: unimplemented("\(Self.self).stateStream", placeholder: Empty().eraseToAnyPublisher()),
         latestState: unimplemented("\(Self.self).latestState", placeholder: .zero),
         prepareWith: unimplemented("\(Self.self).prepareWith"),
         start: unimplemented("\(Self.self).start"),
@@ -48,7 +48,7 @@ extension SDKSynchronizerClient: TestDependencyKey {
         listMintAuthorities: unimplemented("\(Self.self).listMintAuthorities"),
         wipe: unimplemented("\(Self.self).wipe"),
         nukeLocalDatabases: unimplemented("\(Self.self).nukeLocalDatabases"),
-        rewind: unimplemented("\(Self.self).rewind"),
+        rewind: unimplemented("\(Self.self).rewind", placeholder: Empty().eraseToAnyPublisher()),
         listTokenBalances: unimplemented("\(Self.self).listTokenBalances")
     )
 

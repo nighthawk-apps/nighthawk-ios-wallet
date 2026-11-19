@@ -17,7 +17,7 @@ extension DependencyValues {
     private enum LAContextGeneratorKey: DependencyKey {
         static let liveValue = LAContextGenerator { LAContext() }
         static let testValue = LAContextGenerator {
-            XCTFail(#"Unimplemented: @Dependency(\.laContext)"#)
+            reportIssue(#"Unimplemented: @Dependency(\.laContext)"#)
             return LAContext()
         }
     }

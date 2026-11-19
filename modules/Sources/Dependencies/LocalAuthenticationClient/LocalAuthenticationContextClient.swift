@@ -37,7 +37,7 @@ extension DependencyValues {
         }
 
         static let testValue = LocalAuthenticationContextClientGenerator {
-            XCTFail(#"Unimplemented: @Dependency(\.localAuthenticationContext)"#)
+            reportIssue(#"Unimplemented: @Dependency(\.localAuthenticationContext)"#)
             return LocalAuthenticationContextClient(
                 biometryType: { .none },
                 canEvaluatePolicy: { _ in false },

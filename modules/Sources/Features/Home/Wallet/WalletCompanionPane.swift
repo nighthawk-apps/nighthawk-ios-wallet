@@ -87,9 +87,9 @@ struct WalletCompanionPane: View {
                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
             if let image = QRCodeGenerator.generate(from: address, scale: 8) {
                 Image(decorative: image, scale: 1)
-                    .accessibilityLabel(L10n.Nighthawk.WalletCompanion.receive)
-                    .interpolation(.none)
                     .resizable()
+                    .interpolation(.none)
+                    .accessibilityLabel(L10n.Nighthawk.WalletCompanion.receive)
                     .scaledToFit()
                     .frame(width: 160, height: 160)
             }

@@ -37,7 +37,7 @@ extension View {
 
     public func nighthawkAlert<Enum, Case, Content>(
         unwrapping value: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         @ViewBuilder content: @escaping (Binding<Case>) -> Content
     ) -> some View
     where Content: View {

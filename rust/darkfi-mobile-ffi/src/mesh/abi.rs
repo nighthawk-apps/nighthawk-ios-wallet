@@ -5,11 +5,11 @@ use std::os::raw::{c_char, c_int, c_uchar};
 
 use super::{
     clear_bulk_tcp_override, mesh_emit_presence, mesh_ingest_link_bytes, mesh_last_gateway_peer,
-    mesh_neighbor_down, mesh_neighbor_up, mesh_peer_id, mesh_pop_events_json, mesh_pop_inbound_event,
-    mesh_publish_dag, mesh_pump_gateway, mesh_record_bulk_bytes, mesh_request_dag_sync,
-    mesh_set_gateway_eligible, mesh_set_os_power_state, mesh_status, mesh_submit_bulk_join,
-    mesh_submit_bulk_offer, mesh_submit_lwd_ctrl, mesh_wipe, set_bulk_tcp_override, start_mesh,
-    stop_mesh,
+    mesh_neighbor_down, mesh_neighbor_up, mesh_peer_id, mesh_pop_events_json,
+    mesh_pop_inbound_event, mesh_publish_dag, mesh_pump_gateway, mesh_record_bulk_bytes,
+    mesh_request_dag_sync, mesh_set_gateway_eligible, mesh_set_os_power_state, mesh_status,
+    mesh_submit_bulk_join, mesh_submit_bulk_offer, mesh_submit_lwd_ctrl, mesh_wipe,
+    set_bulk_tcp_override, start_mesh, stop_mesh,
 };
 
 fn copy_bytes(dst: *mut c_uchar, cap: c_int, src: &[u8]) -> c_int {

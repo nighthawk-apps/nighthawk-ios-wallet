@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import XCTestDynamicOverlay
+import IssueReporting
 
 extension NumberFormatterClient: TestDependencyKey {
     public static let testValue = Self(

@@ -50,9 +50,9 @@ public struct HomeView: View {
                         }
                 }
             }
+            .environment(\.nighthawkWindowWidth, proxy.size.width)
         }
         .environment(\.nighthawkSuppressNestedBackground, true)
-        .environment(\.nighthawkWindowWidth, proxy.size.width)
         .background {
             NighthawkScreenBackdrop()
                 .ignoresSafeArea()

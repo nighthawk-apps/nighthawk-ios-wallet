@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.nighthawkapps.sync</string>
@@ -41,8 +39,14 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.finance</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Nighthawk uses Bluetooth to relay DarkIRC chat messages with nearby phones when Nearby mesh is on.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Nighthawk uses Bluetooth to relay DarkIRC with nearby phones when Nearby mesh is on.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan DarkFi address QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -81,10 +85,6 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Nighthawk uses Bluetooth to relay DarkIRC with nearby phones when Nearby mesh is on.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Nighthawk uses Bluetooth to relay DarkIRC with nearby phones when Nearby mesh is on.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -95,21 +95,21 @@
 	<dict/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>UIPrerenderedIcon</key>
+	<false/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
 	</array>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.finance</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
-	<key>UIPrerenderedIcon</key>
 	<false/>
 </dict>
 </plist>

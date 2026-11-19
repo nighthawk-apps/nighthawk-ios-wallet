@@ -57,8 +57,7 @@ pub async fn bootstrap_drk(
         let birthday = u32::try_from(config.birthday_height)
             .map_err(|_| format!("birthday_height out of range: {}", config.birthday_height))?;
         let pin = pin_from_config(config);
-        let client =
-            LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
+        let client = LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
         if crate::checkpoint::download_and_apply_checkpoint(&drk, &client, birthday)
             .await
             .is_err()
@@ -71,8 +70,7 @@ pub async fn bootstrap_drk(
         // Non-fatal: devices often default to 127.0.0.1:9067 which is unreachable
         // until a remote LWD is configured. Sync can seed the tip later.
         let pin = pin_from_config(config);
-        let client =
-            LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
+        let client = LightwalletClient::from_endpoint_and_pin(&config.lightwallet_server_url, pin);
         if crate::checkpoint::download_and_apply_checkpoint(&drk, &client, 0)
             .await
             .is_err()

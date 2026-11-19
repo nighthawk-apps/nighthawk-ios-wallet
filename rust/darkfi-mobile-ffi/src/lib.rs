@@ -4,20 +4,20 @@
 
 mod birthday;
 pub mod block_cache;
-mod checkpoint;
 mod block_times;
 pub mod bootstrap;
+mod checkpoint;
 mod dao;
 mod dao_compact;
-mod note_batch;
 #[cfg(feature = "darkirc")]
 mod darkirc_daemon;
-mod panic_fence;
 mod memo;
 pub mod mnemonic;
+mod note_batch;
 #[cfg(feature = "nym")]
 mod nym;
 mod omr_envelope;
+mod panic_fence;
 pub mod sync;
 mod sync_pipeline;
 mod tokens;
@@ -28,10 +28,10 @@ mod tx_inspect;
 pub mod batch_pir;
 pub mod lightwallet_client;
 pub mod lightwallet_sync;
+pub mod mesh;
 pub mod omr;
 pub mod unifomr;
 pub mod zkas_cache;
-pub mod mesh;
 
 #[cfg(feature = "darkirc")]
 pub trait DarkircEventCallback: Send + Sync {

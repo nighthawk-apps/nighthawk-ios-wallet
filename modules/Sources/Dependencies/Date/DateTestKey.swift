@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import XCTestDynamicOverlay
+import IssueReporting
 
 extension DateClient: TestDependencyKey {
     public static let testValue = Self(

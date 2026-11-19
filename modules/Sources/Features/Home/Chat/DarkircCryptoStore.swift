@@ -200,7 +200,7 @@ public actor DarkircCryptoStore {
             var mutableFile = contactsFile
             try? mutableFile.setResourceValues(resourceValues)
 
-            let datastore = URL(fileURLWithPath: DarkircDaemon.shared.datastorePath, isDirectory: true)
+            let datastore = URL(fileURLWithPath: DarkircDaemonManager.shared.datastorePath, isDirectory: true)
             try? FileManager.default.createDirectory(at: datastore, withIntermediateDirectories: true)
             let daemonContacts = datastore.appendingPathComponent("dm_contacts.json")
             try? data.write(to: daemonContacts, options: .atomic)

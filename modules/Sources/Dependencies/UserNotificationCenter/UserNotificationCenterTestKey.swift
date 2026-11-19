@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import UserNotifications
-import XCTestDynamicOverlay
+import IssueReporting
 
 extension UserNotificationCenterClient: TestDependencyKey {
     public static let testValue = Self(

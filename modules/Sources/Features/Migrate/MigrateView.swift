@@ -16,8 +16,8 @@ public struct MigrateView: View {
     public var body: some View {
         VStack {
             Text(L10n.Nighthawk.MigrateScreen.title)
-                .padding(.top, 16)
                 .paragraphMedium()
+                .padding(.top, 16)
                 .padding(.bottom, 32)
 
             Text(L10n.Nighthawk.MigrateScreen.explanation)

@@ -174,11 +174,11 @@ private extension StoreOf<TransactionDetail> {
     }
 
     var resolvedMemo: String? {
-        if let decrypted = decryptedMemo?.trimmingCharacters(in: .whitespacesAndNewlines),
+        if let decrypted = self.decryptedMemo?.trimmingCharacters(in: .whitespacesAndNewlines),
            !decrypted.isEmpty {
             return decrypted
         }
-        if let fromEvent = memo?.toString()?.trimmingCharacters(in: .whitespacesAndNewlines),
+        if let fromEvent = self.memo?.toString()?.trimmingCharacters(in: .whitespacesAndNewlines),
            !fromEvent.isEmpty {
             return fromEvent
         }
@@ -187,11 +187,11 @@ private extension StoreOf<TransactionDetail> {
 
     /// Prefer the memo/recipient fetched on appear, then the values already on the event.
     var resolvedRecipient: String? {
-        if let fetched = recipientAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
+        if let fetched = self.recipientAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
            !fetched.isEmpty {
             return fetched
         }
-        if let address, !address.isEmpty {
+        if let address = self.address, !address.isEmpty {
             return address
         }
         return nil

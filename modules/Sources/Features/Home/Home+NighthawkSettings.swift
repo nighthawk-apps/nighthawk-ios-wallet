@@ -20,7 +20,7 @@ extension Home {
             switch action {
             case let .settings(.delegate(delegateAction)):
                 switch delegateAction {
-                case .goTo:
+                case .goTo, .deleteWallet, .nukeLocalDatabases, .fetchLatestFiatCurrency:
                     return .none
                 case .rescan:
                     return rescan()

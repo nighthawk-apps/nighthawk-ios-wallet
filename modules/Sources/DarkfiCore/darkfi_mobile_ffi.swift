@@ -1174,7 +1174,8 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
      */
     public var darkfidRpcUrl: String?
     /**
-     * When true, UnifOMR-only (no supplemental trial decrypt). Default true.
+     * Experimental UnifOMR. Not maintained until DarkFi mainnet contracts are live.
+     * Default false: padded trial decryption, the same scan drk uses on full blocks.
      */
     public var strictOmrOnly: Bool
 
@@ -1193,7 +1194,8 @@ public struct DrkBootstrapConfig: Equatable, Hashable {
          * Leave unset/empty for lightwalletd-only (recommended). Never hardcode a testnet port.
          */darkfidRpcUrl: String?, 
         /**
-         * When true, experimental UnifOMR is the only sync and send path. Default false.
+         * Experimental UnifOMR. Not maintained until DarkFi mainnet contracts are live.
+         * Default false: padded trial decryption, the same scan drk uses on full blocks.
          */strictOmrOnly: Bool = false) {
         self.network = network
         self.mnemonic = mnemonic
@@ -2427,7 +2429,7 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
             do {
                 try FfiConverterCallbackInterfaceDarkircEventCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
-                // Callback handle was already released.
+                print("Uniffi callback interface DarkircEventCallback: handle missing in uniffiFree")
             }
         },
         uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
@@ -2459,7 +2461,7 @@ fileprivate struct UniffiCallbackInterfaceDarkircEventCallback {
                      nick: try FfiConverterString.lift(nick),
                      message: try FfiConverterString.lift(message),
                      timestamp: try FfiConverterUInt64.lift(timestamp),
-                     isOutgoing: isOutgoing != 0
+                     isOutgoing: try FfiConverterBool.lift(isOutgoing)
                 )
             }
 
@@ -2576,7 +2578,7 @@ fileprivate struct UniffiCallbackInterfaceReorgEventCallback {
             do {
                 try FfiConverterCallbackInterfaceReorgEventCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
-                // Callback handle was already released.
+                print("Uniffi callback interface ReorgEventCallback: handle missing in uniffiFree")
             }
         },
         uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
@@ -3058,6 +3060,12 @@ public func sendChatMessage(channel: String, nick: String, message: String)throw
     )
 }
 }
+public func setNetworkStorageDir(path: String)  {try! rustCall() {
+    uniffi_darkfi_mobile_ffi_fn_func_set_network_storage_dir(
+        FfiConverterString.lower(path),$0
+    )
+}
+}
 public func startArtiProxy(socksListen: String)throws  -> Bool  {
     return try  FfiConverterBool.lift(try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
     uniffi_darkfi_mobile_ffi_fn_func_start_arti_proxy(
@@ -3162,6 +3170,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_send_chat_message() != 4769) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_set_network_storage_dir() != 64557) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_start_arti_proxy() != 48169) {
@@ -3287,7 +3298,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_darkfi_mobile_ffi_checksum_constructor_darkfiwallethandle_new() != 8185) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_darkfi_mobile_ffi_checksum_method_darkirceventcallback_on_message() != 64769) {
+    if (uniffi_darkfi_mobile_ffi_checksum_method_darkirceventcallback_on_message() != 10857) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_method_reorgeventcallback_on_reorg() != 9856) {

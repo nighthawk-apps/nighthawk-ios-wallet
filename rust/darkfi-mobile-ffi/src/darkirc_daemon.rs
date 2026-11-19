@@ -115,9 +115,8 @@ static DM_CONTACTS: std::sync::LazyLock<
 static LAST_SELF_NICK: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
 
 /// Event ids ingested from BLE so the relay task does not mesh-gossip them again.
-static MESH_SOURCED: std::sync::LazyLock<
-    std::sync::Mutex<std::collections::HashSet<[u8; 16]>>,
-> = std::sync::LazyLock::new(|| std::sync::Mutex::new(std::collections::HashSet::new()));
+static MESH_SOURCED: std::sync::LazyLock<std::sync::Mutex<std::collections::HashSet<[u8; 16]>>> =
+    std::sync::LazyLock::new(|| std::sync::Mutex::new(std::collections::HashSet::new()));
 
 fn register_dm_contact(nick: &str, my_secret: &[u8], their_public: &[u8]) -> Result<(), String> {
     let my_sk = crypto_box::SecretKey::from_slice(my_secret).map_err(|e| e.to_string())?;
@@ -198,7 +197,9 @@ fn present_privmsg(privmsg: Privmsg) -> PresentedPrivmsg {
             is_outgoing: false,
         };
     };
-    let channel_ct = bs58::decode(&privmsg.channel).into_vec().unwrap_or_default();
+    let channel_ct = bs58::decode(&privmsg.channel)
+        .into_vec()
+        .unwrap_or_default();
     let nick_ct = bs58::decode(&privmsg.nick).into_vec().unwrap_or_default();
     let msg_ct = bs58::decode(&privmsg.msg).into_vec().unwrap_or_default();
     for (name, contact) in contacts.iter() {

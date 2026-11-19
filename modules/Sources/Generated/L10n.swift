@@ -92,6 +92,8 @@ public enum L10n {
             public static let settings = L10n.tr("Localizable", "nighthawk.chat.settings", fallback: "Settings")
             public static let shareKey = L10n.tr("Localizable", "nighthawk.chat.shareKey", fallback: "Share Key")
             public static let noMessages = L10n.tr("Localizable", "nighthawk.chat.noMessages", fallback: "No messages yet")
+            /// Could not decrypt
+            public static let couldNotDecrypt = L10n.tr("Localizable", "nighthawk.chat.couldNotDecrypt", fallback: "Could not decrypt")
             public static func ircStatus(_ p1: Any) -> String {
                 L10n.tr("Localizable", "nighthawk.chat.ircStatus", String(describing: p1), fallback: "IRC: %@")
             }
@@ -166,10 +168,6 @@ public enum L10n {
                     public static let title = L10n.tr("Localizable", "nighthawk.autoshield.alert.redirecting.title", fallback: "Redirecting to DarkFi")
                 }
             }
-        }
-        public enum Chat {
-            /// Could not decrypt
-            public static let couldNotDecrypt = L10n.tr("Localizable", "nighthawk.chat.couldNotDecrypt", fallback: "Could not decrypt")
         }
         public enum DaoHub {
             /// Add funds

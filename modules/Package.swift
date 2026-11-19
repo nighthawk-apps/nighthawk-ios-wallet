@@ -72,7 +72,10 @@ let package = Package(
                 "darkfi_mobile_ffiFFI"
             ],
             path: "Sources/DarkfiCore",
-            exclude: ["DarkfiCore.xcframework"]
+            exclude: ["DarkfiCore.xcframework"],
+            linkerSettings: [
+                .linkedFramework("SystemConfiguration")
+            ]
         ),
         .binaryTarget(
             name: "darkfi_mobile_ffiFFI",
@@ -283,7 +286,6 @@ let package = Package(
                 "Receive",
                 "RecoveryPhraseDisplay",
                 "LocalAuthenticationClient",
-                "Models",
                 "SendFlow",
                 "SDKSynchronizer",
                 "UIComponents",

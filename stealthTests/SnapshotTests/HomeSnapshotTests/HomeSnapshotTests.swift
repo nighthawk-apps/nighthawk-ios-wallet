@@ -37,8 +37,8 @@ final class HomeSnapshotTests: XCTestCase {
         captureSnapshot(selectedTab: .wallet)
     }
 
-    func testHomeSnapshot_TransferTab() {
-        captureSnapshot(selectedTab: .transfer)
+    func testHomeSnapshot_DexTab() {
+        captureSnapshot(selectedTab: .dex)
     }
 
     func testHomeSnapshot_SettingsTab() {
