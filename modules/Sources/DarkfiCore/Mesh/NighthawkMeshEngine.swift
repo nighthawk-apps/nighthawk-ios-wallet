@@ -30,9 +30,6 @@ private enum NighthawkMeshABI {
     @_silgen_name("nh_mesh_request_dag_sync")
     static func requestDagSync() -> Int32
 
-    @_silgen_name("nh_mesh_emit_presence")
-    static func emitPresence() -> Int32
-
     @_silgen_name("nh_mesh_neighbor_up")
     static func neighborUp(_ dest: UnsafePointer<UInt8>?) -> Int32
 
@@ -108,8 +105,9 @@ final class NighthawkMeshEngine {
             if let advertisedMeshID, advertisedMeshID.count == NighthawkMeshFraming.senderLength {
                 self.bind(linkID, meshID: advertisedMeshID, handshake: true)
             }
+            // Presence is handshake-only in mesh/engine.rs (announce is a
+            // no-op); flush any frames already queued for this link.
             if self.running {
-                _ = NighthawkMeshABI.emitPresence()
                 self.flush()
             }
         }
