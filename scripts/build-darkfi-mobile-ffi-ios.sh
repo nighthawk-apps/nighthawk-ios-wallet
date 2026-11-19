@@ -49,9 +49,23 @@ cargo run --bin uniffi-bindgen -- generate \
     --crate darkfi_mobile_ffi \
     --out-dir "$BINDGEN_OUT" \
     --no-format
-sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$BINDGEN_OUT/DarkfiMobileFfi.swift" \
+# UniFFI 0.32 emits darkfi_mobile_ffi.swift (+ FFI.h / modulemap). Older
+# toolchains used DarkfiMobileFfi.swift — accept either.
+SWIFT_SRC="$BINDGEN_OUT/darkfi_mobile_ffi.swift"
+if [ ! -f "$SWIFT_SRC" ]; then
+  SWIFT_SRC="$BINDGEN_OUT/DarkfiMobileFfi.swift"
+fi
+HDR_SRC="$BINDGEN_OUT/darkfi_mobile_ffiFFI.h"
+if [ ! -f "$HDR_SRC" ]; then
+  HDR_SRC="$BINDGEN_OUT/DarkfiMobileFfiFFI.h"
+fi
+sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$SWIFT_SRC" \
     > "$MODULES/darkfi_mobile_ffi.swift"
-cp "$BINDGEN_OUT/DarkfiMobileFfiFFI.h" "$MODULES/darkfi_mobile_ffiFFI.h"
+cp "$HDR_SRC" "$MODULES/darkfi_mobile_ffiFFI.h"
+# modulemap may already be present from a prior bindgen layout
+if [ -f "$BINDGEN_OUT/darkfi_mobile_ffiFFI.modulemap" ]; then
+  cp "$BINDGEN_OUT/darkfi_mobile_ffiFFI.modulemap" "$MODULES/darkfi_mobile_ffiFFI.modulemap"
+fi
 rm -rf "$BINDGEN_OUT"
 
 rm -rf "$CARGO_TARGET_DIR/Headers"
