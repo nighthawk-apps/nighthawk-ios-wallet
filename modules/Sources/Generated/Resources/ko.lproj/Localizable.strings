@@ -1,389 +1,541 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "디스크 공간이 부족해 동기화할 수 없습니다!";
 
 // MARK: - Common & Shared
-"general.back" = "돌아가기";
-"general.done" = "Done";
-"general.skip" = "Skip";
-"general.next" = "Next";
-"general.send" = "Send";
-"general.clear" = "초기화";
+"general.back" = "뒤로";
+"general.done" = "완료";
+"general.skip" = "건너뛰기";
+"general.next" = "다음";
+"general.send" = "보내기";
+"general.clear" = "지우기";
 "general.close" = "닫기";
-"general.max" = "Max";
-"general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
-"general.cancel" = "Cancel";
-"general.success" = "Success";
-"general.unknown" = "Unknown";
+"general.max" = "최대";
+"general.ok" = "확인";
+"general.yes" = "예";
+"general.no" = "아니요";
+"general.cancel" = "취소";
+"general.success" = "성공";
+"general.unknown" = "알 수 없음";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ 사용 가능";
+"qrCodeFor" = "%@ QR 코드";
+"general.dateNotAvailable" = "날짜 없음";
 
 //==========================================================
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-// MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+// MARK: - Local authentication
+"nighthawk.localAuthentication.accessWalletReason" = "Nighthawk 지갑에 들어가려면 인증해야 합니다.";
+"nighthawk.localAuthentication.sendFundsReason" = "지갑에서 자금을 보내려면 인증해야 합니다.";
 
 // MARK: - About screen
-"nighthawk.about.title" = "About";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.title" = "정보";
+"nighthawk.about.message" = "Nighthawk는 DarkFi를 위한 기본 비공개 지갑입니다. 모든 거래는 완전히 비공개이며 투명 주소는 지원하지 않습니다.\n\n비수탁 지갑이므로 자금에 대한 책임은 전적으로 여러분에게 있습니다. 지갑을 만든 즉시 시드 단어를 안전하게 백업하세요.\n\nDarkFi는 익명 애플리케이션과 비공개 금융을 위해 설계된 레이어 1 블록체인입니다. DarkFi 커뮤니티가 금융의 자유를 위해 설계했습니다.\n\nNighthawk Wallet은 DarkFi P2P 네트워크에 직접 연결합니다. 이 소프트웨어는 명시적이든 묵시적이든 어떠한 보증도 없이 “있는 그대로” 제공됩니다.";
+"nighthawk.about.viewSource" = "소스 보기";
+"nighthawk.about.nighthawkFriends" = "Nighthawk 친구";
+"nighthawk.about.viewLicenses" = "라이선스 보기";
 
 // MARK: - Licenses Screen
 "nighthawk.licenses.title" = "OSS 라이선스";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "SDK를 초기화하지 못했습니다";
+"nighthawk.app.launch.alert.error.message" = "오류: %@ (코드: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "지갑 삭제 실패";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk는";
+"nighthawk.autoshield.shieldedByDefault" = "기본이 비공개.";
+"nighthawk.autoshield.title2" = "DarkFi의 모든 거래는 비공개입니다. 투명 주소나 실드 풀은 없으며, 모든 것이 비공개입니다.";
+"nighthawk.autoshield.autoshielding" = "프라이버시";
+"nighthawk.autoshield.detail1" = "모든 자금은 항상 비공개입니다. DarkFi에는 투명 주소라는 개념이 없습니다.";
+"nighthawk.autoshield.detail2" = "최신 프라이버시 보호 방법과 권장 사항을 정기적으로 전해 드리겠습니다.";
 "nighthawk.autoshield.buttonPositive" = "좋습니다!";
 "nighthawk.autoshield.buttonNeutral" = "자세히 알아보기";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "보호화 중!";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Success";
-"nighthawk.autoshield.shieldingFailed" = "Failed";
+"nighthawk.autoshield.alert.redirecting.title" = "DarkFi로 이동";
+"nighthawk.autoshield.alert.redirecting.details" = "DarkFi 프라이버시를 더 알아보도록 기기 브라우저를 열지 확인해 주세요.";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "브라우저 열기";
+"nighthawk.autoshield.shielding" = "처리 중…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "성공";
+"nighthawk.autoshield.shieldingFailed" = "실패";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
-"nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.retry" = "다시 시도";
+"nighthawk.splash.subtitle" = "주머니 속의 비공개 화폐.";
+"nighthawk.splash.initialization.alert.failed.title" = "지갑 초기화에 실패했습니다.";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "앱 초기화 상태: %@.";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
-"nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.title" = "이전 앱 버전에서 이전하는 중";
+"nighthawk.migrateScreen.explanation" = "데이터를 기기에 더 안전하게 저장하는 방식이 새로 생겼습니다. 지갑을 복원하려면 시드 단어를 옮겨야 합니다. 자동으로 옮기지 않으면 시드 단어를 직접 입력해 지갑을 복원해야 합니다.\n\n자동으로 진행할까요?";
+"nighthawk.migrateScreen.continue" = "계속";
+"nighthawk.migrateScreen.restoreManually" = "직접 복원";
+"nighthawk.migrateScreen.migrationFailed.title" = "이전 실패";
+"nighthawk.migrateScreen.migrationFailed.description" = "오류가 발생해 지갑을 자동으로 옮기지 못했습니다. 계속을 눌러 지갑을 직접 가져오세요.";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "이 앱은 자유 소프트웨어입니다. 사용은 해당 라이선스에 따라서만 허용됩니다.";
-"nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "시작하기";
+"nighthawk.welcome.body" = "Nighthawk를 처음 쓰신다면 지갑을 만들어야 합니다. 다시 오셨다면 이전 지갑을 복원할 수 있습니다.";
+"nighthawk.welcome.terms1" = "이 앱은 자유 소프트웨어입니다. 이용에는 해당 라이선스만 적용됩니다.";
+"nighthawk.welcome.create" = "지갑 만들기";
+"nighthawk.welcome.restore" = "백업에서 복원";
+"nighthawk.welcome.initialization.alert.failed.title" = "지갑 초기화에 실패했습니다.";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "새 지갑을 만들 수 없습니다. 오류: %@ (코드: %@)";
+"nighthawk.welcome.carousel.title1" = "기본이 비공개";
+"nighthawk.welcome.carousel.body1" = "모든 거래는 완전히 비공개입니다. 투명 주소도, 메타데이터 유출도 없습니다. 금융 생활은 여러분만의 것입니다.";
+"nighthawk.welcome.carousel.title2" = "피어 투 피어 네트워크";
+"nighthawk.welcome.carousel.body2" = "Tor를 통해 DarkFi 네트워크에 직접 연결합니다. 중개 서버도, 믿어야 할 엔드포인트도 없습니다.";
+"nighthawk.welcome.carousel.title3" = "암호화 채팅";
+"nighthawk.welcome.carousel.body3" = "DarkIRC로 종단간 암호화 메시지를 보내세요. 비공개 대화가 지갑에 들어 있습니다.";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Backup your wallet";
-"nighthawk.walletCreated.skip" = "Skip for now";
+"nighthawk.walletCreated.title" = "지갑을 만들었습니다! 축하합니다!";
+"nighthawk.walletCreated.backupImmediately" = "자금의 안전과 뜻하지 않은 결과를 막기 위해 지갑 백업을 강력히 권합니다. 이것은 직접 보관 지갑이며, 자금을 관리하는 책임은 전적으로 여러분에게 있습니다.";
+"nighthawk.walletCreated.backup" = "지갑 백업";
+"nighthawk.walletCreated.skip" = "지금은 건너뛰기";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
-"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
+"nighthawk.recoveryPhraseDisplay.title" = "백업 시드를 적어두세요";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "휴대폰이나 Nighthawk 지갑을 쓸 수 없게 되면, 이 22단어 문구와 지갑 생일 코드가 있어야만 DarkFi에 다시 접근할 수 있습니다.";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "종이에 적어 안전한 곳에 보관하세요.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "지갑 생일:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "시드 문구를 저장했음을 확인합니다.";
+"nighthawk.recoveryPhraseDisplay.continue" = "계속";
 "nighthawk.recoveryPhraseDisplay.exportAsPdf" = "PDF로 내보내기";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "Nighthawk Wallet에서 DarkFi를 복원하는 시드 단어입니다:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "백업 PDF 생성 시각: %@";
 
 // MARK: - Export seed
 "nighthawk.exportSeed.title" = "PDF로 내보내기";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
-"nighthawk.exportSeed.export" = "Export PDF";
-"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+"nighthawk.exportSeed.description" = "시드 단어를 비밀번호로 보호된 PDF로 내보내, 사용자가 직접 지키는 휴대용 저장 장치에 백업할 수 있습니다.";
+"nighthawk.exportSeed.export" = "PDF 내보내기";
+"nighthawk.exportSeed.passwordPlaceholder" = "비밀번호를 입력하세요";
 
 // MARK: - Import warning
 "nighthawk.importWarning.title" = "계속하기 전에";
-"nighthawk.importWarning.description" = "나이트호크에서 처음 생성한 시드 문구만 가져오시기 바랍니다. 다른 지갑은 다르게 작동하므로 거래 자금이 부정확하게 보고될 수 있습니다.";
-"nighthawk.importWarning.proceed" = "계속";
+"nighthawk.importWarning.description" = "처음에 Nighthawk에서 만든 시드 문구만 가져오세요. 다른 지갑은 동작이 달라 거래 자금이 잘못 표시될 수 있습니다.";
+"nighthawk.importWarning.proceed" = "진행";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
-"nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (옵션)";
-"nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.restoreFromBackup" = "백업에서 복원";
+"nighthawk.importWallet.enterSeedPhrase" = "아래에 22단어 시드 문구를 입력하세요. 이 문구가 없으면 새 지갑을 만들어야 합니다.";
+"nighthawk.importWallet.yourSeedPhrase" = "내 시드 문구";
+"nighthawk.importWallet.birthdayHeight" = "생일 높이(선택)";
+"nighthawk.importWallet.continue" = "계속";
+"nighthawk.importWallet.invalidMnemonic" = "오류 ⸱ 올바른 시드 문구로 보이지 않습니다";
+"nighthawk.importWallet.invalidBirthday" = "오류 ⸱ 올바른 생일 높이로 보이지 않습니다";
+"nighthawk.importWallet.alert.failed.title" = "지갑을 복원하지 못했습니다";
+"nighthawk.importWallet.alert.failed.message" = "오류: %@ (코드: %@)";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Success";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "성공";
+"nighthawk.importWalletSuccess.viewWallet" = "지갑 보기";
 
 // MARK: - Transactions
-"nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "수신 중";
-"nighthawk.transaction.failed" = "Failed";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.sending" = "보내는 중";
+"nighthawk.transaction.receiving" = "받는 중";
+"nighthawk.transaction.failed" = "실패";
+"nighthawk.transaction.received" = "받음";
+"nighthawk.transaction.sent" = "보냄";
 
 // MARK: - Home Screen
-"nighthawk.homeScreen.wallet" = "Wallet";
-"nighthawk.homeScreen.transfer" = "Transfer";
-"nighthawk.homeScreen.settings" = "Settings";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.wallet" = "지갑";
+"nighthawk.homeScreen.transfer" = "전송";
+"nighthawk.homeScreen.dex" = "DEX";
+"nighthawk.homeScreen.settings" = "설정";
+"nighthawk.homeScreen.expectingFunds" = "%@ %@ 예정";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "곧 제공";
+"nighthawk.dex.comingSoonBody" = "DarkFi DEX가 여기에 생깁니다. 보내기, 받기, 요청은 지갑에 그대로 있습니다.";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
-"nighthawk.walletTab.totalBalance" = "Total balance";
-"nighthawk.walletTab.shieldedBalance" = "Private balance";
-"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.swipeToShowBalances" = "왼쪽으로 스와이프하면 잔액이 보입니다";
+"nighthawk.walletTab.totalBalance" = "총 잔액";
+"nighthawk.walletTab.shieldedBalance" = "비공개 잔액";
+"nighthawk.walletTab.transparentBalance" = "비공개 잔액";
 "nighthawk.walletTab.drk" = "DRK";
-"nighthawk.walletTab.recentActivity" = "Recent activity";
-"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.recentActivity" = "최근 활동";
+"nighthawk.walletTab.viewTransactionHistory" = "거래 내역 보기";
+"nighthawk.walletTab.shieldNow" = "새로고침";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "통합주소 (Unified address)";
-"nighthawk.walletTab.addresses.saplingAddress" = "레거시 보호 주소";
-"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
-"nighthawk.walletTab.addresses.copy" = "Copy";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.unifiedAddress" = "프라이버시 주소";
+"nighthawk.walletTab.addresses.saplingAddress" = "프라이버시 주소";
+"nighthawk.walletTab.addresses.transparentAddress" = "프라이버시 주소";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "지갑 충전";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "엄선한 파트너를 통해 DarkFi를 사거나 거래하세요.";
+"nighthawk.walletTab.addresses.copy" = "복사";
+"nighthawk.walletTab.addresses.seeMore" = "더 보기";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "클립보드에 복사했습니다!";
+"nighthawk.walletTab.addresses.loading" = "불러오는 중…";
 
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.title" = "거래 내역";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-private funds";
+"nighthawk.transactionHistory.autoshieldedFunds" = "비공개 자금";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
-"nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparing to scan";
-"nighthawk.sync.message.finalizing" = "Finalizing";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "최신 상태";
+"nighthawk.sync.message.unprepared" = "연결 중…";
+"nighthawk.sync.message.error" = "오류: %@";
+"nighthawk.sync.message.sync" = "스캔 중…%@%%";
+"nighthawk.sync.message.preparing" = "스캔 준비 중";
+"nighthawk.sync.message.finalizing" = "마무리 중";
+"nighthawk.sync.message.stopped" = "중지됨";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveDarkFi" = "Send and receive DarkFi";
-"nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
-"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
-"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "DarkFi 보내기 및 받기";
+"nighthawk.transferTab.sendMoneyTitle" = "돈 보내기";
+"nighthawk.transferTab.sendMoneyDescription" = "상대의 QR 코드를 스캔해 돈을 보내세요.";
+"nighthawk.transferTab.receiveMoneyTitle" = "돈 받기";
+"nighthawk.transferTab.receiveMoneyDescription" = "QR 코드를 보여 주거나 주소를 복사하세요.";
+"nighthawk.walletTab.actionSend" = "보내기";
+"nighthawk.walletTab.actionReceive" = "받기";
+"nighthawk.walletTab.actionRequest" = "요청";
+"nighthawk.transferTab.topUpWalletTitle" = "지갑 충전";
+"nighthawk.transferTab.topUpWalletDescription" = "파트너를 통해 DarkFi를 안전하게 구매하세요.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
-"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Your wallet address will be copied to the clipboard.";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "비공개로 돈 받기";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "QR 코드 표시";
+"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "프라이버시 주소 복사";
+"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "지갑 주소가 클립보드에 복사됩니다.";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "StealthEx.io에서 스왑";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "한도 없이 코인을 스왑하세요.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "%@(으)로 지갑에 자금을 넣을까요?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "내 %@이(가) 클립보드에 복사되었습니다.\n\n아래에서 「브라우저 열기」를 고른 뒤, 수신 코인으로 '%@'을(를) %@ 사이트에서 선택하고 내 %@을(를) 붙여넣으세요.";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "브라우저 열기";
 
 // MARK: - Home Screen - Transfer - Send
-"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
-"nighthawk.transferTab.send.continue" = "Continue";
-"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
-"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
-"nighthawk.transferTab.send.error" = "Error";
+"nighthawk.transferTab.send.chooseHowMuch" = "보낼 금액을 고르세요";
+"nighthawk.transferTab.send.spendableBalance" = "사용 가능 잔액(거래 수수료 포함)은 %@ %@입니다";
+"nighthawk.transferTab.send.continue" = "계속";
+"nighthawk.transferTab.send.topUpWallet" = "지갑 충전";
+"nighthawk.transferTab.send.scanCode" = "결제 코드 스캔";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "DRK가 부족합니다!";
+"nighthawk.transferTab.send.around" = "약 %@ %@";
+"nighthawk.transferTab.send.error" = "오류";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
-"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+"nighthawk.transferTab.scan.scanPaymentRequest" = "결제 요청 스캔";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "결제 요청이 있으면 여기서 QR 코드를 스캔해 내용을 자동으로 채울 수 있습니다.";
 
 // MARK: - Home Screen - Transfer - Add memo
-"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "결제에 메시지를 추가하세요";
+"nighthawk.transferTab.addMemo.writeSomething" = "내용을 입력하세요...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "회신 주소 포함";
 
 // MARK: - Home Screen - Transfer - Recipient
-"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addAddress" = "Add address here";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
-"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
-"nighthawk.transferTab.recipient.continue" = "Continue";
+"nighthawk.transferTab.recipient.chooseRecipient" = "받는 사람을 고르세요";
+"nighthawk.transferTab.recipient.addAddress" = "여기에 주소 입력";
+"nighthawk.transferTab.recipient.invalid" = "올바른 받는 사람을 입력하세요";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "프라이버시 보호가 약해 TEX 주소로는 보낼 수 없습니다";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "클립보드에서 붙여넣기";
+"nighthawk.transferTab.recipient.continue" = "계속";
 
 // MARK: - Home Screen - Transfer - Review
-"nighthawk.transferTab.review.title" = "Review and send";
-"nighthawk.transferTab.review.send" = "Send DarkFi";
+"nighthawk.transferTab.review.title" = "검토 후 보내기";
+"nighthawk.transferTab.review.send" = "DarkFi 보내기";
 
 // MARK: - Home Screen - Transfer - Sending
-"nighthawk.transferTab.sending.title" = "Sending";
+"nighthawk.transferTab.sending.title" = "보내는 중";
 
 // MARK: - Home Screen - Transfer - Failed
-"nighthawk.transferTab.failed.title" = "Failed";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
-"nighthawk.transferTab.failed.cancel" = "Cancel";
+"nighthawk.transferTab.failed.title" = "실패";
+"nighthawk.transferTab.failed.tryAgain" = "다시 시도";
+"nighthawk.transferTab.failed.cancel" = "취소";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Success";
-"nighthawk.transferTab.success.done" = "Done";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.title" = "성공";
+"nighthawk.transferTab.success.done" = "완료";
+"nighthawk.transferTab.success.moreDetails" = "자세한 내용";
 
 // MARK: - Home Screen - Settings tab
-"nighthawk.settingsTab.settings" = "Settings";
-"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
-"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
-"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
-"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
-"nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
-"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
-"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Change server";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
+"nighthawk.settingsTab.settings" = "설정";
+"nighthawk.settingsTab.notificationsTitle" = "동기화 알림";
+"nighthawk.settingsTab.notificationsSubtitle" = "지갑을 최신으로 유지하도록 알려 드립니다";
+"nighthawk.settingsTab.fiatTitle" = "법정화폐";
+"nighthawk.settingsTab.fiatSubtitle" = "현지 통화를 고르세요";
+"nighthawk.settingsTab.securityTitle" = "보안";
+"nighthawk.settingsTab.securitySubtitle" = "%@ 켜기/끄기";
+"nighthawk.settingsTab.backupTitle" = "지갑 백업";
+"nighthawk.settingsTab.backupSubtitle" = "휴대폰을 잃어버려도 지갑을 지키세요";
+"nighthawk.settingsTab.rescanTitle" = "지갑 다시 스캔";
+"nighthawk.settingsTab.rescanSubtitle" = "문제 해결을 위해 지갑 잔액을 다시 스캔";
+"nighthawk.settingsTab.alert.rescan.title" = "이 지갑을 다시 스캔할까요?";
+"nighthawk.settingsTab.alert.rescan.message" = "다시 스캔하는 데는 지갑 거래 기록에 따라 최대 10시간이 걸릴 수 있습니다. 다시 스캔을 시작할까요?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "지우기";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "다시 스캔 실패";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "오류: %@ (코드: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "되감기 뒤에 동기화를 시작하지 못했습니다";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "오류: %@ (코드: %@)";
+"nighthawk.settingsTab.changeServerTitle" = "서버 변경";
+"nighthawk.settingsTab.changeServerSubtitle" = "백엔드 서버 변경";
+"nighthawk.settingsTab.chatSettingsTitle" = "채팅 설정";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "E2E 암호화, DAG 동기화, 내장 darkirc";
+"nighthawk.settingsTab.networkPrivacyTitle" = "네트워크 프라이버시";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "지갑은 Nym, Tor 또는 직접 연결. 채팅은 Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "왼쪽에서 설정을 고르면 열립니다.";
 "nighthawk.settingsTab.externalServicesTitle" = "외부 서비스";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "고급 설정";
-"nighthawk.settingsTab.advancedSubtitle" = "추가 세팅";
-"nighthawk.settingsTab.aboutTitle" = "About";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.externalServicesSubtitle" = "파트너 서비스에 선택적으로 참여";
+"nighthawk.settingsTab.advancedTitle" = "고급";
+"nighthawk.settingsTab.advancedSubtitle" = "자주 쓰지 않는 설정";
+"nighthawk.settingsTab.aboutTitle" = "정보";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ 및 라이선스";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
-"nighthawk.settingsTab.syncNotifications.title" = "Sync notifications";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.title" = "동기화 알림";
+"nighthawk.settingsTab.syncNotifications.description" = "Nighthawk 지갑을 오래 닫아 두면, 다시 쓸 때 시작이 더 오래 걸립니다.";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "매주 지갑을 열도록 동기화 알림을 허용하세요.";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "매월 지갑을 열도록 동기화 알림을 허용하세요.";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "매주";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "매월";
+"nighthawk.settingsTab.syncNotifications.offOption" = "끄기";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "권한이 거부되었습니다";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "동기화 알림을 보내려면 Nighthawk에 권한이 필요합니다. 설정을 열어 필요한 권한을 허용해 주세요.";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "설정으로 이동";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "동기화할 시간입니다!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "필요할 때 바로 쓸 수 있도록 Nighthawk를 열고 지갑을 동기화하세요!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "알림을 예약하지 못했습니다";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "지금은 동기화 알림을 예약할 수 없습니다.";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
-"nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.title" = "법정화폐";
+"nighthawk.settingsTab.fiatCurrency.description" = "현지 통화를 고르면 %@ 가치의 대략적인 금액을 보여 드립니다.\n\n앱을 처음 열 때 CoinGecko API v3에서 시세를 가져와 계산합니다. 자금 수량은 어떤 서버에도 전달되지 않습니다.";
+"nighthawk.settingsTab.fiatCurrency.usd" = "미국 달러";
+"nighthawk.settingsTab.fiatCurrency.eur" = "유로";
+"nighthawk.settingsTab.fiatCurrency.inr" = "인도 루피";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "일본 엔";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "영국 파운드";
+"nighthawk.settingsTab.fiatCurrency.cad" = "캐나다 달러";
+"nighthawk.settingsTab.fiatCurrency.aud" = "호주 달러";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "홍콩 달러";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "싱가포르 달러";
+"nighthawk.settingsTab.fiatCurrency.chf" = "스위스 프랑";
+"nighthawk.settingsTab.fiatCurrency.cny" = "중국 위안";
+"nighthawk.settingsTab.fiatCurrency.krw" = "대한민국 원";
+"nighthawk.settingsTab.fiatCurrency.off" = "끄기";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ 켜짐";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ 꺼짐";
+"nighthawk.settingsTab.security.disableValidationReason" = "%@을(를) 끄려면 인증하세요";
+"nighthawk.settingsTab.security.enableValidationReason" = "%@을(를) 켜려면 인증하세요";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
-"nighthawk.settingsTab.changeServer.custom" = "Custom";
-"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
-"nighthawk.settingsTab.changeServer.save" = "Save";
-"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.title" = "서버 변경";
+"nighthawk.settingsTab.changeServer.default" = "기본(%@)";
+"nighthawk.settingsTab.changeServer.custom" = "사용자 지정";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "오류 ⸱ 올바른 서버 주소로 보이지 않습니다";
+"nighthawk.settingsTab.changeServer.save" = "저장";
+"nighthawk.settingsTab.changeServer.disclaimer" = "사용자 지정 서버는 Nighthawk가 운영하지 않습니다. 거래 시 프라이버시를 높이려면 Tor 사용을 권합니다.";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "서버를 바꿀 수 없습니다";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "오류: %@ (코드: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "시드 단어를 볼까요?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "경고: 다음 화면에 지갑 시드 키가 표시됩니다. 휴대폰을 혼자 보고 있는지 확인하세요.";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "시드 보기";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "기본 설정";
+"nighthawk.settingsTab.advanced.title" = "고급 설정";
+"nighthawk.settingsTab.advanced.screenMode.title" = "화면 켜 두기";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "지갑을 한동안 열지 않았다면 동기화에 시간이 걸릴 수 있습니다. 화면 모드를 '켜짐 유지'로 두면 동기화 중에 휴대폰이 잠들지 않습니다.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "켜짐 유지";
+"nighthawk.settingsTab.advanced.screenMode.off" = "끄기";
+"nighthawk.settingsTab.advanced.appIcon.title" = "앱 아이콘";
+"nighthawk.settingsTab.advanced.appIcon.default" = "기본";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "레트로";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "기본 설정";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "앱 아이콘을 바꿨습니다!";
+"nighthawk.settingsTab.advanced.theme.title" = "테마";
+"nighthawk.settingsTab.advanced.theme.default" = "시스템(사이버펑크)";
+"nighthawk.settingsTab.advanced.theme.light" = "라이트";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "안개색 뉴트럴에 그래파이트 포인트.";
+"nighthawk.settingsTab.advanced.theme.midnight" = "미드나잇";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "더 깊은 바탕에 바이올렛 포인트.";
+"nighthawk.settingsTab.advanced.theme.paper" = "페이퍼";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "사이버펑크";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "스타일 있게 nighthawk로";
+"nighthawk.chat.peers" = "피어";
+"nighthawk.chat.retry" = "다시 시도";
+"nighthawk.chat.outboundPeers" = "아웃바운드 피어";
+"nighthawk.chat.title" = "DarkFi IRC";
+"nighthawk.chat.subtitle" = "종단간 암호화 채팅\nDarkFi P2P 네트워크 기반";
+"nighthawk.chat.connect" = "연결";
+"nighthawk.chat.networkHint" = "네트워크 설정을 확인하거나 설정에서 Tor를 구성하세요.";
+"nighthawk.chat.newDm" = "새 DM";
+"nighthawk.chat.request" = "요청";
+"nighthawk.chat.settings" = "설정";
+"nighthawk.chat.shareKey" = "키 공유";
+"nighthawk.chat.noMessages" = "아직 메시지가 없습니다";
+"nighthawk.chat.ircStatus" = "IRC: %@";
+"nighthawk.chat.nodeStatus" = "노드: %@";
+"nighthawk.receive.sendAndReceive" = "DRK 보내기 및 받기";
+"nighthawk.receive.receivePrivately" = "비공개로 돈 받기";
+"nighthawk.receive.showQr" = "QR 코드 표시";
+"nighthawk.receive.showQrDetail" = "상대가 스캔하면 돈을 보낼 수 있습니다.";
+"nighthawk.receive.copyAddress" = "비공개 주소 복사";
+"nighthawk.receive.copyAddressDetail" = "지갑 주소가 클립보드에 복사됩니다.";
+"nighthawk.settingsTab.advanced.theme.dark" = "다크";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "주의: 이 지갑을 완전히 지웁니다. 시드 단어, SQLCipher 비밀번호, 기기의 데이터베이스가 삭제됩니다. 시드가 없으면 자금을 복구할 수 없습니다. 지갑을 만들거나 복원하기 전에 앱을 닫았다가 다시 실행하세요.";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "지갑 완전 삭제";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "정말 확실합니까?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "이 작업은 되돌릴 수 없습니다. 시드 단어가 없으면 자금을 복구할 수 없습니다. 안전한 곳에 저장했는지 반드시 확인한 뒤에 진행하세요. 그래도 진행할까요?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "최종 경고";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "지갑 완전 삭제는 매우 민감한 작업입니다. 새 지갑을 만들거나 지갑을 복원하기 전에 앱을 직접 닫고 Nighthawk를 다시 시작해야 합니다.";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "확인합니다. 지갑을 완전 삭제합니다";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "로컬 데이터베이스 삭제";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "기기의 지갑 DB와 동기화 캐시만 지웁니다. 시드 단어는 Keychain에 남으므로 다시 열어 스캔할 수 있습니다. 이전 데이터베이스를 열 수 없는 네이티브 업그레이드 뒤에 쓰세요.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "로컬 데이터베이스를 삭제할까요?";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "이 기기의 darkfi_wallet.db와 darkfi_cache를 삭제합니다. 복구 문구는 유지됩니다. 지갑이 다시 열리고 네트워크에서 처음부터 스캔합니다.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "데이터베이스 삭제";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "로컬 데이터베이스를 지웠습니다";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "지갑 데이터를 지웠습니다. 시드에서 다시 열고 새로 스캔을 시작합니다.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "로컬 데이터베이스를 지우지 못했습니다";
 
 // MARK: - Home Screen - Settings tab - External services
 "nighthawk.settingsTab.externalServices.title" = "외부 서비스";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Unstoppable 도메인 서비스 사용";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Unstoppable Domain 서비스 사용";
 
 // MARK: - Transaction details
-"nighthawk.transactionDetails.title" = "Transaction details";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
-"nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Time (UTC)";
-"nighthawk.transactionDetails.transparent" = "Transparent";
-"nighthawk.transactionDetails.blockId" = "Block ID";
-"nighthawk.transactionDetails.confirmations" = "Confirmations";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "Transaction ID";
-"nighthawk.transactionDetails.recipient" = "Recipient";
-"nighthawk.transactionDetails.recipientShielded" = "Private";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
-"nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Total amount";
-"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
-"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
+"nighthawk.transactionDetails.title" = "거래 세부 정보";
+"nighthawk.transactionDetails.notAvailable" = "거래 세부 정보를 아직 볼 수 없습니다. 스캔이 끝날 때까지 기다려 주세요";
+"nighthawk.transactionDetails.memo" = "메모";
+"nighthawk.transactionDetails.time" = "시간(UTC)";
+"nighthawk.transactionDetails.transparent" = "투명";
+"nighthawk.transactionDetails.blockId" = "블록 ID";
+"nighthawk.transactionDetails.confirmations" = "확인 수";
+"nighthawk.transactionDetails.unconfirmed" = "미확인";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "블록 탐색기에서 보기";
+"nighthawk.transactionDetails.transactionId" = "거래 ID";
+"nighthawk.transactionDetails.recipient" = "받는 사람";
+"nighthawk.transactionDetails.recipientShielded" = "비공개";
+"nighthawk.transactionDetails.recipientTransparent" = "비공개";
+"nighthawk.transactionDetails.address" = "주소";
+"nighthawk.transactionDetails.networkFee" = "네트워크 수수료";
+"nighthawk.transactionDetails.totalAmount" = "총액";
+"nighthawk.transactionDetails.viewOnExplorer" = "탐색기에서 보기";
+"nighthawk.transactionDetails.leavingWallet" = "Nighthawk Wallet 나가는 중";
+"nighthawk.transactionDetails.leavingWarning" = "보통은 감수할 만한 위험이지만, %@을(를) 방문하면 이 거래 ID에 관심이 있다는 점이 드러날 수 있습니다";
+"nighthawk.transactionDetails.viewTxDetails" = "TX 세부 정보";
+"nighthawk.transactionDetails.fiat.around" = "약 %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "회신 주소를 복사했습니다!";
 
 
 // MARK: - Transaction
-"nighthawk.transaction.confirmed" = "Confirmed";
-"nighthawk.transaction.sent" = "Sent";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.failed" = "Failed";
+"nighthawk.transaction.confirmed" = "확인됨";
+"nighthawk.transaction.sent" = "보냄";
+"nighthawk.transaction.received" = "받음";
+"nighthawk.transaction.failed" = "실패";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "이 지갑이 스캔한 DAO입니다. 금고에서의 지급은 투표를 기다립니다.";
+"nighthawk.daoHub.emptyTitle" = "동기화에서 아직 DAO를 찾지 못했습니다.";
+"nighthawk.daoHub.emptyBody" = "새로고침하거나 이 지갑에서 DAO를 시작하세요.";
+"nighthawk.daoHub.refresh" = "새로고침";
+"nighthawk.daoHub.startGroup" = "DAO 시작";
+"nighthawk.daoHub.importGroup" = "DAO 가져오기";
+"nighthawk.daoHub.treasury" = "금고";
+"nighthawk.daoHub.treasuryHint" = "금고 표시 없이 DAO에 보낸 코인은 나중에 지급할 수 없습니다.";
+"nighthawk.daoHub.notScannedYet" = "아직 스캔되지 않음";
+"nighthawk.daoHub.proposePayment" = "지급 제안";
+"nighthawk.daoHub.addFunds" = "자금 추가";
+"nighthawk.daoHub.addFundsHint" = "코인에 표시를 남겨 두면 DAO가 나중에 지급할 수 있습니다.";
+"nighthawk.daoHub.amount" = "금액";
+"nighthawk.daoHub.votes" = "투표";
+"nighthawk.daoHub.noVotes" = "아직 투표가 없습니다.";
+"nighthawk.daoHub.tokens" = "토큰";
+"nighthawk.daoHub.issueMore" = "추가 발행";
+"nighthawk.daoHub.freezeSupply" = "공급량 동결";
+"nighthawk.daoHub.issueToken" = "토큰 발행";
+"nighthawk.daoHub.admin" = "관리";
+"nighthawk.daoHub.proposer" = "제안자";
+"nighthawk.daoHub.voter" = "투표자";
+"nighthawk.daoHub.executor" = "실행자";
+"nighthawk.daoHub.fullCopy" = "전체 복사";
+"nighthawk.daoHub.observer" = "관찰자";
+"nighthawk.daoHub.details" = "세부 정보";
+"nighthawk.daoHub.groupId" = "DAO ID";
+"nighthawk.daoHub.governanceToken" = "거버넌스 토큰";
+"nighthawk.daoHub.votesNeeded" = "가결에 필요한 투표 수";
+"nighthawk.daoHub.yesShareRequired" = "필요한 찬성 지분";
+"nighthawk.daoHub.mintHeight" = "발행 높이";
+"nighthawk.daoHub.daoNotFound" = "DAO를 찾을 수 없음";
+"nighthawk.daoHub.proposal" = "제안";
+"nighthawk.daoHub.proposalNotFound" = "제안을 찾을 수 없음";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "투표 기간: %@블록 구간(%@시간).";
+"nighthawk.daoHub.proposalId" = "제안 ID";
+"nighthawk.daoHub.execHeight" = "실행 높이";
+"nighthawk.daoHub.proposeTx" = "거래 제안";
+"nighthawk.daoHub.execTx" = "거래 실행";
+"nighthawk.daoHub.voteWeight" = "거버넌스 토큰 잔액 전체가 투표 가중치입니다.";
+"nighthawk.daoHub.payFromTreasury" = "금고에서 지급";
+"nighthawk.daoHub.payHint" = "금고에서 지급을 보냅니다.";
+"nighthawk.daoHub.onePayment" = "지급 1건";
+"nighthawk.daoHub.paid" = "지급됨";
+"nighthawk.daoHub.open" = "미결";
+"nighthawk.daoHub.waiting" = "대기";
+"nighthawk.daoHub.name" = "이름";
+"nighthawk.daoHub.yesShare" = "찬성 지분";
+"nighthawk.daoHub.proposerMinimum" = "제안자 최소 수량";
+"nighthawk.daoHub.earlyQuorum" = "조기 정족수";
+"nighthawk.daoHub.earlyQuorumHint" = "비워 두면 필요한 투표 수와 같은 값을 씁니다.";
+"nighthawk.daoHub.allRolesHint" = "이 휴대폰이 금고에서 지급하는 키를 포함해 모든 역할을 갖고 있습니다.";
+"nighthawk.daoHub.recipient" = "받는 사람";
+"nighthawk.daoHub.recipientAddress" = "받는 주소";
+"nighthawk.daoHub.tokenOptional" = "토큰(선택)";
+"nighthawk.daoHub.tokenIdPlaceholder" = "토큰 ID(기본값: DRK)";
+"nighthawk.daoHub.duration" = "기간";
+"nighthawk.daoHub.blockWindows" = "블록 구간";
+"nighthawk.daoHub.proposeBroadcast" = "기기에서 ZK 증명을 만들고 제안 거래를 전파합니다.";
+"nighthawk.daoHub.issueHint" = "체인에는 소수점 8자리로 저장됩니다.";
+"nighthawk.daoHub.roleExportTitle" = "역할 내보내기";
+"nighthawk.daoHub.roleExportHint" = "이 코드에 역할 비밀이 들어 있습니다.";
+"nighthawk.daoHub.close" = "닫기";
+"nighthawk.daoHub.copy" = "복사";
+"nighthawk.daoHub.captured" = "화면 녹화 또는 스크린샷이 감지되었습니다. 비밀을 숨겼습니다.";
+"nighthawk.daoHub.importToml" = "DAO 파일";
+"nighthawk.daoHub.token" = "토큰";
+"nighthawk.daoHub.browseDescription" = "DAO, 제안, 금고를 둘러보세요.";
+"nighthawk.daoHub.fundsSent" = "자금을 금고로 보냈습니다";
+"nighthawk.daoHub.paymentSent" = "금고에서 지급을 보냈습니다";
+"nighthawk.daoHub.proposalSubmitted" = "제안을 제출했습니다! %@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO를 제출했습니다";
+"nighthawk.daoHub.groupImported" = "DAO를 가져왔습니다";
+"nighthawk.daoHub.tokenCreated" = "토큰을 만들었습니다";
+"nighthawk.daoHub.tokensIssued" = "토큰을 발행했습니다";
+"nighthawk.daoHub.supplyFrozen" = "공급량을 동결했습니다";
+"nighthawk.daoHub.voteYesSubmitted" = "찬성 투표를 제출했습니다! TX: %@…";
+"nighthawk.daoHub.voteNoSubmitted" = "반대 투표를 제출했습니다! TX: %@…";
+"nighthawk.daoHub.walletNotReady" = "지갑이 아직 준비되지 않았습니다. 설정을 마치거나 초기화가 끝날 때까지 기다리세요.";
+"nighthawk.daoHub.walletStopped" = "지갑 동기화가 중지되었습니다. 지갑 탭에서 동기화를 다시 시작한 뒤 DAO 허브를 다시 여세요.";
+"nighthawk.daoHub.walletSyncing" = "지갑 동기화가 아직 진행 중입니다. 지갑이 최신이 되면 DAO 허브를 다시 여세요.";
+"nighthawk.daoHub.walletSyncFailed" = "지갑 동기화 실패: %@";
+"nighthawk.walletCompanion.shieldedNote" = "전송은 실드 상태로 유지됩니다. 서버가 지원하면 UnifOMR을 씁니다. 시험 복호화는 폴백일 뿐입니다.";
+"nighthawk.walletCompanion.trialDecrypt" = "시험 복호화";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "블록 %@";
+"nighthawk.walletCompanion.waitingForHeight" = "블록 높이를 기다리는 중";
+"nighthawk.walletCompanion.trialActive" = "UnifOMR 대신 시험 복호화가 켜져 있습니다.";
+"nighthawk.walletCompanion.syncedUnifOmr" = "UnifOMR로 동기화되었습니다.";
+"nighthawk.walletCompanion.receive" = "받기";
+"nighthawk.walletCompanion.nextSteps" = "다음 단계";
+"nighthawk.walletCompanion.copyTxId" = "TxID 복사";
+"nighthawk.walletCompanion.sendAgain" = "다시 보내기";
+"nighthawk.walletCompanion.copyMemo" = "메모 복사";
+"nighthawk.chat.couldNotDecrypt" = "복호화할 수 없습니다";

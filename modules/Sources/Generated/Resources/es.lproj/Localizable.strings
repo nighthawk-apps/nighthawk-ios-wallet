@@ -1,5 +1,5 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "¡No hay espacio suficiente en el disco para sincronizar!";
 
 // MARK: - Common & Shared
 "general.back" = "Volver";
@@ -9,126 +9,132 @@
 "general.send" = "Enviar";
 "general.clear" = "Borrar";
 "general.close" = "Cerrar";
-"general.max" = "Max";
-"general.ok" = "Ok";
-"general.yes" = "Yes";
+"general.max" = "Máx";
+"general.ok" = "OK";
+"general.yes" = "Sí";
 "general.no" = "No";
 "general.cancel" = "Cancelar";
-"general.success" = "Completado";
+"general.success" = "Éxito";
 "general.unknown" = "Desconocido";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ disponibles";
+"qrCodeFor" = "Código QR de %@";
+"general.dateNotAvailable" = "fecha no disponible";
 
 //==========================================================
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-// MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+// MARK: - Local authentication
+"nighthawk.localAuthentication.accessWalletReason" = "Tienes que autenticarte para acceder a tu cartera Nighthawk.";
+"nighthawk.localAuthentication.sendFundsReason" = "Tienes que autenticarte para enviar fondos desde tu cartera.";
 
 // MARK: - About screen
 "nighthawk.about.title" = "Acerca de";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "Ver código fuente";
+"nighthawk.about.message" = "Nighthawk es una cartera privada por defecto para DarkFi. Todas las transacciones son totalmente privadas y no hay direcciones transparentes.\n\nComo cartera sin custodia, solo tú eres responsable de tus fondos. Haz una copia de seguridad de las palabras semilla, ahora y de forma segura, al crear la cartera.\n\nDarkFi es una cadena de bloques de capa 1 pensada para aplicaciones anónimas y finanzas privadas. La diseñó la comunidad DarkFi para hacer posible la libertad financiera.\n\nNighthawk Wallet se conecta directamente a la red P2P de DarkFi. Este software se ofrece «tal cual», sin garantía de ningún tipo, expresa o implícita.";
+"nighthawk.about.viewSource" = "Ver el código fuente";
 "nighthawk.about.nighthawkFriends" = "Amigos de Nighthawk";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.viewLicenses" = "Ver licencias";
 
 // MARK: - Licenses Screen
 "nighthawk.licenses.title" = "Licencias OSS";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "No se ha podido inicializar el SDK";
+"nighthawk.app.launch.alert.error.message" = "Error: %@ (código: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "No se ha podido eliminar la cartera";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "¡Excelente!";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk es";
+"nighthawk.autoshield.shieldedByDefault" = "Privada por defecto.";
+"nighthawk.autoshield.title2" = "Todas las transacciones en DarkFi son privadas. No hay dirección transparente ni fondo blindado: todo es privado.";
+"nighthawk.autoshield.autoshielding" = "Privacidad";
+"nighthawk.autoshield.detail1" = "Todos los fondos son siempre privados. DarkFi no tiene el concepto de dirección transparente.";
+"nighthawk.autoshield.detail2" = "Nos comprometemos a informarte con regularidad de las mejores prácticas y recomendaciones más recientes para preservar la privacidad.";
+"nighthawk.autoshield.buttonPositive" = "¡Genial!";
 "nighthawk.autoshield.buttonNeutral" = "Más información";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirigiendo a ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Abrir navegador";
-"nighthawk.autoshield.shielding" = "Blindando…";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Completado";
+"nighthawk.autoshield.alert.redirecting.title" = "Redirigiendo a DarkFi";
+"nighthawk.autoshield.alert.redirecting.details" = "Confirma que quieres abrir el navegador del dispositivo para saber más sobre la privacidad de DarkFi.";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "Abrir el navegador";
+"nighthawk.autoshield.shielding" = "Procesando…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "Éxito";
 "nighthawk.autoshield.shieldingFailed" = "Fallido";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
+"nighthawk.splash.retry" = "Reintentar";
 "nighthawk.splash.subtitle" = "Dinero privado en tu bolsillo.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.initialization.alert.failed.title" = "No se ha podido inicializar la cartera.";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "Estado de inicialización de la aplicación: %@.";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
+"nighthawk.migrateScreen.title" = "Migrando desde una versión anterior de la aplicación";
+"nighthawk.migrateScreen.explanation" = "Tenemos una forma nueva y más segura de guardar los datos en local, así que tenemos que migrar tus palabras semilla para restaurar tu cartera. Si no quieres migrar automáticamente, tendrás que restaurar la cartera añadiendo las palabras semilla a mano.\n\n¿Quieres continuar de forma automática?";
 "nighthawk.migrateScreen.continue" = "Continuar";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.restoreManually" = "Restaurar a mano";
+"nighthawk.migrateScreen.migrationFailed.title" = "La migración ha fallado";
+"nighthawk.migrateScreen.migrationFailed.description" = "Ha ocurrido un error y no hemos podido migrar tu cartera automáticamente. Toca Continuar para importarla a mano.";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "Esta aplicación es software libre. Su uso está cubierto únicamente por su licencia.";
-"nighthawk.welcome.create" = "Crear billetera";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "Empezar";
+"nighthawk.welcome.body" = "Si es la primera vez que usas Nighthawk, tendrás que crear una cartera. Si vuelves a Nighthawk, puedes restaurar tu cartera anterior.";
+"nighthawk.welcome.terms1" = "Esta aplicación es software libre. El uso solo queda cubierto por su licencia.";
+"nighthawk.welcome.create" = "Crear cartera";
+"nighthawk.welcome.restore" = "Restaurar desde la copia de seguridad";
+"nighthawk.welcome.initialization.alert.failed.title" = "No se ha podido inicializar la cartera.";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "No se puede crear una cartera nueva. Error: %@ (código: %@)";
+"nighthawk.welcome.carousel.title1" = "Privada por defecto";
+"nighthawk.welcome.carousel.body1" = "Todas las transacciones son totalmente privadas. Sin direcciones transparentes ni fugas de metadatos. Tu vida financiera sigue siendo tuya.";
+"nighthawk.welcome.carousel.title2" = "Red entre pares";
+"nighthawk.welcome.carousel.body2" = "Conéctate directamente a la red DarkFi mediante Tor. Sin servidores intermediarios. Sin endpoints en los que tengas que confiar.";
+"nighthawk.welcome.carousel.title3" = "Chat cifrado";
+"nighthawk.welcome.carousel.body3" = "Envía mensajes cifrados de extremo a extremo por DarkIRC. Comunicación privada integrada en tu cartera.";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Respaldar billetera";
-"nighthawk.walletCreated.skip" = "Omitir por ahora";
+"nighthawk.walletCreated.title" = "¡Cartera creada! ¡Enhorabuena!";
+"nighthawk.walletCreated.backupImmediately" = "Por la seguridad de tus fondos y para evitar consecuencias no deseadas, te recomendamos ENCARECIDAMENTE que hagas una copia de seguridad de tu cartera. Recuerda: esta cartera es de autocustodia y solo tú eres responsable de tus fondos.";
+"nighthawk.walletCreated.backup" = "Haz una copia de seguridad de tu cartera";
+"nighthawk.walletCreated.skip" = "Saltar por ahora";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Escribe tu semilla de respaldo";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
+"nighthawk.recoveryPhraseDisplay.title" = "Anota tu semilla de copia de seguridad";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "Si pierdes el acceso a tu móvil o a la cartera Nighthawk, la única forma de volver a tu DarkFi es tener esta frase de 22 palabras y el código de cumpleaños de la cartera.";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "Anótala en papel y guárdala en un lugar seguro.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "Cumpleaños de la cartera:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "Confirmo que he guardado mi frase semilla.";
 "nighthawk.recoveryPhraseDisplay.continue" = "Continuar";
 "nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Exportar como PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "Estas son las palabras semilla para restaurar tu DarkFi en Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "PDF de copia de seguridad generado el %@";
 
 // MARK: - Export seed
 "nighthawk.exportSeed.title" = "Exportar como PDF";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
+"nighthawk.exportSeed.description" = "Exporta las palabras semilla a un PDF protegido con contraseña que puedes guardar en dispositivos de almacenamiento portátiles que tú controles.";
 "nighthawk.exportSeed.export" = "Exportar PDF";
 "nighthawk.exportSeed.passwordPlaceholder" = "Introduce la contraseña";
 
 // MARK: - Import warning
 "nighthawk.importWarning.title" = "Antes de continuar";
-"nighthawk.importWarning.description" = "Por favor, importa sólo una frase de semilla que fue inicialmente generada por Nighthawk. Otras billeteras operan de forma diferente, lo que puede llevar a una notificación inprecisa de los fondos para sus transacciones.";
+"nighthawk.importWarning.description" = "Usa solo una frase semilla que Nighthawk haya generado al principio. Otras carteras funcionan de otra forma y el saldo de tus transacciones puede mostrarse mal.";
 "nighthawk.importWarning.proceed" = "Continuar";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
+"nighthawk.importWallet.restoreFromBackup" = "Restaurar desde la copia de seguridad";
+"nighthawk.importWallet.enterSeedPhrase" = "Introduce abajo tu frase semilla de 22 palabras. Si no la tienes, tendrás que crear una cartera nueva.";
 "nighthawk.importWallet.yourSeedPhrase" = "Tu frase semilla";
 "nighthawk.importWallet.birthdayHeight" = "Altura del cumpleaños (opcional)";
 "nighthawk.importWallet.continue" = "Continuar";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ Esto no parece una frase semilla válida";
+"nighthawk.importWallet.invalidBirthday" = "Error ⸱ Esto no parece una altura de cumpleaños válida";
+"nighthawk.importWallet.alert.failed.title" = "No se ha podido restaurar la cartera";
+"nighthawk.importWallet.alert.failed.message" = "Error: %@ (código: %@)";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Completado";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "Éxito";
+"nighthawk.importWalletSuccess.viewWallet" = "Ver cartera";
 
 // MARK: - Transactions
 "nighthawk.transaction.sending" = "Enviando";
@@ -138,96 +144,103 @@
 "nighthawk.transaction.sent" = "Enviado";
 
 // MARK: - Home Screen
-"nighthawk.homeScreen.wallet" = "Billetera";
-"nighthawk.homeScreen.transfer" = "Transferir";
+"nighthawk.homeScreen.wallet" = "Cartera";
+"nighthawk.homeScreen.transfer" = "Transferencia";
+"nighthawk.homeScreen.dex" = "DEX";
 "nighthawk.homeScreen.settings" = "Ajustes";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.expectingFunds" = "Se esperan %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "Próximamente";
+"nighthawk.dex.comingSoonBody" = "El DEX de DarkFi estará aquí. Enviar, recibir y solicitar siguen en Cartera.";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Deslice a la izquierda para mostrar su balance";
-"nighthawk.walletTab.totalBalance" = "Balance total";
-"nighthawk.walletTab.shieldedBalance" = "Balance blindado";
-"nighthawk.walletTab.transparentBalance" = "Balance transparente";
+"nighthawk.walletTab.swipeToShowBalances" = "Desliza a la izquierda para ver tu saldo";
+"nighthawk.walletTab.totalBalance" = "Saldo total";
+"nighthawk.walletTab.shieldedBalance" = "Saldo privado";
+"nighthawk.walletTab.transparentBalance" = "Saldo privado";
 "nighthawk.walletTab.drk" = "DRK";
 "nighthawk.walletTab.recentActivity" = "Actividad reciente";
-"nighthawk.walletTab.viewTransactionHistory" = "Ver historial de transacciones";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.viewTransactionHistory" = "Ver el historial de transacciones";
+"nighthawk.walletTab.shieldNow" = "Actualizar";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Direcciones unificadas";
-"nighthawk.walletTab.addresses.saplingAddress" = "Dirección blindada heredada";
-"nighthawk.walletTab.addresses.transparentAddress" = "Dirección transparente";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Recarga tu billetera";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Compra o comercia con DarkFi a través de nuestros socios especialmente seleccionados.";
+"nighthawk.walletTab.addresses.unifiedAddress" = "Dirección de privacidad";
+"nighthawk.walletTab.addresses.saplingAddress" = "Dirección de privacidad";
+"nighthawk.walletTab.addresses.transparentAddress" = "Dirección de privacidad";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "Recarga tu cartera";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Compra o intercambia DarkFi con nuestros socios seleccionados.";
 "nighthawk.walletTab.addresses.copy" = "Copiar";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.seeMore" = "Ver más";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "¡Copiado al portapapeles!";
+"nighthawk.walletTab.addresses.loading" = "Cargando…";
 
 // MARK: - Home Screen - Transaction history
 "nighthawk.transactionHistory.title" = "Historial de transacciones";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Fondos autoblindados";
+"nighthawk.transactionHistory.autoshieldedFunds" = "Fondos privados";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
+"nighthawk.sync.message.uptodate" = "Al día";
+"nighthawk.sync.message.unprepared" = "Conectando…";
 "nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparando para escanear";
+"nighthawk.sync.message.sync" = "Escaneando…%@%%";
+"nighthawk.sync.message.preparing" = "Preparando el escaneo";
 "nighthawk.sync.message.finalizing" = "Finalizando";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.stopped" = "Detenido";
 
 // MARK: - Home Screen - Transfer tab
 "nighthawk.transferTab.sendAndReceiveDarkFi" = "Enviar y recibir DarkFi";
 "nighthawk.transferTab.sendMoneyTitle" = "Enviar dinero";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
+"nighthawk.transferTab.sendMoneyDescription" = "Escanea el código QR de otra persona para enviarle dinero.";
 "nighthawk.transferTab.receiveMoneyTitle" = "Recibir dinero";
-"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
-"nighthawk.transferTab.topUpWalletTitle" = "Recarga tu billetera";
-"nighthawk.transferTab.topUpWalletDescription" = "Comprar DarkFi de forma segura a través de nuestros socios.";
+"nighthawk.transferTab.receiveMoneyDescription" = "Muestra tu código QR o copia tu dirección.";
+"nighthawk.walletTab.actionSend" = "Enviar";
+"nighthawk.walletTab.actionReceive" = "Recibir";
+"nighthawk.walletTab.actionRequest" = "Solicitar";
+"nighthawk.transferTab.topUpWalletTitle" = "Recarga tu cartera";
+"nighthawk.transferTab.topUpWalletDescription" = "Compra DarkFi de forma segura con nuestros socios.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Recibe dinero en privado";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Mostrar código QR";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "La dirección de su billetera se copiará al portapapeles.";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Recibir dinero públicamente";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copiar una dirección no privada";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "Esto copiará su dirección t.";
+"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copiar dirección de privacidad";
+"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "La dirección de tu cartera se copiará al portapapeles.";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
 "nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Intercambiar con StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Intercambiar monedas transparentes sin límites.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Abrir navegador";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Intercambia monedas sin límites.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "¿Recargar la cartera con %@?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Tu %@ se ha copiado al portapapeles.\n\nElige «Abrir el navegador» abajo, selecciona «%@» como moneda de destino en el sitio de %@ y luego pega tu %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "Abrir el navegador";
 
 // MARK: - Home Screen - Transfer - Send
 "nighthawk.transferTab.send.chooseHowMuch" = "Elige cuánto enviar";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
+"nighthawk.transferTab.send.spendableBalance" = "El saldo disponible (comisión incluida) es %@ %@";
 "nighthawk.transferTab.send.continue" = "Continuar";
-"nighthawk.transferTab.send.topUpWallet" = "Recarga tu billetera";
+"nighthawk.transferTab.send.topUpWallet" = "Recargar cartera";
 "nighthawk.transferTab.send.scanCode" = "Escanear un código de pago";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "¡No hay DRK suficiente!";
+"nighthawk.transferTab.send.around" = "unos %@ %@";
 "nighthawk.transferTab.send.error" = "Error";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
 "nighthawk.transferTab.scan.scanPaymentRequest" = "Escanear una solicitud de pago";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "Si tiene una solicitud de pago, puede escanear el código QR aquí para completar automáticamente todos los detalles.";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "Si tienes una solicitud de pago, puedes escanear aquí el código QR para rellenar todos los datos.";
 
 // MARK: - Home Screen - Transfer - Add memo
 "nighthawk.transferTab.addMemo.addMessageToPayment" = "Añade un mensaje a tu pago";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.writeSomething" = "Escribe algo...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "Incluir dirección de respuesta";
 
 // MARK: - Home Screen - Transfer - Recipient
 "nighthawk.transferTab.recipient.chooseRecipient" = "Elige a quién enviarlo";
-"nighthawk.transferTab.recipient.addAddress" = "Añadir la dirección aquí";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
+"nighthawk.transferTab.recipient.addAddress" = "Añade aquí la dirección";
+"nighthawk.transferTab.recipient.invalid" = "Introduce un destinatario válido";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "No se puede enviar a direcciones TEX porque ofrecen menos protección de la privacidad";
 "nighthawk.transferTab.recipient.pasteFromClipboard" = "Pegar desde el portapapeles";
 "nighthawk.transferTab.recipient.continue" = "Continuar";
 
@@ -240,146 +253,186 @@
 
 // MARK: - Home Screen - Transfer - Failed
 "nighthawk.transferTab.failed.title" = "Fallido";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
+"nighthawk.transferTab.failed.tryAgain" = "Reintentar";
 "nighthawk.transferTab.failed.cancel" = "Cancelar";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Completado";
+"nighthawk.transferTab.success.title" = "Éxito";
 "nighthawk.transferTab.success.done" = "Hecho";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.moreDetails" = "Más detalles";
 
 // MARK: - Home Screen - Settings tab
 "nighthawk.settingsTab.settings" = "Ajustes";
 "nighthawk.settingsTab.notificationsTitle" = "Notificaciones de sincronización";
-"nighthawk.settingsTab.notificationsSubtitle" = "Recuerda mantener la billetera actualizada";
-"nighthawk.settingsTab.fiatTitle" = "Moneda fiat";
+"nighthawk.settingsTab.notificationsSubtitle" = "Te recuerdan mantener la cartera al día";
+"nighthawk.settingsTab.fiatTitle" = "Moneda fiduciaria";
 "nighthawk.settingsTab.fiatSubtitle" = "Elige tu moneda local";
 "nighthawk.settingsTab.securityTitle" = "Seguridad";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Respaldar billetera";
-"nighthawk.settingsTab.backupSubtitle" = "Mantén tu billetera segura en caso de perder tu teléfono";
-"nighthawk.settingsTab.rescanTitle" = "Reescanear billetera";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Limpiar";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Cambiar de servidor";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "Servicio externo";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
+"nighthawk.settingsTab.securitySubtitle" = "Activar o desactivar %@";
+"nighthawk.settingsTab.backupTitle" = "Haz una copia de seguridad de tu cartera";
+"nighthawk.settingsTab.backupSubtitle" = "Protege tu cartera por si pierdes el móvil";
+"nighthawk.settingsTab.rescanTitle" = "Volver a escanear la cartera";
+"nighthawk.settingsTab.rescanSubtitle" = "Vuelve a escanear los saldos de la cartera para diagnosticar problemas";
+"nighthawk.settingsTab.alert.rescan.title" = "¿Volver a escanear esta cartera?";
+"nighthawk.settingsTab.alert.rescan.message" = "El reescaneo puede tardar hasta 10 horas, según lo largo que sea el historial de transacciones de tu cartera. ¿Quieres empezar un reescaneo?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "Borrado";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "El reescaneo ha fallado";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (código: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "No se puede iniciar la sincronización después del rebobinado";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (código: %@)";
+"nighthawk.settingsTab.changeServerTitle" = "Cambiar servidor";
+"nighthawk.settingsTab.changeServerSubtitle" = "Cambiar el servidor";
+"nighthawk.settingsTab.chatSettingsTitle" = "Ajustes del chat";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "Cifrado E2E, sincronización del DAG y darkirc integrado";
+"nighthawk.settingsTab.networkPrivacyTitle" = "Privacidad de red";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "Cartera por Nym, Tor o en directo; chat por Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "Elige un ajuste a la izquierda para abrirlo.";
+"nighthawk.settingsTab.externalServicesTitle" = "Servicios externos";
+"nighthawk.settingsTab.externalServicesSubtitle" = "Activa los servicios de nuestros socios";
 "nighthawk.settingsTab.advancedTitle" = "Avanzado";
-"nighthawk.settingsTab.advancedSubtitle" = "Ajustes menos comunes";
+"nighthawk.settingsTab.advancedSubtitle" = "Ajustes menos habituales";
 "nighthawk.settingsTab.aboutTitle" = "Acerca de";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ y licencias";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
 "nighthawk.settingsTab.syncNotifications.title" = "Notificaciones de sincronización";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.description" = "Si la cartera Nighthawk permanece cerrada mucho tiempo, tardará más en arrancar cuando quieras usarla.";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Permite las notificaciones de sincronización para que te recuerden abrir la cartera cada semana.";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Permite las notificaciones de sincronización para que te recuerden abrir la cartera cada mes.";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Semanal";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Mensual";
+"nighthawk.settingsTab.syncNotifications.offOption" = "Desactivado";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permiso denegado";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk necesita permiso para enviar notificaciones de sincronización. Abre los ajustes y concede los permisos necesarios.";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Ir a ajustes";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "¡Hora de sincronizar!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "¡Abre Nighthawk y sincroniza tu cartera para que tus fondos estén listos cuando los necesites!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "No se ha podido programar la notificación";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "No hemos podido programar tu notificación de sincronización en este momento.";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Moneda fiat";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
+"nighthawk.settingsTab.fiatCurrency.title" = "Moneda fiduciaria";
+"nighthawk.settingsTab.fiatCurrency.description" = "Elige tu moneda local para que podamos mostrarte una estimación aproximada de cuánto vale tu %@.\n\nLa primera vez que abres la aplicación, el tipo de cambio se obtiene de la API v3 de CoinGecko y se usa para calcular los valores. Las cantidades de tus fondos no se revelan a ningún servidor.";
+"nighthawk.settingsTab.fiatCurrency.usd" = "Dólar estadounidense";
 "nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.inr" = "Rupia india";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "Yen japonés";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "Libra esterlina";
+"nighthawk.settingsTab.fiatCurrency.cad" = "Dólar canadiense";
+"nighthawk.settingsTab.fiatCurrency.aud" = "Dólar australiano";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "Dólar de Hong Kong";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "Dólar de Singapur";
+"nighthawk.settingsTab.fiatCurrency.chf" = "Franco suizo";
+"nighthawk.settingsTab.fiatCurrency.cny" = "Yuan chino";
+"nighthawk.settingsTab.fiatCurrency.krw" = "Won surcoreano";
+"nighthawk.settingsTab.fiatCurrency.off" = "Desactivado";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ activado";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ desactivado";
+"nighthawk.settingsTab.security.disableValidationReason" = "Autentícate para desactivar %@";
+"nighthawk.settingsTab.security.enableValidationReason" = "Autentícate para activar %@";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Cambiar de servidor";
-"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
-"nighthawk.settingsTab.changeServer.custom" = "Custom";
-"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
-"nighthawk.settingsTab.changeServer.save" = "Save";
-"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.title" = "Cambiar servidor";
+"nighthawk.settingsTab.changeServer.default" = "Predeterminado (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "Personalizado";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ Esto no parece una dirección de servidor válida";
+"nighthawk.settingsTab.changeServer.save" = "Guardar";
+"nighthawk.settingsTab.changeServer.disclaimer" = "Nighthawk no opera los servidores personalizados. Te recomendamos usar Tor para más privacidad al hacer transacciones.";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "No se ha podido cambiar el servidor";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (código: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "¿Ver las palabras semilla?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "AVISO: asegúrate de que solo tú estás mirando el móvil, porque la clave semilla de tu cartera se mostrará en la pantalla siguiente.";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "Ver semilla";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
+"nighthawk.settingsTab.advanced.title" = "Ajustes avanzados";
+"nighthawk.settingsTab.advanced.screenMode.title" = "Mantener la pantalla encendida";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "Si hace tiempo que no abres la cartera, la sincronización puede tardar. Si pones el modo de pantalla en «Siempre activa», el móvil no se dormirá mientras sincroniza.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Siempre activa";
+"nighthawk.settingsTab.advanced.screenMode.off" = "Desactivado";
+"nighthawk.settingsTab.advanced.appIcon.title" = "Icono de la aplicación";
+"nighthawk.settingsTab.advanced.appIcon.default" = "Predeterminado";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "Default";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "¡Icono de la aplicación actualizado!";
+"nighthawk.settingsTab.advanced.theme.title" = "Tema";
+"nighthawk.settingsTab.advanced.theme.default" = "Sistema (Cyberpunk)";
+"nighthawk.settingsTab.advanced.theme.light" = "Claro";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "Neutros de niebla con acento grafito.";
+"nighthawk.settingsTab.advanced.theme.midnight" = "Medianoche";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "Base más oscura con acento violeta.";
+"nighthawk.settingsTab.advanced.theme.paper" = "Papel";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "entra en nighthawk con estilo";
+"nighthawk.chat.peers" = "Pares";
+"nighthawk.chat.retry" = "Reintentar";
+"nighthawk.chat.outboundPeers" = "Pares de salida";
+"nighthawk.chat.title" = "IRC de DarkFi";
+"nighthawk.chat.subtitle" = "Chat cifrado de extremo a extremo\ncon la red P2P de DarkFi";
+"nighthawk.chat.connect" = "Conectar";
+"nighthawk.chat.networkHint" = "Revisa los ajustes de red o configura Tor en Ajustes.";
+"nighthawk.chat.newDm" = "MD nuevo";
+"nighthawk.chat.request" = "Solicitar";
+"nighthawk.chat.settings" = "Ajustes";
+"nighthawk.chat.shareKey" = "Compartir clave";
+"nighthawk.chat.noMessages" = "Aún no hay mensajes";
+"nighthawk.chat.ircStatus" = "IRC: %@";
+"nighthawk.chat.nodeStatus" = "Nodo: %@";
+"nighthawk.receive.sendAndReceive" = "Enviar y recibir DRK";
+"nighthawk.receive.receivePrivately" = "Recibe dinero en privado";
+"nighthawk.receive.showQr" = "Mostrar código QR";
+"nighthawk.receive.showQrDetail" = "Deja que alguien lo escanee para enviarte dinero.";
+"nighthawk.receive.copyAddress" = "Copiar dirección privada";
+"nighthawk.receive.copyAddressDetail" = "La dirección de tu cartera se copiará al portapapeles.";
+"nighthawk.settingsTab.advanced.theme.dark" = "Oscuro";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CUIDADO: destruye por completo esta cartera, incluidas las palabras semilla, la contraseña de SQLCipher y las bases de datos del dispositivo. No puedes recuperar los fondos sin tu semilla. Cierra y vuelve a abrir la aplicación antes de crear o restaurar una cartera.";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "Destruir cartera";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "¿SEGURO?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "Esta operación es IRREVERSIBLE. Restaurar tus fondos será imposible sin tus palabras semilla. Asegúrate POR COMPLETO de tenerlas guardadas en un lugar seguro antes de continuar. ¿Aún quieres seguir?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "AVISO FINAL";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Destruir la cartera es una operación extremadamente delicada. Tanto, que tienes que cerrar la aplicación a mano y reiniciar Nighthawk antes de crear una cartera nueva o restaurar una.";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "Confirmo, destruir la cartera";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "Eliminar bases de datos locales";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "Elimina solo la base de datos de la cartera en el dispositivo y la caché de sincronización. Tus palabras semilla siguen en el Llavero, así que puedes volver a abrirla y escanear. Úsalo tras una actualización nativa que no pueda abrir una base de datos antigua.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "¿Eliminar las bases de datos locales?";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "Esto elimina darkfi_wallet.db y darkfi_cache en este dispositivo. Se conserva tu frase de recuperación. La cartera se volverá a abrir y escaneará desde la red.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "Eliminar bases de datos";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "Bases de datos locales eliminadas";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "Se han quitado los datos de la cartera. Se reabre desde tu semilla y empieza un escaneo nuevo.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "No se han podido eliminar las bases de datos locales";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "Servicio externo";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Habilitar Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "Servicios externos";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Activar el servicio Unstoppable Domain";
 
 // MARK: - Transaction details
 "nighthawk.transactionDetails.title" = "Detalles de la transacción";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
-"nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Tiempo (UTC)";
+"nighthawk.transactionDetails.notAvailable" = "Los detalles de la transacción no están disponibles. Espera a que termine el escaneo";
+"nighthawk.transactionDetails.memo" = "Nota";
+"nighthawk.transactionDetails.time" = "Hora (UTC)";
 "nighthawk.transactionDetails.transparent" = "Transparente";
-"nighthawk.transactionDetails.blockId" = "Bloque ID";
+"nighthawk.transactionDetails.blockId" = "ID del bloque";
 "nighthawk.transactionDetails.confirmations" = "Confirmaciones";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "ID de la Transacción";
+"nighthawk.transactionDetails.unconfirmed" = "Sin confirmar";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "Ver en el explorador de bloques";
+"nighthawk.transactionDetails.transactionId" = "ID de la transacción";
 "nighthawk.transactionDetails.recipient" = "Destinatario";
-"nighthawk.transactionDetails.recipientShielded" = "Blindado";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparente";
+"nighthawk.transactionDetails.recipientShielded" = "Privado";
+"nighthawk.transactionDetails.recipientTransparent" = "Privado";
 "nighthawk.transactionDetails.address" = "Dirección";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Monto total";
+"nighthawk.transactionDetails.networkFee" = "Comisión de red";
+"nighthawk.transactionDetails.totalAmount" = "Importe total";
 "nighthawk.transactionDetails.viewOnExplorer" = "Ver en el explorador";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
-"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
+"nighthawk.transactionDetails.leavingWallet" = "Saliendo de Nighthawk Wallet";
+"nighthawk.transactionDetails.leavingWarning" = "Aunque suele ser un riesgo aceptable, al visitar %@ puedes dejar ver tu interés en este ID de transacción";
+"nighthawk.transactionDetails.viewTxDetails" = "Ver detalles de la transacción";
+"nighthawk.transactionDetails.fiat.around" = "unos %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "¡Dirección de respuesta copiada!";
 
 
 // MARK: - Transaction
@@ -387,3 +440,102 @@
 "nighthawk.transaction.sent" = "Enviado";
 "nighthawk.transaction.received" = "Recibido";
 "nighthawk.transaction.failed" = "Fallido";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "DAO que esta cartera ha escaneado. Un pago de la tesorería está a la espera de una votación.";
+"nighthawk.daoHub.emptyTitle" = "La sincronización aún no ha encontrado ninguna DAO.";
+"nighthawk.daoHub.emptyBody" = "Actualiza o crea una DAO desde esta cartera.";
+"nighthawk.daoHub.refresh" = "Actualizar";
+"nighthawk.daoHub.startGroup" = "Crear una DAO";
+"nighthawk.daoHub.importGroup" = "Importar DAO";
+"nighthawk.daoHub.treasury" = "Tesorería";
+"nighthawk.daoHub.treasuryHint" = "Las monedas enviadas a la DAO sin la marca de tesorería no se podrán pagar más adelante.";
+"nighthawk.daoHub.notScannedYet" = "Aún sin escanear";
+"nighthawk.daoHub.proposePayment" = "Proponer un pago";
+"nighthawk.daoHub.addFunds" = "Añadir fondos";
+"nighthawk.daoHub.addFundsHint" = "Esto marca las monedas para que la DAO pueda pagarlas más adelante.";
+"nighthawk.daoHub.amount" = "Importe";
+"nighthawk.daoHub.votes" = "Votos";
+"nighthawk.daoHub.noVotes" = "Aún no hay votos.";
+"nighthawk.daoHub.tokens" = "Tokens";
+"nighthawk.daoHub.issueMore" = "Emitir más";
+"nighthawk.daoHub.freezeSupply" = "Congelar el suministro";
+"nighthawk.daoHub.issueToken" = "Emitir un token";
+"nighthawk.daoHub.admin" = "Administración";
+"nighthawk.daoHub.proposer" = "Proponente";
+"nighthawk.daoHub.voter" = "Votante";
+"nighthawk.daoHub.executor" = "Ejecutor";
+"nighthawk.daoHub.fullCopy" = "Copia completa";
+"nighthawk.daoHub.observer" = "Observador";
+"nighthawk.daoHub.details" = "Detalles";
+"nighthawk.daoHub.groupId" = "ID de la DAO";
+"nighthawk.daoHub.governanceToken" = "Token de gobernanza";
+"nighthawk.daoHub.votesNeeded" = "Votos necesarios para que cuente";
+"nighthawk.daoHub.yesShareRequired" = "Cuota de síes exigida";
+"nighthawk.daoHub.mintHeight" = "Altura de acuñación";
+"nighthawk.daoHub.daoNotFound" = "DAO no encontrada";
+"nighthawk.daoHub.proposal" = "Propuesta";
+"nighthawk.daoHub.proposalNotFound" = "Propuesta no encontrada";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "Ventana de votación: %@ ventanas de bloques (%@ horas).";
+"nighthawk.daoHub.proposalId" = "ID de la propuesta";
+"nighthawk.daoHub.execHeight" = "Altura de ejecución";
+"nighthawk.daoHub.proposeTx" = "Proponer transacción";
+"nighthawk.daoHub.execTx" = "Ejecutar transacción";
+"nighthawk.daoHub.voteWeight" = "Todo tu saldo del token de gobernanza es el peso del voto.";
+"nighthawk.daoHub.payFromTreasury" = "Pagar desde la tesorería";
+"nighthawk.daoHub.payHint" = "Envía el pago desde la tesorería.";
+"nighthawk.daoHub.onePayment" = "1 pago";
+"nighthawk.daoHub.paid" = "Pagado";
+"nighthawk.daoHub.open" = "Abierta";
+"nighthawk.daoHub.waiting" = "En espera";
+"nighthawk.daoHub.name" = "Nombre";
+"nighthawk.daoHub.yesShare" = "Cuota de síes";
+"nighthawk.daoHub.proposerMinimum" = "Mínimo del proponente";
+"nighthawk.daoHub.earlyQuorum" = "Cuórum anticipado";
+"nighthawk.daoHub.earlyQuorumHint" = "Déjalo vacío para usar el mismo número que los votos necesarios.";
+"nighthawk.daoHub.allRolesHint" = "Este móvil tiene todos los roles, incluidas las claves que pagan desde la tesorería.";
+"nighthawk.daoHub.recipient" = "Destinatario";
+"nighthawk.daoHub.recipientAddress" = "Dirección del destinatario";
+"nighthawk.daoHub.tokenOptional" = "Token (opcional)";
+"nighthawk.daoHub.tokenIdPlaceholder" = "ID del token (por defecto: DRK)";
+"nighthawk.daoHub.duration" = "Duración";
+"nighthawk.daoHub.blockWindows" = "Ventanas de bloques";
+"nighthawk.daoHub.proposeBroadcast" = "Esto generará pruebas ZK en el dispositivo y difundirá la transacción de la propuesta.";
+"nighthawk.daoHub.issueHint" = "La cadena guarda 8 decimales.";
+"nighthawk.daoHub.roleExportTitle" = "Exportación del rol";
+"nighthawk.daoHub.roleExportHint" = "Este código contiene el secreto del rol.";
+"nighthawk.daoHub.close" = "Cerrar";
+"nighthawk.daoHub.copy" = "Copiar";
+"nighthawk.daoHub.captured" = "Se ha detectado una grabación o una captura de pantalla. Secreto oculto.";
+"nighthawk.daoHub.importToml" = "Archivo de DAO";
+"nighthawk.daoHub.token" = "Token";
+"nighthawk.daoHub.browseDescription" = "Explora DAO, propuestas y la tesorería.";
+"nighthawk.daoHub.fundsSent" = "Fondos enviados a la tesorería";
+"nighthawk.daoHub.paymentSent" = "Pago enviado desde la tesorería";
+"nighthawk.daoHub.proposalSubmitted" = "¡Propuesta enviada! %@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO enviada";
+"nighthawk.daoHub.groupImported" = "DAO importada";
+"nighthawk.daoHub.tokenCreated" = "Token creado";
+"nighthawk.daoHub.tokensIssued" = "Tokens emitidos";
+"nighthawk.daoHub.supplyFrozen" = "Suministro congelado";
+"nighthawk.daoHub.voteYesSubmitted" = "¡Voto SÍ enviado! TX: %@…";
+"nighthawk.daoHub.voteNoSubmitted" = "¡Voto NO enviado! TX: %@…";
+"nighthawk.daoHub.walletNotReady" = "La cartera aún no está lista. Termina la configuración o espera a que se inicialice.";
+"nighthawk.daoHub.walletStopped" = "La sincronización de la cartera está detenida. Reanúdala desde la pestaña Cartera y vuelve a abrir el centro de DAO.";
+"nighthawk.daoHub.walletSyncing" = "La sincronización de la cartera sigue en curso. Vuelve a abrir el centro de DAO cuando tu cartera esté al día.";
+"nighthawk.daoHub.walletSyncFailed" = "La sincronización de la cartera ha fallado: %@";
+"nighthawk.walletCompanion.shieldedNote" = "Las transferencias siguen blindadas. Se usa UnifOMR cuando el servidor lo admite. El descifrado de prueba es solo un respaldo.";
+"nighthawk.walletCompanion.trialDecrypt" = "Descifrado de prueba";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "Bloque %@";
+"nighthawk.walletCompanion.waitingForHeight" = "Esperando una altura de bloque";
+"nighthawk.walletCompanion.trialActive" = "El descifrado de prueba está activo en lugar de UnifOMR.";
+"nighthawk.walletCompanion.syncedUnifOmr" = "Sincronizado con UnifOMR.";
+"nighthawk.walletCompanion.receive" = "Recibir";
+"nighthawk.walletCompanion.nextSteps" = "Siguientes pasos";
+"nighthawk.walletCompanion.copyTxId" = "Copiar TxID";
+"nighthawk.walletCompanion.sendAgain" = "Enviar de nuevo";
+"nighthawk.walletCompanion.copyMemo" = "Copiar nota";
+"nighthawk.chat.couldNotDecrypt" = "No se ha podido descifrar";

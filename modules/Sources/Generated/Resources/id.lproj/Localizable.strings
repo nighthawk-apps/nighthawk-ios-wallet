@@ -1,389 +1,541 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "Ruang disk tidak cukup untuk melakukan sinkronisasi!";
 
 // MARK: - Common & Shared
-"general.back" = "Back";
-"general.done" = "Done";
-"general.skip" = "Skip";
-"general.next" = "Next";
-"general.send" = "Send";
-"general.clear" = "Clear";
-"general.close" = "Close";
-"general.max" = "Max";
+"general.back" = "Kembali";
+"general.done" = "Selesai";
+"general.skip" = "Lewati";
+"general.next" = "Berikutnya";
+"general.send" = "Kirim";
+"general.clear" = "Bersihkan";
+"general.close" = "Tutup";
+"general.max" = "Maks";
 "general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
-"general.cancel" = "Cancel";
-"general.success" = "Success";
-"general.unknown" = "Unknown";
+"general.yes" = "Ya";
+"general.no" = "Tidak";
+"general.cancel" = "Batal";
+"general.success" = "Berhasil";
+"general.unknown" = "Tidak diketahui";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ Tersedia";
+"qrCodeFor" = "Kode QR untuk %@";
+"general.dateNotAvailable" = "tanggal tidak tersedia";
 
 //==========================================================
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-// MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+// MARK: - Local authentication
+"nighthawk.localAuthentication.accessWalletReason" = "Anda harus autentikasi untuk membuka dompet Nighthawk.";
+"nighthawk.localAuthentication.sendFundsReason" = "Anda harus autentikasi untuk mengirim dana dari dompet.";
 
 // MARK: - About screen
-"nighthawk.about.title" = "About";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.title" = "Tentang";
+"nighthawk.about.message" = "Nighthawk adalah dompet Privat secara Bawaan untuk DarkFi. Semua transaksi sepenuhnya privat, tanpa dukungan alamat transparent.\n\nSebagai dompet nonkustodian, Anda sepenuhnya bertanggung jawab atas dana Anda. Segera cadangkan kata seed dengan aman saat membuat dompet.\n\nDarkFi adalah blockchain lapisan-1 yang dirancang untuk aplikasi anonim dan keuangan privat. DarkFi dirancang oleh komunitas DarkFi untuk kebebasan finansial.\n\nNighthawk Wallet tersambung langsung ke jaringan P2P DarkFi. Perangkat lunak ini disediakan \"apa adanya\", tanpa jaminan dalam bentuk apa pun, tersurat maupun tersirat.";
+"nighthawk.about.viewSource" = "Lihat Sumber";
+"nighthawk.about.nighthawkFriends" = "Teman Nighthawk";
+"nighthawk.about.viewLicenses" = "Lihat lisensi";
 
 // MARK: - Licenses Screen
-"nighthawk.licenses.title" = "OSS Licenses";
+"nighthawk.licenses.title" = "Lisensi OSS";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "Gagal memulai SDK";
+"nighthawk.app.launch.alert.error.message" = "Kesalahan: %@ (kode: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "Gagal menghapus dompet";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "Great!";
-"nighthawk.autoshield.buttonNeutral" = "Learn more";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "Shielding…";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Success";
-"nighthawk.autoshield.shieldingFailed" = "Failed";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk adalah";
+"nighthawk.autoshield.shieldedByDefault" = "Privat secara bawaan.";
+"nighthawk.autoshield.title2" = "Semua transaksi di DarkFi bersifat privat. Tidak ada alamat transparent maupun pool terlindungi — semuanya privat.";
+"nighthawk.autoshield.autoshielding" = "Privasi";
+"nighthawk.autoshield.detail1" = "Semua dana selalu privat. DarkFi tidak punya konsep alamat transparent.";
+"nighthawk.autoshield.detail2" = "Kami berkomitmen memberi pembaruan rutin tentang praktik terbaik privasi terbaru agar Anda tetap mendapat informasi.";
+"nighthawk.autoshield.buttonPositive" = "Bagus!";
+"nighthawk.autoshield.buttonNeutral" = "Pelajari lebih lanjut";
+"nighthawk.autoshield.alert.redirecting.title" = "Membuka DarkFi";
+"nighthawk.autoshield.alert.redirecting.details" = "Konfirmasi untuk membuka peramban perangkat dan mempelajari privasi DarkFi.";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "Buka Browser";
+"nighthawk.autoshield.shielding" = "Memproses…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "Berhasil";
+"nighthawk.autoshield.shieldingFailed" = "Gagal";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
-"nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.retry" = "Coba lagi";
+"nighthawk.splash.subtitle" = "Uang privat di saku Anda.";
+"nighthawk.splash.initialization.alert.failed.title" = "Inisialisasi dompet gagal.";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "Status inisialisasi aplikasi: %@.";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
-"nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.title" = "Memigrasikan dari versi aplikasi lama";
+"nighthawk.migrateScreen.explanation" = "Ada cara baru yang lebih aman untuk menyimpan data secara lokal, jadi kata seed perlu dimigrasikan untuk memulihkan dompet. Jika tidak ingin migrasi otomatis, Anda harus memulihkan dompet dengan memasukkan kata seed secara manual.\n\nLanjutkan secara otomatis?";
+"nighthawk.migrateScreen.continue" = "Lanjutkan";
+"nighthawk.migrateScreen.restoreManually" = "Pulihkan manual";
+"nighthawk.migrateScreen.migrationFailed.title" = "Migrasi gagal";
+"nighthawk.migrateScreen.migrationFailed.description" = "Terjadi kesalahan dan dompet tidak dapat dimigrasikan otomatis. Ketuk lanjutkan untuk mengimpor dompet secara manual.";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "This app is free software. Use is covered only by its license.";
-"nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "Mulai";
+"nighthawk.welcome.body" = "Jika baru pertama kali memakai Nighthawk, Anda perlu membuat dompet. Jika kembali ke Nighthawk, Anda dapat memulihkan dompet sebelumnya.";
+"nighthawk.welcome.terms1" = "Aplikasi ini perangkat lunak bebas. Penggunaan hanya diatur oleh lisensinya.";
+"nighthawk.welcome.create" = "Buat Dompet";
+"nighthawk.welcome.restore" = "Pulihkan dari Cadangan";
+"nighthawk.welcome.initialization.alert.failed.title" = "Inisialisasi dompet gagal.";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Tidak dapat membuat dompet baru. Kesalahan: %@ (kode: %@)";
+"nighthawk.welcome.carousel.title1" = "Privat secara Bawaan";
+"nighthawk.welcome.carousel.body1" = "Semua transaksi sepenuhnya privat. Tanpa alamat transparent, tanpa kebocoran metadata. Keuangan Anda tetap milik Anda.";
+"nighthawk.welcome.carousel.title2" = "Jaringan peer-to-peer";
+"nighthawk.welcome.carousel.body2" = "Terhubung langsung ke jaringan DarkFi lewat Tor. Tanpa server perantara. Tanpa endpoint yang harus dipercaya.";
+"nighthawk.welcome.carousel.title3" = "Obrolan Terenkripsi";
+"nighthawk.welcome.carousel.body3" = "Kirim pesan terenkripsi ujung ke ujung lewat DarkIRC. Komunikasi privat yang ada di dalam dompet.";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Backup your wallet";
-"nighthawk.walletCreated.skip" = "Skip for now";
+"nighthawk.walletCreated.title" = "Dompet dibuat! Selamat!";
+"nighthawk.walletCreated.backupImmediately" = "Demi keamanan dana dan untuk mencegah akibat yang tidak diinginkan, kami SANGAT menyarankan Anda mencadangkan dompet. Ingat, ini dompet mandiri, dan Anda sepenuhnya bertanggung jawab atas dana Anda.";
+"nighthawk.walletCreated.backup" = "Cadangkan dompet Anda";
+"nighthawk.walletCreated.skip" = "Lewati dulu";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
-"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
-"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.title" = "Catat seed cadangan Anda";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "Jika Anda kehilangan akses ke ponsel atau dompet Nighthawk, satu-satunya cara mendapatkan kembali DarkFi Anda adalah dengan frasa 22 kata ini dan kode blok awal dompet.";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "Catat di kertas dan simpan di tempat aman.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "Blok awal dompet:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "Saya konfirmasi sudah menyimpan frasa seed saya.";
+"nighthawk.recoveryPhraseDisplay.continue" = "Lanjutkan";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Ekspor sebagai PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "Ini kata seed untuk memulihkan DarkFi Anda di Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "PDF cadangan dibuat pada %@";
 
 // MARK: - Export seed
-"nighthawk.exportSeed.title" = "Export as PDF";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
-"nighthawk.exportSeed.export" = "Export PDF";
-"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+"nighthawk.exportSeed.title" = "Ekspor sebagai PDF";
+"nighthawk.exportSeed.description" = "Ekspor kata seed ke PDF yang dilindungi kata sandi, untuk dicadangkan ke penyimpanan portabel yang Anda amankan.";
+"nighthawk.exportSeed.export" = "Ekspor PDF";
+"nighthawk.exportSeed.passwordPlaceholder" = "Masukkan Kata Sandi";
 
 // MARK: - Import warning
-"nighthawk.importWarning.title" = "Before you continue";
-"nighthawk.importWarning.description" = "Please only import a seed phrase that was initially generated by Nighthawk. Other wallets operate differently, which may lead to inaccurate reporting of funds for your transactions.";
-"nighthawk.importWarning.proceed" = "Proceed";
+"nighthawk.importWarning.title" = "Sebelum melanjutkan";
+"nighthawk.importWarning.description" = "Impor hanya frasa seed yang dibuat oleh Nighthawk. Dompet lain bekerja berbeda, sehingga laporan dana transaksi bisa tidak akurat.";
+"nighthawk.importWarning.proceed" = "Lanjutkan";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
-"nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (optional)";
-"nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.restoreFromBackup" = "Pulihkan dari cadangan";
+"nighthawk.importWallet.enterSeedPhrase" = "Masukkan frasa seed 22 kata di bawah. Jika Anda tidak punya frasa ini, buat dompet baru.";
+"nighthawk.importWallet.yourSeedPhrase" = "Frasa seed Anda";
+"nighthawk.importWallet.birthdayHeight" = "Tinggi Blok Awal (opsional)";
+"nighthawk.importWallet.continue" = "Lanjutkan";
+"nighthawk.importWallet.invalidMnemonic" = "Kesalahan ⸱ Ini bukan frasa seed yang valid";
+"nighthawk.importWallet.invalidBirthday" = "Kesalahan ⸱ Ini bukan tinggi blok awal yang valid";
+"nighthawk.importWallet.alert.failed.title" = "Gagal memulihkan dompet";
+"nighthawk.importWallet.alert.failed.message" = "Kesalahan: %@ (kode: %@)";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Success";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "Berhasil";
+"nighthawk.importWalletSuccess.viewWallet" = "Lihat dompet";
 
 // MARK: - Transactions
-"nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "Receiving";
-"nighthawk.transaction.failed" = "Failed";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.sending" = "Mengirim";
+"nighthawk.transaction.receiving" = "Menerima";
+"nighthawk.transaction.failed" = "Gagal";
+"nighthawk.transaction.received" = "Diterima";
+"nighthawk.transaction.sent" = "Terkirim";
 
 // MARK: - Home Screen
-"nighthawk.homeScreen.wallet" = "Wallet";
+"nighthawk.homeScreen.wallet" = "Dompet";
 "nighthawk.homeScreen.transfer" = "Transfer";
-"nighthawk.homeScreen.settings" = "Settings";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.dex" = "DEX";
+"nighthawk.homeScreen.settings" = "Pengaturan";
+"nighthawk.homeScreen.expectingFunds" = "Mengharapkan %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "Segera hadir";
+"nighthawk.dex.comingSoonBody" = "DEX DarkFi akan hadir di sini. Kirim, terima, dan minta tetap di Dompet.";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
-"nighthawk.walletTab.totalBalance" = "Total balance";
-"nighthawk.walletTab.shieldedBalance" = "Private balance";
-"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.swipeToShowBalances" = "Geser ke kiri untuk melihat saldo";
+"nighthawk.walletTab.totalBalance" = "Saldo total";
+"nighthawk.walletTab.shieldedBalance" = "Saldo privat";
+"nighthawk.walletTab.transparentBalance" = "Saldo privat";
 "nighthawk.walletTab.drk" = "DRK";
-"nighthawk.walletTab.recentActivity" = "Recent activity";
-"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.recentActivity" = "Aktivitas terkini";
+"nighthawk.walletTab.viewTransactionHistory" = "Lihat riwayat transaksi";
+"nighthawk.walletTab.shieldNow" = "Segarkan";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Unified address";
-"nighthawk.walletTab.addresses.saplingAddress" = "Legacy private address";
-"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
-"nighthawk.walletTab.addresses.copy" = "Copy";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.unifiedAddress" = "Alamat privasi";
+"nighthawk.walletTab.addresses.saplingAddress" = "Alamat privasi";
+"nighthawk.walletTab.addresses.transparentAddress" = "Alamat privasi";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "Isi saldo dompet Anda";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Beli atau tukar DarkFi lewat mitra pilihan kami.";
+"nighthawk.walletTab.addresses.copy" = "Salin";
+"nighthawk.walletTab.addresses.seeMore" = "Lihat lainnya";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "Disalin ke papan klip!";
+"nighthawk.walletTab.addresses.loading" = "Memuat…";
 
 // MARK: - Home Screen - Transaction history
-"nighthawk.transactionHistory.title" = "Transaction History";
+"nighthawk.transactionHistory.title" = "Riwayat Transaksi";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-private funds";
+"nighthawk.transactionHistory.autoshieldedFunds" = "Dana privat";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
-"nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparing to scan";
-"nighthawk.sync.message.finalizing" = "Finalizing";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "Terbaru";
+"nighthawk.sync.message.unprepared" = "Menyambungkan…";
+"nighthawk.sync.message.error" = "Kesalahan: %@";
+"nighthawk.sync.message.sync" = "Memindai…%@%%";
+"nighthawk.sync.message.preparing" = "Bersiap memindai";
+"nighthawk.sync.message.finalizing" = "Menyelesaikan";
+"nighthawk.sync.message.stopped" = "Berhenti";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveDarkFi" = "Send and receive DarkFi";
-"nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
-"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
-"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "Kirim dan terima DarkFi";
+"nighthawk.transferTab.sendMoneyTitle" = "Kirim uang";
+"nighthawk.transferTab.sendMoneyDescription" = "Pindai kode QR seseorang untuk mengirim uang.";
+"nighthawk.transferTab.receiveMoneyTitle" = "Terima uang";
+"nighthawk.transferTab.receiveMoneyDescription" = "Tampilkan kode QR atau salin alamat Anda.";
+"nighthawk.walletTab.actionSend" = "Kirim";
+"nighthawk.walletTab.actionReceive" = "Terima";
+"nighthawk.walletTab.actionRequest" = "Minta";
+"nighthawk.transferTab.topUpWalletTitle" = "Isi saldo dompet Anda";
+"nighthawk.transferTab.topUpWalletDescription" = "Beli DarkFi dengan aman lewat mitra kami.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
-"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Your wallet address will be copied to the clipboard.";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Terima uang secara privat";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "Tampilkan Kode QR";
+"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Salin alamat privasi";
+"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Alamat dompet Anda akan disalin ke papan klip.";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Tukar lewat StealthEx.io";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Tukar koin tanpa batas.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Isi dompet dengan %@?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "%@ Anda telah disalin ke papan klip.\n\nPilih \"Buka Browser\" di bawah, pilih '%@' sebagai koin penerima di situs %@, lalu tempel %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "Buka Browser";
 
 // MARK: - Home Screen - Transfer - Send
-"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
-"nighthawk.transferTab.send.continue" = "Continue";
-"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
-"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
-"nighthawk.transferTab.send.error" = "Error";
+"nighthawk.transferTab.send.chooseHowMuch" = "Pilih jumlah yang akan dikirim";
+"nighthawk.transferTab.send.spendableBalance" = "Saldo yang bisa dipakai (termasuk biaya tx) %@ %@";
+"nighthawk.transferTab.send.continue" = "Lanjutkan";
+"nighthawk.transferTab.send.topUpWallet" = "Isi saldo";
+"nighthawk.transferTab.send.scanCode" = "Pindai kode pembayaran";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "DRK tidak cukup!";
+"nighthawk.transferTab.send.around" = "sekitar %@ %@";
+"nighthawk.transferTab.send.error" = "Kesalahan";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
-"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+"nighthawk.transferTab.scan.scanPaymentRequest" = "Pindai Permintaan Pembayaran";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "Jika ada permintaan pembayaran, pindai kode QR di sini untuk mengisi semua detail secara otomatis.";
 
 // MARK: - Home Screen - Transfer - Add memo
-"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "Tambahkan pesan pada pembayaran";
+"nighthawk.transferTab.addMemo.writeSomething" = "Tulis sesuatu...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "Sertakan alamat balasan";
 
 // MARK: - Home Screen - Transfer - Recipient
-"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addAddress" = "Add address here";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
-"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
-"nighthawk.transferTab.recipient.continue" = "Continue";
+"nighthawk.transferTab.recipient.chooseRecipient" = "Pilih penerimanya";
+"nighthawk.transferTab.recipient.addAddress" = "Tambahkan alamat di sini";
+"nighthawk.transferTab.recipient.invalid" = "Masukkan penerima yang valid";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "Pengiriman ke alamat TEX tidak didukung karena perlindungan privasinya lebih rendah";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "Tempel dari papan klip";
+"nighthawk.transferTab.recipient.continue" = "Lanjutkan";
 
 // MARK: - Home Screen - Transfer - Review
-"nighthawk.transferTab.review.title" = "Review and send";
-"nighthawk.transferTab.review.send" = "Send DarkFi";
+"nighthawk.transferTab.review.title" = "Tinjau dan kirim";
+"nighthawk.transferTab.review.send" = "Kirim DarkFi";
 
 // MARK: - Home Screen - Transfer - Sending
-"nighthawk.transferTab.sending.title" = "Sending";
+"nighthawk.transferTab.sending.title" = "Mengirim";
 
 // MARK: - Home Screen - Transfer - Failed
-"nighthawk.transferTab.failed.title" = "Failed";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
-"nighthawk.transferTab.failed.cancel" = "Cancel";
+"nighthawk.transferTab.failed.title" = "Gagal";
+"nighthawk.transferTab.failed.tryAgain" = "Coba lagi";
+"nighthawk.transferTab.failed.cancel" = "Batal";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Success";
-"nighthawk.transferTab.success.done" = "Done";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.title" = "Berhasil";
+"nighthawk.transferTab.success.done" = "Selesai";
+"nighthawk.transferTab.success.moreDetails" = "Detail lainnya";
 
 // MARK: - Home Screen - Settings tab
-"nighthawk.settingsTab.settings" = "Settings";
-"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
-"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
-"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
-"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
-"nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
-"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
-"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Change server";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "External services";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "Advanced";
-"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
-"nighthawk.settingsTab.aboutTitle" = "About";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.settings" = "Pengaturan";
+"nighthawk.settingsTab.notificationsTitle" = "Notifikasi sinkronisasi";
+"nighthawk.settingsTab.notificationsSubtitle" = "Mengingatkan Anda agar dompet tetap mutakhir";
+"nighthawk.settingsTab.fiatTitle" = "Mata Uang Fiat";
+"nighthawk.settingsTab.fiatSubtitle" = "Pilih mata uang lokal Anda";
+"nighthawk.settingsTab.securityTitle" = "Keamanan";
+"nighthawk.settingsTab.securitySubtitle" = "Aktifkan/Nonaktifkan %@";
+"nighthawk.settingsTab.backupTitle" = "Cadangkan dompet Anda";
+"nighthawk.settingsTab.backupSubtitle" = "Jaga keamanan dompet jika ponsel hilang";
+"nighthawk.settingsTab.rescanTitle" = "Pindai ulang dompet";
+"nighthawk.settingsTab.rescanSubtitle" = "Pindai ulang saldo dompet untuk menelusuri masalah";
+"nighthawk.settingsTab.alert.rescan.title" = "Pindai ulang dompet ini?";
+"nighthawk.settingsTab.alert.rescan.message" = "Pemindaian ulang bisa memakan waktu hingga 10 jam, tergantung panjang riwayat transaksi dompet Anda. Mulai pemindaian ulang?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "Kosongkan";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "Pemindaian ulang gagal";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "Kesalahan: %@ (kode: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Tidak dapat memulai sinkronisasi setelah putar balik";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Kesalahan: %@ (kode: %@)";
+"nighthawk.settingsTab.changeServerTitle" = "Ubah server";
+"nighthawk.settingsTab.changeServerSubtitle" = "Ubah server backend";
+"nighthawk.settingsTab.chatSettingsTitle" = "Pengaturan Obrolan";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "Enkripsi E2E, sinkron DAG, darkirc tertanam";
+"nighthawk.settingsTab.networkPrivacyTitle" = "Privasi jaringan";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "Dompet lewat Nym, Tor, atau langsung; obrolan lewat Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "Pilih pengaturan di kiri untuk membukanya.";
+"nighthawk.settingsTab.externalServicesTitle" = "Layanan eksternal";
+"nighthawk.settingsTab.externalServicesSubtitle" = "Ikut serta pada layanan mitra kami";
+"nighthawk.settingsTab.advancedTitle" = "Lanjutan";
+"nighthawk.settingsTab.advancedSubtitle" = "Pengaturan yang jarang dipakai";
+"nighthawk.settingsTab.aboutTitle" = "Tentang";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Lisensi";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
-"nighthawk.settingsTab.syncNotifications.title" = "Sync notifications";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.title" = "Notifikasi sinkronisasi";
+"nighthawk.settingsTab.syncNotifications.description" = "Jika dompet Nighthawk lama tertutup, membukanya lagi akan lebih lama saat Anda ingin memakainya.";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Izinkan notifikasi sinkronisasi untuk mengingatkan Anda membuka dompet setiap minggu.";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Izinkan notifikasi sinkronisasi untuk mengingatkan Anda membuka dompet setiap bulan.";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Mingguan";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Bulanan";
+"nighthawk.settingsTab.syncNotifications.offOption" = "Mati";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Izin ditolak";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk butuh izin untuk mengirim notifikasi sinkronisasi. Buka pengaturan dan berikan izin yang diperlukan.";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Buka pengaturan";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "Saatnya menyinkronkan!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "Buka Nighthawk dan sinkronkan dompet agar dana siap dipakai saat Anda membutuhkannya!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Gagal menjadwalkan notifikasi";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "Notifikasi sinkronisasi belum dapat dijadwalkan saat ini.";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
+"nighthawk.settingsTab.fiatCurrency.title" = "Mata Uang Fiat";
+"nighthawk.settingsTab.fiatCurrency.description" = "Pilih mata uang lokal agar kami dapat menampilkan perkiraan nilai %@ Anda.\n\nSaat aplikasi pertama kali dibuka, nilai tukar diambil dari CoinGecko API v3 untuk menghitung nilai. Jumlah dana Anda tidak pernah diungkapkan ke server mana pun.";
+"nighthawk.settingsTab.fiatCurrency.usd" = "Dolar Amerika Serikat";
 "nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.inr" = "Rupee India";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "Yen Jepang";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "Poundsterling";
+"nighthawk.settingsTab.fiatCurrency.cad" = "Dolar Kanada";
+"nighthawk.settingsTab.fiatCurrency.aud" = "Dolar Australia";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "Dolar Hong Kong";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "Dolar Singapura";
+"nighthawk.settingsTab.fiatCurrency.chf" = "Franc Swiss";
+"nighthawk.settingsTab.fiatCurrency.cny" = "Yuan Tiongkok";
+"nighthawk.settingsTab.fiatCurrency.krw" = "Won Korea";
+"nighthawk.settingsTab.fiatCurrency.off" = "Mati";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ diaktifkan";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ dinonaktifkan";
+"nighthawk.settingsTab.security.disableValidationReason" = "Autentikasi untuk menonaktifkan %@";
+"nighthawk.settingsTab.security.enableValidationReason" = "Autentikasi untuk mengaktifkan %@";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
-"nighthawk.settingsTab.changeServer.custom" = "Custom";
-"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
-"nighthawk.settingsTab.changeServer.save" = "Save";
-"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.title" = "Ubah server";
+"nighthawk.settingsTab.changeServer.default" = "Bawaan (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "Kustom";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Kesalahan ⸱ Ini bukan alamat server yang valid";
+"nighthawk.settingsTab.changeServer.save" = "Simpan";
+"nighthawk.settingsTab.changeServer.disclaimer" = "Server kustom tidak dioperasikan Nighthawk. Kami menyarankan Tor agar privasi lebih baik saat bertransaksi.";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Tidak dapat mengubah server";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Kesalahan: %@ (kode: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "Lihat kata seed?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "PERINGATAN: Pastikan hanya Anda yang melihat ponsel ini karena kunci seed dompet akan ditampilkan di layar berikutnya.";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "Lihat seed";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
+"nighthawk.settingsTab.advanced.title" = "Pengaturan lanjutan";
+"nighthawk.settingsTab.advanced.screenMode.title" = "Layar tetap nyala";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "Jika Anda sudah lama tidak membuka dompet, sinkronisasi bisa memakan waktu. Mengatur mode layar ke 'Tetap nyala' membuat ponsel tidak tidur saat sinkronisasi.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Tetap nyala";
+"nighthawk.settingsTab.advanced.screenMode.off" = "Mati";
+"nighthawk.settingsTab.advanced.appIcon.title" = "Ikon aplikasi";
+"nighthawk.settingsTab.advanced.appIcon.default" = "Bawaan";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "Default";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "Ikon aplikasi diperbarui!";
+"nighthawk.settingsTab.advanced.theme.title" = "Tema";
+"nighthawk.settingsTab.advanced.theme.default" = "Sistem (Cyberpunk)";
+"nighthawk.settingsTab.advanced.theme.light" = "Terang";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "Netral kabut dengan aksen grafit.";
+"nighthawk.settingsTab.advanced.theme.midnight" = "Midnight";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "Dasar lebih dalam dengan aksen ungu.";
+"nighthawk.settingsTab.advanced.theme.paper" = "Kertas";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "masuki nighthawk dengan gaya";
+"nighthawk.chat.peers" = "Peer";
+"nighthawk.chat.retry" = "Coba lagi";
+"nighthawk.chat.outboundPeers" = "Peer keluar";
+"nighthawk.chat.title" = "IRC DarkFi";
+"nighthawk.chat.subtitle" = "Obrolan terenkripsi ujung ke ujung\ndidukung oleh jaringan P2P DarkFi";
+"nighthawk.chat.connect" = "Sambungkan";
+"nighthawk.chat.networkHint" = "Periksa pengaturan jaringan atau atur Tor di Pengaturan.";
+"nighthawk.chat.newDm" = "DM baru";
+"nighthawk.chat.request" = "Minta";
+"nighthawk.chat.settings" = "Pengaturan";
+"nighthawk.chat.shareKey" = "Bagikan Kunci";
+"nighthawk.chat.noMessages" = "Belum ada pesan";
+"nighthawk.chat.ircStatus" = "IRC: %@";
+"nighthawk.chat.nodeStatus" = "Node: %@";
+"nighthawk.receive.sendAndReceive" = "Kirim dan terima DRK";
+"nighthawk.receive.receivePrivately" = "Terima uang secara privat";
+"nighthawk.receive.showQr" = "Tampilkan Kode QR";
+"nighthawk.receive.showQrDetail" = "Biarkan orang lain memindai untuk mengirim uang kepada Anda.";
+"nighthawk.receive.copyAddress" = "Salin alamat privat";
+"nighthawk.receive.copyAddressDetail" = "Alamat dompet Anda akan disalin ke papan klip.";
+"nighthawk.settingsTab.advanced.theme.dark" = "Gelap";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "PERHATIAN: Ini memusnahkan dompet ini sepenuhnya — kata seed, sandi SQLCipher, dan basis data di perangkat. Dana tidak dapat dipulihkan tanpa seed. Tutup lalu buka ulang aplikasi sebelum membuat atau memulihkan dompet.";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "Musnahkan dompet";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "APAKAH ANDA YAKIN?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "Operasi ini TIDAK DAPAT DIBATALKAN. Memulihkan dana tidak mungkin tanpa kata seed Anda. Pastikan BENAR-BENAR sudah disimpan di tempat aman sebelum melanjutkan. Tetap ingin lanjut?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "PERINGATAN TERAKHIR";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Memusnahkan dompet adalah tindakan yang sangat sensitif. Begitu sensitifnya sampai Anda harus menutup aplikasi secara manual dan memulai ulang Nighthawk sebelum membuat dompet baru atau memulihkan dompet.";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "Saya konfirmasi, musnahkan dompet";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "Hapus basis data lokal";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "Hanya menghapus DB dompet di perangkat dan cache sinkronisasi. Kata seed tetap di Keychain sehingga Anda dapat membuka lagi dan memindai ulang. Gunakan ini setelah peningkatan native yang tidak dapat membuka basis data lama.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "Hapus basis data lokal?";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "Ini menghapus darkfi_wallet.db dan darkfi_cache di perangkat ini. Frasa pemulihan tetap ada. Dompet akan terbuka lagi dan memindai ulang dari jaringan.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "Hapus basis data";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "Basis data lokal dikosongkan";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "Data dompet dihapus. Membuka lagi dari seed dan memulai pemindaian baru.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "Tidak dapat menghapus basis data lokal";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "External services";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "Layanan eksternal";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Aktifkan Layanan Unstoppable Domain";
 
 // MARK: - Transaction details
-"nighthawk.transactionDetails.title" = "Transaction details";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
+"nighthawk.transactionDetails.title" = "Detail transaksi";
+"nighthawk.transactionDetails.notAvailable" = "Detail transaksi belum tersedia, tunggu sampai pemindaian selesai";
 "nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Time (UTC)";
+"nighthawk.transactionDetails.time" = "Waktu (UTC)";
 "nighthawk.transactionDetails.transparent" = "Transparent";
-"nighthawk.transactionDetails.blockId" = "Block ID";
-"nighthawk.transactionDetails.confirmations" = "Confirmations";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "Transaction ID";
-"nighthawk.transactionDetails.recipient" = "Recipient";
-"nighthawk.transactionDetails.recipientShielded" = "Private";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
-"nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Total amount";
-"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
-"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
+"nighthawk.transactionDetails.blockId" = "ID Blok";
+"nighthawk.transactionDetails.confirmations" = "Konfirmasi";
+"nighthawk.transactionDetails.unconfirmed" = "Belum terkonfirmasi";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "Lihat di Penjelajah Blok";
+"nighthawk.transactionDetails.transactionId" = "ID Transaksi";
+"nighthawk.transactionDetails.recipient" = "Penerima";
+"nighthawk.transactionDetails.recipientShielded" = "Privat";
+"nighthawk.transactionDetails.recipientTransparent" = "Privat";
+"nighthawk.transactionDetails.address" = "Alamat";
+"nighthawk.transactionDetails.networkFee" = "Biaya jaringan";
+"nighthawk.transactionDetails.totalAmount" = "Jumlah total";
+"nighthawk.transactionDetails.viewOnExplorer" = "Lihat di penjelajah";
+"nighthawk.transactionDetails.leavingWallet" = "Meninggalkan Nighthawk Wallet";
+"nighthawk.transactionDetails.leavingWarning" = "Risikonya biasanya dapat diterima, tetapi mengunjungi %@ dapat mengungkap minat Anda pada ID transaksi ini";
+"nighthawk.transactionDetails.viewTxDetails" = "Lihat detail TX";
+"nighthawk.transactionDetails.fiat.around" = "sekitar %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "Alamat balasan tersalin!";
 
 
 // MARK: - Transaction
-"nighthawk.transaction.confirmed" = "Confirmed";
-"nighthawk.transaction.sent" = "Sent";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.failed" = "Failed";
+"nighthawk.transaction.confirmed" = "Terkonfirmasi";
+"nighthawk.transaction.sent" = "Terkirim";
+"nighthawk.transaction.received" = "Diterima";
+"nighthawk.transaction.failed" = "Gagal";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "DAO yang sudah dipindai dompet ini. Pembayaran dari kas menunggu suara.";
+"nighthawk.daoHub.emptyTitle" = "Sinkronisasi belum menemukan DAO.";
+"nighthawk.daoHub.emptyBody" = "Segarkan, atau mulai DAO dari dompet ini.";
+"nighthawk.daoHub.refresh" = "Segarkan";
+"nighthawk.daoHub.startGroup" = "Mulai DAO";
+"nighthawk.daoHub.importGroup" = "Impor DAO";
+"nighthawk.daoHub.treasury" = "Kas";
+"nighthawk.daoHub.treasuryHint" = "Koin yang dikirim ke DAO tanpa tanda kas tidak dapat dicairkan nanti.";
+"nighthawk.daoHub.notScannedYet" = "Belum dipindai";
+"nighthawk.daoHub.proposePayment" = "Usulkan pembayaran";
+"nighthawk.daoHub.addFunds" = "Tambah dana";
+"nighthawk.daoHub.addFundsHint" = "Ini menandai koin agar DAO dapat mencairkannya nanti.";
+"nighthawk.daoHub.amount" = "Jumlah";
+"nighthawk.daoHub.votes" = "Suara";
+"nighthawk.daoHub.noVotes" = "Belum ada suara.";
+"nighthawk.daoHub.tokens" = "Token";
+"nighthawk.daoHub.issueMore" = "Terbitkan lagi";
+"nighthawk.daoHub.freezeSupply" = "Bekukan pasokan";
+"nighthawk.daoHub.issueToken" = "Terbitkan sebuah token";
+"nighthawk.daoHub.admin" = "Admin";
+"nighthawk.daoHub.proposer" = "Pengusul";
+"nighthawk.daoHub.voter" = "Pemilih";
+"nighthawk.daoHub.executor" = "Pelaksana";
+"nighthawk.daoHub.fullCopy" = "Salinan lengkap";
+"nighthawk.daoHub.observer" = "Pengamat";
+"nighthawk.daoHub.details" = "Detail";
+"nighthawk.daoHub.groupId" = "ID DAO";
+"nighthawk.daoHub.governanceToken" = "Token tata kelola";
+"nighthawk.daoHub.votesNeeded" = "Suara yang diperlukan agar sah";
+"nighthawk.daoHub.yesShareRequired" = "Porsi Ya yang diperlukan";
+"nighthawk.daoHub.mintHeight" = "Tinggi blok cetak";
+"nighthawk.daoHub.daoNotFound" = "DAO tidak ditemukan";
+"nighthawk.daoHub.proposal" = "Usulan";
+"nighthawk.daoHub.proposalNotFound" = "Usulan tidak ditemukan";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "Jendela pemungutan suara: %@ jendela blok (%@ jam).";
+"nighthawk.daoHub.proposalId" = "ID usulan";
+"nighthawk.daoHub.execHeight" = "Tinggi blok eksekusi";
+"nighthawk.daoHub.proposeTx" = "Tx usulan";
+"nighthawk.daoHub.execTx" = "Tx eksekusi";
+"nighthawk.daoHub.voteWeight" = "Seluruh saldo token tata kelola Anda menjadi bobot suara.";
+"nighthawk.daoHub.payFromTreasury" = "Bayar dari kas";
+"nighthawk.daoHub.payHint" = "Mengirim pembayaran dari kas.";
+"nighthawk.daoHub.onePayment" = "1 pembayaran";
+"nighthawk.daoHub.paid" = "Dibayar";
+"nighthawk.daoHub.open" = "Terbuka";
+"nighthawk.daoHub.waiting" = "Menunggu";
+"nighthawk.daoHub.name" = "Nama";
+"nighthawk.daoHub.yesShare" = "Porsi Ya";
+"nighthawk.daoHub.proposerMinimum" = "Minimum pengusul";
+"nighthawk.daoHub.earlyQuorum" = "Kuorum awal";
+"nighthawk.daoHub.earlyQuorumHint" = "Kosongkan untuk memakai jumlah yang sama dengan suara yang diperlukan.";
+"nighthawk.daoHub.allRolesHint" = "Ponsel ini memegang semua peran, termasuk kunci yang membayar dari kas.";
+"nighthawk.daoHub.recipient" = "Penerima";
+"nighthawk.daoHub.recipientAddress" = "Alamat penerima";
+"nighthawk.daoHub.tokenOptional" = "Token (opsional)";
+"nighthawk.daoHub.tokenIdPlaceholder" = "ID token (bawaan: DRK)";
+"nighthawk.daoHub.duration" = "Durasi";
+"nighthawk.daoHub.blockWindows" = "Jendela blok";
+"nighthawk.daoHub.proposeBroadcast" = "Ini akan membuat bukti ZK di perangkat dan menyiarkan transaksi usulan.";
+"nighthawk.daoHub.issueHint" = "Rantai menyimpan 8 desimal.";
+"nighthawk.daoHub.roleExportTitle" = "Ekspor peran";
+"nighthawk.daoHub.roleExportHint" = "Kode ini menyimpan rahasia peran.";
+"nighthawk.daoHub.close" = "Tutup";
+"nighthawk.daoHub.copy" = "Salin";
+"nighthawk.daoHub.captured" = "Perekaman layar atau tangkapan layar terdeteksi. Rahasia disembunyikan.";
+"nighthawk.daoHub.importToml" = "Berkas DAO";
+"nighthawk.daoHub.token" = "Token";
+"nighthawk.daoHub.browseDescription" = "Jelajahi DAO, usulan, dan kas.";
+"nighthawk.daoHub.fundsSent" = "Dana terkirim ke kas";
+"nighthawk.daoHub.paymentSent" = "Pembayaran terkirim dari kas";
+"nighthawk.daoHub.proposalSubmitted" = "Usulan terkirim! %@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO diajukan";
+"nighthawk.daoHub.groupImported" = "DAO diimpor";
+"nighthawk.daoHub.tokenCreated" = "Token dibuat";
+"nighthawk.daoHub.tokensIssued" = "Token tambahan diterbitkan";
+"nighthawk.daoHub.supplyFrozen" = "Pasokan dibekukan";
+"nighthawk.daoHub.voteYesSubmitted" = "Suara YA terkirim! TX: %@…";
+"nighthawk.daoHub.voteNoSubmitted" = "Suara TIDAK terkirim! TX: %@…";
+"nighthawk.daoHub.walletNotReady" = "Dompet belum siap. Selesaikan penyiapan atau tunggu dompet selesai dimulai.";
+"nighthawk.daoHub.walletStopped" = "Sinkronisasi dompet berhenti. Lanjutkan dari tab Dompet, lalu buka DAO Hub lagi.";
+"nighthawk.daoHub.walletSyncing" = "Sinkronisasi dompet masih berjalan. Buka DAO Hub lagi setelah dompet mutakhir.";
+"nighthawk.daoHub.walletSyncFailed" = "Sinkronisasi dompet gagal: %@";
+"nighthawk.walletCompanion.shieldedNote" = "Transfer tetap terlindungi. UnifOMR dipakai jika server mendukungnya. Dekripsi percobaan hanya cadangan.";
+"nighthawk.walletCompanion.trialDecrypt" = "Dekripsi percobaan";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "Blok %@";
+"nighthawk.walletCompanion.waitingForHeight" = "Menunggu tinggi blok";
+"nighthawk.walletCompanion.trialActive" = "Dekripsi percobaan aktif, bukan UnifOMR.";
+"nighthawk.walletCompanion.syncedUnifOmr" = "Tersinkron dengan UnifOMR.";
+"nighthawk.walletCompanion.receive" = "Terima";
+"nighthawk.walletCompanion.nextSteps" = "Langkah berikut";
+"nighthawk.walletCompanion.copyTxId" = "Salin TxID";
+"nighthawk.walletCompanion.sendAgain" = "Kirim Lagi";
+"nighthawk.walletCompanion.copyMemo" = "Salin memo";
+"nighthawk.chat.couldNotDecrypt" = "Tidak dapat mendekripsi";

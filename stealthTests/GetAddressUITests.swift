@@ -5,22 +5,31 @@ final class GetAddressUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         sleep(2)
-        
+
+        // Welcome / onboarding: skip carousel pages if present, then create.
         let nextButton = app.buttons["Next"]
-        if nextButton.exists {
+        while nextButton.exists && nextButton.isHittable {
             nextButton.tap()
             sleep(1)
-            app.buttons["Create new wallet"].tap()
-            sleep(10) // Wait for wallet generation
-            
-            // Assuming we are on Home screen
-            app.buttons["Receive"].tap()
-            sleep(2)
-            
-            let addressText = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'fY'")).firstMatch
-            if addressText.exists {
-                print("IOS_WALLET_ADDRESS: \(addressText.label)")
-            }
         }
+
+        let create = app.buttons["Create Wallet"].exists
+            ? app.buttons["Create Wallet"]
+            : app.buttons["CREATE WALLET"]
+        XCTAssertTrue(create.waitForExistence(timeout: 10), "Create Wallet button missing")
+        create.tap()
+        sleep(12) // Wait for wallet generation
+
+        let receive = app.buttons["Receive"]
+        XCTAssertTrue(receive.waitForExistence(timeout: 30), "Receive tab missing after create")
+        receive.tap()
+        sleep(2)
+
+        // Testnet DarkFi addresses are base58 and typically start with 'f'.
+        let addressText = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'f' AND length > 40")
+        ).firstMatch
+        XCTAssertTrue(addressText.waitForExistence(timeout: 15), "Deposit address not shown")
+        print("IOS_WALLET_ADDRESS: \(addressText.label)")
     }
 }
