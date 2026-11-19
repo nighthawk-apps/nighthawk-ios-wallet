@@ -17,9 +17,9 @@ extension AppReducer {
                 case let .setLatestFiatPrice(latest):
                     state.latestFiatPrice = latest
                     return .none
-                case let .unifiedAddressResponse(unifiedAddress):
-                    if let unifiedAddress {
-                        state.propagateUnifiedAddress(unifiedAddress)
+                case let .receiveAddressResponse(receiveAddress):
+                    if let receiveAddress {
+                        state.propagateDarkfiAddress(receiveAddress)
                     }
                     return .none
                 case .openDaoHub:
@@ -38,7 +38,7 @@ extension AppReducer {
                     state.path.append(.chatSettings(.init()))
                     return .none
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }

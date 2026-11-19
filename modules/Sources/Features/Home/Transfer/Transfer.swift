@@ -55,7 +55,7 @@ public struct Transfer {
             case .receiveMoneyTapped:
                 state.destination = .receive(
                     .init(
-                        uAddress: state.walletInfo.unifiedAddress,
+                        receiveAddress: state.walletInfo.receiveAddress,
                         showCloseButton: processInfo.isiOSAppOnMac()
                     )
                 )
@@ -66,7 +66,7 @@ public struct Transfer {
                     showCloseButton: processInfo.isiOSAppOnMac()
                 )
                 sendState.spendableBalance = state.walletInfo.balance
-                sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                sendState.receiveAddress = state.walletInfo.receiveAddress
                 state.destination = .send(sendState)
                 return .none
             case .daoHubTapped:

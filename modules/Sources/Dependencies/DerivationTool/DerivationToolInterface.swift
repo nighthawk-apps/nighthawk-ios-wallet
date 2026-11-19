@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 public typealias NetworkType = String
 
-public struct UnifiedSpendingKey: Equatable {
+public struct SpendingKey: Equatable {
     public let bytes: [UInt8]
     public let account: Int
     public init(bytes: [UInt8], account: Int) {
@@ -18,7 +18,7 @@ public struct UnifiedSpendingKey: Equatable {
     }
 }
 
-public struct UnifiedFullViewingKey: Equatable {
+public struct FullViewingKey: Equatable {
     public let stringEncoded: String
     public init(stringEncoded: String) {
         self.stringEncoded = stringEncoded
@@ -33,10 +33,7 @@ extension DependencyValues {
 }
 
 public struct DerivationToolClient {
-    public var deriveSpendingKey: ([UInt8], Int, NetworkType) throws -> UnifiedSpendingKey
-    public var deriveUnifiedFullViewingKey: (UnifiedSpendingKey, NetworkType) throws -> UnifiedFullViewingKey
-    public var isUnifiedAddress: (String, NetworkType) -> Bool
-    public var isSaplingAddress: (String, NetworkType) -> Bool
-    public var isTransparentAddress: (String, NetworkType) -> Bool
+    public var deriveSpendingKey: ([UInt8], Int, NetworkType) throws -> SpendingKey
+    public var deriveFullViewingKey: (SpendingKey, NetworkType) throws -> FullViewingKey
     public var isDarkFiAddress: (String, NetworkType) -> Bool
 }

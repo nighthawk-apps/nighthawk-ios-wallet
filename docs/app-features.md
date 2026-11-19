@@ -64,7 +64,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Receive QR display | ✅ | ✅ | `Receive` feature |
 | Request specific amount (payment URI) | ✅ | ✅ | Request money builds `drk:address?amount=&memo=` with a base64 memo |
 | Multi-token / custom assets send | ✅ | ✅ | Send-flow token picker. DRK is the default token |
-| ZIP-321 / unified address | 🔒 | 🔒 | Use DarkFi `drk` addresses instead |
+| ZIP-321 / DarkFi address | 🔒 | 🔒 | Use DarkFi `drk` addresses instead |
 | Shielding / deshielding | 🔒 | 🔒 | **N/A** on DarkFi |
 
 ---
@@ -159,7 +159,7 @@ Canonical list of **iOS** capabilities for the DarkFi wallet app. Use this docum
 | Lightwalletd | `darkfi-lightwalletd` gRPC **:9067**. Default sync is trial decryption. UnifOMR is opt-in |
 | Embedded Tor | In-process Arti on iOS and Android. The app default network is Nym |
 | ZIP-321 | Payment URI `drk:address?amount=&memo=` with memo as standard base64 |
-| Orchard / Sapling | Money contract `TransferV1` |
+| Money note | Money contract `TransferV1` |
 | — | DarkIRC chat (new) |
 | — | DAO / custom tokens (chain; app UI read-only) |
 

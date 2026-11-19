@@ -34,6 +34,19 @@ public enum PaymentRequestUri {
         return parts.joined()
     }
 
+    /// First `drk:` / `darkfi:` token in a chat line.
+    public static func find(in text: String) -> Parsed? {
+        for token in text.split(whereSeparator: { $0.isWhitespace || $0 == "\n" }) {
+            let raw = String(token).trimmingCharacters(in: CharacterSet(charactersIn: ".,;)]}"))
+            let lower = raw.lowercased()
+            guard lower.hasPrefix("drk:") || lower.hasPrefix("darkfi:") else { continue }
+            if let parsed = parse(raw), !parsed.address.isEmpty {
+                return parsed
+            }
+        }
+        return nil
+    }
+
     public static func parse(_ raw: String) -> Parsed? {
         let input = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty else { return nil }

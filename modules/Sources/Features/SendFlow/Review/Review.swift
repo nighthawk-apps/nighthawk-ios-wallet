@@ -25,7 +25,7 @@ public struct Review {
         public var fee: DrkAmount { proposal.totalFeeRequired() }
         public var memo: RedactableString?
         public var recipient: String
-        public var recipientIsTransparent = false
+        public var recipientIsExternal = false
         public var total: DrkAmount { zecAmount + fee }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
@@ -100,7 +100,7 @@ public struct Review {
                 return .none
             case .onAppear:
                 state.preferredCurrency = userStoredPreferences.fiatCurrency()
-                state.recipientIsTransparent = derivationTool.isTransparentAddress(state.recipient, "testnet")
+                state.recipientIsExternal = false
                 return .none
             case .sendDrkTapped:
                 if userStoredPreferences.areBiometricsEnabled() {

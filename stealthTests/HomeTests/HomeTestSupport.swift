@@ -48,7 +48,7 @@ enum HomeTestSupport {
         withDependencies {
             configureDependencies(&$0)
         } operation: {
-            var state = Home.State(unifiedAddress: nil)
+            var state = Home.State(receiveAddress: nil)
             state.selectedTab = selectedTab
             state.synchronizerFailedToStart = synchronizerFailedToStart
             return state

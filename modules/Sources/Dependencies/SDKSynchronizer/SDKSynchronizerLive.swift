@@ -41,11 +41,70 @@ private final class WalletHandleManager: @unchecked Sendable {
     private let lock = NSLock()
     private var _handle: DarkfiWalletHandle?
     private let stateSubject = CurrentValueSubject<SynchronizerState, Never>(.zero)
+    /// Polls Rust background-sync snapshots so UI balance/height update while synced.
+    private var pollTimer: DispatchSourceTimer?
+    private let pollQueue = DispatchQueue(label: "com.nighthawkapps.wallet.poll")
 
     var handle: DarkfiWalletHandle? {
         lock.lock()
         defer { lock.unlock() }
         return _handle
+    }
+
+    func startPolling() {
+        lock.lock()
+        defer { lock.unlock() }
+        guard pollTimer == nil else { return }
+        let timer = DispatchSource.makeTimerSource(queue: pollQueue)
+        timer.schedule(deadline: .now() + 2, repeating: 2)
+        timer.setEventHandler { [weak self] in
+            self?.pollBackgroundSync()
+        }
+        pollTimer = timer
+        timer.resume()
+    }
+
+    func stopPolling() {
+        lock.lock()
+        defer { lock.unlock() }
+        pollTimer?.cancel()
+        pollTimer = nil
+    }
+
+    private func pollBackgroundSync() {
+        guard let handle = handle else { return }
+        let light = handle.lightSyncSnapshot()
+        let balance = (try? handle.confirmedBalanceAtomic()) ?? latestState.confirmedBalance
+        let tip = UInt32(truncatingIfNeeded: max(0, light.chainTip))
+        let scanned = UInt32(truncatingIfNeeded: max(0, light.scannedHeight))
+        let connected = SynchronizerState.lightwalletdLive(light.status)
+        let syncStatus: SyncStatus
+        if light.chainTip > 0, scanned < tip {
+            let progress = Float(scanned) / Float(max(tip, 1))
+            syncStatus = .syncing(progress: progress)
+        } else if connected {
+            syncStatus = .upToDate
+        } else {
+            syncStatus = latestState.syncStatus
+        }
+        let next = SynchronizerState(
+            syncStatus: syncStatus,
+            confirmedBalance: balance,
+            latestBlockHeight: tip > 0 ? tip : latestState.latestBlockHeight,
+            activeSyncMethod: DarkfiSyncMethod(light.syncMethod),
+            fallbackReason: String(describing: light.fallbackReason),
+            fallbackUserMessage: light.fallbackUserMessage,
+            lightwalletdConnected: connected
+        )
+        let prev = latestState
+        guard next.confirmedBalance != prev.confirmedBalance
+            || next.latestBlockHeight != prev.latestBlockHeight
+            || next.syncStatus != prev.syncStatus
+            || next.lightwalletdConnected != prev.lightwalletdConnected
+            || next.activeSyncMethod != prev.activeSyncMethod else {
+            return
+        }
+        updateState(next)
     }
 
     var stateStream: AnyPublisher<SynchronizerState, Never> {
@@ -119,7 +178,9 @@ private final class WalletHandleManager: @unchecked Sendable {
         // endpoints to socks5://proxy/dest (Android TorDarkfidEndpoint parity).
         // Arti SOCKS host/port come from TorNetwork preferences; Nym listens on
         // loopback.
-        let walletNetwork = UserPreferencesStorage.live.walletPrivacyNetwork
+        let walletNetwork = SessionPrivacyOverride.resolved(
+            stored: UserPreferencesStorage.live.walletPrivacyNetwork
+        )
         let torForWallet = walletNetwork == .tor
         let nymForWallet = walletNetwork == .nym
         let socksHost = UserPreferencesStorage.live.torSocksHost ?? TorDarkfidEndpoint.defaultSocksHost
@@ -238,6 +299,7 @@ private final class WalletHandleManager: @unchecked Sendable {
     }
 
     func wipe() {
+        stopPolling()
         lock.lock()
         defer { lock.unlock() }
         BlockTimestampIndex.reset()
@@ -248,6 +310,7 @@ private final class WalletHandleManager: @unchecked Sendable {
     /// Drop the live handle and delete on-disk wallet + cache databases.
     /// Keeps Keychain seed / wallet_pass so the user can reopen and rescan.
     func nukeLocalDatabases() {
+        stopPolling()
         lock.lock()
         defer { lock.unlock() }
         BlockTimestampIndex.reset()
@@ -297,7 +360,7 @@ extension SDKSynchronizerClient: DependencyKey {
         start: { _ in
             guard let handle = WalletHandleManager.shared.handle else { return }
 
-            // Trigger initial sync
+            // Trigger initial sync, then poll Rust's background sync thread.
             do {
                 let snapshot = try handle.refreshNow()
                 let balance = try handle.confirmedBalanceAtomic()
@@ -313,6 +376,7 @@ extension SDKSynchronizerClient: DependencyKey {
                     fallbackUserMessage: lightState.fallbackUserMessage,
                     lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status)
                 ))
+                WalletHandleManager.shared.startPolling()
             } catch {
                 WalletHandleManager.shared.updateState(SynchronizerState(
                     syncStatus: .error(error.localizedDescription),
@@ -322,6 +386,7 @@ extension SDKSynchronizerClient: DependencyKey {
             }
         },
         stop: {
+            WalletHandleManager.shared.stopPolling()
             WalletHandleManager.shared.updateState(SynchronizerState(
                 syncStatus: .stopped,
                 confirmedBalance: WalletHandleManager.shared.latestState.confirmedBalance,
@@ -352,7 +417,7 @@ extension SDKSynchronizerClient: DependencyKey {
             guard let handle = WalletHandleManager.shared.handle else { return 0 }
             return (try? handle.confirmedBalanceAtomic()) ?? 0
         },
-        getUnifiedAddress: { account in
+        getReceiveAddress: { account in
             guard let handle = WalletHandleManager.shared.handle else { return nil }
             if let addresses = try? handle.listAddresses(), account < addresses.count {
                 return DarkfiAddress(stringEncoded: addresses[account])
@@ -403,11 +468,13 @@ extension SDKSynchronizerClient: DependencyKey {
             }
 
             let memoText: String? = memo?.text
+            // Rust FFI parses whole-DRK decimals (8 places), not atomic Int64 strings.
+            let amountDecimal = amount.inputDecimalString()
             // Check balance before proposing
             let balance = try handle.confirmedBalanceAtomic()
             let fee = try handle.estimateTransferFee(
                 recipientAddress: recipientAddr,
-                amount: String(amount),
+                amount: amountDecimal,
                 tokenId: tokenId,
                 paymentMemo: memoText
             )
@@ -424,7 +491,7 @@ extension SDKSynchronizerClient: DependencyKey {
             }
             return (try? handle.estimateTransferFee(
                 recipientAddress: address.stringEncoded,
-                amount: String(amount),
+                amount: amount.inputDecimalString(),
                 tokenId: tokenId,
                 paymentMemo: nil
             )) ?? 10_000
@@ -439,10 +506,12 @@ extension SDKSynchronizerClient: DependencyKey {
             }
 
             // Build and broadcast — PerfOMR/OMD clue embedded in Rust by default.
+            // Pass whole-DRK decimal string (not atomic) to match Rust parsers.
             let memoText: String? = memo?.text
+            let amountDecimal = amount.inputDecimalString()
             let txBytes = try handle.buildTransfer(
                 recipientAddress: recipientAddr,
-                amount: String(amount),
+                amount: amountDecimal,
                 tokenId: tokenId,
                 paymentMemo: memoText
             )
@@ -472,7 +541,7 @@ extension SDKSynchronizerClient: DependencyKey {
                 totalAtomicValue: amount,
                 fee: (try? handle.estimateTransferFee(
                     recipientAddress: recipientAddr,
-                    amount: String(amount),
+                    amount: amountDecimal,
                     tokenId: tokenId,
                     paymentMemo: memoText
                 )) ?? 10_000,

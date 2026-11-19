@@ -37,7 +37,7 @@ public struct AppReducer {
         public var path = StackState<Path.State>()
         public var splash = Splash.State()
         public var synchronizerStopped = false
-        public var unifiedAddress: UnifiedAddress?
+        public var receiveAddress: DarkfiAddress?
         public var latestFiatPrice: Double?
         public var nighthawkColorScheme: ColorScheme? {
             NighthawkThemeController.shared.theme.colorScheme
@@ -55,11 +55,11 @@ public struct AppReducer {
 
         /// Keep App and the live Home wallet info on the same address so
         /// transaction history can load after the address arrives.
-        mutating func propagateUnifiedAddress(_ unifiedAddress: UnifiedAddress) {
-            self.unifiedAddress = unifiedAddress
+        mutating func propagateDarkfiAddress(_ receiveAddress: DarkfiAddress) {
+            self.receiveAddress = receiveAddress
             for id in path.ids {
                 guard var home = path[id: id, case: \.home] else { continue }
-                home.walletInfo.unifiedAddress = unifiedAddress
+                home.walletInfo.receiveAddress = receiveAddress
                 path[id: id, case: \.home] = home
             }
         }
@@ -78,7 +78,7 @@ public struct AppReducer {
         case path(StackActionOf<Path>)
         case scenePhaseChanged(ScenePhase)
         case splash(Splash.Action)
-        case unifiedAddressResponse(UnifiedAddress?)
+        case receiveAddressResponse(DarkfiAddress?)
 
         public enum Alert: Equatable {}
     }
@@ -142,7 +142,7 @@ public struct AppReducer {
                 state.splash.hasCompletedInitialRoute = true
                 state.path = StackState([
                     .home(
-                        .init(unifiedAddress: nil)
+                        .init(receiveAddress: nil)
                     )
                 ])
                 return .none
@@ -152,7 +152,7 @@ public struct AppReducer {
                 if shouldResetStack {
                     state.path = StackState([
                         .home(
-                            .init(unifiedAddress: state.unifiedAddress)
+                            .init(receiveAddress: state.receiveAddress)
                         )
                     ])
                 }
@@ -162,7 +162,7 @@ public struct AppReducer {
             case .deleteWalletSuccess:
                 walletStorage.deleteWallet()
                 userStoredPreferences.removeAll()
-                state.unifiedAddress = nil
+                state.receiveAddress = nil
                 state.latestFiatPrice = nil
                 state.splash.hasCompletedInitialRoute = false
                 if let eventsCache = URL.latestEventsCache(for: "testnet") {
@@ -213,9 +213,9 @@ public struct AppReducer {
                 }
             case .splash:
                 return .none
-            case let .unifiedAddressResponse(unifiedAddress):
-                if let unifiedAddress {
-                    state.propagateUnifiedAddress(unifiedAddress)
+            case let .receiveAddressResponse(receiveAddress):
+                if let receiveAddress {
+                    state.propagateDarkfiAddress(receiveAddress)
                 }
                 return .none
             }
@@ -255,7 +255,7 @@ extension AppReducer {
 
                     // Get address. Do not write the plaintext address into Documents.
                     let address = try? await sdkSynchronizer.getAddress()
-                    await send(.unifiedAddressResponse(address))
+                    await send(.receiveAddressResponse(address))
                     try await sdkSynchronizer.start(false)
                     await send(.initializeSDKSuccess(shouldResetStack: shouldResetStack))
                 } catch {
@@ -293,7 +293,7 @@ private extension AppReducer {
                     state.splash.hasCompletedInitialRoute = true
                     return initializeSDK(.existingWallet)
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .unifiedAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }

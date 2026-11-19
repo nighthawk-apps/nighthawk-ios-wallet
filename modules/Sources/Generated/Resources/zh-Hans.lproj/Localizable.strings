@@ -164,8 +164,7 @@
 "nighthawk.walletTab.shieldNow" = "刷新";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "隐私地址";
-"nighthawk.walletTab.addresses.saplingAddress" = "隐私地址";
+"nighthawk.walletTab.addresses.receiveAddress" = "隐私地址";
 "nighthawk.walletTab.addresses.transparentAddress" = "隐私地址";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "给钱包充值";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "通过我们精选的合作方购买或交易 DarkFi。";
@@ -203,8 +202,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "私密收款";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "显示二维码";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "复制隐私地址";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "钱包地址将复制到剪贴板。";
+"nighthawk.transferTab.receive.copyAddressTitle" = "复制隐私地址";
+"nighthawk.transferTab.receive.copyAddressDescription" = "钱包地址将复制到剪贴板。";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
@@ -437,9 +436,6 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "已确认";
-"nighthawk.transaction.sent" = "已发送";
-"nighthawk.transaction.received" = "已接收";
-"nighthawk.transaction.failed" = "失败";
 
 // MARK: - DAO Hub
 "nighthawk.daoHub.title" = "DAO";

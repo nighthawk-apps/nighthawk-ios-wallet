@@ -18,6 +18,11 @@ struct ChatView: View {
     @Bindable var store: StoreOf<Chat>
     @Environment(\.scenePhase) var scenePhase
     @State private var showPeers = false
+    @State private var clearnetURL: String?
+    @State private var showPaySheet = false
+    @State private var payAmount = ""
+    @State private var payMemo = ""
+    @State private var payAddress = ""
     @ObservedObject private var themes = NighthawkThemeController.shared
     @ObservedObject private var mesh = NighthawkMeshController.shared
 
@@ -34,12 +39,38 @@ struct ChatView: View {
                     .onTapGesture { store.send(.dismissFudNotice) }
             }
 
-            switch store.connectionState {
-            case .disconnected, .error:
+            if store.connectionState == .disconnected || store.connectionState == .error,
+               store.messages.isEmpty && store.channelMessages.isEmpty {
                 disconnectedView
-            default:
+            } else {
                 connectedView
             }
+        }
+        .alert("Open clearnet link?", isPresented: Binding(
+            get: { clearnetURL != nil },
+            set: { if !$0 { clearnetURL = nil } }
+        )) {
+            Button("Open in browser") {
+                if let clearnetURL, let url = URL(string: clearnetURL) {
+                    UIApplication.shared.open(url)
+                }
+                clearnetURL = nil
+            }
+            Button("Copy link") {
+                if let clearnetURL {
+                    UIPasteboard.general.setItems(
+                        [[UIPasteboard.typeAutomatic: clearnetURL]],
+                        options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(60)]
+                    )
+                }
+                clearnetURL = nil
+            }
+            Button("Cancel", role: .cancel) { clearnetURL = nil }
+        } message: {
+            Text("This opens http(s) outside Nym/Tor and can leak your IP.")
+        }
+        .sheet(isPresented: $showPaySheet) {
+            paySheet
         }
         // Clears the wallpaper NIGHTHAWK wordmark under the status bar.
         .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
@@ -57,6 +88,17 @@ private extension ChatView {
     private var chatSelectionPink: Color { themes.theme.secondaryContainerColor }
     private var chatSelectionPinkBright: Color { themes.theme.secondaryAccentColor }
     private var chatSelectionOnPink: Color { themes.theme.onSecondaryContainerColor }
+
+    private var privacyRouteLabel: String {
+        switch store.connectionState {
+        case .connectedViaNym: return "Nym mixnet"
+        case .connectedViaTor: return "Tor"
+        case .connectedDirect: return "Direct (clearnet)"
+        case .connecting, .startingDaemon, .waitingForDagSync: return "Bootstrapping…"
+        case .degraded: return "Degraded"
+        case .disconnected, .error: return "Offline"
+        }
+    }
 
     var inboxBar: some View {
         HStack(spacing: 8) {
@@ -132,6 +174,12 @@ private extension ChatView {
     var connectionInfoSheet: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
+                Text("Active privacy route")
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                    .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                Text(privacyRouteLabel)
+                    .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                 connectionStatusBody
                 Text("Nearby mesh")
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
@@ -141,6 +189,15 @@ private extension ChatView {
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .lineLimit(4)
+                Text("Privacy route: \(privacyRouteLabel)")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                Text(store.chainTip > 0 ? "Lightwalletd height \(store.chainTip)" : "Lightwalletd height unavailable")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                Text(store.selectedTab == .direct ? "Direct message · E2E" : "Public channel · plaintext on the DAG")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 Text(L10n.Nighthawk.Chat.outboundPeers)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
@@ -354,6 +411,12 @@ private extension ChatView {
                 // Channel tabs + messages + compose
                 VStack(spacing: 0) {
                     channelBar
+                    Text("Public channel · plaintext on the DAG")
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.8))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 4)
                     messagesList
                     composeBar
                 }
@@ -596,6 +659,12 @@ private extension ChatView {
                     Text("E2E encrypted")
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 11))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
+                    if let card = NighthawkContactStore.findByNick(contact.contactLabel) {
+                        Text(NighthawkContacts.safetyNumber(dmPublicKey: card.dmPublicKey, walletAddress: card.walletAddress))
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 9))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.8))
+                            .lineLimit(2)
+                    }
                 }
             }
 
@@ -706,6 +775,91 @@ private extension ChatView {
                 .padding(.leading, 12)
                 .padding(.vertical, 2)
             }
+
+            if let invoice = PaymentRequestUri.find(in: message.content) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Payment request")
+                        .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    if let amount = invoice.amount, !amount.isEmpty {
+                        Text("\(amount) DRK")
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 13))
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                    }
+                    Text(invoice.address)
+                        .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    if let memo = invoice.memo, !memo.isEmpty {
+                        Text(memo)
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .lineLimit(2)
+                    }
+                    Button("Pay") {
+                        store.send(
+                            .payInvoiceTapped(
+                                address: invoice.address,
+                                amount: invoice.amount,
+                                memo: invoice.memo
+                            )
+                        )
+                    }
+                    .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Asset.Colors.Nighthawk.navy.color.opacity(0.55))
+                .padding(.leading, 4)
+                .padding(.vertical, 2)
+            }
+
+            if let receipt = ChatReceiptCodec.parse(message.content) {
+                let live = ChatReceiptBook.lookup(id: receipt.id) ?? receipt
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Payment \(live.phase.rawValue)")
+                        .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    Text("\(live.amount) DRK → \(live.address)")
+                        .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    if let tx = live.txId, !tx.isEmpty {
+                        Text(tx)
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Asset.Colors.Nighthawk.navy.color.opacity(0.55))
+            }
+
+            if let link = ChatLinkGuard.firstClearnet(in: message.content) {
+                Button("Link") { clearnetURL = link }
+                    .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 12))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            }
+
+            if let delivery = ChatDeliveryLabel.from(eventId: message.id, isOutgoing: message.isOutgoing) {
+                HStack(spacing: 8) {
+                    Text(delivery.rawValue)
+                        .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    if delivery == .failed {
+                        Button("Retry") {
+                            store.send(.retryOutgoing(channel: message.channel, text: message.content))
+                        }
+                        .font(.custom(FontFamily.DejaVuSansMono.bold.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
@@ -713,9 +867,17 @@ private extension ChatView {
     }
 
     var composeBar: some View {
-        let canSend = store.connectionState.isConnected
-            && !store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let canSend = !store.composedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         return HStack(spacing: 12) {
+            Button {
+                payAddress = NighthawkContactStore.findByNick(store.selectedDmContact?.contactLabel ?? "")?.walletAddress ?? ""
+                showPaySheet = true
+            } label: {
+                Image(systemName: "banknote")
+                    .font(.system(size: 22))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            }
+            .accessibilityLabel("Send or request DRK")
             TextField("Message", text: $store.composedMessage)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 15))
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
@@ -725,7 +887,6 @@ private extension ChatView {
                     RoundedRectangle(cornerRadius: 22)
                         .fill(Asset.Colors.Nighthawk.navy.color)
                 )
-                .disabled(!store.connectionState.isConnected)
                 .onSubmit { store.send(.sendMessage) }
 
             Button(action: { store.send(.sendMessage) }) {
@@ -748,5 +909,39 @@ private extension ChatView {
         themes.theme.usesCyberpunkChrome
             ? Color.black.opacity(0.45)
             : Asset.Colors.Nighthawk.darkNavy.color
+    }
+
+    var paySheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                TextField("Amount (DRK)", text: $payAmount)
+                    .textFieldStyle(.roundedBorder)
+                TextField("Memo", text: $payMemo)
+                    .textFieldStyle(.roundedBorder)
+                TextField("Pay to address", text: $payAddress)
+                    .textFieldStyle(.roundedBorder)
+                Button("Request") {
+                    showPaySheet = false
+                    store.send(.walletRequest(amount: payAmount, memo: payMemo))
+                }
+                Button("Send") {
+                    showPaySheet = false
+                    store.send(.walletSend(address: payAddress, amount: payAmount, memo: payMemo, tip: false))
+                }
+                Button("Tip") {
+                    showPaySheet = false
+                    store.send(.walletSend(address: payAddress, amount: payAmount, memo: payMemo, tip: true))
+                }
+                Spacer()
+            }
+            .padding(16)
+            .navigationTitle("DRK")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { showPaySheet = false }
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }

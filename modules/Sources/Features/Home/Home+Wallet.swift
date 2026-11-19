@@ -31,7 +31,7 @@ extension Home {
                 case .receiveMoney:
                     state.transfer.destination = .receive(
                         .init(
-                            uAddress: state.walletInfo.unifiedAddress,
+                            receiveAddress: state.walletInfo.receiveAddress,
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )
@@ -42,13 +42,13 @@ extension Home {
                         showCloseButton: processInfo.isiOSAppOnMac()
                     )
                     sendState.spendableBalance = state.walletInfo.balance
-                    sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                    sendState.receiveAddress = state.walletInfo.receiveAddress
                     state.transfer.destination = .send(sendState)
                     return .none
                 case .requestMoney:
                     state.transfer.destination = .request(
                         .init(
-                            address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
+                            address: state.walletInfo.receiveAddress?.stringEncoded ?? "",
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )
@@ -56,7 +56,7 @@ extension Home {
                 case .showAddresses:
                     state.destination = .addresses(
                         .init(
-                            uAddress: state.walletInfo.unifiedAddress,
+                            receiveAddress: state.walletInfo.receiveAddress,
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )
@@ -71,7 +71,7 @@ extension Home {
                         showCloseButton: true
                     )
                     sendState.spendableBalance = state.walletInfo.balance
-                    sendState.unifiedAddress = state.walletInfo.unifiedAddress
+                    sendState.receiveAddress = state.walletInfo.receiveAddress
                     sendState.recipient = recipient
                     if amount > 0 {
                         sendState.amountToSendInput = amount.inputDecimalString()
@@ -97,7 +97,7 @@ extension Home {
                  .tabSelected,
                  .transfer,
                  .updateWalletEvents,
-                 .unifiedAddressLoaded,
+                 .receiveAddressLoaded,
                  .wallet:
                 return .none
             }

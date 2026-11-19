@@ -164,8 +164,7 @@
 "nighthawk.walletTab.shieldNow" = "Atualizar";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Endereço de privacidade";
-"nighthawk.walletTab.addresses.saplingAddress" = "Endereço de privacidade";
+"nighthawk.walletTab.addresses.receiveAddress" = "Endereço de privacidade";
 "nighthawk.walletTab.addresses.transparentAddress" = "Endereço de privacidade";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Recarregar a carteira";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Compre ou negocie DarkFi com os parceiros que selecionamos.";
@@ -203,8 +202,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "Receber dinheiro com privacidade";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Mostrar QR code";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copiar endereço de privacidade";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "O endereço da carteira vai para a área de transferência.";
+"nighthawk.transferTab.receive.copyAddressTitle" = "Copiar endereço de privacidade";
+"nighthawk.transferTab.receive.copyAddressDescription" = "O endereço da carteira vai para a área de transferência.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
@@ -437,9 +436,6 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "Confirmada";
-"nighthawk.transaction.sent" = "Enviado";
-"nighthawk.transaction.received" = "Recebido";
-"nighthawk.transaction.failed" = "Falhou";
 
 // MARK: - DAO Hub
 "nighthawk.daoHub.title" = "DAO";

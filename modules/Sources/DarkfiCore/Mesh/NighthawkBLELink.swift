@@ -235,24 +235,28 @@ final class NighthawkBLELink: NSObject {
            let uuid = UUID(uuidString: String(linkID.dropFirst(2))),
            let peripheral = peripherals[uuid],
            let characteristic = characteristics[uuid] {
-            guard peripheral.canSendWriteWithoutResponse else { return }
-            let chunk = queue.removeFirst()
+            // Send as many ATT chunks as the peripheral will accept this turn.
+            while !queue.isEmpty {
+                guard peripheral.canSendWriteWithoutResponse else { break }
+                let chunk = queue.removeFirst()
+                peripheral.writeValue(chunk, for: characteristic, type: .withoutResponse)
+            }
             pending[linkID] = queue
-            peripheral.writeValue(chunk, for: characteristic, type: .withoutResponse)
             return
         }
         if linkID.hasPrefix("c:"),
            let uuid = UUID(uuidString: String(linkID.dropFirst(2))),
            let central = subscribed[uuid],
            let characteristic = meshCharacteristic {
-            let chunk = queue.removeFirst()
-            let sent = peripheral?.updateValue(chunk, for: characteristic, onSubscribedCentrals: [central]) ?? false
-            if sent {
-                pending[linkID] = queue
-            } else {
-                queue.insert(chunk, at: 0)
-                pending[linkID] = queue
+            while !queue.isEmpty {
+                let chunk = queue.removeFirst()
+                let sent = peripheral?.updateValue(chunk, for: characteristic, onSubscribedCentrals: [central]) ?? false
+                if !sent {
+                    queue.insert(chunk, at: 0)
+                    break
+                }
             }
+            pending[linkID] = queue
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 extension DerivationToolClient: DependencyKey {
     public static let liveValue = DerivationToolClient.live()
@@ -13,28 +14,41 @@ extension DerivationToolClient: DependencyKey {
     public static func live() -> Self {
         Self(
             deriveSpendingKey: { _, accountIndex, _ in
-                return UnifiedSpendingKey(
+                return SpendingKey(
                     bytes: [],
                     account: accountIndex
                 )
             },
-            deriveUnifiedFullViewingKey: { _, _ in
-                return UnifiedFullViewingKey(
+            deriveFullViewingKey: { _, _ in
+                return FullViewingKey(
                     stringEncoded: ""
                 )
             },
-            isUnifiedAddress: { _, _ in
-                return true
-            },
-            isSaplingAddress: { _, _ in
-                return true
-            },
-            isTransparentAddress: { _, _ in
-                return true
-            },
-            isDarkFiAddress: { _, _ in
-                return true
+            isDarkFiAddress: { address, _ in
+                DarkFiAddressValidator.isValid(address)
             }
         )
+    }
+}
+
+/// Validates bare DarkFi receive addresses (not `drk:` / `darkfi:` URIs).
+enum DarkFiAddressValidator {
+    private static let base58Alphabet = CharacterSet(charactersIn:
+        "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    )
+
+    /// DarkFi `Address` bs58 encodings are typically ~50–70 chars.
+    private static let minLength = 40
+    private static let maxLength = 128
+
+    static func isValid(_ raw: String) -> Bool {
+        let address = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !address.isEmpty else { return false }
+        // Reject payment URIs / query strings — callers must parse first.
+        if address.contains(":") || address.contains("?") || address.contains("/") {
+            return false
+        }
+        guard (minLength...maxLength).contains(address.count) else { return false }
+        return address.unicodeScalars.allSatisfy { base58Alphabet.contains($0) }
     }
 }

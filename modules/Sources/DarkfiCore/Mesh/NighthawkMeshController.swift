@@ -43,6 +43,7 @@ public final class NighthawkMeshController: ObservableObject {
     public func setEnabled(_ on: Bool) {
         UserDefaults.standard.set(on, forKey: defaultsKey)
         enabled = on
+        TransportHooks.setMesh(on)
         if on {
             startRadio(foreground: true)
         } else {

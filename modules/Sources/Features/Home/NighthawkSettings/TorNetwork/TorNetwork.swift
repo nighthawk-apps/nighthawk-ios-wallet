@@ -10,9 +10,11 @@
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import MnemonicClient
 import Models
 import SDKSynchronizer
 import UserPreferencesStorage
+import WalletStorage
 
 @Reducer
 public struct TorNetwork {
@@ -108,6 +110,8 @@ public struct TorNetwork {
 
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.mnemonic) var mnemonic
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -138,15 +142,32 @@ public struct TorNetwork {
             case let .privacyNetworkSelected(network):
                 guard network != state.privacyNetwork else { return .none }
                 state.privacyNetwork = network
+                // Explicit user choice clears session-only Direct override.
+                SessionPrivacyOverride.clear()
+                TransportHooks.clearSessionOverride()
+                let kind: Int32
+                switch network {
+                case .tor: kind = 1
+                case .direct: kind = 2
+                case .nym: kind = 0
+                }
+                TransportHooks.apply(
+                    kind: kind,
+                    nymPort: Int32(NighthawkSetting.PrivacyNetwork.nymSocksPort),
+                    torPort: Int32(state.externalSocksPort) ?? 9050
+                )
                 userStoredPreferences.setWalletPrivacyNetwork(network)
                 let nymEffect: Effect<Action> = network == .nym ? .send(.startNym) : .send(.stopNym)
                 return .merge(
                     nymEffect,
                     resolveArtiLifecycle(state: &state),
-                    .run { _ in
-                        // Reopen the wallet so Rust installs the new SOCKS route.
-                        sdkSynchronizer.stop()
-                        try? await sdkSynchronizer.start(false)
+                    .run { [walletStorage, sdkSynchronizer, mnemonic] _ in
+                        // Rebuild handle so Rust installs the new SOCKS/direct route.
+                        try? await WalletTransportReprepare.reprepareExisting(
+                            walletStorage: walletStorage,
+                            sdkSynchronizer: sdkSynchronizer,
+                            mnemonic: mnemonic
+                        )
                     }
                 )
 
@@ -199,12 +220,18 @@ public struct TorNetwork {
                 return .run { send in
                     await send(.artiBootstrapProgressUpdated(0.1))
                     let port = UInt16(portString) ?? 9050
-                    let started = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
-                    await send(.artiBootstrapProgressUpdated(1.0))
-                    let status: State.ArtiStatus = started && DarkfiFfiSafe.isArtiRunning()
-                        ? .connected
-                        : .failed
-                    await send(.artiStatusChanged(status))
+                    _ = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
+                    // Arti bootstrap is async — poll readiness instead of reporting immediately.
+                    for i in 0..<60 {
+                        if DarkfiFfiSafe.isArtiRunning() {
+                            await send(.artiBootstrapProgressUpdated(1.0))
+                            await send(.artiStatusChanged(.connected))
+                            return
+                        }
+                        await send(.artiBootstrapProgressUpdated(min(0.95, 0.1 + Double(i) / 60.0)))
+                        try await Task.sleep(nanoseconds: 500_000_000)
+                    }
+                    await send(.artiStatusChanged(.failed))
                 }
 
             case .stopArti:
@@ -230,7 +257,7 @@ public struct TorNetwork {
                 let useEmbedded = state.isUsingEmbedded
                 let socksPort = state.externalSocksPort
 
-                return .run { send in
+                return .run { [walletStorage, sdkSynchronizer, mnemonic] send in
                     if torEnabled && useEmbedded {
                         let port = UInt16(socksPort) ?? 9050
                         _ = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
@@ -238,9 +265,12 @@ public struct TorNetwork {
                         DarkfiFfiSafe.stopArtiProxy()
                     }
 
-                    if torForWallet {
-                        sdkSynchronizer.stop()
-                        try? await sdkSynchronizer.start(false)
+                    if torForWallet || SessionPrivacyOverride.forceDirectThisSession {
+                        try? await WalletTransportReprepare.reprepareExisting(
+                            walletStorage: walletStorage,
+                            sdkSynchronizer: sdkSynchronizer,
+                            mnemonic: mnemonic
+                        )
                     }
 
                     DarkircDaemonManager.shared.stop()

@@ -164,8 +164,7 @@
 "nighthawk.walletTab.shieldNow" = "새로고침";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "프라이버시 주소";
-"nighthawk.walletTab.addresses.saplingAddress" = "프라이버시 주소";
+"nighthawk.walletTab.addresses.receiveAddress" = "프라이버시 주소";
 "nighthawk.walletTab.addresses.transparentAddress" = "프라이버시 주소";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "지갑 충전";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "엄선한 파트너를 통해 DarkFi를 사거나 거래하세요.";
@@ -203,8 +202,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "비공개로 돈 받기";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "QR 코드 표시";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "프라이버시 주소 복사";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "지갑 주소가 클립보드에 복사됩니다.";
+"nighthawk.transferTab.receive.copyAddressTitle" = "프라이버시 주소 복사";
+"nighthawk.transferTab.receive.copyAddressDescription" = "지갑 주소가 클립보드에 복사됩니다.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
@@ -437,9 +436,6 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "확인됨";
-"nighthawk.transaction.sent" = "보냄";
-"nighthawk.transaction.received" = "받음";
-"nighthawk.transaction.failed" = "실패";
 
 // MARK: - DAO Hub
 "nighthawk.daoHub.title" = "DAO";

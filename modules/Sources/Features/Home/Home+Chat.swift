@@ -6,6 +6,8 @@
 
 import ComposableArchitecture
 import Receive
+import SendFlow
+import Utils
 
 extension Home {
     @ReducerBuilder<State, Action>
@@ -23,10 +25,26 @@ extension Home {
                 case .requestMoney:
                     state.transfer.destination = .request(
                         .init(
-                            address: state.walletInfo.unifiedAddress?.stringEncoded ?? "",
+                            address: state.walletInfo.receiveAddress?.stringEncoded ?? "",
                             showCloseButton: processInfo.isiOSAppOnMac()
                         )
                     )
+                    return .none
+                case let .payInvoice(address, amount, memo):
+                    var sendState = SendFlow.State(
+                        latestFiatPrice: state.walletInfo.latestFiatPrice,
+                        showCloseButton: processInfo.isiOSAppOnMac()
+                    )
+                    sendState.spendableBalance = state.walletInfo.balance
+                    sendState.receiveAddress = state.walletInfo.receiveAddress
+                    sendState.recipient = address
+                    if let amount, !amount.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        sendState.amountToSendInput = amount
+                    }
+                    if let memo, !memo.isEmpty {
+                        sendState.memo = memo.redacted
+                    }
+                    state.transfer.destination = .send(sendState)
                     return .none
                 }
             case .alert,
@@ -47,7 +65,7 @@ extension Home {
                  .tabSelected,
                  .transfer,
                  .updateWalletEvents,
-                 .unifiedAddressLoaded,
+                 .receiveAddressLoaded,
                  .wallet:
                 return .none
             }

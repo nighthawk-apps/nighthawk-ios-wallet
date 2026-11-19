@@ -44,9 +44,11 @@ public struct DatabaseFiles {
     }
 
     func dataDbURL(for network: DarkFiNetwork) -> URL {
+        // DarkFi wallet DB is always `darkfi_wallet.db` (not Zcash `*-data.db`).
+        _ = network
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network)-data.db",
+                "darkfi_wallet.db",
                 isDirectory: false
             )
     }
@@ -54,7 +56,7 @@ public struct DatabaseFiles {
     func outputParamsURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network)-sapling-output.params",
+                "\(network)-output.params",
                 isDirectory: false
             )
     }
@@ -70,7 +72,7 @@ public struct DatabaseFiles {
     func spendParamsURL(for network: DarkFiNetwork) -> URL {
         return documentsDirectory()
             .appendingPathComponent(
-                "\(network)-sapling-spend.params",
+                "\(network)-spend.params",
                 isDirectory: false
             )
     }

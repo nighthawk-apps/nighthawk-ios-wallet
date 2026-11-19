@@ -55,7 +55,7 @@
 "nighthawk.autoshield.buttonPositive" = "Fantastico!";
 "nighthawk.autoshield.buttonNeutral" = "Ulteriori informazioni";
 "nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Please confirm opening your device browser to learn more about Unified Addresses.";
+"nighthawk.autoshield.alert.redirecting.details" = "Open the browser to read about DarkFi addresses.";
 "nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
 "nighthawk.autoshield.shielding" = "Schermatura…";
 "nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
@@ -154,8 +154,7 @@
 "nighthawk.walletTab.shieldNow" = "Shield now";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Indirizzo unificato";
-"nighthawk.walletTab.addresses.saplingAddress" = "Indirizzo schermato legacy";
+"nighthawk.walletTab.addresses.receiveAddress" = "Indirizzo unificato";
 "nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
@@ -190,8 +189,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Copy unified address";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Your wallet address will be copied to the clipboard.";
+"nighthawk.transferTab.receive.copyAddressTitle" = "Copy address";
+"nighthawk.transferTab.receive.copyAddressDescription" = "Your wallet address will be copied to the clipboard.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
@@ -384,6 +383,3 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "Confirmed";
-"nighthawk.transaction.sent" = "Sent";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.failed" = "Failed";

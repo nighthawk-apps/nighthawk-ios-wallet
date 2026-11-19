@@ -12,15 +12,17 @@ import WalletStorage
 struct NighthawkApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Stored once — constructing Store inside `body` re-creates it on every
+    /// scenePhase invalidation and wipes navigation / auth / effects.
+    private let store = Store(
+        initialState: AppReducer.State()
+    ) {
+        AppReducer()
+    }
+
     var body: some Scene {
         WindowGroup {
-            AppView(
-                store: Store(
-                    initialState: AppReducer.State()
-                ) {
-                    AppReducer()
-                }
-            )
+            AppView(store: store)
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
                 case .active:
@@ -55,5 +57,6 @@ struct NighthawkApp: App {
     init() {
         FontFamily.registerAllCustomFonts()
         WalletNetworkWarmStart.startIfNeeded()
+        ChatNotificationRouter.install()
     }
 }

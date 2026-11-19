@@ -40,7 +40,7 @@ public struct SendFlow {
         public var toast: Toast?
         @Presents public var alert: AlertState<Action.Alert>?
 
-        public var unifiedAddress: UnifiedAddress?
+        public var receiveAddress: DarkfiAddress?
         public var spendableBalance = DrkAmount.zero
         public var memoCharLimit = 0
         public var isSendingTransaction = false
@@ -154,8 +154,8 @@ public struct SendFlow {
                     return .none
                 }
 
-                if let recipient = state.recipient, derivationTool.isSaplingAddress(recipient, "testnet") {
-                    var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
+                if let recipient = state.recipient, derivationTool.isDarkFiAddress(recipient, "testnet") {
+                    var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
                     return .none
@@ -272,6 +272,7 @@ public struct SendFlow {
             case let .sendTransactionSuccess(transaction):
                 state.isSendingTransaction = false
                 state.path.append(SendFlow.Path.State.success(.init(transaction: transaction)))
+                ChatReceiptBook.markBroadcasted(txId: transaction.id)
                 return .none
             case let .setProposal(proposal):
                 state.proposal = proposal
@@ -342,7 +343,7 @@ extension SendFlow {
                 case .nextScreen:
                     guard case let .addMemo(addMemoState) = state.path[id: id]
                     else { return .none }
-                    state.memo = if addMemoState.isIncludeReplyToChecked, let ua = state.unifiedAddress?.stringEncoded {
+                    state.memo = if addMemoState.isIncludeReplyToChecked, let ua = state.receiveAddress?.stringEncoded {
                         "\(addMemoState.memo)\nReply to: \(ua)".redacted
                     } else {
                         addMemoState.memo.redacted
@@ -434,52 +435,12 @@ extension SendFlow {
                     if let memo, !memo.isEmpty {
                         state.memo = memo.redacted
                     }
-                    if derivationTool.isTransparentAddress(recipient, "testnet") {
-                        return .run { [state] send in
-                            do {
-                                guard let recipientAddr = state.recipient else { return }
-                                let recipient = Utils.Recipient.address(recipientAddr)
-
-                                let memo: Memo?
-                                if let memoText = state.memo?.data {
-                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
-                                } else {
-                                    memo = nil
-                                }
-
-                                let proposal = try await sdkSynchronizer.proposeTransfer(
-                                    0,
-                                    recipient,
-                                    state.amountToSend,
-                                    memo,
-                                    state.selectedTokenId
-                                )
-
-                                await send(.setProposal(proposal))
-                                await send(
-                                    .review(
-                                        .init(
-                                            zecAmount: state.amountToSend,
-                                            memo: state.memo,
-                                            recipient: recipientAddr,
-                                            latestFiatPrice: state.latestFiatPrice,
-                                            proposal: proposal,
-                                            tokenName: state.tokenName
-                                        )
-                                    )
-                                )
-                            } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
-                            }
-                        }
-                    } else {
-                        var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
-                        addMemoState.memoCharLimit = state.memoCharLimit
-                        if let memo, !memo.isEmpty {
-                            addMemoState.memo = memo
-                        }
-                        state.path.append(Path.State.addMemo(addMemoState))
+                    var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
+                    addMemoState.memoCharLimit = state.memoCharLimit
+                    if let memo, !memo.isEmpty {
+                        addMemoState.memo = memo
                     }
+                    state.path.append(Path.State.addMemo(addMemoState))
                     return .none
                 case .scanCode:
                     state.path.append(Path.State.scan(.init()))
@@ -540,8 +501,8 @@ extension SendFlow {
                             return .none
                         }
 
-                        if state.memo == nil && !derivationTool.isTransparentAddress(address, "testnet") {
-                            var addMemoState = AddMemo.State(unifiedAddress: state.unifiedAddress)
+                        if state.memo == nil {
+                            var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
                             addMemoState.memoCharLimit = state.memoCharLimit
                             state.path.append(Path.State.addMemo(addMemoState))
                             return .none

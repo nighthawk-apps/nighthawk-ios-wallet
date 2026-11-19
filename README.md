@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.14** (`CURRENT_PROJECT_VERSION=30100815`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `44ec78b6e`, Arti 0.48. Aligns with Android 3.01.14, desktop 3.1.12, Moonshine 3.1.11, and lightwalletd 0.3.8.
+**3.01.14** (`CURRENT_PROJECT_VERSION=30100815`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `9d7ceaf77`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.14, desktop 3.1.12, Moonshine 3.1.11, and lightwalletd 0.3.8.
 
 ## Contents
 
@@ -102,7 +102,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`44ec78b6e`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`9d7ceaf77`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 
@@ -392,8 +392,7 @@ Checklist: [`docs/verification-checklist.md`](docs/verification-checklist.md).
 4. Default scheme is **`stealth-testnet`**; use **`stealth-mainnet`** for mainnet.
 5. `SIM_ONLY=1` FFI builds omit the device slice — use a full script run before TestFlight / devices.
 6. DarkIRC over Nym can sit on "waiting for peers" when mixnet exits do not complete the public seed handshake. Switch the app network to Tor, or continue without Nym.
-7. The 2026-10-21 UnifOMR localnet did not include iOS. Do not treat the Android/desktop 100/100 result as an iOS device pass.
-8. `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi`. `git.dark.fi` returns HTTP 504. `kvdb-overlay`, RandomX, and `rust-url` are fetched from GitLab, Codeberg, and GitHub.
+7. `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi`. `git.dark.fi` returns HTTP 504. `kvdb-overlay`, RandomX, and `rust-url` are fetched from GitLab, Codeberg, and GitHub.
 
 ---
 

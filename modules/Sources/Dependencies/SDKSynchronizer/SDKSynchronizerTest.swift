@@ -22,7 +22,7 @@ extension SDKSynchronizerClient: TestDependencyKey {
         isWalletPrepared: unimplemented("\(Self.self).isWalletPrepared", placeholder: false),
         refreshNow: unimplemented("\(Self.self).refreshNow"),
         getConfirmedBalance: unimplemented("\(Self.self).getConfirmedBalance", placeholder: DrkAmount(0)),
-        getUnifiedAddress: unimplemented("\(Self.self).getUnifiedAddress"),
+        getReceiveAddress: unimplemented("\(Self.self).getReceiveAddress"),
         getAddress: unimplemented("\(Self.self).getAddress"),
         generateNewAddress: unimplemented("\(Self.self).generateNewAddress"),
         getAllTransactions: unimplemented("\(Self.self).getAllTransactions"),
@@ -62,7 +62,7 @@ extension SDKSynchronizerClient: TestDependencyKey {
         isWalletPrepared: { false },
         refreshNow: { },
         getConfirmedBalance: { DrkAmount(0) },
-        getUnifiedAddress: { _ in nil },
+        getReceiveAddress: { _ in nil },
         getAddress: { nil },
         generateNewAddress: { "" },
         getAllTransactions: { [] },
@@ -121,7 +121,7 @@ extension SDKSynchronizerClient: TestDependencyKey {
             isWalletPrepared: { true },
             refreshNow: { },
             getConfirmedBalance: { balance },
-            getUnifiedAddress: { _ in
+            getReceiveAddress: { _ in
                 DarkfiAddress(stringEncoded: "darkfi1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxpreview")
             },
             getAddress: {

@@ -164,8 +164,7 @@
 "nighthawk.walletTab.shieldNow" = "更新";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "プライバシーアドレス";
-"nighthawk.walletTab.addresses.saplingAddress" = "プライバシーアドレス";
+"nighthawk.walletTab.addresses.receiveAddress" = "プライバシーアドレス";
 "nighthawk.walletTab.addresses.transparentAddress" = "プライバシーアドレス";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "ウォレットに入金";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "選んだパートナー経由で、DarkFi を購入または取引します。";
@@ -203,8 +202,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "プライベートに受け取る";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "QRコードを表示";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "プライバシーアドレスをコピー";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "ウォレットアドレスをクリップボードにコピーします。";
+"nighthawk.transferTab.receive.copyAddressTitle" = "プライバシーアドレスをコピー";
+"nighthawk.transferTab.receive.copyAddressDescription" = "ウォレットアドレスをクリップボードにコピーします。";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
@@ -437,9 +436,6 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "承認済み";
-"nighthawk.transaction.sent" = "送金済み";
-"nighthawk.transaction.received" = "受取済み";
-"nighthawk.transaction.failed" = "失敗";
 
 // MARK: - DAO Hub
 "nighthawk.daoHub.title" = "DAO";

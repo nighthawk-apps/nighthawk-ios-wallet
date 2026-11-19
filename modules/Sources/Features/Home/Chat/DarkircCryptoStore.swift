@@ -16,6 +16,7 @@
 //
 
 import Foundation
+import Models
 
 // MARK: - DmContact model
 
@@ -123,14 +124,27 @@ public actor DarkircCryptoStore {
         conversations.append(convo)
 
         saveToDisk()
+        let existing = NighthawkContactStore.findByNick(contact.contactLabel)
+        NighthawkContactStore.upsert(
+            NighthawkContact(
+                id: contact.contactLabel.lowercased(),
+                nickname: contact.contactLabel,
+                dmPublicKey: theirPublicB58,
+                walletAddress: existing?.walletAddress
+            )
+        )
         return contact
     }
 
     /// Remove a contact by ID.
     public func removeContact(id: String) {
+        let removed = contacts.first { $0.id == id }
         contacts.removeAll { $0.id == id }
         conversations.removeAll { $0.id == id }
         saveToDisk()
+        if let removed {
+            NighthawkContactStore.remove(nick: removed.contactLabel)
+        }
     }
 
     /// Find a contact by their public key.
@@ -194,7 +208,7 @@ public actor DarkircCryptoStore {
         // the daemon datastore so Rust `load_dm_contacts_from_datastore` sees them.
         if let data = try? encoder.encode(contacts) {
             let contactsFile = dir.appendingPathComponent("dm_contacts.json")
-            try? data.write(to: contactsFile, options: .atomic)
+            try? data.write(to: contactsFile, options: [.atomic, .completeFileProtection])
             var resourceValues = URLResourceValues()
             resourceValues.isExcludedFromBackup = true
             var mutableFile = contactsFile
@@ -203,7 +217,7 @@ public actor DarkircCryptoStore {
             let datastore = URL(fileURLWithPath: DarkircDaemonManager.shared.datastorePath, isDirectory: true)
             try? FileManager.default.createDirectory(at: datastore, withIntermediateDirectories: true)
             let daemonContacts = datastore.appendingPathComponent("dm_contacts.json")
-            try? data.write(to: daemonContacts, options: .atomic)
+            try? data.write(to: daemonContacts, options: [.atomic, .completeFileProtection])
             var daemonFile = daemonContacts
             try? daemonFile.setResourceValues(resourceValues)
         }
@@ -211,7 +225,7 @@ public actor DarkircCryptoStore {
         // Save conversations
         if let data = try? encoder.encode(conversations) {
             let convosFile = dir.appendingPathComponent("dm_conversations.json")
-            try? data.write(to: convosFile, options: .atomic)
+            try? data.write(to: convosFile, options: [.atomic, .completeFileProtection])
             var resourceValues = URLResourceValues()
             resourceValues.isExcludedFromBackup = true
             var mutableFile = convosFile

@@ -278,6 +278,7 @@ let package = Package(
                 "DiskSpaceChecker",
                 "FiatPriceClient",
                 "FileManager",
+                "MnemonicClient",
                 "Models",
                 "Pasteboard",
                 "TransactionDetail",
@@ -291,6 +292,7 @@ let package = Package(
                 "UIComponents",
                 "UserNotificationCenter",
                 "Utils",
+                "WalletStorage",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DarkfiCore"
             ],
@@ -407,6 +409,7 @@ let package = Package(
             dependencies: [
                 "DatabaseFiles",
                 "DerivationTool",
+                "MnemonicClient",
                 "Models",
                 "UserPreferencesStorage",
                 "Utils",

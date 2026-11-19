@@ -1,27 +1,22 @@
 #!/usr/bin/env bash
-# Cross-compile darkfi-mobile-ffi for iOS and generate Swift bindings.
+# Cross-compile shared darkfi-mobile-ffi for iOS and generate Swift bindings.
+# Canonical crate: ../nighthawk-android-wallet/rust/darkfi-mobile-ffi
+# (also linked from /Users/anon/GitHub/darkfi-mobile-ffi).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUST="$ROOT/rust"
+AND_RUST="$(cd "$ROOT/../nighthawk-android-wallet/rust" && pwd)"
+FFI_SRC="$AND_RUST/darkfi-mobile-ffi"
 MODULES="$ROOT/modules/Sources/DarkfiCore"
 XCFRAMEWORK="$MODULES/DarkfiCore.xcframework"
 export CARGO_HOME="$ROOT/.cargo-home"
+# Keep artifacts under the iOS tree.
+export CARGO_TARGET_DIR="$ROOT/rust/target"
 
-# Pin the iOS deployment target ONLY for cross-compiles (not host tools like
-# uniffi-bindgen / aws-lc-sys build scripts). Leaking IPHONEOS_DEPLOYMENT_TARGET
-# into host CC causes aws-lc-sys "COMPILER BUG DETECTED" / incompatible-sysroot.
 IOS_DEPLOY="${IPHONEOS_DEPLOYMENT_TARGET:-17.0}"
 
-echo "Installing required Rust targets for iOS..."
-# rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+echo "Building shared darkfi-mobile-ffi for iOS from $FFI_SRC ..."
 
-echo "Building for iOS targets..."
-
-# Allow building only the simulator slice for a faster local iteration:
-#   SIM_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
-# Device-only (physical iPhone deploy; skips simulator jemalloc/host work):
-#   DEVICE_ONLY=1 ./scripts/build-darkfi-mobile-ffi-ios.sh
 SIM_ONLY="${SIM_ONLY:-0}"
 DEVICE_ONLY="${DEVICE_ONLY:-0}"
 if [ "$SIM_ONLY" = "1" ] && [ "$DEVICE_ONLY" = "1" ]; then
@@ -29,32 +24,27 @@ if [ "$SIM_ONLY" = "1" ] && [ "$DEVICE_ONLY" = "1" ]; then
   exit 1
 fi
 
-cd "$RUST"
+cd "$AND_RUST"
 
-# Simulator slice (Apple-silicon simulator).
+# --lib: skip localnet_tx (required-features = ["localnet"]).
 if [ "$DEVICE_ONLY" != "1" ]; then
   IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \
-    cargo build --release --target aarch64-apple-ios-sim -p darkfi-mobile-ffi
-  cp target/aarch64-apple-ios-sim/release/libdarkfi_mobile_ffi.a target/universal-sim-libdarkfi_mobile_ffi.a
+    cargo build --release --lib --target aarch64-apple-ios-sim -p darkfi-mobile-ffi
+  cp "$CARGO_TARGET_DIR/aarch64-apple-ios-sim/release/libdarkfi_mobile_ffi.a" \
+    "$CARGO_TARGET_DIR/universal-sim-libdarkfi_mobile_ffi.a"
 fi
 
-# Device slice (real iPhone/iPad, arm64). Required to run on a physical device.
 if [ "$SIM_ONLY" != "1" ]; then
-    IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \
-      cargo build --release --target aarch64-apple-ios -p darkfi-mobile-ffi
+  IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \
+    cargo build --release --lib --target aarch64-apple-ios -p darkfi-mobile-ffi
 fi
 
-# Create XCFramework
 mkdir -p "$MODULES"
 rm -rf "$XCFRAMEWORK"
 
-# Regenerate Swift/FFI glue from the UDL. uniffi.toml names the output
-# DarkfiMobileFfi.*; the package compiles darkfi_mobile_ffi.swift and the
-# darkfi_mobile_ffiFFI module, so the fresh files replace those.
-# Host build — do NOT export IPHONEOS_DEPLOYMENT_TARGET here.
 BINDGEN_OUT="$(mktemp -d)"
-cargo run --bin uniffi-bindgen generate \
-    darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl \
+cargo run --bin uniffi-bindgen -- generate \
+    "$FFI_SRC/src/darkfi_mobile_ffi.udl" \
     --language swift \
     --crate darkfi_mobile_ffi \
     --out-dir "$BINDGEN_OUT" \
@@ -64,29 +54,28 @@ sed 's/DarkfiMobileFfiFFI/darkfi_mobile_ffiFFI/g' "$BINDGEN_OUT/DarkfiMobileFfi.
 cp "$BINDGEN_OUT/DarkfiMobileFfiFFI.h" "$MODULES/darkfi_mobile_ffiFFI.h"
 rm -rf "$BINDGEN_OUT"
 
-# Package the canonical FFI headers into the xcframework bundle.
-rm -rf "$ROOT/rust/target/Headers"
-mkdir -p "$ROOT/rust/target/Headers"
-cp "$MODULES/darkfi_mobile_ffiFFI.h" "$ROOT/rust/target/Headers/"
-cp "$MODULES/darkfi_mobile_ffiFFI.modulemap" "$ROOT/rust/target/Headers/module.modulemap"
+rm -rf "$CARGO_TARGET_DIR/Headers"
+mkdir -p "$CARGO_TARGET_DIR/Headers"
+cp "$MODULES/darkfi_mobile_ffiFFI.h" "$CARGO_TARGET_DIR/Headers/"
+cp "$MODULES/darkfi_mobile_ffiFFI.modulemap" "$CARGO_TARGET_DIR/Headers/module.modulemap"
 
 if [ "$SIM_ONLY" = "1" ]; then
     xcodebuild -create-xcframework \
-        -library target/universal-sim-libdarkfi_mobile_ffi.a \
-        -headers target/Headers \
+        -library "$CARGO_TARGET_DIR/universal-sim-libdarkfi_mobile_ffi.a" \
+        -headers "$CARGO_TARGET_DIR/Headers" \
         -output "$XCFRAMEWORK"
 elif [ "$DEVICE_ONLY" = "1" ]; then
     xcodebuild -create-xcframework \
-        -library target/aarch64-apple-ios/release/libdarkfi_mobile_ffi.a \
-        -headers target/Headers \
+        -library "$CARGO_TARGET_DIR/aarch64-apple-ios/release/libdarkfi_mobile_ffi.a" \
+        -headers "$CARGO_TARGET_DIR/Headers" \
         -output "$XCFRAMEWORK"
 else
     xcodebuild -create-xcframework \
-        -library target/aarch64-apple-ios/release/libdarkfi_mobile_ffi.a \
-        -headers target/Headers \
-        -library target/universal-sim-libdarkfi_mobile_ffi.a \
-        -headers target/Headers \
+        -library "$CARGO_TARGET_DIR/aarch64-apple-ios/release/libdarkfi_mobile_ffi.a" \
+        -headers "$CARGO_TARGET_DIR/Headers" \
+        -library "$CARGO_TARGET_DIR/universal-sim-libdarkfi_mobile_ffi.a" \
+        -headers "$CARGO_TARGET_DIR/Headers" \
         -output "$XCFRAMEWORK"
 fi
 
-echo "Build complete. XCFramework generated in $MODULES"
+echo "Wrote $XCFRAMEWORK"

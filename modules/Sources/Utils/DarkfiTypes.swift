@@ -94,11 +94,6 @@ public struct DarkfiAddress: Equatable {
     public init(stringEncoded: String) { self.stringEncoded = stringEncoded }
 }
 
-// Backward-compatible typealiases — these will be collapsed during cleanup
-public typealias UnifiedAddress = DarkfiAddress
-public typealias TransparentAddress = DarkfiAddress
-public typealias SaplingAddress = DarkfiAddress
-
 // MARK: - Memo
 
 public struct Memo: Equatable, Codable {
@@ -362,7 +357,7 @@ extension DarkfiWalletNativeError {
     }
 }
 
-// MARK: - Recipient (privacy-only, no transparent/sapling)
+// MARK: - Recipient
 
 public enum Recipient: Equatable {
     case address(String)

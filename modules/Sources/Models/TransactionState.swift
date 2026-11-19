@@ -115,8 +115,9 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         guard let minedHeight, let latestMinedHeight, minedHeight > 0, latestMinedHeight > 0 else {
             return 0
         }
-
-        return latestMinedHeight - minedHeight
+        // Saturating subtract — UInt32 underflow traps on reorg/rescan when
+        // minedHeight > latestMinedHeight.
+        return latestMinedHeight >= minedHeight ? latestMinedHeight - minedHeight : 0
     }
 }
 
@@ -179,6 +180,11 @@ extension TransactionState {
             memos = [Memo(data: memoData)]
         }
 
+        // Rust `net_value_atomic` is already signed (received − spent). Fresh
+        // broadcast overviews may still carry a positive amount with isSending.
+        let signedAmount: DrkAmount = overview.isSending
+            ? -abs(overview.totalAtomicValue)
+            : abs(overview.totalAtomicValue)
         self.init(
             memos: memos,
             minedHeight: overview.minedHeight,
@@ -188,7 +194,7 @@ extension TransactionState {
             id: overview.rawId,
             status: overview.isSending ? .paid(success: true) : .received,
             timestamp: overview.timestampEpochSeconds,
-            zecAmount: overview.isSending ? -overview.totalAtomicValue : overview.totalAtomicValue
+            zecAmount: signedAmount
         )
         self.syncMethod = overview.syncMethod
     }

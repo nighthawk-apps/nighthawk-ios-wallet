@@ -34,7 +34,7 @@ struct WalletCompanionPane: View {
 
             syncCard
 
-            if let address = store.walletInfo.unifiedAddress?.stringEncoded, !address.isEmpty {
+            if let address = store.walletInfo.receiveAddress?.stringEncoded, !address.isEmpty {
                 receiveCard(address)
             }
 

@@ -11,6 +11,7 @@ import Generated
 import Models
 import SwiftUI
 import UIComponents
+import Utils
 
 public struct ChatSettingsView: View {
     @Bindable var store: StoreOf<ChatSettings>
@@ -100,53 +101,12 @@ public struct ChatSettingsView: View {
                     .overlay(Asset.Colors.Nighthawk.steelBorder.color)
                     .padding(.vertical, 8)
 
-                // Encrypted Channels section
-                sectionHeader("ENCRYPTED CHANNELS")
-
-                if store.encryptedChannels.isEmpty {
-                    Text("No encrypted channels configured.")
-                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
-                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(store.encryptedChannels) { channel in
-                            VStack(spacing: 0) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(channel.name)
-                                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                                        if !channel.topic.isEmpty {
-                                            Text(channel.topic)
-                                                .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
-                                                .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                                        }
-                                    }
-                                    Spacer()
-                                    Button(action: { store.send(.removeChannel(channel.id)) }) {
-                                        Text("Remove")
-                                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
-                                            .foregroundColor(StealthTheme.Colors.statusDanger)
-                                    }
-                                }
-                                .padding(.vertical, 12)
-
-                                Divider()
-                                    .frame(height: 1)
-                                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
-                            }
-                        }
-                    }
-                }
-
-                Button(action: { store.send(.addChannelTapped) }) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Add encrypted channel")
-                    }
-                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
-                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
-                }
+                // Channel privacy labelling — public #channels are plaintext on the wire.
+                // Real shared-key / MLS channel E2E is not implemented; do not offer a fake lock.
+                sectionHeader("CHANNEL PRIVACY")
+                Text("Public #channels are plaintext on DarkIRC. Only 1:1 DMs use ChaChaBox end-to-end encryption. Group/channel E2E is not available yet.")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
                 Divider()
                     .frame(height: 1)
@@ -176,6 +136,12 @@ public struct ChatSettingsView: View {
                                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                             }
                         }
+                        Text("Safety number")
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        Text(NighthawkContacts.safetyNumber(dmPublicKey: publicKey, walletAddress: nil))
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     }
                 }
 

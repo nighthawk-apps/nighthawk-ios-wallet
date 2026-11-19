@@ -47,6 +47,5 @@ Index of all project documentation for the Nighthawk iOS DarkFi wallet.
 | [AI_CONTEXT.md](../AI_CONTEXT.md) | Coding instructions for AI agents |
 | [CODE_STRUCTURE.md](../CODE_STRUCTURE.md) | TCA code structure conventions |
 | [CONDUCT.md](../CONDUCT.md) | Code of conduct |
-| [CHANGELOG.md](../CHANGELOG.md) | Release changelog |
 | [SWIFTLINT.md](../SWIFTLINT.md) | SwiftLint configuration guide |
 | [CODE_REVIEW_GUIDELINES.md](../CODE_REVIEW_GUIDELINES.md) | Code review standards |

@@ -3,7 +3,7 @@
 //  stealth
 //
 //  DarkFi: Single privacy address only.
-//  No transparent/sapling/unified distinction — DarkFi has one private address
+//  DarkFi has one receive address.
 //  with ability to generate more derived addresses.
 //
 
@@ -27,20 +27,20 @@ public struct Receive {
 
         /// DarkFi privacy address — the ONLY address type.
         public var privacyAddress: String {
-            uAddress?.stringEncoded ?? "-"
+            receiveAddress?.stringEncoded ?? "-"
         }
 
         /// Backward-compatible alias used in send flow
-        public var unifiedAddress: String { privacyAddress }
+        public var receiveAddress: String { privacyAddress }
 
-        var uAddress: UnifiedAddress?
+        var receiveAddress: DarkfiAddress?
         var showCloseButton: Bool
         /// Newly generated address (shown below primary)
         public var generatedAddress: String?
         public var isGenerating: Bool = false
 
-        public init(uAddress: UnifiedAddress?, showCloseButton: Bool = false) {
-            self.uAddress = uAddress
+        public init(receiveAddress: DarkfiAddress?, showCloseButton: Bool = false) {
+            self.receiveAddress = receiveAddress
             self.showCloseButton = showCloseButton
         }
     }

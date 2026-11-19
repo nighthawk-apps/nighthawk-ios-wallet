@@ -19,19 +19,15 @@ internal enum L10n {
         return L10n.tr("Localizable", "qrCodeFor", String(describing: p1), fallback: "QR Code for %@")
     }
     internal enum AddressDetails {
-        /// Sapling Address
-        internal static let sa = L10n.tr("Localizable", "addressDetails.sa", fallback: "Sapling Address")
-        /// Transparent Address
-        internal static let ta = L10n.tr("Localizable", "addressDetails.ta", fallback: "Transparent Address")
-        /// Unified Address
-        internal static let ua = L10n.tr("Localizable", "addressDetails.ua", fallback: "Unified Address")
+        /// DarkFi address
+        internal static let sa = L10n.tr("Localizable", "addressDetails.sa", fallback: "DarkFi address")
+        /// DarkFi address
+        internal static let ta = L10n.tr("Localizable", "addressDetails.ta", fallback: "DarkFi address")
+        /// DarkFi address
+        internal static let ua = L10n.tr("Localizable", "addressDetails.ua", fallback: "DarkFi address")
         internal enum Error {
-            /// could not extract sapling receiver from UA
-            internal static let cantExtractSaplingAddress = L10n.tr("Localizable", "addressDetails.error.cantExtractSaplingAddress", fallback: "could not extract sapling receiver from UA")
-            /// could not extract transparent receiver from UA
-            internal static let cantExtractTransparentAddress = L10n.tr("Localizable", "addressDetails.error.cantExtractTransparentAddress", fallback: "could not extract transparent receiver from UA")
-            /// could not extract UA
-            internal static let cantExtractUnifiedAddress = L10n.tr("Localizable", "addressDetails.error.cantExtractUnifiedAddress", fallback: "could not extract UA")
+            /// could not read the DarkFi address
+            internal static let cantExtractAddress = L10n.tr("Localizable", "addressDetails.error.cantExtractAddress", fallback: "could not read the DarkFi address")
         }
     }
     internal enum Balance {
@@ -397,23 +393,21 @@ internal enum L10n {
             /// As a privacy focused wallet, we shield by default. Your wallet uses the shielded address for sending and moves transparent funds to that address automatically.
             ///
             /// In other words, the 'privacy-please' sign is on the knob.
-            internal static let description = L10n.tr("Localizable", "onboarding.step1.description", fallback: "As a privacy focused wallet, we shield by default. Your wallet uses the shielded address for sending and moves transparent funds to that address automatically.\n\nIn other words, the 'privacy-please' sign is on the knob.")
+            internal static let description = L10n.tr("Localizable", "onboarding.step1.description", fallback: "Nighthawk spends and receives with one DarkFi address.")
             /// Welcome!
             internal static let title = L10n.tr("Localizable", "onboarding.step1.title", fallback: "Welcome!")
         }
         internal enum Step2 {
-            /// You now have a unified address that includes and up-to-date shielded address for legacy systems.
-            ///
-            /// This makes your wallet friendlier, and gives you and address that you won't have to upgrade again.
-            internal static let description = L10n.tr("Localizable", "onboarding.step2.description", fallback: "You now have a unified address that includes and up-to-date shielded address for legacy systems.\n\nThis makes your wallet friendlier, and gives you and address that you won't have to upgrade again.")
-            /// Unified Addresses
-            internal static let title = L10n.tr("Localizable", "onboarding.step2.title", fallback: "Unified Addresses")
+            /// DarkFi receive address.
+            internal static let description = L10n.tr("Localizable", "onboarding.step2.description", fallback: "You now have a DarkFi address.\n\nThis is the address you use to receive DRK.")
+            /// DarkFi address
+            internal static let title = L10n.tr("Localizable", "onboarding.step2.title", fallback: "DarkFi address")
         }
         internal enum Step3 {
             /// Due to Zcash's increased popularity, we are optimizing our syncing schemes to be faster and more efficient!
             ///
             /// The future is fast!
-            internal static let description = L10n.tr("Localizable", "onboarding.step3.description", fallback: "Due to Zcash's increased popularity, we are optimizing our syncing schemes to be faster and more efficient!\n\nThe future is fast!")
+            internal static let description = L10n.tr("Localizable", "onboarding.step3.description", fallback: "Sync stays on the DarkFi testnet lightwalletd.")
             /// And so much more...
             internal static let title = L10n.tr("Localizable", "onboarding.step3.title", fallback: "And so much more...")
         }
@@ -441,7 +435,7 @@ internal enum L10n {
         internal static let yourAddress = L10n.tr("Localizable", "receiveZec.yourAddress", fallback: "Your Address")
         internal enum Error {
             /// could not extract UA
-            internal static let cantExtractUnifiedAddress = L10n.tr("Localizable", "receiveZec.error.cantExtractUnifiedAddress", fallback: "could not extract UA")
+            internal static let cantExtractAddress = L10n.tr("Localizable", "receiveZec.error.cantExtractAddress", fallback: "could not read the DarkFi address")
         }
     }
     internal enum RecoveryPhraseBackupValidation {

@@ -2,7 +2,7 @@
 //  Addresses.swift
 //  stealth
 //
-//  DarkFi: Single privacy address only.
+//  DarkFi: one receive address.
 //
 
 import ComposableArchitecture
@@ -16,34 +16,21 @@ import Utils
 public struct Addresses {
     @ObservableState
     public struct State: Equatable {
-        public enum Destination: String, CaseIterable, Equatable, Hashable {
-            case unified
-            case sapling
-            case transparent
-        }
-
         @CasePathable
         public enum Toast {
             case copiedToClipboard
         }
 
         public var toast: Toast?
-        public var destination: Destination = .unified
-        public var uAddress: UnifiedAddress?
+        public var receiveAddress: DarkfiAddress?
         public var showCloseButton: Bool
 
-        /// DarkFi privacy address — the ONLY address type.
         public var privacyAddress: String {
-            uAddress?.stringEncoded ?? L10n.Nighthawk.WalletTab.Addresses.loading
+            receiveAddress?.stringEncoded ?? L10n.Nighthawk.WalletTab.Addresses.loading
         }
 
-        // All address types return the same privacy address
-        public var unifiedAddress: String { privacyAddress }
-        public var transparentAddress: String { privacyAddress }
-        public var saplingAddress: String { privacyAddress }
-
-        public init(uAddress: UnifiedAddress?, showCloseButton: Bool = false) {
-            self.uAddress = uAddress
+        public init(receiveAddress: DarkfiAddress?, showCloseButton: Bool = false) {
+            self.receiveAddress = receiveAddress
             self.showCloseButton = showCloseButton
         }
     }
@@ -51,7 +38,7 @@ public struct Addresses {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case closeButtonTapped
-        case copyTapped(State.Destination)
+        case copyTapped
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -68,7 +55,6 @@ public struct Addresses {
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .copyTapped:
-                // All address types are the same DarkFi privacy address
                 pasteboard.setString(state.privacyAddress.redacted)
                 state.toast = .copiedToClipboard
                 return .none

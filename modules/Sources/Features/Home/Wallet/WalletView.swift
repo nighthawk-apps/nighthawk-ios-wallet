@@ -115,7 +115,7 @@ private extension WalletView {
                     .frame(width: 44, height: 44, alignment: .topTrailing)
                     .contentShape(Rectangle())
             }
-            .accessibilityLabel(L10n.Nighthawk.WalletTab.Addresses.unifiedAddress)
+            .accessibilityLabel(L10n.Nighthawk.WalletTab.Addresses.receiveAddress)
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier("nighthawk.wallet.viewAddresses")
 

@@ -120,23 +120,21 @@ public struct Splash {
                     backupComplete: userStoredPreferences.isUserBackupComplete(),
                     biometricsEnabled: userStoredPreferences.areBiometricsEnabled()
                 )
-                let holdForNym =
+                let shouldBackgroundNym =
                     !state.nymSkipped &&
+                    !SessionPrivacyOverride.forceDirectThisSession &&
                     userStoredPreferences.walletPrivacyNetwork() == .nym &&
                     !DarkfiFfiSafe.isNymRunning() &&
                     !pending.isTerminalFailure
-                if holdForNym {
-                    state.pendingLaunch = pending
-                    state.waitingForNym = true
-                    state.nymFailed = false
+                let launch = launchEffect(pending, state: &state)
+                if shouldBackgroundNym {
                     state.nymStartedAt = date()
-                    return nymPollEffect()
+                    return .merge(launch, nymPollEffect())
                 }
-                return launchEffect(pending, state: &state)
+                return launch
             case .nymReady:
-                guard state.waitingForNym, let pending = state.pendingLaunch else { return .none }
                 state.waitingForNym = false
-                return launchEffect(pending, state: &state)
+                return .none
             case .nymFailed:
                 state.nymFailed = true
                 return .none
@@ -146,11 +144,15 @@ public struct Splash {
                 state.nymStartedAt = date()
                 return nymPollEffect()
             case .continueWithoutNym:
-                guard state.waitingForNym, let pending = state.pendingLaunch else { return .none }
                 state.waitingForNym = false
                 state.nymSkipped = true
-                userStoredPreferences.setWalletPrivacyNetwork(.direct)
+                // Session-only Direct — do not permanently downgrade stored privacy prefs.
+                SessionPrivacyOverride.setForceDirectThisSession(true)
                 DarkfiFfiSafe.stopNymProxy()
+                TransportHooks.continueWithoutNym()
+                guard let pending = state.pendingLaunch else {
+                    return .cancel(id: CancelID.nymPoll)
+                }
                 return .merge(
                     .cancel(id: CancelID.nymPoll),
                     launchEffect(pending, state: &state)

@@ -46,14 +46,14 @@ public struct Home {
             public var expectingAmount: DrkAmount = .zero
             public var synchronizerState: SynchronizerState = .zero
             public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
-            public var unifiedAddress: UnifiedAddress?
+            public var receiveAddress: DarkfiAddress?
             public var walletEvents: IdentifiedArrayOf<WalletEvent>
 
             public init(
-                unifiedAddress: UnifiedAddress? = nil,
+                receiveAddress: DarkfiAddress? = nil,
                 walletEvents: IdentifiedArrayOf<WalletEvent> = IdentifiedArrayOf<WalletEvent>()
             ) {
-                self.unifiedAddress = unifiedAddress
+                self.receiveAddress = receiveAddress
                 self.walletEvents = walletEvents
             }
         }
@@ -84,10 +84,10 @@ public struct Home {
         public var daoHub: DaoHub.State = .init()
         public var settings: NighthawkSettings.State = .init()
 
-        public init(unifiedAddress: UnifiedAddress?) {
+        public init(receiveAddress: DarkfiAddress?) {
             self._walletInfo = Shared(wrappedValue: WalletInfo(), .walletInfo)
             let events = loadCachedEvents()
-            let walletInfo = WalletInfo(unifiedAddress: unifiedAddress, walletEvents: events)
+            let walletInfo = WalletInfo(receiveAddress: receiveAddress, walletEvents: events)
             self.walletInfo = walletInfo
         }
 
@@ -121,14 +121,14 @@ public struct Home {
         case tabSelected(State.Tab)
         case transfer(Transfer.Action)
         case updateWalletEvents([WalletEvent])
-        case unifiedAddressLoaded(UnifiedAddress?)
+        case receiveAddressLoaded(DarkfiAddress?)
         case wallet(Wallet.Action)
 
         public enum Alert: Equatable {}
 
         public enum Delegate: Equatable {
             case setLatestFiatPrice(Double?)
-            case unifiedAddressResponse(UnifiedAddress?)
+            case receiveAddressResponse(DarkfiAddress?)
             case openDaoHub
             case openChatSettings
         }
@@ -203,7 +203,7 @@ public struct Home {
                     // Eagerly fetch address — it's available before sync completes
                     .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.unifiedAddressLoaded(ua))
+                        await send(.receiveAddressLoaded(ua))
                     }
                 )
             case let .rescanDone(error):
@@ -239,7 +239,13 @@ public struct Home {
                 }
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState)
-                guard snapshot != state.walletInfo.synchronizerStatusSnapshot else {
+                // SyncStatusSnapshot omits balance/height — still refresh when those move
+                // while status stays `.upToDate`.
+                let balanceChanged = latestState.confirmedBalance != state.walletInfo.balance
+                let heightChanged = latestState.latestBlockHeight != state.walletInfo.latestMinedHeight
+                guard snapshot != state.walletInfo.synchronizerStatusSnapshot
+                    || balanceChanged
+                    || heightChanged else {
                     return .none
                 }
                 state.walletInfo.synchronizerState = latestState
@@ -250,7 +256,7 @@ public struct Home {
 
                 if latestState.syncStatus == .upToDate {
                     userStoredPreferences.setIsFirstSync(false)
-                    state.walletInfo.latestMinedHeight = sdkSynchronizer.latestState().latestBlockHeight
+                    state.walletInfo.latestMinedHeight = latestState.latestBlockHeight
 
                     // Detect if there are any expected funds
                     let availableBalance = state.walletInfo.balance
@@ -262,11 +268,11 @@ public struct Home {
 
                 // Address must land in walletInfo before history will load.
                 // Refresh it whenever it is missing or the chain is up to date.
-                if state.walletInfo.unifiedAddress == nil || latestState.syncStatus == .upToDate {
+                if state.walletInfo.receiveAddress == nil || latestState.syncStatus == .upToDate {
                     let loadHistory = latestState.syncStatus == .upToDate
                     return .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.unifiedAddressLoaded(ua))
+                        await send(.receiveAddressLoaded(ua))
                         guard loadHistory else { return }
                         if let overviews = try? await sdkSynchronizer.getAllTransactions() {
                             let events = overviews.map { overview in
@@ -278,11 +284,12 @@ public struct Home {
                 }
 
                 return .none
-            case let .unifiedAddressLoaded(unifiedAddress):
-                if let unifiedAddress {
-                    state.walletInfo.unifiedAddress = unifiedAddress
+            case let .receiveAddressLoaded(receiveAddress):
+                if let receiveAddress {
+                    state.walletInfo.receiveAddress = receiveAddress
+                    state.chat.receiveAddress = receiveAddress.stringEncoded
                 }
-                return .send(.delegate(.unifiedAddressResponse(unifiedAddress)))
+                return .send(.delegate(.receiveAddressResponse(receiveAddress)))
             case let .tabSelected(tab):
                 state.selectedTab = tab
                 if tab == .daoHub {
@@ -302,6 +309,7 @@ public struct Home {
                 }
 
                 state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
+                state.chat.chainTip = Int(chainTip)
                 return .none
             case .alert, .binding, .chat, .delegate, .destination, .daoHub, .settings, .transfer, .wallet:
                 return .none

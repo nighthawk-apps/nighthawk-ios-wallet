@@ -164,8 +164,7 @@
 "nighthawk.walletTab.shieldNow" = "Segarkan";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.unifiedAddress" = "Alamat privasi";
-"nighthawk.walletTab.addresses.saplingAddress" = "Alamat privasi";
+"nighthawk.walletTab.addresses.receiveAddress" = "Alamat privasi";
 "nighthawk.walletTab.addresses.transparentAddress" = "Alamat privasi";
 "nighthawk.walletTab.addresses.topUpYourWallet" = "Isi saldo dompet Anda";
 "nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Beli atau tukar DarkFi lewat mitra pilihan kami.";
@@ -203,8 +202,8 @@
 // MARK: - Home Screen - Transfer - Receive
 "nighthawk.transferTab.receive.receiveMoneySecurely" = "Terima uang secara privat";
 "nighthawk.transferTab.receive.showQrCodeTitle" = "Tampilkan Kode QR";
-"nighthawk.transferTab.receive.copyUnifiedAddressTitle" = "Salin alamat privasi";
-"nighthawk.transferTab.receive.copyUnifiedAddressDescription" = "Alamat dompet Anda akan disalin ke papan klip.";
+"nighthawk.transferTab.receive.copyAddressTitle" = "Salin alamat privasi";
+"nighthawk.transferTab.receive.copyAddressDescription" = "Alamat dompet Anda akan disalin ke papan klip.";
 "nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
 "nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
@@ -437,9 +436,6 @@
 
 // MARK: - Transaction
 "nighthawk.transaction.confirmed" = "Terkonfirmasi";
-"nighthawk.transaction.sent" = "Terkirim";
-"nighthawk.transaction.received" = "Diterima";
-"nighthawk.transaction.failed" = "Gagal";
 
 // MARK: - DAO Hub
 "nighthawk.daoHub.title" = "DAO";

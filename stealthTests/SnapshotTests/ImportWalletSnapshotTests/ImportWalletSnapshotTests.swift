@@ -14,7 +14,7 @@ class ImportWalletSnapshotTests: XCTestCase {
     func testImportWalletSnapshot() throws {
         let store = ImportWalletStore(
             initialState: .placeholder,
-            reducer: ImportWalletReducer(saplingActivationHeight: 0)
+            reducer: ImportWalletReducer(importHeight: 0)
         )
         
         addAttachments(ImportWalletView(store: store))
@@ -23,7 +23,7 @@ class ImportWalletSnapshotTests: XCTestCase {
     func testImportBirthdaySnapshot() throws {
         let store = ImportWalletStore(
             initialState: .placeholder,
-            reducer: ImportWalletReducer(saplingActivationHeight: 0)
+            reducer: ImportWalletReducer(importHeight: 0)
         )
         
         addAttachments(ImportBirthdayView(store: store))

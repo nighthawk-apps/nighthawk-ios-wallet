@@ -17,16 +17,16 @@ public struct AddMemo {
         public var memo = ""
         public var isIncludeReplyToChecked = false
         public var memoCharLimit = 0
-        public var unifiedAddress: UnifiedAddress?
+        public var receiveAddress: DarkfiAddress?
         public var hasEnteredMemo: Bool { !memo.isEmpty }
         public var canIncludeReplyTo: Bool {
-            guard let ua = unifiedAddress?.stringEncoded else { return false }
+            guard let ua = receiveAddress?.stringEncoded else { return false }
             let prefix = "Reply to:"
             return hasEnteredMemo && "\(memo)\n\(prefix)\(ua)".count <= memoCharLimit
         }
 
-        public init(unifiedAddress: UnifiedAddress?) {
-            self.unifiedAddress = unifiedAddress
+        public init(receiveAddress: DarkfiAddress?) {
+            self.receiveAddress = receiveAddress
         }
     }
 

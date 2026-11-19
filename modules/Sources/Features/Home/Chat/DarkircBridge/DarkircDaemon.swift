@@ -138,6 +138,8 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     /// the OS-allowed grace window (~30s). Chat reconnects on resume via the
     /// Chat reducer's `scenePhaseChanged(.active)` (with a fresh event callback).
     public func handleBackgrounding() {
+        TransportHooks.install()
+        TransportHooks.onBackground()
         endBackgroundTask()
         backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundExecution") { [weak self] in
             self?.endBackgroundTask()
@@ -146,6 +148,8 @@ public final class DarkircDaemonManager: @unchecked Sendable {
 
     /// Call when the scene becomes active again — ends any outstanding background task.
     public func handleForegrounding() {
+        TransportHooks.install()
+        TransportHooks.onForeground()
         endBackgroundTask()
     }
 

@@ -43,7 +43,7 @@ extension Home {
                  .tabSelected,
                  .transfer,
                  .updateWalletEvents,
-                 .unifiedAddressLoaded,
+                 .receiveAddressLoaded,
                  .wallet:
                 return .none
             }

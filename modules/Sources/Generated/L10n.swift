@@ -936,9 +936,9 @@ public enum L10n {
                 ///
                 public static let copyNonPrivateAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyNonPrivateAddressTitle", fallback: "")
                 /// Your wallet address will be copied to the clipboard.
-                public static let copyUnifiedAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressDescription", fallback: "Your wallet address will be copied to the clipboard.")
+                public static let copyAddressDescription = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyAddressDescription", fallback: "Your wallet address will be copied to the clipboard.")
                 /// Copy privacy address
-                public static let copyUnifiedAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyUnifiedAddressTitle", fallback: "Copy privacy address")
+                public static let copyAddressTitle = L10n.tr("Localizable", "nighthawk.transferTab.receive.copyAddressTitle", fallback: "Copy privacy address")
                 ///
                 public static let receiveMoneyPublicly = L10n.tr("Localizable", "nighthawk.transferTab.receive.receiveMoneyPublicly", fallback: "")
                 /// Receive money privately
@@ -1100,17 +1100,13 @@ public enum L10n {
                 /// Loading…
                 public static let loading = L10n.tr("Localizable", "nighthawk.walletTab.addresses.loading", fallback: "Loading…")
                 /// Privacy address
-                public static let saplingAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.saplingAddress", fallback: "Privacy address")
+                public static let receiveAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.receiveAddress", fallback: "Privacy address")
                 /// See more
                 public static let seeMore = L10n.tr("Localizable", "nighthawk.walletTab.addresses.seeMore", fallback: "See more")
                 /// Top up your wallet
                 public static let topUpYourWallet = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWallet", fallback: "Top up your wallet")
                 /// Buy or trade DarkFi through our specially selected partners.
                 public static let topUpYourWalletDescription = L10n.tr("Localizable", "nighthawk.walletTab.addresses.topUpYourWalletDescription", fallback: "Buy or trade DarkFi through our specially selected partners.")
-                /// Privacy address
-                public static let transparentAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.transparentAddress", fallback: "Privacy address")
-                /// Privacy address
-                public static let unifiedAddress = L10n.tr("Localizable", "nighthawk.walletTab.addresses.unifiedAddress", fallback: "Privacy address")
             }
         }
         public enum Welcome {

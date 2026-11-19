@@ -78,7 +78,7 @@ public struct WalletStorage {
     }
 
     public func exportWallet() throws -> StoredWallet {
-        guard let data = data(forKey: Constants.darkfiStoredWallet) else {
+        guard let data = try data(forKey: Constants.darkfiStoredWallet) else {
             throw WalletStorageError.uninitializedWallet
         }
 
@@ -177,11 +177,18 @@ public struct WalletStorage {
     public func data(
         forKey: String,
         account: String = ""
-    ) -> Data? {
+    ) throws -> Data? {
         let query = restoreQuery(forAccount: account, andKey: forKey)
 
         var result: AnyObject?
-        _ = secItem.copyMatching(query as CFDictionary, &result)
+        let status = secItem.copyMatching(query as CFDictionary, &result)
+
+        guard status != errSecItemNotFound else {
+            return nil
+        }
+        guard status == errSecSuccess else {
+            throw KeychainError.unknown(status)
+        }
 
         return result as? Data
     }

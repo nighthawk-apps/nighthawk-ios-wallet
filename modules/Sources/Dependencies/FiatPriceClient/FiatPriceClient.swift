@@ -47,15 +47,17 @@ extension FiatPriceClient: DependencyKey {
 /// and only dial the network directly when the user chose Direct.
 private func fiatPriceSession() -> URLSession {
     let config = URLSessionConfiguration.ephemeral
-    let network = UserDefaults.standard.string(forKey: "darkfiWalletPrivacyNetwork")
-        ?? NighthawkSetting.PrivacyNetwork.default.rawValue
-    switch network {
-    case NighthawkSetting.PrivacyNetwork.direct.rawValue:
+    let stored = NighthawkSetting.PrivacyNetwork(
+        rawValue: UserDefaults.standard.string(forKey: "darkfiWalletPrivacyNetwork")
+            ?? NighthawkSetting.PrivacyNetwork.default.rawValue
+    ) ?? .default
+    switch SessionPrivacyOverride.resolved(stored: stored) {
+    case .direct:
         break
-    case NighthawkSetting.PrivacyNetwork.tor.rawValue:
+    case .tor:
         let port = Int(UserDefaults.standard.string(forKey: "darkfiTorSocksPort") ?? "") ?? 9050
         config.connectionProxyDictionary = socksProxy(port: port)
-    default:
+    case .nym:
         config.connectionProxyDictionary = socksProxy(
             port: Int(NighthawkSetting.PrivacyNetwork.nymSocksPort)
         )

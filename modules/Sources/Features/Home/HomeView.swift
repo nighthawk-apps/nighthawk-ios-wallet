@@ -16,6 +16,7 @@ import UIComponents
 
 public struct HomeView: View {
     @Bindable var store: StoreOf<Home>
+    @Environment(\.scenePhase) private var scenePhase
 
     public var body: some View {
         GeometryReader { proxy in
@@ -58,7 +59,15 @@ public struct HomeView: View {
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
         }
-        .onAppear { store.send(.onAppear) }
+        .onAppear {
+            store.send(.onAppear)
+            openPendingChatThread()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                openPendingChatThread()
+            }
+        }
         .toast(
             unwrapping: $store.toast,
             case: /Home.State.Toast.expectingFunds,
@@ -114,6 +123,12 @@ public struct HomeView: View {
 
     public init(store: StoreOf<Home>) {
         self.store = store
+    }
+
+    private func openPendingChatThread() {
+        guard let thread = ChatNotificationRouter.takePending() else { return }
+        store.send(.tabSelected(.chat))
+        store.send(.chat(.openNotifiedThread(thread)))
     }
 }
 

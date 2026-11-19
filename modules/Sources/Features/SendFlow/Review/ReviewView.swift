@@ -94,7 +94,7 @@ private extension StoreOf<Review> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.recipient,
-                    value: self.recipientIsTransparent
+                    value: self.recipientIsExternal
                         ? L10n.Nighthawk.TransactionDetails.recipientTransparent
                         : L10n.Nighthawk.TransactionDetails.recipientShielded,
                     showBorder: false

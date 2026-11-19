@@ -23,7 +23,7 @@ final class HomeTests: XCTestCase {
         withDependencies {
             HomeTestSupport.configureDependencies(&$0)
         } operation: {
-            let state = Home.State(unifiedAddress: nil)
+            let state = Home.State(receiveAddress: nil)
             XCTAssertEqual(state.selectedTab, .chat)
         }
     }
@@ -64,7 +64,7 @@ final class HomeTests: XCTestCase {
         store.exhaustivity = .off
 
         await store.send(.wallet(.delegate(.showAddresses))) {
-            $0.destination = .addresses(.init(uAddress: nil, showCloseButton: false))
+            $0.destination = .addresses(.init(receiveAddress: nil, showCloseButton: false))
         }
     }
 }

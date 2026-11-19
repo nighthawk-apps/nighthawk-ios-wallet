@@ -10,10 +10,13 @@
 import ComposableArchitecture
 import Foundation
 import Generated
+import MnemonicClient
 import Models
+import SDKSynchronizer
 import UIComponents
 import UserPreferencesStorage
 import Utils
+import WalletStorage
 
 @Reducer
 public struct ChangeServer {
@@ -80,6 +83,8 @@ public struct ChangeServer {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.userStoredPreferences) var userStoredPreferences
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.mnemonic) var mnemonic
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -128,18 +133,32 @@ public struct ChangeServer {
                 let isCustom = state.serverOption == .custom
                 let customAddress = state.customServerAddress
 
-                return .run { [userStoredPreferences] send in
-                    // The endpoint is persisted through UserPreferencesStorage
-                    // so WalletHandleManager picks it up on next prepare.
+                return .run { [userStoredPreferences, walletStorage, sdkSynchronizer, mnemonic] send in
+                    // Persist host:port only — prepare() adds tcp:// once (avoid tcp://tcp://…).
                     if isCustom && !customAddress.isEmpty {
-                        let endpoint = "tcp://\(customAddress)"
-                        userStoredPreferences.setCustomLightwalletdServer(endpoint)
+                        let trimmed = customAddress
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                            .replacingOccurrences(of: "tcp://", with: "")
+                            .replacingOccurrences(of: "socks5://", with: "")
+                        userStoredPreferences.setCustomLightwalletdServer(trimmed)
                     } else {
                         userStoredPreferences.setCustomLightwalletdServer(nil)
                     }
 
-                    try await mainQueue.sleep(for: .seconds(0.5))
-                    await send(.changeSucceeded)
+                    do {
+                        try await WalletTransportReprepare.reprepareExisting(
+                            walletStorage: walletStorage,
+                            sdkSynchronizer: sdkSynchronizer,
+                            mnemonic: mnemonic
+                        )
+                        await send(.changeSucceeded)
+                    } catch {
+                        await send(.changeFailed(
+                            error: error.toDarkFiError(),
+                            previousIsUsingCustom: oldIsUsingCustom,
+                            previousCustomServer: oldCustomServer
+                        ))
+                    }
                 }
             case let .changeFailed(error, previousIsUsingCustom, previousCustomServer):
                 state.isChangingServer = false

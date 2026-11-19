@@ -55,7 +55,7 @@ public struct SDKSynchronizerClient {
     // MARK: - Address (single privacy address from Rust)
 
     /// Get the wallet's DarkFi privacy address (account-based)
-    public var getUnifiedAddress: (_ account: Int) async throws -> UnifiedAddress?
+    public var getReceiveAddress: (_ account: Int) async throws -> DarkfiAddress?
 
     /// Convenience: get address for default account (0)
     public var getAddress: () async throws -> DarkfiAddress?
