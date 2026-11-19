@@ -25,19 +25,16 @@ public struct Receive {
 
         public var toast: Toast?
 
-        /// DarkFi privacy address — the ONLY address type.
-        public var privacyAddress: String {
-            receiveAddress?.stringEncoded ?? "-"
-        }
-
-        /// Backward-compatible alias used in send flow
-        public var receiveAddress: String { privacyAddress }
-
-        var receiveAddress: DarkfiAddress?
+        public var receiveAddress: DarkfiAddress?
         var showCloseButton: Bool
         /// Newly generated address (shown below primary)
         public var generatedAddress: String?
         public var isGenerating: Bool = false
+
+        /// DarkFi privacy address — the ONLY address type.
+        public var privacyAddress: String {
+            receiveAddress?.stringEncoded ?? "-"
+        }
 
         public init(receiveAddress: DarkfiAddress?, showCloseButton: Bool = false) {
             self.receiveAddress = receiveAddress
