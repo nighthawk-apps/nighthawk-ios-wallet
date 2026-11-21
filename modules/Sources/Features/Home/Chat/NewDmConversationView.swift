@@ -116,7 +116,7 @@ public struct NewDmConversation {
                 let shareText = DarkircDmPubkeyParser.formatForSharing(state.myPublicKey)
                 UIPasteboard.general.setItems(
                     [[UIPasteboard.typeAutomatic: shareText]],
-                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                    options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(60)]
                 )
                 return .none
 
@@ -128,13 +128,17 @@ public struct NewDmConversation {
                 let myPublic = state.myPublicKey
 
                 return .run { send in
-                    let contact = await DarkircCryptoStore.shared.addContact(
-                        contactLabel: label,
-                        theirPublicB58: theirPub,
-                        mySecretB58: mySecret,
-                        myPublicB58: myPublic
-                    )
-                    await send(.contactSaved(contact))
+                    do {
+                        let contact = try await DarkircCryptoStore.shared.addContact(
+                            contactLabel: label,
+                            theirPublicB58: theirPub,
+                            mySecretB58: mySecret,
+                            myPublicB58: myPublic
+                        )
+                        await send(.contactSaved(contact))
+                    } catch {
+                        await send(.saveFailed("Could not save this contact to the Keychain."))
+                    }
                 }
 
             case .contactSaved:

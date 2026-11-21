@@ -204,6 +204,7 @@ let package = Package(
         .target(
             name: "FiatPriceClient",
             dependencies: [
+                "DarkfiCore",
                 "Models",
                 "Utils",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")

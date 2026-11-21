@@ -72,8 +72,7 @@ public struct Migrate {
             case .delegate:
                 return .none
             case .restoreManuallyTapped:
-                state.isLoading = true
-                return .none
+                return .send(.delegate(.importManually))
             }
         }
         .ifLet(\.$alert, action: \.alert)

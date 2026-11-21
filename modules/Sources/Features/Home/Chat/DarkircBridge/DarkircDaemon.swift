@@ -73,6 +73,10 @@ public final class DarkircDaemonManager: @unchecked Sendable {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let dbDir = docs.appendingPathComponent("darkirc_db", isDirectory: true)
         try? FileManager.default.createDirectory(at: dbDir, withIntermediateDirectories: true)
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        var mutableDir = dbDir
+        try? mutableDir.setResourceValues(resourceValues)
         return dbDir.path
     }
 
@@ -128,6 +132,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
+        try await DarkircCryptoStore.shared.registerAllWithRust()
         try start(callback: callback, transport: transport, socksPort: socksPort)
     }
 

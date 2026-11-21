@@ -10,6 +10,7 @@ import DerivationTool
 import Generated
 import LocalAuthenticationClient
 import Models
+import SDKSynchronizer
 import UIKit
 import UserPreferencesStorage
 import Utils
@@ -38,6 +39,7 @@ public struct Review {
         }
 
         public var tokenName: String
+        public var syncMethod: DarkfiSyncMethod
 
         public init(
             zecAmount: DrkAmount,
@@ -45,7 +47,8 @@ public struct Review {
             recipient: String,
             latestFiatPrice: Double?,
             proposal: Proposal,
-            tokenName: String = "DRK"
+            tokenName: String = "DRK",
+            syncMethod: DarkfiSyncMethod = .unknown
         ) {
             self.zecAmount = zecAmount
             self.memo = memo
@@ -53,6 +56,7 @@ public struct Review {
             self.latestFiatPrice = latestFiatPrice
             self.proposal = proposal
             self.tokenName = tokenName
+            self.syncMethod = syncMethod
         }
     }
 
@@ -77,6 +81,7 @@ public struct Review {
 
     @Dependency(\.derivationTool) var derivationTool
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.userStoredPreferences) var userStoredPreferences
 
     public var body: some ReducerOf<Self> {
@@ -101,6 +106,9 @@ public struct Review {
             case .onAppear:
                 state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 state.recipientIsExternal = false
+                if state.syncMethod == .unknown {
+                    state.syncMethod = sdkSynchronizer.latestState().activeSyncMethod
+                }
                 return .none
             case .sendDrkTapped:
                 if userStoredPreferences.areBiometricsEnabled() {

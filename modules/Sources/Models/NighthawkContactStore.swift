@@ -13,31 +13,59 @@ public enum NighthawkContactStore {
               let decoded = try? JSONDecoder().decode([Stored].self, from: data) else {
             return []
         }
-        return decoded.map(\.contact).filter { !$0.nickname.isEmpty && !$0.dmPublicKey.isEmpty }
+        return decoded.map(\.contact).filter {
+            let hasNick = !$0.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let hasDm = !$0.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let hasWallet = !($0.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+            return hasDm || hasWallet || hasNick && (hasDm || hasWallet)
+        }
     }
 
     public static func find(id: String) -> NighthawkContact? {
-        let key = id.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return load().first { $0.id == key }
+        let trimmed = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lower = trimmed.lowercased()
+        return load().first { $0.id == lower || $0.id == trimmed }
     }
 
     public static func findByNick(_ nick: String) -> NighthawkContact? {
-        find(id: nick.lowercased())
+        let lower = nick.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !lower.isEmpty else { return nil }
+        return load().first { $0.id == lower || $0.nickname.lowercased() == lower }
+    }
+
+    public static func findByWalletAddress(_ address: String) -> NighthawkContact? {
+        let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return load().first { $0.walletAddress == trimmed }
     }
 
     @discardableResult
-    public static func upsert(_ contact: NighthawkContact) -> [NighthawkContact] {
+    public static func upsert(_ contact: NighthawkContact, syncAddressBook: Bool = true) -> [NighthawkContact] {
         let nick = contact.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
         let dm = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !nick.isEmpty, !dm.isEmpty else { return load() }
-        let id = nick.lowercased()
-        var next = load().filter { $0.id != id }
+        let addr = contact.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanAddr = (addr?.isEmpty == false) ? addr : nil
+        guard !dm.isEmpty || cleanAddr != nil else { return load() }
+
+        let existingByAddr = cleanAddr.flatMap { findByWalletAddress($0) }
+        let existingByNick = nick.isEmpty ? nil : findByNick(nick)
+        let resolvedNick = !nick.isEmpty ? nick : (existingByAddr?.nickname ?? cleanAddr ?? "")
+        let resolvedDm = !dm.isEmpty ? dm : (existingByNick?.dmPublicKey ?? existingByAddr?.dmPublicKey ?? "")
+        let resolvedAddr = cleanAddr ?? existingByNick?.walletAddress
+        let id = !resolvedNick.isEmpty ? resolvedNick.lowercased() : (resolvedAddr ?? resolvedDm)
+
+        var next = load().filter {
+            $0.id != id && (resolvedAddr == nil || $0.walletAddress != resolvedAddr)
+        }
         next.insert(
-            NighthawkContact(id: id, nickname: nick, dmPublicKey: dm, walletAddress: contact.walletAddress),
+            NighthawkContact(id: id, nickname: resolvedNick, dmPublicKey: resolvedDm, walletAddress: resolvedAddr),
             at: 0
         )
         next = Array(next.prefix(maxEntries))
-        save(next)
+        guard save(next) else { return load() }
+        if syncAddressBook, let resolvedAddr, !resolvedNick.isEmpty {
+            _ = DeviceAddressBook.upsert(label: resolvedNick, address: resolvedAddr, syncContacts: false)
+        }
         return next
     }
 
@@ -45,6 +73,15 @@ public enum NighthawkContactStore {
         let id = nick.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let next = load().filter { $0.id != id }
         save(next)
+    }
+
+    public static func removeAll() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 
     private struct Stored: Codable {
@@ -65,25 +102,15 @@ public enum NighthawkContactStore {
         }
     }
 
-    private static func save(_ contacts: [NighthawkContact]) {
+    @discardableResult
+    private static func save(_ contacts: [NighthawkContact]) -> Bool {
         let stored = contacts.map(Stored.init)
-        guard let data = try? JSONEncoder().encode(stored) else { return }
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount
-        ]
-        let attrs: [String: Any] = [
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            kSecAttrSynchronizable as String: kCFBooleanFalse as Any
-        ]
-        let updated = SecItemUpdate(query as CFDictionary, attrs as CFDictionary)
-        if updated == errSecItemNotFound {
-            var newQuery = query
-            newQuery.merge(attrs) { _, new in new }
-            SecItemAdd(newQuery as CFDictionary, nil)
-        }
+        guard let data = try? JSONEncoder().encode(stored) else { return false }
+        return KeychainGenericPassword.upsert(
+            service: keychainService,
+            account: keychainAccount,
+            data: data
+        ) == errSecSuccess
     }
 
     private static func readFromKeychain() -> Data? {

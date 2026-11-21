@@ -11,7 +11,11 @@ import ComposableArchitecture
 public struct SendFailed {
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        public var errorMessage: String?
+
+        public init(errorMessage: String? = nil) {
+            self.errorMessage = errorMessage
+        }
     }
 
     public enum Action: Equatable {

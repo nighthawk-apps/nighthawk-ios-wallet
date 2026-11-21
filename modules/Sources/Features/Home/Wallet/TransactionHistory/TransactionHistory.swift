@@ -20,6 +20,8 @@ public struct TransactionHistory {
     public struct State: Equatable {
         public var walletEvents: IdentifiedArrayOf<WalletEvent>
         public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
+        public var lastConfirmedBalance: DrkAmount = 0
+        public var lastBlockHeight: BlockHeight = 0
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
@@ -80,11 +82,15 @@ public struct TransactionHistory {
                 }
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState)
-                guard snapshot != state.synchronizerStatusSnapshot else {
+                let balanceChanged = latestState.confirmedBalance != state.lastConfirmedBalance
+                let heightChanged = latestState.latestBlockHeight != state.lastBlockHeight
+                guard snapshot != state.synchronizerStatusSnapshot || balanceChanged || heightChanged else {
                     return .none
                 }
 
                 state.synchronizerStatusSnapshot = snapshot
+                state.lastConfirmedBalance = latestState.confirmedBalance
+                state.lastBlockHeight = latestState.latestBlockHeight
                 if latestState.syncStatus == .upToDate {
                     return .run { send in
                         if let overviews = try? await sdkSynchronizer.getAllTransactions() {

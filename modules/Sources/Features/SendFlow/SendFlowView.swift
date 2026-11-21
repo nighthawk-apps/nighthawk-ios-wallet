@@ -28,7 +28,7 @@ public struct SendFlowView: View {
 
                 Text(
                     L10n.Nighthawk.TransferTab.Send.spendableBalance(
-                        store.spendableBalance.decimalString(
+                        store.selectedSpendableBalance.decimalString(
                             formatter: NumberFormatter.darkfiNumberFormatter
                         ),
                         store.tokenName

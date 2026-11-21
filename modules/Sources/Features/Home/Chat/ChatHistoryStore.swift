@@ -1,7 +1,7 @@
 import Foundation
 
 /// Capped on-disk chat history so a reconnect does not wipe the thread.
-enum ChatHistoryStore {
+public enum ChatHistoryStore {
     struct Snapshot {
         var channels: [String: [Chat.State.Message]]
         var dms: [String: [Chat.State.Message]]
@@ -26,8 +26,11 @@ enum ChatHistoryStore {
     private static var fileURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
-        let dir = base.appendingPathComponent("nighthawk-chat", isDirectory: true)
+        var dir = base.appendingPathComponent("nighthawk-chat", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? dir.setResourceValues(values)
         return dir.appendingPathComponent("chat_history_v1.json")
     }
 
@@ -50,7 +53,16 @@ enum ChatHistoryStore {
             dms: dms.mapValues { Array($0.suffix(200)).map(line) }
         )
         guard let data = try? JSONEncoder().encode(model) else { return }
-        try? data.write(to: fileURL, options: .atomic)
+        try? data.write(to: fileURL, options: [.atomic, .completeFileProtection])
+    }
+
+    public static func clearAll() {
+        let dir = fileURL.deletingLastPathComponent()
+        try? FileManager.default.removeItem(at: fileURL)
+        if let contents = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil),
+           contents.isEmpty {
+            try? FileManager.default.removeItem(at: dir)
+        }
     }
 
     private static func line(_ message: Chat.State.Message) -> Line {

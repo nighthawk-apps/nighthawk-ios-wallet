@@ -99,6 +99,10 @@ public struct Splash {
                         if success {
                             await send(.delegate(.initializeSDKAndLaunchWallet))
                         }
+                    } else {
+                        // Device has no passcode/biometry configured — do not trap the user on Splash.
+                        await send(.authenticationResponse(true))
+                        await send(.delegate(.initializeSDKAndLaunchWallet))
                     }
                 }
             case let .authenticationResponse(authenticated):

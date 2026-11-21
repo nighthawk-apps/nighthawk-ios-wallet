@@ -6,7 +6,7 @@ public struct DeviceAddressBook: Equatable {
     public struct Entry: Equatable, Codable, Identifiable {
         public var label: String
         public var address: String
-        public var id: String { address.lowercased() }
+        public var id: String { address }
 
         public init(label: String, address: String) {
             self.label = label
@@ -31,8 +31,9 @@ public struct DeviceAddressBook: Equatable {
            let data = raw.data(using: .utf8),
            let decoded = try? JSONDecoder().decode([Entry].self, from: data) {
             let valid = decoded.filter { !$0.label.isEmpty && !$0.address.isEmpty }
-            saveToKeychain(valid)
-            UserDefaults.standard.removeObject(forKey: legacyDefaultsKey)
+            if saveToKeychain(valid) {
+                UserDefaults.standard.removeObject(forKey: legacyDefaultsKey)
+            }
             return valid
         }
         return []
@@ -41,7 +42,8 @@ public struct DeviceAddressBook: Equatable {
     @discardableResult
     public static func upsert(
         label: String,
-        address: String
+        address: String,
+        syncContacts: Bool = true
     ) -> [Entry] {
         let trimmedLabel = String(label.trimmingCharacters(in: .whitespacesAndNewlines).prefix(64))
         let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -49,32 +51,51 @@ public struct DeviceAddressBook: Equatable {
             return load()
         }
         var next = load().filter {
-            $0.address.caseInsensitiveCompare(trimmedAddress) != .orderedSame
+            $0.address != trimmedAddress
         }
         next.insert(Entry(label: trimmedLabel, address: trimmedAddress), at: 0)
         next = Array(next.prefix(maxEntries))
-        saveToKeychain(next)
+        guard saveToKeychain(next) else { return load() }
+        if syncContacts {
+            let existing = NighthawkContactStore.findByWalletAddress(trimmedAddress)
+                ?? NighthawkContactStore.findByNick(trimmedLabel)
+            _ = NighthawkContactStore.upsert(
+                NighthawkContact(
+                    id: trimmedLabel.lowercased(),
+                    nickname: trimmedLabel,
+                    dmPublicKey: existing?.dmPublicKey ?? "",
+                    walletAddress: trimmedAddress
+                ),
+                syncAddressBook: false
+            )
+        }
         return next
     }
 
-    private static func saveToKeychain(_ entries: [Entry]) {
-        guard let data = try? JSONEncoder().encode(entries) else { return }
+    public static func remove(address: String) {
+        let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        let next = load().filter { $0.address != trimmedAddress }
+        saveToKeychain(next)
+    }
+
+    public static func removeAll() {
+        UserDefaults.standard.removeObject(forKey: legacyDefaultsKey)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keychainAccount
         ]
-        let attrs: [String: Any] = [
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            kSecAttrSynchronizable as String: kCFBooleanFalse as Any
-        ]
-        let updated = SecItemUpdate(query as CFDictionary, attrs as CFDictionary)
-        if updated == errSecItemNotFound {
-            var newQuery = query
-            newQuery.merge(attrs) { _, new in new }
-            SecItemAdd(newQuery as CFDictionary, nil)
-        }
+        SecItemDelete(query as CFDictionary)
+    }
+
+    @discardableResult
+    private static func saveToKeychain(_ entries: [Entry]) -> Bool {
+        guard let data = try? JSONEncoder().encode(entries) else { return false }
+        return KeychainGenericPassword.upsert(
+            service: keychainService,
+            account: keychainAccount,
+            data: data
+        ) == errSecSuccess
     }
 
     private static func readFromKeychain() -> Data? {

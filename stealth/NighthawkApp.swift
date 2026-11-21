@@ -12,9 +12,12 @@ import WalletStorage
 struct NighthawkApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
+    private static let isRunningTests =
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
     /// Stored once — constructing Store inside `body` re-creates it on every
     /// scenePhase invalidation and wipes navigation / auth / effects.
-    private let store = Store(
+    private static let sharedStore = Store(
         initialState: AppReducer.State()
     ) {
         AppReducer()
@@ -22,30 +25,34 @@ struct NighthawkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppView(store: store)
-            .onChange(of: scenePhase) { _, newPhase in
-                switch newPhase {
-                case .active:
-                    // End DarkIRC background task; Chat reducer's scenePhaseChanged
-                    // reconnects with a fresh event callback if the daemon died.
-                    DarkircDaemonManager.shared.handleForegrounding()
+            if Self.isRunningTests {
+                EmptyView()
+            } else {
+                AppView(store: Self.sharedStore)
+                .onChange(of: scenePhase) { _, newPhase in
+                    switch newPhase {
+                    case .active:
+                        // End DarkIRC background task; Chat reducer's scenePhaseChanged
+                        // reconnects with a fresh event callback if the daemon died.
+                        DarkircDaemonManager.shared.handleForegrounding()
 
-                case .background:
-                    // Don't stop darkirc — request a short background execution
-                    // window so P2P/DAG can survive the OS grace period.
-                    DarkircDaemonManager.shared.handleBackgrounding()
+                    case .background:
+                        // Don't stop darkirc — request a short background execution
+                        // window so P2P/DAG can survive the OS grace period.
+                        DarkircDaemonManager.shared.handleBackgrounding()
 
-                    // Schedule background sync task
-                    let request = BGAppRefreshTaskRequest(identifier: "com.nighthawkapps.sync")
-                    request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
-                    do {
-                        try BGTaskScheduler.shared.submit(request)
-                    } catch {
-                        print("Failed to schedule background task: \(error)")
+                        // Schedule background sync task
+                        let request = BGAppRefreshTaskRequest(identifier: "com.nighthawkapps.sync")
+                        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
+                        do {
+                            try BGTaskScheduler.shared.submit(request)
+                        } catch {
+                            print("Failed to schedule background task: \(error)")
+                        }
+
+                    default:
+                        break
                     }
-
-                default:
-                    break
                 }
             }
         }
@@ -56,6 +63,7 @@ struct NighthawkApp: App {
 
     init() {
         FontFamily.registerAllCustomFonts()
+        guard !Self.isRunningTests else { return }
         WalletNetworkWarmStart.startIfNeeded()
         ChatNotificationRouter.install()
     }

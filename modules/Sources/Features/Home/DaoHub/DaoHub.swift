@@ -13,6 +13,7 @@ import Generated
 import SDKSynchronizer
 import Utils
 
+// swiftlint:disable type_body_length
 @Reducer
 public struct DaoHub {
     @ObservableState
@@ -99,6 +100,7 @@ public struct DaoHub {
         case proposalsRefreshed([ProposalBrief])
         case proposalRefreshed(ProposalFull)
         case payFromTreasury(String)
+        // swiftlint:disable:next enum_case_associated_values_count
         case submitCreate(String, String, String, String, Double, String)
         case submitImport(String, String)
         case exportRole(String)
@@ -590,6 +592,7 @@ public struct DaoHub {
         .cancellable(id: CancelID.daoResources, cancelInFlight: true)
     }
 }
+// swiftlint:enable type_body_length
 
 enum DaoDecimalInput {
     /// Positive finite amount. `.` and `,` are both decimal separators.

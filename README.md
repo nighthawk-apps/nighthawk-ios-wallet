@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.14** (`CURRENT_PROJECT_VERSION=30100815`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `9d7ceaf77`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.14, desktop 3.1.12, Moonshine 3.1.11, and lightwalletd 0.3.8.
+**3.01.15** (`CURRENT_PROJECT_VERSION=30100816`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `9d7ceaf77`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.15, desktop 3.1.13, Moonshine 3.1.12, and lightwalletd 0.3.9.
 
 ## Contents
 
@@ -243,19 +243,20 @@ In-process DarkIRC via UniFFI — messages through `DarkircEventCallback` → Sw
 
 ```bash
 ./scripts/build-darkfi-mobile-ffi-ios.sh
-cd rust && cargo test -p darkfi-mobile-ffi --lib darkirc && cd ..
+cd ../nighthawk-android-wallet/rust && cargo test -p darkfi-mobile-ffi --lib darkirc && cd -
 ```
 
 ---
 
 ## Architecture
 
-- **UI:** SwiftUI + [TCA](https://github.com/pointfreeco/swift-composable-architecture). `Home.swift` scopes tabs: **Chat → Wallet → Transfer → Settings** (opens on Wallet). The wide wallet layout is for large iPhones in landscape. The target stays iPhone-only.
+- **UI:** SwiftUI + [TCA](https://github.com/pointfreeco/swift-composable-architecture). `Home.swift` scopes tabs: **Chat → Wallet → DEX → DAO → Settings** (opens on **Chat**, keeping `ChatView` mounted across tab switches). The wide wallet layout is for large iPhones in landscape. The target stays iPhone-only.
 - **Theme:** Stealth (default dark). Light and Paper use graphite and grey instead of teal. Titles are Outfit, body is Source Sans 3, Paper titles are Source Serif 4, keys are IBM Plex Mono.
-- **Settings:** Chat (identity, Tor, DMs), Change server, Security (PIN), Fiat, About.
-- **Wallet SDK:** `SDKSynchronizerLive` / `WalletHandleManager` wrapping `DarkfiWalletHandle`; Combine streams to TCA.
-- **Balance:** single confirmed/spendable DRK tally.
-- **Native:** UniFFI staticlib → `DarkfiCore.xcframework`. Rebuild after `rust/darkfi-mobile-ffi` changes.
+- **Settings:** Chat (identity, Nym/Tor/Direct transport, Keychain-backed E2E DM contacts), Change server, Security (Face ID / Touch ID), Fiat, About.
+- **Chat + Wallet fusion:** Inline `drk:` payment/invoice cards with one-tap Pay, composer Send/Request/Tip sheet with post-broadcast receipt cards, encrypted payment memos on default trial-decrypt sends, unified `NighthawkContactStore` + `DeviceAddressBook` (`nighthawk://contact?...` invite QR & safety numbers), offline outbox with delivery state transitions, connection diagnostics sheet (`darkircOutboundSlots` + `transportSnapshotJson` + LWD stale-tip warning), and clearnet link guard.
+- **Wallet SDK:** `SDKSynchronizerLive` / `WalletHandleManager` wrapping `DarkfiWalletHandle` (canonical shared `../nighthawk-android-wallet/rust/darkfi-mobile-ffi`); Combine streams to TCA.
+- **Balance:** single confirmed/spendable DRK tally plus multi-token balances.
+- **Native:** UniFFI staticlib → `DarkfiCore.xcframework`. Rebuild after `../nighthawk-android-wallet/rust/darkfi-mobile-ffi` changes.
 - **Lightwalletd:** default `tcp://127.0.0.1:9067`; remote HTTPS needs `LIGHTWALLET_TLS_PIN_SHA256`.
 
 ### UniFFI & native bridge
@@ -301,7 +302,7 @@ openssl x509 -in lightwalletd.crt -outform DER | openssl dgst -sha256 -hex
 
 ### Nym and Arti
 
-Settings → Network privacy defaults to Nym. The splash polls `nym_status()` and will not leave for the wallet until the tunnel is up, the user taps **Continue without Nym** (direct), or bootstrap fails and they retry. Chat uses `DarkircTransport` so P2P follows that same choice. Onion-only peers need Tor.
+Settings → Network privacy defaults to Nym. The splash polls `nym_status()` while wallet open stays non-blocking (`RouteGate`). Tapping **Continue without Nym** activates a **session-only** Direct override (`SessionPrivacyOverride`) so the next launch tries the Nym mixnet again. Chat uses `DarkircTransport` so P2P follows that same choice. Onion-only peers need Tor.
 
 Settings → Tor (shown when Tor is selected) starts in-process Arti via UniFFI. Rebuild after UDL changes:
 

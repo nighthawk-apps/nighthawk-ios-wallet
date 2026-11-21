@@ -7,6 +7,9 @@
 
 import XCTest
 import ComposableArchitecture
+import DarkfiCore
+import Models
+@testable import Home
 @testable import stealth_testnet
 
 @MainActor
@@ -274,5 +277,175 @@ class ChatTests: XCTestCase {
         XCTAssertEqual(state.channels.map(\.name), expected)
         XCTAssertEqual(expected.first, "#nighthawk")
         XCTAssertEqual(state.selectedChannel?.name, "#nighthawk")
+    }
+
+    // MARK: - DM Keychain Migration & FFI Registration
+
+    func testCryptoStoreMigratesPlaintextDiskSecretsToKeychainAndRegistersWithRust() async throws {
+        let rootDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DarkircCryptoStoreTests-\(UUID().uuidString)", isDirectory: true)
+        let appSupportDir = rootDir.appendingPathComponent("darkirc", isDirectory: true)
+        let datastoreDir = rootDir.appendingPathComponent("darkirc_db", isDirectory: true)
+        try FileManager.default.createDirectory(at: appSupportDir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: datastoreDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: rootDir) }
+
+        let kp1 = generateDmKeypair()
+        let kp2 = generateDmKeypair()
+        XCTAssertFalse(kp1.secretB58.isEmpty)
+        XCTAssertFalse(kp2.publicB58.isEmpty)
+
+        let legacyContact = DmContact(
+            id: "legacy-alice",
+            contactLabel: "alice_test",
+            theirPublicB58: kp2.publicB58,
+            mySecretB58: kp1.secretB58,
+            myPublicB58: kp1.publicB58
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let legacyData = try encoder.encode([legacyContact])
+        let appSupportFile = appSupportDir.appendingPathComponent("dm_contacts.json")
+        let datastoreFile = datastoreDir.appendingPathComponent("dm_contacts.json")
+        try legacyData.write(to: appSupportFile)
+        try legacyData.write(to: datastoreFile)
+
+        let service = "com.nighthawkapps.darkfi.test.\(UUID().uuidString)"
+        let store = DarkircCryptoStore(
+            storageDirectory: appSupportDir,
+            datastoreDirectory: datastoreDir,
+            keychainService: service,
+            keychainAccount: "test_contacts"
+        )
+
+        let migrated = await store.allContacts()
+        XCTAssertEqual(migrated.count, 1)
+        XCTAssertEqual(migrated.first?.contactLabel, "alice_test")
+        XCTAssertEqual(migrated.first?.mySecretB58, kp1.secretB58)
+
+        // Plaintext secret files must be scrubbed & deleted from disk.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: appSupportFile.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: datastoreFile.path))
+
+        // Add another contact, verify it persists in Keychain without touching disk, and registers in Rust.
+        let kp3 = generateDmKeypair()
+        let added = try await store.addContact(
+            contactLabel: "bob_test",
+            theirPublicB58: kp3.publicB58,
+            mySecretB58: kp1.secretB58,
+            myPublicB58: kp1.publicB58
+        )
+        XCTAssertEqual(added.contactLabel, "bob_test")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: appSupportFile.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: datastoreFile.path))
+
+        await store.registerAllWithRust()
+        // Sending while daemon stopped still triggers DM registration check first;
+        // clearing & unregistering must clean up cleanly.
+        await store.removeContact(id: added.id)
+        let remaining = await store.allContacts()
+        XCTAssertEqual(remaining.count, 1)
+
+        await store.clearAll()
+        let afterClear = await store.allContacts()
+        XCTAssertTrue(afterClear.isEmpty)
+        NighthawkContactStore.removeAll()
+        DeviceAddressBook.removeAll()
+    }
+
+    // MARK: - ChatOutboxStore & State Transitions
+
+    func testChatOutboxStorePersistsAndTransitionsDeliveryStates() async throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ChatOutboxTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let fileURL = dir.appendingPathComponent("outbox.json")
+
+        let outbox1 = ChatOutboxStore(fileURL: fileURL)
+        let queuedId = await outbox1.enqueue(id: "queued-123", channel: "#nighthawk", text: "offline hello")
+        XCTAssertEqual(queuedId, "queued-123")
+        await outbox1.updateDelivery(id: queuedId, delivery: "sending")
+
+        // Reload from disk in a fresh instance to verify persistence
+        let outbox2 = ChatOutboxStore(fileURL: fileURL)
+        let loaded = await outbox2.loadAll()
+        XCTAssertEqual(loaded.count, 1)
+        XCTAssertEqual(loaded.first?.id, "queued-123")
+        XCTAssertEqual(loaded.first?.delivery, "sending")
+
+        await outbox2.remove(id: queuedId)
+        let afterRemove = await outbox2.loadAll()
+        XCTAssertTrue(afterRemove.isEmpty)
+    }
+
+    func testChatReducer_OfflineSendQueuesAndTransitionsToSentOrFailed() async throws {
+        var initialState = Chat.State()
+        initialState.connectionState = .disconnected
+        let channel = initialState.channels[0]
+        initialState.selectedChannel = channel
+        initialState.composedMessage = "queued msg"
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: Chat.init
+        )
+        store.exhaustivity = .off
+
+        await store.send(.sendMessage) { state in
+            state.composedMessage = ""
+        }
+        let queuedMsg = try XCTUnwrap(store.state.channelMessages[channel.name]?.last)
+        XCTAssertTrue(queuedMsg.id.hasPrefix("queued-"))
+
+        await store.send(.markOutgoingSent(id: queuedMsg.id, channel: channel.name))
+        let sentMsg = try XCTUnwrap(store.state.channelMessages[channel.name]?.last)
+        XCTAssertTrue(sentMsg.id.hasPrefix("local-"))
+        XCTAssertEqual(store.state.messages.last?.id, sentMsg.id)
+
+        await store.send(.markOutgoingFailed(id: sentMsg.id, channel: channel.name))
+        let failedMsg = try XCTUnwrap(store.state.channelMessages[channel.name]?.last)
+        XCTAssertTrue(failedMsg.id.hasPrefix("failed-"))
+        XCTAssertEqual(store.state.messages.last?.id, failedMsg.id)
+        ChatHistoryStore.clearAll()
+        await ChatOutboxStore.shared.clearAll()
+    }
+
+    func testWalletSendStagesReceiptWithoutPostingBeforeBroadcast() async throws {
+        ChatReceiptBook.clearAll()
+        var initialState = Chat.State()
+        initialState.connectionState = .connectedDirect
+        let channel = initialState.channels[0]
+        initialState.selectedChannel = channel
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: Chat.init
+        )
+
+        await store.send(.walletSend(address: "drk1dest", amount: "2.5", memo: "coffee", tip: false))
+        await store.receive(.delegate(.payInvoice(address: "drk1dest", amount: "2.5", memo: "coffee")))
+
+        // No pending receipt should be posted to chat before broadcast!
+        XCTAssertTrue(store.state.messages.isEmpty)
+        XCTAssertTrue((store.state.channelMessages[channel.name] ?? []).isEmpty)
+
+        // Simulate SendFlow broadcast marking receipt ready & Home forwarding it
+        let marked = ChatReceiptBook.markBroadcasted(txId: "txid_999")
+        XCTAssertEqual(marked?.receipt.phase, .broadcasted)
+        XCTAssertEqual(marked?.receipt.txId, "txid_999")
+        XCTAssertEqual(marked?.targetChannel, channel.name)
+
+        let ready = try XCTUnwrap(ChatReceiptBook.consumeReadyToPost())
+        let store2 = TestStore(initialState: store.state, reducer: Chat.init)
+        store2.exhaustivity = .off
+        await store2.send(.postBroadcastedReceipt(ready.receipt, channel: ready.targetChannel))
+        let posted = try XCTUnwrap(store2.state.channelMessages[channel.name]?.last)
+        let parsed = ChatReceiptCodec.parse(posted.content)
+        XCTAssertEqual(parsed?.phase, .broadcasted)
+        XCTAssertEqual(parsed?.txId, "txid_999")
+        ChatReceiptBook.clearAll()
+        ChatHistoryStore.clearAll()
+        await ChatOutboxStore.shared.clearAll()
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Utils
 import DatabaseFiles
 import DerivationTool
@@ -160,8 +161,22 @@ public struct AppReducer {
             case .deleteWalletFailed:
                 return .none
             case .deleteWalletSuccess:
+                DarkircDaemonManager.shared.stop()
                 walletStorage.deleteWallet()
                 userStoredPreferences.removeAll()
+                NighthawkContactStore.removeAll()
+                DeviceAddressBook.removeAll()
+                DarkfiChatDefaults.resetNickname()
+                ChatReceiptBook.clearAll()
+                ChatHistoryStore.clearAll()
+                let fm = Foundation.FileManager.default
+                if let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    try? fm.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
+                }
+                if let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                    try? fm.removeItem(at: appSupport.appendingPathComponent("nighthawk-chat", isDirectory: true))
+                    try? fm.removeItem(at: appSupport.appendingPathComponent("darkirc", isDirectory: true))
+                }
                 state.receiveAddress = nil
                 state.latestFiatPrice = nil
                 state.splash.hasCompletedInitialRoute = false
@@ -170,7 +185,21 @@ public struct AppReducer {
                 }
 
                 state.path = StackState([.welcome(.init())])
-                return .none
+                return .run { _ in
+                    await DarkircCryptoStore.shared.clearAll()
+                    await ChatOutboxStore.shared.clearAll()
+                    for _ in 0..<20 {
+                        let status = darkircStatus()
+                        if status == "not_running" || status == "stopped" || status == "failed" {
+                            break
+                        }
+                        try? await Task.sleep(for: .milliseconds(100))
+                    }
+                    let fm = Foundation.FileManager.default
+                    if let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
+                        try? fm.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
+                    }
+                }
             case .nukeLocalDatabasesFailed:
                 state.alert = .nukeLocalDatabasesFailed()
                 return .none
@@ -311,19 +340,6 @@ private func shouldResetToSplash(
     if let lastInactiveTime = state.splash.lastInactiveTime {
         let tenMinutesAgo = now.addingTimeInterval(-(10 * 60))
         if tenMinutesAgo < lastInactiveTime {
-            return false
-        }
-    }
-
-    if let currentScreen = state.path.last {
-        if currentScreen[case: \.home] != nil {
-            return true
-        }
-        if currentScreen[case: \.security] != nil
-            || currentScreen[case: \.notifications] != nil
-            || currentScreen[case: \.chatSettings] != nil
-            || currentScreen[case: \.torNetwork] != nil
-            || currentScreen[case: \.daoHub] != nil {
             return false
         }
     }

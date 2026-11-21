@@ -229,11 +229,11 @@ final class NighthawkMeshEngine {
 
     private func refreshStatus() {
         var buf = [UInt8](repeating: 0, count: 512)
-        let n = buf.withUnsafeMutableBytes { raw -> Int32 in
+        let byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
             NighthawkMeshABI.status(raw.bindMemory(to: UInt8.self).baseAddress, Int32(raw.count))
         }
-        guard n > 0 else { return }
-        let text = String(bytes: buf.prefix(Int(n)), encoding: .utf8) ?? "Mesh on"
+        guard byteCount > 0 else { return }
+        let text = String(bytes: buf.prefix(Int(byteCount)), encoding: .utf8) ?? "Mesh on"
         publish(text)
     }
 
@@ -247,27 +247,27 @@ final class NighthawkMeshEngine {
 
     private static func readPeerID() -> Data {
         var buf = [UInt8](repeating: 0, count: 8)
-        let n = buf.withUnsafeMutableBytes { raw -> Int32 in
+        let byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
             NighthawkMeshABI.peerID(raw.bindMemory(to: UInt8.self).baseAddress, Int32(raw.count))
         }
-        guard n == 8 else { return Data() }
+        guard byteCount == 8 else { return Data() }
         return Data(buf)
     }
 
     private static func popOutbound() -> Data? {
         var cap = 2048
         var buf = [UInt8](repeating: 0, count: cap)
-        var n = buf.withUnsafeMutableBytes { raw -> Int32 in
+        var byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
             NighthawkMeshABI.popOutbound(raw.bindMemory(to: UInt8.self).baseAddress, Int32(cap))
         }
-        if n == -3 {
+        if byteCount == -3 {
             cap = 70_000
             buf = [UInt8](repeating: 0, count: cap)
-            n = buf.withUnsafeMutableBytes { raw -> Int32 in
+            byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
                 NighthawkMeshABI.popOutbound(raw.bindMemory(to: UInt8.self).baseAddress, Int32(cap))
             }
         }
-        guard n > 0 else { return nil }
-        return Data(buf.prefix(Int(n)))
+        guard byteCount > 0 else { return nil }
+        return Data(buf.prefix(Int(byteCount)))
     }
 }
