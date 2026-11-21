@@ -4,6 +4,10 @@
 # (also linked from /Users/anon/GitHub/darkfi-mobile-ffi).
 set -euo pipefail
 
+# Same crate as the Android script, outside the DarkFi toolchain file.
+# Nightly after 2026-11-11 cannot compile branches 0.4.6.
+export RUSTUP_TOOLCHAIN="${RUSTUP_TOOLCHAIN:-stable}"
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 AND_RUST="$(cd "$ROOT/../nighthawk-android-wallet/rust" && pwd)"
 FFI_SRC="$AND_RUST/darkfi-mobile-ffi"
