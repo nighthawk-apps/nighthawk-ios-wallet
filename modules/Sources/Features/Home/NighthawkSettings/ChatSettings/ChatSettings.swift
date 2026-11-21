@@ -9,6 +9,7 @@
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import Models
 import Pasteboard
 import UserPreferencesStorage
 import Utils
@@ -69,6 +70,7 @@ public struct ChatSettings {
         // E2E contacts
         case addContactTapped
         case removeContact(String)
+        case syncDmContacts([DmContact])
         case addContactDialog(PresentationAction<AddContactDialog.Action>)
 
         // DM keys
@@ -120,21 +122,38 @@ public struct ChatSettings {
         public struct State: Equatable {
             public var contactNick: String = ""
             public var mySecretKey: String = ""
+            public var myPublicKey: String = ""
             public var theirPublicKey: String = ""
+            public var walletAddress: String = ""
+            public var errorMessage: String?
             public init() {}
         }
 
         public enum Action: BindableAction, Equatable {
             case binding(BindingAction<State>)
+            case generateKeysTapped
+            case keysGenerated(secret: String, publicKey: String)
             case addTapped
             case cancelTapped
         }
 
         public var body: some ReducerOf<Self> {
             BindingReducer()
-            Reduce { _, action in
+            Reduce { state, action in
                 switch action {
-                case .binding, .addTapped, .cancelTapped:
+                case .binding:
+                    state.errorMessage = nil
+                    return .none
+                case .generateKeysTapped:
+                    return .run { send in
+                        let kp = generateDmKeypair()
+                        await send(.keysGenerated(secret: kp.secretB58, publicKey: kp.publicB58))
+                    }
+                case let .keysGenerated(secret, publicKey):
+                    state.mySecretKey = secret
+                    state.myPublicKey = publicKey
+                    return .none
+                case .addTapped, .cancelTapped:
                     return .none
                 }
             }
@@ -153,6 +172,30 @@ public struct ChatSettings {
                 return .none
             case .onAppear:
                 loadPreferences(into: &state)
+                return .run { send in
+                    let dmContacts = await DarkircCryptoStore.shared.allContacts()
+                    await send(.syncDmContacts(dmContacts))
+                }
+            case let .syncDmContacts(dmContacts):
+                var changed = false
+                for dm in dmContacts {
+                    if !state.encryptedContacts.contains(where: {
+                        $0.nick.caseInsensitiveCompare(dm.contactLabel) == .orderedSame
+                    }) {
+                        state.encryptedContacts.append(
+                            State.EncryptedContact(
+                                id: dm.id,
+                                nick: dm.contactLabel,
+                                mySecretKey: dm.mySecretB58,
+                                theirPublicKey: dm.theirPublicB58
+                            )
+                        )
+                        changed = true
+                    }
+                }
+                if changed {
+                    persistContacts(state.encryptedContacts)
+                }
                 return .none
             case let .toggleEmbeddedDarkirc(enabled):
                 state.useEmbeddedDarkirc = enabled
@@ -200,19 +243,87 @@ public struct ChatSettings {
                 state.addContactDialog = AddContactDialog.State()
                 return .none
             case let .removeContact(id):
+                let removed = state.encryptedContacts.first { $0.id == id }
                 state.encryptedContacts.removeAll { $0.id == id }
                 persistContacts(state.encryptedContacts)
-                return .none
+                return .run { _ in
+                    if let removed {
+                        await DarkircCryptoStore.shared.removeContact(id: removed.id)
+                        await DarkircCryptoStore.shared.removeContact(byLabel: removed.nick)
+                    }
+                }
             case .addContactDialog(.presented(.addTapped)):
-                if let dialog = state.addContactDialog {
-                    let contact = State.EncryptedContact(
-                        id: UUID().uuidString,
-                        nick: dialog.contactNick,
-                        mySecretKey: dialog.mySecretKey,
-                        theirPublicKey: dialog.theirPublicKey
-                    )
-                    state.encryptedContacts.append(contact)
-                    persistContacts(state.encryptedContacts)
+                if var dialog = state.addContactDialog {
+                    let nick = dialog.contactNick.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let mySecret = dialog.mySecretKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let myPublic = dialog.myPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let theirPublic = dialog.theirPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let walletAddr = dialog.walletAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    guard !nick.isEmpty else {
+                        dialog.errorMessage = "Enter a contact nickname."
+                        state.addContactDialog = dialog
+                        return .none
+                    }
+
+                    let hasDmKeys = !mySecret.isEmpty || !theirPublic.isEmpty
+                    if hasDmKeys {
+                        guard let sk = Base58.decode(mySecret), sk.count == 32,
+                              let pk = Base58.decode(theirPublic), pk.count == 32 else {
+                            dialog.errorMessage = "Provide valid 32-byte Base58 DM keys."
+                            state.addContactDialog = dialog
+                            return .none
+                        }
+                        let contact = State.EncryptedContact(
+                            id: UUID().uuidString,
+                            nick: nick,
+                            mySecretKey: mySecret,
+                            theirPublicKey: theirPublic
+                        )
+                        state.encryptedContacts.removeAll {
+                            $0.nick.caseInsensitiveCompare(nick) == .orderedSame
+                        }
+                        state.encryptedContacts.append(contact)
+                        persistContacts(state.encryptedContacts)
+                        state.addContactDialog = nil
+                        return .run { _ in
+                            do {
+                                _ = try await DarkircCryptoStore.shared.addContact(
+                                    contactLabel: nick,
+                                    theirPublicB58: theirPublic,
+                                    mySecretB58: mySecret,
+                                    myPublicB58: myPublic
+                                )
+                            } catch {
+                                return
+                            }
+                            if !walletAddr.isEmpty {
+                                _ = NighthawkContactStore.upsert(
+                                    NighthawkContact(
+                                        id: nick.lowercased(),
+                                        nickname: nick,
+                                        dmPublicKey: theirPublic,
+                                        walletAddress: walletAddr
+                                    )
+                                )
+                            }
+                        }
+                    } else if !walletAddr.isEmpty {
+                        _ = NighthawkContactStore.upsert(
+                            NighthawkContact(
+                                id: nick.lowercased(),
+                                nickname: nick,
+                                dmPublicKey: "",
+                                walletAddress: walletAddr
+                            )
+                        )
+                        state.addContactDialog = nil
+                        return .none
+                    } else {
+                        dialog.errorMessage = "Enter DM keys or a DarkFi wallet address."
+                        state.addContactDialog = dialog
+                        return .none
+                    }
                 }
                 state.addContactDialog = nil
                 return .none

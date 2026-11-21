@@ -214,6 +214,15 @@ public struct ChatSettingsView: View {
             .padding(.horizontal, 25)
         }
         .onAppear { store.send(.onAppear) }
+        .sheet(
+            item: $store.scope(
+                state: \.addContactDialog,
+                action: \.addContactDialog
+            )
+        ) { dialogStore in
+            addContactSheet(dialogStore)
+                .presentationDetents([.large])
+        }
         .applyNighthawkBackground()
     }
 }
@@ -246,5 +255,58 @@ private extension ChatSettingsView {
                 .labelsHidden()
         }
         .padding(.vertical, 8)
+    }
+
+    func addContactSheet(_ dialogStore: StoreOf<ChatSettings.AddContactDialog>) -> some View {
+        @Bindable var dialog = dialogStore
+        return NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    TextField("Nickname", text: $dialog.contactNick)
+                        .textFieldStyle(.roundedBorder)
+
+                    TextField("Peer DM public key (Base58)", text: $dialog.theirPublicKey)
+                        .textFieldStyle(.roundedBorder)
+
+                    TextField("My DM secret key (Base58)", text: $dialog.mySecretKey)
+                        .textFieldStyle(.roundedBorder)
+
+                    Button("Generate my DM keypair") {
+                        dialogStore.send(.generateKeysTapped)
+                    }
+                    .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                    .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+
+                    if !dialog.myPublicKey.isEmpty {
+                        Text("My public key: \(dialog.myPublicKey)")
+                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                            .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                            .lineLimit(2)
+                    }
+
+                    TextField("DarkFi wallet address (optional)", text: $dialog.walletAddress)
+                        .textFieldStyle(.roundedBorder)
+
+                    if let error = dialog.errorMessage {
+                        Text(error)
+                            .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
+                            .foregroundColor(StealthTheme.Colors.statusDanger)
+                    }
+
+                    Button("Add contact") {
+                        dialogStore.send(.addTapped)
+                    }
+                    .buttonStyle(.nighthawkPrimary())
+                }
+                .padding(20)
+            }
+            .applyNighthawkBackground()
+            .navigationTitle("Add Encrypted Contact")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dialogStore.send(.cancelTapped) }
+                }
+            }
+        }
     }
 }

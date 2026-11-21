@@ -94,14 +94,16 @@ private final class WalletHandleManager: @unchecked Sendable {
             activeSyncMethod: DarkfiSyncMethod(light.syncMethod),
             fallbackReason: String(describing: light.fallbackReason),
             fallbackUserMessage: light.fallbackUserMessage,
-            lightwalletdConnected: connected
+            lightwalletdConnected: connected,
+            lightStatusMessage: light.statusMessage
         )
         let prev = latestState
         guard next.confirmedBalance != prev.confirmedBalance
             || next.latestBlockHeight != prev.latestBlockHeight
             || next.syncStatus != prev.syncStatus
             || next.lightwalletdConnected != prev.lightwalletdConnected
-            || next.activeSyncMethod != prev.activeSyncMethod else {
+            || next.activeSyncMethod != prev.activeSyncMethod
+            || next.lightStatusMessage != prev.lightStatusMessage else {
             return
         }
         updateState(next)
@@ -124,7 +126,6 @@ private final class WalletHandleManager: @unchecked Sendable {
     func prepare(seed: [UInt8], birthday: BlockHeight, mode: WalletInitMode) throws {
         lock.lock()
         defer { lock.unlock() }
-        BlockTimestampIndex.reset()
 
         // swiftlint:disable:next force_unwrapping
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -248,8 +249,6 @@ private final class WalletHandleManager: @unchecked Sendable {
                     lower.contains("file is not a database") ||
                     lower.contains("sqlite") ||
                     lower.contains("sqlcipher") ||
-                    lower.contains("initializationfailed") ||
-                    lower.contains("connectionfailed") ||
                     lower.contains("initialize_wallet") ||
                     lower.contains("databaseerror") ||
                     lower.contains("queryexecution")
@@ -360,12 +359,14 @@ extension SDKSynchronizerClient: DependencyKey {
         start: { _ in
             guard let handle = WalletHandleManager.shared.handle else { return }
 
-            // Trigger initial sync, then poll Rust's background sync thread.
+            // Trigger initial sync off the cooperative pool, then poll Rust's background sync thread.
             do {
-                let snapshot = try handle.refreshNow()
-                let balance = try handle.confirmedBalanceAtomic()
-
-                let lightState = handle.lightSyncSnapshot()
+                let (snapshot, balance, lightState) = try await Task.detached(priority: .userInitiated) {
+                    let snap = try handle.refreshNow()
+                    let bal = try handle.confirmedBalanceAtomic()
+                    let light = handle.lightSyncSnapshot()
+                    return (snap, bal, light)
+                }.value
 
                 WalletHandleManager.shared.updateState(SynchronizerState(
                     syncStatus: .upToDate,
@@ -374,7 +375,8 @@ extension SDKSynchronizerClient: DependencyKey {
                     activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                     fallbackReason: String(describing: lightState.fallbackReason),
                     fallbackUserMessage: lightState.fallbackUserMessage,
-                    lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status)
+                    lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status),
+                    lightStatusMessage: lightState.statusMessage
                 ))
                 WalletHandleManager.shared.startPolling()
             } catch {
@@ -400,9 +402,12 @@ extension SDKSynchronizerClient: DependencyKey {
             guard let handle = WalletHandleManager.shared.handle else {
                 throw SDKSynchronizerError.walletNotPrepared
             }
-            let snapshot = try handle.refreshNow()
-            let balance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
-            let lightState = handle.lightSyncSnapshot()
+            let (snapshot, balance, lightState) = try await Task.detached(priority: .userInitiated) {
+                let snap = try handle.refreshNow()
+                let bal = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
+                let light = handle.lightSyncSnapshot()
+                return (snap, bal, light)
+            }.value
             WalletHandleManager.shared.updateState(SynchronizerState(
                 syncStatus: .upToDate,
                 confirmedBalance: balance,
@@ -410,7 +415,8 @@ extension SDKSynchronizerClient: DependencyKey {
                 activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                 fallbackReason: String(describing: lightState.fallbackReason),
                 fallbackUserMessage: lightState.fallbackUserMessage,
-                lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status)
+                lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status),
+                lightStatusMessage: lightState.statusMessage
             ))
         },
         getConfirmedBalance: {
@@ -479,8 +485,19 @@ extension SDKSynchronizerClient: DependencyKey {
                 paymentMemo: memoText
             )
 
-            guard balance >= amount + fee else {
-                throw DarkfiError(message: "Insufficient balance. Available: \(balance), required: \(amount + fee) (amount + fee)")
+            if let tokenId {
+                let tokenBalance = (try? handle.listTokenBalances())?
+                    .first(where: { $0.tokenId == tokenId })?.balanceAtomic ?? 0
+                guard tokenBalance >= amount else {
+                    throw DarkfiError(message: "Insufficient token balance. Available: \(tokenBalance), required: \(amount)")
+                }
+                guard balance >= fee else {
+                    throw DarkfiError(message: "Insufficient DRK for fee. Available: \(balance), required fee: \(fee)")
+                }
+            } else {
+                guard balance >= amount + fee else {
+                    throw DarkfiError(message: "Insufficient balance. Available: \(balance), required: \(amount + fee) (amount + fee)")
+                }
             }
 
             return Proposal(estimatedFee: fee)
@@ -719,11 +736,13 @@ extension SDKSynchronizerClient: DependencyKey {
             }
 
             return Future<Void, Error> { promise in
-                do {
-                    _ = try handle.refreshNow()
-                    promise(.success(()))
-                } catch {
-                    promise(.failure(error))
+                Task.detached(priority: .userInitiated) {
+                    do {
+                        _ = try handle.refreshNow()
+                        promise(.success(()))
+                    } catch {
+                        promise(.failure(error))
+                    }
                 }
             }.eraseToAnyPublisher()
         },

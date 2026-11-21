@@ -2,21 +2,14 @@
 //  DarkircCryptoStore.swift
 //  stealth
 //
-//  Persists DM contact crypto configs (ChaCha20 keypairs) in the app sandbox.
-//  Port of Android's DmConversationStore + DarkircCryptoManager pattern.
-//
-//  Each DM contact entry stores:
-//    - contactLabel: user-friendly name ("alice")
-//    - theirPublicB58: peer's DM public key (base58)
-//    - mySecretB58: our generated DM secret key (base58)
-//    - myPublicB58: our generated DM public key (base58)
-//    - createdAt: ISO-8601 timestamp
-//
-//  Contacts are stored as a JSON array in `dm_contacts.json` inside the darkirc config directory.
+//  Persists DM contact crypto configs (ChaCha20 keypairs) in the iOS Keychain.
+//  Secret keys are NEVER stored in plaintext JSON files on disk.
 //
 
+import DarkfiCore
 import Foundation
 import Models
+import Security
 
 // MARK: - DmContact model
 
@@ -73,13 +66,22 @@ public struct DmConversation: Codable, Equatable, Identifiable, Sendable {
 
 // MARK: - DarkircCryptoStore
 
-/// Manages persistence of DM contacts and conversation metadata.
+/// Manages persistence of DM contacts (Keychain-backed) and conversation metadata.
 /// Thread-safe via actor isolation.
 public actor DarkircCryptoStore {
     public static let shared = DarkircCryptoStore()
 
+    public static let defaultKeychainService = "com.nighthawkapps.darkfi.dmContacts"
+    public static let defaultKeychainAccount = "dm_contacts_v1"
+
     private var contacts: [DmContact] = []
     private var conversations: [DmConversation] = []
+    private var loaded = false
+
+    private let customStorageDir: URL?
+    private let customDatastoreDir: URL?
+    private let keychainService: String
+    private let keychainAccount: String
 
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()
@@ -94,36 +96,77 @@ public actor DarkircCryptoStore {
         return d
     }()
 
-    private init() {
-        Task { await loadFromDisk() }
+    public init(
+        storageDirectory: URL? = nil,
+        datastoreDirectory: URL? = nil,
+        keychainService: String = DarkircCryptoStore.defaultKeychainService,
+        keychainAccount: String = DarkircCryptoStore.defaultKeychainAccount
+    ) {
+        self.customStorageDir = storageDirectory
+        self.customDatastoreDir = datastoreDirectory
+        self.keychainService = keychainService
+        self.keychainAccount = keychainAccount
     }
 
     // MARK: - Contact CRUD
 
     /// All DM contacts.
-    public func allContacts() -> [DmContact] { contacts }
+    public func allContacts() -> [DmContact] {
+        ensureLoaded()
+        return contacts
+    }
+
+    /// Register every stored DM contact into Rust `DM_CONTACTS` in-memory map.
+    public func registerAllWithRust() {
+        ensureLoaded()
+        clearDmContacts()
+        for contact in contacts {
+            _ = registerInRust(contact)
+        }
+    }
 
     /// Add a new DM contact. Returns the saved contact.
+    /// Throws when the keys are unusable or the Keychain write fails, and leaves the previous contacts in place.
     @discardableResult
     public func addContact(
         contactLabel: String,
         theirPublicB58: String,
         mySecretB58: String,
         myPublicB58: String
-    ) -> DmContact {
+    ) throws -> DmContact {
+        ensureLoaded()
+        let cleanLabel = contactLabel.trimmingCharacters(in: .whitespacesAndNewlines)
         let contact = DmContact(
-            contactLabel: contactLabel.trimmingCharacters(in: .whitespacesAndNewlines),
+            contactLabel: cleanLabel,
             theirPublicB58: theirPublicB58,
             mySecretB58: mySecretB58,
             myPublicB58: myPublicB58
         )
+        let previousContacts = contacts
+        let previousConversations = conversations
+        let removedIds = Set(
+            contacts.filter { $0.contactLabel.caseInsensitiveCompare(cleanLabel) == .orderedSame }.map(\.id)
+        )
+        contacts.removeAll { removedIds.contains($0.id) }
+        conversations.removeAll { removedIds.contains($0.id) }
         contacts.append(contact)
 
         // Auto-create conversation entry
         let convo = DmConversation(id: contact.id, contactLabel: contact.contactLabel)
         conversations.append(convo)
 
-        saveToDisk()
+        guard registerInRust(contact) else {
+            contacts = previousContacts
+            conversations = previousConversations
+            throw KeychainWriteError.status(errSecParam)
+        }
+        guard saveContactsToKeychain() else {
+            contacts = previousContacts
+            conversations = previousConversations
+            unregisterDmContact(nick: contact.contactLabel)
+            throw KeychainWriteError.status(errSecDecode)
+        }
+        saveConversationsToDisk()
         let existing = NighthawkContactStore.findByNick(contact.contactLabel)
         NighthawkContactStore.upsert(
             NighthawkContact(
@@ -138,22 +181,67 @@ public actor DarkircCryptoStore {
 
     /// Remove a contact by ID.
     public func removeContact(id: String) {
+        ensureLoaded()
+        let previousContacts = contacts
+        let previousConversations = conversations
         let removed = contacts.first { $0.id == id }
         contacts.removeAll { $0.id == id }
         conversations.removeAll { $0.id == id }
-        saveToDisk()
+        guard saveContactsToKeychain() else {
+            contacts = previousContacts
+            conversations = previousConversations
+            return
+        }
+        saveConversationsToDisk()
         if let removed {
+            unregisterDmContact(nick: removed.contactLabel)
             NighthawkContactStore.remove(nick: removed.contactLabel)
         }
     }
 
+    /// Remove contacts matching label (case-insensitive).
+    public func removeContact(byLabel label: String) {
+        ensureLoaded()
+        let normalized = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let removed = contacts.filter { $0.contactLabel.lowercased() == normalized }
+        guard !removed.isEmpty else { return }
+        let previousContacts = contacts
+        let previousConversations = conversations
+        let removedIds = Set(removed.map(\.id))
+        contacts.removeAll { removedIds.contains($0.id) }
+        conversations.removeAll { removedIds.contains($0.id) }
+        guard saveContactsToKeychain() else {
+            contacts = previousContacts
+            conversations = previousConversations
+            return
+        }
+        saveConversationsToDisk()
+        for item in removed {
+            unregisterDmContact(nick: item.contactLabel)
+            NighthawkContactStore.remove(nick: item.contactLabel)
+        }
+    }
+
+    /// Wipe all DM contacts, secrets, and conversations (e.g. on wallet delete).
+    public func clearAll() {
+        contacts = []
+        conversations = []
+        loaded = true
+        deleteKeychainItem()
+        scrubLegacySecretFiles()
+        try? FileManager.default.removeItem(at: storageDirectory().appendingPathComponent("dm_conversations.json"))
+        clearDmContacts()
+    }
+
     /// Find a contact by their public key.
     public func findContact(byTheirPublic publicB58: String) -> DmContact? {
-        contacts.first { $0.theirPublicB58 == publicB58 }
+        ensureLoaded()
+        return contacts.first { $0.theirPublicB58 == publicB58 }
     }
 
     /// Find a contact by label.
     public func findContact(byLabel label: String) -> DmContact? {
+        ensureLoaded()
         let normalized = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         return contacts.first { $0.contactLabel.lowercased() == normalized }
     }
@@ -161,10 +249,14 @@ public actor DarkircCryptoStore {
     // MARK: - Conversation state
 
     /// All conversations.
-    public func allConversations() -> [DmConversation] { conversations }
+    public func allConversations() -> [DmConversation] {
+        ensureLoaded()
+        return conversations
+    }
 
     /// Update conversation metadata when a new message arrives.
     public func updateConversation(contactId: String, lastMessage: String, at date: Date = Date(), incrementUnread: Bool = true) {
+        ensureLoaded()
         if let idx = conversations.firstIndex(where: { $0.id == contactId }) {
             conversations[idx].lastMessageText = lastMessage
             conversations[idx].lastMessageAt = date
@@ -172,57 +264,167 @@ public actor DarkircCryptoStore {
                 conversations[idx].unreadCount += 1
             }
         }
-        saveToDisk()
+        saveConversationsToDisk()
     }
 
     /// Clear unread count for a conversation.
     public func clearUnread(contactId: String) {
+        ensureLoaded()
         if let idx = conversations.firstIndex(where: { $0.id == contactId }) {
             conversations[idx].unreadCount = 0
         }
-        saveToDisk()
+        saveConversationsToDisk()
     }
 
-    // MARK: - Persistence
+    // MARK: - Persistence & Migration
 
-    private func loadFromDisk() {
-        let dir = storageDirectory()
+    private func registerInRust(_ contact: DmContact) -> Bool {
+        guard !contact.contactLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let sk = Base58.decode(contact.mySecretB58), sk.count == 32,
+              let pk = Base58.decode(contact.theirPublicB58), pk.count == 32 else {
+            return false
+        }
+        do {
+            try registerDmContact(nick: contact.contactLabel, mySecret: sk, theirPublic: pk)
+        } catch {
+            return false
+        }
+        return true
+    }
 
-        // Load contacts
-        let contactsFile = dir.appendingPathComponent("dm_contacts.json")
-        if let data = try? Data(contentsOf: contactsFile) {
-            contacts = (try? decoder.decode([DmContact].self, from: data)) ?? []
+    private func ensureLoaded() {
+        guard !loaded else { return }
+        loaded = true
+
+        if let data = readFromKeychain(),
+           let decoded = try? decoder.decode([DmContact].self, from: data) {
+            contacts = decoded
         }
 
-        // Load conversations
-        let convosFile = dir.appendingPathComponent("dm_conversations.json")
+        // Migrate any legacy plaintext disk files into Keychain, then securely overwrite & delete.
+        let migratedFromDisk = migrateLegacyDiskSecrets()
+        if migratedFromDisk {
+            if saveContactsToKeychain() {
+                scrubLegacySecretFiles()
+            }
+        } else {
+            scrubLegacySecretFiles()
+        }
+
+        let convosFile = storageDirectory().appendingPathComponent("dm_conversations.json")
         if let data = try? Data(contentsOf: convosFile) {
             conversations = (try? decoder.decode([DmConversation].self, from: data)) ?? []
         }
     }
 
-    private func saveToDisk() {
-        let dir = storageDirectory()
-
-        // Save contacts to App Support (excluded from iCloud backups) and mirror into
-        // the daemon datastore so Rust `load_dm_contacts_from_datastore` sees them.
-        if let data = try? encoder.encode(contacts) {
-            let contactsFile = dir.appendingPathComponent("dm_contacts.json")
-            try? data.write(to: contactsFile, options: [.atomic, .completeFileProtection])
-            var resourceValues = URLResourceValues()
-            resourceValues.isExcludedFromBackup = true
-            var mutableFile = contactsFile
-            try? mutableFile.setResourceValues(resourceValues)
-
-            let datastore = URL(fileURLWithPath: DarkircDaemonManager.shared.datastorePath, isDirectory: true)
-            try? FileManager.default.createDirectory(at: datastore, withIntermediateDirectories: true)
-            let daemonContacts = datastore.appendingPathComponent("dm_contacts.json")
-            try? data.write(to: daemonContacts, options: [.atomic, .completeFileProtection])
-            var daemonFile = daemonContacts
-            try? daemonFile.setResourceValues(resourceValues)
+    private func migrateLegacyDiskSecrets() -> Bool {
+        var didMigrate = false
+        for file in legacySecretFileURLs() {
+            guard FileManager.default.fileExists(atPath: file.path),
+                  let data = try? Data(contentsOf: file) else {
+                continue
+            }
+            if file.lastPathComponent == "dm_contacts.json",
+               let diskContacts = try? decoder.decode([DmContact].self, from: data) {
+                for item in diskContacts where !contacts.contains(where: {
+                    $0.id == item.id || $0.contactLabel.caseInsensitiveCompare(item.contactLabel) == .orderedSame
+                }) {
+                    contacts.append(item)
+                    didMigrate = true
+                }
+            } else if file.lastPathComponent == "darkirc_crypto_bundle.json",
+                      let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let rawContacts = parsed["contacts"] as? [[String: Any]] {
+                for entry in rawContacts {
+                    guard let nick = (entry["nick"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                          !nick.isEmpty,
+                          let sk = (entry["myDmChachaSecretBase58"] as? String)
+                            ?? (entry["my_dm_chacha_secret_base58"] as? String),
+                          let pk = (entry["dmChachaPublicBase58"] as? String)
+                            ?? (entry["dm_chacha_public_base58"] as? String) else {
+                        continue
+                    }
+                    if !contacts.contains(where: {
+                        $0.contactLabel.caseInsensitiveCompare(nick) == .orderedSame
+                    }) {
+                        contacts.append(
+                            DmContact(
+                                contactLabel: nick,
+                                theirPublicB58: pk,
+                                mySecretB58: sk,
+                                myPublicB58: ""
+                            )
+                        )
+                        didMigrate = true
+                    }
+                }
+            }
         }
+        return didMigrate
+    }
 
-        // Save conversations
+    private func legacySecretFileURLs() -> [URL] {
+        let appSupportDir = storageDirectory()
+        let datastoreDir = daemonDatastoreDirectory()
+        return [
+            appSupportDir.appendingPathComponent("dm_contacts.json"),
+            appSupportDir.appendingPathComponent("darkirc_crypto_bundle.json"),
+            datastoreDir.appendingPathComponent("dm_contacts.json"),
+            datastoreDir.appendingPathComponent("darkirc_crypto_bundle.json")
+        ]
+    }
+
+    private func scrubLegacySecretFiles() {
+        for url in legacySecretFileURLs() {
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+               let size = attrs[.size] as? Int, size > 0 {
+                let zeros = Data(repeating: 0, count: size)
+                try? zeros.write(to: url, options: .atomic)
+            }
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    @discardableResult
+    private func saveContactsToKeychain() -> Bool {
+        guard let data = try? encoder.encode(contacts) else { return false }
+        let status = KeychainGenericPassword.upsert(
+            service: keychainService,
+            account: keychainAccount,
+            data: data
+        )
+        if status == errSecSuccess {
+            scrubLegacySecretFiles()
+        }
+        return status == errSecSuccess
+    }
+
+    private func readFromKeychain() -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: true
+        ]
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess, let data = item as? Data else { return nil }
+        return data
+    }
+
+    private func deleteKeychainItem() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
+    private func saveConversationsToDisk() {
+        let dir = storageDirectory()
         if let data = try? encoder.encode(conversations) {
             let convosFile = dir.appendingPathComponent("dm_conversations.json")
             try? data.write(to: convosFile, options: [.atomic, .completeFileProtection])
@@ -234,6 +436,10 @@ public actor DarkircCryptoStore {
     }
 
     private func storageDirectory() -> URL {
+        if let customStorageDir {
+            try? FileManager.default.createDirectory(at: customStorageDir, withIntermediateDirectories: true)
+            return customStorageDir
+        }
         // swiftlint:disable:next force_unwrapping
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dir = appSupport.appendingPathComponent("darkirc", isDirectory: true)
@@ -243,5 +449,12 @@ public actor DarkircCryptoStore {
         var mutableDir = dir
         try? mutableDir.setResourceValues(resourceValues)
         return dir
+    }
+
+    private func daemonDatastoreDirectory() -> URL {
+        if let customDatastoreDir {
+            return customDatastoreDir
+        }
+        return URL(fileURLWithPath: DarkircDaemonManager.shared.datastorePath, isDirectory: true)
     }
 }

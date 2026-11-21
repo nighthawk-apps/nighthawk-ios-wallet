@@ -203,6 +203,8 @@ public struct SynchronizerState: Equatable {
     /// The Rust sync engine has a live lightwalletd session. `activeSyncMethod`
     /// sticks from the last good cycle, so it alone must not read as connected.
     public var lightwalletdConnected: Bool
+    /// Human-readable status from Rust `DrkLightSyncState.status_message` (includes stale-tip warnings).
+    public var lightStatusMessage: String?
 
     public static var zero: SynchronizerState {
         SynchronizerState(syncStatus: .disconnected, confirmedBalance: 0, latestBlockHeight: 0)
@@ -215,7 +217,8 @@ public struct SynchronizerState: Equatable {
         activeSyncMethod: DarkfiSyncMethod = .unknown,
         fallbackReason: String = "None",
         fallbackUserMessage: String = "",
-        lightwalletdConnected: Bool = false
+        lightwalletdConnected: Bool = false,
+        lightStatusMessage: String? = nil
     ) {
         self.syncStatus = syncStatus
         self.confirmedBalance = confirmedBalance
@@ -224,6 +227,7 @@ public struct SynchronizerState: Equatable {
         self.fallbackReason = fallbackReason
         self.fallbackUserMessage = fallbackUserMessage
         self.lightwalletdConnected = lightwalletdConnected
+        self.lightStatusMessage = lightStatusMessage
     }
 
     /// Map the Rust `LightSyncStatus` display string to a live-session flag.

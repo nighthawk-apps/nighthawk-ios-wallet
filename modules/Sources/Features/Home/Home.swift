@@ -250,6 +250,10 @@ public struct Home {
                 }
                 state.walletInfo.synchronizerState = latestState
                 state.walletInfo.synchronizerStatusSnapshot = snapshot
+                state.chat.lightStatusMessage = latestState.lightStatusMessage
+                if latestState.latestBlockHeight > 0 {
+                    state.chat.chainTip = Int(latestState.latestBlockHeight)
+                }
                 let balance = latestState.confirmedBalance
                 state.walletInfo.balance = balance
                 state.walletInfo.totalBalance = balance

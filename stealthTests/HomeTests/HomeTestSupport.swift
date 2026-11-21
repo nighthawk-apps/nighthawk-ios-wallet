@@ -29,6 +29,8 @@ enum HomeTestSupport {
         dependencies.diskSpaceChecker = .mockEmptyDisk
         dependencies.mainQueue = .main
         dependencies.continuousClock = ImmediateClock()
+        dependencies.date = .constant(Date(timeIntervalSince1970: 1_700_000_000))
+        dependencies.uuid = .incrementing
         dependencies.processInfo = .testValue
         dependencies.userStoredPreferences = .liveValue
         dependencies.appVersion = .mock

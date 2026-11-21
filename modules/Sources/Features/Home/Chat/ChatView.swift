@@ -195,6 +195,23 @@ private extension ChatView {
                 Text(store.chainTip > 0 ? "Lightwalletd height \(store.chainTip)" : "Lightwalletd height unavailable")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                if let lwdMessage = store.lightStatusMessage, !lwdMessage.isEmpty {
+                    let isStale = lwdMessage.lowercased().contains("not reached darkfid")
+                        || lwdMessage.lowercased().contains("stale")
+                        || lwdMessage.lowercased().contains("unreachable")
+                    Text(lwdMessage)
+                        .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                        .foregroundColor(
+                            isStale
+                                ? StealthTheme.Colors.statusWarning
+                                : Asset.Colors.Nighthawk.parmaviolet.color
+                        )
+                }
+                if let snap = transportSnapshotSummary {
+                    Text("Transport: \(snap)")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                }
                 Text(store.selectedTab == .direct ? "Direct message · E2E" : "Public channel · plaintext on the DAG")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
@@ -308,19 +325,43 @@ private extension ChatView {
         }
     }
 
-    var peerSlots: [(index: Int, label: String, connected: Bool)] {
-        let connecting = store.connectionState == .startingDaemon
-            || store.connectionState == .connecting
-            || store.connectionState == .waitingForDagSync
-        return (0..<3).map { index in
-            if store.connectionState.isConnected && index == 0 {
-                return (index, "connected", true)
-            }
-            if connecting {
-                return (index, "connecting", false)
-            }
-            return (index, "sleeping", false)
+    private struct OutboundSlotPayload: Decodable {
+        let slot: Int
+        let url: String?
+        let state: String
+    }
+
+    private struct TransportSnapshotPayload: Decodable {
+        let kind: String
+        let phase: String
+        let mesh: Bool
+        let sessionDirect: Bool
+        let socksPort: UInt16?
+    }
+
+    var transportSnapshotSummary: String? {
+        let raw = transportSnapshotJson()
+        guard let data = raw.data(using: .utf8),
+              let snap = try? JSONDecoder().decode(TransportSnapshotPayload.self, from: data) else {
+            return nil
         }
+        let port = snap.socksPort.map { " · :\($0)" } ?? ""
+        let direct = snap.sessionDirect ? " · sessionDirect" : ""
+        let mesh = snap.mesh ? " · mesh" : ""
+        return "\(snap.kind) (\(snap.phase))\(port)\(direct)\(mesh)"
+    }
+
+    var peerSlots: [(index: Int, label: String, connected: Bool)] {
+        let raw = darkircOutboundSlots()
+        if let data = raw.data(using: .utf8),
+           let decoded = try? JSONDecoder().decode([OutboundSlotPayload].self, from: data),
+           !decoded.isEmpty {
+            return decoded.map { item in
+                let label = item.url.map { "\(item.state) · \($0)" } ?? item.state
+                return (item.slot, label, item.state == "connected")
+            }
+        }
+        return (0..<3).map { ($0, "unavailable", false) }
     }
 
     var connectionDot: some View {

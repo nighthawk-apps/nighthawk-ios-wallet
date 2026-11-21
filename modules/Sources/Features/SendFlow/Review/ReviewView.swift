@@ -101,39 +101,33 @@ private extension StoreOf<Review> {
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.address,
-                    value: self.recipient,
-                    action: .button(
-                        title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
-                        action: {
-                            self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))
-                        }
-                    )
+                    value: self.recipient
                 )
             ]
         )
+
+        let totalDisplay = tokenName == "DRK"
+            ? "\(self.total.decimalString()) DRK"
+            : "\(self.zecAmount.decimalString()) \(tokenName) + \(self.fee.decimalString()) DRK"
+        let syncDisplay = self.syncMethod == .unknown ? "Not synced" : self.syncMethod.displayName
 
         result.append(
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.networkFee,
-                    value: "\(self.fee.decimalString()) \(tokenName)"
+                    value: "\(self.fee.decimalString()) DRK"
                 ),
-                // PerfOMR/OMD is the only send path (Rust default); no scheme toggle.
                 TransactionLineItem(
                     name: "Sync method",
-                    value: "PerfOMR (default)"
+                    value: syncDisplay
                 ),
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.total.decimalString()) \(tokenName)"
+                    value: totalDisplay
                 )
             ]
         )
 
         return result
-    }
-
-    var viewRecipientOnlineURL: URL? {
-        URL(string: "https://darkfi.explorer/address/\(self.recipient)")
     }
 }

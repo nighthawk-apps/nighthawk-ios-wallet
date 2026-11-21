@@ -111,11 +111,11 @@ final class NighthawkBLELink: NSObject {
     }
 
     private func linkID(peripheral: CBPeripheral) -> String {
-        "p:" + peripheral.identifier.uuidString
+        "p:\(peripheral.identifier.uuidString)"
     }
 
     private func linkID(central: CBCentral) -> String {
-        "c:" + central.identifier.uuidString
+        "c:\(central.identifier.uuidString)"
     }
 
     private func admit(_ id: String) -> String? {

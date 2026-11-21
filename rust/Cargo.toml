@@ -1,5 +1,5 @@
 [workspace]
-members = ["darkfi-android-bridge", "darkfi-mobile-ffi"]
+members = ["darkfi-android-bridge"]
 resolver = "2"
 
 [patch.crates-io]

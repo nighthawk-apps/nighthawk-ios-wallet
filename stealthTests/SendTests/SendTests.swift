@@ -4,8 +4,15 @@
 //
 
 import XCTest
+import ComposableArchitecture
 import DerivationTool
+import Home
+import LocalAuthenticationClient
+import Migrate
 import Models
+import SDKSynchronizer
+import SendFlow
+import Splash
 import Utils
 @testable import DarkfiCore
 
@@ -79,7 +86,14 @@ final class SendTests: XCTestCase {
 
         try? FileManager.default.removeItem(atPath: walletDbPath)
         try? FileManager.default.removeItem(atPath: cachePath)
-        try? FileManager.default.createDirectory(atPath: cachePath, withIntermediateDirectories: true)
+        if FileManager.default.fileExists(atPath: "/tmp/studio-mined-wallet/seed_dummy_pass.db") {
+            try? FileManager.default.copyItem(atPath: "/tmp/studio-mined-wallet/seed_dummy_pass.db", toPath: walletDbPath)
+        }
+        if FileManager.default.fileExists(atPath: "/tmp/studio-mined-wallet/cache_dummy") {
+            try? FileManager.default.copyItem(atPath: "/tmp/studio-mined-wallet/cache_dummy", toPath: cachePath)
+        } else {
+            try? FileManager.default.createDirectory(atPath: cachePath, withIntermediateDirectories: true)
+        }
 
         let config = DrkBootstrapConfig(
             network: "testnet",
@@ -88,11 +102,14 @@ final class SendTests: XCTestCase {
             cachePath: cachePath,
             walletPass: "dummy_wallet_pass",
             lightwalletServerUrl: "tcp://127.0.0.1:9067",
-            birthdayHeight: 22000,
+            birthdayHeight: 91808,
             lightwalletTlsPinSha256: nil,
             useTor: false,
             torSocksPort: 9050,
-            darkfidRpcUrl: "tcp://127.0.0.1:18345"
+            useNym: false,
+            nymSocksPort: 1080,
+            darkfidRpcUrl: "tcp://127.0.0.1:18345",
+            strictOmrOnly: false
         )
 
         let handle: DarkfiWalletHandle
@@ -104,7 +121,7 @@ final class SendTests: XCTestCase {
 
         do {
             let snapshot = try handle.refreshNow()
-            print("Testnet sync snapshot: \(snapshot.scannedBlocks) blocks scanned, tip is \(snapshot.chainTip)")
+            print("Testnet sync snapshot: \(snapshot.scannedBlocks) blocks scanned, tip is \(snapshot.chainTip), balance=\(try handle.confirmedBalanceAtomic())")
         } catch {
             throw XCTSkip("Sync failed or node not ready: \(error)")
         }
@@ -113,9 +130,9 @@ final class SendTests: XCTestCase {
         print("WALLET_ADDRESS_DUMP: \(addresses.first ?? "none")")
         XCTAssertFalse(addresses.isEmpty, "Expected at least one receive address")
 
-        let dummyRecipient = "fRGoBKrJuxKutPqQVGu6Mpp94uEREg6yDG9MZponXoJ1KzMGEeSAtjxm"
+        let dummyRecipient = "fWnYMrPf2ACXemapSZtZUxsAwPXReYu9U5b2Nic2rEU4VS17EogCweNY"
         // Whole-DRK decimal string (not atomic Int64 string).
-        let amountDecimal = "0.1"
+        let amountDecimal = "0.05"
 
         let fee: Int64
         do {
@@ -123,7 +140,7 @@ final class SendTests: XCTestCase {
                 recipientAddress: dummyRecipient,
                 amount: amountDecimal,
                 tokenId: nil as String?,
-                paymentMemo: nil as String?
+                paymentMemo: "nh-phase4-ios-sim-tailscale-e2e"
             )
         } catch let error as DarkfiWalletNativeError {
             if case .NativeDrkUnavailable(let msg) = error,
@@ -144,12 +161,13 @@ final class SendTests: XCTestCase {
                     recipientAddress: dummyRecipient,
                     amount: amountDecimal,
                     tokenId: nil as String?,
-                    paymentMemo: nil as String?
+                    paymentMemo: "nh-phase4-ios-sim-tailscale-e2e"
                 ),
-                paymentMemo: nil as String?,
+                paymentMemo: "nh-phase4-ios-sim-tailscale-e2e",
                 recipientAddress: dummyRecipient
             )
             print("TXID_DUMP: \(txHash)")
+            print("E2E_EXPLORER: https://explorer.testnet.dark.fi/tx/\(txHash)")
             XCTAssertFalse(txHash.isEmpty)
         } catch let error as DarkfiWalletNativeError {
             if case .NativeDrkUnavailable(let message) = error,
@@ -219,5 +237,208 @@ final class ChatWalletLogicTests: XCTestCase {
             nick: "other",
             timestamp: Date().addingTimeInterval(-120)
         ))
+    }
+}
+
+@MainActor
+final class SendFlowAndSyncUnitTests: XCTestCase {
+    func testCustomTokenBalanceValidationUsesSelectedTokenBalanceAndDrkFee() {
+        var state = SendFlow.State(latestFiatPrice: nil)
+        state.spendableBalance = 10_000 // 0.0001 DRK (enough for fee, less than token amount)
+        state.availableTokens = [
+            TokenBalanceInfo(tokenId: "tok_abc", displayLabel: "TEST", balanceAtomic: 500_000_000)
+        ]
+        state.selectedTokenId = "tok_abc"
+        state.amountToSendInput = "2" // 200_000_000 atomic > DRK balance, <= token balance
+
+        XCTAssertEqual(state.selectedSpendableBalance, 500_000_000)
+        XCTAssertTrue(state.canSendEnteredAmount)
+
+        state.amountToSendInput = "6" // > token balance
+        XCTAssertFalse(state.canSendEnteredAmount)
+
+        // Custom token requires >0 DRK for fee
+        state.amountToSendInput = "1"
+        state.spendableBalance = 0
+        XCTAssertFalse(state.canSendEnteredAmount)
+
+        state.spendableBalance = 1_000
+        XCTAssertFalse(state.customTokenFeeIsCovered(Proposal(estimatedFee: 5_000_000)))
+        state.spendableBalance = 5_000_000
+        XCTAssertTrue(state.customTokenFeeIsCovered(Proposal(estimatedFee: 5_000_000)))
+        state.selectedTokenId = nil
+        state.spendableBalance = 1
+        XCTAssertTrue(state.customTokenFeeIsCovered(Proposal(estimatedFee: 5_000_000)))
+    }
+
+    func testSendFlowProposeAndErrorPropagationIntoSendFailed() async {
+        var initialState = SendFlow.State(latestFiatPrice: nil)
+        initialState.spendableBalance = 500_000_000
+        initialState.amountToSendInput = "0.5"
+        initialState.recipient = "fRGoBKrJuxKutPqQVGu6Mpp94uEREg6yDG9MZponXoJ1KzMGEeSAtjxm"
+
+        var capturedDecimalArg: String?
+        let store = TestStore(
+            initialState: initialState,
+            reducer: SendFlow.init
+        ) {
+            $0.sdkSynchronizer = .inert
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(
+                    syncStatus: .upToDate,
+                    confirmedBalance: 500_000_000,
+                    latestBlockHeight: 42,
+                    activeSyncMethod: .unifOmr,
+                    lightwalletdConnected: true
+                )
+            }
+            $0.sdkSynchronizer.proposeTransfer = { _, _, amount, _, _ in
+                capturedDecimalArg = amount.inputDecimalString()
+                return Proposal(estimatedFee: 10_000)
+            }
+            $0.sdkSynchronizer.sendTransaction = { _, _, _, _, _ in
+                throw DarkfiError(message: "Insufficient mempool fee")
+            }
+            $0.walletStorage.exportWallet = {
+                StoredWallet.placeholder
+            }
+            $0.mnemonic.toSeed = { _ in Array(repeating: 1, count: 32) }
+            $0.derivationTool.deriveSpendingKey = { _, account, _ in
+                SpendingKey(bytes: Array(repeating: 2, count: 32), account: account)
+            }
+            $0.derivationTool.isDarkFiAddress = { _, _ in false }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.continueTapped)
+        await store.receive(.setProposal(Proposal(estimatedFee: 10_000)))
+        await store.receive { action in
+            if case let .review(reviewState) = action {
+                return reviewState.syncMethod == .unifOmr && reviewState.zecAmount == 50_000_000
+            }
+            return false
+        }
+        XCTAssertEqual(capturedDecimalArg, "0.5")
+
+        await store.send(.sendTransaction)
+        await store.receive(.sendTransactionInProgress)
+        await store.receive(.sendTransactionFailure("Insufficient mempool fee")) { state in
+            state.isSendingTransaction = false
+            XCTAssertEqual(
+                state.path.last,
+                SendFlow.Path.State.failed(.init(errorMessage: "Insufficient mempool fee"))
+            )
+        }
+    }
+
+    func testSyncStatusSnapshotPropagatesLightStatusMessage() {
+        let syncState = SynchronizerState(
+            syncStatus: .upToDate,
+            confirmedBalance: 100_000_000,
+            latestBlockHeight: 77,
+            activeSyncMethod: .trialDecrypt,
+            lightwalletdConnected: true,
+            lightStatusMessage: "Synced · Block 77 — lightwalletd has not reached darkfid recently"
+        )
+        let snapshot = SyncStatusSnapshot.snapshotFor(state: syncState)
+        XCTAssertEqual(
+            snapshot.lightSyncStatusMessage,
+            "Synced · Block 77 — lightwalletd has not reached darkfid recently"
+        )
+    }
+
+    func testTransactionHistoryRefreshesWhenUpToDateBalanceChanges() async {
+        let expectedTx = DarkfiTransactionOverview(
+            rawId: "tx_live_refresh",
+            minedHeight: 88,
+            totalAtomicValue: 250_000_000,
+            fee: 10_000,
+            isSending: false
+        )
+        let store = TestStore(
+            initialState: TransactionHistory.State(latestFiatPrice: nil),
+            reducer: TransactionHistory.init
+        ) {
+            $0.sdkSynchronizer = .inert
+            $0.sdkSynchronizer.latestState = {
+                SynchronizerState(syncStatus: .upToDate, confirmedBalance: 250_000_000, latestBlockHeight: 88)
+            }
+            $0.sdkSynchronizer.getAllTransactions = { [expectedTx] }
+        }
+        store.exhaustivity = .off
+
+        let first = SynchronizerState(syncStatus: .upToDate, confirmedBalance: 0, latestBlockHeight: 87)
+        await store.send(.synchronizerStateChanged(first))
+        let second = SynchronizerState(syncStatus: .upToDate, confirmedBalance: 250_000_000, latestBlockHeight: 88)
+        await store.send(.synchronizerStateChanged(second))
+        await store.receive { action in
+            if case let .updateWalletEvents(events) = action {
+                return events.first?.id == "tx_live_refresh"
+            }
+            return false
+        }
+        XCTAssertEqual(store.state.walletEvents.first?.id, "tx_live_refresh")
+    }
+
+    func testHomeWalletScanPassesBalanceAndAddressToSendFlow() async {
+        await withDependencies {
+            HomeTestSupport.configureDependencies(&$0)
+        } operation: {
+            var homeState = Home.State(receiveAddress: DarkfiAddress(stringEncoded: "drk1self"))
+            homeState.walletInfo.balance = 333_000_000
+
+            let store = TestStore(
+                initialState: homeState,
+                reducer: Home.init
+            ) {
+                HomeTestSupport.configureDependencies(&$0)
+            }
+            store.exhaustivity = .off
+
+            await store.send(.wallet(.delegate(.scanPaymentRequest))) { state in
+                if case let .send(sendState) = state.transfer.destination {
+                    XCTAssertEqual(sendState.spendableBalance, 333_000_000)
+                    XCTAssertEqual(sendState.receiveAddress?.stringEncoded, "drk1self")
+                } else {
+                    XCTFail("Expected SendFlow destination")
+                }
+            }
+        }
+    }
+
+    func testMigrateRestoreManuallySendsImportManuallyDelegate() async {
+        let store = TestStore(
+            initialState: Migrate.State(),
+            reducer: Migrate.init
+        )
+        await store.send(.restoreManuallyTapped)
+        await store.receive(.delegate(.importManually))
+    }
+
+    func testSplashAuthenticateLaunchesWhenDeviceHasNoPasscode() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let store = TestStore(
+            initialState: Splash.State(),
+            reducer: Splash.init
+        ) {
+            $0.date = .constant(now)
+            $0.localAuthenticationContext = LocalAuthenticationContextClientGenerator {
+                LocalAuthenticationContextClient(
+                    biometryType: { .none },
+                    canEvaluatePolicy: { _ in false },
+                    evaluatePolicy: { _, _ in false }
+                )
+            }
+        }
+
+        await store.send(.authenticate) { state in
+            state.isAuthenticating = true
+        }
+        await store.receive(.authenticationResponse(true)) { state in
+            state.hasAttemptedAuthentication = true
+            state.isAuthenticating = false
+            state.lastAuthenticatedTime = now
+        }
+        await store.receive(.delegate(.initializeSDKAndLaunchWallet))
     }
 }

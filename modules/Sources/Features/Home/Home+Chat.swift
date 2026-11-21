@@ -5,6 +5,7 @@
 //
 
 import ComposableArchitecture
+import Models
 import Receive
 import SendFlow
 import Utils
@@ -18,6 +19,16 @@ extension Home {
     private func chatDelegateReducer() -> Reduce<Home.State, Home.Action> {
         Reduce { state, action in
             switch action {
+            case .transfer(.destination(.presented(.send(.sendTransactionSuccess)))):
+                if let ready = ChatReceiptBook.consumeReadyToPost() {
+                    return .send(.chat(.postBroadcastedReceipt(ready.receipt, channel: ready.targetChannel)))
+                }
+                return .none
+            case .transfer(.destination(.dismiss)),
+                 .transfer(.destination(.presented(.send(.closeButtonTapped)))),
+                 .transfer(.destination(.presented(.send(.path(.element(id: _, action: .failed(.delegate(.cancelTransaction)))))))):
+                ChatReceiptBook.clearPending()
+                return .none
             case let .chat(.delegate(delegateAction)):
                 switch delegateAction {
                 case .openChatSettings:

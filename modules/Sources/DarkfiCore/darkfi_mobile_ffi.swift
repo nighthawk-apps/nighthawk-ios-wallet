@@ -3089,6 +3089,20 @@ public func chachaEncryptDm(mySecret: [UInt8], theirPublic: [UInt8], plaintext: 
     )
 })
 }
+public func clearDmContacts()  {try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_clear_dm_contacts(uniffiCallStatus
+    )
+}
+}
+public func configureDarkirc(dagsCount: UInt32, fastMode: Bool)  {try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_configure_darkirc(
+        FfiConverterUInt32.lower(dagsCount),
+        FfiConverterBool.lower(fastMode),uniffiCallStatus
+    )
+}
+}
 public func darkircConnectionPhase() -> String  {
     return try!  FfiConverterString.lift(try! rustCall() {
         uniffiCallStatus in
@@ -3159,6 +3173,15 @@ public func nymStatus() -> String  {
     uniffi_darkfi_mobile_ffi_fn_func_nym_status(uniffiCallStatus
     )
 })
+}
+public func registerDmContact(nick: String, mySecret: [UInt8], theirPublic: [UInt8])throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_register_dm_contact(
+        FfiConverterString.lower(nick),
+        FfiConverterSequenceUInt8.lower(mySecret),
+        FfiConverterSequenceUInt8.lower(theirPublic),uniffiCallStatus
+    )
+}
 }
 public func sendChatMessage(channel: String, nick: String, message: String)throws   {try rustCallWithError(FfiConverterTypeDarkfiWalletNativeError_lift) {
         uniffiCallStatus in
@@ -3264,6 +3287,20 @@ public func transportSnapshotJson() -> String  {
     )
 })
 }
+public func transportSocksAuthJson() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_transport_socks_auth_json(uniffiCallStatus
+    )
+})
+}
+public func unregisterDmContact(nick: String)  {try! rustCall() {
+        uniffiCallStatus in
+    uniffi_darkfi_mobile_ffi_fn_func_unregister_dm_contact(
+        FfiConverterString.lower(nick),uniffiCallStatus
+    )
+}
+}
 public func validateDarkfiMnemonic(phrase: [String]) -> Bool  {
     return try!  FfiConverterBool.lift(try! rustCall() {
         uniffiCallStatus in
@@ -3300,6 +3337,12 @@ private let initializationResult: InitializationResult = {
     if (uniffi_darkfi_mobile_ffi_checksum_func_chacha_encrypt_dm() != 37407) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_clear_dm_contacts() != 10905) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_configure_darkirc() != 65189) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_darkfi_mobile_ffi_checksum_func_darkirc_connection_phase() != 60093) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3328,6 +3371,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_nym_status() != 41601) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_register_dm_contact() != 22166) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_send_chat_message() != 4769) {
@@ -3373,6 +3419,12 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_transport_snapshot_json() != 27674) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_transport_socks_auth_json() != 56626) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_darkfi_mobile_ffi_checksum_func_unregister_dm_contact() != 44884) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_darkfi_mobile_ffi_checksum_func_validate_darkfi_mnemonic() != 33875) {

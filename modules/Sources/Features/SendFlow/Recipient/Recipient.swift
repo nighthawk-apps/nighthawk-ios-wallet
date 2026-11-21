@@ -77,7 +77,7 @@ public struct Recipient {
                 return .none
             case .onAppear:
                 state.showScanButton = !processInfo.isiOSAppOnMac()
-                state.addressBook = DeviceAddressBook.load()
+                state.addressBook = Self.mergedAddressBook()
                 if let contents = pasteboard.getString() {
                     let trimmed = contents.data.trimmingCharacters(in: .whitespacesAndNewlines)
                     let candidate = PaymentRequestUri.parse(trimmed)?.address ?? trimmed
@@ -93,7 +93,8 @@ public struct Recipient {
                 state.saveLabel = label
                 return .none
             case .saveAddressTapped:
-                state.addressBook = DeviceAddressBook.upsert(label: state.saveLabel, address: state.recipient)
+                _ = DeviceAddressBook.upsert(label: state.saveLabel, address: state.recipient)
+                state.addressBook = Self.mergedAddressBook()
                 state.saveLabel = ""
                 return .none
             case .pasteFromClipboardTapped:
@@ -138,4 +139,20 @@ public struct Recipient {
     }
 
     public init() {}
+
+    private static func mergedAddressBook() -> [DeviceAddressBook.Entry] {
+        var merged = DeviceAddressBook.load()
+        var seen = Set(merged.map(\.address))
+        for contact in NighthawkContactStore.load() {
+            guard let addr = contact.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !addr.isEmpty,
+                  !seen.contains(addr) else {
+                continue
+            }
+            seen.insert(addr)
+            let label = contact.nickname.isEmpty ? addr : contact.nickname
+            merged.append(DeviceAddressBook.Entry(label: label, address: addr))
+        }
+        return merged
+    }
 }

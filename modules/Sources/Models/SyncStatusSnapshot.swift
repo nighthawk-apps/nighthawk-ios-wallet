@@ -90,7 +90,7 @@ public struct SyncStatusSnapshot: Equatable {
     public static func snapshotFor(state: SynchronizerState) -> SyncStatusSnapshot {
         snapshotFor(
             state: state.syncStatus,
-            lightStatusMessage: nil,
+            lightStatusMessage: state.lightStatusMessage,
             lightTypeMessage: state.activeSyncMethod == .unknown ? nil : state.activeSyncMethod.displayName,
             omrAvailable: state.activeSyncMethod.isPrivateRetrieval,
             syncMethod: state.activeSyncMethod,

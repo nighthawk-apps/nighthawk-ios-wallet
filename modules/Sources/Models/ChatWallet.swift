@@ -50,13 +50,57 @@ public enum NighthawkContacts {
         return "drk:\(addr)"
     }
 
+    /// Full Nighthawk contact invite URI carrying nickname, DM public key, and/or wallet address.
+    public static func contactInviteUri(_ contact: NighthawkContact) -> String? {
+        let nick = contact.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dm = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let addr = contact.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !dm.isEmpty || !addr.isEmpty else { return nil }
+        var components = URLComponents()
+        components.scheme = "nighthawk"
+        components.host = "contact"
+        var items: [URLQueryItem] = []
+        if !nick.isEmpty { items.append(URLQueryItem(name: "nick", value: nick)) }
+        if !dm.isEmpty { items.append(URLQueryItem(name: "dm", value: dm)) }
+        if !addr.isEmpty { items.append(URLQueryItem(name: "addr", value: addr)) }
+        components.queryItems = items
+        return components.string
+    }
+
     public static func parseInvite(_ raw: String) -> NighthawkContact? {
-        guard let parsed = PaymentRequestUri.parse(raw),
-              raw.lowercased().hasPrefix("drk:") || raw.lowercased().hasPrefix("darkfi:")
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.lowercased().hasPrefix("nighthawk://contact"),
+           let components = URLComponents(string: trimmed) {
+            let items = components.queryItems ?? []
+            func item(_ names: String...) -> String {
+                for name in names {
+                    if let val = items.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame })?.value?
+                        .trimmingCharacters(in: .whitespacesAndNewlines),
+                       !val.isEmpty {
+                        return val
+                    }
+                }
+                return ""
+            }
+            let nick = item("nick", "name", "label")
+            let dm = item("dm", "pubkey", "dm_pubkey", "dmPublicKey")
+            let addr = item("addr", "address", "wallet", "walletAddress")
+            guard !dm.isEmpty || !addr.isEmpty else { return nil }
+            let id = !nick.isEmpty ? nick.lowercased() : (!addr.isEmpty ? addr : dm)
+            return NighthawkContact(
+                id: id,
+                nickname: nick,
+                dmPublicKey: dm,
+                walletAddress: addr.isEmpty ? nil : addr
+            )
+        }
+
+        guard let parsed = PaymentRequestUri.parse(trimmed),
+              trimmed.lowercased().hasPrefix("drk:") || trimmed.lowercased().hasPrefix("darkfi:")
         else { return nil }
         guard !parsed.address.isEmpty else { return nil }
         return NighthawkContact(
-            id: parsed.address.lowercased(),
+            id: parsed.address,
             nickname: "",
             dmPublicKey: "",
             walletAddress: parsed.address
@@ -164,29 +208,77 @@ public enum ChatReceiptCodec {
 /// Live receipt phases. Broadcast is not confirmation.
 public enum ChatReceiptBook {
     private static let pendingKey = "nighthawk.pendingChatReceipt"
+    private static let pendingTargetKey = "nighthawk.pendingChatReceiptTarget"
+    private static let readyKey = "nighthawk.readyChatReceiptId"
+    private static let readyTargetKey = "nighthawk.readyChatReceiptTarget"
     private static let mapKey = "nighthawk.chatReceipts.v1"
 
-    public static func stage(_ receipt: ChatReceipt) {
+    public static func stage(_ receipt: ChatReceipt, targetChannel: String? = nil) {
         var all = loadMap()
         all[receipt.id] = receipt
         saveMap(all)
         UserDefaults.standard.set(receipt.id, forKey: pendingKey)
+        if let targetChannel = targetChannel?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !targetChannel.isEmpty {
+            UserDefaults.standard.set(targetChannel, forKey: pendingTargetKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: pendingTargetKey)
+        }
     }
 
     public static func lookup(id: String) -> ChatReceipt? {
         loadMap()[id]
     }
 
-    public static func markBroadcasted(txId: String) {
+    @discardableResult
+    public static func markBroadcasted(txId: String) -> (receipt: ChatReceipt, targetChannel: String?)? {
         guard let id = UserDefaults.standard.string(forKey: pendingKey), var receipt = lookup(id: id) else {
-            return
+            return nil
         }
         receipt.phase = .broadcasted
         receipt.txId = txId
         var all = loadMap()
         all[id] = receipt
         saveMap(all)
+        let targetChannel = UserDefaults.standard.string(forKey: pendingTargetKey)
         UserDefaults.standard.removeObject(forKey: pendingKey)
+        UserDefaults.standard.removeObject(forKey: pendingTargetKey)
+        UserDefaults.standard.set(id, forKey: readyKey)
+        if let targetChannel, !targetChannel.isEmpty {
+            UserDefaults.standard.set(targetChannel, forKey: readyTargetKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: readyTargetKey)
+        }
+        return (receipt, targetChannel)
+    }
+
+    public static func consumeReadyToPost() -> (receipt: ChatReceipt, targetChannel: String?)? {
+        guard let id = UserDefaults.standard.string(forKey: readyKey),
+              let receipt = lookup(id: id) else {
+            return nil
+        }
+        let targetChannel = UserDefaults.standard.string(forKey: readyTargetKey)
+        UserDefaults.standard.removeObject(forKey: readyKey)
+        UserDefaults.standard.removeObject(forKey: readyTargetKey)
+        return (receipt, targetChannel)
+    }
+
+    public static func clearPending() {
+        if let id = UserDefaults.standard.string(forKey: pendingKey) {
+            var all = loadMap()
+            all.removeValue(forKey: id)
+            saveMap(all)
+        }
+        UserDefaults.standard.removeObject(forKey: pendingKey)
+        UserDefaults.standard.removeObject(forKey: pendingTargetKey)
+    }
+
+    public static func clearAll() {
+        UserDefaults.standard.removeObject(forKey: pendingKey)
+        UserDefaults.standard.removeObject(forKey: pendingTargetKey)
+        UserDefaults.standard.removeObject(forKey: readyKey)
+        UserDefaults.standard.removeObject(forKey: readyTargetKey)
+        UserDefaults.standard.removeObject(forKey: mapKey)
     }
 
     private static func loadMap() -> [String: ChatReceipt] {

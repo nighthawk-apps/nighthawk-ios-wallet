@@ -21,12 +21,13 @@ extension Home {
             case let .wallet(.delegate(delegateAction)):
                 switch delegateAction {
                 case .scanPaymentRequest:
-                    state.transfer.destination = .send(
-                        .init(
-                            path: StackState([.scan(.init(backButtonType: .close))]),
-                            latestFiatPrice: state.walletInfo.latestFiatPrice
-                        )
+                    var sendState = SendFlow.State(
+                        path: StackState([.scan(.init(backButtonType: .close))]),
+                        latestFiatPrice: state.walletInfo.latestFiatPrice
                     )
+                    sendState.spendableBalance = state.walletInfo.balance
+                    sendState.receiveAddress = state.walletInfo.receiveAddress
+                    state.transfer.destination = .send(sendState)
                     return .none
                 case .receiveMoney:
                     state.transfer.destination = .receive(

@@ -179,6 +179,8 @@ public struct Chat {
         public var receiveAddress: String = ""
         /// Lightwalletd tip, shown in the connection drawer.
         public var chainTip: Int = 0
+        /// Lightwalletd status message (includes stale-tip warnings).
+        public var lightStatusMessage: String?
         public var privacyNetwork: NighthawkSetting.PrivacyNetwork = .default
         /// Number of DAG bootstrap messages received
         public var dagSyncCount: Int = 0
@@ -257,8 +259,10 @@ public struct Chat {
         case payInvoiceTapped(address: String, amount: String?, memo: String?)
         case walletRequest(amount: String, memo: String)
         case walletSend(address: String, amount: String, memo: String, tip: Bool)
+        case postBroadcastedReceipt(ChatReceipt, channel: String?)
         case openNotifiedThread(String)
         case retryOutgoing(channel: String, text: String)
+        case markOutgoingSent(id: String, channel: String)
         case markOutgoingFailed(id: String, channel: String)
         case delegate(Delegate)
 
@@ -283,6 +287,19 @@ public struct Chat {
             self.myNickname = myNickname
         }
 
+        deinit {
+            continuation.finish()
+        }
+
+        func finish() {
+            continuation.finish()
+        }
+
+        static func makeStream(myNickname: String) -> (AsyncStream<State.Message>, ChatEventRelay) {
+            let (stream, continuation) = AsyncStream<State.Message>.makeStream()
+            return (stream, ChatEventRelay(continuation: continuation, myNickname: myNickname))
+        }
+
         func onMessage(eventId: String, channel: String, nick: String, message: String, timestamp: UInt64, isOutgoing: Bool) {
             let msg = State.Message(
                 id: eventId,
@@ -305,7 +322,9 @@ public struct Chat {
                 return .none
 
             case .onAppear:
-                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
+                state.privacyNetwork = SessionPrivacyOverride.resolved(
+                    stored: userStoredPreferences.walletPrivacyNetwork()
+                )
                 restoreChatHistoryIfEmpty(&state)
                 if state.connectionState == .disconnected {
                     return .send(.connectTapped)
@@ -346,9 +365,15 @@ public struct Chat {
                 state.diagnosticDetail = nil
                 state.dagSyncCount = 0
                 restoreChatHistoryIfEmpty(&state)
-                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
+                state.privacyNetwork = SessionPrivacyOverride.resolved(
+                    stored: userStoredPreferences.walletPrivacyNetwork()
+                )
                 let nickname = state.nickname
                 let network = state.privacyNetwork
+                let torPort = UInt16(userStoredPreferences.torSocksPort() ?? "") ?? 9050
+                let useEmbeddedTor = userStoredPreferences.useEmbeddedTor()
+                let dagsCount = UInt32(max(1, userStoredPreferences.darkircDagsCount()))
+                let fastMode = userStoredPreferences.darkircFastMode()
 
                 return .run { send in
                     // The embedded darkirc daemon relays public-channel and DM
@@ -361,15 +386,24 @@ public struct Chat {
                     await send(.embeddedNodeStatusChanged(.starting))
                     await send(.dagSyncStatusUpdate("Starting darkirc node…"))
 
-                    let (stream, continuation) = AsyncStream<State.Message>.makeStream()
-                    let relay = ChatEventRelay(continuation: continuation, myNickname: nickname)
+                    let (stream, relay) = ChatEventRelay.makeStream(myNickname: nickname)
 
                     if network == .nym {
                         await send(.dagSyncStatusUpdate("Waiting for the Nym mixnet…"))
                         let ready = await waitForNymTunnel()
                         if !ready {
-                            continuation.finish()
+                            relay.finish()
                             await send(.ircBridgeError("Nym mixnet is not up"))
+                            await send(.connectionStateChanged(.error))
+                            await send(.embeddedNodeStatusChanged(.failed))
+                            return
+                        }
+                    } else if network == .tor, useEmbeddedTor {
+                        await send(.dagSyncStatusUpdate("Waiting for Tor (Arti)…"))
+                        let ready = await waitForArtiTunnel(port: torPort)
+                        if !ready {
+                            relay.finish()
+                            await send(.ircBridgeError("Tor (Arti) is not up"))
                             await send(.connectionStateChanged(.error))
                             await send(.embeddedNodeStatusChanged(.failed))
                             return
@@ -381,12 +415,13 @@ public struct Chat {
                     case .tor: .tor
                     case .direct: .direct
                     }
-                    let socksPort: UInt16 = network == .tor ? 9050 : NighthawkSetting.PrivacyNetwork.nymSocksPort
+                    let socksPort: UInt16 = network == .tor ? torPort : NighthawkSetting.PrivacyNetwork.nymSocksPort
 
                     do {
+                        configureDarkirc(dagsCount: dagsCount, fastMode: fastMode)
                         try await daemon.restartForChat(callback: relay, transport: transport, socksPort: socksPort)
                     } catch {
-                        continuation.finish()
+                        relay.finish()
                         await send(.ircBridgeError(error.localizedDescription))
                         await send(.connectionStateChanged(.error))
                         await send(.embeddedNodeStatusChanged(.failed))
@@ -401,14 +436,27 @@ public struct Chat {
                     let maxPolls = 90
                     var reachedRunning = false
                     while pollCount < maxPolls {
-                        try? await Task.sleep(for: .seconds(1))
+                        guard !Task.isCancelled else {
+                            relay.finish()
+                            return
+                        }
+                        do {
+                            try await Task.sleep(for: .seconds(1))
+                        } catch {
+                            relay.finish()
+                            return
+                        }
+                        guard !Task.isCancelled else {
+                            relay.finish()
+                            return
+                        }
                         pollCount += 1
                         let ffiStatus = darkircStatus()
                         await send(.dagSyncStatusUpdate("DAG syncing… (\(pollCount)s)"))
 
                         switch ffiStatus {
                         case "failed":
-                            continuation.finish()
+                            relay.finish()
                             await send(.ircBridgeError("darkirc daemon failed during startup"))
                             await send(.connectionStateChanged(.error))
                             await send(.embeddedNodeStatusChanged(.failed))
@@ -428,7 +476,7 @@ public struct Chat {
                     }
 
                     guard reachedRunning else {
-                        continuation.finish()
+                        relay.finish()
                         await send(.ircBridgeError("darkirc did not reach running state (status: \(darkircStatus()))"))
                         await send(.connectionStateChanged(.error))
                         await send(.embeddedNodeStatusChanged(.failed))
@@ -517,15 +565,18 @@ public struct Chat {
                 }
                 if newState.isConnected {
                     let nick = state.nickname
-                    return .run { _ in
+                    return .run { send in
+                        await DarkircCryptoStore.shared.registerAllWithRust()
                         let pending = await ChatOutboxStore.shared.loadAll()
                         for record in pending {
                             await ChatOutboxStore.shared.updateDelivery(id: record.id, delivery: "sending")
                             do {
                                 try sendChatMessage(channel: record.channel, nick: nick, message: record.text)
                                 await ChatOutboxStore.shared.remove(id: record.id)
+                                await send(.markOutgoingSent(id: record.id, channel: record.channel))
                             } catch {
                                 await ChatOutboxStore.shared.updateDelivery(id: record.id, delivery: "failed")
+                                await send(.markOutgoingFailed(id: record.id, channel: record.channel))
                             }
                         }
                     }
@@ -778,7 +829,7 @@ public struct Chat {
                 let optimisticId = message.id
                 if offline {
                     return .run { send in
-                        _ = await ChatOutboxStore.shared.enqueue(channel: channelTarget, text: text)
+                        _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: channelTarget, text: text)
                         await send(.ircBridgeError("Queued offline — will send when DarkIRC reconnects"))
                     }
                 }
@@ -786,7 +837,7 @@ public struct Chat {
                     do {
                         try sendChatMessage(channel: channelTarget, nick: nick, message: text)
                     } catch {
-                        _ = await ChatOutboxStore.shared.enqueue(channel: channelTarget, text: text)
+                        _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: channelTarget, text: text)
                         await send(.ircBridgeError("Send failed; queued for retry: \(error.localizedDescription)"))
                         await send(.markOutgoingFailed(id: optimisticId, channel: channelTarget))
                     }
@@ -925,7 +976,10 @@ public struct Chat {
                 return .none
 
             case .newDmTapped:
-                state.newDmConversation = NewDmConversation.State()
+                var dmState = NewDmConversation.State()
+                dmState.myPublicKey = userStoredPreferences.dmPublicKey() ?? ""
+                dmState.mySecretKey = userStoredPreferences.dmSecretKey() ?? ""
+                state.newDmConversation = dmState
                 return .none
 
             case .settingsTapped:
@@ -961,6 +1015,9 @@ public struct Chat {
                 let amountText = amount.trimmingCharacters(in: .whitespacesAndNewlines)
                 let typedMemo = memo.trimmingCharacters(in: .whitespacesAndNewlines)
                 let memoText: String? = typedMemo.isEmpty ? (tip ? "Tip" : nil) : typedMemo
+                let targetChannel: String? = state.selectedTab == .direct
+                    ? state.selectedDmContact?.contactLabel
+                    : state.selectedChannel?.name
                 let receipt = ChatReceipt(
                     id: UUID().uuidString,
                     phase: .pending,
@@ -968,16 +1025,53 @@ public struct Chat {
                     address: trimmedAddress,
                     memo: memoText
                 )
-                ChatReceiptBook.stage(receipt)
-                state.composedMessage = ChatReceiptCodec.encode(receipt)
-                return .concatenate(
-                    .send(.sendMessage),
-                    .send(.delegate(.payInvoice(
-                        address: trimmedAddress,
-                        amount: amountText.isEmpty ? nil : amountText,
-                        memo: memoText
-                    )))
+                ChatReceiptBook.stage(receipt, targetChannel: targetChannel)
+                return .send(.delegate(.payInvoice(
+                    address: trimmedAddress,
+                    amount: amountText.isEmpty ? nil : amountText,
+                    memo: memoText
+                )))
+
+            case let .postBroadcastedReceipt(receipt, channel):
+                let encoded = ChatReceiptCodec.encode(receipt)
+                let target = channel?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let target, !target.isEmpty, !target.hasPrefix("#"),
+                   let contact = state.dmContacts.first(where: {
+                       $0.contactLabel.caseInsensitiveCompare(target) == .orderedSame
+                   }) {
+                    return sendDirectMessage(state: &state, text: encoded, targetContact: contact)
+                }
+                let targetChannel = (target?.isEmpty == false ? target : nil) ?? state.selectedChannel?.name
+                guard let channelName = targetChannel, !channelName.isEmpty else { return .none }
+                let offline = !state.connectionState.isConnected
+                let message = State.Message(
+                    id: offline ? "queued-\(UUID().uuidString)" : "local-\(UUID().uuidString)",
+                    sender: state.nickname,
+                    content: encoded,
+                    channel: channelName,
+                    isOutgoing: true
                 )
+                state.channelMessages[channelName, default: []].append(message)
+                if state.selectedTab == .channels && state.selectedChannel?.name == channelName {
+                    state.messages.append(message)
+                }
+                state.seenEventIds.insert(message.id)
+                ChatHistoryStore.save(channels: state.channelMessages, dms: state.dmMessages)
+                let nick = state.nickname
+                let optimisticId = message.id
+                if offline {
+                    return .run { _ in
+                        _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: channelName, text: encoded)
+                    }
+                }
+                return .run { send in
+                    do {
+                        try sendChatMessage(channel: channelName, nick: nick, message: encoded)
+                    } catch {
+                        _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: channelName, text: encoded)
+                        await send(.markOutgoingFailed(id: optimisticId, channel: channelName))
+                    }
+                }
 
             case let .openNotifiedThread(thread):
                 let key = thread.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1004,37 +1098,63 @@ public struct Chat {
                 }
                 return .send(.tabSelected(.direct))
 
-            case let .retryOutgoing(_, text):
+            case let .retryOutgoing(channel, text):
                 let body = text.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !body.isEmpty else { return .none }
+                var removedIds: [String] = []
+                if var bucket = state.channelMessages[channel] {
+                    for msg in bucket where msg.id.hasPrefix("failed-") && msg.content == body {
+                        removedIds.append(msg.id)
+                    }
+                    bucket.removeAll { msg in removedIds.contains(msg.id) }
+                    state.channelMessages[channel] = bucket
+                }
+                if let contact = state.dmContacts.first(where: {
+                    $0.contactLabel.caseInsensitiveCompare(channel) == .orderedSame
+                }), var bucket = state.dmMessages[contact.id] {
+                    for msg in bucket where msg.id.hasPrefix("failed-") && msg.content == body {
+                        removedIds.append(msg.id)
+                    }
+                    bucket.removeAll { msg in removedIds.contains(msg.id) }
+                    state.dmMessages[contact.id] = bucket
+                }
+                for rid in removedIds {
+                    state.messages.remove(id: rid)
+                    state.seenEventIds.remove(rid)
+                }
+                if !removedIds.isEmpty {
+                    ChatHistoryStore.save(channels: state.channelMessages, dms: state.dmMessages)
+                }
+                let outboxIdsToClear = removedIds.map { id in
+                    id.hasPrefix("failed-") ? String(id.dropFirst("failed-".count)) : id
+                }
                 state.composedMessage = body
-                return .send(.sendMessage)
+                return .merge(
+                    .run { _ in
+                        for oid in outboxIdsToClear {
+                            await ChatOutboxStore.shared.remove(id: oid)
+                        }
+                    },
+                    .send(.sendMessage)
+                )
+
+            case let .markOutgoingSent(id, channel):
+                let sentId = "local-\(UUID().uuidString)"
+                return updateOutgoingDelivery(
+                    state: &state,
+                    oldId: id,
+                    newId: sentId,
+                    channel: channel
+                )
 
             case let .markOutgoingFailed(id, channel):
-                guard let idx = state.channelMessages[channel]?.firstIndex(where: { $0.id == id }) else {
-                    return .none
-                }
-                let old = state.channelMessages[channel]![idx]
                 let failedId = id.hasPrefix("failed-") ? id : "failed-\(id)"
-                let failed = State.Message(
-                    id: failedId,
-                    sender: old.sender,
-                    content: old.content,
-                    channel: old.channel,
-                    timestamp: old.timestamp,
-                    isOutgoing: true,
-                    failedToDecrypt: old.failedToDecrypt
+                return updateOutgoingDelivery(
+                    state: &state,
+                    oldId: id,
+                    newId: failedId,
+                    channel: channel
                 )
-                state.channelMessages[channel]?.remove(at: idx)
-                state.channelMessages[channel]?.append(failed)
-                state.seenEventIds.remove(id)
-                state.seenEventIds.insert(failedId)
-                if state.selectedChannel?.name == channel {
-                    state.messages.removeAll { $0.id == id }
-                    state.messages.append(failed)
-                }
-                ChatHistoryStore.save(channels: state.channelMessages, dms: state.dmMessages)
-                return .none
 
             case .delegate:
                 return .none
@@ -1112,7 +1232,7 @@ public struct Chat {
                 let shareText = DarkircDmPubkeyParser.formatForSharing(publicKey)
                 UIPasteboard.general.setItems(
                     [[UIPasteboard.typeAutomatic: shareText]],
-                    options: [.expirationDate: Date().addingTimeInterval(60)]
+                    options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(60)]
                 )
                 return .none
 
@@ -1177,14 +1297,76 @@ private func isChatDeliveryId(_ id: String) -> Bool {
     return id.hasPrefix("queued-") || id.hasPrefix("local-") || id.hasPrefix("failed-")
 }
 
-/// Encrypt with the contact's ChaCha keys and PRIVMSG the contact label.
-/// Public `selectedChannel` (#dev) is not a fallback.
-private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<Chat.Action> {
-    guard let contact = state.selectedDmContact else { return .none }
-    state.composerDrafts.removeValue(forKey: state.composerKey)
-    state.composedMessage = ""
+private func updateOutgoingDelivery(
+    state: inout Chat.State,
+    oldId: String,
+    newId: String,
+    channel: String
+) -> Effect<Chat.Action> {
+    var didChange = false
+    if var bucket = state.channelMessages[channel],
+       let idx = bucket.firstIndex(where: { $0.id == oldId }) {
+        let old = bucket[idx]
+        let updated = Chat.State.Message(
+            id: newId,
+            sender: old.sender,
+            content: old.content,
+            channel: old.channel,
+            timestamp: old.timestamp,
+            isOutgoing: true,
+            failedToDecrypt: old.failedToDecrypt
+        )
+        bucket[idx] = updated
+        state.channelMessages[channel] = bucket
+        didChange = true
+        if state.selectedTab == .channels && state.selectedChannel?.name == channel,
+           let msgIdx = state.messages.index(id: oldId) {
+            state.messages[msgIdx] = updated
+        }
+    }
+    if let contact = state.dmContacts.first(where: {
+        $0.contactLabel.caseInsensitiveCompare(channel) == .orderedSame
+    }), var bucket = state.dmMessages[contact.id],
+       let idx = bucket.firstIndex(where: { $0.id == oldId }) {
+        let old = bucket[idx]
+        let updated = Chat.State.Message(
+            id: newId,
+            sender: old.sender,
+            content: old.content,
+            channel: old.channel,
+            timestamp: old.timestamp,
+            isOutgoing: true,
+            failedToDecrypt: old.failedToDecrypt
+        )
+        bucket[idx] = updated
+        state.dmMessages[contact.id] = bucket
+        didChange = true
+        if state.selectedTab == .direct && state.selectedDmContact?.id == contact.id,
+           let msgIdx = state.messages.index(id: oldId) {
+            state.messages[msgIdx] = updated
+        }
+    }
+    guard didChange else { return .none }
+    state.seenEventIds.remove(oldId)
+    state.seenEventIds.insert(newId)
+    ChatHistoryStore.save(channels: state.channelMessages, dms: state.dmMessages)
+    return .none
+}
 
-    if text.hasPrefix("/") {
+/// Register the contact's ChaCha keys with Rust and PRIVMSG the contact label.
+/// Rust handles ChaChaBox encryption on the wire; public `selectedChannel` (#dev) is not a fallback.
+private func sendDirectMessage(
+    state: inout Chat.State,
+    text: String,
+    targetContact: DmContact? = nil
+) -> Effect<Chat.Action> {
+    guard let contact = targetContact ?? state.selectedDmContact else { return .none }
+    if targetContact == nil {
+        state.composerDrafts.removeValue(forKey: state.composerKey)
+        state.composedMessage = ""
+    }
+
+    if targetContact == nil && text.hasPrefix("/") {
         return handleDirectSlash(state: &state, contact: contact, text: text)
     }
 
@@ -1197,7 +1379,9 @@ private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<
         isOutgoing: true
     )
     state.dmMessages[contact.id, default: []].append(message)
-    state.messages.append(message)
+    if state.selectedTab == .direct && state.selectedDmContact?.id == contact.id {
+        state.messages.append(message)
+    }
     state.seenEventIds.insert(message.id)
     ChatHistoryStore.save(channels: state.channelMessages, dms: state.dmMessages)
 
@@ -1209,17 +1393,21 @@ private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<
     let optimisticId = message.id
     if offline {
         return .run { _ in
-            _ = await ChatOutboxStore.shared.enqueue(channel: label, text: text)
+            _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: label, text: text)
         }
     }
 
     return .run { send in
-        guard DarkircContactManager.encryptMessage(
-            mySecretB58: secret,
-            theirPublicB58: theirPublic,
-            plaintext: text
-        ) != nil else {
-            await send(.ircBridgeError("Could not encrypt DM for \(label)"))
+        guard let skBytes = Base58.decode(secret), skBytes.count == 32,
+              let pkBytes = Base58.decode(theirPublic), pkBytes.count == 32 else {
+            await send(.ircBridgeError("Invalid DM keys for \(label)"))
+            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
+            return
+        }
+        do {
+            try registerDmContact(nick: label, mySecret: skBytes, theirPublic: pkBytes)
+        } catch {
+            await send(.ircBridgeError("DM contact was not registered"))
             await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
             return
         }
@@ -1231,9 +1419,9 @@ private func sendDirectMessage(state: inout Chat.State, text: String) -> Effect<
                 incrementUnread: false
             )
         } catch {
-            _ = await ChatOutboxStore.shared.enqueue(channel: label, text: text)
+            _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: label, text: text)
             await send(.ircBridgeError("Send failed; queued for retry: \(error.localizedDescription)"))
-            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
+            await send(.markOutgoingFailed(id: optimisticId, channel: label))
         }
     }
 }
@@ -1345,10 +1533,31 @@ private func waitForNymTunnel() async -> Bool {
     if DarkfiFfiSafe.isNymRunning() { return true }
     _ = DarkfiFfiSafe.startNymProxySafely(socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort)
     for _ in 0..<240 {
+        guard !Task.isCancelled else { return false }
         if DarkfiFfiSafe.isNymRunning() { return true }
         if DarkfiFfiSafe.nymStatus() == "failed" { return false }
-        try? await Task.sleep(for: .milliseconds(500))
+        do {
+            try await Task.sleep(for: .milliseconds(500))
+        } catch {
+            return false
+        }
     }
     return DarkfiFfiSafe.isNymRunning()
+}
+
+/// Poll until the in-process Tor (Arti) proxy reports ready.
+private func waitForArtiTunnel(port: UInt16) async -> Bool {
+    if DarkfiFfiSafe.isArtiRunning() { return true }
+    _ = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
+    for _ in 0..<120 {
+        guard !Task.isCancelled else { return false }
+        if DarkfiFfiSafe.isArtiRunning() { return true }
+        do {
+            try await Task.sleep(for: .milliseconds(500))
+        } catch {
+            return false
+        }
+    }
+    return DarkfiFfiSafe.isArtiRunning()
 }
 // swiftlint:enable type_body_length

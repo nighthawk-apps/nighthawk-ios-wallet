@@ -136,47 +136,56 @@ public struct HomeView: View {
 private extension HomeView {
     @ViewBuilder
     var tabContent: some View {
-        switch store.selectedTab {
-        case .chat:
+        ZStack {
+            // Keep ChatView mounted across tab switches so scroll/UI state and
+            // connection lifecycle do not churn on every tab change.
             ChatView(
                 store: store.scope(
                     state: \.chat,
                     action: \.chat
                 )
             )
+            .opacity(store.selectedTab == .chat ? 1 : 0)
+            .allowsHitTesting(store.selectedTab == .chat)
+            .accessibilityHidden(store.selectedTab != .chat)
 
-        case .wallet:
-            WalletView(
-                store: store.scope(
-                    state: \.wallet,
-                    action: \.wallet
+            switch store.selectedTab {
+            case .chat:
+                EmptyView()
+
+            case .wallet:
+                WalletView(
+                    store: store.scope(
+                        state: \.wallet,
+                        action: \.wallet
+                    )
                 )
-            )
-            .overlay(alignment: .top) {
-                if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
-                    IndeterminateProgress()
-                        .allowsHitTesting(false)
+                .overlay(alignment: .top) {
+                    if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing {
+                        IndeterminateProgress()
+                            .allowsHitTesting(false)
+                    }
                 }
+
+            case .dex:
+                DexComingSoonView()
+
+            case .daoHub:
+                DaoHubView(
+                    store: store.scope(
+                        state: \.daoHub,
+                        action: \.daoHub
+                    )
+                )
+
+            case .settings:
+                NighthawkSettingsView(
+                    store: store.scope(
+                        state: \.settings,
+                        action: \.settings
+                    )
+                )
             }
-
-        case .dex:
-            DexComingSoonView()
-
-        case .daoHub:
-            DaoHubView(
-                store: store.scope(
-                    state: \.daoHub,
-                    action: \.daoHub
-                )
-            )
-
-        case .settings:
-            NighthawkSettingsView(
-                store: store.scope(
-                    state: \.settings,
-                    action: \.settings
-                )
-            )
         }
     }
 }

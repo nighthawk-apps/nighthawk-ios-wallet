@@ -60,8 +60,30 @@ public struct SendFlow {
         // Helpers
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.isEmpty != true }
+        public var selectedSpendableBalance: DrkAmount {
+            guard let tokenId = selectedTokenId else {
+                return spendableBalance
+            }
+            return availableTokens.first(where: { $0.tokenId == tokenId })?.balanceAtomic ?? 0
+        }
         public var canSendEnteredAmount: Bool {
-            amountToSend > .zero && amountToSend <= spendableBalance
+            guard amountToSend > .zero && amountToSend <= selectedSpendableBalance else {
+                return false
+            }
+            if selectedTokenId != nil {
+                if feeRequired > .zero {
+                    return spendableBalance >= feeRequired
+                }
+                return spendableBalance > .zero
+            }
+            return true
+        }
+
+        /// Review is reachable only after a proposal exists. A custom token
+        /// still pays its fee in DRK, so the review step must see that balance.
+        public func customTokenFeeIsCovered(_ proposal: Proposal) -> Bool {
+            guard selectedTokenId != nil else { return true }
+            return spendableBalance >= proposal.totalFeeRequired()
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
@@ -115,7 +137,7 @@ public struct SendFlow {
         case review(Review.State)
         case scanCodeTapped
         case sendTransaction
-        case sendTransactionFailure
+        case sendTransactionFailure(String)
         case sendTransactionInProgress
         case sendTransactionSuccess(TransactionState)
         case setProposal(Proposal)
@@ -181,6 +203,13 @@ public struct SendFlow {
                             state.selectedTokenId
                         )
 
+                        if !state.customTokenFeeIsCovered(proposal) {
+                            await send(.proposeSendTransactionFailure(
+                                DarkfiError(message: "Not enough DRK to pay the fee")
+                            ))
+                            return
+                        }
+
                         await send(.setProposal(proposal))
                         await send(
                             .review(
@@ -190,7 +219,8 @@ public struct SendFlow {
                                     recipient: recipientAddr,
                                     latestFiatPrice: state.latestFiatPrice,
                                     proposal: proposal,
-                                    tokenName: state.tokenName
+                                    tokenName: state.tokenName,
+                                    syncMethod: sdkSynchronizer.latestState().activeSyncMethod
                                 )
                             )
                         )
@@ -249,13 +279,13 @@ public struct SendFlow {
                             )
                             await send(SendFlow.Action.sendTransactionSuccess(TransactionState(from: txn)))
                         } catch {
-                            await send(SendFlow.Action.sendTransactionFailure)
+                            await send(SendFlow.Action.sendTransactionFailure(error.toDarkFiError().message))
                         }
                     }
                 } catch {
-                    return .send(.sendTransactionFailure)
+                    return .send(.sendTransactionFailure(error.toDarkFiError().message))
                 }
-            case .sendTransactionFailure:
+            case let .sendTransactionFailure(message):
                 state.isSendingTransaction = false
                 state.path = state.path.filter { state in
                     if case .sending = state {
@@ -264,7 +294,7 @@ public struct SendFlow {
 
                     return true
                 }
-                state.path.append(Path.State.failed(.init()))
+                state.path.append(Path.State.failed(.init(errorMessage: message)))
                 return .none
             case .sendTransactionInProgress:
                 state.path.append(SendFlow.Path.State.sending)
@@ -369,7 +399,14 @@ extension SendFlow {
                                     state.selectedTokenId
                                 )
 
-                                await send(.setProposal(proposal))
+                                if !state.customTokenFeeIsCovered(proposal) {
+                            await send(.proposeSendTransactionFailure(
+                                DarkfiError(message: "Not enough DRK to pay the fee")
+                            ))
+                            return
+                        }
+
+                        await send(.setProposal(proposal))
                                 await send(
                                     .review(
                                         .init(
@@ -378,7 +415,8 @@ extension SendFlow {
                                             recipient: state.recipient ?? "",
                                             latestFiatPrice: state.latestFiatPrice,
                                             proposal: proposal,
-                                            tokenName: state.tokenName
+                                            tokenName: state.tokenName,
+                                            syncMethod: sdkSynchronizer.latestState().activeSyncMethod
                                         )
                                     )
                                 )
@@ -491,7 +529,8 @@ extension SendFlow {
                             return .none
                         }
 
-                        if state.amountToSend > state.spendableBalance {
+                        if state.amountToSend > state.selectedSpendableBalance
+                            || (state.selectedTokenId != nil && state.spendableBalance <= .zero) {
                             state.amountToSendInput = "0"
                             state.recipient = nil
                             state.memo = nil
@@ -528,7 +567,14 @@ extension SendFlow {
                                     state.selectedTokenId
                                 )
 
-                                await send(.setProposal(proposal))
+                                if !state.customTokenFeeIsCovered(proposal) {
+                            await send(.proposeSendTransactionFailure(
+                                DarkfiError(message: "Not enough DRK to pay the fee")
+                            ))
+                            return
+                        }
+
+                        await send(.setProposal(proposal))
                                 await send(
                                     .review(
                                         .init(
@@ -537,7 +583,8 @@ extension SendFlow {
                                             recipient: recipientAddr,
                                             latestFiatPrice: state.latestFiatPrice,
                                             proposal: proposal,
-                                            tokenName: state.tokenName
+                                            tokenName: state.tokenName,
+                                            syncMethod: sdkSynchronizer.latestState().activeSyncMethod
                                         )
                                     )
                                 )

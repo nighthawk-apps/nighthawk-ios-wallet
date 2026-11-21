@@ -20,7 +20,16 @@ public struct SendFailedView: View {
     public var body: some View {
         VStack {
             NighthawkHeading(title: L10n.Nighthawk.TransferTab.Failed.title, compact: true)
-                .padding(.bottom, 44)
+                .padding(.bottom, 24)
+
+            if let errorMessage = store.errorMessage,
+               !errorMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(errorMessage)
+                    .paragraphMedium()
+                    .foregroundColor(StealthTheme.Colors.statusDanger)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 25)
+            }
 
             Spacer()
 

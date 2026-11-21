@@ -487,6 +487,17 @@ RustBuffer uniffi_darkfi_mobile_ffi_fn_func_chacha_decrypt_dm(RustBuffer my_secr
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_chacha_encrypt_dm(RustBuffer my_secret, RustBuffer their_public, RustBuffer plaintext, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_CLEAR_DM_CONTACTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_CLEAR_DM_CONTACTS
+void uniffi_darkfi_mobile_ffi_fn_func_clear_dm_contacts(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_CONFIGURE_DARKIRC
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_CONFIGURE_DARKIRC
+void uniffi_darkfi_mobile_ffi_fn_func_configure_darkirc(uint32_t dags_count, int8_t fast_mode, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_CONNECTION_PHASE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_DARKIRC_CONNECTION_PHASE
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_darkirc_connection_phase(RustCallStatus *_Nonnull out_status
@@ -544,6 +555,11 @@ int8_t uniffi_darkfi_mobile_ffi_fn_func_is_nym_running(RustCallStatus *_Nonnull 
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_NYM_STATUS
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_nym_status(RustCallStatus *_Nonnull out_status
     
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_REGISTER_DM_CONTACT
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_REGISTER_DM_CONTACT
+void uniffi_darkfi_mobile_ffi_fn_func_register_dm_contact(RustBuffer nick, RustBuffer my_secret, RustBuffer their_public, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_SEND_CHAT_MESSAGE
@@ -628,6 +644,17 @@ void uniffi_darkfi_mobile_ffi_fn_func_transport_set_mesh_enabled(int8_t on, Rust
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_TRANSPORT_SNAPSHOT_JSON
 RustBuffer uniffi_darkfi_mobile_ffi_fn_func_transport_snapshot_json(RustCallStatus *_Nonnull out_status
     
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_TRANSPORT_SOCKS_AUTH_JSON
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_TRANSPORT_SOCKS_AUTH_JSON
+RustBuffer uniffi_darkfi_mobile_ffi_fn_func_transport_socks_auth_json(RustCallStatus *_Nonnull out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_UNREGISTER_DM_CONTACT
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_UNREGISTER_DM_CONTACT
+void uniffi_darkfi_mobile_ffi_fn_func_unregister_dm_contact(RustBuffer nick, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_FN_FUNC_VALIDATE_DARKFI_MNEMONIC
@@ -919,6 +946,18 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_chacha_encrypt_dm(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_CLEAR_DM_CONTACTS
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_CLEAR_DM_CONTACTS
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_clear_dm_contacts(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_CONFIGURE_DARKIRC
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_CONFIGURE_DARKIRC
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_configure_darkirc(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_DARKIRC_CONNECTION_PHASE
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_darkirc_connection_phase(void
@@ -976,6 +1015,12 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_is_nym_running(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_NYM_STATUS
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_NYM_STATUS
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_nym_status(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_REGISTER_DM_CONTACT
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_REGISTER_DM_CONTACT
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_register_dm_contact(void
     
 );
 #endif
@@ -1066,6 +1111,18 @@ uint16_t uniffi_darkfi_mobile_ffi_checksum_func_transport_set_mesh_enabled(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_TRANSPORT_SNAPSHOT_JSON
 #define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_TRANSPORT_SNAPSHOT_JSON
 uint16_t uniffi_darkfi_mobile_ffi_checksum_func_transport_snapshot_json(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_TRANSPORT_SOCKS_AUTH_JSON
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_TRANSPORT_SOCKS_AUTH_JSON
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_transport_socks_auth_json(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_UNREGISTER_DM_CONTACT
+#define UNIFFI_FFIDEF_UNIFFI_DARKFI_MOBILE_FFI_CHECKSUM_FUNC_UNREGISTER_DM_CONTACT
+uint16_t uniffi_darkfi_mobile_ffi_checksum_func_unregister_dm_contact(void
     
 );
 #endif

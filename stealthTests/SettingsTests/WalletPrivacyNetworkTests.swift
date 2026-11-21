@@ -104,15 +104,54 @@ final class PaymentRequestUriTests: XCTestCase {
 }
 
 final class DeviceAddressBookTests: XCTestCase {
-    func testUpsertReplacesSameAddressAndKeepsNewestFirst() {
-        let suite = "DeviceAddressBookTests"
-        UserDefaults().removePersistentDomain(forName: suite)
-        let defaults = UserDefaults(suiteName: suite)!
-        _ = DeviceAddressBook.upsert(label: "old", address: "Drk1abc", defaults: defaults)
-        let saved = DeviceAddressBook.upsert(label: "Ada", address: "drk1abc", defaults: defaults)
+    override func tearDown() {
+        DeviceAddressBook.removeAll()
+        NighthawkContactStore.removeAll()
+        super.tearDown()
+    }
+
+    func testUpsertComparesBase58AddressesCaseSensitively() {
+        DeviceAddressBook.removeAll()
+        let first = DeviceAddressBook.upsert(label: "old", address: "Drk1abc")
+        XCTAssertEqual(first.count, 1)
+
+        // Base58 is case-sensitive: "drk1abc" is distinct from "Drk1abc".
+        let distinct = DeviceAddressBook.upsert(label: "Ada", address: "drk1abc")
+        XCTAssertEqual(distinct.count, 2)
+        XCTAssertEqual(distinct[0].label, "Ada")
+        XCTAssertEqual(distinct[0].address, "drk1abc")
+
+        // Exact same Base58 case replaces existing entry.
+        let replaced = DeviceAddressBook.upsert(label: "AdaNew", address: "drk1abc")
+        XCTAssertEqual(replaced.count, 2)
+        XCTAssertEqual(replaced[0].label, "AdaNew")
+        XCTAssertEqual(DeviceAddressBook.load().count, 2)
+    }
+
+    func testNighthawkContactStoreAllowsWalletOnlyAndContactInviteUri() {
+        NighthawkContactStore.removeAll()
+        let walletOnly = NighthawkContact(
+            id: "bob",
+            nickname: "Bob",
+            dmPublicKey: "",
+            walletAddress: "fRGoBKrJuxKutPqQVGu6Mpp94uEREg6yDG9MZponXoJ1KzMGEeSAtjxm"
+        )
+        let saved = NighthawkContactStore.upsert(walletOnly)
         XCTAssertEqual(saved.count, 1)
-        XCTAssertEqual(saved[0].label, "Ada")
-        XCTAssertEqual(DeviceAddressBook.load(from: defaults).count, 1)
+        XCTAssertEqual(saved.first?.nickname, "Bob")
+        XCTAssertEqual(
+            DeviceAddressBook.load().first?.address,
+            "fRGoBKrJuxKutPqQVGu6Mpp94uEREg6yDG9MZponXoJ1KzMGEeSAtjxm"
+        )
+
+        let uri = NighthawkContacts.contactInviteUri(
+            NighthawkContact(id: "ada", nickname: "Ada", dmPublicKey: "dmPk123", walletAddress: "drk1xyz")
+        )
+        XCTAssertNotNil(uri)
+        let parsed = NighthawkContacts.parseInvite(uri ?? "")
+        XCTAssertEqual(parsed?.nickname, "Ada")
+        XCTAssertEqual(parsed?.dmPublicKey, "dmPk123")
+        XCTAssertEqual(parsed?.walletAddress, "drk1xyz")
     }
 }
 
