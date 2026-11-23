@@ -191,10 +191,8 @@ public struct SendFlow {
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
     @Dependency(\.userStoredPreferences) var userPreferencesStorage
     @Dependency(\.mainQueue) var mainQueue
-    @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.processInfo) var processInfo
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
-    @Dependency(\.walletStorage) var walletStorage
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -290,10 +288,6 @@ public struct SendFlow {
                       let recipientStr = state.recipient else { return .none }
 
                 do {
-                    let storedWallet = try walletStorage.exportWallet()
-                    let seedBytes = try mnemonic.toSeed(storedWallet.seedPhrase.value())
-                    let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, 0, "testnet")
-
                     state.isSendingTransaction = true
 
                     let recipient = Utils.Recipient.address(recipientStr)
@@ -306,7 +300,7 @@ public struct SendFlow {
                         do {
                             await send(SendFlow.Action.sendTransactionInProgress)
                             let txn = try await sdkSynchronizer.sendTransaction(
-                                spendingKey,
+                                (),
                                 state.amountToSend,
                                 recipient,
                                 memo,

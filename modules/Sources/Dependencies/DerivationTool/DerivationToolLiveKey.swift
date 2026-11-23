@@ -13,17 +13,6 @@ extension DerivationToolClient: DependencyKey {
 
     public static func live() -> Self {
         Self(
-            deriveSpendingKey: { _, accountIndex, _ in
-                return SpendingKey(
-                    bytes: [],
-                    account: accountIndex
-                )
-            },
-            deriveFullViewingKey: { _, _ in
-                return FullViewingKey(
-                    stringEncoded: ""
-                )
-            },
             isDarkFiAddress: { address, _ in
                 DarkFiAddressValidator.isValid(address)
             }

@@ -114,7 +114,7 @@ private extension StoreOf<Review> {
         result.append(
             contentsOf: [
                 TransactionLineItem(
-                    name: L10n.Nighthawk.TransactionDetails.networkFee,
+                    name: "Scheduled fee (fixed)",
                     value: "\(self.fee.decimalString()) DRK"
                 ),
                 TransactionLineItem(

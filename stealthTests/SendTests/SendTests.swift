@@ -316,13 +316,6 @@ final class SendFlowAndSyncUnitTests: XCTestCase {
             $0.sdkSynchronizer.sendTransaction = { _, _, _, _, _ in
                 throw DarkfiError(message: "Insufficient mempool fee")
             }
-            $0.walletStorage.exportWallet = {
-                StoredWallet.placeholder
-            }
-            $0.mnemonic.toSeed = { _ in Array(repeating: 1, count: 32) }
-            $0.derivationTool.deriveSpendingKey = { _, account, _ in
-                SpendingKey(bytes: Array(repeating: 2, count: 32), account: account)
-            }
             $0.derivationTool.isDarkFiAddress = { _, _ in false }
         }
         store.exhaustivity = .off

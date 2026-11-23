@@ -522,15 +522,17 @@ extension SDKSynchronizerClient: DependencyKey {
             return Proposal(estimatedFee: fee)
         },
         estimateFee: { address, amount, tokenId in
+            // Matches Rust `SCHEDULE_TRANSFER_FEE_ATOMIC` (5_000_000 atomic = 0.05 DRK).
+            let scheduledFee: DrkAmount = 5_000_000
             guard let handle = WalletHandleManager.shared.handle else {
-                return 10_000  // Default fee estimate
+                return scheduledFee
             }
             return (try? handle.estimateTransferFee(
                 recipientAddress: address.stringEncoded,
                 amount: amount.inputDecimalString(),
                 tokenId: tokenId,
                 paymentMemo: nil
-            )) ?? 10_000
+            )) ?? scheduledFee
         },
         sendTransaction: { _, amount, recipient, memo, tokenId in
             guard let handle = WalletHandleManager.shared.handle else {
@@ -580,14 +582,15 @@ extension SDKSynchronizerClient: DependencyKey {
                     amount: amountDecimal,
                     tokenId: tokenId,
                     paymentMemo: memoText
-                )) ?? 10_000,
+                )) ?? 5_000_000,
                 isSending: true,
                 status: "Broadcasted",
                 contractSummary: "Money::TransferV1",
                 recipientAddress: recipientAddr,
                 memo: memo?.text,
-                // Outgoing tx carries the UnifOMR clue we embed by default.
-                syncMethod: .unifOmr
+                // Trial decryption is the default. UnifOMR is only the path when
+                // Advanced settings turned strict UnifOMR on.
+                syncMethod: WalletSyncPrivacy.strictOmrOnly ? .unifOmr : .trialDecrypt
             )
         },
         // Wired to regenerated UniFFI bindings — thin conversion from FFI types to app models
