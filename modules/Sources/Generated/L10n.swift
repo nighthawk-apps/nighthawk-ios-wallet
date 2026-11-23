@@ -1056,8 +1056,8 @@ public enum L10n {
             public static let receive = L10n.tr("Localizable", "nighthawk.walletCompanion.receive", fallback: "Receive")
             /// Send Again
             public static let sendAgain = L10n.tr("Localizable", "nighthawk.walletCompanion.sendAgain", fallback: "Send Again")
-            /// Transfers stay shielded. UnifOMR is used when the server supports it. Trial decryption is only a fallback.
-            public static let shieldedNote = L10n.tr("Localizable", "nighthawk.walletCompanion.shieldedNote", fallback: "Transfers stay shielded. UnifOMR is used when the server supports it. Trial decryption is only a fallback.")
+            /// Transfers stay shielded. Trial decryption is the default. Experimental UnifOMR is opt-in in Advanced settings and needs an fhe-omr lightwalletd.
+            public static let shieldedNote = L10n.tr("Localizable", "nighthawk.walletCompanion.shieldedNote", fallback: "Transfers stay shielded. Trial decryption is the default. Experimental UnifOMR is opt-in in Advanced settings and needs an fhe-omr lightwalletd.")
             /// Synced with UnifOMR.
             public static let syncedUnifOmr = L10n.tr("Localizable", "nighthawk.walletCompanion.syncedUnifOmr", fallback: "Synced with UnifOMR.")
             /// Trial decryption is active instead of UnifOMR.

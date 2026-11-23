@@ -522,7 +522,7 @@
 "nighthawk.daoHub.walletStopped" = "Wallet sync is stopped. Resume sync from the Wallet tab, then open DAO Hub again.";
 "nighthawk.daoHub.walletSyncing" = "Wallet sync is still in progress. Open DAO Hub again once your wallet is up to date.";
 "nighthawk.daoHub.walletSyncFailed" = "Wallet sync failed: %@";
-"nighthawk.walletCompanion.shieldedNote" = "Transfers stay shielded. UnifOMR is used when the server supports it. Trial decryption is only a fallback.";
+"nighthawk.walletCompanion.shieldedNote" = "Transfers stay shielded. Trial decryption is the default. Experimental UnifOMR is opt-in in Advanced settings and needs an fhe-omr lightwalletd.";
 "nighthawk.walletCompanion.trialDecrypt" = "Trial decrypt";
 "nighthawk.walletCompanion.unifOmr" = "UnifOMR";
 "nighthawk.walletCompanion.blockHeight" = "Block %@";
