@@ -58,9 +58,34 @@ public struct SendFlow {
         }
 
         // Helpers
+        public static let nativeDrkTokenId = "241vANigf1Cy3ytjM1KHXiVECxgxdK4yApddL8KcLssb"
+
+        public static func isNativeDrkToken(tokenId: String?, displayLabel: String? = nil) -> Bool {
+            guard let raw = tokenId?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+                return true
+            }
+            if raw.caseInsensitiveCompare("DRK") == .orderedSame || raw == nativeDrkTokenId {
+                return true
+            }
+            if let label = displayLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+               label.caseInsensitiveCompare("DRK") == .orderedSame {
+                return true
+            }
+            return false
+        }
+
+        public var isNativeDrkSelected: Bool {
+            guard let tokenId = selectedTokenId else { return true }
+            let matched = availableTokens.first(where: { $0.tokenId == tokenId })
+            return Self.isNativeDrkToken(tokenId: tokenId, displayLabel: matched?.displayLabel)
+        }
+
         public var hasEnteredAmount: Bool { amountToSend > .zero }
         public var hasEnteredRecipient: Bool { recipient?.isEmpty != true }
         public var selectedSpendableBalance: DrkAmount {
+            if isNativeDrkSelected {
+                return spendableBalance
+            }
             guard let tokenId = selectedTokenId else {
                 return spendableBalance
             }
@@ -70,28 +95,32 @@ public struct SendFlow {
             guard amountToSend > .zero && amountToSend <= selectedSpendableBalance else {
                 return false
             }
-            if selectedTokenId != nil {
+            if isNativeDrkSelected {
                 if feeRequired > .zero {
-                    return spendableBalance >= feeRequired
+                    return amountToSend + feeRequired <= spendableBalance
                 }
-                return spendableBalance > .zero
+                return true
             }
-            return true
+            if feeRequired > .zero {
+                return spendableBalance >= feeRequired
+            }
+            return spendableBalance > .zero
         }
 
         /// Review is reachable only after a proposal exists. A custom token
         /// still pays its fee in DRK, so the review step must see that balance.
         public func customTokenFeeIsCovered(_ proposal: Proposal) -> Bool {
-            guard selectedTokenId != nil else { return true }
+            guard !isNativeDrkSelected else { return true }
             return spendableBalance >= proposal.totalFeeRequired()
         }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            guard isNativeDrkSelected else { return nil }
             if let latestFiatPrice, preferredCurrency != .off {
-                (preferredCurrency, latestFiatPrice)
+                return (preferredCurrency, latestFiatPrice)
             } else {
-                nil
+                return nil
             }
         }
 
@@ -103,10 +132,16 @@ public struct SendFlow {
         public var availableTokens: [TokenBalanceInfo] = []
 
         public var tokenName: String {
-            if let tokenId = selectedTokenId,
-               let token = availableTokens.first(where: { $0.tokenId == tokenId }),
-               let label = token.displayLabel {
-                return label
+            if isNativeDrkSelected {
+                return "DRK"
+            }
+            if let tokenId = selectedTokenId {
+                if let token = availableTokens.first(where: { $0.tokenId == tokenId }),
+                   let label = token.displayLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !label.isEmpty {
+                    return label
+                }
+                return "\(tokenId.prefix(8))…"
             }
             return "DRK"
         }

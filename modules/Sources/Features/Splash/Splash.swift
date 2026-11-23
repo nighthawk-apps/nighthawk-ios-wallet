@@ -33,6 +33,10 @@ public struct Splash {
         /// Once the user has been routed past splash, avoid sending them back to welcome
         /// when splash reappears after background lock / scene phase changes.
         public var hasCompletedInitialRoute = false
+        /// True while a delayed wallet check is already scheduled. Cold start fires
+        /// both `onAppear` and `scenePhaseChanged(.active)`; the second one must not
+        /// run another check.
+        public var walletCheckPending = false
         /// Holds the splash on a Nym bootstrap, with a progress estimate and a skip.
         public var waitingForNym = false
         public var nymFailed = false
@@ -113,6 +117,7 @@ public struct Splash {
                 }
                 return .none
             case .checkWalletInitialization:
+                state.walletCheckPending = false
                 if state.waitingForNym { return .none }
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
@@ -174,11 +179,7 @@ public struct Splash {
                     return .none
                 }
                 if firstLaunch || state.shouldHandleScenePhaseChange {
-                    return .run { send in
-                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                        try await clock.sleep(for: .seconds(0.5))
-                        await send(.checkWalletInitialization)
-                    }
+                    return scheduleWalletCheck(state: &state, clock: clock)
                 }
                 return .none
             case .onDisappear:
@@ -186,11 +187,7 @@ public struct Splash {
                 return .none
             case let .scenePhaseChanged(newPhase):
                 if newPhase == .active && state.shouldHandleScenePhaseChange {
-                    return .run { send in
-                        /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
-                        try await clock.sleep(for: .seconds(0.5))
-                        await send(.checkWalletInitialization)
-                    }
+                    return scheduleWalletCheck(state: &state, clock: clock)
                 }
                 return .none
             }
@@ -237,11 +234,27 @@ public struct Splash {
         case .launchWallet:
             return .send(.delegate(.initializeSDKAndLaunchWallet))
         case .newUser:
-            guard !state.hasCompletedInitialRoute else {
-                state.alert = AlertState.walletStateFailed(.uninitialized)
+            switch Splash.newUserRoute(hasCompletedInitialRoute: state.hasCompletedInitialRoute) {
+            case .alreadyOnWelcome:
+                // A second check still sees no wallet on a fresh install. Welcome is
+                // already on screen; that is not "Wallet initialisation failed".
                 return .none
+            case .openWelcome:
+                return .send(.delegate(.handleNewUser))
             }
-            return .send(.delegate(.handleNewUser))
+        }
+    }
+
+    private func scheduleWalletCheck(
+        state: inout State,
+        clock: any Clock<Duration>
+    ) -> Effect<Action> {
+        guard !state.walletCheckPending else { return .none }
+        state.walletCheckPending = true
+        return .run { send in
+            /// We need to fetch data from keychain, in order to be 100% sure the keychain can be read we delay the check a bit
+            try await clock.sleep(for: .seconds(0.5))
+            await send(.checkWalletInitialization)
         }
     }
 
@@ -249,6 +262,21 @@ public struct Splash {
 }
 
 public extension Splash {
+    /// Where a `.newUser` splash result should go.
+    ///
+    /// Cold start runs the wallet check twice (`onAppear` and the scene becoming
+    /// active). The first check opens welcome and sets `hasCompletedInitialRoute`.
+    /// The second check still sees an empty keychain. That is welcome, not a
+    /// failed initialisation.
+    enum NewUserRoute: Equatable {
+        case openWelcome
+        case alreadyOnWelcome
+    }
+
+    static func newUserRoute(hasCompletedInitialRoute: Bool) -> NewUserRoute {
+        hasCompletedInitialRoute ? .alreadyOnWelcome : .openWelcome
+    }
+
     enum PendingLaunch: Equatable {
         case failed(InitializationState)
         case migration

@@ -240,7 +240,10 @@ public struct ChatSettings {
             case .addChannelDialog:
                 return .none
             case .addContactTapped:
-                state.addContactDialog = AddContactDialog.State()
+                var dialog = AddContactDialog.State()
+                dialog.mySecretKey = userStoredPreferences.dmSecretKey() ?? ""
+                dialog.myPublicKey = userStoredPreferences.dmPublicKey() ?? ""
+                state.addContactDialog = dialog
                 return .none
             case let .removeContact(id):
                 let removed = state.encryptedContacts.first { $0.id == id }
@@ -260,8 +263,8 @@ public struct ChatSettings {
                     let theirPublic = dialog.theirPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
                     let walletAddr = dialog.walletAddress.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                    guard !nick.isEmpty else {
-                        dialog.errorMessage = "Enter a contact nickname."
+                    guard !nick.isEmpty, !nick.hasPrefix("#") else {
+                        dialog.errorMessage = "Enter a valid contact nickname (cannot start with #)."
                         state.addContactDialog = dialog
                         return .none
                     }

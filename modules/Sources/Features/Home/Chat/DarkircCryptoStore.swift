@@ -136,6 +136,9 @@ public actor DarkircCryptoStore {
     ) throws -> DmContact {
         ensureLoaded()
         let cleanLabel = contactLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanLabel.isEmpty, !cleanLabel.hasPrefix("#") else {
+            throw KeychainWriteError.status(errSecParam)
+        }
         let contact = DmContact(
             contactLabel: cleanLabel,
             theirPublicB58: theirPublicB58,
@@ -144,6 +147,7 @@ public actor DarkircCryptoStore {
         )
         let previousContacts = contacts
         let previousConversations = conversations
+        let replaced = contacts.first { $0.contactLabel.caseInsensitiveCompare(cleanLabel) == .orderedSame }
         let removedIds = Set(
             contacts.filter { $0.contactLabel.caseInsensitiveCompare(cleanLabel) == .orderedSame }.map(\.id)
         )
@@ -160,11 +164,16 @@ public actor DarkircCryptoStore {
             conversations = previousConversations
             throw KeychainWriteError.status(errSecParam)
         }
-        guard saveContactsToKeychain() else {
+        let status = saveContactsToKeychainStatus()
+        guard status == errSecSuccess else {
             contacts = previousContacts
             conversations = previousConversations
-            unregisterDmContact(nick: contact.contactLabel)
-            throw KeychainWriteError.status(errSecDecode)
+            if let replaced {
+                _ = registerInRust(replaced)
+            } else {
+                unregisterDmContact(nick: contact.contactLabel)
+            }
+            throw KeychainWriteError.status(status)
         }
         saveConversationsToDisk()
         let existing = NighthawkContactStore.findByNick(contact.contactLabel)
@@ -294,9 +303,14 @@ public actor DarkircCryptoStore {
 
     private func ensureLoaded() {
         guard !loaded else { return }
+
+        let (keychainData, status) = readFromKeychainWithStatus()
+        if status == errSecInteractionNotAllowed {
+            return
+        }
         loaded = true
 
-        if let data = readFromKeychain(),
+        if let data = keychainData,
            let decoded = try? decoder.decode([DmContact].self, from: data) {
             contacts = decoded
         }
@@ -387,20 +401,16 @@ public actor DarkircCryptoStore {
     }
 
     @discardableResult
-    private func saveContactsToKeychain() -> Bool {
-        guard let data = try? encoder.encode(contacts) else { return false }
-        let status = KeychainGenericPassword.upsert(
-            service: keychainService,
-            account: keychainAccount,
-            data: data
-        )
-        if status == errSecSuccess {
-            scrubLegacySecretFiles()
-        }
-        return status == errSecSuccess
+    private func saveContactsToKeychain() -> Bool { saveContactsToKeychainStatus() == errSecSuccess }
+
+    private func saveContactsToKeychainStatus() -> OSStatus {
+        guard let data = try? encoder.encode(contacts) else { return errSecParam }
+        let status = KeychainGenericPassword.upsert(service: keychainService, account: keychainAccount, data: data)
+        if status == errSecSuccess { scrubLegacySecretFiles() }
+        return status
     }
 
-    private func readFromKeychain() -> Data? {
+    private func readFromKeychainWithStatus() -> (Data?, OSStatus) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -410,8 +420,7 @@ public actor DarkircCryptoStore {
         ]
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
-        guard status == errSecSuccess, let data = item as? Data else { return nil }
-        return data
+        return (status == errSecSuccess ? item as? Data : nil, status)
     }
 
     private func deleteKeychainItem() {

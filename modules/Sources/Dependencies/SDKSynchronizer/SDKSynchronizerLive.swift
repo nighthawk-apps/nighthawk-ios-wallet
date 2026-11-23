@@ -380,11 +380,13 @@ extension SDKSynchronizerClient: DependencyKey {
                 ))
                 WalletHandleManager.shared.startPolling()
             } catch {
+                let fallbackBalance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
                 WalletHandleManager.shared.updateState(SynchronizerState(
                     syncStatus: .error(error.localizedDescription),
-                    confirmedBalance: 0,
-                    latestBlockHeight: 0
+                    confirmedBalance: fallbackBalance,
+                    latestBlockHeight: WalletHandleManager.shared.latestState.latestBlockHeight
                 ))
+                WalletHandleManager.shared.startPolling()
             }
         },
         stop: {
@@ -476,18 +478,35 @@ extension SDKSynchronizerClient: DependencyKey {
             let memoText: String? = memo?.text
             // Rust FFI parses whole-DRK decimals (8 places), not atomic Int64 strings.
             let amountDecimal = amount.inputDecimalString()
+            let tokenBalances = (try? handle.listTokenBalances()) ?? []
+            let matchedToken = tokenId.flatMap { id in tokenBalances.first(where: { $0.tokenId == id }) }
+            let isNativeDrk: Bool = {
+                guard let raw = tokenId?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+                    return true
+                }
+                if raw.caseInsensitiveCompare("DRK") == .orderedSame ||
+                    raw == "241vANigf1Cy3ytjM1KHXiVECxgxdK4yApddL8KcLssb" {
+                    return true
+                }
+                if let label = matchedToken?.displayLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   label.caseInsensitiveCompare("DRK") == .orderedSame {
+                    return true
+                }
+                return false
+            }()
+            let effectiveTokenId: String? = isNativeDrk ? nil : tokenId
             // Check balance before proposing
             let balance = try handle.confirmedBalanceAtomic()
             let fee = try handle.estimateTransferFee(
                 recipientAddress: recipientAddr,
                 amount: amountDecimal,
-                tokenId: tokenId,
+                tokenId: effectiveTokenId,
                 paymentMemo: memoText
             )
 
-            if let tokenId {
-                let tokenBalance = (try? handle.listTokenBalances())?
-                    .first(where: { $0.tokenId == tokenId })?.balanceAtomic ?? 0
+            if let customTokenId = effectiveTokenId {
+                let tokenBalance = tokenBalances
+                    .first(where: { $0.tokenId == customTokenId })?.balanceAtomic ?? 0
                 guard tokenBalance >= amount else {
                     throw DarkfiError(message: "Insufficient token balance. Available: \(tokenBalance), required: \(amount)")
                 }

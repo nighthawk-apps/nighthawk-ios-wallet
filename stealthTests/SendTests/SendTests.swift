@@ -119,12 +119,16 @@ final class SendTests: XCTestCase {
             throw XCTSkip("LWD/wallet bootstrap unavailable: \(error)")
         }
 
+        let tip: Int64
         do {
-            let snapshot = try handle.refreshNow()
-            print("Testnet sync snapshot: \(snapshot.scannedBlocks) blocks scanned, tip is \(snapshot.chainTip), balance=\(try handle.confirmedBalanceAtomic())")
+            tip = try Self.waitForLiveTip(handle)
+            print("Testnet sync snapshot tip is \(tip), balance=\(try handle.confirmedBalanceAtomic())")
         } catch {
-            throw XCTSkip("Sync failed or node not ready: \(error)")
+            XCTFail("Sync failed against the Studio lightwalletd: \(error)")
+            return
         }
+        XCTAssertGreaterThan(tip, 0, "Live test never observed the Studio chain tip")
+        guard tip > 0 else { return }
 
         let addresses = try handle.listAddresses()
         print("WALLET_ADDRESS_DUMP: \(addresses.first ?? "none")")
@@ -171,11 +175,24 @@ final class SendTests: XCTestCase {
             XCTAssertFalse(txHash.isEmpty)
         } catch let error as DarkfiWalletNativeError {
             if case .NativeDrkUnavailable(let message) = error,
-               message.contains("Did not find any unspent coins") {
-                throw XCTSkip("No unspent coins for broadcast: \(message)")
+               message.contains("Did not find any unspent coins"), tip > 0 {
+                throw XCTSkip("Wallet unfunded after seeing tip \(tip): \(message)")
             }
             XCTFail("Unexpected broadcast error: \(error)")
         }
+    }
+
+    /// Background light sync fills the engine snapshot. A zero tip means this
+    /// process never reached lightwalletd, which is a failure when the live flag is set.
+    private static func waitForLiveTip(_ handle: DarkfiWalletHandle) throws -> Int64 {
+        _ = try handle.refreshNow()
+        let deadline = Date().addingTimeInterval(45)
+        var tip = try handle.syncSnapshot().chainTip
+        while tip <= 0 && Date() < deadline {
+            Thread.sleep(forTimeInterval: 2)
+            tip = try handle.syncSnapshot().chainTip
+        }
+        return tip
     }
 }
 

@@ -431,10 +431,11 @@ public struct Chat {
                     await send(.connectionStateChanged(.waitingForDagSync))
                     await send(.dagSyncStatusUpdate("Waiting for P2P peers…"))
 
-                    // Wait until the Rust daemon reports STATUS_RUNNING before allowing sends.
+                    // Wait until the Rust daemon reports STATUS_RUNNING and CONNECTION_PHASE == "connected"
+                    // (DAG_SYNCED == 1) before marking Chat connected or flushing ChatOutboxStore.
                     var pollCount = 0
                     let maxPolls = 90
-                    var reachedRunning = false
+                    var reachedConnected = false
                     while pollCount < maxPolls {
                         guard !Task.isCancelled else {
                             relay.finish()
@@ -452,7 +453,7 @@ public struct Chat {
                         }
                         pollCount += 1
                         let ffiStatus = darkircStatus()
-                        await send(.dagSyncStatusUpdate("DAG syncing… (\(pollCount)s)"))
+                        let ffiPhase = darkircConnectionPhase()
 
                         switch ffiStatus {
                         case "failed":
@@ -462,22 +463,32 @@ public struct Chat {
                             await send(.embeddedNodeStatusChanged(.failed))
                             return
                         case "running":
-                            reachedRunning = true
-                            await send(.embeddedNodeStatusChanged(.syncingDag))
+                            if ffiPhase == "connected" {
+                                reachedConnected = true
+                                await send(.embeddedNodeStatusChanged(.ready))
+                            } else if ffiPhase == "waiting_for_peers" {
+                                await send(.embeddedNodeStatusChanged(.waitingForPeers))
+                                await send(.dagSyncStatusUpdate("Waiting for P2P peers… (\(pollCount)s)"))
+                            } else {
+                                await send(.embeddedNodeStatusChanged(.syncingDag))
+                                await send(.dagSyncStatusUpdate("DAG syncing (\(ffiPhase))… (\(pollCount)s)"))
+                            }
                         case "starting":
                             await send(.embeddedNodeStatusChanged(.starting))
+                            await send(.dagSyncStatusUpdate("Starting embedded node… (\(pollCount)s)"))
                         default:
                             break
                         }
 
-                        if reachedRunning {
+                        if reachedConnected {
                             break
                         }
                     }
 
-                    guard reachedRunning else {
+                    guard reachedConnected else {
                         relay.finish()
-                        await send(.ircBridgeError("darkirc did not reach running state (status: \(darkircStatus()))"))
+                        let diag = "darkirc did not finish DAG sync (status: \(darkircStatus()), phase: \(darkircConnectionPhase()))"
+                        await send(.ircBridgeError(diag))
                         await send(.connectionStateChanged(.error))
                         await send(.embeddedNodeStatusChanged(.failed))
                         return
@@ -1168,8 +1179,12 @@ public struct Chat {
                     await send(.dmContactsLoaded(contacts, convos))
                 }
 
-            case .newDmConversation(.presented(.contactSaved)):
-                // No darkirc.toml config regeneration is needed anymore.
+            case let .newDmConversation(.presented(.contactSaved(contact))):
+                if (userStoredPreferences.dmSecretKey() ?? "").isEmpty,
+                   !contact.mySecretB58.isEmpty {
+                    userStoredPreferences.setDmSecretKey(contact.mySecretB58)
+                    userStoredPreferences.setDmPublicKey(contact.myPublicB58)
+                }
                 return .none
 
             case .newDmConversation:
