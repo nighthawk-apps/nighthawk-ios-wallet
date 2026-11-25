@@ -74,7 +74,7 @@ public enum StealthTheme {
 
     public enum Colors {
         private static var activeTheme: NighthawkSetting.Theme {
-            NighthawkThemeController.shared.theme
+            NighthawkThemeController.currentTheme
         }
 
         // Backgrounds (gradient: moonlit → charcoalDeep)

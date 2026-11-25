@@ -71,22 +71,47 @@ private final class WalletHandleManager: @unchecked Sendable {
         pollTimer = nil
     }
 
+    static func deriveSyncStatus(light: DrkLightSyncState, fallback: SyncStatus) -> SyncStatus {
+        let tip = UInt32(truncatingIfNeeded: max(0, light.chainTip))
+        let scanned = UInt32(truncatingIfNeeded: max(0, light.scannedHeight))
+        let connected = SynchronizerState.lightwalletdLive(light.status)
+        if light.chainTip > 0, scanned < tip {
+            let progress = Float(scanned) / Float(max(tip, 1))
+            return .syncing(progress: progress)
+        }
+        if connected {
+            return .upToDate
+        }
+        let lowerStatus = light.status.lowercased()
+        if lowerStatus.contains("error") || lowerStatus.contains("fail") {
+            return .error(light.statusMessage.isEmpty ? light.status : light.statusMessage)
+        }
+        return fallback == .upToDate ? .unprepared : fallback
+    }
+
+    static func normalizeTokenId(_ tokenId: String?, tokenBalances: [DrkTokenBalance]) -> String? {
+        guard let raw = tokenId?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+            return nil
+        }
+        if raw.caseInsensitiveCompare("DRK") == .orderedSame ||
+            raw == "241vANigf1Cy3ytjM1KHXiVECxgxdK4yApddL8KcLssb" {
+            return nil
+        }
+        if let label = tokenBalances.first(where: { $0.tokenId == raw })?.displayLabel?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+           label.caseInsensitiveCompare("DRK") == .orderedSame {
+            return nil
+        }
+        return raw
+    }
+
     private func pollBackgroundSync() {
         guard let handle = handle else { return }
         let light = handle.lightSyncSnapshot()
         let balance = (try? handle.confirmedBalanceAtomic()) ?? latestState.confirmedBalance
         let tip = UInt32(truncatingIfNeeded: max(0, light.chainTip))
-        let scanned = UInt32(truncatingIfNeeded: max(0, light.scannedHeight))
         let connected = SynchronizerState.lightwalletdLive(light.status)
-        let syncStatus: SyncStatus
-        if light.chainTip > 0, scanned < tip {
-            let progress = Float(scanned) / Float(max(tip, 1))
-            syncStatus = .syncing(progress: progress)
-        } else if connected {
-            syncStatus = .upToDate
-        } else {
-            syncStatus = latestState.syncStatus
-        }
+        let syncStatus = Self.deriveSyncStatus(light: light, fallback: latestState.syncStatus)
         let next = SynchronizerState(
             syncStatus: syncStatus,
             confirmedBalance: balance,
@@ -103,7 +128,9 @@ private final class WalletHandleManager: @unchecked Sendable {
             || next.syncStatus != prev.syncStatus
             || next.lightwalletdConnected != prev.lightwalletdConnected
             || next.activeSyncMethod != prev.activeSyncMethod
-            || next.lightStatusMessage != prev.lightStatusMessage else {
+            || next.lightStatusMessage != prev.lightStatusMessage
+            || next.fallbackReason != prev.fallbackReason
+            || next.fallbackUserMessage != prev.fallbackUserMessage else {
             return
         }
         updateState(next)
@@ -167,12 +194,22 @@ private final class WalletHandleManager: @unchecked Sendable {
 
         // Read user-configured lightwalletd endpoint (from ChangeServer settings),
         // or fall back to standalone local lightwalletd.
-        var storedEndpoint = UserPreferencesStorage.live.customLightwalletdServer
+        let storedEndpoint = UserPreferencesStorage.live.customLightwalletdServer
         var endpoint = (storedEndpoint?.isEmpty == false ? storedEndpoint : nil)
             ?? WalletHandleManager.defaultDarkfidEndpoint
+        endpoint = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if !endpoint.contains("://") {
-            endpoint = "tcp://\(endpoint)"
+            let lowerPort = endpoint.split(separator: ":").last
+            endpoint = lowerPort == "443" ? "https://\(endpoint)" : "tcp://\(endpoint)"
+        }
+
+        // Fail-closed TLS pin verification before opening any remote HTTPS/TLS endpoint.
+        let resolvedTlsPin = LightwalletTlsPin.activePinDataOrNil()
+        if LightwalletTlsPin.requiresPin(forEndpoint: endpoint) && resolvedTlsPin == nil {
+            throw DarkfiWalletNativeError.InvalidBootstrapConfig(
+                message: "TLS pin (LIGHTWALLET_TLS_PIN_SHA256) is required for remote HTTPS lightwalletd endpoints."
+            )
         }
 
         // S7: when the wallet network is Nym or Tor, rewrite non-loopback
@@ -195,12 +232,8 @@ private final class WalletHandleManager: @unchecked Sendable {
             socksPort: nymForWallet ? nymSocksPort : socksPort
         )
 
-        // Scheme-driven network: stealth-mainnet vs stealth-testnet compilation flags.
-        #if STEALTH_MAINNET
-        let networkLabel = "mainnet"
-        #else
-        let networkLabel = "testnet"
-        #endif
+        // Runtime Info.plist-driven network detection (works reliably inside SwiftPM).
+        let networkLabel = DarkfiNetwork.activeLabel
 
         let config = DrkBootstrapConfig(
             network: networkLabel,
@@ -223,7 +256,7 @@ private final class WalletHandleManager: @unchecked Sendable {
                     return Int64(birthday)
                 }
             }(),
-            lightwalletTlsPinSha256: LightwalletTlsPin.pinDataOrNil().map { [UInt8]($0) },
+            lightwalletTlsPinSha256: resolvedTlsPin.map { [UInt8]($0) },
             useTor: torForWallet,
             torSocksPort: socksPort,
             useNym: nymForWallet,
@@ -368,10 +401,15 @@ extension SDKSynchronizerClient: DependencyKey {
                     return (snap, bal, light)
                 }.value
 
+                let derivedStatus = WalletHandleManager.deriveSyncStatus(
+                    light: lightState,
+                    fallback: WalletHandleManager.shared.latestState.syncStatus
+                )
+                let tip = max(BlockHeight(snapshot.chainTip), UInt32(truncatingIfNeeded: max(0, lightState.chainTip)))
                 WalletHandleManager.shared.updateState(SynchronizerState(
-                    syncStatus: .upToDate,
+                    syncStatus: derivedStatus,
                     confirmedBalance: balance,
-                    latestBlockHeight: BlockHeight(snapshot.chainTip),
+                    latestBlockHeight: tip,
                     activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                     fallbackReason: String(describing: lightState.fallbackReason),
                     fallbackUserMessage: lightState.fallbackUserMessage,
@@ -381,10 +419,16 @@ extension SDKSynchronizerClient: DependencyKey {
                 WalletHandleManager.shared.startPolling()
             } catch {
                 let fallbackBalance = (try? handle.confirmedBalanceAtomic()) ?? WalletHandleManager.shared.latestState.confirmedBalance
+                let lightState = handle.lightSyncSnapshot()
                 WalletHandleManager.shared.updateState(SynchronizerState(
                     syncStatus: .error(error.localizedDescription),
                     confirmedBalance: fallbackBalance,
-                    latestBlockHeight: WalletHandleManager.shared.latestState.latestBlockHeight
+                    latestBlockHeight: WalletHandleManager.shared.latestState.latestBlockHeight,
+                    activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                    fallbackReason: String(describing: lightState.fallbackReason),
+                    fallbackUserMessage: lightState.fallbackUserMessage,
+                    lightwalletdConnected: false,
+                    lightStatusMessage: lightState.statusMessage.isEmpty ? error.localizedDescription : lightState.statusMessage
                 ))
                 WalletHandleManager.shared.startPolling()
             }
@@ -410,10 +454,15 @@ extension SDKSynchronizerClient: DependencyKey {
                 let light = handle.lightSyncSnapshot()
                 return (snap, bal, light)
             }.value
+            let derivedStatus = WalletHandleManager.deriveSyncStatus(
+                light: lightState,
+                fallback: WalletHandleManager.shared.latestState.syncStatus
+            )
+            let tip = max(BlockHeight(snapshot.chainTip), UInt32(truncatingIfNeeded: max(0, lightState.chainTip)))
             WalletHandleManager.shared.updateState(SynchronizerState(
-                syncStatus: .upToDate,
+                syncStatus: derivedStatus,
                 confirmedBalance: balance,
-                latestBlockHeight: BlockHeight(snapshot.chainTip),
+                latestBlockHeight: tip,
                 activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
                 fallbackReason: String(describing: lightState.fallbackReason),
                 fallbackUserMessage: lightState.fallbackUserMessage,
@@ -479,22 +528,7 @@ extension SDKSynchronizerClient: DependencyKey {
             // Rust FFI parses whole-DRK decimals (8 places), not atomic Int64 strings.
             let amountDecimal = amount.inputDecimalString()
             let tokenBalances = (try? handle.listTokenBalances()) ?? []
-            let matchedToken = tokenId.flatMap { id in tokenBalances.first(where: { $0.tokenId == id }) }
-            let isNativeDrk: Bool = {
-                guard let raw = tokenId?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
-                    return true
-                }
-                if raw.caseInsensitiveCompare("DRK") == .orderedSame ||
-                    raw == "241vANigf1Cy3ytjM1KHXiVECxgxdK4yApddL8KcLssb" {
-                    return true
-                }
-                if let label = matchedToken?.displayLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
-                   label.caseInsensitiveCompare("DRK") == .orderedSame {
-                    return true
-                }
-                return false
-            }()
-            let effectiveTokenId: String? = isNativeDrk ? nil : tokenId
+            let effectiveTokenId = WalletHandleManager.normalizeTokenId(tokenId, tokenBalances: tokenBalances)
             // Check balance before proposing
             let balance = try handle.confirmedBalanceAtomic()
             let fee = try handle.estimateTransferFee(
@@ -527,10 +561,12 @@ extension SDKSynchronizerClient: DependencyKey {
             guard let handle = WalletHandleManager.shared.handle else {
                 return scheduledFee
             }
+            let tokenBalances = (try? handle.listTokenBalances()) ?? []
+            let effectiveTokenId = WalletHandleManager.normalizeTokenId(tokenId, tokenBalances: tokenBalances)
             return (try? handle.estimateTransferFee(
                 recipientAddress: address.stringEncoded,
                 amount: amount.inputDecimalString(),
-                tokenId: tokenId,
+                tokenId: effectiveTokenId,
                 paymentMemo: nil
             )) ?? scheduledFee
         },
@@ -547,10 +583,12 @@ extension SDKSynchronizerClient: DependencyKey {
             // Pass whole-DRK decimal string (not atomic) to match Rust parsers.
             let memoText: String? = memo?.text
             let amountDecimal = amount.inputDecimalString()
+            let tokenBalances = (try? handle.listTokenBalances()) ?? []
+            let effectiveTokenId = WalletHandleManager.normalizeTokenId(tokenId, tokenBalances: tokenBalances)
             let txBytes = try handle.buildTransfer(
                 recipientAddress: recipientAddr,
                 amount: amountDecimal,
-                tokenId: tokenId,
+                tokenId: effectiveTokenId,
                 paymentMemo: memoText
             )
             let txHash = try handle.broadcastTransfer(
@@ -559,16 +597,34 @@ extension SDKSynchronizerClient: DependencyKey {
                 recipientAddress: recipientAddr
             )
 
-            // Refresh balance after send
+            // Refresh balance after send while preserving honest sync/fallback status.
             let newBalance = (try? handle.confirmedBalanceAtomic()) ?? 0
             let snapshot = (try? handle.syncSnapshot()) ?? DrkSyncSnapshot(scannedBlocks: 0, chainTip: 0)
+            let lightState = handle.lightSyncSnapshot()
+            let previousState = WalletHandleManager.shared.latestState
+            let derivedStatus = WalletHandleManager.deriveSyncStatus(
+                light: lightState,
+                fallback: previousState.syncStatus
+            )
+            let preservedFallbackReason: String = {
+                let current = String(describing: lightState.fallbackReason)
+                return current == "none" && previousState.fallbackReason != "None"
+                    ? previousState.fallbackReason
+                    : current
+            }()
+            let preservedFallbackMsg = lightState.fallbackUserMessage.isEmpty
+                ? previousState.fallbackUserMessage
+                : lightState.fallbackUserMessage
 
             WalletHandleManager.shared.updateState(SynchronizerState(
-                syncStatus: .upToDate,
+                syncStatus: derivedStatus,
                 confirmedBalance: newBalance,
-                latestBlockHeight: BlockHeight(snapshot.chainTip),
-                activeSyncMethod: WalletHandleManager.shared.activeSyncMethod,
-                lightwalletdConnected: SynchronizerState.lightwalletdLive(handle.lightSyncSnapshot().status)
+                latestBlockHeight: max(BlockHeight(snapshot.chainTip), previousState.latestBlockHeight),
+                activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                fallbackReason: preservedFallbackReason,
+                fallbackUserMessage: preservedFallbackMsg,
+                lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status),
+                lightStatusMessage: lightState.statusMessage.isEmpty ? previousState.lightStatusMessage : lightState.statusMessage
             ))
 
             let sentAt = Date().timeIntervalSince1970
@@ -580,7 +636,7 @@ extension SDKSynchronizerClient: DependencyKey {
                 fee: (try? handle.estimateTransferFee(
                     recipientAddress: recipientAddr,
                     amount: amountDecimal,
-                    tokenId: tokenId,
+                    tokenId: effectiveTokenId,
                     paymentMemo: memoText
                 )) ?? 5_000_000,
                 isSending: true,
@@ -609,11 +665,16 @@ extension SDKSynchronizerClient: DependencyKey {
             let ffiDaos = try handle.listDaos()
             return ffiDaos.map { d in
                 DaoBrief(
-                    name: d.name, bullaB58: d.bullaB58, govTokenId: d.govTokenId,
-                    quorumDisplay: d.quorumDisplay, proposerLimitDisplay: d.proposerLimitDisplay,
+                    name: d.name,
+                    bullaB58: d.bullaB58,
+                    govTokenId: d.govTokenId,
+                    quorumDisplay: d.quorumDisplay,
+                    proposerLimitDisplay: d.proposerLimitDisplay,
                     approvalRatioPercent: d.approvalRatioPercent,
                     mintHeight: d.mintHeight >= 0 ? d.mintHeight : nil,
-                    canPropose: d.canPropose, canVote: d.canVote, canExec: d.canExec
+                    canPropose: d.canPropose,
+                    canVote: d.canVote,
+                    canExec: d.canExec
                 )
             }
         },
@@ -624,13 +685,16 @@ extension SDKSynchronizerClient: DependencyKey {
             let ffiProposals = try handle.listProposals(daoName: daoName)
             return ffiProposals.map { p in
                 ProposalBrief(
-                    proposalBullaB58: p.proposalBullaB58, daoName: p.daoName,
-                    daoBullaB58: p.daoBullaB58, authCallCount: Int(p.authCallCount),
+                    proposalBullaB58: p.proposalBullaB58,
+                    daoName: p.daoName,
+                    daoBullaB58: p.daoBullaB58,
+                    authCallCount: Int(p.authCallCount),
                     durationBlockwindows: Int64(p.durationBlockwindows),
                     creationBlockwindow: Int64(p.creationBlockwindow),
                     mintHeight: p.mintHeight >= 0 ? p.mintHeight : nil,
                     execHeight: p.execHeight >= 0 ? p.execHeight : nil,
-                    isExecuted: p.isExecuted, summaryLine: p.summaryLine
+                    isExecuted: p.isExecuted,
+                    summaryLine: p.summaryLine
                 )
             }
         },
@@ -640,13 +704,16 @@ extension SDKSynchronizerClient: DependencyKey {
             }
             let d = try handle.getProposal(proposalBullaB58: bullaB58)
             let brief = ProposalBrief(
-                proposalBullaB58: d.proposalBullaB58, daoName: d.daoName,
-                daoBullaB58: d.daoBullaB58, authCallCount: Int(d.authCallCount),
+                proposalBullaB58: d.proposalBullaB58,
+                daoName: d.daoName,
+                daoBullaB58: d.daoBullaB58,
+                authCallCount: Int(d.authCallCount),
                 durationBlockwindows: Int64(d.durationBlockwindows),
                 creationBlockwindow: Int64(d.creationBlockwindow),
                 mintHeight: d.mintHeight >= 0 ? d.mintHeight : nil,
                 execHeight: d.execHeight >= 0 ? d.execHeight : nil,
-                isExecuted: d.isExecuted, summaryLine: d.summaryLine
+                isExecuted: d.isExecuted,
+                summaryLine: d.summaryLine
             )
             return ProposalFull(
                 brief: brief,
@@ -760,7 +827,38 @@ extension SDKSynchronizerClient: DependencyKey {
             return Future<Void, Error> { promise in
                 Task.detached(priority: .userInitiated) {
                     do {
-                        _ = try handle.refreshNow()
+                        BlockTimestampIndex.reset()
+                        // Real UniFFI rescan: rewind sync cursor, compact block cache, coins,
+                        // Merkle tree, and transaction history back to genesis, then re-scan.
+                        _ = try handle.handleReorgRecovery(rewindToHeight: 0)
+                        WalletHandleManager.shared.updateState(SynchronizerState(
+                            syncStatus: .syncing(progress: 0),
+                            confirmedBalance: 0,
+                            latestBlockHeight: 0,
+                            activeSyncMethod: WalletHandleManager.shared.activeSyncMethod,
+                            lightwalletdConnected: false,
+                            lightStatusMessage: "Rescanning blockchain…"
+                        ))
+                        let snapshot = try handle.refreshNow()
+                        let balance = (try? handle.confirmedBalanceAtomic()) ?? 0
+                        let lightState = handle.lightSyncSnapshot()
+                        let derivedStatus = WalletHandleManager.deriveSyncStatus(
+                            light: lightState,
+                            fallback: .syncing(progress: 0)
+                        )
+                        WalletHandleManager.shared.updateState(SynchronizerState(
+                            syncStatus: derivedStatus,
+                            confirmedBalance: balance,
+                            latestBlockHeight: max(
+                                BlockHeight(snapshot.chainTip),
+                                UInt32(truncatingIfNeeded: max(0, lightState.chainTip))
+                            ),
+                            activeSyncMethod: DarkfiSyncMethod(lightState.syncMethod),
+                            fallbackReason: String(describing: lightState.fallbackReason),
+                            fallbackUserMessage: lightState.fallbackUserMessage,
+                            lightwalletdConnected: SynchronizerState.lightwalletdLive(lightState.status),
+                            lightStatusMessage: lightState.statusMessage
+                        ))
                         promise(.success(()))
                     } catch {
                         promise(.failure(error))

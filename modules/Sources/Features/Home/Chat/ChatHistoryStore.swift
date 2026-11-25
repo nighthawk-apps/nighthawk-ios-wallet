@@ -1,6 +1,6 @@
 import Foundation
 
-/// Capped on-disk chat history so a reconnect does not wipe the thread.
+/// Capped on-disk chat history (AES-GCM encrypted at rest) so a reconnect does not wipe the thread.
 public enum ChatHistoryStore {
     struct Snapshot {
         var channels: [String: [Chat.State.Message]]
@@ -23,7 +23,7 @@ public enum ChatHistoryStore {
         var failedToDecrypt: Bool
     }
 
-    private static var fileURL: URL {
+    private static var storageDir: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         var dir = base.appendingPathComponent("nighthawk-chat", isDirectory: true)
@@ -31,11 +31,22 @@ public enum ChatHistoryStore {
         var values = URLResourceValues()
         values.isExcludedFromBackup = true
         try? dir.setResourceValues(values)
-        return dir.appendingPathComponent("chat_history_v1.json")
+        return dir
+    }
+
+    private static var encryptedFileURL: URL {
+        storageDir.appendingPathComponent("chat_history_v1.enc")
+    }
+
+    private static var legacyPlaintextURL: URL {
+        storageDir.appendingPathComponent("chat_history_v1.json")
     }
 
     static func load() -> Snapshot {
-        guard let data = try? Data(contentsOf: fileURL),
+        guard let data = ChatEncryptedFileStore.load(
+            encryptedURL: encryptedFileURL,
+            legacyPlaintextURL: legacyPlaintextURL
+        ),
               let model = try? JSONDecoder().decode(FileModel.self, from: data) else {
             return Snapshot(channels: [:], dms: [:], ids: [])
         }
@@ -52,13 +63,17 @@ public enum ChatHistoryStore {
             channels: channels.mapValues { Array($0.suffix(200)).map(line) },
             dms: dms.mapValues { Array($0.suffix(200)).map(line) }
         )
-        guard let data = try? JSONEncoder().encode(model) else { return }
-        try? data.write(to: fileURL, options: [.atomic, .completeFileProtection])
+        let encURL = encryptedFileURL
+        let legacyURL = legacyPlaintextURL
+        ChatEncryptedFileStore.diskQueue.async {
+            guard let data = try? JSONEncoder().encode(model) else { return }
+            ChatEncryptedFileStore.saveAsync(data, encryptedURL: encURL, legacyPlaintextURL: legacyURL)
+        }
     }
 
     public static func clearAll() {
-        let dir = fileURL.deletingLastPathComponent()
-        try? FileManager.default.removeItem(at: fileURL)
+        let dir = storageDir
+        ChatEncryptedFileStore.remove(encryptedURL: encryptedFileURL, legacyPlaintextURL: legacyPlaintextURL)
         if let contents = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil),
            contents.isEmpty {
             try? FileManager.default.removeItem(at: dir)

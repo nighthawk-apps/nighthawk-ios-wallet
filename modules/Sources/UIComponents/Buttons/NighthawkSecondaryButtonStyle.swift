@@ -33,7 +33,7 @@ public struct NighthawkSecondaryButtonStyle: ButtonStyle {
                     }
                 }
                 .textCase(.uppercase)
-                .font(.custom(FontFamily.Roboto.medium.name, size: 14, relativeTo: .subheadline))
+                .font(.custom(FontFamily.SourceSans3.medium.name, size: 14, relativeTo: .subheadline))
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .frame(minHeight: 44)

@@ -27,10 +27,10 @@ extension Transfer {
                     return .none
                 }
             case .destination,
-                 .delegate,
-                 .daoHubTapped,
-                 .receiveMoneyTapped,
-                 .sendMoneyTapped:
+                .delegate,
+                .daoHubTapped,
+                .receiveMoneyTapped,
+                .sendMoneyTapped:
                 return .none
             }
         }
@@ -49,10 +49,10 @@ extension Transfer {
                     return .none
                 }
             case .destination,
-                 .delegate,
-                 .daoHubTapped,
-                 .receiveMoneyTapped,
-                 .sendMoneyTapped:
+                .delegate,
+                .daoHubTapped,
+                .receiveMoneyTapped,
+                .sendMoneyTapped:
                 return .none
             }
         }
@@ -68,10 +68,10 @@ extension Transfer {
                     return .none
                 }
             case .destination,
-                 .delegate,
-                 .daoHubTapped,
-                 .receiveMoneyTapped,
-                 .sendMoneyTapped:
+                .delegate,
+                .daoHubTapped,
+                .receiveMoneyTapped,
+                .sendMoneyTapped:
                 return .none
             }
         }

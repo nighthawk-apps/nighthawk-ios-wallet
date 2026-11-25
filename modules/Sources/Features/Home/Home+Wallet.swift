@@ -44,6 +44,18 @@ extension Home {
                     )
                     sendState.spendableBalance = state.walletInfo.balance
                     sendState.receiveAddress = state.walletInfo.receiveAddress
+                    sendState.availableTokens = state.walletInfo.tokenBalances
+                    state.transfer.destination = .send(sendState)
+                    return .none
+                case let .sendToken(tokenId):
+                    var sendState = SendFlow.State(
+                        latestFiatPrice: state.walletInfo.latestFiatPrice,
+                        showCloseButton: true
+                    )
+                    sendState.spendableBalance = state.walletInfo.balance
+                    sendState.receiveAddress = state.walletInfo.receiveAddress
+                    sendState.availableTokens = state.walletInfo.tokenBalances
+                    sendState.selectedTokenId = tokenId
                     state.transfer.destination = .send(sendState)
                     return .none
                 case .requestMoney:
@@ -81,25 +93,26 @@ extension Home {
                     return .none
                 }
             case .alert,
-                 .binding,
-                 .cancelSynchronizerUpdates,
-                 .cantStartSync,
-                 .chat,
-                 .delegate,
-                 .destination,
-                 .fetchLatestFiatPrice,
-                 .daoHub,
-                 .latestFiatResponse,
-                 .listenForSynchronizerUpdates,
-                 .onAppear,
-                 .rescanDone,
-                 .settings,
-                 .synchronizerStateChanged,
-                 .tabSelected,
-                 .transfer,
-                 .updateWalletEvents,
-                 .receiveAddressLoaded,
-                 .wallet:
+                .binding,
+                .cancelSynchronizerUpdates,
+                .cantStartSync,
+                .chat,
+                .delegate,
+                .destination,
+                .fetchLatestFiatPrice,
+                .daoHub,
+                .latestFiatResponse,
+                .listenForSynchronizerUpdates,
+                .onAppear,
+                .rescanDone,
+                .settings,
+                .synchronizerStateChanged,
+                .tabSelected,
+                .transfer,
+                .updateWalletEvents,
+                .tokenBalancesLoaded,
+                .receiveAddressLoaded,
+                .wallet:
                 return .none
             }
         }

@@ -18,6 +18,7 @@ extension AppReducer {
         fiatDelegateReducer()
         advancedSettingsDelegateReducer()
         aboutDelegateReducer()
+        torNetworkDelegateReducer()
     }
 
     private func nighthawkSettingsDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
@@ -42,7 +43,9 @@ extension AppReducer {
                     }
                     return .none
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }
@@ -74,7 +77,9 @@ extension AppReducer {
                     }
                     return .none
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }
@@ -90,7 +95,9 @@ extension AppReducer {
                 case .nukeLocalDatabases:
                     return nukeLocalDatabases()
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }
@@ -105,7 +112,26 @@ extension AppReducer {
                     // Licenses are displayed inline in AboutView
                     return .none
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+                return .none
+            }
+        }
+    }
+
+    private func torNetworkDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
+        Reduce { state, action in
+            switch action {
+            case let .path(.element(id: id, action: .torNetwork(.delegate(delegateAction)))):
+                switch delegateAction {
+                case .dismiss:
+                    state.path.pop(from: id)
+                    return .none
+                }
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }

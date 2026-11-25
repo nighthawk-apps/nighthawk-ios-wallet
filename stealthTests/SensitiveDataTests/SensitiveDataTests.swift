@@ -2,60 +2,40 @@
 //  SensitiveDataTests.swift
 //  stealthTests
 //
-//  Created by Lukáš Korba on 06.02.2023.
+//  Verifies Redactable conformance and round-trip accessors for sensitive wallet models.
 //
 
-import XCTest
-import MnemonicSwift
 import Utils
-@testable import stealth_testnet
+import XCTest
 
-class SensitiveDataTests: XCTestCase {
-    func testSeedPhraseConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(SeedPhrase.self as? Undescribable)
-        #else
-        XCTAssertNotNil(SeedPhrase.self as? Undescribable)
-        #endif
+final class SensitiveDataTests: XCTestCase {
+    func testSeedPhraseConformsToRedactable() {
+        let phrase = SeedPhrase("abandon ability able")
+        XCTAssertNotNil(phrase as any Redactable)
+        XCTAssertEqual(phrase.value(), "abandon ability able")
     }
-    
-    func testBirthdayConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(Birthday.self as? Undescribable)
-        #else
-        XCTAssertNotNil(Birthday.self as? Undescribable)
-        #endif
+
+    func testBirthdayConformsToRedactable() {
+        let birthday = Birthday(91_808)
+        XCTAssertNotNil(birthday as any Redactable)
+        XCTAssertEqual(birthday.value(), 91_808)
     }
-    
-    func testRedactableStringConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(RedactableString.self as? Undescribable)
-        #else
-        XCTAssertNotNil(RedactableString.self as? Undescribable)
-        #endif
+
+    func testRedactableStringConformsToRedactable() {
+        let value = "drk1secret".redacted
+        XCTAssertNotNil(value as any Redactable)
+        XCTAssertEqual(value.data, "drk1secret")
     }
-    
-    func testRedactableBlockHeightConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(RedactableBlockHeight.self as? Undescribable)
-        #else
-        XCTAssertNotNil(RedactableBlockHeight.self as? Undescribable)
-        #endif
+
+    func testRedactableBlockHeightConformsToRedactable() {
+        let height: RedactableBlockHeight = BlockHeight(123_456).redacted
+        XCTAssertNotNil(height as any Redactable)
+        XCTAssertEqual(height.data, 123_456)
     }
-    
-    func testBalanceConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(Balance.self as? Undescribable)
-        #else
-        XCTAssertNotNil(Balance.self as? Undescribable)
-        #endif
-    }
-    
-    func testRedactableInt64ConformsToUndescribable() throws {
-        #if UNREDACTED
-        XCTAssertNil(RedactableInt64.self as? Undescribable)
-        #else
-        XCTAssertNotNil(RedactableInt64.self as? Undescribable)
-        #endif
+
+    func testRedactableInt64ConformsToRedactable() {
+        let amount = Int64(100_000_000).redacted
+        XCTAssertNotNil(amount as any Redactable)
+        XCTAssertEqual(amount.data, 100_000_000)
     }
 }

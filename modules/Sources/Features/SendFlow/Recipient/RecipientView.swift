@@ -118,7 +118,8 @@ public struct RecipientView: View {
 
 // MARK: - Subviews
 private extension RecipientView {
-    @ViewBuilder var addressFieldAccessoryView: some View {
+    @ViewBuilder
+    var addressFieldAccessoryView: some View {
         if store.showScanButton {
             Button(action: { store.send(store.hasEnteredRecipient ? .clearRecipientTapped : .scanQRCodeTapped) }) {
                 (
@@ -128,7 +129,8 @@ private extension RecipientView {
                 )
                 .resizable()
                 .renderingMode(.template)
-                .frame(width: 24, height: 24).scaledToFit()
+                .frame(width: 24, height: 24)
+                .scaledToFit()
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         } else if store.hasEnteredRecipient {
@@ -136,7 +138,8 @@ private extension RecipientView {
                 Asset.Assets.Icons.Nighthawk.failed.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(width: 24, height: 24).scaledToFit()
+                    .frame(width: 24, height: 24)
+                .scaledToFit()
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
         }

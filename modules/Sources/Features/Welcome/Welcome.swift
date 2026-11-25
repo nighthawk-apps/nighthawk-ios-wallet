@@ -69,9 +69,9 @@ extension Welcome {
                     return .send(.delegate(.importExistingWallet))
                 }
             case .createNewWalletTapped,
-                 .delegate,
-                 .destination,
-                 .importExistingWalletTapped:
+                .delegate,
+                .destination,
+                .importExistingWalletTapped:
                 return .none
             }
         }

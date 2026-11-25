@@ -569,7 +569,11 @@ public struct Chat {
                     // Only fill the generic hint when nothing more precise exists.
                     let existing = state.diagnosticDetail?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                     if existing.isEmpty {
-                        state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
+                        state.diagnosticDetail = """
+                            Could not start the embedded darkirc node. Rebuild the Rust FFI with \
+                            ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. \
+                            If it persists, check the Xcode console for P2P/DAG errors.
+                            """
                     }
                 } else {
                     state.diagnosticDetail = nil
@@ -667,9 +671,9 @@ public struct Chat {
                                 let newChan = State.Channel(name: targetChan)
                                 state.channels.append(newChan)
                             }
-                            if let ch = state.channels[id: targetChan] {
-                                state.selectedChannel = ch
-                                state.messages = IdentifiedArrayOf(uniqueElements: state.channelMessages[ch.name] ?? [])
+                            if let channel = state.channels[id: targetChan] {
+                                state.selectedChannel = channel
+                                state.messages = IdentifiedArrayOf(uniqueElements: state.channelMessages[channel.name] ?? [])
                             }
                             state.moveComposer(from: previous)
                             let sysMsg = State.Message(
@@ -781,16 +785,16 @@ public struct Chat {
                         return .none
 
                     case "/help":
-                        let helpText = """
-                        Available DarkIRC commands:
-                          /nick <name> — Change nickname (1–24 characters)
-                          /join <#channel> — Join or switch to channel
-                          /part — Leave current channel
-                          /clear — Clear messages in current view
-                          /me <action> — Send action message (* nick action)
-                          /msg <target> <text> — Send message to channel or nick
-                          /help — Show this help message
-                        """
+                        let helpText = [
+                            "Available DarkIRC commands:",
+                            "  /nick <name> — Change nickname (1–24 characters)",
+                            "  /join <#channel> — Join or switch to channel",
+                            "  /part — Leave current channel",
+                            "  /clear — Clear messages in current view",
+                            "  /me <action> — Send action message (* nick action)",
+                            "  /msg <target> <text> — Send message to channel or nick",
+                            "  /help — Show this help message"
+                        ].joined(separator: "\n")
                         let sysMsg = State.Message(
                             id: UUID().uuidString,
                             sender: "System",
@@ -1226,8 +1230,8 @@ public struct Chat {
                     return .send(.pubkeyGenerated(existing))
                 }
                 return .run { send in
-                    if let kp = DarkircContactManager.generateKeypair() {
-                        await send(.dmKeypairMinted(secret: kp.secretB58, publicKey: kp.publicB58))
+                    if let keypair = DarkircContactManager.generateKeypair() {
+                        await send(.dmKeypairMinted(secret: keypair.secretB58, publicKey: keypair.publicB58))
                     }
                 }
 

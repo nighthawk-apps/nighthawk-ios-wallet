@@ -9,14 +9,56 @@ import ComposableArchitecture
 import Generated
 import LocalAuthentication
 import LocalAuthenticationClient
+import Models
 import UserPreferencesStorage
 
 @Reducer
 public struct Security {
+    public enum PinFlowStep: Equatable {
+        case idle
+        case setupEnter
+        case setupConfirm(firstPin: String)
+        case changeVerifyCurrent
+        case changeEnterNew
+        case changeConfirmNew(firstPin: String)
+        case disableVerifyCurrent
+        case verifyOnly
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var areBiometricsEnabled = false
         public var biometryType: LABiometryType = .none
+        public var isPinEnabled = false
+        public var pinFlowStep: PinFlowStep = .idle
+        public var pinInput = ""
+        public var pinErrorMessage: String?
+        public var pinStatusMessage: String?
+
+        public var hasBiometricsHardware: Bool {
+            biometryType == .faceID || biometryType == .touchID
+        }
+
+        public var pinPromptTitle: String {
+            switch pinFlowStep {
+            case .idle:
+                return ""
+            case .setupEnter:
+                return "Enter a new 6-digit PIN"
+            case .setupConfirm:
+                return "Re-enter your 6-digit PIN to confirm"
+            case .changeVerifyCurrent:
+                return "Enter your current 6-digit PIN"
+            case .changeEnterNew:
+                return "Enter your new 6-digit PIN"
+            case .changeConfirmNew:
+                return "Re-enter your new 6-digit PIN"
+            case .disableVerifyCurrent:
+                return "Enter your current PIN to disable"
+            case .verifyOnly:
+                return "Enter your 6-digit PIN to verify"
+            }
+        }
 
         public init() {}
     }
@@ -25,6 +67,13 @@ public struct Security {
         case binding(BindingAction<State>)
         case authenticationResponse(Bool)
         case onAppear
+        case startSetupPinTapped
+        case startChangePinTapped
+        case startVerifyPinTapped
+        case startDisablePinTapped
+        case cancelPinFlowTapped
+        case pinInputChanged(String)
+        case submitPinTapped
     }
 
     @Dependency(\.localAuthenticationContext) var localAuthenticationContext
@@ -78,11 +127,136 @@ public struct Security {
                 let context = localAuthenticationContext()
                 _ = try? context.canEvaluatePolicy(.deviceOwnerAuthentication)
                 state.biometryType = context.biometryType()
+                state.isPinEnabled = SecurityPinStore.isPinSet()
                 return .none
+            case .startSetupPinTapped:
+                state.pinFlowStep = .setupEnter
+                state.pinInput = ""
+                state.pinErrorMessage = nil
+                state.pinStatusMessage = nil
+                return .none
+            case .startChangePinTapped:
+                state.pinFlowStep = .changeVerifyCurrent
+                state.pinInput = ""
+                state.pinErrorMessage = nil
+                state.pinStatusMessage = nil
+                return .none
+            case .startVerifyPinTapped:
+                state.pinFlowStep = .verifyOnly
+                state.pinInput = ""
+                state.pinErrorMessage = nil
+                state.pinStatusMessage = nil
+                return .none
+            case .startDisablePinTapped:
+                state.pinFlowStep = .disableVerifyCurrent
+                state.pinInput = ""
+                state.pinErrorMessage = nil
+                state.pinStatusMessage = nil
+                return .none
+            case .cancelPinFlowTapped:
+                state.pinFlowStep = .idle
+                state.pinInput = ""
+                state.pinErrorMessage = nil
+                return .none
+            case let .pinInputChanged(raw):
+                let digits = String(raw.filter(\.isNumber).prefix(SecurityPinStore.pinLength))
+                state.pinInput = digits
+                state.pinErrorMessage = nil
+                return .none
+            case .submitPinTapped:
+                return handlePinSubmit(&state)
             case .binding:
                 return .none
             }
         }
+    }
+
+    private func handlePinSubmit(_ state: inout State) -> Effect<Action> {
+        let pin = state.pinInput
+        guard SecurityPinStore.isValidPinFormat(pin) else {
+            state.pinErrorMessage = "Enter exactly \(SecurityPinStore.pinLength) digits."
+            return .none
+        }
+
+        switch state.pinFlowStep {
+        case .idle:
+            return .none
+        case .setupEnter:
+            state.pinFlowStep = .setupConfirm(firstPin: pin)
+            state.pinInput = ""
+            state.pinErrorMessage = nil
+        case let .setupConfirm(firstPin):
+            completePinSetup(pin: pin, expectedPin: firstPin, isChange: false, state: &state)
+        case .changeVerifyCurrent:
+            verifyCurrentPin(pin: pin, nextStep: .changeEnterNew, state: &state)
+        case .changeEnterNew:
+            state.pinFlowStep = .changeConfirmNew(firstPin: pin)
+            state.pinInput = ""
+            state.pinErrorMessage = nil
+        case let .changeConfirmNew(firstPin):
+            completePinSetup(pin: pin, expectedPin: firstPin, isChange: true, state: &state)
+        case .disableVerifyCurrent:
+            disablePinIfVerified(pin: pin, state: &state)
+        case .verifyOnly:
+            verifyPinOnly(pin: pin, state: &state)
+        }
+        return .none
+    }
+
+    private func completePinSetup(
+        pin: String,
+        expectedPin: String,
+        isChange: Bool,
+        state: inout State
+    ) {
+        guard pin == expectedPin else {
+            state.pinErrorMessage = isChange ? "New PINs did not match. Try again." : "PINs did not match. Try again."
+            state.pinInput = ""
+            return
+        }
+        guard SecurityPinStore.setPin(pin) else {
+            state.pinErrorMessage = isChange ? "Could not update PIN in Keychain." : "Could not store PIN in Keychain."
+            return
+        }
+        state.isPinEnabled = true
+        state.pinFlowStep = .idle
+        state.pinInput = ""
+        state.pinStatusMessage = isChange ? "App PIN updated." : "6-digit App PIN enabled."
+    }
+
+    private func verifyCurrentPin(pin: String, nextStep: PinFlowStep, state: inout State) {
+        guard SecurityPinStore.verifyPin(pin) else {
+            state.pinErrorMessage = "Incorrect current PIN."
+            state.pinInput = ""
+            return
+        }
+        state.pinFlowStep = nextStep
+        state.pinInput = ""
+        state.pinErrorMessage = nil
+    }
+
+    private func disablePinIfVerified(pin: String, state: inout State) {
+        guard SecurityPinStore.verifyPin(pin) else {
+            state.pinErrorMessage = "Incorrect current PIN."
+            state.pinInput = ""
+            return
+        }
+        SecurityPinStore.clearPin()
+        state.isPinEnabled = false
+        state.pinFlowStep = .idle
+        state.pinInput = ""
+        state.pinStatusMessage = "App PIN disabled."
+    }
+
+    private func verifyPinOnly(pin: String, state: inout State) {
+        guard SecurityPinStore.verifyPin(pin) else {
+            state.pinErrorMessage = "Incorrect PIN."
+            state.pinInput = ""
+            return
+        }
+        state.pinFlowStep = .idle
+        state.pinInput = ""
+        state.pinStatusMessage = "PIN verified."
     }
 
     public init() {}

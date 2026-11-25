@@ -81,7 +81,7 @@ public struct Recipient {
                 if let contents = pasteboard.getString() {
                     let trimmed = contents.data.trimmingCharacters(in: .whitespacesAndNewlines)
                     let candidate = PaymentRequestUri.parse(trimmed)?.address ?? trimmed
-                    state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(candidate, "testnet")
+                    state.pasteboardContainsDarkFiAddress = derivationTool.isDarkFiAddress(candidate, DarkfiNetwork.activeLabel)
                 }
                 return .none
             case let .addressBookLoaded(entries):
@@ -100,13 +100,14 @@ public struct Recipient {
             case .pasteFromClipboardTapped:
                 guard let contents = pasteboard.getString() else { return .none }
                 let trimmed = contents.data.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let parsed = PaymentRequestUri.parse(trimmed), derivationTool.isDarkFiAddress(parsed.address, "testnet") {
+                if let parsed = PaymentRequestUri.parse(trimmed),
+                   derivationTool.isDarkFiAddress(parsed.address, DarkfiNetwork.activeLabel) {
                     state.recipient = parsed.address
                     state.invoiceAmount = parsed.amount
                     state.invoiceMemo = parsed.memo
                     state.isRecipientValid = true
                     return .none
-                } else if derivationTool.isDarkFiAddress(trimmed, "testnet") {
+                } else if derivationTool.isDarkFiAddress(trimmed, DarkfiNetwork.activeLabel) {
                     state.recipient = trimmed
                     state.invoiceAmount = nil
                     state.invoiceMemo = nil
@@ -130,7 +131,7 @@ public struct Recipient {
                         state.invoiceMemo = nil
                     }
                 }
-                state.isRecipientValid = derivationTool.isDarkFiAddress(state.recipient, "testnet")
+                state.isRecipientValid = derivationTool.isDarkFiAddress(state.recipient, DarkfiNetwork.activeLabel)
                 return .none
             case .scanQRCodeTapped:
                 return .send(.delegate(.scanCode))

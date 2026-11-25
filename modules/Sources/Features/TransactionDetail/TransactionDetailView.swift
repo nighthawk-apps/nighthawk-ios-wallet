@@ -24,6 +24,16 @@ public struct TransactionDetailView: View {
                     transactionSummary
 
                     TransactionDetailsTable(lineItems: store.transactionLineItems(with: store.tokenName))
+
+                    if store.isSending, store.resolvedRecipient != nil {
+                        Button(L10n.Nighthawk.WalletCompanion.sendAgain) {
+                            store.send(.sendAgainTapped)
+                        }
+                        .buttonStyle(.nighthawkPrimary())
+                        .padding(.horizontal, 25)
+                        .padding(.top, 20)
+                        .padding(.bottom, 28)
+                    }
                 }
             }
         }

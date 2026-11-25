@@ -7,19 +7,8 @@
 //
 
 import SwiftUI
-// swiftlint:disable indentation_width
-/**
- _
- __| |__
- |_____ |
- / /
- / /
- / /
- / /
- / /___
- |__  __|
- |_|
- */
+
+/// Vector shape drawing the stylized currency symbol path.
 public struct DarkFiSymbol: Shape {
     public static let ratio: CGFloat = 0.56
 
@@ -37,276 +26,34 @@ public struct DarkFiSymbol: Shape {
             let caretEndX = caretStartX + caretWidth
             let strokeHeight = caretheight * 1.25
 
-            path.move(
-                to: CGPoint(
-                    x: origin.x,
-                    y: caretheight
-                )
-            )
-
-            //   __
-            path.addLine(
-                to: CGPoint(
-                    x: caretStartX,
-                    y: yOffset
-                )
-            )
-            //     __|
-            path.addLine(
-                to: CGPoint(
-                    x: caretStartX,
-                    y: origin.y
-                )
-            )
-            /*
-             _
-             __|
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: caretEndX,
-                    y: origin.y
-                )
-            )
-            /*
-             _
-             __| |
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: caretEndX,
-                    y: caretheight
-                )
-            )
-
-            /*
-             _
-             __| |__
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: endX,
-                    y: caretheight
-                )
-            )
-
-            /*
-             _
-             __| |__
-             |
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: endX,
-                    y: caretheight + strokeHeight * 0.75
-                )
-            )
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /
-             */
-
-            path.addLine(
-                to: CGPoint(
-                    x: caretStartX,
-                    y: caretheight + strokeHeight + strokeHeight * 3
-                )
-            )
-
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             */
-
-            path.addLine(
-                to: CGPoint(
-                    x: endX,
-                    y: caretheight + strokeHeight + strokeHeight * 3
-                )
-            )
-
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             |
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: endX,
-                    y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight
-                )
-            )
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             ___|
-
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: caretEndX,
-                    y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight
-                )
-            )
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             ___|
-             _|
-             */
+            path.move(to: CGPoint(x: origin.x, y: caretheight))
+            path.addLine(to: CGPoint(x: caretStartX, y: yOffset))
+            path.addLine(to: CGPoint(x: caretStartX, y: origin.y))
+            path.addLine(to: CGPoint(x: caretEndX, y: origin.y))
+            path.addLine(to: CGPoint(x: caretEndX, y: caretheight))
+            path.addLine(to: CGPoint(x: endX, y: caretheight))
+            path.addLine(to: CGPoint(x: endX, y: caretheight + strokeHeight * 0.75))
+            path.addLine(to: CGPoint(x: caretStartX, y: caretheight + strokeHeight + strokeHeight * 3))
+            path.addLine(to: CGPoint(x: endX, y: caretheight + strokeHeight + strokeHeight * 3))
+            path.addLine(to: CGPoint(x: endX, y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight))
+            path.addLine(to: CGPoint(x: caretEndX, y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight))
             path.addLine(
                 to: CGPoint(
                     x: caretEndX,
                     y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight + caretheight
                 )
             )
-
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             ___|
-             _|
-             */
             path.addLine(
                 to: CGPoint(
                     x: caretStartX,
                     y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight + caretheight
                 )
             )
-
-            /*
-             _
-             __| |__
-             |_____ |
-             /
-             /
-             /
-             /
-             /____
-             ___|
-             |_|
-
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: caretStartX,
-                    y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight
-                )
-            )
-
-            /*
-             _
-             __| |__
-             |
-             /
-             /
-             /
-             /
-             /____
-             |___  ___|
-             |_|
-
-             */
-
-            path.addLine(
-                to: CGPoint(
-                    x: origin.x,
-                    y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight
-                )
-            )
-
-            /*
-             _
-             __| |__
-             |
-             /
-             /
-             /
-             /
-             /____
-             |___  ___|
-             |_|
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: origin.x,
-                    y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight * 0.25
-                )
-            )
-
-            /*
-             _
-             __| |__
-             ____  |
-             /  /
-             /  /
-             /  /
-             /  /
-             /  /____
-             |___  ___|
-             |_|
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: caretEndX,
-                    y: caretheight + strokeHeight
-                )
-            )
-
-            /*
-             _
-             ___| |__
-             ______  |
-             /  /
-             /  /
-             /  /
-             /  /
-             /  /____
-             |___  ___|
-             |_|
-             */
-            path.addLine(
-                to: CGPoint(
-                    x: origin.x,
-                    y: caretheight + strokeHeight
-                )
-            )
+            path.addLine(to: CGPoint(x: caretStartX, y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight))
+            path.addLine(to: CGPoint(x: origin.x, y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight))
+            path.addLine(to: CGPoint(x: origin.x, y: caretheight + strokeHeight + strokeHeight * 3 + strokeHeight * 0.25))
+            path.addLine(to: CGPoint(x: caretEndX, y: caretheight + strokeHeight))
+            path.addLine(to: CGPoint(x: origin.x, y: caretheight + strokeHeight))
             path.closeSubpath()
         }
     }

@@ -22,8 +22,8 @@ extension DerivationToolClient: DependencyKey {
 
 /// Validates bare DarkFi receive addresses (not `drk:` / `darkfi:` URIs).
 enum DarkFiAddressValidator {
-    private static let base58Alphabet = CharacterSet(charactersIn:
-        "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    private static let base58Alphabet = CharacterSet(
+        charactersIn: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     )
 
     /// DarkFi `Address` bs58 encodings are typically ~50–70 chars.

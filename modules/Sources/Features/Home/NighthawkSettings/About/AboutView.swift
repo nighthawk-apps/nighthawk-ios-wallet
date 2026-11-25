@@ -16,6 +16,11 @@ public struct AboutView: View {
     public var body: some View {
         ScrollView([.vertical], showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
+                if !store.versionDisplay.isEmpty {
+                    Text(store.versionDisplay)
+                        .captionBold(color: Asset.Colors.Nighthawk.peach.color)
+                }
+
                 Text(L10n.Nighthawk.About.message)
                     .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
@@ -38,11 +43,11 @@ public struct AboutView: View {
                         .overlay(Asset.Colors.Nighthawk.steelBorder.color)
 
                     licenseRow(name: "DarkFi", license: "AGPL-3.0")
+                    licenseRow(name: "Nym (nym-smolmix)", license: "Apache-2.0")
                     licenseRow(name: "Arti (Tor)", license: "MIT / Apache-2.0")
                     licenseRow(name: "The Composable Architecture", license: "MIT")
                     licenseRow(name: "SwiftUI Navigation", license: "MIT")
                     licenseRow(name: "DarkIRC", license: "AGPL-3.0")
-                    licenseRow(name: "gRPC Swift", license: "Apache-2.0")
                     licenseRow(name: "SQLCipher", license: "BSD-3-Clause")
                     licenseRow(name: "libsecp256k1", license: "MIT")
                 }
@@ -52,6 +57,7 @@ public struct AboutView: View {
             .padding(.bottom, 25)
         }
         .padding(.horizontal, 25)
+        .onAppear { store.send(.onAppear) }
         .applyNighthawkBackground()
     }
 

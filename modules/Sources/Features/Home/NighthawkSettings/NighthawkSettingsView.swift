@@ -10,6 +10,7 @@ import Generated
 import RecoveryPhraseDisplay
 import SwiftUI
 import UIComponents
+import Utils
 
 struct NighthawkSettingsView: View {
     @Environment(\.nighthawkUsesCompanionPane) private var usesCompanionPane
@@ -64,18 +65,12 @@ struct NighthawkSettingsView: View {
                     action: { open(.fiat) }
                 )
 
-                if store.biometryType != .none {
-                    settingRow(
-                        title: L10n.Nighthawk.SettingsTab.securityTitle,
-                        subtitle: L10n.Nighthawk.SettingsTab.securitySubtitle(
-                            store.biometryType == .faceID
-                                ? Constants.faceId
-                                : Constants.touchId
-                        ),
-                        icon: Asset.Assets.Icons.Nighthawk.security.image,
-                        action: { open(.security) }
-                    )
-                }
+                settingRow(
+                    title: L10n.Nighthawk.SettingsTab.securityTitle,
+                    subtitle: securitySubtitle,
+                    icon: Asset.Assets.Icons.Nighthawk.security.image,
+                    action: { open(.security) }
+                )
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.backupTitle,
@@ -118,6 +113,8 @@ struct NighthawkSettingsView: View {
                     icon: Asset.Assets.Icons.Nighthawk.settings.image,
                     action: { open(.advanced) }
                 )
+
+                shareNighthawkRow
 
                 settingRow(
                     title: L10n.Nighthawk.SettingsTab.aboutTitle,
@@ -194,6 +191,56 @@ struct NighthawkSettingsView: View {
 
 // MARK: - Subviews
 private extension NighthawkSettingsView {
+    var securitySubtitle: String {
+        switch store.biometryType {
+        case .faceID:
+            return "\(Constants.faceId) & 6-digit PIN"
+        case .touchID:
+            return "\(Constants.touchId) & 6-digit PIN"
+        default:
+            return "6-digit App PIN"
+        }
+    }
+
+    var shareNighthawkRow: some View {
+        ShareLink(
+            item: URL(string: "https://apps.apple.com/us/app/nighthawk-wallet/id1524708337") ?? .source,
+            subject: Text("Nighthawk Wallet"),
+            message: Text("Private DarkFi wallet & encrypted DarkIRC chat — Nighthawk Wallet")
+        ) {
+            VStack(spacing: 0) {
+                HStack(alignment: .center, spacing: 14) {
+                    Image(systemName: "square.and.arrow.up")
+                        .resizable()
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        .frame(width: 24, height: 24, alignment: .center)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Share Nighthawk")
+                            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                            .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
+                            .multilineTextAlignment(.leading)
+
+                        Text("Invite friends to Nighthawk Wallet")
+                            .caption()
+                            .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.vertical, 14)
+                .frame(minHeight: 56)
+                .contentShape(Rectangle())
+
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Asset.Colors.Nighthawk.steelBorder.color)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
     func settingRow(
         title: String,
         subtitle: String,

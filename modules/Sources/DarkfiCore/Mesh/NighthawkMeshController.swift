@@ -5,6 +5,7 @@ import UIKit
 /// App boundary for the Nighthawk mesh. Gateway relay stays off, matching
 /// the Android coordinator for this pass. The radio keeps running in the
 /// background when the user has turned mesh on.
+@MainActor
 public final class NighthawkMeshController: ObservableObject {
     public static let shared = NighthawkMeshController()
 
@@ -40,16 +41,25 @@ public final class NighthawkMeshController: ObservableObject {
         statusLine = line
     }
 
-    public func setEnabled(_ on: Bool) {
-        UserDefaults.standard.set(on, forKey: defaultsKey)
-        enabled = on
-        TransportHooks.setMesh(on)
-        if on {
+    public func setEnabled(_ isEnabled: Bool) {
+        UserDefaults.standard.set(isEnabled, forKey: defaultsKey)
+        enabled = isEnabled
+        TransportHooks.setMesh(isEnabled)
+        if isEnabled {
             startRadio(foreground: true)
         } else {
             link.stop()
             engine.stop()
         }
+    }
+
+    /// Disable nearby mesh, stop BLE, and wipe native mesh keys & state (wallet delete).
+    public func wipe() {
+        UserDefaults.standard.set(false, forKey: defaultsKey)
+        enabled = false
+        TransportHooks.setMesh(false)
+        link.stop()
+        engine.wipe()
     }
 
     /// Starts the radio again after launch when the user left mesh on.
@@ -71,7 +81,7 @@ public final class NighthawkMeshController: ObservableObject {
     private func startRadio(foreground: Bool) {
         UIDevice.current.isBatteryMonitoringEnabled = true
         engine.start(foreground: foreground, charging: Self.charging())
-            link.start(foreground: foreground)
+        link.start(foreground: foreground)
     }
 
     private static func charging() -> Bool {

@@ -238,7 +238,12 @@ public actor DarkircCryptoStore {
         loaded = true
         deleteKeychainItem()
         scrubLegacySecretFiles()
-        try? FileManager.default.removeItem(at: storageDirectory().appendingPathComponent("dm_conversations.json"))
+        let dir = storageDirectory()
+        ChatEncryptedFileStore.remove(
+            encryptedURL: dir.appendingPathComponent("dm_conversations.enc"),
+            legacyPlaintextURL: dir.appendingPathComponent("dm_conversations.json")
+        )
+        ChatEncryptedFileStore.clearKey()
         clearDmContacts()
     }
 
@@ -284,24 +289,25 @@ public actor DarkircCryptoStore {
         }
         saveConversationsToDisk()
     }
+}
 
-    // MARK: - Persistence & Migration
-
-    private func registerInRust(_ contact: DmContact) -> Bool {
+// MARK: - Persistence & Migration
+private extension DarkircCryptoStore {
+    func registerInRust(_ contact: DmContact) -> Bool {
         guard !contact.contactLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              let sk = Base58.decode(contact.mySecretB58), sk.count == 32,
-              let pk = Base58.decode(contact.theirPublicB58), pk.count == 32 else {
+              let secretBytes = Base58.decode(contact.mySecretB58), secretBytes.count == 32,
+              let publicBytes = Base58.decode(contact.theirPublicB58), publicBytes.count == 32 else {
             return false
         }
         do {
-            try registerDmContact(nick: contact.contactLabel, mySecret: sk, theirPublic: pk)
+            try registerDmContact(nick: contact.contactLabel, mySecret: secretBytes, theirPublic: publicBytes)
         } catch {
             return false
         }
         return true
     }
 
-    private func ensureLoaded() {
+    func ensureLoaded() {
         guard !loaded else { return }
 
         let (keychainData, status) = readFromKeychainWithStatus()
@@ -325,13 +331,18 @@ public actor DarkircCryptoStore {
             scrubLegacySecretFiles()
         }
 
-        let convosFile = storageDirectory().appendingPathComponent("dm_conversations.json")
-        if let data = try? Data(contentsOf: convosFile) {
+        let dir = storageDirectory()
+        let convosEnc = dir.appendingPathComponent("dm_conversations.enc")
+        let convosLegacy = dir.appendingPathComponent("dm_conversations.json")
+        if let data = ChatEncryptedFileStore.load(
+            encryptedURL: convosEnc,
+            legacyPlaintextURL: convosLegacy
+        ) {
             conversations = (try? decoder.decode([DmConversation].self, from: data)) ?? []
         }
     }
 
-    private func migrateLegacyDiskSecrets() -> Bool {
+    func migrateLegacyDiskSecrets() -> Bool {
         var didMigrate = false
         for file in legacySecretFileURLs() {
             guard FileManager.default.fileExists(atPath: file.path),
@@ -352,9 +363,9 @@ public actor DarkircCryptoStore {
                 for entry in rawContacts {
                     guard let nick = (entry["nick"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
                           !nick.isEmpty,
-                          let sk = (entry["myDmChachaSecretBase58"] as? String)
+                          let secretB58 = (entry["myDmChachaSecretBase58"] as? String)
                             ?? (entry["my_dm_chacha_secret_base58"] as? String),
-                          let pk = (entry["dmChachaPublicBase58"] as? String)
+                          let publicB58 = (entry["dmChachaPublicBase58"] as? String)
                             ?? (entry["dm_chacha_public_base58"] as? String) else {
                         continue
                     }
@@ -364,8 +375,8 @@ public actor DarkircCryptoStore {
                         contacts.append(
                             DmContact(
                                 contactLabel: nick,
-                                theirPublicB58: pk,
-                                mySecretB58: sk,
+                                theirPublicB58: publicB58,
+                                mySecretB58: secretB58,
                                 myPublicB58: ""
                             )
                         )
@@ -377,7 +388,7 @@ public actor DarkircCryptoStore {
         return didMigrate
     }
 
-    private func legacySecretFileURLs() -> [URL] {
+    func legacySecretFileURLs() -> [URL] {
         let appSupportDir = storageDirectory()
         let datastoreDir = daemonDatastoreDirectory()
         return [
@@ -388,7 +399,7 @@ public actor DarkircCryptoStore {
         ]
     }
 
-    private func scrubLegacySecretFiles() {
+    func scrubLegacySecretFiles() {
         for url in legacySecretFileURLs() {
             guard FileManager.default.fileExists(atPath: url.path) else { continue }
             if let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
@@ -401,16 +412,16 @@ public actor DarkircCryptoStore {
     }
 
     @discardableResult
-    private func saveContactsToKeychain() -> Bool { saveContactsToKeychainStatus() == errSecSuccess }
+    func saveContactsToKeychain() -> Bool { saveContactsToKeychainStatus() == errSecSuccess }
 
-    private func saveContactsToKeychainStatus() -> OSStatus {
+    func saveContactsToKeychainStatus() -> OSStatus {
         guard let data = try? encoder.encode(contacts) else { return errSecParam }
         let status = KeychainGenericPassword.upsert(service: keychainService, account: keychainAccount, data: data)
         if status == errSecSuccess { scrubLegacySecretFiles() }
         return status
     }
 
-    private func readFromKeychainWithStatus() -> (Data?, OSStatus) {
+    func readFromKeychainWithStatus() -> (Data?, OSStatus) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -423,7 +434,7 @@ public actor DarkircCryptoStore {
         return (status == errSecSuccess ? item as? Data : nil, status)
     }
 
-    private func deleteKeychainItem() {
+    func deleteKeychainItem() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -432,19 +443,20 @@ public actor DarkircCryptoStore {
         SecItemDelete(query as CFDictionary)
     }
 
-    private func saveConversationsToDisk() {
+    func saveConversationsToDisk() {
         let dir = storageDirectory()
+        let convosEnc = dir.appendingPathComponent("dm_conversations.enc")
+        let convosLegacy = dir.appendingPathComponent("dm_conversations.json")
         if let data = try? encoder.encode(conversations) {
-            let convosFile = dir.appendingPathComponent("dm_conversations.json")
-            try? data.write(to: convosFile, options: [.atomic, .completeFileProtection])
-            var resourceValues = URLResourceValues()
-            resourceValues.isExcludedFromBackup = true
-            var mutableFile = convosFile
-            try? mutableFile.setResourceValues(resourceValues)
+            ChatEncryptedFileStore.saveAsync(
+                data,
+                encryptedURL: convosEnc,
+                legacyPlaintextURL: convosLegacy
+            )
         }
     }
 
-    private func storageDirectory() -> URL {
+    func storageDirectory() -> URL {
         if let customStorageDir {
             try? FileManager.default.createDirectory(at: customStorageDir, withIntermediateDirectories: true)
             return customStorageDir
@@ -460,7 +472,7 @@ public actor DarkircCryptoStore {
         return dir
     }
 
-    private func daemonDatastoreDirectory() -> URL {
+    func daemonDatastoreDirectory() -> URL {
         if let customDatastoreDir {
             return customDatastoreDir
         }

@@ -1,9 +1,12 @@
-import Darwin
 import Foundation
 import Network
 
-/// Runtime lookup of `nh_transport_*`. An older static library without the
-/// symbols returns nil instead of failing the link of mesh.
+private enum TransportApplyABI {
+    @_silgen_name("nh_transport_apply")
+    static func apply(_ kind: Int32, _ nymPort: Int32, _ torPort: Int32) -> Int32
+}
+
+/// Direct UniFFI + C ABI transport lifecycle hooks (no runtime `dlsym` lookup).
 public enum TransportHooks {
     private static let lock = NSLock()
     private static var didInstall = false
@@ -22,52 +25,31 @@ public enum TransportHooks {
     }
 
     public static func onNetworkChanged() {
-        call0("nh_transport_on_network_changed")
+        transportOnNetworkChanged()
     }
 
     public static func onBackground() {
-        call0("nh_transport_on_background")
+        transportOnBackground()
     }
 
     public static func onForeground() {
-        call0("nh_transport_on_foreground")
+        transportOnForeground()
     }
 
-    public static func setMesh(_ on: Bool) {
-        call1("nh_transport_set_mesh", on ? 1 : 0)
+    public static func setMesh(_ isEnabled: Bool) {
+        transportSetMeshEnabled(on: isEnabled)
     }
 
     public static func continueWithoutNym() {
-        call0("nh_transport_continue_without_nym")
+        transportContinueWithoutNym()
     }
 
     public static func clearSessionOverride() {
-        call0("nh_transport_clear_session_override")
+        transportClearSessionOverride()
     }
 
     /// `kind`: 0 Nym, 1 Tor, 2 Direct.
     public static func apply(kind: Int32, nymPort: Int32, torPort: Int32) {
-        typealias Apply = @convention(c) (Int32, Int32, Int32) -> Int32
-        guard let fn = symbol("nh_transport_apply", as: Apply.self) else { return }
-        _ = fn(kind, nymPort, torPort)
-    }
-
-    private static func call0(_ name: String) {
-        typealias Fn = @convention(c) () -> Int32
-        guard let fn = symbol(name, as: Fn.self) else { return }
-        _ = fn()
-    }
-
-    private static func call1(_ name: String, _ arg: Int32) {
-        typealias Fn = @convention(c) (Int32) -> Int32
-        guard let fn = symbol(name, as: Fn.self) else { return }
-        _ = fn(arg)
-    }
-
-    private static func symbol<T>(_ name: String, as type: T.Type) -> T? {
-        guard let raw = dlsym(UnsafeMutableRawPointer(bitPattern: -2), name) else {
-            return nil
-        }
-        return unsafeBitCast(raw, to: type)
+        _ = TransportApplyABI.apply(kind, nymPort, torPort)
     }
 }

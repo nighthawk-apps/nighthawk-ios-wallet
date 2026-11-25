@@ -63,8 +63,8 @@ public struct NewDmConversation {
             case .generateKeysTapped:
                 state.isBusy = true
                 return .run { send in
-                    if let kp = DarkircContactManager.generateKeypair() {
-                        await send(.keysGenerated(secretB58: kp.secretB58, publicB58: kp.publicB58))
+                    if let keypair = DarkircContactManager.generateKeypair() {
+                        await send(.keysGenerated(secretB58: keypair.secretB58, publicB58: keypair.publicB58))
                     } else {
                         await send(.keyGenerationFailed)
                     }

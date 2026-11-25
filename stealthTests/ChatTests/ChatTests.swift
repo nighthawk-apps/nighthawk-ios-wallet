@@ -14,7 +14,6 @@ import Models
 
 @MainActor
 class ChatTests: XCTestCase {
-    
     // MARK: - Connection State Tests
     
     func testInitialState_IsDisconnected() async throws {
@@ -37,7 +36,11 @@ class ChatTests: XCTestCase {
         
         await store.send(.connectionStateChanged(.error)) { state in
             state.connectionState = .error
-            state.diagnosticDetail = "Could not start the embedded darkirc node. Rebuild the Rust FFI with ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. If it persists, check the Xcode console for P2P/DAG errors."
+            state.diagnosticDetail = """
+                Could not start the embedded darkirc node. Rebuild the Rust FFI with \
+                ./scripts/build-darkfi-mobile-ffi-ios.sh, then try Connect again. \
+                If it persists, check the Xcode console for P2P/DAG errors.
+                """
         }
     }
 
@@ -367,16 +370,43 @@ class ChatTests: XCTestCase {
         XCTAssertEqual(queuedId, "queued-123")
         await outbox1.updateDelivery(id: queuedId, delivery: "sending")
 
-        // Reload from disk in a fresh instance to verify persistence
+        // Reload from disk in a fresh instance to verify encrypted persistence & no plaintext leak
+        let encryptedURL = dir.appendingPathComponent("outbox.enc")
         let outbox2 = ChatOutboxStore(fileURL: fileURL)
         let loaded = await outbox2.loadAll()
         XCTAssertEqual(loaded.count, 1)
         XCTAssertEqual(loaded.first?.id, "queued-123")
         XCTAssertEqual(loaded.first?.delivery, "sending")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: encryptedURL.path))
+        let diskBytes = try Data(contentsOf: encryptedURL)
+        XCTAssertNil(String(data: diskBytes, encoding: .utf8)?.range(of: "offline hello"))
 
         await outbox2.remove(id: queuedId)
         let afterRemove = await outbox2.loadAll()
         XCTAssertTrue(afterRemove.isEmpty)
+    }
+
+    func testChatOutboxMigratesLegacyPlaintextJsonToEncryptedFile() async throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ChatOutboxMigrate-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let legacyURL = dir.appendingPathComponent("legacy_outbox.json")
+        let encryptedURL = dir.appendingPathComponent("legacy_outbox.enc")
+        let seedRecords = [
+            ChatOutboxStore.Record(id: "queued-old", channel: "#nighthawk", text: "secret plaintext", delivery: "queued")
+        ]
+        try JSONEncoder().encode(seedRecords).write(to: legacyURL)
+
+        let store = ChatOutboxStore(fileURL: legacyURL)
+        let loaded = await store.loadAll()
+        XCTAssertEqual(loaded, seedRecords)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: legacyURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: encryptedURL.path))
+        let diskBytes = try Data(contentsOf: encryptedURL)
+        XCTAssertNil(String(data: diskBytes, encoding: .utf8)?.range(of: "secret plaintext"))
     }
 
     func testChatReducer_OfflineSendQueuesAndTransitionsToSentOrFailed() async throws {

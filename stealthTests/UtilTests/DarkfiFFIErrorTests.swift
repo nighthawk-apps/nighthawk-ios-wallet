@@ -2,13 +2,7 @@
 // Tests for the DarkFi mobile FFI error handling from the iOS side.
 //
 // These tests validate that the expanded error enum (13 variants) from the
-// Rust UniFFI bindings is correctly surfaced in Swift. After regenerating
-// the UniFFI bindings with `uniffi-bindgen`, the DarkfiWalletNativeError
-// enum should include all new variants.
-//
-// IMPORTANT: These tests require regenerated UniFFI Swift bindings.
-// Run: cd rust && cargo run --bin uniffi-bindgen generate \
-//   darkfi-mobile-ffi/src/darkfi_mobile_ffi.udl --language swift
+// Rust UniFFI bindings is correctly surfaced in Swift.
 //
 // Copyright (C) 2020-2026 Dyne.org foundation
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -17,14 +11,11 @@ import XCTest
 @testable import DarkfiCore
 
 final class DarkfiFFIErrorTests: XCTestCase {
-
     /// Verify that all 13 error variants exist in the Swift enum.
-    /// This is a compile-time check — if any variant is missing from
-    /// the generated bindings, this test won't compile.
     func testAllErrorVariantsExist() {
         let errors: [DarkfiWalletNativeError] = [
-            .WalletNotInitialized,
-            .InvalidBootstrapConfig,
+            .WalletNotInitialized(message: "uninit"),
+            .InvalidBootstrapConfig(message: "bad config"),
             .NativeDrkUnavailable(message: "test"),
             .ConnectionFailed(message: "timeout"),
             .SyncFailed(message: "block error"),
@@ -35,7 +26,7 @@ final class DarkfiFFIErrorTests: XCTestCase {
             .InsufficientFunds(message: "need 100"),
             .TransactionBuildFailed(message: "proof gen"),
             .OmrDetectionFailed(message: "unsupported"),
-            .TrialDecryptFailed(message: "AEAD"),
+            .TrialDecryptFailed(message: "AEAD")
         ]
 
         XCTAssertEqual(errors.count, 13, "Should have exactly 13 error variants")
@@ -43,9 +34,9 @@ final class DarkfiFFIErrorTests: XCTestCase {
 
     /// Verify error descriptions contain the inner message.
     func testErrorDescriptions() {
-        let e = DarkfiWalletNativeError.ConnectionFailed(message: "server refused")
+        let error = DarkfiWalletNativeError.ConnectionFailed(message: "server refused")
         XCTAssertTrue(
-            "\(e)".contains("server refused") || "\(e)".lowercased().contains("connection"),
+            "\(error)".contains("server refused") || "\(error)".lowercased().contains("connection"),
             "Error description should contain context"
         )
     }

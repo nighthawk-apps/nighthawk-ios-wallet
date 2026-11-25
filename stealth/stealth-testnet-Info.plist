@@ -32,15 +32,21 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>darkfi</string>
+				<string>drk</string>
+				<string>nighthawk</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>DarkfiNetwork</key>
+	<string>testnet</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LightwalletTlsPinPreviousSha256</key>
+	<string>$(LIGHTWALLET_TLS_PIN_PREVIOUS_SHA256)</string>
 	<key>LightwalletTlsPinSha256</key>
 	<string>$(LIGHTWALLET_TLS_PIN_SHA256)</string>
 	<key>NSCameraUsageDescription</key>
@@ -49,7 +55,6 @@
 	<string>To view sensitive wallet data which should never be shared with anyone, and to authorize payments</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>PulpDisplay-Bold.ttf</string>
 		<string>PulpDisplay-Regular.ttf</string>
 		<string>PulpDisplay-Medium.ttf</string>
 		<string>outfit.ttf</string>
@@ -58,21 +63,6 @@
 		<string>ibm_plex_mono.ttf</string>
 		<string>DejaVuSansMono.ttf</string>
 		<string>DejaVuSansMono-Bold.ttf</string>
-		<string>Zboto.otf</string>
-		<string>Rubik-Italic-VariableFont_wght.ttf</string>
-		<string>Rubik-VariableFont_wght.ttf</string>
-		<string>Roboto-Thin.ttf</string>
-		<string>Roboto-BlackItalic.ttf</string>
-		<string>Roboto-Black.ttf</string>
-		<string>Roboto-BoldItalic.ttf</string>
-		<string>Roboto-Bold.ttf</string>
-		<string>Roboto-MediumItalic.ttf</string>
-		<string>Roboto-Medium.ttf</string>
-		<string>Roboto-Italic.ttf</string>
-		<string>Roboto-Regular.ttf</string>
-		<string>Roboto-LightItalic.ttf</string>
-		<string>Roboto-Light.ttf</string>
-		<string>Roboto-ThinItalic.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

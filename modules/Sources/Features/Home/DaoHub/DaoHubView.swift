@@ -16,6 +16,7 @@ import UIKit
 
 public struct DaoHubView: View {
     let store: StoreOf<DaoHub>
+    let showsEmbeddedHeader: Bool
     @State private var showCreate = false
     @State private var showImport = false
     @State private var showIssue = false
@@ -25,8 +26,9 @@ public struct DaoHubView: View {
     @State private var mintTarget: MintAuthorityBrief?
     @State private var freezeTarget: MintAuthorityBrief?
 
-    public init(store: StoreOf<DaoHub>) {
+    public init(store: StoreOf<DaoHub>, showsEmbeddedHeader: Bool = true) {
         self.store = store
+        self.showsEmbeddedHeader = showsEmbeddedHeader
     }
 
     public var body: some View {
@@ -168,6 +170,10 @@ private extension DaoHubView {
     var daoDetailScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if showsEmbeddedHeader {
+                    daoScaffoldHeader(title: store.selectedDao?.name ?? L10n.Nighthawk.DaoHub.title)
+                        .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
+                }
                 if store.isLoading {
                     daoLoading
                 } else if let error = store.errorMessage {
@@ -182,7 +188,7 @@ private extension DaoHubView {
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         .padding(.horizontal)
                     Text(L10n.Nighthawk.DaoHub.treasuryHint)
-                        .font(.custom(FontFamily.Roboto.regular.name, size: 13))
+                        .font(.custom(FontFamily.SourceSans3.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         .padding(.horizontal)
                     if dao.canPropose {
@@ -445,6 +451,10 @@ private extension DaoHubView {
     var proposalDetailScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if showsEmbeddedHeader {
+                    daoScaffoldHeader(title: L10n.Nighthawk.DaoHub.proposal)
+                        .padding(.top, NighthawkLayout.wallpaperWordmarkClearance)
+                }
                 if store.isLoading {
                     daoLoading
                 } else if let error = store.errorMessage {
@@ -457,7 +467,7 @@ private extension DaoHubView {
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     Text(L10n.Nighthawk.DaoHub.votingWindow(p.durationBlockwindows, p.durationBlockwindows * 4))
-                        .font(.custom(FontFamily.Roboto.regular.name, size: 13))
+                        .font(.custom(FontFamily.SourceSans3.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     Button(L10n.Nighthawk.DaoHub.details) { showProposalDetails.toggle() }
                         .buttonStyle(.nighthawkLink())
@@ -486,7 +496,7 @@ private extension DaoHubView {
                                 .buttonStyle(.nighthawkSecondary())
                                 .disabled(store.actionInProgress)
                             Text(L10n.Nighthawk.DaoHub.voteWeight)
-                                .font(.custom(FontFamily.Roboto.regular.name, size: 12))
+                                .font(.custom(FontFamily.SourceSans3.regular.name, size: 12))
                                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         }
                         .padding(.top, 8)
@@ -496,7 +506,7 @@ private extension DaoHubView {
                             .buttonStyle(.nighthawkPrimary())
                             .disabled(store.actionInProgress)
                         Text(L10n.Nighthawk.DaoHub.payHint)
-                            .font(.custom(FontFamily.Roboto.regular.name, size: 12))
+                            .font(.custom(FontFamily.SourceSans3.regular.name, size: 12))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     }
 
@@ -960,7 +970,7 @@ private struct RoleQrSheet: View {
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             if isCaptured {
                 Text(L10n.Nighthawk.DaoHub.captured)
-                    .font(.custom(FontFamily.Roboto.regular.name, size: 14))
+                    .font(.custom(FontFamily.SourceSans3.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .multilineTextAlignment(.center)
             } else if let image = roleQrImage(payload) {
@@ -970,7 +980,7 @@ private struct RoleQrSheet: View {
                     .frame(width: 220, height: 220)
             }
             Text(L10n.Nighthawk.DaoHub.roleExportHint)
-                .font(.custom(FontFamily.Roboto.regular.name, size: 14))
+                .font(.custom(FontFamily.SourceSans3.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .multilineTextAlignment(.center)
             if !isCaptured {
@@ -1002,7 +1012,7 @@ private struct RoleQrSheet: View {
         guard let output = filter.outputImage else { return nil }
         let scaled = output.transformed(by: CGAffineTransform(scaleX: 8, y: 8))
         let context = CIContext()
-        guard let cg = context.createCGImage(scaled, from: scaled.extent) else { return nil }
-        return Image(uiImage: UIImage(cgImage: cg))
+        guard let cgImage = context.createCGImage(scaled, from: scaled.extent) else { return nil }
+        return Image(uiImage: UIImage(cgImage: cgImage))
     }
 }

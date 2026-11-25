@@ -33,6 +33,7 @@ public struct TransactionDetail {
         public var latestMinedHeight: BlockHeight? = .zero
         public var requiredTransactionConfirmations: Int = .zero
         public var walletEvent: WalletEvent
+        public var networkType: String
         public var latestFiatPrice: Double?
         public var isLoaded = false
         /// Decrypted payment memo from Rust core (retrieved on appear)
@@ -55,8 +56,8 @@ public struct TransactionDetail {
         public var shielded: Bool { walletEvent.transaction.shielded }
         public var status: TransactionState.Status { walletEvent.transaction.status }
         public var syncMethod: DarkfiSyncMethod { walletEvent.transaction.syncMethod }
-        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: "testnet") }
-        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: "testnet") }
+        public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
+        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
         public var zecAmount: DrkAmount { walletEvent.transaction.zecAmount }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
@@ -73,10 +74,11 @@ public struct TransactionDetail {
 
         public init(
             walletEvent: WalletEvent,
-            networkType: String = "testnet",
+            networkType: String = DarkfiNetwork.activeLabel,
             latestFiatPrice: Double?
         ) {
             self.walletEvent = walletEvent
+            self.networkType = networkType
             self.latestFiatPrice = latestFiatPrice
         }
     }
@@ -89,6 +91,7 @@ public struct TransactionDetail {
         case onAppear
         case memoLoaded(String?)
         case recipientLoaded(String?)
+        case sendAgainTapped
         case synchronizerStateChanged(SynchronizerState)
         case warnBeforeLeavingApp(URL?)
 
@@ -98,6 +101,7 @@ public struct TransactionDetail {
 
         public enum Delegate: Equatable {
             case handleDiskFull
+            case sendAgain(recipient: String, amount: DrkAmount)
         }
     }
 
@@ -130,7 +134,7 @@ public struct TransactionDetail {
                 if !state.isSending, let memo, !memo.isEmpty {
                     let prefix = "Reply to:"
                     let components = memo.split(separator: prefix)
-                    if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), "testnet") {
+                    if components.count == 2 && derivationTool.isDarkFiAddress(String(components[1]), state.networkType) {
                         pasteboard.setString(String(components[1]).redacted)
                         state.toast = .replyToCopied
                     }
@@ -174,6 +178,14 @@ public struct TransactionDetail {
             case let .recipientLoaded(recipient):
                 state.recipientAddress = recipient
                 return .none
+            case .sendAgainTapped:
+                guard state.isSending else { return .none }
+                let resolved = (state.recipientAddress?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap {
+                    $0.isEmpty ? nil : $0
+                } ?? state.address
+                guard let recipient = resolved, !recipient.isEmpty else { return .none }
+                let amount = max(abs(state.zecAmount) - state.fee, 0)
+                return .send(.delegate(.sendAgain(recipient: recipient, amount: amount)))
             case .synchronizerStateChanged(let latestState):
                 if latestState.syncStatus == .upToDate {
                     state.isLoaded = sdkSynchronizer.latestState().syncStatus.isSynced

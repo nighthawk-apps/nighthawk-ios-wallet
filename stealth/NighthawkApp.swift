@@ -6,6 +6,7 @@ import Generated
 import Home
 import SDKSynchronizer
 import SwiftUI
+import Utils
 import WalletStorage
 
 @main
@@ -47,7 +48,7 @@ struct NighthawkApp: App {
                         do {
                             try BGTaskScheduler.shared.submit(request)
                         } catch {
-                            print("Failed to schedule background task: \(error)")
+                            LoggerProxy.warn("Failed to schedule background task: \(error.localizedDescription)")
                         }
 
                     default:

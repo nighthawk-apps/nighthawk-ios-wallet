@@ -38,15 +38,36 @@ public struct ChangeServerView: View {
                 }
 
                 NighthawkTextField(
-                    placeholder: store.defaultServerInfo,
+                    placeholder: "https://host:443 or 127.0.0.1:9067",
                     text: $store.customServerAddress,
                     isValid: store.validateCustomServer()
                 )
                 .frame(maxWidth: .infinity)
                 .keyboardType(.URL)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
                 .disabled(store.serverOption != .custom)
                 .opacity(store.serverOption != .custom ? 0.5 : 1.0)
                 .focused($isCustomServerEditorFocused)
+
+                Toggle(
+                    isOn: Binding(
+                        get: { store.useTls },
+                        set: { store.send(.useTlsToggled($0)) }
+                    )
+                ) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Use TLS (HTTPS)")
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        Text("Required for remote servers; pinned by SHA-256 certificate digest.")
+                            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+                .disabled(store.serverOption != .custom)
+                .opacity(store.serverOption != .custom ? 0.5 : 1.0)
+
+                presetsSection
 
                 VStack(alignment: .center) {
                     Button(
@@ -91,7 +112,46 @@ public struct ChangeServerView: View {
                 store.send(.portWarningCancelled)
             }
         } message: {
-            Text("The port you entered is not the standard DarkFi lightwallet port (9067). Using a non-standard port may prevent sync.")
+            Text("The port you entered is not a standard DarkFi lightwallet port (9067 or 443 for TLS). Using a non-standard port may prevent sync.")
+        }
+    }
+
+    private var presetsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Presets")
+                .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+            ForEach(store.presets) { preset in
+                Button {
+                    store.send(.presetSelected(preset))
+                } label: {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(preset.title)
+                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                            Text(preset.subtitle)
+                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                        Spacer()
+                        if store.serverOption == .custom && store.effectiveCustomEndpoint == preset.endpoint {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        }
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.6))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

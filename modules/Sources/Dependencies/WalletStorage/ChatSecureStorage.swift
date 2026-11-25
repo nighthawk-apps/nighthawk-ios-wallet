@@ -33,12 +33,12 @@ public struct ChatSecureStorage {
     private let keychain: KeychainSwift
 
     public init() {
-        let kc = KeychainSwift()
+        let keychainInstance = KeychainSwift()
         // Prevent data from migrating to new devices or appearing
         // in unencrypted iTunes/Finder backups.
-        kc.accessGroup = nil
-        kc.synchronizable = false
-        self.keychain = kc
+        keychainInstance.accessGroup = nil
+        keychainInstance.synchronizable = false
+        self.keychain = keychainInstance
     }
 
     // MARK: - DM Public Key

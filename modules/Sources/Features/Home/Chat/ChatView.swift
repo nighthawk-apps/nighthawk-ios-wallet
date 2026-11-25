@@ -189,9 +189,6 @@ private extension ChatView {
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                     .lineLimit(4)
-                Text("Privacy route: \(privacyRouteLabel)")
-                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
-                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 Text(store.chainTip > 0 ? "Lightwalletd height \(store.chainTip)" : "Lightwalletd height unavailable")
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
@@ -351,17 +348,23 @@ private extension ChatView {
         return "\(snap.kind) (\(snap.phase))\(port)\(direct)\(mesh)"
     }
 
-    var peerSlots: [(index: Int, label: String, connected: Bool)] {
+    struct PeerSlot {
+        let index: Int
+        let label: String
+        let connected: Bool
+    }
+
+    var peerSlots: [PeerSlot] {
         let raw = darkircOutboundSlots()
         if let data = raw.data(using: .utf8),
            let decoded = try? JSONDecoder().decode([OutboundSlotPayload].self, from: data),
            !decoded.isEmpty {
             return decoded.map { item in
                 let label = item.url.map { "\(item.state) · \($0)" } ?? item.state
-                return (item.slot, label, item.state == "connected")
+                return PeerSlot(index: item.slot, label: label, connected: item.state == "connected")
             }
         }
-        return (0..<3).map { ($0, "unavailable", false) }
+        return (0..<3).map { PeerSlot(index: $0, label: "unavailable", connected: false) }
     }
 
     var connectionDot: some View {
@@ -482,7 +485,12 @@ private extension ChatView {
             Button("Copy public key", action: { store.send(.sharePubkeyConfirmed) })
             Button("Cancel", role: .cancel, action: { store.send(.sharePubkeyCancelled) })
         } message: {
-            Text("Copies your DM public key. A keypair is created only the first time. Share it over a channel you trust. Anyone with this key can send you encrypted DMs.")
+            Text(
+                """
+                Copies your DM public key. A keypair is created only the first time. \
+                Share it over a channel you trust. Anyone with this key can send you encrypted DMs.
+                """
+            )
         }
     }
 

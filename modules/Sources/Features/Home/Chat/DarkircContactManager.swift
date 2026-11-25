@@ -35,9 +35,9 @@ public enum DarkircContactManager {
     public static func generateKeypair() -> (secretB58: String, publicB58: String)? {
         // Real ChaCha20 keypair from the UniFFI crate. A random secret/public
         // pair generated independently does not form a valid crypto_box key.
-        let kp = generateDmKeypair()
-        guard !kp.secretB58.isEmpty, !kp.publicB58.isEmpty else { return nil }
-        return (kp.secretB58, kp.publicB58)
+        let keypair = generateDmKeypair()
+        guard !keypair.secretB58.isEmpty, !keypair.publicB58.isEmpty else { return nil }
+        return (keypair.secretB58, keypair.publicB58)
     }
 
     /// Encrypt a DM message using ChaCha20 via FFI.
@@ -114,7 +114,7 @@ public enum Base58 {
     private static let alphabet = Array("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
 
     public static func encode(_ bytes: [UInt8]) -> String {
-        var digits = [UInt8]()
+        var digits: [UInt8] = []
 
         for byte in bytes {
             var carry = Int(byte)
@@ -139,7 +139,7 @@ public enum Base58 {
     }
 
     public static func decode(_ string: String) -> [UInt8]? {
-        var digits = [UInt8]()
+        var digits: [UInt8] = []
 
         for char in string {
             guard let index = alphabet.firstIndex(of: char) else { return nil }

@@ -74,9 +74,10 @@ public enum DarkfiChatDefaults {
     /// Matches Android `DarkfiChatPreferences.sanitizeNickname()` for cross-platform
     /// consistency. Falls back to a random `hawkXXX` if the sanitized result is empty.
     public static func sanitizeNickname(_ raw: String) -> String {
-        let cleaned = String(raw.unicodeScalars.filter { scalar in
+        let filtered = raw.unicodeScalars.filter { scalar in
             CharacterSet.alphanumerics.contains(scalar) || scalar == "_"
-        }.prefix(maxNickLen))
+        }
+        let cleaned = String(filtered.prefix(maxNickLen))
         if cleaned.isEmpty {
             return String(format: "hawk%03d", Int.random(in: 0...999))
         }

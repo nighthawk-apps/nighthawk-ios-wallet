@@ -13,6 +13,7 @@ import Models
 import SDKSynchronizer
 import SendFlow
 import Splash
+import UserPreferencesStorage
 import Utils
 @testable import DarkfiCore
 
@@ -426,12 +427,16 @@ final class SendFlowAndSyncUnitTests: XCTestCase {
     }
 
     func testSplashAuthenticateLaunchesWhenDeviceHasNoPasscode() async {
+        SecurityPinStore.clearPin()
+        var prefs = UserPreferencesStorageClient.liveValue
+        prefs.areBiometricsEnabled = { false }
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let store = TestStore(
             initialState: Splash.State(),
             reducer: Splash.init
         ) {
             $0.date = .constant(now)
+            $0.userStoredPreferences = prefs
             $0.localAuthenticationContext = LocalAuthenticationContextClientGenerator {
                 LocalAuthenticationContextClient(
                     biometryType: { .none },

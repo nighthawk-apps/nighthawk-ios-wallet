@@ -18,7 +18,7 @@ public struct NighthawkLinkButtonStyle: ButtonStyle {
         @Environment(\.isEnabled) private var isEnabled: Bool
         var body: some View {
             configuration.label
-                .font(.custom(FontFamily.Roboto.regular.name, size: 12))
+                .font(.custom(FontFamily.SourceSans3.regular.name, size: 12))
                 .foregroundColor(
                     (
                         isEnabled ? Asset.Colors.Nighthawk.peach.color : Asset.Colors.Nighthawk.parmaviolet.color

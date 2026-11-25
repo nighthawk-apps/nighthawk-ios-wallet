@@ -101,14 +101,27 @@ public struct SDKSynchronizerClient {
     public var getProposal: (_ proposalBullaB58: String) async throws -> ProposalFull?
 
     /// Build + broadcast a DAO transfer proposal (ZK proofs on-device). Returns proposal bulla b58.
-    public var daoProposeTransfer: (_ daoName: String, _ durationBlockwindows: UInt64, _ amount: String, _ tokenId: String?, _ recipientAddress: String) async throws -> String
+    public var daoProposeTransfer: (
+        _ daoName: String,
+        _ durationBlockwindows: UInt64,
+        _ amount: String,
+        _ tokenId: String?,
+        _ recipientAddress: String
+    ) async throws -> String
 
     /// Vote yes/no on a DAO proposal (full governance token weight). Returns tx hash.
     public var daoVote: (_ proposalBullaB58: String, _ voteYes: Bool) async throws -> String
 
     public var daoExec: (_ proposalBullaB58: String) async throws -> String
     public var daoTreasury: (_ daoName: String) async throws -> String
-    public var daoCreate: (_ name: String, _ proposerLimit: String, _ quorum: String, _ earlyExecQuorum: String, _ approvalRatio: Double, _ govTokenId: String) async throws -> String
+    public var daoCreate: (
+        _ name: String,
+        _ proposerLimit: String,
+        _ quorum: String,
+        _ earlyExecQuorum: String,
+        _ approvalRatio: Double,
+        _ govTokenId: String
+    ) async throws -> String
     public var daoImport: (_ name: String, _ toml: String) async throws -> String
     public var daoFund: (_ daoName: String, _ amount: String, _ tokenId: String?) async throws -> String
     public var daoExportRole: (_ daoName: String, _ role: String) async throws -> String
@@ -165,10 +178,16 @@ public struct DaoBrief: Equatable, Identifiable {
     public let canExec: Bool
 
     public init(
-        name: String, bullaB58: String, govTokenId: String,
-        quorumDisplay: String, proposerLimitDisplay: String,
-        approvalRatioPercent: Double, mintHeight: Int64?,
-        canPropose: Bool, canVote: Bool, canExec: Bool
+        name: String,
+        bullaB58: String,
+        govTokenId: String,
+        quorumDisplay: String,
+        proposerLimitDisplay: String,
+        approvalRatioPercent: Double,
+        mintHeight: Int64?,
+        canPropose: Bool,
+        canVote: Bool,
+        canExec: Bool
     ) {
         self.id = bullaB58
         self.name = name
@@ -198,9 +217,16 @@ public struct ProposalBrief: Equatable, Identifiable {
     public let summaryLine: String
 
     public init(
-        proposalBullaB58: String, daoName: String, daoBullaB58: String,
-        authCallCount: Int, durationBlockwindows: Int64, creationBlockwindow: Int64,
-        mintHeight: Int64?, execHeight: Int64?, isExecuted: Bool, summaryLine: String
+        proposalBullaB58: String,
+        daoName: String,
+        daoBullaB58: String,
+        authCallCount: Int,
+        durationBlockwindows: Int64,
+        creationBlockwindow: Int64,
+        mintHeight: Int64?,
+        execHeight: Int64?,
+        isExecuted: Bool,
+        summaryLine: String
     ) {
         self.id = proposalBullaB58
         self.proposalBullaB58 = proposalBullaB58

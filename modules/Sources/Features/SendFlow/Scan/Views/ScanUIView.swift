@@ -36,7 +36,10 @@ public class ScanUIView: UIView {
     }
 
     override public var layer: AVCaptureVideoPreviewLayer {
-        super.layer as! AVCaptureVideoPreviewLayer
+        guard let previewLayer = super.layer as? AVCaptureVideoPreviewLayer else {
+            fatalError("ScanUIView layer must be AVCaptureVideoPreviewLayer")
+        }
+        return previewLayer
     }
 
     override public func layoutSubviews() {
@@ -157,6 +160,8 @@ private extension ScanUIView {
         case .landscapeRight:
             angle = 0
         case .unknown:
+            angle = 90
+        @unknown default:
             angle = 90
         }
         if let connection = layer.connection, connection.isVideoRotationAngleSupported(angle) {

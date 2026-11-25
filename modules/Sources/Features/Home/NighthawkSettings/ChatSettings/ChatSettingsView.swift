@@ -104,7 +104,12 @@ public struct ChatSettingsView: View {
                 // Channel privacy labelling — public #channels are plaintext on the wire.
                 // Real shared-key / MLS channel E2E is not implemented; do not offer a fake lock.
                 sectionHeader("CHANNEL PRIVACY")
-                Text("Public #channels are plaintext on DarkIRC. Only 1:1 DMs use ChaChaBox end-to-end encryption. Group/channel E2E is not available yet.")
+                Text(
+                    """
+                    Public #channels are plaintext on DarkIRC. Only 1:1 DMs use ChaChaBox end-to-end encryption. \
+                    Group/channel E2E is not available yet.
+                    """
+                )
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
@@ -139,9 +144,19 @@ public struct ChatSettingsView: View {
                         Text("Safety number")
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
-                        Text(NighthawkContacts.safetyNumber(dmPublicKey: publicKey, walletAddress: nil))
-                            .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
-                            .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        Text(
+                            NighthawkContacts.safetyNumber(
+                                dmPublicKey: publicKey,
+                                walletAddress: store.myWalletAddress
+                            )
+                        )
+                        .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+
+                        if let inviteUri = store.myContactInviteUri {
+                            contactInviteQrCard(inviteUri: inviteUri)
+                                .padding(.top, 8)
+                        }
                     }
                 }
 
@@ -229,6 +244,49 @@ public struct ChatSettingsView: View {
 
 // MARK: - Helpers
 private extension ChatSettingsView {
+    func contactInviteQrCard(inviteUri: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Contact Invite QR (nighthawk://contact)")
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+
+            if let qrImage = QRCodeGenerator.generate(from: inviteUri, scale: 8) {
+                HStack {
+                    Spacer()
+                    Image(decorative: qrImage, scale: 1)
+                        .resizable()
+                        .interpolation(.none)
+                        .scaledToFit()
+                        .frame(width: 168, height: 168)
+                        .padding(8)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    Spacer()
+                }
+            }
+
+            Button {
+                store.send(.copyContactInviteTapped)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "doc.on.doc")
+                    Text("Copy contact invite URI")
+                }
+                .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.6))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+        )
+    }
+
     func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.custom(FontFamily.PulpDisplay.bold.name, size: 12))
@@ -262,6 +320,18 @@ private extension ChatSettingsView {
         return NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 8) {
+                        TextField("Paste nighthawk://contact?... invite", text: $dialog.inviteUriInput)
+                            .textFieldStyle(.roundedBorder)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                        Button("Fill") {
+                            dialogStore.send(.parseInviteUriTapped)
+                        }
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                    }
+
                     TextField("Nickname", text: $dialog.contactNick)
                         .textFieldStyle(.roundedBorder)
 

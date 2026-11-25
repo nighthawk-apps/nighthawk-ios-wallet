@@ -48,7 +48,13 @@ public struct TorNetworkView: View {
 private extension TorNetworkView {
     var introSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Wallet, chat, and node traffic go over the Nym mixnet by default, which hides your IP address from servers. Chat reaches the public DarkIRC seeds through that same tunnel. Onion-only peers need Tor. The first connection usually takes a few seconds and can take up to a minute.")
+            Text(
+                """
+                Wallet, chat, and node traffic go over the Nym mixnet by default, which hides your IP address from servers. \
+                Chat reaches the public DarkIRC seeds through that same tunnel. Onion-only peers need Tor. \
+                The first connection usually takes a few seconds and can take up to a minute.
+                """
+            )
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -162,7 +168,12 @@ private extension TorNetworkView {
         VStack(alignment: .leading, spacing: 8) {
             sectionHeading("Built-in Tor (Arti)")
 
-            Text("Runs Arti (Rust Tor) inside the app and exposes a loopback SOCKS listener. This is separate from an external Tor/SOCKS app you configure below.")
+            Text(
+                """
+                Runs Arti (Rust Tor) inside the app and exposes a loopback SOCKS listener. \
+                This is separate from an external Tor/SOCKS app you configure below.
+                """
+            )
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -235,7 +246,12 @@ private extension TorNetworkView {
         VStack(alignment: .leading, spacing: 12) {
             Spacer().frame(height: 16)
 
-            Text("Changing built-in Tor or SOCKS restarts embedded DarkIRC when enabled so P2P/event-graph transport matches. Open Chat to verify green status lights.")
+            Text(
+                """
+                Changing built-in Tor or SOCKS restarts embedded DarkIRC when enabled so P2P/event-graph transport matches. \
+                Open Chat to verify green status lights.
+                """
+            )
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
                 .fixedSize(horizontal: false, vertical: true)

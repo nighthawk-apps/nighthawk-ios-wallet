@@ -43,8 +43,13 @@ public struct Splash {
         public var nymSkipped = false
         public var nymStartedAt: Date?
         public var pendingLaunch: PendingLaunch?
+        /// 6-digit App PIN unlock state when PIN lock is configured.
+        public var requiresPinEntry = false
+        public var pinInput = ""
+        public var pinError: String?
+
         public var shouldHandleScenePhaseChange: Bool {
-            isVisible && !isAuthenticating && !hasAttemptedAuthentication
+            isVisible && !isAuthenticating && !hasAttemptedAuthentication && !requiresPinEntry
         }
 
         public init() {}
@@ -64,6 +69,8 @@ public struct Splash {
         case nymFailed
         case retryNym
         case continueWithoutNym
+        case pinInputChanged(String)
+        case submitPinTapped
 
         public enum Alert: Equatable {}
 
@@ -88,6 +95,16 @@ public struct Splash {
             case .alert(.dismiss):
                 return .none
             case .authenticate, .retryTapped:
+                let biometricsEnabled = userStoredPreferences.areBiometricsEnabled()
+                let pinSet = SecurityPinStore.isPinSet()
+                if !biometricsEnabled && pinSet {
+                    state.isAuthenticating = false
+                    state.requiresPinEntry = true
+                    state.pinInput = ""
+                    state.pinError = nil
+                    return .none
+                }
+
                 state.isAuthenticating = true
                 return .run { send in
                     let context = localAuthenticationContext()
@@ -103,8 +120,10 @@ public struct Splash {
                         if success {
                             await send(.delegate(.initializeSDKAndLaunchWallet))
                         }
+                    } else if pinSet {
+                        await send(.authenticationResponse(false))
                     } else {
-                        // Device has no passcode/biometry configured — do not trap the user on Splash.
+                        // Device has no passcode/biometry/PIN configured — do not trap the user on Splash.
                         await send(.authenticationResponse(true))
                         await send(.delegate(.initializeSDKAndLaunchWallet))
                     }
@@ -113,37 +132,72 @@ public struct Splash {
                 state.hasAttemptedAuthentication = true
                 state.isAuthenticating = false
                 if authenticated {
+                    state.requiresPinEntry = false
+                    state.pinInput = ""
+                    state.pinError = nil
                     state.lastAuthenticatedTime = date()
+                } else if SecurityPinStore.isPinSet() {
+                    state.requiresPinEntry = true
                 }
                 return .none
+            case let .pinInputChanged(raw):
+                state.pinInput = String(raw.filter(\.isNumber).prefix(SecurityPinStore.pinLength))
+                state.pinError = nil
+                return .none
+            case .submitPinTapped:
+                guard SecurityPinStore.isValidPinFormat(state.pinInput) else {
+                    state.pinError = "Enter your 6-digit PIN."
+                    return .none
+                }
+                if SecurityPinStore.verifyPin(state.pinInput) {
+                    state.requiresPinEntry = false
+                    state.pinInput = ""
+                    state.pinError = nil
+                    state.hasAttemptedAuthentication = true
+                    state.lastAuthenticatedTime = date()
+                    return .send(.delegate(.initializeSDKAndLaunchWallet))
+                } else {
+                    state.pinInput = ""
+                    state.pinError = "Incorrect PIN. Try again."
+                    return .none
+                }
             case .checkWalletInitialization:
                 state.walletCheckPending = false
                 if state.waitingForNym { return .none }
                 state.initializationState = Splash.walletInitializationState(
                     databaseFiles: databaseFiles,
                     walletStorage: walletStorage,
-                    darkfiNetwork: "testnet"
+                    darkfiNetwork: DarkfiNetwork.activeLabel
                 )
+                let authRequired = userStoredPreferences.areBiometricsEnabled() || SecurityPinStore.isPinSet()
                 let pending = Splash.pendingLaunch(
                     initializationState: state.initializationState,
                     backupComplete: userStoredPreferences.isUserBackupComplete(),
-                    biometricsEnabled: userStoredPreferences.areBiometricsEnabled()
+                    biometricsEnabled: authRequired
                 )
-                let shouldBackgroundNym =
+                let shouldWaitForNym =
                     !state.nymSkipped &&
                     !SessionPrivacyOverride.forceDirectThisSession &&
                     userStoredPreferences.walletPrivacyNetwork() == .nym &&
                     !DarkfiFfiSafe.isNymRunning() &&
                     !pending.isTerminalFailure
-                let launch = launchEffect(pending, state: &state)
-                if shouldBackgroundNym {
+                if shouldWaitForNym {
+                    state.pendingLaunch = pending
+                    state.waitingForNym = true
+                    state.nymFailed = false
                     state.nymStartedAt = date()
-                    return .merge(launch, nymPollEffect())
+                    return nymPollEffect()
                 }
-                return launch
+                state.pendingLaunch = nil
+                return launchEffect(pending, state: &state)
             case .nymReady:
                 state.waitingForNym = false
-                return .none
+                state.nymFailed = false
+                guard let pending = state.pendingLaunch else {
+                    return .none
+                }
+                state.pendingLaunch = nil
+                return launchEffect(pending, state: &state)
             case .nymFailed:
                 state.nymFailed = true
                 return .none
@@ -154,6 +208,7 @@ public struct Splash {
                 return nymPollEffect()
             case .continueWithoutNym:
                 state.waitingForNym = false
+                state.nymFailed = false
                 state.nymSkipped = true
                 // Session-only Direct — do not permanently downgrade stored privacy prefs.
                 SessionPrivacyOverride.setForceDirectThisSession(true)
@@ -162,6 +217,7 @@ public struct Splash {
                 guard let pending = state.pendingLaunch else {
                     return .cancel(id: CancelID.nymPoll)
                 }
+                state.pendingLaunch = nil
                 return .merge(
                     .cancel(id: CancelID.nymPoll),
                     launchEffect(pending, state: &state)

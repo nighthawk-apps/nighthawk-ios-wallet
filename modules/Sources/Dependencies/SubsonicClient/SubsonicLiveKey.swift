@@ -16,9 +16,9 @@ private final class SoundEffectPlayer {
     private var player: AVAudioPlayer?
 
     func play(filename: String) {
-        let ns = filename as NSString
-        let name = ns.deletingPathExtension
-        let ext = ns.pathExtension.isEmpty ? "mp3" : ns.pathExtension
+        let nsFilename = filename as NSString
+        let name = nsFilename.deletingPathExtension
+        let ext = nsFilename.pathExtension.isEmpty ? "mp3" : nsFilename.pathExtension
         guard let url = Bundle.main.url(forResource: name, withExtension: ext) else { return }
         player = try? AVAudioPlayer(contentsOf: url)
         player?.play()

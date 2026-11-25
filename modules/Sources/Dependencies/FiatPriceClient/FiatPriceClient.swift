@@ -115,7 +115,7 @@ private final class FiatSessionManager {
     private let lock = NSLock()
     private var cachedConfig: FiatProxyConfig?
     private var cachedSession: URLSession?
-    private var cachedDelegate: FiatSocksAuthDelegate?
+    private var cachedAuthHandler: FiatSocksAuthDelegate?
 
     func session() -> URLSession {
         let desired = FiatProxyConfig.current()
@@ -143,7 +143,7 @@ private final class FiatSessionManager {
         let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         cachedConfig = desired
         cachedSession = session
-        cachedDelegate = delegate
+        cachedAuthHandler = delegate
         return session
     }
 }

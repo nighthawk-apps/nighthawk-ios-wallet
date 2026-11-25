@@ -73,7 +73,8 @@ public struct ImportWalletView: View {
 
 // MARK: - Subviews
 private extension ImportWalletView {
-    @ViewBuilder func instructions() -> some View {
+    @ViewBuilder
+    func instructions() -> some View {
         Text(L10n.Nighthawk.ImportWallet.restoreFromBackup)
             .subtitle()
 

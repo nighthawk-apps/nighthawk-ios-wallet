@@ -94,7 +94,7 @@ extension ZecAmountRenderingView: UIKeyInput, UITextInputTraits {
 
     public var keyboardType: UIKeyboardType {
         get { .decimalPad }
-        set {}
+        set { _ = newValue }
     }
 
     public func insertText(_ text: String) {

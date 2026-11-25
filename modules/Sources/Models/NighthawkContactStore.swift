@@ -42,15 +42,15 @@ public enum NighthawkContactStore {
     @discardableResult
     public static func upsert(_ contact: NighthawkContact, syncAddressBook: Bool = true) -> [NighthawkContact] {
         let nick = contact.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        let dm = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dmKey = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
         let addr = contact.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanAddr = (addr?.isEmpty == false) ? addr : nil
-        guard !dm.isEmpty || cleanAddr != nil else { return load() }
+        guard !dmKey.isEmpty || cleanAddr != nil else { return load() }
 
         let existingByAddr = cleanAddr.flatMap { findByWalletAddress($0) }
         let existingByNick = nick.isEmpty ? nil : findByNick(nick)
         let resolvedNick = !nick.isEmpty ? nick : (existingByAddr?.nickname ?? cleanAddr ?? "")
-        let resolvedDm = !dm.isEmpty ? dm : (existingByNick?.dmPublicKey ?? existingByAddr?.dmPublicKey ?? "")
+        let resolvedDm = !dmKey.isEmpty ? dmKey : (existingByNick?.dmPublicKey ?? existingByAddr?.dmPublicKey ?? "")
         let resolvedAddr = cleanAddr ?? existingByNick?.walletAddress
         let id = !resolvedNick.isEmpty ? resolvedNick.lowercased() : (resolvedAddr ?? resolvedDm)
 

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Offline chat sends. Flushed when DarkIRC reports connected.
+/// Offline chat sends (AES-GCM encrypted at rest). Flushed when DarkIRC reports connected.
 public actor ChatOutboxStore {
     public static let shared = ChatOutboxStore()
 
@@ -18,13 +18,15 @@ public actor ChatOutboxStore {
         }
     }
 
-    private let fileURL: URL
+    private let encryptedFileURL: URL
+    private let legacyPlaintextURL: URL
     private var records: [Record] = []
     private var loaded = false
 
     public init(fileURL: URL? = nil) {
         if let fileURL {
-            self.fileURL = fileURL
+            self.legacyPlaintextURL = fileURL
+            self.encryptedFileURL = ChatEncryptedFileStore.encryptedURL(forLegacyJSON: fileURL)
         } else {
             let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
                 ?? FileManager.default.temporaryDirectory
@@ -33,7 +35,8 @@ public actor ChatOutboxStore {
             var values = URLResourceValues()
             values.isExcludedFromBackup = true
             try? dir.setResourceValues(values)
-            self.fileURL = dir.appendingPathComponent("chat_outbox_v1.json")
+            self.legacyPlaintextURL = dir.appendingPathComponent("chat_outbox_v1.json")
+            self.encryptedFileURL = dir.appendingPathComponent("chat_outbox_v1.enc")
         }
     }
 
@@ -72,13 +75,16 @@ public actor ChatOutboxStore {
     public func clearAll() {
         records = []
         loaded = true
-        try? FileManager.default.removeItem(at: fileURL)
+        ChatEncryptedFileStore.remove(encryptedURL: encryptedFileURL, legacyPlaintextURL: legacyPlaintextURL)
     }
 
     private func ensureLoaded() {
         guard !loaded else { return }
         loaded = true
-        guard let data = try? Data(contentsOf: fileURL),
+        guard let data = ChatEncryptedFileStore.load(
+            encryptedURL: encryptedFileURL,
+            legacyPlaintextURL: legacyPlaintextURL
+        ),
               let decoded = try? JSONDecoder().decode([Record].self, from: data) else {
             return
         }
@@ -87,6 +93,10 @@ public actor ChatOutboxStore {
 
     private func persist() {
         guard let data = try? JSONEncoder().encode(records) else { return }
-        try? data.write(to: fileURL, options: [.atomic, .completeFileProtection])
+        ChatEncryptedFileStore.saveAsync(
+            data,
+            encryptedURL: encryptedFileURL,
+            legacyPlaintextURL: legacyPlaintextURL
+        )
     }
 }

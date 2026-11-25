@@ -9,11 +9,20 @@ import XCTest
 import ComposableArchitecture
 import SDKSynchronizer
 import Utils
+@testable import Home
 @testable import stealth_testnet
 
 @MainActor
 class DaoHubTests: XCTestCase {
-    
+    private struct CreatedDaoCall: Equatable {
+        let name: String
+        let limit: String
+        let quorum: String
+        let early: String
+        let ratio: Double
+        let token: String
+    }
+
     // MARK: - Initial State
     
     func testInitialState() {
@@ -206,7 +215,7 @@ class DaoHubTests: XCTestCase {
     }
 
     func testSubmitCreate_PassesDistinctLimitsAndReloadsHub() async {
-        let created = LockIsolated<(String, String, String, String, Double, String)?>(nil)
+        let created = LockIsolated<CreatedDaoCall?>(nil)
         let store = TestStore(
             initialState: DaoHub.State(),
             reducer: DaoHub.init
@@ -218,7 +227,16 @@ class DaoHubTests: XCTestCase {
                 SynchronizerState(syncStatus: .upToDate)
             }
             $0.sdkSynchronizer.daoCreate = { name, limit, quorum, early, ratio, token in
-                created.setValue((name, limit, quorum, early, ratio, token))
+                created.setValue(
+                    CreatedDaoCall(
+                        name: name,
+                        limit: limit,
+                        quorum: quorum,
+                        early: early,
+                        ratio: ratio,
+                        token: token
+                    )
+                )
                 return "created"
             }
         }
@@ -228,9 +246,9 @@ class DaoHubTests: XCTestCase {
             state.actionResult = nil
         }
 
-        await store.receive(.proposalSubmitted(.success("Group submitted"), .hub)) { state in
+        await store.receive(.proposalSubmitted(.success("DAO submitted"), .hub)) { state in
             state.actionInProgress = false
-            state.actionResult = .success("Group submitted")
+            state.actionResult = .success("DAO submitted")
         }
 
         await store.receive(.loadHub) { state in
@@ -244,9 +262,9 @@ class DaoHubTests: XCTestCase {
             state.daos = []
         }
 
-        XCTAssertEqual(created.value?.1, "2")
-        XCTAssertEqual(created.value?.2, "5")
-        XCTAssertEqual(created.value?.3, "3")
+        XCTAssertEqual(created.value?.limit, "2")
+        XCTAssertEqual(created.value?.quorum, "5")
+        XCTAssertEqual(created.value?.early, "3")
     }
 
     func testSubmitCreate_IgnoredWhileActionInProgress() async {

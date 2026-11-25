@@ -42,6 +42,11 @@ public struct RecoveryPhraseDisplayView: View {
                     }
 
                     if store.flow == .onboarding {
+                        if !store.verificationWords.isEmpty {
+                            backupQuizSection
+                                .padding(.top, 20)
+                        }
+
                         confirmPhrase(isChecked: $store.isConfirmSeedPhraseWrittenChecked)
                             .padding(.top, 20)
                     }
@@ -105,6 +110,66 @@ private extension RecoveryPhraseDisplayView {
             .padding(.top, 11)
     }
 
+    var backupQuizSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Confirm Backup (3 Words)")
+                .paragraphMedium(color: Asset.Colors.Nighthawk.peach.color)
+
+            Text("Enter the requested words from your recovery phrase to confirm you wrote it down.")
+                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+            ForEach(store.verificationWords) { word in
+                HStack(spacing: 10) {
+                    Text("#\(word.index)")
+                        .font(.custom(FontFamily.IbmPlexMono.regular.name, size: 14))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .frame(width: 34, alignment: .leading)
+
+                    NighthawkTextField(
+                        placeholder: "Word #\(word.index)",
+                        text: Binding(
+                            get: { word.enteredWord },
+                            set: { store.send(.verificationWordChanged(index: word.index, value: $0)) }
+                        ),
+                        isValid: validationState(for: word)
+                    )
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                    Image(systemName: word.isMatched ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(
+                            word.isMatched
+                                ? StealthTheme.Colors.statusSuccess
+                                : Asset.Colors.Nighthawk.textMuted.color
+                        )
+                        .frame(width: 22)
+                }
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.65))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(
+                    store.isQuizPassed
+                        ? StealthTheme.Colors.statusSuccess.opacity(0.6)
+                        : Asset.Colors.Nighthawk.steelBorder.color,
+                    lineWidth: 1
+                )
+        )
+    }
+
+    func validationState(for word: RecoveryPhraseDisplay.VerificationWord) -> NighthawkTextFieldValidationState {
+        let trimmed = word.enteredWord.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty || word.isMatched {
+            return .valid
+        }
+        return .invalid(error: "Word #\(word.index) does not match")
+    }
+
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {
         CheckBox(isChecked: isChecked) {
             Text(L10n.Nighthawk.RecoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox)
@@ -126,7 +191,7 @@ private extension RecoveryPhraseDisplayView {
                     store.send(.continuePressed)
                 }
                 .buttonStyle(.nighthawkPrimary(width: 152))
-                .disabled(!store.isConfirmSeedPhraseWrittenChecked)
+                .disabled(!store.canContinueOnboarding)
             }
         }
         .frame(maxWidth: .infinity)

@@ -8,6 +8,7 @@
 import Addresses
 import ComposableArchitecture
 import Generated
+import SDKSynchronizer
 import SwiftUI
 import TransactionDetail
 import UIComponents
@@ -17,6 +18,7 @@ import Utils
 public struct WalletView: View {
     @Bindable var store: StoreOf<Wallet>
     @State private var balancePage: BalanceView.ViewType?
+    @State private var dismissedReorgMessage: String?
 
     @Environment(\.nighthawkUsesCompanionPane) private var usesCompanionPane
 
@@ -38,6 +40,10 @@ public struct WalletView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 8)
 
+                stalenessOrErrorBanner
+
+                reorgRecoveryBanner
+
                 // Balance sits in the space under the status dot.
                 balanceTabsView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -45,6 +51,8 @@ public struct WalletView: View {
                 walletActionRow
                     .padding(.horizontal, 25)
                     .padding(.bottom, 8)
+
+                customTokensSection
 
                 latestWalletEvents
             }
@@ -63,6 +71,38 @@ public struct WalletView: View {
 }
 
 private extension WalletView {
+    var syncState: SynchronizerState {
+        store.walletInfo.synchronizerState
+    }
+
+    var isStaleSyncWarning: Bool {
+        guard let msg = syncState.lightStatusMessage?.lowercased(), !msg.isEmpty else {
+            return false
+        }
+        return msg.contains("not reached darkfid")
+            || msg.contains("stale")
+            || msg.contains("unreachable")
+            || msg.contains("disconnected")
+            || msg.contains("failed")
+            || msg.contains("error")
+    }
+
+    var isUnreachableError: Bool {
+        if case .error = store.walletInfo.synchronizerStatusSnapshot.syncStatus {
+            return true
+        }
+        guard let msg = syncState.lightStatusMessage?.lowercased() else { return false }
+        return msg.contains("unreachable") || msg.contains("connection refused") || msg.contains("error")
+    }
+
+    /// Green ONLY when lightwalletd has a live session, sync status is upToDate,
+    /// and there is no stale-tip / darkfid reachability warning.
+    var isHonestlySynced: Bool {
+        syncState.lightwalletdConnected
+            && store.walletInfo.synchronizerStatusSnapshot.syncStatus == .upToDate
+            && !isStaleSyncWarning
+    }
+
     var syncStatusDot: some View {
         Circle()
             .fill(syncStatusColor)
@@ -73,7 +113,10 @@ private extension WalletView {
     var syncStatusColor: Color {
         switch store.walletInfo.synchronizerStatusSnapshot.syncStatus {
         case .upToDate:
-            return StealthTheme.Colors.statusSuccess
+            if isHonestlySynced {
+                return StealthTheme.Colors.statusSuccess
+            }
+            return isUnreachableError ? StealthTheme.Colors.statusDanger : StealthTheme.Colors.statusWarning
         case .syncing, .unprepared:
             return StealthTheme.Colors.statusWarning
         case .error:
@@ -84,9 +127,12 @@ private extension WalletView {
     }
 
     var syncStatusAccessibilityLabel: String {
-        let blockHeight = store.walletInfo.synchronizerState.latestBlockHeight
+        let blockHeight = syncState.latestBlockHeight
         switch store.walletInfo.synchronizerStatusSnapshot.syncStatus {
         case .upToDate:
+            if !isHonestlySynced {
+                return syncState.lightStatusMessage ?? "Lightwalletd stale or unreachable"
+            }
             return "Synced · Block \(blockHeight)"
         case let .syncing(progress):
             let percent = progress * 100
@@ -99,6 +145,83 @@ private extension WalletView {
             return "Sync Error"
         case .stopped:
             return "Sync Stopped"
+        }
+    }
+
+    @ViewBuilder
+    var stalenessOrErrorBanner: some View {
+        let statusMessage = syncState.lightStatusMessage?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let shouldShow = isStaleSyncWarning
+            || (!syncState.lightwalletdConnected
+                && store.walletInfo.synchronizerStatusSnapshot.syncStatus == .upToDate)
+        if shouldShow {
+            let text = (statusMessage?.isEmpty == false ? statusMessage : nil)
+                ?? "Lightwalletd unreachable — check Change Server or Network privacy."
+            let accent = isUnreachableError ? StealthTheme.Colors.statusDanger : StealthTheme.Colors.statusWarning
+            HStack(spacing: 8) {
+                Image(systemName: isUnreachableError ? "xmark.octagon.fill" : "exclamationmark.triangle.fill")
+                    .font(.system(size: 13))
+                    .foregroundColor(accent)
+                Text(text)
+                    .caption(color: accent)
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(accent.opacity(0.14))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(accent.opacity(0.45), lineWidth: 1)
+            )
+            .padding(.horizontal, 25)
+            .padding(.bottom, 6)
+            .accessibilityIdentifier("nighthawk.wallet.stalenessBanner")
+        }
+    }
+
+    @ViewBuilder
+    var reorgRecoveryBanner: some View {
+        let msg = syncState.fallbackUserMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        if syncState.fallbackReason == "Reorg", !msg.isEmpty, dismissedReorgMessage != msg {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(StealthTheme.Colors.statusWarning)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Chain Reorg Recovery")
+                        .captionBold(color: StealthTheme.Colors.statusWarning)
+                    Text(msg)
+                        .caption(color: Asset.Colors.Nighthawk.textHeader.color)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                Button {
+                    dismissedReorgMessage = msg
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(StealthTheme.Colors.statusWarning.opacity(0.14))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(StealthTheme.Colors.statusWarning.opacity(0.5), lineWidth: 1)
+            )
+            .padding(.horizontal, 25)
+            .padding(.bottom, 6)
+            .accessibilityIdentifier("nighthawk.wallet.reorgBanner")
         }
     }
 
@@ -155,12 +278,13 @@ private extension WalletView {
         .environment(\.layoutDirection, .leftToRight)
     }
 
-    @ViewBuilder var tabs: some View {
+    @ViewBuilder
+    var tabs: some View {
         if store.isSyncingForFirstTime {
             SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
         } else if store.walletInfo.synchronizerStatusSnapshot.syncStatus.isSyncing
-                    || store.isSyncingFailed
-                    || store.isSyncingStopped {
+            || store.isSyncingFailed
+            || store.isSyncingStopped {
             SyncStatusView(status: store.walletInfo.synchronizerStatusSnapshot)
         } else {
             balancePager
@@ -305,6 +429,72 @@ private extension WalletView {
         .buttonStyle(.plain)
         .disabled(!enabled)
         .accessibilityAddTraits(.isButton)
+    }
+
+    @ViewBuilder
+    var customTokensSection: some View {
+        let tokens = store.customTokens
+        if !store.isSyncingForFirstTime && !tokens.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Tokens")
+                        .captionBold(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    Spacer()
+                    Text("Tap to send")
+                        .caption(color: Asset.Colors.Nighthawk.textMuted.color)
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(tokens) { token in
+                            tokenChip(token)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 25)
+            .padding(.bottom, 10)
+            .accessibilityIdentifier("nighthawk.wallet.customTokens")
+        }
+    }
+
+    func tokenChip(_ token: TokenBalanceInfo) -> some View {
+        let label = token.displayLabel.flatMap { $0.isEmpty ? nil : $0 } ?? "\(token.tokenId.prefix(8))…"
+        let balanceText = store.balanceViewType == .hidden
+            ? "••••"
+            : DrkAmount(token.balanceAtomic).decimalString()
+        let sendDisabled = store.isSyncingFailed || store.isSyncingStopped
+        return Button {
+            store.send(.tokenTapped(token))
+        } label: {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(label)
+                        .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
+                        .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
+                        .lineLimit(1)
+                    Text(balanceText)
+                        .font(.custom(FontFamily.IbmPlexMono.regular.name, size: 12))
+                        .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+                        .lineLimit(1)
+                }
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Asset.Colors.Nighthawk.navy.color.opacity(0.75))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(Asset.Colors.Nighthawk.steelBorder.color, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(sendDisabled)
     }
 
     var latestWalletEvents: some View {

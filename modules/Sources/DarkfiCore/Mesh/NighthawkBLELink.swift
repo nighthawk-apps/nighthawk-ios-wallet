@@ -105,7 +105,15 @@ final class NighthawkBLELink: NSObject {
         if linkID.hasPrefix("p:"),
            let uuid = UUID(uuidString: String(linkID.dropFirst(2))),
            let peripheral = peripherals[uuid] {
-            return peripheral.maximumWriteValueLength(for: .withoutResponse)
+            return max(
+                NighthawkMeshFraming.minAttPayload,
+                peripheral.maximumWriteValueLength(for: .withoutResponse)
+            )
+        }
+        if linkID.hasPrefix("c:"),
+           let uuid = UUID(uuidString: String(linkID.dropFirst(2))),
+           let central = subscribed[uuid] {
+            return max(NighthawkMeshFraming.minAttPayload, central.maximumUpdateValueLength)
         }
         return NighthawkMeshFraming.defaultFragmentBytes
     }
@@ -140,16 +148,16 @@ final class NighthawkBLELink: NSObject {
         dutyGeneration += 1
         let generation = dutyGeneration
         let peers = peripherals.count + subscribed.count
-        let on: TimeInterval
+        let onWindow: TimeInterval
         let off: TimeInterval
         if foreground {
-            on = 8
+            onWindow = 8
             off = 2
         } else if peers > 0 {
-            on = 1
+            onWindow = 1
             off = 29
         } else {
-            on = 1
+            onWindow = 1
             off = 59
         }
         startScan()
@@ -157,7 +165,7 @@ final class NighthawkBLELink: NSObject {
             startAdvertising()
         }
         let timer = DispatchSource.makeTimerSource(queue: queue)
-        timer.schedule(deadline: .now() + on, repeating: .never)
+        timer.schedule(deadline: .now() + onWindow, repeating: .never)
         timer.setEventHandler { [weak self] in
             guard let self, self.started, self.dutyGeneration == generation else { return }
             self.central?.stopScan()

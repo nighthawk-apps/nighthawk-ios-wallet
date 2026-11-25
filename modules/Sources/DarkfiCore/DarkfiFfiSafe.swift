@@ -12,7 +12,7 @@ private let ffiNymStatus: () -> String = { nymStatus() }
 private let ffiStopNymProxy: () -> Void = { stopNymProxy() }
 private let ffiStartNymProxy: (String) throws -> Bool = { try startNymProxy(socksListen: $0) }
 
-public struct DarkfiFfiSafe {
+public enum DarkfiFfiSafe {
     public static func isArtiRunning() -> Bool {
         ffiIsArtiRunning()
     }

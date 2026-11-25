@@ -78,8 +78,7 @@ public struct AppView: View {
 // MARK: - Path screens
 private extension AppView {
     @ViewBuilder
-    // swiftlint:disable:next cyclomatic_complexity
-    func pathScreen(_ pathStore: StoreOf<AppReducer.Path>) -> some View {
+    func pathScreen(_ pathStore: StoreOf<AppReducer.Path>) -> some View { // swiftlint:disable:this cyclomatic_complexity
         let showBackButton = store.path.count > 1
 
         Group {
@@ -120,7 +119,7 @@ private extension AppView {
                     case .daoDetail: store.selectedDao?.name ?? L10n.Nighthawk.DaoHub.title
                     case .proposalDetail: L10n.Nighthawk.DaoHub.proposal
                     }
-                    DaoHubView(store: store)
+                    DaoHubView(store: store, showsEmbeddedHeader: false)
                         .nighthawkChrome(
                             showBack: showBackButton || store.screen != .hub,
                             title: daoTitle
@@ -279,7 +278,7 @@ private extension View {
             nighthawkTopBar(leading: .none, title: title)
         } else {
             safeAreaInset(edge: .top, spacing: 0) {
-                if NighthawkThemeController.shared.theme.usesCyberpunkChrome {
+                if NighthawkThemeController.currentTheme.usesCyberpunkChrome {
                     Color.clear.frame(height: NighthawkLayout.wallpaperWordmarkClearance)
                 }
             }

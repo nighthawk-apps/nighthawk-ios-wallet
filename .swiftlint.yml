@@ -8,6 +8,9 @@ included:
 excluded:
   - xctemplates
   - stealthTests
+  - modules/Sources/Generated
+  - stealth/Resources/Generated
+  - modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift
 
 disabled_rules:
   - notification_center_detachment
@@ -116,6 +119,21 @@ attributes:
     - "@IBAction"
     - "@NSManaged"
     - "@objc"
+    - "@Dependency"
+    - "@Environment"
+    - "@Shared"
+    - "@Presents"
+    - "@Bindable"
+    - "@FocusState"
+    - "@ObservedObject"
+    - "@State"
+    - "@Binding"
+    - "@AppStorage"
+    - "@SceneStorage"
+    - "@Published"
+    - "@_spi"
+  always_on_line_above:
+    - "@ViewBuilder"
 
 force_cast: warning
 force_try: warning

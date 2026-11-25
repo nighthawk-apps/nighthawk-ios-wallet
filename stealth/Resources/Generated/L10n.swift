@@ -212,6 +212,8 @@ internal enum L10n {
     }
     internal enum Nighthawk {
         internal enum HomeScreen {
+            /// Chat
+            internal static let chat = L10n.tr("Localizable", "nighthawk.homeScreen.chat", fallback: "Chat")
             /// Settings
             internal static let settings = L10n.tr("Localizable", "nighthawk.homeScreen.settings", fallback: "Settings")
             /// Transfer

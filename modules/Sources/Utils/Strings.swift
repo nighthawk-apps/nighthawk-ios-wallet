@@ -1,6 +1,6 @@
 import Foundation
 
-extension String: Error {}
+extension String: @retroactive Error {}
 
 extension String {
     public var isWholeNumber: Bool {

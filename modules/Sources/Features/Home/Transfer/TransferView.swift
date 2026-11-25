@@ -28,7 +28,8 @@ struct TransferView: View {
 
 // MARK: - Subviews
 private extension TransferView {
-    @ViewBuilder var heading: some View {
+    @ViewBuilder
+    var heading: some View {
         HStack {
             Text(L10n.Nighthawk.TransferTab.sendAndReceiveDarkFi)
                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)

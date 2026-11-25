@@ -277,18 +277,34 @@ public extension Notification.Name {
 }
 
 /// Observed by the root view so a theme change repaints without restarting.
+@MainActor
 public final class NighthawkThemeController: ObservableObject {
     public static let shared = NighthawkThemeController()
 
+    private nonisolated static let themeLock = NSLock()
+    private nonisolated(unsafe) static var cachedTheme: NighthawkSetting.Theme = {
+        let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? NighthawkSetting.Theme.default.rawValue
+        return NighthawkSetting.Theme(rawValue: raw) ?? .default
+    }()
+
+    /// Thread-safe snapshot for non-`@MainActor` color/style tokens.
+    public nonisolated static var currentTheme: NighthawkSetting.Theme {
+        themeLock.lock()
+        defer { themeLock.unlock() }
+        return cachedTheme
+    }
+
     @Published public private(set) var theme: NighthawkSetting.Theme {
         didSet {
+            Self.themeLock.lock()
+            Self.cachedTheme = theme
+            Self.themeLock.unlock()
             ColorAsset.paletteOverride = theme.paletteOverride
         }
     }
 
     private init() {
-        let raw = UserDefaults.standard.string(forKey: "darkfiTheme") ?? NighthawkSetting.Theme.default.rawValue
-        let initial = NighthawkSetting.Theme(rawValue: raw) ?? .default
+        let initial = Self.currentTheme
         ColorAsset.paletteOverride = initial.paletteOverride
         theme = initial
         NotificationCenter.default.addObserver(
@@ -298,8 +314,10 @@ public final class NighthawkThemeController: ObservableObject {
         ) { [weak self] note in
             guard let raw = note.object as? String,
                   let next = NighthawkSetting.Theme(rawValue: raw) else { return }
-            ColorAsset.paletteOverride = next.paletteOverride
-            self?.theme = next
+            Task { @MainActor [weak self] in
+                ColorAsset.paletteOverride = next.paletteOverride
+                self?.theme = next
+            }
         }
     }
 }

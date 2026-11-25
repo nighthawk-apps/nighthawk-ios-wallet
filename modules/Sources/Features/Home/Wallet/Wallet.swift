@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Models
 import Pasteboard
 import ProcessInfoClient
+import SDKSynchronizer
 import SwiftUI
 import UserPreferencesStorage
 import TransactionDetail
@@ -69,6 +70,27 @@ public struct Wallet {
             return "DRK"
         }
 
+        public static let nativeDrkTokenId = "241vANigf1Cy3ytjM1KHXiVECxgxdK4yApddL8KcLssb"
+
+        /// Non-native custom tokens held in the wallet for portfolio display & tap-to-send.
+        public var customTokens: [TokenBalanceInfo] {
+            walletInfo.tokenBalances
+                .filter { token in
+                    let id = token.tokenId.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !id.isEmpty,
+                          id != Self.nativeDrkTokenId,
+                          id.caseInsensitiveCompare("DRK") != .orderedSame else {
+                        return false
+                    }
+                    if let label = token.displayLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+                       label.caseInsensitiveCompare("DRK") == .orderedSame {
+                        return false
+                    }
+                    return true
+                }
+                .sorted { $0.balanceAtomic > $1.balanceAtomic }
+        }
+
         public init() {}
     }
 
@@ -83,6 +105,7 @@ public struct Wallet {
         case viewTransactionDetailTapped(WalletEvent)
         case viewTransactionHistoryTapped
         case transactionSelected(WalletEvent)
+        case tokenTapped(TokenBalanceInfo)
         case copyTransactionId(String)
         case copyMemo(String)
         case refreshPreferences
@@ -92,6 +115,7 @@ public struct Wallet {
             case scanPaymentRequest
             case receiveMoney
             case sendMoney
+            case sendToken(tokenId: String)
             case requestMoney
             case showAddresses
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
@@ -131,6 +155,8 @@ public struct Wallet {
             case let .transactionSelected(event):
                 state.selectedTransactionID = event.id
                 return .none
+            case let .tokenTapped(token):
+                return .send(.delegate(.sendToken(tokenId: token.tokenId)))
             case let .copyTransactionId(id):
                 pasteboard.setString(id.redacted)
                 return .none

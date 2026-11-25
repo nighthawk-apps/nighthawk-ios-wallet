@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Utils
 
 extension AppReducer {
     @ReducerBuilder<State, Action>
@@ -16,7 +17,20 @@ extension AppReducer {
     private func sendFlowDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .home(.transfer(.destination(.presented(.send(.path(.element(id: _, action: .success(.delegate(delegateAction))))))))))):
+            case let .path(
+                .element(
+                    id: _,
+                    action: .home(
+                        .transfer(
+                            .destination(
+                                .presented(
+                                    .send(.path(.element(id: _, action: .success(.delegate(delegateAction)))))
+                                )
+                            )
+                        )
+                    )
+                )
+            ):
                 switch delegateAction {
                 case .goHome:
                     return .none
@@ -25,14 +39,16 @@ extension AppReducer {
                         .transactionDetail(
                             .init(
                                 walletEvent: walletEvent,
-                                networkType: "testnet",
+                                networkType: DarkfiNetwork.activeLabel,
                                 latestFiatPrice: state.latestFiatPrice
                             )
                         )
                     )
                     return .none
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }

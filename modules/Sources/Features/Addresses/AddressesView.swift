@@ -14,7 +14,7 @@ import Utils
 
 @MainActor
 public struct AddressesView: View {
-    private struct Contants {
+    private enum Constants {
         static let qrSize: CGFloat = 180
     }
 

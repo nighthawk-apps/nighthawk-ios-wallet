@@ -33,13 +33,16 @@ public struct NighthawkContact: Equatable, Identifiable {
 
 public enum NighthawkContacts {
     public static func safetyNumber(dmPublicKey: String, walletAddress: String?) -> String {
-        let material = "\(dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines))|\(walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")"
+        let trimmedKey = dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAddr = walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let material = "\(trimmedKey)|\(trimmedAddr)"
         let digest = SHA256.hash(data: Data(material.utf8))
         // Match Android `abs(byte.toInt())`: SHA-256 bytes are signed.
-        return digest.prefix(15).map { byte in
+        let groups = digest.prefix(15).map { byte in
             let signed = Int(Int8(bitPattern: byte))
             return String(format: "%05d", abs(signed) % 100_000)
-        }.joined(separator: " ")
+        }
+        return groups.joined(separator: " ")
     }
 
     /// Wallet receive identity is a DarkFi address in a `drk:` invoice.
@@ -53,15 +56,15 @@ public enum NighthawkContacts {
     /// Full Nighthawk contact invite URI carrying nickname, DM public key, and/or wallet address.
     public static func contactInviteUri(_ contact: NighthawkContact) -> String? {
         let nick = contact.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        let dm = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dmKey = contact.dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
         let addr = contact.walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !dm.isEmpty || !addr.isEmpty else { return nil }
+        guard !dmKey.isEmpty || !addr.isEmpty else { return nil }
         var components = URLComponents()
         components.scheme = "nighthawk"
         components.host = "contact"
         var items: [URLQueryItem] = []
         if !nick.isEmpty { items.append(URLQueryItem(name: "nick", value: nick)) }
-        if !dm.isEmpty { items.append(URLQueryItem(name: "dm", value: dm)) }
+        if !dmKey.isEmpty { items.append(URLQueryItem(name: "dm", value: dmKey)) }
         if !addr.isEmpty { items.append(URLQueryItem(name: "addr", value: addr)) }
         components.queryItems = items
         return components.string
@@ -83,14 +86,14 @@ public enum NighthawkContacts {
                 return ""
             }
             let nick = item("nick", "name", "label")
-            let dm = item("dm", "pubkey", "dm_pubkey", "dmPublicKey")
+            let dmKey = item("dm", "pubkey", "dm_pubkey", "dmPublicKey")
             let addr = item("addr", "address", "wallet", "walletAddress")
-            guard !dm.isEmpty || !addr.isEmpty else { return nil }
-            let id = !nick.isEmpty ? nick.lowercased() : (!addr.isEmpty ? addr : dm)
+            guard !dmKey.isEmpty || !addr.isEmpty else { return nil }
+            let id = !nick.isEmpty ? nick.lowercased() : (!addr.isEmpty ? addr : dmKey)
             return NighthawkContact(
                 id: id,
                 nickname: nick,
-                dmPublicKey: dm,
+                dmPublicKey: dmKey,
                 walletAddress: addr.isEmpty ? nil : addr
             )
         }

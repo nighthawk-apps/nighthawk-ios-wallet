@@ -48,13 +48,16 @@ public struct Home {
             public var synchronizerStatusSnapshot: SyncStatusSnapshot = .default
             public var receiveAddress: DarkfiAddress?
             public var walletEvents: IdentifiedArrayOf<WalletEvent>
+            public var tokenBalances: [TokenBalanceInfo] = []
 
             public init(
                 receiveAddress: DarkfiAddress? = nil,
-                walletEvents: IdentifiedArrayOf<WalletEvent> = IdentifiedArrayOf<WalletEvent>()
+                walletEvents: IdentifiedArrayOf<WalletEvent> = IdentifiedArrayOf<WalletEvent>(),
+                tokenBalances: [TokenBalanceInfo] = []
             ) {
                 self.receiveAddress = receiveAddress
                 self.walletEvents = walletEvents
+                self.tokenBalances = tokenBalances
             }
         }
 
@@ -92,7 +95,7 @@ public struct Home {
         }
 
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
-            if let latestEventsCache = URL.latestEventsCache(for: "testnet"),
+            if let latestEventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel),
                let cachedData = try? Data(contentsOf: latestEventsCache),
                let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
                 return IdentifiedArray(uniqueElements: events)
@@ -121,6 +124,7 @@ public struct Home {
         case tabSelected(State.Tab)
         case transfer(Transfer.Action)
         case updateWalletEvents([WalletEvent])
+        case tokenBalancesLoaded([TokenBalanceInfo])
         case receiveAddressLoaded(DarkfiAddress?)
         case wallet(Wallet.Action)
 
@@ -200,10 +204,13 @@ public struct Home {
                 return .concatenate(
                     .send(.fetchLatestFiatPrice),
                     .send(.listenForSynchronizerUpdates),
-                    // Eagerly fetch address — it's available before sync completes
+                    // Eagerly fetch address & token balances — available before sync completes
                     .run { send in
                         let ua = try? await sdkSynchronizer.getAddress()
                         await send(.receiveAddressLoaded(ua))
+                        if let tokens = try? await sdkSynchronizer.listTokenBalances() {
+                            await send(.tokenBalancesLoaded(tokens))
+                        }
                     }
                 )
             case let .rescanDone(error):
@@ -212,7 +219,7 @@ public struct Home {
                     state.alert = .rescanFailed(error.toDarkFiError())
                     return .none
                 } else {
-                    if let eventsCache = URL.latestEventsCache(for: "testnet") {
+                    if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
                         try? fileManager.removeItem(eventsCache)
                     }
                     return .run { send in
@@ -239,13 +246,16 @@ public struct Home {
                 }
             case .synchronizerStateChanged(let latestState):
                 let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState)
-                // SyncStatusSnapshot omits balance/height — still refresh when those move
+                // SyncStatusSnapshot omits balance/height/fallback — still refresh when those move
                 // while status stays `.upToDate`.
                 let balanceChanged = latestState.confirmedBalance != state.walletInfo.balance
                 let heightChanged = latestState.latestBlockHeight != state.walletInfo.latestMinedHeight
+                let fallbackChanged = latestState.fallbackReason != state.walletInfo.synchronizerState.fallbackReason
+                    || latestState.fallbackUserMessage != state.walletInfo.synchronizerState.fallbackUserMessage
                 guard snapshot != state.walletInfo.synchronizerStatusSnapshot
                     || balanceChanged
-                    || heightChanged else {
+                    || heightChanged
+                    || fallbackChanged else {
                     return .none
                 }
                 state.walletInfo.synchronizerState = latestState
@@ -264,8 +274,9 @@ public struct Home {
 
                     // Detect if there are any expected funds
                     let availableBalance = state.walletInfo.balance
-                    if state.walletInfo.totalBalance != availableBalance && (state.walletInfo.totalBalance - availableBalance) != state.walletInfo.expectingAmount {
-                        state.walletInfo.expectingAmount = state.walletInfo.totalBalance - availableBalance
+                    let pendingDiff = state.walletInfo.totalBalance - availableBalance
+                    if state.walletInfo.totalBalance != availableBalance && pendingDiff != state.walletInfo.expectingAmount {
+                        state.walletInfo.expectingAmount = pendingDiff
                         state.toast = .expectingFunds
                     }
                 }
@@ -278,6 +289,9 @@ public struct Home {
                         let ua = try? await sdkSynchronizer.getAddress()
                         await send(.receiveAddressLoaded(ua))
                         guard loadHistory else { return }
+                        if let tokens = try? await sdkSynchronizer.listTokenBalances() {
+                            await send(.tokenBalancesLoaded(tokens))
+                        }
                         if let overviews = try? await sdkSynchronizer.getAllTransactions() {
                             let events = overviews.map { overview in
                                 WalletEvent(transaction: TransactionState(from: overview))
@@ -287,6 +301,9 @@ public struct Home {
                     }
                 }
 
+                return .none
+            case let .tokenBalancesLoaded(tokens):
+                state.walletInfo.tokenBalances = tokens
                 return .none
             case let .receiveAddressLoaded(receiveAddress):
                 if let receiveAddress {
@@ -305,7 +322,7 @@ public struct Home {
 
                 // Cache two latest events
                 let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
-                if let cache = URL.latestEventsCache(for: "testnet") {
+                if let cache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
                     let latest = IdentifiedArray(events.prefix(2)).elements
                     if let data = try? JSONEncoder().encode(latest) {
                         try? dataManager.save(data, cache)

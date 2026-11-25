@@ -73,6 +73,10 @@ public struct AdvancedView: View {
                     .paragraphMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     .lineLimit(3)
 
+                experimentalOmrSection
+
+                themeSection
+
                 banditSettings
 
                 Text(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.title)
@@ -128,87 +132,100 @@ public struct AdvancedView: View {
 
 // MARK: - Subviews
 private extension AdvancedView {
-    @MainActor
     @ViewBuilder
-    var banditSettings: some View {
-        if store.showBanditSettings {
-            if store.supportsAlternateIcons {
-                Text(L10n.Nighthawk.SettingsTab.Advanced.AppIcon.title)
-                    .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
-
-                RadioSelectionList(
-                    options: NighthawkSetting.AppIcon.allCases,
-                    selection: $store.selectedAppIcon
-                ) { option in
-                    HStack(alignment: .center) {
-                        option.preview
-                            .resizable().scaledToFit()
-                            .frame(width: 72, height: 72)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(.tertiary, lineWidth: 2)
-                            )
-
-                        Text(option.label)
-                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-
-                        Spacer()
-                    }
-                    .padding(.vertical, 12)
-                }
-            }
-
-            Toggle(isOn: Binding(
+    var experimentalOmrSection: some View {
+        Toggle(
+            isOn: Binding(
                 get: { WalletSyncPrivacy.strictOmrOnly },
                 set: { WalletSyncPrivacy.setStrictOmrOnly($0) }
-            )) {
-                Text("Experimental UnifOMR")
-                    .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-            }
-            .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
-            .padding(.vertical, 8)
-            Text("Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. It also uploads a large detection key.")
-                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                .padding(.bottom, 8)
+            )
+        ) {
+            Text("Experimental UnifOMR")
+                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+        }
+        .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+        .padding(.vertical, 8)
 
-            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
+        Text(
+            """
+            Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. \
+            On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. \
+            It also uploads a large detection key.
+            """
+        )
+        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+        .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    var themeSection: some View {
+        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.title)
+            .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
+
+        RadioSelectionList(
+            options: NighthawkSetting.Theme.allCases,
+            selection: $store.theme
+        ) { option in
+            HStack {
+                switch option {
+                case .`default`, .cyberpunk:
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunkDetail)
+                            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    }
+                case .dark:
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                case .light:
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.light)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.lightDetail)
+                            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    }
+                case .paper:
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                case .midnight:
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnight)
+                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnightDetail)
+                            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(.vertical, 12)
+        }
+    }
+
+    @ViewBuilder
+    var banditSettings: some View {
+        if store.showBanditSettings && store.supportsAlternateIcons {
+            Text(L10n.Nighthawk.SettingsTab.Advanced.AppIcon.title)
                 .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
             RadioSelectionList(
-                options: NighthawkSetting.Theme.allCases,
-                selection: $store.theme
+                options: NighthawkSetting.AppIcon.allCases,
+                selection: $store.selectedAppIcon
             ) { option in
-                HStack {
-                    switch option {
-                    case .`default`, .cyberpunk:
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunk)
-                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.cyberpunkDetail)
-                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                        }
-                    case .dark:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.dark)
-                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                    case .light:
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.light)
-                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.lightDetail)
-                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                        }
-                    case .paper:
-                        Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.paper)
-                            .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                    case .midnight:
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnight)
-                                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                            Text(L10n.Nighthawk.SettingsTab.Advanced.Theme.midnightDetail)
-                                .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                        }
-                    }
+                HStack(alignment: .center) {
+                    option.preview
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(.tertiary, lineWidth: 2)
+                        )
+
+                    Text(option.label)
+                        .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
 
                     Spacer()
                 }

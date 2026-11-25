@@ -13,15 +13,22 @@ public struct QRCodeParseResult: Equatable {
     public let memo: String?
     public let amount: String?
     public var address: String
+    public var contactInvite: NighthawkContact?
 
     public static var failed: Self {
-        Self(memo: nil, amount: nil, address: "")
+        Self(memo: nil, amount: nil, address: "", contactInvite: nil)
     }
 
-    public init(memo: String?, amount: String?, address: String) {
+    public init(
+        memo: String?,
+        amount: String?,
+        address: String,
+        contactInvite: NighthawkContact? = nil
+    ) {
         self.memo = memo
         self.amount = amount
         self.address = address
+        self.contactInvite = contactInvite
     }
 }
 
@@ -30,6 +37,15 @@ public struct URIParser {
         _ = network
         let trimmed = qrCode.trimmingCharacters(in: .whitespacesAndNewlines)
         let lower = trimmed.lowercased()
+        if lower.hasPrefix("nighthawk://contact"),
+           let contact = NighthawkContacts.parseInvite(trimmed) {
+            return QRCodeParseResult(
+                memo: nil,
+                amount: nil,
+                address: contact.walletAddress ?? "",
+                contactInvite: contact
+            )
+        }
         guard lower.hasPrefix("drk:") || lower.hasPrefix("darkfi:") else {
             return .failed
         }

@@ -94,8 +94,12 @@ final class PaymentRequestUriTests: XCTestCase {
         let uri = PaymentRequestUri.build(address: "drk1abc", amount: "1.5", memo: "lunch & tea")
         XCTAssertTrue(uri.hasPrefix("drk:drk1abc?"))
         XCTAssertTrue(uri.contains("amount=1.5"))
-        XCTAssertTrue(uri.contains("memo=lunch"))
+        XCTAssertTrue(uri.contains("memo="))
         XCTAssertFalse(uri.contains("memo=lunch & tea"))
+        let parsed = PaymentRequestUri.parse(uri)
+        XCTAssertEqual(parsed?.address, "drk1abc")
+        XCTAssertEqual(parsed?.amount, "1.5")
+        XCTAssertEqual(parsed?.memo, "lunch & tea")
     }
 
     func testBareAddressWhenAmountAndMemoAreBlank() {

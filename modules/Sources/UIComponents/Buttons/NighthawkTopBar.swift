@@ -37,7 +37,8 @@ public struct NighthawkTopBar: View {
                         .resizable()
                         .renderingMode(.template)
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                        .frame(width: 24, height: 24).scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .scaledToFit()
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }

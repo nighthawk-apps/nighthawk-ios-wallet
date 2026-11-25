@@ -8,6 +8,7 @@
 import CaptureDevice
 import ComposableArchitecture
 import DerivationTool
+import Models
 import UIComponents
 import URIParser
 import Utils
@@ -84,12 +85,20 @@ public struct Scan {
                     return .none
                 }
 
-                var parseResult = uriParser.parseZaddrOrZIP321(code.data, "testnet")
-                if derivationTool.isDarkFiAddress(code.data, "testnet") {
+                let network = DarkfiNetwork.activeLabel
+                var parseResult = uriParser.parseZaddrOrZIP321(code.data, network)
+                if let invite = NighthawkContacts.parseInvite(code.data),
+                   code.data.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().hasPrefix("nighthawk://contact") {
+                    _ = NighthawkContactStore.upsert(invite)
+                    parseResult.contactInvite = invite
+                    if let addr = invite.walletAddress, derivationTool.isDarkFiAddress(addr, network) {
+                        parseResult.address = addr
+                    }
+                } else if derivationTool.isDarkFiAddress(code.data, network) {
                     parseResult.address = code.data
                 }
 
-                if !parseResult.address.isEmpty {
+                if !parseResult.address.isEmpty || parseResult.contactInvite != nil {
                     state.scanStatus = .value(code)
                     // once valid URI is scanned we want to start the timer to deliver the code
                     // any new code cancels the schedule and fires new one

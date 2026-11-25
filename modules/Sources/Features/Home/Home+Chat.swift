@@ -25,8 +25,8 @@ extension Home {
                 }
                 return .none
             case .transfer(.destination(.dismiss)),
-                 .transfer(.destination(.presented(.send(.closeButtonTapped)))),
-                 .transfer(.destination(.presented(.send(.path(.element(id: _, action: .failed(.delegate(.cancelTransaction)))))))):
+                .transfer(.destination(.presented(.send(.closeButtonTapped)))),
+                .transfer(.destination(.presented(.send(.path(.element(id: _, action: .failed(.delegate(.cancelTransaction)))))))):
                 ChatReceiptBook.clearPending()
                 return .none
             case let .chat(.delegate(delegateAction)):
@@ -59,25 +59,26 @@ extension Home {
                     return .none
                 }
             case .alert,
-                 .binding,
-                 .cancelSynchronizerUpdates,
-                 .cantStartSync,
-                 .chat,
-                 .delegate,
-                 .destination,
-                 .fetchLatestFiatPrice,
-                 .daoHub,
-                 .latestFiatResponse,
-                 .listenForSynchronizerUpdates,
-                 .onAppear,
-                 .rescanDone,
-                 .settings,
-                 .synchronizerStateChanged,
-                 .tabSelected,
-                 .transfer,
-                 .updateWalletEvents,
-                 .receiveAddressLoaded,
-                 .wallet:
+                .binding,
+                .cancelSynchronizerUpdates,
+                .cantStartSync,
+                .chat,
+                .delegate,
+                .destination,
+                .fetchLatestFiatPrice,
+                .daoHub,
+                .latestFiatResponse,
+                .listenForSynchronizerUpdates,
+                .onAppear,
+                .rescanDone,
+                .settings,
+                .synchronizerStateChanged,
+                .tabSelected,
+                .transfer,
+                .updateWalletEvents,
+                .tokenBalancesLoaded,
+                .receiveAddressLoaded,
+                .wallet:
                 return .none
             }
         }

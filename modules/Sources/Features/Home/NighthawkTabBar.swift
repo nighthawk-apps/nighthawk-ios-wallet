@@ -79,7 +79,7 @@ struct NighthawkTabBar: View {
     @ViewBuilder
     private var tabButtons: some View {
         tabButton(
-            title: "Chat",
+            title: L10n.Nighthawk.HomeScreen.chat,
             image: Image(systemName: "bubble.left.and.bubble.right"),
             tab: .chat
         )
@@ -154,7 +154,8 @@ private struct TabBarItem: View {
         VStack {
             image
                 .resizable()
-                .renderingMode(.template).scaledToFit()
+                .renderingMode(.template)
+                .scaledToFit()
                 .foregroundColor(
                     isSelected
                         ? Asset.Colors.Nighthawk.peach.color

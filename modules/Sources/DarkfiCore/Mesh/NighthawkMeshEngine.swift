@@ -35,6 +35,9 @@ private enum NighthawkMeshABI {
 
     @_silgen_name("nh_mesh_neighbor_down")
     static func neighborDown(_ dest: UnsafePointer<UInt8>?) -> Int32
+
+    @_silgen_name("nh_mesh_wipe")
+    static func wipe() -> Int32
 }
 
 /// Engine-queue owner of protocol state. BitChat's rule: this queue never
@@ -91,6 +94,23 @@ final class NighthawkMeshEngine {
             self.assemblers.removeAll()
             self.held.removeAll()
             _ = NighthawkMeshABI.stop()
+            self.publish("Mesh off")
+        }
+    }
+
+    func wipe() {
+        queue.async {
+            self.pump?.cancel()
+            self.pump = nil
+            self.running = false
+            self.linkToMesh.removeAll()
+            self.meshToLink.removeAll()
+            self.liveLinks.removeAll()
+            self.assemblers.removeAll()
+            self.held.removeAll()
+            self.localID = Data()
+            _ = NighthawkMeshABI.stop()
+            _ = NighthawkMeshABI.wipe()
             self.publish("Mesh off")
         }
     }
@@ -240,7 +260,7 @@ final class NighthawkMeshEngine {
     private func publish(_ text: String) {
         statusLine = text
         let line = text
-        DispatchQueue.main.async {
+        Task { @MainActor in
             NighthawkMeshController.shared.noteStatus(line)
         }
     }

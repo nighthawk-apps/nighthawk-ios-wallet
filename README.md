@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.19** (`CURRENT_PROJECT_VERSION=30100819`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `9d7ceaf77`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.19, desktop 3.1.19, Moonshine 3.1.19, and lightwalletd 0.3.12.
+**3.01.20** (`CURRENT_PROJECT_VERSION=30100820`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `191941936`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.20, desktop 3.1.20, Moonshine 3.1.20, and lightwalletd 0.3.13.
 
 ## Contents
 
@@ -97,12 +97,12 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 
 | Requirement | Notes |
 |-------------|--------|
-| **macOS + Xcode with the iOS 27 SDK** | Minimum iOS 17.0. Base SDK is the latest iOS SDK in that Xcode (`SDKROOT = iphoneos`, currently 27.0.1). |
+| **macOS + Xcode 26.3 (iOS 26.2 SDK)** | Minimum iOS 17.0. Base SDK is the latest iOS SDK in Xcode (`SDKROOT = iphoneos`, currently 26.2). |
 | **Rust + Cargo** | [rustup](https://rustup.rs/) stable |
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (`9d7ceaf77`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (pin `191941936`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 
@@ -148,7 +148,7 @@ Feature catalog: [`docs/app-features.md`](docs/app-features.md) · Plan: [`docs/
 ```bash
 xcodebuild -project stealth.xcodeproj \
   -scheme stealth-testnet \
-  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -derivedDataPath build/DerivedData \
   -skipMacroValidation \
   build
@@ -159,7 +159,7 @@ xcodebuild -project stealth.xcodeproj \
 ```bash
 xcodebuild -project stealth.xcodeproj \
   -scheme stealth-testnet \
-  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -derivedDataPath build/DerivedData \
   -skipMacroValidation \
   test
@@ -251,8 +251,8 @@ cd ../nighthawk-android-wallet/rust && cargo test -p darkfi-mobile-ffi --lib dar
 ## Architecture
 
 - **UI:** SwiftUI + [TCA](https://github.com/pointfreeco/swift-composable-architecture). `Home.swift` scopes tabs: **Chat → Wallet → DEX → DAO → Settings** (opens on **Chat**, keeping `ChatView` mounted across tab switches). The wide wallet layout is for large iPhones in landscape. The target stays iPhone-only.
-- **Theme:** Stealth (default dark). Light and Paper use graphite and grey instead of teal. Titles are Outfit, body is Source Sans 3, Paper titles are Source Serif 4, keys are IBM Plex Mono.
-- **Settings:** Chat (identity, Nym/Tor/Direct transport, Keychain-backed E2E DM contacts), Change server, Security (Face ID / Touch ID), Fiat, About.
+- **Theme:** Cyberpunk (default dark with Void wallpaper and cyan/magenta accents), plus Dark (Stealth), Midnight, Light, and Paper under Settings → Advanced. Titles are Outfit, body is DejaVu Sans Mono / Source Sans 3, Paper titles are Source Serif 4, keys are IBM Plex Mono.
+- **Settings:** Chat (identity, Nym/Tor/Direct transport, Keychain-backed E2E DM contacts & `nighthawk://contact` QR), Change server (HTTPS TLS + presets), Security (Face ID / Touch ID + 6-digit App PIN), Fiat, Advanced (Theme, Experimental UnifOMR, Nearby BLE mesh), Share Nighthawk, About.
 - **Chat + Wallet fusion:** Inline `drk:` payment/invoice cards with one-tap Pay, composer Send/Request/Tip sheet with post-broadcast receipt cards, encrypted payment memos on default trial-decrypt sends, unified `NighthawkContactStore` + `DeviceAddressBook` (`nighthawk://contact?...` invite QR & safety numbers), offline outbox with delivery state transitions, connection diagnostics sheet (`darkircOutboundSlots` + `transportSnapshotJson` + LWD stale-tip warning), and clearnet link guard.
 - **Wallet SDK:** `SDKSynchronizerLive` / `WalletHandleManager` wrapping `DarkfiWalletHandle` (canonical shared `../nighthawk-android-wallet/rust/darkfi-mobile-ffi`); Combine streams to TCA.
 - **Balance:** single confirmed/spendable DRK tally plus multi-token balances.
@@ -277,11 +277,12 @@ cd ../nighthawk-android-wallet/rust && cargo test -p darkfi-mobile-ffi --lib dar
 
 ## DAO Hub
 
-Read-only governance via UniFFI:
+Interactive on-chain governance via UniFFI directly from the bottom **DAO** tab:
 
-- `list_daos()` / `list_proposals(dao_name?)` / `get_proposal(proposal_bulla_b58)`
-
-UI: Transfer tab and Settings → **DAO Hub**.
+- Browse DAOs & proposals: `list_daos()`, `list_proposals(dao_name?)`, `get_proposal(proposal_bulla_b58)`, `dao_treasury(dao_name)`
+- Create, import, fund & export roles: `dao_create`, `dao_import`, `dao_fund`, `dao_export_role`
+- Propose, vote & execute treasury payments: `dao_propose_transfer`, `dao_vote`, `dao_exec`
+- Issue, mint & freeze custom tokens: `token_generate`, `token_mint`, `token_freeze`, `list_mint_authorities`
 
 ---
 

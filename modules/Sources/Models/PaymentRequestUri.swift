@@ -66,23 +66,23 @@ public enum PaymentRequestUri {
         let address = String(parts[0]).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !address.isEmpty else { return nil }
 
-        var amount: String? = nil
-        var memo: String? = nil
+        var amount: String?
+        var memo: String?
 
         if parts.count > 1 {
             let queryString = String(parts[1])
             let pairs = queryString.split(separator: "&")
             for pair in pairs {
-                let kv = pair.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
-                let key = String(kv[0]).lowercased()
-                let val = kv.count > 1 ? String(kv[1]) : ""
+                let keyValue = pair.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+                let key = String(keyValue[0]).lowercased()
+                let val = keyValue.count > 1 ? String(keyValue[1]) : ""
                 let decodedVal = val.removingPercentEncoding ?? val
 
                 if key == "amount" && !decodedVal.isEmpty {
                     amount = decodedVal
                 } else if key == "memo" && !decodedVal.isEmpty {
-                    // Try base64 decoding first
-                    if let data = Data(base64Encoded: decodedVal),
+                    // Try base64 / base64url (ZIP-321 unpadded) decoding first
+                    if let data = decodeBase64OrBase64Url(decodedVal),
                        let text = String(data: data, encoding: .utf8),
                        !text.isEmpty {
                         memo = text
@@ -95,6 +95,21 @@ public enum PaymentRequestUri {
         }
 
         return Parsed(address: address, amount: amount, memo: memo)
+    }
+
+    private static func decodeBase64OrBase64Url(_ raw: String) -> Data? {
+        var normalized = raw
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        let remainder = normalized.count % 4
+        if remainder == 2 {
+            normalized.append("==")
+        } else if remainder == 3 {
+            normalized.append("=")
+        } else if remainder == 1 {
+            return nil
+        }
+        return Data(base64Encoded: normalized)
     }
 
     private static func percentEncode(_ value: String) -> String {

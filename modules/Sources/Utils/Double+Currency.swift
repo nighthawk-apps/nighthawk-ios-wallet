@@ -9,6 +9,6 @@ import Foundation
 
 extension Double {
     public var currencyString: String {
-        NumberFormatter.currencyFormatter.string(from: NSNumber(floatLiteral: self)) ?? ""
+        NumberFormatter.currencyFormatter.string(from: NSNumber(value: self)) ?? ""
     }
 }

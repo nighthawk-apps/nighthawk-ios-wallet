@@ -49,6 +49,7 @@ public struct TorNetwork {
         }
         public var artiStatus: ArtiStatus = .stopped
         public var artiBootstrapProgress: Double = 0.0
+        public var pendingDismiss: Bool = false
 
         // ── Derived ────────────────────────────────────────────────────
         public var isTorEnabled: Bool { torForWallet }
@@ -176,8 +177,10 @@ public struct TorNetwork {
                       state.nymStatus != .connected else { return .none }
                 state.nymStatus = .bootstrapping
                 return .run { send in
-                    guard DarkfiFfiSafe.startNymProxySafely(socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort)
-                            || DarkfiFfiSafe.isNymRunning() else {
+                    let nymStarted = DarkfiFfiSafe.startNymProxySafely(
+                        socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort
+                    )
+                    guard nymStarted || DarkfiFfiSafe.isNymRunning() else {
                         await send(.nymStatusChanged(.failed))
                         return
                     }
@@ -279,9 +282,14 @@ public struct TorNetwork {
                 }
 
             case .applyCompleted:
+                if state.pendingDismiss {
+                    state.pendingDismiss = false
+                    return .send(.delegate(.dismiss))
+                }
                 return .none
 
             case .doneTapped:
+                state.pendingDismiss = true
                 return .send(.applyAndReconnect)
 
             case .delegate:

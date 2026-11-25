@@ -209,7 +209,7 @@ public struct SendFlow {
                     return .none
                 }
 
-                if let recipient = state.recipient, derivationTool.isDarkFiAddress(recipient, "testnet") {
+                if let recipient = state.recipient, derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.activeLabel) {
                     var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
                     addMemoState.memoCharLimit = state.memoCharLimit
                     state.path.append(Path.State.addMemo(addMemoState))
@@ -429,13 +429,13 @@ extension SendFlow {
                                 )
 
                                 if !state.customTokenFeeIsCovered(proposal) {
-                            await send(.proposeSendTransactionFailure(
-                                DarkfiError(message: "Not enough DRK to pay the fee")
-                            ))
-                            return
-                        }
+                                    await send(.proposeSendTransactionFailure(
+                                        DarkfiError(message: "Not enough DRK to pay the fee")
+                                    ))
+                                    return
+                                }
 
-                        await send(.setProposal(proposal))
+                                await send(.setProposal(proposal))
                                 await send(
                                     .review(
                                         .init(
@@ -460,23 +460,23 @@ extension SendFlow {
                     return .none
                 }
             case .alert,
-                 .binding,
-                 .closeButtonTapped,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .proposeSendTransactionFailure,
-                 .review,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .setProposal,
-                 .synchronizerStateChanged,
-                 .loadTokenBalances,
-                 .tokenBalancesLoaded,
-                 .tokenSelected:
+                .binding,
+                .closeButtonTapped,
+                .continueTapped,
+                .onAppear,
+                .path,
+                .proposeSendTransactionFailure,
+                .review,
+                .scanCodeTapped,
+                .sendTransaction,
+                .sendTransactionFailure,
+                .sendTransactionInProgress,
+                .sendTransactionSuccess,
+                .setProposal,
+                .synchronizerStateChanged,
+                .loadTokenBalances,
+                .tokenBalancesLoaded,
+                .tokenSelected:
                 return .none
             }
         }
@@ -494,7 +494,7 @@ extension SendFlow {
                     _ = state.path.popLast()
                     return .none
                 case let .proceedWithRecipient(recipient, amount, memo):
-                    guard derivationTool.isDarkFiAddress(recipient, "testnet") else { return .none }
+                    guard derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.activeLabel) else { return .none }
                     state.recipient = recipient
                     if let amount, !amount.isEmpty {
                         state.amountToSendInput = amount
@@ -514,23 +514,23 @@ extension SendFlow {
                     return .none
                 }
             case .alert,
-                 .binding,
-                 .closeButtonTapped,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .proposeSendTransactionFailure,
-                 .review,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .setProposal,
-                 .synchronizerStateChanged,
-                 .loadTokenBalances,
-                 .tokenBalancesLoaded,
-                 .tokenSelected:
+                .binding,
+                .closeButtonTapped,
+                .continueTapped,
+                .onAppear,
+                .path,
+                .proposeSendTransactionFailure,
+                .review,
+                .scanCodeTapped,
+                .sendTransaction,
+                .sendTransactionFailure,
+                .sendTransactionInProgress,
+                .sendTransactionSuccess,
+                .setProposal,
+                .synchronizerStateChanged,
+                .loadTokenBalances,
+                .tokenBalancesLoaded,
+                .tokenSelected:
                 return .none
             }
         }
@@ -547,6 +547,10 @@ extension SendFlow {
                 case .goHome:
                     return .none
                 case let .handleParseResult(result):
+                    if result.address.isEmpty, result.contactInvite != nil {
+                        _ = state.path.popLast()
+                        return .none
+                    }
                     state.recipient = result.address
                     state.amountToSendInput = result.amount ?? state.amountToSendInput
                     state.memo = result.memo?.redacted
@@ -597,13 +601,13 @@ extension SendFlow {
                                 )
 
                                 if !state.customTokenFeeIsCovered(proposal) {
-                            await send(.proposeSendTransactionFailure(
-                                DarkfiError(message: "Not enough DRK to pay the fee")
-                            ))
-                            return
-                        }
+                                    await send(.proposeSendTransactionFailure(
+                                        DarkfiError(message: "Not enough DRK to pay the fee")
+                                    ))
+                                    return
+                                }
 
-                        await send(.setProposal(proposal))
+                                await send(.setProposal(proposal))
                                 await send(
                                     .review(
                                         .init(
@@ -627,23 +631,23 @@ extension SendFlow {
                 }
 
             case .alert,
-                 .binding,
-                 .closeButtonTapped,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .proposeSendTransactionFailure,
-                 .review,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .setProposal,
-                 .synchronizerStateChanged,
-                 .loadTokenBalances,
-                 .tokenBalancesLoaded,
-                 .tokenSelected:
+                .binding,
+                .closeButtonTapped,
+                .continueTapped,
+                .onAppear,
+                .path,
+                .proposeSendTransactionFailure,
+                .review,
+                .scanCodeTapped,
+                .sendTransaction,
+                .sendTransactionFailure,
+                .sendTransactionInProgress,
+                .sendTransactionSuccess,
+                .setProposal,
+                .synchronizerStateChanged,
+                .loadTokenBalances,
+                .tokenBalancesLoaded,
+                .tokenSelected:
                 return .none
             }
         }
@@ -664,23 +668,23 @@ extension SendFlow {
                     return .send(.sendTransaction)
                 }
             case .alert,
-                 .binding,
-                 .closeButtonTapped,
-                 .continueTapped,
-                 .onAppear,
-                 .path,
-                 .proposeSendTransactionFailure,
-                 .review,
-                 .scanCodeTapped,
-                 .sendTransaction,
-                 .sendTransactionFailure,
-                 .sendTransactionInProgress,
-                 .sendTransactionSuccess,
-                 .setProposal,
-                 .synchronizerStateChanged,
-                 .loadTokenBalances,
-                 .tokenBalancesLoaded,
-                 .tokenSelected:
+                .binding,
+                .closeButtonTapped,
+                .continueTapped,
+                .onAppear,
+                .path,
+                .proposeSendTransactionFailure,
+                .review,
+                .scanCodeTapped,
+                .sendTransaction,
+                .sendTransactionFailure,
+                .sendTransactionInProgress,
+                .sendTransactionSuccess,
+                .setProposal,
+                .synchronizerStateChanged,
+                .loadTokenBalances,
+                .tokenBalancesLoaded,
+                .tokenSelected:
                 return .none
             }
         }

@@ -118,11 +118,15 @@ private extension WelcomeView {
             HStack(spacing: 8) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(currentPage == index
+                        .fill(
+                            currentPage == index
                                 ? Asset.Colors.Nighthawk.peach.color
-                                : Asset.Colors.Nighthawk.textMuted.color)
-                        .frame(width: currentPage == index ? 10 : 7,
-                               height: currentPage == index ? 10 : 7)
+                                : Asset.Colors.Nighthawk.textMuted.color
+                        )
+                        .frame(
+                            width: currentPage == index ? 10 : 7,
+                            height: currentPage == index ? 10 : 7
+                        )
                         .animation(.easeInOut(duration: 0.2), value: currentPage)
                 }
             }

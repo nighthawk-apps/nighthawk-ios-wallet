@@ -41,7 +41,7 @@ public struct AppReducer {
         public var receiveAddress: DarkfiAddress?
         public var latestFiatPrice: Double?
         public var nighthawkColorScheme: ColorScheme? {
-            NighthawkThemeController.shared.theme.colorScheme
+            NighthawkThemeController.currentTheme.colorScheme
         }
 
         var isWelcomeScreenShown: Bool {
@@ -163,29 +163,33 @@ public struct AppReducer {
             case .deleteWalletSuccess:
                 DarkircDaemonManager.shared.stop()
                 walletStorage.deleteWallet()
+                SecurityPinStore.clearPin()
                 userStoredPreferences.removeAll()
                 NighthawkContactStore.removeAll()
                 DeviceAddressBook.removeAll()
                 DarkfiChatDefaults.resetNickname()
                 ChatReceiptBook.clearAll()
                 ChatHistoryStore.clearAll()
-                let fm = Foundation.FileManager.default
-                if let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-                    try? fm.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
+                let fileMgr = Foundation.FileManager.default
+                if let docs = fileMgr.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    try? fileMgr.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
                 }
-                if let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-                    try? fm.removeItem(at: appSupport.appendingPathComponent("nighthawk-chat", isDirectory: true))
-                    try? fm.removeItem(at: appSupport.appendingPathComponent("darkirc", isDirectory: true))
+                if let appSupport = fileMgr.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                    try? fileMgr.removeItem(at: appSupport.appendingPathComponent("nighthawk-chat", isDirectory: true))
+                    try? fileMgr.removeItem(at: appSupport.appendingPathComponent("darkirc", isDirectory: true))
                 }
                 state.receiveAddress = nil
                 state.latestFiatPrice = nil
                 state.splash.hasCompletedInitialRoute = false
-                if let eventsCache = URL.latestEventsCache(for: "testnet") {
+                if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
                     try? fileManager.removeItem(eventsCache)
                 }
 
                 state.path = StackState([.welcome(.init())])
                 return .run { _ in
+                    await MainActor.run {
+                        NighthawkMeshController.shared.wipe()
+                    }
                     await DarkircCryptoStore.shared.clearAll()
                     await ChatOutboxStore.shared.clearAll()
                     for _ in 0..<20 {
@@ -195,9 +199,9 @@ public struct AppReducer {
                         }
                         try? await Task.sleep(for: .milliseconds(100))
                     }
-                    let fm = Foundation.FileManager.default
-                    if let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-                        try? fm.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
+                    let fileMgr = Foundation.FileManager.default
+                    if let docs = fileMgr.urls(for: .documentDirectory, in: .userDomainMask).first {
+                        try? fileMgr.removeItem(at: docs.appendingPathComponent("darkirc_db", isDirectory: true))
                     }
                 }
             case .nukeLocalDatabasesFailed:
@@ -221,12 +225,15 @@ public struct AppReducer {
                     defer { state.splash.lastInactiveTime = nil }
                     if shouldResetToSplash(
                         state,
-                        biometricsEnabled: userStoredPreferences.areBiometricsEnabled(),
+                        authLockEnabled: userStoredPreferences.areBiometricsEnabled() || SecurityPinStore.isPinSet(),
                         now: date()
                     ) {
                         state.splash.lastAuthenticatedTime = nil
                         state.splash.hasAttemptedAuthentication = false
                         state.splash.isAuthenticating = false
+                        state.splash.requiresPinEntry = false
+                        state.splash.pinInput = ""
+                        state.splash.pinError = nil
                         state.path = StackState()
                     } else if !state.path.isEmpty && state.synchronizerStopped && !state.isWelcomeScreenShown {
                         return initializeSDK(.existingWallet, shouldResetStack: false)
@@ -322,20 +329,22 @@ private extension AppReducer {
                     state.splash.hasCompletedInitialRoute = true
                     return initializeSDK(.existingWallet)
                 }
-            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess, .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess, .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
+            case .alert, .createWalletFailed, .createWalletSucceeded, .initializeSDKFailed, .initializeSDKSuccess,
+                .deleteWalletFailed, .deleteWalletSuccess, .nukeLocalDatabasesFailed, .nukeLocalDatabasesSuccess,
+                .path, .scenePhaseChanged, .splash, .receiveAddressResponse:
                 return .none
             }
         }
     }
 }
 
-/// Biometrics lock after 10 minutes away. Preferences and the clock are read here, not on `State`.
+/// Biometrics or PIN lock after 10 minutes away. Preferences and the clock are read here, not on `State`.
 private func shouldResetToSplash(
     _ state: AppReducer.State,
-    biometricsEnabled: Bool,
+    authLockEnabled: Bool,
     now: Date
 ) -> Bool {
-    guard !state.path.isEmpty, biometricsEnabled, state.splash.lastInactiveTime != nil else { return false }
+    guard !state.path.isEmpty, authLockEnabled, state.splash.lastInactiveTime != nil else { return false }
 
     if let lastInactiveTime = state.splash.lastInactiveTime {
         let tenMinutesAgo = now.addingTimeInterval(-(10 * 60))

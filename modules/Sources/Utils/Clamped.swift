@@ -7,9 +7,7 @@
 // credits: https://iteo.medium.com/swift-property-wrappers-how-to-use-them-right-77095817d1b
 import Foundation
 
-/**
- Limits a value to an enclosing range
- */
+/// Limits a value to an enclosing range.
 @propertyWrapper
 public struct Clamped<Value: Comparable> {
     var value: Value

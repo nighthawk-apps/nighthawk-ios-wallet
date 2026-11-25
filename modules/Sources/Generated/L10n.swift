@@ -368,6 +368,8 @@ public enum L10n {
             public static let title = L10n.tr("Localizable", "nighthawk.dex.title", fallback: "DEX")
         }
         public enum HomeScreen {
+            /// Chat
+            public static let chat = L10n.tr("Localizable", "nighthawk.homeScreen.chat", fallback: "Chat")
             /// Expecting %@ %@
             public static func expectingFunds(_ p1: Any, _ p2: Any) -> String {
                 return L10n.tr("Localizable", "nighthawk.homeScreen.expectingFunds", String(describing: p1), String(describing: p2), fallback: "Expecting %@ %@")

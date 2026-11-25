@@ -255,8 +255,8 @@ public struct DarkfiTransactionOverview: Equatable, Identifiable {
     public var id: String { rawId }
 
     public var date: Date? {
-        guard let ts = timestampEpochSeconds else { return nil }
-        return Date(timeIntervalSince1970: ts)
+        guard let timestamp = timestampEpochSeconds else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
     }
 
     public init(
@@ -314,6 +314,42 @@ public enum ConnectionState: Equatable {
 public enum DarkfiNetwork: String {
     case mainnet
     case testnet
+
+    public static let infoPlistKey = "DarkfiNetwork"
+
+    /// Runtime network detection via host app `Info.plist` (`DarkfiNetwork`),
+    /// with bundle identifier and display name fallbacks so SwiftPM modules
+    /// resolve mainnet vs testnet reliably without `#if STEALTH_MAINNET`.
+    public static func active(bundle: Bundle = .main) -> DarkfiNetwork {
+        if let raw = bundle.object(forInfoDictionaryKey: infoPlistKey) as? String {
+            let normalized = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if let parsed = DarkfiNetwork(rawValue: normalized) {
+                return parsed
+            }
+        }
+        if let bundleId = bundle.bundleIdentifier?.lowercased() {
+            if bundleId.contains("mainnet") {
+                return .mainnet
+            }
+            if bundleId.contains("testnet") {
+                return .testnet
+            }
+        }
+        if let displayName = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String {
+            let lower = displayName.lowercased()
+            if lower.contains("testnet") {
+                return .testnet
+            }
+            if lower == "nighthawk" || lower.contains("mainnet") {
+                return .mainnet
+            }
+        }
+        return .testnet
+    }
+
+    public static var activeLabel: String {
+        active().rawValue
+    }
 }
 
 // MARK: - Error
@@ -341,21 +377,21 @@ extension Error {
 extension DarkfiWalletNativeError {
     /// Prefer the associated message over `String(reflecting:)`, so UI alerts
     /// surface bootstrap failures like sled lock / SQLCipher errors.
-    fileprivate var userFacingMessage: String {
+    var userFacingMessage: String {
         switch self {
-        case .WalletNotInitialized(let message),
-             .InvalidBootstrapConfig(let message),
-             .NativeDrkUnavailable(let message),
-             .ConnectionFailed(let message),
-             .SyncFailed(let message),
-             .CryptoError(let message),
-             .NetworkTimeout(let message),
-             .ServerUnavailable(let message),
-             .InvalidAddress(let message),
-             .InsufficientFunds(let message),
-             .TransactionBuildFailed(let message),
-             .OmrDetectionFailed(let message),
-             .TrialDecryptFailed(let message):
+        case let .WalletNotInitialized(message),
+            let .InvalidBootstrapConfig(message),
+            let .NativeDrkUnavailable(message),
+            let .ConnectionFailed(message),
+            let .SyncFailed(message),
+            let .CryptoError(message),
+            let .NetworkTimeout(message),
+            let .ServerUnavailable(message),
+            let .InvalidAddress(message),
+            let .InsufficientFunds(message),
+            let .TransactionBuildFailed(message),
+            let .OmrDetectionFailed(message),
+            let .TrialDecryptFailed(message):
             return message.isEmpty ? String(describing: self) : message
         }
     }
