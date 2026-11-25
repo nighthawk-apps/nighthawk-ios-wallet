@@ -10,13 +10,13 @@ import Foundation
 import LocalAuthentication
 
 extension DependencyValues {
-    public var localAuthenticationContext: LocalAuthenticationContextClientGenerator {
+    public var localAuthenticationContext: LocalAuthContextClientGenerator {
         get { self[LocalAuthenticationContextGeneratorKey.self] }
         set { self[LocalAuthenticationContextGeneratorKey.self] = newValue }
     }
 
     private enum LocalAuthenticationContextGeneratorKey: DependencyKey {
-        static let liveValue = LocalAuthenticationContextClientGenerator {
+        static let liveValue = LocalAuthContextClientGenerator {
             @Dependency(\.laContext) var laContext
             let context = laContext()
             return LocalAuthenticationContextClient(
@@ -36,7 +36,7 @@ extension DependencyValues {
             )
         }
 
-        static let testValue = LocalAuthenticationContextClientGenerator {
+        static let testValue = LocalAuthContextClientGenerator {
             reportIssue(#"Unimplemented: @Dependency(\.localAuthenticationContext)"#)
             return LocalAuthenticationContextClient(
                 biometryType: { .none },
@@ -47,7 +47,7 @@ extension DependencyValues {
     }
 }
 
-public struct LocalAuthenticationContextClientGenerator: Sendable {
+public struct LocalAuthContextClientGenerator: Sendable {
     private var generate: @Sendable () -> LocalAuthenticationContextClient
 
     /// Initializes an LocalAuthenticationContextClient generator that generates an LocalAuthenticationContextClient from a closure.

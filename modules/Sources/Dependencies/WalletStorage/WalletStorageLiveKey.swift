@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
-import MnemonicSwift
+import Models
 import SecItem
 import Utils
 

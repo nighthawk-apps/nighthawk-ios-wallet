@@ -23,7 +23,7 @@ extension AppReducer {
     func welcomeDelegateReducer() -> Reduce<AppReducer.State, AppReducer.Action> {
         Reduce { state, action in
             switch action {
-            case let .path(.element(id: _, action: .welcome(.createNewWalletTapped))):
+            case .path(.element(id: _, action: .welcome(.createNewWalletTapped))):
                 return createNewWallet()
             case let .path(.element(id: _, action: .welcome(.delegate(delegateAction)))):
                 switch delegateAction {

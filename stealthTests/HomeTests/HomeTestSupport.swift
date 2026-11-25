@@ -34,7 +34,7 @@ enum HomeTestSupport {
         dependencies.processInfo = .testValue
         dependencies.userStoredPreferences = .liveValue
         dependencies.appVersion = .mock
-        dependencies.localAuthenticationContext = LocalAuthenticationContextClientGenerator {
+        dependencies.localAuthenticationContext = LocalAuthContextClientGenerator {
             LocalAuthenticationContextClient(
                 biometryType: { .none },
                 canEvaluatePolicy: { _ in false },

@@ -48,13 +48,7 @@ public struct TorNetworkView: View {
 private extension TorNetworkView {
     var introSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(
-                """
-                Wallet, chat, and node traffic go over the Nym mixnet by default, which hides your IP address from servers. \
-                Chat reaches the public DarkIRC seeds through that same tunnel. Onion-only peers need Tor. \
-                The first connection usually takes a few seconds and can take up to a minute.
-                """
-            )
+            Text(L10n.Nighthawk.SettingsTab.TorNetwork.intro)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -69,9 +63,9 @@ private extension TorNetworkView {
 private extension TorNetworkView {
     var walletNetworkSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            sectionHeading("Wallet network")
+            sectionHeading(L10n.Nighthawk.SettingsTab.TorNetwork.walletNetworkTitle)
 
-            Text("Used for lightwalletd sync and transaction broadcast. Changing it reconnects the wallet.")
+            Text(L10n.Nighthawk.SettingsTab.TorNetwork.walletNetworkSubtitle)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -90,12 +84,12 @@ private extension TorNetworkView {
                         .fill(statusColor(store.nymStatus))
                         .frame(width: 10, height: 10)
 
-                    Text("Nym: \(store.nymStatus.rawValue)")
+                    Text(L10n.Nighthawk.SettingsTab.TorNetwork.nymStatus(store.nymStatus.rawValue))
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
                     if store.nymStatus == .failed || store.nymStatus == .stopped {
-                        Button("Retry") { store.send(.startNym) }
+                        Button(L10n.Nighthawk.Chat.retry) { store.send(.startNym) }
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                             .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     }
@@ -147,17 +141,17 @@ private extension TorNetworkView {
 private extension NighthawkSetting.PrivacyNetwork {
     var title: String {
         switch self {
-        case .nym: return "Nym mixnet (recommended)"
-        case .tor: return "Tor"
-        case .direct: return "Direct"
+        case .nym: return L10n.Nighthawk.SettingsTab.TorNetwork.nymTitle
+        case .tor: return L10n.Nighthawk.SettingsTab.TorNetwork.torTitle
+        case .direct: return L10n.Nighthawk.SettingsTab.TorNetwork.directTitle
         }
     }
 
     var subtitle: String {
         switch self {
-        case .nym: return "Mixes packets across five hops. Chat uses the clearnet seeds through the mixnet. Cannot reach .onion addresses."
-        case .tor: return "Onion routing through built-in Arti or the SOCKS endpoint below."
-        case .direct: return "Connects straight to the server. It sees your IP address."
+        case .nym: return L10n.Nighthawk.SettingsTab.TorNetwork.nymSubtitle
+        case .tor: return L10n.Nighthawk.SettingsTab.TorNetwork.torSubtitle
+        case .direct: return L10n.Nighthawk.SettingsTab.TorNetwork.directSubtitle
         }
     }
 }
@@ -166,14 +160,9 @@ private extension NighthawkSetting.PrivacyNetwork {
 private extension TorNetworkView {
     var builtInTorSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            sectionHeading("Built-in Tor (Arti)")
+            sectionHeading(L10n.Nighthawk.SettingsTab.TorNetwork.builtInTorTitle)
 
-            Text(
-                """
-                Runs Arti (Rust Tor) inside the app and exposes a loopback SOCKS listener. \
-                This is separate from an external Tor/SOCKS app you configure below.
-                """
-            )
+            Text(L10n.Nighthawk.SettingsTab.TorNetwork.builtInTorSubtitle)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 .fixedSize(horizontal: false, vertical: true)
@@ -183,7 +172,7 @@ private extension TorNetworkView {
             // Embedded Arti toggle
             VStack(alignment: .leading, spacing: 4) {
                 torSwitchRow(
-                    title: "Use built-in Arti",
+                    title: L10n.Nighthawk.SettingsTab.TorNetwork.useBuiltInArti,
                     isOn: Binding(
                         get: { store.torMode == .embeddedArti },
                         set: { store.send(.torModeChanged($0 ? .embeddedArti : .externalSocks)) }
@@ -192,7 +181,7 @@ private extension TorNetworkView {
                 )
 
                 if !store.isTorEnabled {
-                    Text("Enable app-wide Tor routing above to use built-in Arti.")
+                    Text(L10n.Nighthawk.SettingsTab.TorNetwork.enableTorHint)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
                         .padding(.leading, 4)
@@ -207,7 +196,7 @@ private extension TorNetworkView {
 private extension TorNetworkView {
     var socksEndpointSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            sectionHeading("SOCKS endpoint")
+            sectionHeading(L10n.Nighthawk.SettingsTab.TorNetwork.socksEndpointTitle)
 
             Text(store.socksDescription)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
@@ -218,7 +207,7 @@ private extension TorNetworkView {
 
             // SOCKS host
             socksField(
-                label: "SOCKS host",
+                label: L10n.Nighthawk.SettingsTab.TorNetwork.socksHost,
                 text: $store.externalSocksAddress,
                 placeholder: "127.0.0.1",
                 enabled: store.isTorEnabled,
@@ -229,7 +218,7 @@ private extension TorNetworkView {
 
             // SOCKS port
             socksField(
-                label: "SOCKS port",
+                label: L10n.Nighthawk.SettingsTab.TorNetwork.socksPort,
                 text: $store.externalSocksPort,
                 placeholder: "9050",
                 enabled: store.isTorEnabled,
@@ -246,12 +235,7 @@ private extension TorNetworkView {
         VStack(alignment: .leading, spacing: 12) {
             Spacer().frame(height: 16)
 
-            Text(
-                """
-                Changing built-in Tor or SOCKS restarts embedded DarkIRC when enabled so P2P/event-graph transport matches. \
-                Open Chat to verify green status lights.
-                """
-            )
+            Text(L10n.Nighthawk.SettingsTab.TorNetwork.footer)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
                 .fixedSize(horizontal: false, vertical: true)
@@ -259,7 +243,7 @@ private extension TorNetworkView {
             Spacer().frame(height: 12)
 
             Button(action: { store.send(.doneTapped) }) {
-                Text("Done")
+                Text(L10n.General.done)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
             }
             .buttonStyle(.nighthawkPrimary())

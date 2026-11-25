@@ -1,385 +1,762 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "सिंक्रनाइज़ेशन के लिए डिस्क पर पर्याप्त जगह नहीं है!";
 
 // MARK: - Common & Shared
-"general.back" = "Back";
-"general.done" = "Done";
-"general.skip" = "Skip";
-"general.next" = "Next";
-"general.send" = "Send";
-"general.clear" = "Clear";
-"general.close" = "Close";
-"general.max" = "Max";
-"general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
-"general.cancel" = "Cancel";
-"general.success" = "Success";
-"general.unknown" = "Unknown";
+"general.back" = "वापस";
+"general.done" = "पूर्ण";
+"general.skip" = "छोड़ें";
+"general.next" = "आगे";
+"general.send" = "भेजें";
+"general.clear" = "साफ़ करें";
+"general.close" = "बंद करें";
+"general.max" = "अधिकतम";
+"general.ok" = "ठीक";
+"general.yes" = "हाँ";
+"general.no" = "नहीं";
+"general.cancel" = "रद्द करें";
+"general.success" = "सफल";
+"general.unknown" = "अज्ञात";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ उपलब्ध";
+"qrCodeFor" = "%@ का QR कोड";
+"general.dateNotAvailable" = "तारीख उपलब्ध नहीं";
 
 //==========================================================
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-// MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+// MARK: - Local authentication
+"nighthawk.localAuthentication.accessWalletReason" = "अपना Nighthawk वॉलेट खोलने के लिए प्रमाणित करें।";
+"nighthawk.localAuthentication.sendFundsReason" = "वॉलेट से धन भेजने के लिए प्रमाणित करें।";
 
 // MARK: - About screen
-"nighthawk.about.title" = "About";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.title" = "परिचय";
+"nighthawk.about.message" = "Nighthawk, DarkFi के लिए डिफ़ॉल्ट रूप से निजी वॉलेट है। सभी लेनदेन पूरी तरह निजी हैं और पारदर्शी पते समर्थित नहीं हैं।\n\nयह नॉन-कस्टोडियल वॉलेट है, इसलिए धन की पूरी ज़िम्मेदारी आपकी है। वॉलेट बनाते ही सीड शब्दों का तुरंत और सुरक्षित बैकअप लें।\n\nDarkFi अनाम ऐप और निजी वित्त के लिए बनी layer-1 ब्लॉकचेन है। इसे DarkFi समुदाय ने वित्तीय स्वतंत्रता के लिए डिज़ाइन किया।\n\nNighthawk Wallet सीधे DarkFi P2P नेटवर्क से जुड़ता है। यह सॉफ़्टवेयर «जैसा है» के आधार पर दिया जाता है, बिना किसी स्पष्ट या निहित वारंटी के।";
+"nighthawk.about.viewSource" = "स्रोत कोड देखें";
+"nighthawk.about.nighthawkFriends" = "Nighthawk मित्र";
+"nighthawk.about.viewLicenses" = "लाइसेंस देखें";
 
 // MARK: - Licenses Screen
-"nighthawk.licenses.title" = "OSS Licenses";
+"nighthawk.licenses.title" = "OSS लाइसेंस";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "SDK आरंभ नहीं हो सका";
+"nighthawk.app.launch.alert.error.message" = "त्रुटि: %@ (कोड: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "वॉलेट हटाया नहीं जा सका";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "Great!";
-"nighthawk.autoshield.buttonNeutral" = "Learn more";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Open the browser to read about DarkFi addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "Shielding…";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Success";
-"nighthawk.autoshield.shieldingFailed" = "Failed";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk है";
+"nighthawk.autoshield.shieldedByDefault" = "डिफ़ॉल्ट रूप से निजी।";
+"nighthawk.autoshield.title2" = "DarkFi पर सभी लेनदेन निजी हैं। न कोई पारदर्शी पता है, न शील्डेड पूल — सब कुछ निजी है।";
+"nighthawk.autoshield.autoshielding" = "गोपनीयता";
+"nighthawk.autoshield.detail1" = "सारा धन हमेशा निजी रहता है। DarkFi में पारदर्शी पते की अवधारणा नहीं है।";
+"nighthawk.autoshield.detail2" = "हम गोपनीयता की नई सर्वोत्तम प्रथाओं और सुझावों की नियमित जानकारी देते रहेंगे।";
+"nighthawk.autoshield.buttonPositive" = "बढ़िया!";
+"nighthawk.autoshield.buttonNeutral" = "और जानें";
+"nighthawk.autoshield.alert.redirecting.title" = "DarkFi पर जा रहे हैं";
+"nighthawk.autoshield.alert.redirecting.details" = "DarkFi की गोपनीयता के बारे में जानने के लिए डिवाइस का ब्राउज़र खोलने की पुष्टि करें।";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "ब्राउज़र खोलें";
+"nighthawk.autoshield.shielding" = "प्रोसेस हो रहा है…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "सफल";
+"nighthawk.autoshield.shieldingFailed" = "विफल";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
-"nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.retry" = "फिर कोशिश करें";
+"nighthawk.splash.subtitle" = "निजी पैसा आपकी जेब में।";
+"nighthawk.splash.initialization.alert.failed.title" = "वॉलेट आरंभ नहीं हो सका।";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "ऐप आरंभ स्थिति: %@।";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
-"nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.title" = "पुराने ऐप संस्करण से स्थानांतरण";
+"nighthawk.migrateScreen.explanation" = "हम डेटा को स्थानीय रूप से नए, अधिक सुरक्षित तरीके से रखते हैं, इसलिए वॉलेट बहाल करने के लिए आपके सीड शब्दों को स्थानांतरित करना होगा। अगर आप स्वचालित स्थानांतरण नहीं चाहते, तो सीड शब्द खुद दर्ज करके वॉलेट बहाल करना होगा।\n\nक्या आप स्वचालित रूप से आगे बढ़ना चाहते हैं?";
+"nighthawk.migrateScreen.continue" = "जारी रखें";
+"nighthawk.migrateScreen.restoreManually" = "मैन्युअल रूप से बहाल करें";
+"nighthawk.migrateScreen.migrationFailed.title" = "स्थानांतरण विफल";
+"nighthawk.migrateScreen.migrationFailed.description" = "एक त्रुटि हुई और हम वॉलेट को स्वचालित रूप से स्थानांतरित नहीं कर सके। वॉलेट को मैन्युअल रूप से आयात करने के लिए जारी रखें पर टैप करें।";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "This app is free software. Use is covered only by its license.";
-"nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "शुरू करें";
+"nighthawk.welcome.body" = "अगर आप Nighthawk पहली बार इस्तेमाल कर रहे हैं, तो वॉलेट बनाना होगा। अगर आप वापस आ रहे हैं, तो पिछला वॉलेट बहाल कर सकते हैं।";
+"nighthawk.welcome.terms1" = "यह ऐप मुक्त सॉफ़्टवेयर है। उपयोग केवल इसकी लाइसेंस शर्तों के अधीन है।";
+"nighthawk.welcome.create" = "वॉलेट बनाएँ";
+"nighthawk.welcome.restore" = "बैकअप से बहाल करें";
+"nighthawk.welcome.initialization.alert.failed.title" = "वॉलेट आरंभ नहीं हो सका।";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "नया वॉलेट नहीं बन सका। त्रुटि: %@ (कोड: %@)";
+"nighthawk.welcome.carousel.title1" = "डिफ़ॉल्ट रूप से निजी";
+"nighthawk.welcome.carousel.body1" = "सभी लेनदेन पूरी तरह निजी हैं। न पारदर्शी पते, न मेटाडेटा लीक। आपका वित्तीय जीवन आपका ही रहता है।";
+"nighthawk.welcome.carousel.title2" = "पीयर-टू-पीयर नेटवर्क";
+"nighthawk.welcome.carousel.body2" = "Tor के ज़रिए सीधे DarkFi नेटवर्क से जुड़ें। कोई बीच का सर्वर नहीं। भरोसा करने के लिए कोई एंडपॉइंट नहीं।";
+"nighthawk.welcome.carousel.title3" = "एन्क्रिप्टेड चैट";
+"nighthawk.welcome.carousel.body3" = "DarkIRC के ज़रिए एंड-टू-एंड एन्क्रिप्टेड संदेश भेजें। निजी बातचीत आपके वॉलेट में बनी है।";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Backup your wallet";
-"nighthawk.walletCreated.skip" = "Skip for now";
+"nighthawk.walletCreated.title" = "वॉलेट बन गया! बधाई हो!";
+"nighthawk.walletCreated.backupImmediately" = "आपके धन की सुरक्षा और अनचाहे परिणामों से बचने के लिए हम दृढ़ता से सलाह देते हैं कि वॉलेट का बैकअप लें। याद रखें: यह स्व-अभिरक्षा वाला वॉलेट है और धन संभालने की ज़िम्मेदारी पूरी तरह आपकी है।";
+"nighthawk.walletCreated.backup" = "वॉलेट का बैकअप लें";
+"nighthawk.walletCreated.skip" = "अभी छोड़ें";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
-"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
-"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.title" = "अपना बैकअप सीड लिख लें";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "अगर फ़ोन या Nighthawk वॉलेट तक पहुँच खो जाए, तो DarkFi केवल इन 22 शब्दों और वॉलेट जन्मदिन कोड से वापस मिल सकता है।";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "इसे कागज़ पर लिखें और सुरक्षित जगह रखें।";
+"nighthawk.recoveryPhraseDisplay.birthday" = "वॉलेट जन्मदिन:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "पुष्टि है कि सीड वाक्यांश सहेज ली गई है।";
+"nighthawk.recoveryPhraseDisplay.continue" = "जारी रखें";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "PDF के रूप में निर्यात करें";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "इन सीड शब्दों से आप Nighthawk Wallet में अपना DarkFi बहाल करते हैं:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "बैकअप PDF %@ पर बना";
 
 // MARK: - Export seed
-"nighthawk.exportSeed.title" = "Export as PDF";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
-"nighthawk.exportSeed.export" = "Export PDF";
-"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+"nighthawk.exportSeed.title" = "PDF के रूप में निर्यात करें";
+"nighthawk.exportSeed.description" = "सीड शब्दों को पासवर्ड से सुरक्षित PDF में निर्यात करें, जिसे आप अपने सुरक्षित पोर्टेबल स्टोरेज पर रख सकते हैं।";
+"nighthawk.exportSeed.export" = "PDF निर्यात करें";
+"nighthawk.exportSeed.passwordPlaceholder" = "कृपया पासवर्ड दर्ज करें";
 
 // MARK: - Import warning
-"nighthawk.importWarning.title" = "Before you continue";
-"nighthawk.importWarning.description" = "Please only import a seed phrase that was initially generated by Nighthawk. Other wallets operate differently, which may lead to inaccurate reporting of funds for your transactions.";
-"nighthawk.importWarning.proceed" = "Proceed";
+"nighthawk.importWarning.title" = "आगे बढ़ने से पहले";
+"nighthawk.importWarning.description" = "केवल वही सीड वाक्यांश आयात करें जो मूल रूप से Nighthawk में बना हो। दूसरे वॉलेट अलग तरीके से काम करते हैं, जिससे लेनदेन का धन गलत दिख सकता है।";
+"nighthawk.importWarning.proceed" = "आगे बढ़ें";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
-"nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (optional)";
-"nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.restoreFromBackup" = "बैकअप से बहाल करें";
+"nighthawk.importWallet.enterSeedPhrase" = "नीचे अपनी 22 शब्दों की सीड वाक्यांश दर्ज करें। अगर यह वाक्यांश नहीं है, तो नया वॉलेट बनाना होगा।";
+"nighthawk.importWallet.yourSeedPhrase" = "आपकी सीड वाक्यांश";
+"nighthawk.importWallet.birthdayHeight" = "जन्मदिन ऊँचाई (वैकल्पिक)";
+"nighthawk.importWallet.continue" = "जारी रखें";
+"nighthawk.importWallet.invalidMnemonic" = "त्रुटि ⸱ यह मान्य सीड वाक्यांश नहीं लगती";
+"nighthawk.importWallet.invalidBirthday" = "त्रुटि ⸱ यह मान्य जन्मदिन ऊँचाई नहीं लगती";
+"nighthawk.importWallet.alert.failed.title" = "वॉलेट बहाल नहीं हो सका";
+"nighthawk.importWallet.alert.failed.message" = "त्रुटि: %@ (कोड: %@)";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Success";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "सफल";
+"nighthawk.importWalletSuccess.viewWallet" = "वॉलेट देखें";
 
 // MARK: - Transactions
-"nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "Receiving";
-"nighthawk.transaction.failed" = "Failed";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.sending" = "भेजा जा रहा है";
+"nighthawk.transaction.receiving" = "प्राप्त हो रहा है";
+"nighthawk.transaction.failed" = "विफल";
+"nighthawk.transaction.received" = "प्राप्त";
+"nighthawk.transaction.sent" = "भेजा गया";
 
 // MARK: - Home Screen
-"nighthawk.homeScreen.wallet" = "Wallet";
-"nighthawk.homeScreen.transfer" = "Transfer";
-"nighthawk.homeScreen.settings" = "Settings";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.chat" = "चैट";
+"nighthawk.homeScreen.wallet" = "वॉलेट";
+"nighthawk.homeScreen.transfer" = "ट्रांसफ़र";
+"nighthawk.homeScreen.dex" = "DEX";
+"nighthawk.homeScreen.settings" = "सेटिंग्स";
+"nighthawk.homeScreen.expectingFunds" = "अपेक्षित %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "जल्द आ रहा है";
+"nighthawk.dex.comingSoonBody" = "DarkFi DEX यहीं होगा। भेजना, प्राप्त करना और अनुरोध वॉलेट टैब पर रहेंगे।";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
-"nighthawk.walletTab.totalBalance" = "Total balance";
-"nighthawk.walletTab.shieldedBalance" = "Private balance";
-"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.swipeToShowBalances" = "शेष देखने के लिए बाएँ स्वाइप करें";
+"nighthawk.walletTab.totalBalance" = "कुल शेष";
+"nighthawk.walletTab.shieldedBalance" = "निजी शेष";
+"nighthawk.walletTab.transparentBalance" = "निजी शेष";
 "nighthawk.walletTab.drk" = "DRK";
-"nighthawk.walletTab.recentActivity" = "Recent activity";
-"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.recentActivity" = "हाल की गतिविधि";
+"nighthawk.walletTab.viewTransactionHistory" = "लेनदेन इतिहास देखें";
+"nighthawk.walletTab.shieldNow" = "रीफ़्रेश";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.receiveAddress" = "Unified address";
-"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
-"nighthawk.walletTab.addresses.copy" = "Copy";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.receiveAddress" = "गोपनीयता पता";
+"nighthawk.walletTab.addresses.transparentAddress" = "गोपनीयता पता";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "वॉलेट टॉप अप करें";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "हमारे चुने हुए साझेदारों के ज़रिए DarkFi खरीदें या बदलें।";
+"nighthawk.walletTab.addresses.copy" = "कॉपी करें";
+"nighthawk.walletTab.addresses.seeMore" = "और देखें";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "क्लिपबोर्ड पर कॉपी हो गया!";
+"nighthawk.walletTab.addresses.loading" = "लोड हो रहा है…";
 
 // MARK: - Home Screen - Transaction history
-"nighthawk.transactionHistory.title" = "Transaction History";
+"nighthawk.transactionHistory.title" = "लेनदेन इतिहास";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-private funds";
+"nighthawk.transactionHistory.autoshieldedFunds" = "निजी धन";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
-"nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparing to scan";
-"nighthawk.sync.message.finalizing" = "Finalizing";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "अद्यतन";
+"nighthawk.sync.message.unprepared" = "कनेक्ट हो रहा है…";
+"nighthawk.sync.message.error" = "त्रुटि: %@";
+"nighthawk.sync.message.sync" = "स्कैन हो रहा है…%@%%";
+"nighthawk.sync.message.preparing" = "स्कैन की तैयारी";
+"nighthawk.sync.message.finalizing" = "पूरा किया जा रहा है";
+"nighthawk.sync.message.stopped" = "रुका हुआ";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveDarkFi" = "Send and receive DarkFi";
-"nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
-"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
-"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "DarkFi भेजें और प्राप्त करें";
+"nighthawk.transferTab.sendMoneyTitle" = "पैसे भेजें";
+"nighthawk.transferTab.sendMoneyDescription" = "किसी का QR कोड स्कैन करके पैसे भेजें।";
+"nighthawk.transferTab.receiveMoneyTitle" = "पैसे प्राप्त करें";
+"nighthawk.transferTab.receiveMoneyDescription" = "अपना QR कोड दिखाएँ या पता कॉपी करें।";
+"nighthawk.walletTab.actionSend" = "भेजें";
+"nighthawk.walletTab.actionReceive" = "प्राप्त करें";
+"nighthawk.walletTab.actionRequest" = "अनुरोध करें";
+"nighthawk.transferTab.topUpWalletTitle" = "वॉलेट टॉप अप करें";
+"nighthawk.transferTab.topUpWalletDescription" = "हमारे साझेदारों के ज़रिए DarkFi सुरक्षित रूप से खरीदें।";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
-"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyAddressTitle" = "Copy address";
-"nighthawk.transferTab.receive.copyAddressDescription" = "Your wallet address will be copied to the clipboard.";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "निजी रूप से पैसे प्राप्त करें";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "QR कोड दिखाएँ";
+"nighthawk.transferTab.receive.copyAddressTitle" = "गोपनीयता पता कॉपी करें";
+"nighthawk.transferTab.receive.copyAddressDescription" = "आपका वॉलेट पता क्लिपबोर्ड पर कॉपी होगा।";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "StealthEx.io से स्वैप करें";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "बिना सीमा के सिक्के बदलें।";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "%@ से वॉलेट टॉप अप करें?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "%@ क्लिपबोर्ड पर कॉपी हो गया है।\n\nनीचे «ब्राउज़र खोलें» चुनें, '%@' को %@ साइट पर प्राप्त सिक्के के रूप में चुनें और फिर %@ चिपकाएँ";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "ब्राउज़र खोलें";
 
 // MARK: - Home Screen - Transfer - Send
-"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
-"nighthawk.transferTab.send.continue" = "Continue";
-"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
-"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
-"nighthawk.transferTab.send.error" = "Error";
+"nighthawk.transferTab.send.chooseHowMuch" = "कितना भेजना है चुनें";
+"nighthawk.transferTab.send.spendableBalance" = "खर्च योग्य शेष (tx शुल्क सहित) %@ %@ है";
+"nighthawk.transferTab.send.continue" = "जारी रखें";
+"nighthawk.transferTab.send.topUpWallet" = "वॉलेट टॉप अप करें";
+"nighthawk.transferTab.send.scanCode" = "भुगतान कोड स्कैन करें";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "पर्याप्त DRK नहीं!";
+"nighthawk.transferTab.send.around" = "लगभग %@ %@";
+"nighthawk.transferTab.send.error" = "त्रुटि";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
-"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+"nighthawk.transferTab.scan.scanPaymentRequest" = "भुगतान अनुरोध स्कैन करें";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "अगर आपके पास भुगतान अनुरोध है, तो सारी जानकारी अपने आप भरने के लिए यहाँ QR कोड स्कैन करें।";
 
 // MARK: - Home Screen - Transfer - Add memo
-"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "अपने भुगतान में संदेश जोड़ें";
+"nighthawk.transferTab.addMemo.writeSomething" = "कुछ लिखें...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "उत्तर-पता शामिल करें";
 
 // MARK: - Home Screen - Transfer - Recipient
-"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addAddress" = "Add address here";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
-"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
-"nighthawk.transferTab.recipient.continue" = "Continue";
+"nighthawk.transferTab.recipient.chooseRecipient" = "किसे भेजना है चुनें";
+"nighthawk.transferTab.recipient.addAddress" = "पता यहाँ जोड़ें";
+"nighthawk.transferTab.recipient.invalid" = "कृपया मान्य प्राप्तकर्ता दर्ज करें";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "TEX पतों पर भेजना समर्थित नहीं है, क्योंकि वे कम गोपनीयता देते हैं";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "क्लिपबोर्ड से चिपकाएँ";
+"nighthawk.transferTab.recipient.continue" = "जारी रखें";
 
 // MARK: - Home Screen - Transfer - Review
-"nighthawk.transferTab.review.title" = "Review and send";
-"nighthawk.transferTab.review.send" = "Send DarkFi";
+"nighthawk.transferTab.review.title" = "जाँचें और भेजें";
+"nighthawk.transferTab.review.send" = "DarkFi भेजें";
 
 // MARK: - Home Screen - Transfer - Sending
-"nighthawk.transferTab.sending.title" = "Sending";
+"nighthawk.transferTab.sending.title" = "भेजा जा रहा है";
 
 // MARK: - Home Screen - Transfer - Failed
-"nighthawk.transferTab.failed.title" = "Failed";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
-"nighthawk.transferTab.failed.cancel" = "Cancel";
+"nighthawk.transferTab.failed.title" = "विफल";
+"nighthawk.transferTab.failed.tryAgain" = "फिर कोशिश करें";
+"nighthawk.transferTab.failed.cancel" = "रद्द करें";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Success";
-"nighthawk.transferTab.success.done" = "Done";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.title" = "सफल";
+"nighthawk.transferTab.success.done" = "पूर्ण";
+"nighthawk.transferTab.success.moreDetails" = "अधिक विवरण";
 
 // MARK: - Home Screen - Settings tab
-"nighthawk.settingsTab.settings" = "Settings";
-"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
-"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
-"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
-"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
-"nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
-"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
-"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Change server";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "External services";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "Advanced";
-"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
-"nighthawk.settingsTab.aboutTitle" = "About";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.settings" = "सेटिंग्स";
+"nighthawk.settingsTab.notificationsTitle" = "सिंक सूचनाएँ";
+"nighthawk.settingsTab.notificationsSubtitle" = "वॉलेट को अद्यतन रखने की याद दिलाती हैं";
+"nighthawk.settingsTab.fiatTitle" = "फ़िएट मुद्रा";
+"nighthawk.settingsTab.fiatSubtitle" = "अपनी स्थानीय मुद्रा चुनें";
+"nighthawk.settingsTab.securityTitle" = "सुरक्षा";
+"nighthawk.settingsTab.securitySubtitle" = "%@ चालू/बंद करें";
+"nighthawk.settingsTab.backupTitle" = "वॉलेट का बैकअप लें";
+"nighthawk.settingsTab.backupSubtitle" = "फ़ोन खो जाने पर वॉलेट सुरक्षित रखें";
+"nighthawk.settingsTab.rescanTitle" = "वॉलेट फिर से स्कैन करें";
+"nighthawk.settingsTab.rescanSubtitle" = "समस्याओं के लिए शेष फिर से स्कैन करें";
+"nighthawk.settingsTab.alert.rescan.title" = "इस वॉलेट को फिर से स्कैन करें?";
+"nighthawk.settingsTab.alert.rescan.message" = "इतिहास की लंबाई के अनुसार दोबारा स्कैन में 10 घंटे तक लग सकते हैं। क्या स्कैन शुरू करें?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "मिटाएँ";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "दोबारा स्कैन विफल";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "त्रुटि: %@ (कोड: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "रीवाइंड के बाद सिंक शुरू नहीं हो सका";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "त्रुटि: %@ (कोड: %@)";
+"nighthawk.settingsTab.changeServerTitle" = "सर्वर बदलें";
+"nighthawk.settingsTab.changeServerSubtitle" = "बैकएंड सर्वर बदलें";
+"nighthawk.settingsTab.chatSettingsTitle" = "चैट सेटिंग्स";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "E2E एन्क्रिप्शन, DAG सिंक, एम्बेडेड darkirc";
+"nighthawk.settingsTab.networkPrivacyTitle" = "नेटवर्क गोपनीयता";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "वॉलेट Nym, Tor या सीधे; चैट Tor पर";
+"nighthawk.settingsTab.selectSettingPrompt" = "खोलने के लिए बाईं ओर कोई सेटिंग चुनें।";
+"nighthawk.settingsTab.externalServicesTitle" = "बाहरी सेवाएँ";
+"nighthawk.settingsTab.externalServicesSubtitle" = "साझेदार सेवाएँ चुनकर चालू करें";
+"nighthawk.settingsTab.advancedTitle" = "उन्नत";
+"nighthawk.settingsTab.advancedSubtitle" = "कम इस्तेमाल होने वाली सेटिंग्स";
+"nighthawk.settingsTab.aboutTitle" = "परिचय";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ और लाइसेंस";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
-"nighthawk.settingsTab.syncNotifications.title" = "Sync notifications";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.title" = "सिंक सूचनाएँ";
+"nighthawk.settingsTab.syncNotifications.description" = "जब Nighthawk वॉलेट लंबे समय तक बंद रहे, तो दोबारा इस्तेमाल करने पर शुरू होने में अधिक समय लगेगा।";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "हर हफ़्ते वॉलेट खोलने की याद दिलाने वाली सिंक सूचनाएँ अनुमति दें।";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "हर महीने वॉलेट खोलने की याद दिलाने वाली सिंक सूचनाएँ अनुमति दें।";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "साप्ताहिक";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "मासिक";
+"nighthawk.settingsTab.syncNotifications.offOption" = "बंद";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "अनुमति अस्वीकृत";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "सिंक सूचनाएँ भेजने के लिए Nighthawk को अनुमति चाहिए। सेटिंग्स खोलें और आवश्यक अनुमति दें।";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "सेटिंग्स पर जाएँ";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "सिंक का समय!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "Nighthawk खोलें और वॉलेट सिंक करें, ताकि ज़रूरत पड़ने पर धन खर्च के लिए तैयार हो!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "सूचना शेड्यूल नहीं हो सकी";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "इस समय आपकी सिंक सूचना शेड्यूल नहीं हो सकी।";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
-"nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.title" = "फ़िएट मुद्रा";
+"nighthawk.settingsTab.fiatCurrency.description" = "अपनी स्थानीय मुद्रा चुनें, ताकि हम बता सकें कि आपके %@ की अनुमानित कीमत कितनी है।\n\nऐप पहली बार खुलने पर विनिमय दर CoinGecko API v3 से ली जाती है और गणना में इस्तेमाल होती है। आपकी धनराशि कभी किसी सर्वर को नहीं बताई जाती।";
+"nighthawk.settingsTab.fiatCurrency.usd" = "अमेरिकी डॉलर";
+"nighthawk.settingsTab.fiatCurrency.eur" = "यूरो";
+"nighthawk.settingsTab.fiatCurrency.inr" = "भारतीय रुपया";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "जापानी येन";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "ब्रिटिश पाउंड";
+"nighthawk.settingsTab.fiatCurrency.cad" = "कनाडाई डॉलर";
+"nighthawk.settingsTab.fiatCurrency.aud" = "ऑस्ट्रेलियाई डॉलर";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "हाँगकाँग डॉलर";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "सिंगापुर डॉलर";
+"nighthawk.settingsTab.fiatCurrency.chf" = "स्विस फ़्रैंक";
+"nighthawk.settingsTab.fiatCurrency.cny" = "चीनी युआन";
+"nighthawk.settingsTab.fiatCurrency.krw" = "कोरियाई वॉन";
+"nighthawk.settingsTab.fiatCurrency.off" = "बंद";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ सक्षम";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ अक्षम";
+"nighthawk.settingsTab.security.disableValidationReason" = "%@ अक्षम करने के लिए प्रमाणित करें";
+"nighthawk.settingsTab.security.enableValidationReason" = "%@ सक्षम करने के लिए प्रमाणित करें";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
-"nighthawk.settingsTab.changeServer.custom" = "Custom";
-"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
-"nighthawk.settingsTab.changeServer.save" = "Save";
-"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.title" = "सर्वर बदलें";
+"nighthawk.settingsTab.changeServer.default" = "डिफ़ॉल्ट (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "कस्टम";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "त्रुटि ⸱ यह मान्य सर्वर पता नहीं लगता";
+"nighthawk.settingsTab.changeServer.save" = "सहेजें";
+"nighthawk.settingsTab.changeServer.disclaimer" = "कस्टम सर्वर Nighthawk द्वारा नहीं चलाए जाते। लेनदेन में बेहतर गोपनीयता के लिए Tor सुझाते हैं।";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "सर्वर नहीं बदला जा सका";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "त्रुटि: %@ (कोड: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "सीड शब्द देखें?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "चेतावनी: सुनिश्चित करें कि फ़ोन केवल आप देख रहे हैं। अगली स्क्रीन पर वॉलेट का सीड दिखेगा।";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "सीड देखें";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
-"nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "Default";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.title" = "उन्नत सेटिंग्स";
+"nighthawk.settingsTab.advanced.screenMode.title" = "स्क्रीन चालू रखें";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "अगर वॉलेट कुछ समय से नहीं खोला, तो सिंक में समय लग सकता है। «चालू रखें» मोड से फ़ोन सिंक के दौरान सोता नहीं।";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "चालू रखें";
+"nighthawk.settingsTab.advanced.screenMode.off" = "बंद";
+"nighthawk.settingsTab.advanced.appIcon.title" = "ऐप आइकन";
+"nighthawk.settingsTab.advanced.appIcon.default" = "डिफ़ॉल्ट";
+"nighthawk.settingsTab.advanced.appIcon.retro" = "रेट्रो";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "ऐप आइकन अपडेट हो गया!";
+"nighthawk.settingsTab.advanced.theme.title" = "थीम";
+"nighthawk.settingsTab.advanced.theme.default" = "सिस्टम (Cyberpunk)";
+"nighthawk.settingsTab.advanced.theme.light" = "लाइट";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "ग्रेफाइट एक्सेंट के साथ धुंधले न्यूट्रल।";
+"nighthawk.settingsTab.advanced.theme.midnight" = "मिडनाइट";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "बैंगनी एक्सेंट के साथ गहरा आधार।";
+"nighthawk.settingsTab.advanced.theme.paper" = "पेपर";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "स्टाइल के साथ nighthawk में प्रवेश करें";
+"nighthawk.chat.peers" = "पीयर";
+"nighthawk.chat.retry" = "फिर कोशिश करें";
+"nighthawk.chat.outboundPeers" = "आउटबाउंड पीयर";
+"nighthawk.chat.title" = "DarkFi IRC";
+"nighthawk.chat.subtitle" = "एंड-टू-एंड एन्क्रिप्टेड चैट\nDarkFi P2P नेटवर्क द्वारा संचालित";
+"nighthawk.chat.connect" = "कनेक्ट करें";
+"nighthawk.chat.networkHint" = "नेटवर्क सेटिंग्स जाँचें या सेटिंग्स में Tor कॉन्फ़िगर करें।";
+"nighthawk.chat.newDm" = "नया DM";
+"nighthawk.chat.request" = "अनुरोध";
+"nighthawk.chat.settings" = "सेटिंग्स";
+"nighthawk.chat.shareKey" = "कुंजी साझा करें";
+"nighthawk.chat.noMessages" = "अभी कोई संदेश नहीं";
+"nighthawk.chat.ircStatus" = "IRC: %@";
+"nighthawk.chat.nodeStatus" = "नोड: %@";
+"nighthawk.receive.sendAndReceive" = "DRK भेजें और प्राप्त करें";
+"nighthawk.receive.receivePrivately" = "निजी रूप से पैसे प्राप्त करें";
+"nighthawk.receive.showQr" = "QR कोड दिखाएँ";
+"nighthawk.receive.showQrDetail" = "किसी को स्कैन करने दें, ताकि वे आपको पैसे भेज सकें।";
+"nighthawk.receive.copyAddress" = "निजी पता कॉपी करें";
+"nighthawk.receive.copyAddressDetail" = "आपका वॉलेट पता क्लिपबोर्ड पर कॉपी होगा।";
+"nighthawk.settingsTab.advanced.theme.dark" = "डार्क";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "सावधानी: यह वॉलेट पूरी तरह मिटा देता है — सीड शब्द, SQLCipher पास और डिवाइस पर डेटाबेस। सीड के बिना धन वापस नहीं मिल सकता। नया वॉलेट बनाने या बहाल करने से पहले ऐप बंद करके Nighthawk फिर खोलें।";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "वॉलेट मिटाएँ";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "क्या आप निश्चित हैं?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "यह कार्रवाई अपरिवर्तनीय है। सीड शब्दों के बिना धन बहाल करना असंभव होगा। आगे बढ़ने से पहले बिल्कुल सुनिश्चित करें कि वे सुरक्षित जगह सहेजे हैं। फिर भी आगे बढ़ें?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "अंतिम चेतावनी";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "वॉलेट मिटाना अत्यंत संवेदनशील काम है। इतना कि नया वॉलेट बनाने या बहाल करने से पहले ऐप को खुद बंद करके Nighthawk फिर से चालू करना होगा।";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "पुष्टि है, वॉलेट मिटाएँ";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "स्थानीय डेटाबेस हटाएँ";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "केवल डिवाइस पर वॉलेट DB और सिंक कैश हटाता है। सीड शब्द Keychain में रहते हैं, ताकि आप फिर खोलकर स्कैन कर सकें। इसका उपयोग तब करें जब नेटिव अपग्रेड पुराना डेटाबेस न खोल सके।";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "स्थानीय डेटाबेस हटाएँ?";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "इससे इस डिवाइस पर darkfi_wallet.db और darkfi_cache हटेंगे। आपकी पुनर्प्राप्ति वाक्यांश रहेगी। वॉलेट फिर खुलेगा और नेटवर्क को नए सिरे से स्कैन करेगा।";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "डेटाबेस हटाएँ";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "स्थानीय डेटाबेस साफ़ हो गए";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "वॉलेट डेटा हटा दिया गया। सीड से फिर खोलना और नया स्कैन शुरू करना।";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "स्थानीय डेटाबेस नहीं हटाए जा सके";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "External services";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "बाहरी सेवाएँ";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Unstoppable Domain Service सक्षम करें";
 
 // MARK: - Transaction details
-"nighthawk.transactionDetails.title" = "Transaction details";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
-"nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Time (UTC)";
-"nighthawk.transactionDetails.transparent" = "Transparent";
-"nighthawk.transactionDetails.blockId" = "Block ID";
-"nighthawk.transactionDetails.confirmations" = "Confirmations";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "Transaction ID";
-"nighthawk.transactionDetails.recipient" = "Recipient";
-"nighthawk.transactionDetails.recipientShielded" = "Private";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
-"nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Total amount";
-"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
-"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
+"nighthawk.transactionDetails.title" = "लेनदेन विवरण";
+"nighthawk.transactionDetails.notAvailable" = "लेनदेन विवरण उपलब्ध नहीं हैं। कृपया स्कैन पूरा होने तक प्रतीक्षा करें";
+"nighthawk.transactionDetails.memo" = "मेमो";
+"nighthawk.transactionDetails.time" = "समय (UTC)";
+"nighthawk.transactionDetails.transparent" = "पारदर्शी";
+"nighthawk.transactionDetails.blockId" = "ब्लॉक ID";
+"nighthawk.transactionDetails.confirmations" = "पुष्टियाँ";
+"nighthawk.transactionDetails.unconfirmed" = "अपुष्ट";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "ब्लॉक एक्सप्लोरर पर देखें";
+"nighthawk.transactionDetails.transactionId" = "लेनदेन ID";
+"nighthawk.transactionDetails.recipient" = "प्राप्तकर्ता";
+"nighthawk.transactionDetails.recipientShielded" = "निजी";
+"nighthawk.transactionDetails.recipientTransparent" = "निजी";
+"nighthawk.transactionDetails.address" = "पता";
+"nighthawk.transactionDetails.networkFee" = "नेटवर्क शुल्क";
+"nighthawk.transactionDetails.totalAmount" = "कुल राशि";
+"nighthawk.transactionDetails.viewOnExplorer" = "एक्सप्लोरर पर देखें";
+"nighthawk.transactionDetails.leavingWallet" = "Nighthawk Wallet छोड़ रहे हैं";
+"nighthawk.transactionDetails.leavingWarning" = "आमतौर पर यह स्वीकार्य जोखिम है, लेकिन %@ पर जाने से इस लेनदेन ID में आपकी रुचि सामने आ सकती है";
+"nighthawk.transactionDetails.viewTxDetails" = "TX विवरण देखें";
+"nighthawk.transactionDetails.fiat.around" = "लगभग %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "उत्तर-पता कॉपी हो गया!";
 
 
 // MARK: - Transaction
-"nighthawk.transaction.confirmed" = "Confirmed";
+"nighthawk.transaction.confirmed" = "पुष्ट";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "इस वॉलेट ने जिन DAO को स्कैन किया है। कोष से एक भुगतान वोट का इंतज़ार कर रहा है।";
+"nighthawk.daoHub.emptyTitle" = "सिंक को अभी तक कोई DAO नहीं मिली।";
+"nighthawk.daoHub.emptyBody" = "रीफ़्रेश करें, या इस वॉलेट से DAO शुरू करें।";
+"nighthawk.daoHub.refresh" = "रीफ़्रेश";
+"nighthawk.daoHub.startGroup" = "DAO शुरू करें";
+"nighthawk.daoHub.importGroup" = "DAO आयात करें";
+"nighthawk.daoHub.treasury" = "कोष";
+"nighthawk.daoHub.treasuryHint" = "कोष चिह्न के बिना DAO को भेजे सिक्के बाद में नहीं चुकाए जा सकते।";
+"nighthawk.daoHub.notScannedYet" = "अभी तक स्कैन नहीं";
+"nighthawk.daoHub.proposePayment" = "भुगतान प्रस्तावित करें";
+"nighthawk.daoHub.addFunds" = "धन जोड़ें";
+"nighthawk.daoHub.addFundsHint" = "इससे सिक्के चिह्नित होते हैं, ताकि DAO उन्हें बाद में चुका सके।";
+"nighthawk.daoHub.amount" = "राशि";
+"nighthawk.daoHub.votes" = "वोट";
+"nighthawk.daoHub.noVotes" = "अभी कोई वोट नहीं।";
+"nighthawk.daoHub.tokens" = "टोकन";
+"nighthawk.daoHub.issueMore" = "और जारी करें";
+"nighthawk.daoHub.freezeSupply" = "आपूर्ति फ़्रीज़ करें";
+"nighthawk.daoHub.issueToken" = "टोकन जारी करें";
+"nighthawk.daoHub.admin" = "एडमिन";
+"nighthawk.daoHub.proposer" = "प्रस्तावक";
+"nighthawk.daoHub.voter" = "मतदाता";
+"nighthawk.daoHub.executor" = "निष्पादक";
+"nighthawk.daoHub.fullCopy" = "पूर्ण प्रति";
+"nighthawk.daoHub.observer" = "पर्यवेक्षक";
+"nighthawk.daoHub.details" = "विवरण";
+"nighthawk.daoHub.groupId" = "DAO आईडी";
+"nighthawk.daoHub.governanceToken" = "गवर्नेंस टोकन";
+"nighthawk.daoHub.votesNeeded" = "गिनती के लिए आवश्यक वोट";
+"nighthawk.daoHub.yesShareRequired" = "आवश्यक हाँ हिस्सा";
+"nighthawk.daoHub.mintHeight" = "मिंट ऊँचाई";
+"nighthawk.daoHub.daoNotFound" = "DAO नहीं मिली";
+"nighthawk.daoHub.proposal" = "प्रस्ताव";
+"nighthawk.daoHub.proposalNotFound" = "प्रस्ताव नहीं मिला";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "मतदान विंडो: %@ ब्लॉक विंडो (%@ घंटे)।";
+"nighthawk.daoHub.proposalId" = "प्रस्ताव आईडी";
+"nighthawk.daoHub.execHeight" = "निष्पादन ऊँचाई";
+"nighthawk.daoHub.proposeTx" = "प्रस्ताव tx";
+"nighthawk.daoHub.execTx" = "निष्पादन tx";
+"nighthawk.daoHub.voteWeight" = "आपका पूरा गवर्नेंस टोकन शेष वोट का भार है।";
+"nighthawk.daoHub.payFromTreasury" = "कोष से भुगतान करें";
+"nighthawk.daoHub.payHint" = "कोष से भुगतान भेजता है।";
+"nighthawk.daoHub.onePayment" = "1 भुगतान";
+"nighthawk.daoHub.paid" = "भुगतान हो गया";
+"nighthawk.daoHub.open" = "खुला";
+"nighthawk.daoHub.waiting" = "प्रतीक्षा";
+"nighthawk.daoHub.name" = "नाम";
+"nighthawk.daoHub.yesShare" = "हाँ हिस्सा";
+"nighthawk.daoHub.proposerMinimum" = "प्रस्तावक न्यूनतम";
+"nighthawk.daoHub.earlyQuorum" = "शीघ्र कोरम";
+"nighthawk.daoHub.earlyQuorumHint" = "खाली छोड़ें तो आवश्यक वोटों वाली ही संख्या इस्तेमाल होगी।";
+"nighthawk.daoHub.allRolesHint" = "इस फ़ोन पर हर भूमिका है, कोष से भुगतान करने वाली कुंजियाँ भी।";
+"nighthawk.daoHub.recipient" = "प्राप्तकर्ता";
+"nighthawk.daoHub.recipientAddress" = "प्राप्तकर्ता का पता";
+"nighthawk.daoHub.tokenOptional" = "टोकन (वैकल्पिक)";
+"nighthawk.daoHub.tokenIdPlaceholder" = "टोकन ID (डिफ़ॉल्ट: DRK)";
+"nighthawk.daoHub.duration" = "अवधि";
+"nighthawk.daoHub.blockWindows" = "ब्लॉक विंडो";
+"nighthawk.daoHub.proposeBroadcast" = "इससे डिवाइस पर ZK प्रमाण बनेंगे और प्रस्ताव लेनदेन प्रसारित होगा।";
+"nighthawk.daoHub.issueHint" = "चेन 8 दशमलव संग्रहीत करती है।";
+"nighthawk.daoHub.roleExportTitle" = "भूमिका निर्यात";
+"nighthawk.daoHub.roleExportHint" = "इस कोड में भूमिका का रहस्य है।";
+"nighthawk.daoHub.close" = "बंद करें";
+"nighthawk.daoHub.copy" = "कॉपी करें";
+"nighthawk.daoHub.captured" = "स्क्रीन रिकॉर्डिंग या स्क्रीनशॉट मिला। रहस्य छिपा दिया गया।";
+"nighthawk.daoHub.importToml" = "DAO फ़ाइल";
+"nighthawk.daoHub.token" = "टोकन";
+"nighthawk.daoHub.browseDescription" = "DAO, प्रस्ताव और कोष देखें।";
+"nighthawk.daoHub.fundsSent" = "कोष में धन भेजा गया";
+"nighthawk.daoHub.paymentSent" = "कोष से भुगतान भेजा गया";
+"nighthawk.daoHub.proposalSubmitted" = "प्रस्ताव जमा हो गया! %@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO जमा हो गई";
+"nighthawk.daoHub.groupImported" = "DAO आयात हो गई";
+"nighthawk.daoHub.tokenCreated" = "टोकन बन गया";
+"nighthawk.daoHub.tokensIssued" = "टोकन जारी हुए";
+"nighthawk.daoHub.supplyFrozen" = "आपूर्ति फ़्रीज़ हो गई";
+"nighthawk.daoHub.voteYesSubmitted" = "हाँ वोट जमा! TX: %@…";
+"nighthawk.daoHub.voteNoSubmitted" = "ना वोट जमा! TX: %@…";
+"nighthawk.daoHub.walletNotReady" = "वॉलेट अभी तैयार नहीं है। सेटअप पूरा करें या आरंभ होने की प्रतीक्षा करें।";
+"nighthawk.daoHub.walletStopped" = "वॉलेट सिंक रुका है। वॉलेट टैब से सिंक जारी रखें, फिर DAO Hub फिर खोलें।";
+"nighthawk.daoHub.walletSyncing" = "वॉलेट सिंक अभी चल रहा है। वॉलेट अद्यतन होने के बाद DAO Hub फिर खोलें।";
+"nighthawk.daoHub.walletSyncFailed" = "वॉलेट सिंक विफल: %@";
+"nighthawk.walletCompanion.shieldedNote" = "ट्रांसफ़र शील्डेड रहते हैं। ट्रायल डिक्रिप्शन डिफ़ॉल्ट है। प्रयोगात्मक UnifOMR उन्नत सेटिंग में ऑप्ट-इन है और इसके लिए fhe-omr lightwalletd चाहिए।";
+"nighthawk.walletCompanion.trialDecrypt" = "ट्रायल डिक्रिप्शन";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "ब्लॉक %@";
+"nighthawk.walletCompanion.waitingForHeight" = "ब्लॉक ऊँचाई की प्रतीक्षा";
+"nighthawk.walletCompanion.trialActive" = "UnifOMR की जगह ट्रायल डिक्रिप्शन सक्रिय है।";
+"nighthawk.walletCompanion.syncedUnifOmr" = "UnifOMR के साथ सिंक हो गया।";
+"nighthawk.walletCompanion.receive" = "प्राप्त करें";
+"nighthawk.walletCompanion.nextSteps" = "अगले कदम";
+"nighthawk.walletCompanion.copyTxId" = "TxID कॉपी करें";
+"nighthawk.walletCompanion.sendAgain" = "फिर भेजें";
+"nighthawk.walletCompanion.copyMemo" = "मेमो कॉपी करें";
+"nighthawk.chat.couldNotDecrypt" = "डिक्रिप्ट नहीं हो सका";
+
+// MARK: - Pass-2 Extracted UI Strings
+
+// About
+"nighthawk.about.openSourceLicenses" = "ओपन सोर्स लाइसेंस";
+"nighthawk.about.versionWithBuild" = "संस्करण %@ (%@)";
+"nighthawk.about.versionOnly" = "संस्करण %@";
+
+// Splash (PIN & Nym)
+"nighthawk.splash.enterAppPin" = "ऐप PIN दर्ज करें";
+"nighthawk.splash.sixDigitPin" = "6 अंकों का PIN";
+"nighthawk.splash.unlock" = "अनलॉक करें";
+"nighthawk.splash.pinErrorLength" = "अपना 6 अंकों का PIN दर्ज करें।";
+"nighthawk.splash.pinErrorIncorrect" = "गलत PIN। फिर कोशिश करें।";
+"nighthawk.splash.nymFailed" = "Nym मिक्सनेट कनेक्शन विफल";
+"nighthawk.splash.nymConnecting" = "Nym मिक्सनेट से कनेक्ट हो रहा है… %@ सेकंड";
+"nighthawk.splash.nymSlow" = "सामान्य से ज़्यादा समय लग रहा है। प्रतीक्षा करें, या Nym के बिना जारी रखें।";
+"nighthawk.splash.continueWithoutNym" = "Nym के बिना जारी रखें";
+"nighthawk.splash.nymSessionHint" = "इस सत्र में वॉलेट और चैट आपके सामान्य नेटवर्क का उपयोग करते हैं। सेटिंग्स में फिर Nym पर लौट सकते हैं।";
+
+// Wallet tab banners & tokens
+"nighthawk.walletTab.syncStale" = "lightwalletd पीछे है या पहुँच में नहीं";
+"nighthawk.walletTab.syncedBlock" = "सिंक हो गया · ब्लॉक %@";
+"nighthawk.walletTab.syncingBlock" = "सिंक हो रहा है %@%% · ब्लॉक %@";
+"nighthawk.walletTab.syncingPercent" = "सिंक हो रहा है %@%%";
+"nighthawk.walletTab.syncError" = "सिंक त्रुटि";
+"nighthawk.walletTab.syncStopped" = "सिंक रुका हुआ";
+"nighthawk.walletTab.unreachableBanner" = "lightwalletd पहुँच में नहीं — सर्वर बदलें या नेटवर्क गोपनीयता जाँचें।";
+"nighthawk.walletTab.reorgTitle" = "चेन रीऑर्ग पुनर्प्राप्ति";
+"nighthawk.walletTab.tokens" = "टोकन";
+"nighthawk.walletTab.tapToSend" = "भेजने के लिए टैप करें";
+
+// Receive & Request Money & Send Flow
+"nighthawk.receive.newAddressGenerated" = "नया पता बन गया";
+"nighthawk.receive.generateFailed" = "पता नहीं बन सका";
+"nighthawk.requestMoney.title" = "पैसे माँगें";
+"nighthawk.requestMoney.subtitle" = "एक ही प्राप्त पता। QR एक drk: इनवॉइस है, जिसमें दर्ज राशि और मेमो होता है।";
+"nighthawk.requestMoney.amount" = "राशि";
+"nighthawk.requestMoney.memo" = "मेमो";
+"nighthawk.requestMoney.copied" = "कॉपी हो गया";
+"nighthawk.requestMoney.copyInvoice" = "इनवॉइस कॉपी करें";
+"nighthawk.transferTab.send.drkNative" = "DRK (नेटिव)";
+"nighthawk.transferTab.send.tokenLabel" = "टोकन:";
+
+// Recovery Phrase Display (capture & backup quiz)
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "स्क्रीन रिकॉर्डिंग या स्क्रीनशॉट मिला।\nसुरक्षा के लिए सीड वाक्यांश छिपा दिया गया।";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "बैकअप की पुष्टि (3 शब्द)";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "यह पुष्टि करने के लिए कि आपने पुनर्प्राप्ति वाक्यांश लिख लिया है, उसमें से माँगे गए शब्द दर्ज करें।";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "शब्द #%@";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "शब्द #%@ मेल नहीं खाता";
+
+// Transaction Details
+"nighthawk.transactionDetails.syncMethod" = "सिंक विधि";
+
+// Settings tab (Share & Security subtitle)
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ और 6 अंकों का PIN";
+"nighthawk.settingsTab.securityPinOnly" = "6 अंकों का ऐप PIN";
+"nighthawk.settingsTab.shareTitle" = "Nighthawk साझा करें";
+"nighthawk.settingsTab.shareSubtitle" = "मित्रों को Nighthawk Wallet में आमंत्रित करें";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "निजी DarkFi वॉलेट और एन्क्रिप्टेड DarkIRC चैट — Nighthawk Wallet";
+
+// Settings - Advanced (Mesh & UnifOMR)
+"nighthawk.settingsTab.advanced.mesh.title" = "आस-पास का मेश";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "आस-पास के Nighthawk फ़ोन के साथ Bluetooth पर DarkIRC रिले करें। इंटरनेट साझा करना बंद रहता है।";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "प्रयोगात्मक UnifOMR";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "बंद डिफ़ॉल्ट है। ट्रायल डिक्रिप्शन हर भुगतान ढूँढ लेता है, Dark Wallet या किसी दूसरे सर्वर से आए भुगतान भी। चालू करना प्रयोगात्मक है: दोनों वॉलेट को पहले इसी lightwalletd पर पंजीकरण करना होगा, वरना धन अदृश्य रह सकता है। यह एक बड़ी डिटेक्शन कुंजी भी अपलोड करता है।";
+
+// Settings - Change Server (TLS, Presets, Port warning)
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 या 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "TLS (HTTPS) उपयोग करें";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "दूरस्थ सर्वर के लिए आवश्यक; SHA-256 प्रमाणपत्र डाइजेस्ट से पिन किया जाता है।";
+"nighthawk.settingsTab.changeServer.presets" = "प्रीसेट";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Nighthawk टेस्टनेट (HTTPS)";
+"nighthawk.settingsTab.changeServer.presetLocal" = "स्थानीय lightwalletd";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "गैर-मानक पोर्ट";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "फिर भी उपयोग करें";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "आपने जो पोर्ट दर्ज किया है, वह मानक DarkFi lightwallet पोर्ट नहीं है (9067, या TLS के लिए 443)। गैर-मानक पोर्ट सिंक रोक सकता है।";
+
+// Settings - Security (Biometrics fallback & App PIN)
+"nighthawk.settingsTab.security.biometricsTitle" = "बायोमेट्रिक्स";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "इस डिवाइस पर Face ID / Touch ID सेट नहीं है। आप नीचे 6 अंकों के ऐप PIN से वॉलेट फिर भी सुरक्षित रख सकते हैं।";
+"nighthawk.settingsTab.security.pinTitle" = "ऐप PIN (6 अंक)";
+"nighthawk.settingsTab.security.pinEnabled" = "सक्षम";
+"nighthawk.settingsTab.security.pinOff" = "बंद";
+"nighthawk.settingsTab.security.pinDescription" = "वॉलेट खोलने पर और 10 मिनट दूर रहने के बाद दोबारा शुरू करने पर लॉक करता है। Keychain में सॉल्ट वाले PBKDF2-SHA256 हैश के रूप में सहेजा जाता है।";
+"nighthawk.settingsTab.security.pinChange" = "PIN बदलें";
+"nighthawk.settingsTab.security.pinVerify" = "PIN सत्यापित करें";
+"nighthawk.settingsTab.security.pinDisable" = "PIN बंद करें";
+"nighthawk.settingsTab.security.pinSet" = "6 अंकों का PIN सेट करें";
+"nighthawk.settingsTab.security.pinConfirm" = "पुष्टि करें";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "नया 6 अंकों का PIN दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "पुष्टि के लिए अपना 6 अंकों का PIN फिर से दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "अपना वर्तमान 6 अंकों का PIN दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "अपना नया 6 अंकों का PIN दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "अपना नया 6 अंकों का PIN फिर से दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptDisable" = "बंद करने के लिए अपना वर्तमान PIN दर्ज करें";
+"nighthawk.settingsTab.security.pinPromptVerify" = "सत्यापित करने के लिए अपना 6 अंकों का PIN दर्ज करें";
+"nighthawk.settingsTab.security.pinErrorDigits" = "ठीक %@ अंक दर्ज करें।";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "नए PIN मेल नहीं खाए। फिर कोशिश करें।";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "PIN मेल नहीं खाए। फिर कोशिश करें।";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "Keychain में PIN अपडेट नहीं हो सका।";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "Keychain में PIN सहेजा नहीं जा सका।";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "वर्तमान PIN गलत है।";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "गलत PIN।";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "ऐप PIN अपडेट हो गया।";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "6 अंकों का ऐप PIN सक्षम हो गया।";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "ऐप PIN बंद हो गया।";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN सत्यापित हो गया।";
+
+// Settings - Tor / Network Privacy
+"nighthawk.settingsTab.torNetwork.intro" = "वॉलेट, चैट और नोड का ट्रैफ़िक डिफ़ॉल्ट रूप से Nym मिक्सनेट से जाता है, जिससे सर्वर को आपका IP पता नहीं दिखता। चैट उसी टनल से सार्वजनिक DarkIRC सीड तक पहुँचती है। केवल .onion पीयर के लिए Tor चाहिए। पहला कनेक्शन आमतौर पर कुछ सेकंड लेता है और एक मिनट तक लग सकता है।";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "वॉलेट नेटवर्क";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "lightwalletd सिंक और लेनदेन प्रसारण के लिए उपयोग होता है। बदलने पर वॉलेट फिर से जुड़ता है।";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym: %@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Nym मिक्सनेट (सुझाया गया)";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "पाँच हॉप में पैकेट मिक्स करता है। चैट मिक्सनेट के ज़रिए clearnet सीड का उपयोग करती है। यह .onion पतों तक नहीं पहुँच सकता।";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "बिल्ट-इन Arti या नीचे दिए SOCKS एंडपॉइंट से Onion रूटिंग।";
+"nighthawk.settingsTab.torNetwork.directTitle" = "सीधा";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "सीधे सर्वर से जुड़ता है। सर्वर को आपका IP पता दिखता है।";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "बिल्ट-इन Tor (Arti)";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "ऐप के अंदर Arti (Rust Tor) चलाता है और लूपबैक SOCKS लिसनर खोलता है। यह उस बाहरी Tor/SOCKS ऐप से अलग है, जिसे आप नीचे कॉन्फ़िगर करते हैं।";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "बिल्ट-इन Arti उपयोग करें";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "बिल्ट-इन Arti के लिए ऊपर ऐप-व्यापी Tor रूटिंग चालू करें।";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "SOCKS एंडपॉइंट";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "लूपबैक पता जहाँ बिल्ट-इन Arti सुनता है (डिफ़ॉल्ट 127.0.0.1:9050)। एम्बेडेड DarkIRC इस प्रॉक्सी का उपयोग .onion P2P सीड के लिए करता है।";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "आपके बाहरी Tor या SOCKS प्रॉक्सी का होस्ट और पोर्ट। बिल्ट-इन Arti बंद होने पर आवश्यक।";
+"nighthawk.settingsTab.torNetwork.socksHost" = "SOCKS होस्ट";
+"nighthawk.settingsTab.torNetwork.socksPort" = "SOCKS पोर्ट";
+"nighthawk.settingsTab.torNetwork.footer" = "बिल्ट-इन Tor या SOCKS बदलने पर एम्बेडेड DarkIRC, यदि चालू हो, फिर शुरू हो जाता है, ताकि P2P/event-graph ट्रांसपोर्ट मेल खाए। हरी स्थिति लाइट जाँचने के लिए चैट खोलें।";
+
+// Settings - Chat Settings
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "फ़ाइल ऑफ़र";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "fud:// फ़ाइल ऑफ़र की अनुमति दें";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "टैप करने पर ऑफ़र इस फ़ोन की कतार में लग जाता है। यह केवल Nym, Tor या आस-पास के मेश के ज़रिए भेजा जाता है, और फ़ाइल अपने आप डाउनलोड नहीं होती।";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "एम्बेडेड नोड सिंक";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "एम्बेडेड darkirc उपयोग करें";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "ऐप के अंदर darkirc चलाएँ";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "DAG इतिहास के घंटे (1–24)";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "हर DAG लगभग एक घंटे का चैनल इतिहास होता है। डिफ़ॉल्ट 8 है (अपस्ट्रीम darkirc)।";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "तेज़ सिंक (केवल हेडर)";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "अपस्ट्रीम fast_mod जैसा: कम इतिहास लाकर तेज़ DAG सिंक।";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "चैनल गोपनीयता";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "सार्वजनिक #चैनल DarkIRC पर प्लेनटेक्स्ट होते हैं। केवल 1:1 DM में ChaChaBox एंड-टू-एंड एन्क्रिप्शन होता है। समूह/चैनल E2E अभी उपलब्ध नहीं है।";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "एन्क्रिप्टेड संपर्क (DM)";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "आपकी सार्वजनिक कुंजी (संपर्क से साझा करें):";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "सुरक्षा नंबर";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "मेरी DM कुंजियाँ बनाएँ";
+"nighthawk.settingsTab.chatSettings.noContacts" = "कोई एन्क्रिप्टेड संपर्क कॉन्फ़िगर नहीं है।";
+"nighthawk.settingsTab.chatSettings.remove" = "हटाएँ";
+"nighthawk.settingsTab.chatSettings.addContact" = "एन्क्रिप्टेड संपर्क जोड़ें";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "लागू करें और फिर कनेक्ट करें";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "संपर्क आमंत्रण QR (nighthawk://contact)";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "संपर्क आमंत्रण URI कॉपी करें";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "nighthawk://contact?... आमंत्रण चिपकाएँ";
+"nighthawk.settingsTab.chatSettings.fill" = "भरें";
+"nighthawk.settingsTab.chatSettings.nickname" = "निकनेम";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "पीयर की DM सार्वजनिक कुंजी (Base58)";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "मेरी DM गुप्त कुंजी (Base58)";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "मेरी DM कुंजी-जोड़ी बनाएँ";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "मेरी सार्वजनिक कुंजी: %@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "DarkFi वॉलेट पता (वैकल्पिक)";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "संपर्क जोड़ें";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "एन्क्रिप्टेड संपर्क जोड़ें";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "आमंत्रण URI पहचाना नहीं गया। nighthawk://contact?... या drk:... अपेक्षित है।";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "मान्य संपर्क निकनेम दर्ज करें (# से शुरू नहीं हो सकता)।";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "मान्य 32-बाइट Base58 DM कुंजियाँ दें।";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "DM कुंजियाँ या DarkFi वॉलेट पता दर्ज करें।";
+
+// Chat & New DM
+"nighthawk.chat.clearnetAlertTitle" = "clearnet लिंक खोलें?";
+"nighthawk.chat.clearnetOpenBrowser" = "ब्राउज़र में खोलें";
+"nighthawk.chat.clearnetCopyLink" = "लिंक कॉपी करें";
+"nighthawk.chat.clearnetAlertMessage" = "यह Nym/Tor के बाहर http(s) खोलता है और आपका IP लीक कर सकता है।";
+"nighthawk.chat.routeNym" = "Nym मिक्सनेट";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "सीधा (clearnet)";
+"nighthawk.chat.routeBootstrapping" = "बूटस्ट्रैप हो रहा है…";
+"nighthawk.chat.routeDegraded" = "अस्थिर";
+"nighthawk.chat.routeOffline" = "ऑफ़लाइन";
+"nighthawk.chat.activePrivacyRoute" = "सक्रिय गोपनीयता मार्ग";
+"nighthawk.chat.lightwalletdHeight" = "lightwalletd ऊँचाई %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "lightwalletd ऊँचाई उपलब्ध नहीं";
+"nighthawk.chat.transportSummary" = "ट्रांसपोर्ट: %@";
+"nighthawk.chat.directE2eBadge" = "सीधा संदेश · E2E";
+"nighthawk.chat.publicPlaintextBadge" = "सार्वजनिक चैनल · DAG पर प्लेनटेक्स्ट";
+"nighthawk.chat.sharePubkeyTitle" = "अपनी सार्वजनिक कुंजी साझा करें";
+"nighthawk.chat.sharePubkeyCopy" = "सार्वजनिक कुंजी कॉपी करें";
+"nighthawk.chat.sharePubkeyMessage" = "यह आपकी DM सार्वजनिक कुंजी कॉपी करता है। कुंजी-जोड़ी केवल पहली बार बनती है। इसे किसी भरोसेमंद चैनल पर साझा करें। इस कुंजी वाला कोई भी आपको एन्क्रिप्टेड DM भेज सकता है।";
+"nighthawk.chat.myPublicKeyCopied" = "मेरी सार्वजनिक कुंजी (कॉपी हो गई)";
+"nighthawk.chat.noDmContactsTitle" = "कोई DM संपर्क नहीं";
+"nighthawk.chat.noDmContactsBody" = "पीयर के साथ ChaCha20 सार्वजनिक कुंजियों का आदान-प्रदान करने और एन्क्रिप्टेड बातचीत शुरू करने के लिए «नया DM» पर टैप करें।";
+"nighthawk.chat.e2eEncrypted" = "E2E एन्क्रिप्टेड";
+"nighthawk.chat.copyMessage" = "संदेश कॉपी करें";
+"nighthawk.chat.queueFile" = "कतार में %@";
+"nighthawk.chat.paymentRequest" = "भुगतान अनुरोध";
+"nighthawk.chat.pay" = "भुगतान";
+"nighthawk.chat.paymentPhase" = "भुगतान %@";
+"nighthawk.chat.link" = "लिंक";
+"nighthawk.chat.sendOrRequestDrk" = "DRK भेजें या माँगें";
+"nighthawk.chat.messagePlaceholder" = "संदेश";
+"nighthawk.chat.amountDrkPlaceholder" = "राशि (DRK)";
+"nighthawk.chat.payToAddressPlaceholder" = "भुगतान के लिए पता";
+"nighthawk.chat.tip" = "टिप";
+"nighthawk.chat.newDm.title" = "नई DM बातचीत";
+"nighthawk.chat.newDm.subtitle" = "ChaCha20 वाले एंड-टू-एंड एन्क्रिप्टेड DM के लिए अपने पीयर के साथ सार्वजनिक कुंजियों का आदान-प्रदान करें।";
+"nighthawk.chat.newDm.contactLabelSection" = "संपर्क लेबल";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "जैसे alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "पीयर की सार्वजनिक कुंजी";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Base58 सार्वजनिक कुंजी";
+"nighthawk.chat.newDm.pasteClipboard" = "क्लिपबोर्ड से चिपकाएँ";
+"nighthawk.chat.newDm.myKeypairSection" = "मेरी कुंजी-जोड़ी";
+"nighthawk.chat.newDm.generateKeys" = "मेरी कुंजियाँ बनाएँ";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "मेरी सार्वजनिक कुंजी:";
+"nighthawk.chat.newDm.copyToShare" = "साझा करने के लिए कॉपी करें";
+"nighthawk.chat.newDm.shareKeyHint" = "यह कुंजी अपने पीयर के साथ साझा करें, ताकि वे आपको संदेश भेज सकें।";
+"nighthawk.chat.newDm.startDm" = "DM शुरू करें";
+"nighthawk.chat.newDm.pasteAlertTitle" = "सार्वजनिक कुंजी चिपकाएँ";
+"nighthawk.chat.newDm.pasteAction" = "चिपकाएँ";
+"nighthawk.chat.newDm.pasteAlertMessage" = "क्लिपबोर्ड से DM सार्वजनिक कुंजी चिपकाएँ? अगर !darkfi-dm-pubkey: प्रारूप हो, तो कुंजी उसी से निकाली जाएगी।";
+"nighthawk.chat.newDm.errorKeygen" = "DM कुंजी-जोड़ी नहीं बन सकी";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "क्लिपबोर्ड में मान्य Base58 सार्वजनिक कुंजी नहीं है।";
+"nighthawk.chat.newDm.errorSaveKeychain" = "यह संपर्क Keychain में सहेजा नहीं जा सका।";

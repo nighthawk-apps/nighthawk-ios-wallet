@@ -31,7 +31,7 @@ public struct RecoveryPhraseDisplayView: View {
 
                     if isCaptured {
                         // When screen is being captured/recorded, hide the seed
-                        Text("Screen recording or screenshot detected.\nSeed phrase hidden for security.")
+                        Text(L10n.Nighthawk.RecoveryPhraseDisplay.screenCaptured)
                             .caption(color: Asset.Colors.Nighthawk.peach.color)
                             .multilineTextAlignment(.center)
                             .padding(.top, 25)
@@ -79,8 +79,8 @@ public struct RecoveryPhraseDisplayView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .applyNighthawkBackground()
         .nighthawkAlert(
-            store: store.scope(
-                state: \.$destination.exportSeedAlert,
+            item: $store.scope(
+                state: \.destination?.exportSeedAlert,
                 action: \.destination.exportSeedAlert
             )
         ) { store in
@@ -112,10 +112,10 @@ private extension RecoveryPhraseDisplayView {
 
     var backupQuizSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Confirm Backup (3 Words)")
+            Text(L10n.Nighthawk.RecoveryPhraseDisplay.quizTitle)
                 .paragraphMedium(color: Asset.Colors.Nighthawk.peach.color)
 
-            Text("Enter the requested words from your recovery phrase to confirm you wrote it down.")
+            Text(L10n.Nighthawk.RecoveryPhraseDisplay.quizSubtitle)
                 .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
             ForEach(store.verificationWords) { word in
@@ -126,7 +126,7 @@ private extension RecoveryPhraseDisplayView {
                         .frame(width: 34, alignment: .leading)
 
                     NighthawkTextField(
-                        placeholder: "Word #\(word.index)",
+                        placeholder: L10n.Nighthawk.RecoveryPhraseDisplay.wordPlaceholder(word.index),
                         text: Binding(
                             get: { word.enteredWord },
                             set: { store.send(.verificationWordChanged(index: word.index, value: $0)) }
@@ -167,7 +167,7 @@ private extension RecoveryPhraseDisplayView {
         if trimmed.isEmpty || word.isMatched {
             return .valid
         }
-        return .invalid(error: "Word #\(word.index) does not match")
+        return .invalid(error: L10n.Nighthawk.RecoveryPhraseDisplay.wordMismatch(word.index))
     }
 
     func confirmPhrase(isChecked: Binding<Bool>) -> some View {

@@ -10,7 +10,7 @@ import SwiftUI
 import Utils
 
 public struct BalanceView: View {
-    public enum ViewType: Equatable, Hashable, CaseIterable {
+    public enum ViewType: Equatable, Hashable, CaseIterable, Sendable {
         case hidden
         case total
     }

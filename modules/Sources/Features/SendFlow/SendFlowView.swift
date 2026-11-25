@@ -68,7 +68,7 @@ public struct SendFlowView: View {
             )
             .toast(
                 unwrapping: $store.toast,
-                case: /SendFlow.State.Toast.notEnoughDrk,
+                case: \.notEnoughDrk,
                 alert: {
                     AlertToast.nighthawkBanner(
                         type: .regular,
@@ -165,7 +165,7 @@ private extension SendFlowView {
                 store.send(.tokenSelected(nil))
             } label: {
                 HStack {
-                    Text("DRK (native)")
+                    Text(L10n.Nighthawk.TransferTab.Send.drkNative)
                     if store.selectedTokenId == nil {
                         Image(systemName: "checkmark")
                     }
@@ -189,7 +189,7 @@ private extension SendFlowView {
             }
         } label: {
             HStack(spacing: 8) {
-                Text("Token:")
+                Text(L10n.Nighthawk.TransferTab.Send.tokenLabel)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 

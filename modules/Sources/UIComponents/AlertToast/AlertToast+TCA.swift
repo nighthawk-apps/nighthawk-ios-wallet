@@ -127,9 +127,9 @@ extension View {
         )
     }
 
-    public func toast<Enum, Case>(
-        unwrapping enum: Binding<Enum?>,
-        case casePath: AnyCasePath<Enum, Case>,
+    public func toast<Enum: CasePathable, Case>(
+        unwrapping value: Binding<Enum?>,
+        case caseKeyPath: CaseKeyPath<Enum, Case>,
         duration: Double = 2,
         tapToDismiss: Bool = true,
         offsetY: CGFloat = 0,
@@ -137,8 +137,14 @@ extension View {
         onTap: (() -> Void)? = nil,
         completion: (() -> Void)? = nil
     ) -> some View {
-        toast(
-            unwrapping: `enum`.case(casePath),
+        let casePath = AnyCasePath(caseKeyPath)
+        return toast(
+            unwrapping: Binding<Case?>(
+                get: { value.wrappedValue.flatMap(casePath.extract(from:)) },
+                set: { newValue in
+                    value.wrappedValue = newValue.map(casePath.embed)
+                }
+            ),
             duration: duration,
             tapToDismiss: tapToDismiss,
             offsetY: offsetY,

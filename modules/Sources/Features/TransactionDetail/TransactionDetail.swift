@@ -24,6 +24,7 @@ public struct TransactionDetail {
 
     @ObservableState
     public struct State: Equatable {
+        @CasePathable
         public enum Toast: Equatable {
             case replyToCopied
         }

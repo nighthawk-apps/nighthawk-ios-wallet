@@ -22,7 +22,7 @@ import WalletStorage
 public struct SendFlow {
     private enum SyncStatusUpdatesID { case timer }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Path {
         case addMemo(AddMemo)
         case failed(SendFailed)
@@ -146,6 +146,7 @@ public struct SendFlow {
             return "DRK"
         }
 
+        @CasePathable
         public enum Toast {
             case notEnoughDrk
         }
@@ -199,81 +200,14 @@ public struct SendFlow {
 
         Reduce { state, action in
             switch action {
-            case .alert:
+            case .alert, .binding, .path:
                 return .none
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .continueTapped:
-                if state.recipient == nil {
-                    state.path.append(Path.State.recipient(.init()))
-                    return .none
-                }
-
-                if let recipient = state.recipient, derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.activeLabel) {
-                    var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
-                    addMemoState.memoCharLimit = state.memoCharLimit
-                    state.path.append(Path.State.addMemo(addMemoState))
-                    return .none
-                }
-
-                return .run { [state] send in
-                    do {
-                        guard let recipientAddr = state.recipient else { return }
-                        let recipient = Utils.Recipient.address(recipientAddr)
-
-                        let memo: Memo?
-                        if let memoText = state.memo?.data {
-                            memo = memoText.isEmpty ? nil : try Memo(string: memoText)
-                        } else {
-                            memo = nil
-                        }
-
-                        let proposal = try await sdkSynchronizer.proposeTransfer(
-                            0,
-                            recipient,
-                            state.amountToSend,
-                            memo,
-                            state.selectedTokenId
-                        )
-
-                        if !state.customTokenFeeIsCovered(proposal) {
-                            await send(.proposeSendTransactionFailure(
-                                DarkfiError(message: "Not enough DRK to pay the fee")
-                            ))
-                            return
-                        }
-
-                        await send(.setProposal(proposal))
-                        await send(
-                            .review(
-                                .init(
-                                    zecAmount: state.amountToSend,
-                                    memo: state.memo,
-                                    recipient: recipientAddr,
-                                    latestFiatPrice: state.latestFiatPrice,
-                                    proposal: proposal,
-                                    tokenName: state.tokenName,
-                                    syncMethod: sdkSynchronizer.latestState().activeSyncMethod
-                                )
-                            )
-                        )
-                    } catch {
-                        await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
-                    }
-                }
+                return handleContinueTapped(state: &state)
             case .onAppear:
-                state.memoCharLimit = 255
-                state.preferredCurrency = userPreferencesStorage.fiatCurrency()
-                state.showScanButton = !processInfo.isiOSAppOnMac()
-                return .merge(
-                    .publisher {
-                        sdkSynchronizer.stateStream()
-                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                            .map(SendFlow.Action.synchronizerStateChanged)
-                    }
-                    .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true),
-                    .send(.loadTokenBalances)
-                )
+                return handleOnAppear(state: &state)
             case let .proposeSendTransactionFailure(error):
                 state.alert = AlertState.proposeTransferFailed(error.message)
                 return .none
@@ -284,45 +218,10 @@ public struct SendFlow {
                 state.path.append(.scan(.init()))
                 return .none
             case .sendTransaction:
-                guard !state.isSendingTransaction,
-                      let recipientStr = state.recipient else { return .none }
-
-                do {
-                    state.isSendingTransaction = true
-
-                    let recipient = Utils.Recipient.address(recipientStr)
-                    var memo: Memo?
-                    // DarkFi: all addresses are private, memos always supported
-                    if let memoStr = state.memo?.data, !memoStr.isEmpty {
-                        memo = try Memo(string: memoStr)
-                    }
-                    return .run { [state, memo] send in
-                        do {
-                            await send(SendFlow.Action.sendTransactionInProgress)
-                            let txn = try await sdkSynchronizer.sendTransaction(
-                                (),
-                                state.amountToSend,
-                                recipient,
-                                memo,
-                                state.selectedTokenId
-                            )
-                            await send(SendFlow.Action.sendTransactionSuccess(TransactionState(from: txn)))
-                        } catch {
-                            await send(SendFlow.Action.sendTransactionFailure(error.toDarkFiError().message))
-                        }
-                    }
-                } catch {
-                    return .send(.sendTransactionFailure(error.toDarkFiError().message))
-                }
+                return handleSendTransaction(state: &state)
             case let .sendTransactionFailure(message):
                 state.isSendingTransaction = false
-                state.path = state.path.filter { state in
-                    if case .sending = state {
-                        return false
-                    }
-
-                    return true
-                }
+                state.path = state.path.filter { if case .sending = $0 { return false }; return true }
                 state.path.append(Path.State.failed(.init(errorMessage: message)))
                 return .none
             case .sendTransactionInProgress:
@@ -338,26 +237,17 @@ public struct SendFlow {
                 return .none
             case let .synchronizerStateChanged(latestState):
                 state.spendableBalance = latestState.confirmedBalance
-                // Refresh token list whenever sync state advances so the picker
-                // appears as soon as balances are available.
                 return .send(.loadTokenBalances)
             case .loadTokenBalances:
                 return .run { send in
-                    do {
-                        let balances = try await sdkSynchronizer.listTokenBalances()
-                        await send(.tokenBalancesLoaded(balances))
-                    } catch {
-                        // Keep previous balances; empty list hides picker.
-                        await send(.tokenBalancesLoaded([]))
-                    }
+                    let balances = (try? await sdkSynchronizer.listTokenBalances()) ?? []
+                    await send(.tokenBalancesLoaded(balances))
                 }
             case let .tokenBalancesLoaded(balances):
                 state.availableTokens = balances
                 return .none
             case let .tokenSelected(tokenId):
                 state.selectedTokenId = tokenId
-                return .none
-            case .binding, .path:
                 return .none
             }
         }
@@ -373,6 +263,75 @@ public struct SendFlow {
     public init() {}
 }
 
+extension SendFlow.Path.State: Equatable {}
+extension SendFlow.Path.Action: Equatable {}
+
+// MARK: - Core action handlers
+private extension SendFlow {
+    func handleContinueTapped(state: inout State) -> Effect<Action> {
+        if state.recipient == nil {
+            state.path.append(Path.State.recipient(.init()))
+            return .none
+        }
+
+        if let recipient = state.recipient, derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.activeLabel) {
+            var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
+            addMemoState.memoCharLimit = state.memoCharLimit
+            state.path.append(Path.State.addMemo(addMemoState))
+            return .none
+        }
+
+        guard let recipientAddr = state.recipient else { return .none }
+        return proposeAndReviewEffect(state: state, recipientAddr: recipientAddr)
+    }
+
+    func handleOnAppear(state: inout State) -> Effect<Action> {
+        state.memoCharLimit = 255
+        state.preferredCurrency = userPreferencesStorage.fiatCurrency()
+        state.showScanButton = !processInfo.isiOSAppOnMac()
+        return .merge(
+            .publisher {
+                sdkSynchronizer.stateStream()
+                    .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                    .map(SendFlow.Action.synchronizerStateChanged)
+            }
+            .cancellable(id: SyncStatusUpdatesID.timer, cancelInFlight: true),
+            .send(.loadTokenBalances)
+        )
+    }
+
+    func handleSendTransaction(state: inout State) -> Effect<Action> {
+        guard !state.isSendingTransaction,
+              let recipientStr = state.recipient else { return .none }
+
+        do {
+            state.isSendingTransaction = true
+            let recipient = Utils.Recipient.address(recipientStr)
+            var memo: Memo?
+            if let memoStr = state.memo?.data, !memoStr.isEmpty {
+                memo = try Memo(string: memoStr)
+            }
+            return .run { [state, memo] send in
+                do {
+                    await send(SendFlow.Action.sendTransactionInProgress)
+                    let txn = try await sdkSynchronizer.sendTransaction(
+                        (),
+                        state.amountToSend,
+                        recipient,
+                        memo,
+                        state.selectedTokenId
+                    )
+                    await send(SendFlow.Action.sendTransactionSuccess(TransactionState(from: txn)))
+                } catch {
+                    await send(SendFlow.Action.sendTransactionFailure(error.toDarkFiError().message))
+                }
+            }
+        } catch {
+            return .send(.sendTransactionFailure(error.toDarkFiError().message))
+        }
+    }
+}
+
 // MARK: Alerts
 extension AlertState where Action == SendFlow.Action.Alert {
     public static func proposeTransferFailed(_ message: String) -> AlertState {
@@ -384,309 +343,6 @@ extension AlertState where Action == SendFlow.Action.Alert {
             }
         } message: {
             TextState(L10n.Nighthawk.TransferTab.Send.proposalFailed(message))
-        }
-    }
-}
-
-// MARK: Add memo delegate
-extension SendFlow {
-    func addMemoDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: id, action: .addMemo(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .goBack:
-                    // Pop the step. Amount, recipient, and memo stay in the draft.
-                    _ = state.path.popLast()
-                    return .none
-                case .nextScreen:
-                    guard case let .addMemo(addMemoState) = state.path[id: id]
-                    else { return .none }
-                    state.memo = if addMemoState.isIncludeReplyToChecked, let ua = state.receiveAddress?.stringEncoded {
-                        "\(addMemoState.memo)\nReply to: \(ua)".redacted
-                    } else {
-                        addMemoState.memo.redacted
-                    }
-
-                    if let recipientString = state.recipient {
-                        return .run { [state] send in
-                            do {
-                                let recipient = Utils.Recipient.address(recipientString)
-
-                                let memo: Memo?
-                                if let memoText = state.memo?.data {
-                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
-                                } else {
-                                    memo = nil
-                                }
-
-                                let proposal = try await sdkSynchronizer.proposeTransfer(
-                                    0,
-                                    recipient,
-                                    state.amountToSend,
-                                    memo,
-                                    state.selectedTokenId
-                                )
-
-                                if !state.customTokenFeeIsCovered(proposal) {
-                                    await send(.proposeSendTransactionFailure(
-                                        DarkfiError(message: "Not enough DRK to pay the fee")
-                                    ))
-                                    return
-                                }
-
-                                await send(.setProposal(proposal))
-                                await send(
-                                    .review(
-                                        .init(
-                                            zecAmount: state.amountToSend,
-                                            memo: state.memo,
-                                            recipient: state.recipient ?? "",
-                                            latestFiatPrice: state.latestFiatPrice,
-                                            proposal: proposal,
-                                            tokenName: state.tokenName,
-                                            syncMethod: sdkSynchronizer.latestState().activeSyncMethod
-                                        )
-                                    )
-                                )
-                            } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
-                            }
-                        }
-                    } else {
-                        state.path.append(.recipient(.init()))
-                    }
-
-                    return .none
-                }
-            case .alert,
-                .binding,
-                .closeButtonTapped,
-                .continueTapped,
-                .onAppear,
-                .path,
-                .proposeSendTransactionFailure,
-                .review,
-                .scanCodeTapped,
-                .sendTransaction,
-                .sendTransactionFailure,
-                .sendTransactionInProgress,
-                .sendTransactionSuccess,
-                .setProposal,
-                .synchronizerStateChanged,
-                .loadTokenBalances,
-                .tokenBalancesLoaded,
-                .tokenSelected:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: Recipient delegate
-extension SendFlow {
-    func recipientDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: _, action: .recipient(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .goBack:
-                    _ = state.path.popLast()
-                    return .none
-                case let .proceedWithRecipient(recipient, amount, memo):
-                    guard derivationTool.isDarkFiAddress(recipient, DarkfiNetwork.activeLabel) else { return .none }
-                    state.recipient = recipient
-                    if let amount, !amount.isEmpty {
-                        state.amountToSendInput = amount
-                    }
-                    if let memo, !memo.isEmpty {
-                        state.memo = memo.redacted
-                    }
-                    var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
-                    addMemoState.memoCharLimit = state.memoCharLimit
-                    if let memo, !memo.isEmpty {
-                        addMemoState.memo = memo
-                    }
-                    state.path.append(Path.State.addMemo(addMemoState))
-                    return .none
-                case .scanCode:
-                    state.path.append(Path.State.scan(.init()))
-                    return .none
-                }
-            case .alert,
-                .binding,
-                .closeButtonTapped,
-                .continueTapped,
-                .onAppear,
-                .path,
-                .proposeSendTransactionFailure,
-                .review,
-                .scanCodeTapped,
-                .sendTransaction,
-                .sendTransactionFailure,
-                .sendTransactionInProgress,
-                .sendTransactionSuccess,
-                .setProposal,
-                .synchronizerStateChanged,
-                .loadTokenBalances,
-                .tokenBalancesLoaded,
-                .tokenSelected:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: Scan delegate
-extension SendFlow {
-    func scanDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: _, action: .scan(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .goHome:
-                    return .none
-                case let .handleParseResult(result):
-                    if result.address.isEmpty, result.contactInvite != nil {
-                        _ = state.path.popLast()
-                        return .none
-                    }
-                    state.recipient = result.address
-                    state.amountToSendInput = result.amount ?? state.amountToSendInput
-                    state.memo = result.memo?.redacted
-                    _ = state.path.popLast()
-
-                    if let address = state.recipient, !address.isEmpty {
-                        if !state.hasEnteredAmount {
-                            state.path = StackState()
-                            return .none
-                        }
-
-                        if state.amountToSend > state.selectedSpendableBalance
-                            || (state.selectedTokenId != nil && state.spendableBalance <= .zero) {
-                            state.amountToSendInput = "0"
-                            state.recipient = nil
-                            state.memo = nil
-                            state.proposal = nil
-                            state.path = StackState()
-                            state.toast = .notEnoughDrk
-                            return .none
-                        }
-
-                        if state.memo == nil {
-                            var addMemoState = AddMemo.State(receiveAddress: state.receiveAddress)
-                            addMemoState.memoCharLimit = state.memoCharLimit
-                            state.path.append(Path.State.addMemo(addMemoState))
-                            return .none
-                        }
-
-                        return .run { [state] send in
-                            do {
-                                guard let recipientAddr = state.recipient else { return }
-                                let recipient = Utils.Recipient.address(recipientAddr)
-
-                                let memo: Memo?
-                                if let memoText = state.memo?.data {
-                                    memo = memoText.isEmpty ? nil : try Memo(string: memoText)
-                                } else {
-                                    memo = nil
-                                }
-
-                                let proposal = try await sdkSynchronizer.proposeTransfer(
-                                    0,
-                                    recipient,
-                                    state.amountToSend,
-                                    memo,
-                                    state.selectedTokenId
-                                )
-
-                                if !state.customTokenFeeIsCovered(proposal) {
-                                    await send(.proposeSendTransactionFailure(
-                                        DarkfiError(message: "Not enough DRK to pay the fee")
-                                    ))
-                                    return
-                                }
-
-                                await send(.setProposal(proposal))
-                                await send(
-                                    .review(
-                                        .init(
-                                            zecAmount: state.amountToSend,
-                                            memo: state.memo,
-                                            recipient: recipientAddr,
-                                            latestFiatPrice: state.latestFiatPrice,
-                                            proposal: proposal,
-                                            tokenName: state.tokenName,
-                                            syncMethod: sdkSynchronizer.latestState().activeSyncMethod
-                                        )
-                                    )
-                                )
-                            } catch {
-                                await send(SendFlow.Action.proposeSendTransactionFailure(error.toDarkFiError()))
-                            }
-                        }
-                    }
-
-                    return .none
-                }
-
-            case .alert,
-                .binding,
-                .closeButtonTapped,
-                .continueTapped,
-                .onAppear,
-                .path,
-                .proposeSendTransactionFailure,
-                .review,
-                .scanCodeTapped,
-                .sendTransaction,
-                .sendTransactionFailure,
-                .sendTransactionInProgress,
-                .sendTransactionSuccess,
-                .setProposal,
-                .synchronizerStateChanged,
-                .loadTokenBalances,
-                .tokenBalancesLoaded,
-                .tokenSelected:
-                return .none
-            }
-        }
-    }
-}
-
-// MARK: Review delegate
-extension SendFlow {
-    func reviewDelegateReducer() -> Reduce<SendFlow.State, SendFlow.Action> {
-        Reduce { state, action in
-            switch action {
-            case let .path(.element(id: _, action: .review(.delegate(delegateAction)))):
-                switch delegateAction {
-                case .goBack:
-                    _ = state.path.popLast()
-                    return .none
-                case .sendDrk:
-                    return .send(.sendTransaction)
-                }
-            case .alert,
-                .binding,
-                .closeButtonTapped,
-                .continueTapped,
-                .onAppear,
-                .path,
-                .proposeSendTransactionFailure,
-                .review,
-                .scanCodeTapped,
-                .sendTransaction,
-                .sendTransactionFailure,
-                .sendTransactionInProgress,
-                .sendTransactionSuccess,
-                .setProposal,
-                .synchronizerStateChanged,
-                .loadTokenBalances,
-                .tokenBalancesLoaded,
-                .tokenSelected:
-                return .none
-            }
         }
     }
 }

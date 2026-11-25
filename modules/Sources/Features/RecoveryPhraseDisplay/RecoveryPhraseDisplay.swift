@@ -103,7 +103,7 @@ public struct RecoveryPhraseDisplay {
         }
     }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Destination {
         case exportSeedAlert(ExportSeed)
     }
@@ -161,3 +161,6 @@ public struct RecoveryPhraseDisplay {
 
     public init() {}
 }
+
+extension RecoveryPhraseDisplay.Destination.State: Equatable {}
+extension RecoveryPhraseDisplay.Destination.Action: Equatable {}

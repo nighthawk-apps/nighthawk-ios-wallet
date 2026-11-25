@@ -37,8 +37,7 @@ public struct IndeterminateProgress: View {
 private extension IndeterminateProgress {
     func rect(in rect: CGRect) -> some View {
         let width = rect.width * Constants.coverPercentage
-        return Rectangle()
-            .foregroundColor(Asset.Colors.Nighthawk.peach.color)
+        let bar = Rectangle()
             .frame(width: width)
             .scaleEffect(x: scaleX)
             .offset(x: width * offset)
@@ -53,5 +52,18 @@ private extension IndeterminateProgress {
                     self.scaleX = 0.5
                 }
             }
+        return Group {
+            if ColorAsset.usesCyberpunkPalette {
+                bar.foregroundStyle(
+                    LinearGradient(
+                        colors: [StealthTheme.Colors.primary, StealthTheme.Colors.secondaryAccent],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+            } else {
+                bar.foregroundColor(Asset.Colors.Nighthawk.peach.color)
+            }
+        }
     }
 }

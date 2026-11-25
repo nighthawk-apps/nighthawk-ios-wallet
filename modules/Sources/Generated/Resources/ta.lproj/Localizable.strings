@@ -138,6 +138,7 @@
 "nighthawk.transaction.sent" = "Sent";
 
 // MARK: - Home Screen
+"nighthawk.homeScreen.chat" = "அரட்டை";
 "nighthawk.homeScreen.wallet" = "Wallet";
 "nighthawk.homeScreen.transfer" = "Transfer";
 "nighthawk.homeScreen.settings" = "Settings";

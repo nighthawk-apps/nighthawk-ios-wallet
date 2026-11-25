@@ -144,6 +144,7 @@
 "nighthawk.transaction.sent" = "送金済み";
 
 // MARK: - Home Screen
+"nighthawk.homeScreen.chat" = "チャット";
 "nighthawk.homeScreen.wallet" = "ウォレット";
 "nighthawk.homeScreen.transfer" = "送金";
 "nighthawk.homeScreen.dex" = "DEX";
@@ -522,7 +523,7 @@
 "nighthawk.daoHub.walletStopped" = "ウォレットの同期は止まっています。ウォレットのタブで同期を再開してから、DAO Hub を開き直してください。";
 "nighthawk.daoHub.walletSyncing" = "ウォレットの同期はまだ続いています。最新になってから、DAO Hub を開き直してください。";
 "nighthawk.daoHub.walletSyncFailed" = "ウォレットの同期に失敗しました: %@";
-"nighthawk.walletCompanion.shieldedNote" = "送金はシールドされたままです。サーバーが対応しているときは UnifOMR を使い、トライアル復号は予備だけです。";
+"nighthawk.walletCompanion.shieldedNote" = "送金はシールドされたままです。トライアル復号がデフォルトです。実験的な UnifOMR は詳細設定で自分で選んだときだけ有効で、fhe-omr の lightwalletd が必要です。";
 "nighthawk.walletCompanion.trialDecrypt" = "トライアル復号";
 "nighthawk.walletCompanion.unifOmr" = "UnifOMR";
 "nighthawk.walletCompanion.blockHeight" = "ブロック %@";
@@ -535,3 +536,227 @@
 "nighthawk.walletCompanion.sendAgain" = "もう一度送る";
 "nighthawk.walletCompanion.copyMemo" = "メモをコピー";
 "nighthawk.chat.couldNotDecrypt" = "復号できませんでした";
+
+// MARK: - Pass-2 Extracted UI Strings
+
+// About
+"nighthawk.about.openSourceLicenses" = "オープンソースライセンス";
+"nighthawk.about.versionWithBuild" = "バージョン %@（%@）";
+"nighthawk.about.versionOnly" = "バージョン %@";
+
+// Splash (PIN & Nym)
+"nighthawk.splash.enterAppPin" = "アプリ PIN を入力";
+"nighthawk.splash.sixDigitPin" = "6桁の PIN";
+"nighthawk.splash.unlock" = "ロック解除";
+"nighthawk.splash.pinErrorLength" = "6桁の PIN を入力してください。";
+"nighthawk.splash.pinErrorIncorrect" = "PIN が違います。もう一度試してください。";
+"nighthawk.splash.nymFailed" = "Nym ミックスネットへの接続に失敗しました";
+"nighthawk.splash.nymConnecting" = "Nym ミックスネットに接続中… %@ 秒";
+"nighthawk.splash.nymSlow" = "いつもより時間がかかっています。このまま待つか、Nym なしで続けてください。";
+"nighthawk.splash.continueWithoutNym" = "Nym なしで続ける";
+"nighthawk.splash.nymSessionHint" = "このセッションでは、ウォレットとチャットは通常のネットワークを使います。設定で Nym に戻せます。";
+
+// Wallet tab banners & tokens
+"nighthawk.walletTab.syncStale" = "Lightwalletd が古い、または到達できません";
+"nighthawk.walletTab.syncedBlock" = "同期済み · ブロック %@";
+"nighthawk.walletTab.syncingBlock" = "同期中 %@%% · ブロック %@";
+"nighthawk.walletTab.syncingPercent" = "同期中 %@%%";
+"nighthawk.walletTab.syncError" = "同期エラー";
+"nighthawk.walletTab.syncStopped" = "同期停止";
+"nighthawk.walletTab.unreachableBanner" = "Lightwalletd に到達できません。「サーバーを変更」か「ネットワークのプライバシー」を確認してください。";
+"nighthawk.walletTab.reorgTitle" = "チェーン再編成の復旧";
+"nighthawk.walletTab.tokens" = "トークン";
+"nighthawk.walletTab.tapToSend" = "タップして送る";
+
+// Receive & Request Money & Send Flow
+"nighthawk.receive.newAddressGenerated" = "新しいアドレスを生成しました";
+"nighthawk.receive.generateFailed" = "アドレスを生成できませんでした";
+"nighthawk.requestMoney.title" = "お金を請求";
+"nighthawk.requestMoney.subtitle" = "受取アドレスは1つです。QRコードは、入力した金額とメモを含む drk: の請求です。";
+"nighthawk.requestMoney.amount" = "金額";
+"nighthawk.requestMoney.memo" = "メモ";
+"nighthawk.requestMoney.copied" = "コピーしました";
+"nighthawk.requestMoney.copyInvoice" = "請求をコピー";
+"nighthawk.transferTab.send.drkNative" = "DRK（ネイティブ）";
+"nighthawk.transferTab.send.tokenLabel" = "トークン:";
+
+// Recovery Phrase Display (capture & backup quiz)
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "画面収録またはスクリーンショットを検出しました。\nセキュリティのため、シードフレーズは非表示です。";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "バックアップの確認（3語）";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "書き留めたことを確認するため、リカバリーフレーズから指定の単語を入力してください。";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "単語 #%@";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "単語 #%@ と一致しません";
+
+// Transaction Details
+"nighthawk.transactionDetails.syncMethod" = "同期の方法";
+
+// Settings tab (Share & Security subtitle)
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ と6桁の PIN";
+"nighthawk.settingsTab.securityPinOnly" = "6桁のアプリ PIN";
+"nighthawk.settingsTab.shareTitle" = "Nighthawk を共有";
+"nighthawk.settingsTab.shareSubtitle" = "友達を Nighthawk Wallet に招待";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "プライベートな DarkFi ウォレットと暗号化された DarkIRC チャット — Nighthawk Wallet";
+
+// Settings - Advanced (Mesh & UnifOMR)
+"nighthawk.settingsTab.advanced.mesh.title" = "近くのメッシュ";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "近くの Nighthawk のスマホと、Bluetooth で DarkIRC を中継します。インターネット共有はオフのままです。";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "実験的な UnifOMR";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "オフがデフォルトです。トライアル復号は、Dark Wallet や別のサーバーからのものも含め、すべての支払いを見つけます。オンは実験的です。両方のウォレットが、先にこの同じ lightwalletd へ登録していないと、資金が見えないままになることがあります。大きな検出鍵もアップロードします。";
+
+// Settings - Change Server (TLS, Presets, Port warning)
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 または 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "TLS を使う（HTTPS）";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "リモートサーバーでは必須です。SHA-256 の証明書ダイジェストでピン留めします。";
+"nighthawk.settingsTab.changeServer.presets" = "プリセット";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Nighthawk テストネット（HTTPS）";
+"nighthawk.settingsTab.changeServer.presetLocal" = "ローカルの Lightwalletd";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "標準外のポート";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "それでも使う";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "入力したポートは、DarkFi lightwallet の標準ポート（9067、または TLS の 443）ではありません。標準外のポートを使うと、同期できないことがあります。";
+
+// Settings - Security (Biometrics fallback & App PIN)
+"nighthawk.settingsTab.security.biometricsTitle" = "生体認証";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "この端末では Face ID / Touch ID が設定されていません。下の6桁のアプリ PIN でも、ウォレットを保護できます。";
+"nighthawk.settingsTab.security.pinTitle" = "アプリ PIN（6桁）";
+"nighthawk.settingsTab.security.pinEnabled" = "有効";
+"nighthawk.settingsTab.security.pinOff" = "オフ";
+"nighthawk.settingsTab.security.pinDescription" = "10分以上離れると、ウォレットの起動と再開をロックします。PIN は Keychain に、ソルト付き PBKDF2-SHA256 ハッシュとして保存されます。";
+"nighthawk.settingsTab.security.pinChange" = "PIN を変更";
+"nighthawk.settingsTab.security.pinVerify" = "PIN を確認";
+"nighthawk.settingsTab.security.pinDisable" = "PIN を無効にする";
+"nighthawk.settingsTab.security.pinSet" = "6桁の PIN を設定";
+"nighthawk.settingsTab.security.pinConfirm" = "確認";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "新しい6桁の PIN を入力";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "確認のため、6桁の PIN をもう一度入力";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "現在の6桁の PIN を入力";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "新しい6桁の PIN を入力";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "新しい6桁の PIN をもう一度入力";
+"nighthawk.settingsTab.security.pinPromptDisable" = "無効にするには、現在の PIN を入力";
+"nighthawk.settingsTab.security.pinPromptVerify" = "確認のため、6桁の PIN を入力";
+"nighthawk.settingsTab.security.pinErrorDigits" = "ちょうど %@ 桁で入力してください。";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "新しい PIN が一致しませんでした。もう一度試してください。";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "PIN が一致しませんでした。もう一度試してください。";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "Keychain の PIN を更新できませんでした。";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "Keychain に PIN を保存できませんでした。";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "現在の PIN が違います。";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "PIN が違います。";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "アプリ PIN を更新しました。";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "6桁のアプリ PIN を有効にしました。";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "アプリ PIN を無効にしました。";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN を確認しました。";
+
+// Settings - Tor / Network Privacy
+"nighthawk.settingsTab.torNetwork.intro" = "ウォレット、チャット、ノードの通信は、デフォルトで Nym ミックスネットを通り、サーバーから IP アドレスを隠します。チャットは、同じトンネル経由で公開の DarkIRC シードに届きます。.onion だけのピアには Tor が必要です。最初の接続は通常数秒で、最大1分かかることがあります。";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "ウォレットのネットワーク";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "lightwalletd の同期と、トランザクションの配信に使います。変更すると、ウォレットが再接続します。";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym: %@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Nym ミックスネット（推奨）";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "パケットを5ホップでミックスします。チャットはミックスネット経由で、クリアネットのシードを使います。.onion アドレスには届きません。";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "組み込みの Arti、または下の SOCKS エンドポイントで、オニオンルーティングします。";
+"nighthawk.settingsTab.torNetwork.directTitle" = "ダイレクト";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "サーバーに直接接続します。サーバーから IP アドレスが見えます。";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "組み込み Tor（Arti）";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "アプリ内で Arti（Rust の Tor）を動かし、ループバックの SOCKS リスナーを公開します。下で設定する外部の Tor や SOCKS アプリとは別です。";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "組み込み Arti を使う";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "組み込みの Arti を使うには、上でアプリ全体の Tor ルーティングを有効にしてください。";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "SOCKS エンドポイント";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "組み込み Arti が待ち受けるループバックアドレスです（デフォルトは 127.0.0.1:9050）。組み込み DarkIRC は、.onion の P2P シードにこのプロキシを使います。";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "外部の Tor または SOCKS プロキシのホストとポートです。組み込み Arti がオフのときは必須です。";
+"nighthawk.settingsTab.torNetwork.socksHost" = "SOCKS ホスト";
+"nighthawk.settingsTab.torNetwork.socksPort" = "SOCKS ポート";
+"nighthawk.settingsTab.torNetwork.footer" = "組み込み Tor または SOCKS を変えると、有効なときは組み込み DarkIRC が再起動し、P2P とイベントグラフの通信が揃います。チャットを開き、緑の状態表示を確認してください。";
+
+// Settings - Chat Settings
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "ファイルオファー";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "fud:// のファイルオファーを許可";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "タップすると、このスマホでオファーがキューに入ります。送られるのは Nym、Tor、または近くのメッシュ経由だけで、ファイルは自動ではダウンロードされません。";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "組み込みノードの同期";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "組み込み darkirc を使う";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "アプリ内で darkirc を実行";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "DAG の履歴時間（1–24）";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "各 DAG は、チャンネル履歴のおおよそ1時間分です。デフォルトは 8（上流の darkirc）です。";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "高速同期（ヘッダーのみ）";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "上流の fast_mod に合わせます。履歴の取得を減らし、DAG の同期を速くします。";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "チャンネルのプライバシー";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "公開の #チャンネルは、DarkIRC 上では平文です。1対1の DM だけが、ChaChaBox によるエンドツーエンド暗号化を使います。グループやチャンネルの E2E は、まだ使えません。";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "暗号化された連絡先（DM）";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "あなたの公開鍵（連絡先と共有）:";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "セーフティナンバー";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "自分の DM 鍵を生成";
+"nighthawk.settingsTab.chatSettings.noContacts" = "暗号化された連絡先は未設定です。";
+"nighthawk.settingsTab.chatSettings.remove" = "削除";
+"nighthawk.settingsTab.chatSettings.addContact" = "暗号化された連絡先を追加";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "適用して再接続";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "連絡先の招待 QR（nighthawk://contact）";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "連絡先の招待 URI をコピー";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "nighthawk://contact?... の招待を貼り付け";
+"nighthawk.settingsTab.chatSettings.fill" = "反映";
+"nighthawk.settingsTab.chatSettings.nickname" = "ニックネーム";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "相手の DM 公開鍵（Base58）";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "自分の DM 秘密鍵（Base58）";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "自分の DM 鍵ペアを生成";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "自分の公開鍵: %@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "DarkFi のウォレットアドレス（任意）";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "連絡先を追加";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "暗号化された連絡先を追加";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "認識できない招待 URI です。nighthawk://contact?... または drk:... を想定しています。";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "有効な連絡先のニックネームを入力してください（# では始められません）。";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "有効な32バイトの Base58 の DM 鍵を入力してください。";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "DM の鍵か、DarkFi のウォレットアドレスを入力してください。";
+
+// Chat & New DM
+"nighthawk.chat.clearnetAlertTitle" = "クリアネットのリンクを開きますか？";
+"nighthawk.chat.clearnetOpenBrowser" = "ブラウザで開く";
+"nighthawk.chat.clearnetCopyLink" = "リンクをコピー";
+"nighthawk.chat.clearnetAlertMessage" = "これは Nym/Tor の外で http(s) を開きます。IP アドレスが漏れることがあります。";
+"nighthawk.chat.routeNym" = "Nym ミックスネット";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "ダイレクト（クリアネット）";
+"nighthawk.chat.routeBootstrapping" = "起動中…";
+"nighthawk.chat.routeDegraded" = "低下";
+"nighthawk.chat.routeOffline" = "オフライン";
+"nighthawk.chat.activePrivacyRoute" = "使用中のプライバシールート";
+"nighthawk.chat.lightwalletdHeight" = "Lightwalletd のブロック高 %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "Lightwalletd のブロック高は不明";
+"nighthawk.chat.transportSummary" = "トランスポート: %@";
+"nighthawk.chat.directE2eBadge" = "ダイレクトメッセージ · E2E";
+"nighthawk.chat.publicPlaintextBadge" = "公開チャンネル · DAG 上は平文";
+"nighthawk.chat.sharePubkeyTitle" = "公開鍵を共有";
+"nighthawk.chat.sharePubkeyCopy" = "公開鍵をコピー";
+"nighthawk.chat.sharePubkeyMessage" = "DM の公開鍵をコピーします。鍵ペアが作られるのは、最初の一度だけです。信頼できる経路で共有してください。この鍵を持つ人は、誰でも暗号化された DM をあなたに送れます。";
+"nighthawk.chat.myPublicKeyCopied" = "自分の公開鍵（コピー済み）";
+"nighthawk.chat.noDmContactsTitle" = "DM の連絡先がありません";
+"nighthawk.chat.noDmContactsBody" = "「新しい DM」をタップして、相手と ChaCha20 の公開鍵を交換し、暗号化された会話を始めてください。";
+"nighthawk.chat.e2eEncrypted" = "E2E 暗号化";
+"nighthawk.chat.copyMessage" = "メッセージをコピー";
+"nighthawk.chat.queueFile" = "%@ をキューに入れる";
+"nighthawk.chat.paymentRequest" = "支払い請求";
+"nighthawk.chat.pay" = "支払う";
+"nighthawk.chat.paymentPhase" = "支払い %@";
+"nighthawk.chat.link" = "リンク";
+"nighthawk.chat.sendOrRequestDrk" = "DRK を送る、または請求";
+"nighthawk.chat.messagePlaceholder" = "メッセージ";
+"nighthawk.chat.amountDrkPlaceholder" = "金額（DRK）";
+"nighthawk.chat.payToAddressPlaceholder" = "支払い先アドレス";
+"nighthawk.chat.tip" = "チップ";
+"nighthawk.chat.newDm.title" = "新しい DM の会話";
+"nighthawk.chat.newDm.subtitle" = "相手と公開鍵を交換し、ChaCha20 でエンドツーエンド暗号化された DM を始めます。";
+"nighthawk.chat.newDm.contactLabelSection" = "連絡先のラベル";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "例: alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "相手の公開鍵";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Base58 の公開鍵";
+"nighthawk.chat.newDm.pasteClipboard" = "クリップボードから貼り付け";
+"nighthawk.chat.newDm.myKeypairSection" = "自分の鍵ペア";
+"nighthawk.chat.newDm.generateKeys" = "自分の鍵を生成";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "自分の公開鍵:";
+"nighthawk.chat.newDm.copyToShare" = "共有用にコピー";
+"nighthawk.chat.newDm.shareKeyHint" = "この鍵を相手に渡すと、相手からメッセージを受け取れます。";
+"nighthawk.chat.newDm.startDm" = "DM を始める";
+"nighthawk.chat.newDm.pasteAlertTitle" = "公開鍵を貼り付け";
+"nighthawk.chat.newDm.pasteAction" = "貼り付け";
+"nighthawk.chat.newDm.pasteAlertMessage" = "クリップボードから、DM の公開鍵を貼り付けますか？ !darkfi-dm-pubkey: の形式があれば、そこから鍵を取り出します。";
+"nighthawk.chat.newDm.errorKeygen" = "DM の鍵ペアを生成できませんでした";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "クリップボードに有効な base58 の公開鍵がありません。";
+"nighthawk.chat.newDm.errorSaveKeychain" = "この連絡先を Keychain に保存できませんでした。";

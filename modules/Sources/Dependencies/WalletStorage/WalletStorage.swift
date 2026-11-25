@@ -7,7 +7,6 @@
 
 import Foundation
 import KeychainSwift
-import MnemonicSwift
 import Utils
 import SecItem
 import Models

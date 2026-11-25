@@ -29,7 +29,7 @@ public struct Welcome {
         }
     }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Destination {
         case importSeedWarningAlert(ImportWarning)
     }
@@ -56,6 +56,9 @@ public struct Welcome {
 
     public init() {}
 }
+
+extension Welcome.Destination.State: Equatable {}
+extension Welcome.Destination.Action: Equatable {}
 
 // MARK: - Import warning delegate
 extension Welcome {

@@ -78,6 +78,16 @@ public enum L10n {
             public static let viewLicenses = L10n.tr("Localizable", "nighthawk.about.viewLicenses", fallback: "View licenses")
             /// View Source
             public static let viewSource = L10n.tr("Localizable", "nighthawk.about.viewSource", fallback: "View Source")
+            /// Open Source Licenses
+            public static let openSourceLicenses = L10n.tr("Localizable", "nighthawk.about.openSourceLicenses", fallback: "Open Source Licenses")
+            /// Version %@ (%@)
+            public static func versionWithBuild(_ p1: Any, _ p2: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.about.versionWithBuild", String(describing: p1), String(describing: p2), fallback: "Version %@ (%@)")
+            }
+            /// Version %@
+            public static func versionOnly(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.about.versionOnly", String(describing: p1), fallback: "Version %@")
+            }
         }
         public enum Chat {
             public static let peers = L10n.tr("Localizable", "nighthawk.chat.peers", fallback: "Peers")
@@ -100,6 +110,69 @@ public enum L10n {
             public static func nodeStatus(_ p1: Any) -> String {
                 L10n.tr("Localizable", "nighthawk.chat.nodeStatus", String(describing: p1), fallback: "Node: %@")
             }
+            public static let clearnetAlertTitle = L10n.tr("Localizable", "nighthawk.chat.clearnetAlertTitle", fallback: "Open clearnet link?")
+            public static let clearnetOpenBrowser = L10n.tr("Localizable", "nighthawk.chat.clearnetOpenBrowser", fallback: "Open in browser")
+            public static let clearnetCopyLink = L10n.tr("Localizable", "nighthawk.chat.clearnetCopyLink", fallback: "Copy link")
+            public static let clearnetAlertMessage = L10n.tr("Localizable", "nighthawk.chat.clearnetAlertMessage", fallback: "This opens http(s) outside Nym/Tor and can leak your IP.")
+            public static let routeNym = L10n.tr("Localizable", "nighthawk.chat.routeNym", fallback: "Nym mixnet")
+            public static let routeTor = L10n.tr("Localizable", "nighthawk.chat.routeTor", fallback: "Tor")
+            public static let routeDirect = L10n.tr("Localizable", "nighthawk.chat.routeDirect", fallback: "Direct (clearnet)")
+            public static let routeBootstrapping = L10n.tr("Localizable", "nighthawk.chat.routeBootstrapping", fallback: "Bootstrapping…")
+            public static let routeDegraded = L10n.tr("Localizable", "nighthawk.chat.routeDegraded", fallback: "Degraded")
+            public static let routeOffline = L10n.tr("Localizable", "nighthawk.chat.routeOffline", fallback: "Offline")
+            public static let activePrivacyRoute = L10n.tr("Localizable", "nighthawk.chat.activePrivacyRoute", fallback: "Active privacy route")
+            public static func lightwalletdHeight(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.lightwalletdHeight", String(describing: p1), fallback: "Lightwalletd height %@")
+            }
+            public static let lightwalletdHeightUnavailable = L10n.tr("Localizable", "nighthawk.chat.lightwalletdHeightUnavailable", fallback: "Lightwalletd height unavailable")
+            public static func transportSummary(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.transportSummary", String(describing: p1), fallback: "Transport: %@")
+            }
+            public static let directE2eBadge = L10n.tr("Localizable", "nighthawk.chat.directE2eBadge", fallback: "Direct message · E2E")
+            public static let publicPlaintextBadge = L10n.tr("Localizable", "nighthawk.chat.publicPlaintextBadge", fallback: "Public channel · plaintext on the DAG")
+            public static let sharePubkeyTitle = L10n.tr("Localizable", "nighthawk.chat.sharePubkeyTitle", fallback: "Share Your Public Key")
+            public static let sharePubkeyCopy = L10n.tr("Localizable", "nighthawk.chat.sharePubkeyCopy", fallback: "Copy public key")
+            public static let sharePubkeyMessage = L10n.tr("Localizable", "nighthawk.chat.sharePubkeyMessage", fallback: "Copies your DM public key. A keypair is created only the first time. Share it over a channel you trust. Anyone with this key can send you encrypted DMs.")
+            public static let myPublicKeyCopied = L10n.tr("Localizable", "nighthawk.chat.myPublicKeyCopied", fallback: "MY PUBLIC KEY (copied)")
+            public static let noDmContactsTitle = L10n.tr("Localizable", "nighthawk.chat.noDmContactsTitle", fallback: "No DM contacts")
+            public static let noDmContactsBody = L10n.tr("Localizable", "nighthawk.chat.noDmContactsBody", fallback: "Tap \"New DM\" to exchange ChaCha20 public keys with a peer and start an encrypted conversation.")
+            public static let e2eEncrypted = L10n.tr("Localizable", "nighthawk.chat.e2eEncrypted", fallback: "E2E encrypted")
+            public static let copyMessage = L10n.tr("Localizable", "nighthawk.chat.copyMessage", fallback: "Copy Message")
+            public static func queueFile(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.queueFile", String(describing: p1), fallback: "Queue %@")
+            }
+            public static let paymentRequest = L10n.tr("Localizable", "nighthawk.chat.paymentRequest", fallback: "Payment request")
+            public static let pay = L10n.tr("Localizable", "nighthawk.chat.pay", fallback: "Pay")
+            public static func paymentPhase(_ p1: Any) -> String {
+                L10n.tr("Localizable", "nighthawk.chat.paymentPhase", String(describing: p1), fallback: "Payment %@")
+            }
+            public static let link = L10n.tr("Localizable", "nighthawk.chat.link", fallback: "Link")
+            public static let sendOrRequestDrk = L10n.tr("Localizable", "nighthawk.chat.sendOrRequestDrk", fallback: "Send or request DRK")
+            public static let messagePlaceholder = L10n.tr("Localizable", "nighthawk.chat.messagePlaceholder", fallback: "Message")
+            public static let amountDrkPlaceholder = L10n.tr("Localizable", "nighthawk.chat.amountDrkPlaceholder", fallback: "Amount (DRK)")
+            public static let payToAddressPlaceholder = L10n.tr("Localizable", "nighthawk.chat.payToAddressPlaceholder", fallback: "Pay to address")
+            public static let tip = L10n.tr("Localizable", "nighthawk.chat.tip", fallback: "Tip")
+            public enum NewDm {
+                public static let title = L10n.tr("Localizable", "nighthawk.chat.newDm.title", fallback: "New DM Conversation")
+                public static let subtitle = L10n.tr("Localizable", "nighthawk.chat.newDm.subtitle", fallback: "Exchange public keys with your peer to start an end-to-end encrypted DM using ChaCha20.")
+                public static let contactLabelSection = L10n.tr("Localizable", "nighthawk.chat.newDm.contactLabelSection", fallback: "CONTACT LABEL")
+                public static let contactLabelPlaceholder = L10n.tr("Localizable", "nighthawk.chat.newDm.contactLabelPlaceholder", fallback: "e.g. alice")
+                public static let peerPubkeySection = L10n.tr("Localizable", "nighthawk.chat.newDm.peerPubkeySection", fallback: "PEER'S PUBLIC KEY")
+                public static let peerPubkeyPlaceholder = L10n.tr("Localizable", "nighthawk.chat.newDm.peerPubkeyPlaceholder", fallback: "Base58 public key")
+                public static let pasteClipboard = L10n.tr("Localizable", "nighthawk.chat.newDm.pasteClipboard", fallback: "Paste from Clipboard")
+                public static let myKeypairSection = L10n.tr("Localizable", "nighthawk.chat.newDm.myKeypairSection", fallback: "MY KEYPAIR")
+                public static let generateKeys = L10n.tr("Localizable", "nighthawk.chat.newDm.generateKeys", fallback: "Generate My Keys")
+                public static let myPublicKeyLabel = L10n.tr("Localizable", "nighthawk.chat.newDm.myPublicKeyLabel", fallback: "My Public Key:")
+                public static let copyToShare = L10n.tr("Localizable", "nighthawk.chat.newDm.copyToShare", fallback: "Copy to Share")
+                public static let shareKeyHint = L10n.tr("Localizable", "nighthawk.chat.newDm.shareKeyHint", fallback: "Share this key with your peer so they can message you.")
+                public static let startDm = L10n.tr("Localizable", "nighthawk.chat.newDm.startDm", fallback: "Start DM")
+                public static let pasteAlertTitle = L10n.tr("Localizable", "nighthawk.chat.newDm.pasteAlertTitle", fallback: "Paste Public Key")
+                public static let pasteAction = L10n.tr("Localizable", "nighthawk.chat.newDm.pasteAction", fallback: "Paste")
+                public static let pasteAlertMessage = L10n.tr("Localizable", "nighthawk.chat.newDm.pasteAlertMessage", fallback: "Paste the DM public key from clipboard? The key will be extracted from !darkfi-dm-pubkey: format if present.")
+                public static let errorKeygen = L10n.tr("Localizable", "nighthawk.chat.newDm.errorKeygen", fallback: "Failed to generate DM keypair")
+                public static let errorInvalidClipboard = L10n.tr("Localizable", "nighthawk.chat.newDm.errorInvalidClipboard", fallback: "Clipboard does not contain a valid base58 public key.")
+                public static let errorSaveKeychain = L10n.tr("Localizable", "nighthawk.chat.newDm.errorSaveKeychain", fallback: "Could not save this contact to the Keychain.")
+            }
         }
         public enum Receive {
             public static let sendAndReceive = L10n.tr("Localizable", "nighthawk.receive.sendAndReceive", fallback: "Send and receive DRK")
@@ -108,6 +181,16 @@ public enum L10n {
             public static let showQrDetail = L10n.tr("Localizable", "nighthawk.receive.showQrDetail", fallback: "Let someone scan to send you money.")
             public static let copyAddress = L10n.tr("Localizable", "nighthawk.receive.copyAddress", fallback: "Copy private address")
             public static let copyAddressDetail = L10n.tr("Localizable", "nighthawk.receive.copyAddressDetail", fallback: "Your wallet address will be copied to the clipboard.")
+            public static let newAddressGenerated = L10n.tr("Localizable", "nighthawk.receive.newAddressGenerated", fallback: "New address generated")
+            public static let generateFailed = L10n.tr("Localizable", "nighthawk.receive.generateFailed", fallback: "Failed to generate address")
+        }
+        public enum RequestMoney {
+            public static let title = L10n.tr("Localizable", "nighthawk.requestMoney.title", fallback: "Request money")
+            public static let subtitle = L10n.tr("Localizable", "nighthawk.requestMoney.subtitle", fallback: "One receive address. The QR is a drk: invoice with the amount and memo you enter.")
+            public static let amount = L10n.tr("Localizable", "nighthawk.requestMoney.amount", fallback: "Amount")
+            public static let memo = L10n.tr("Localizable", "nighthawk.requestMoney.memo", fallback: "Memo")
+            public static let copied = L10n.tr("Localizable", "nighthawk.requestMoney.copied", fallback: "Copied")
+            public static let copyInvoice = L10n.tr("Localizable", "nighthawk.requestMoney.copyInvoice", fallback: "Copy invoice")
         }
         public enum App {
             public enum DeleteWallet {
@@ -474,6 +557,15 @@ public enum L10n {
             }
             /// Write down your backup seed
             public static let title = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.title", fallback: "Write down your backup seed")
+            public static let screenCaptured = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.screenCaptured", fallback: "Screen recording or screenshot detected.\nSeed phrase hidden for security.")
+            public static let quizTitle = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.quizTitle", fallback: "Confirm Backup (3 Words)")
+            public static let quizSubtitle = L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.quizSubtitle", fallback: "Enter the requested words from your recovery phrase to confirm you wrote it down.")
+            public static func wordPlaceholder(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.wordPlaceholder", String(describing: p1), fallback: "Word #%@")
+            }
+            public static func wordMismatch(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.recoveryPhraseDisplay.wordMismatch", String(describing: p1), fallback: "Word #%@ does not match")
+            }
         }
         public enum SettingsTab {
             /// Nighthawk v%@ & Licenses
@@ -528,9 +620,25 @@ public enum L10n {
             public static let securityTitle = L10n.tr("Localizable", "nighthawk.settingsTab.securityTitle", fallback: "Security")
             /// Settings
             public static let settings = L10n.tr("Localizable", "nighthawk.settingsTab.settings", fallback: "Settings")
+            public static func securityBiometricsAndPin(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.settingsTab.securityBiometricsAndPin", String(describing: p1), fallback: "%@ & 6-digit PIN")
+            }
+            public static let securityPinOnly = L10n.tr("Localizable", "nighthawk.settingsTab.securityPinOnly", fallback: "6-digit App PIN")
+            public static let shareTitle = L10n.tr("Localizable", "nighthawk.settingsTab.shareTitle", fallback: "Share Nighthawk")
+            public static let shareSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.shareSubtitle", fallback: "Invite friends to Nighthawk Wallet")
+            public static let shareSubject = L10n.tr("Localizable", "nighthawk.settingsTab.shareSubject", fallback: "Nighthawk Wallet")
+            public static let shareMessage = L10n.tr("Localizable", "nighthawk.settingsTab.shareMessage", fallback: "Private DarkFi wallet & encrypted DarkIRC chat — Nighthawk Wallet")
             public enum Advanced {
                 /// Advanced settings
                 public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.title", fallback: "Advanced settings")
+                public enum Mesh {
+                    public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.mesh.title", fallback: "Nearby mesh")
+                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.mesh.subtitle", fallback: "Relay DarkIRC with nearby Nighthawk phones over Bluetooth. Share-internet stays off.")
+                }
+                public enum UnifOmr {
+                    public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.title", fallback: "Experimental UnifOMR")
+                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.subtitle", fallback: "Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. It also uploads a large detection key.")
+                }
                 public enum AppIcon {
                     /// Default
                     public static let `default` = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.appIcon.default", fallback: "Default")
@@ -683,6 +791,55 @@ public enum L10n {
                     /// Error ⸱ This doesn't look like a valid server address
                     public static let invalidLightwalletd = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.custom.invalidLightwalletd", fallback: "Error ⸱ This doesn't look like a valid server address")
                 }
+                public static let placeholder = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.placeholder", fallback: "https://host:443 or 127.0.0.1:9067")
+                public static let useTlsTitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.useTlsTitle", fallback: "Use TLS (HTTPS)")
+                public static let useTlsSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.useTlsSubtitle", fallback: "Required for remote servers; pinned by SHA-256 certificate digest.")
+                public static let presets = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.presets", fallback: "Presets")
+                public static let presetTestnet = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.presetTestnet", fallback: "Nighthawk Testnet (HTTPS)")
+                public static let presetLocal = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.presetLocal", fallback: "Local Lightwalletd")
+                public static let portWarningTitle = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.portWarningTitle", fallback: "Non-Standard Port")
+                public static let portWarningUseAnyway = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.portWarningUseAnyway", fallback: "Use Anyway")
+                public static let portWarningMessage = L10n.tr("Localizable", "nighthawk.settingsTab.changeServer.portWarningMessage", fallback: "The port you entered is not a standard DarkFi lightwallet port (9067 or 443 for TLS). Using a non-standard port may prevent sync.")
+            }
+            public enum ChatSettings {
+                public static let fileOffersSection = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.fileOffersSection", fallback: "FILE OFFERS")
+                public static let allowFudTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.allowFudTitle", fallback: "Allow fud:// file offers")
+                public static let allowFudSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.allowFudSubtitle", fallback: "A tap queues the offer on this phone. It is sent only over Nym, Tor, or nearby mesh, and the file is not downloaded automatically.")
+                public static let embeddedNodeSection = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.embeddedNodeSection", fallback: "EMBEDDED NODE SYNC")
+                public static let useEmbeddedTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.useEmbeddedTitle", fallback: "Use embedded darkirc")
+                public static let useEmbeddedSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle", fallback: "Run darkirc inside the app")
+                public static let dagHistoryTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.dagHistoryTitle", fallback: "DAG history hours (1–24)")
+                public static let dagHistorySubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.dagHistorySubtitle", fallback: "Each DAG is about one hour of channel history. Default is 8 (upstream darkirc).")
+                public static let fastSyncTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.fastSyncTitle", fallback: "Fast sync (header-only)")
+                public static let fastSyncSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.fastSyncSubtitle", fallback: "Matches upstream fast_mod: quicker DAG sync with less history fetch.")
+                public static let channelPrivacySection = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.channelPrivacySection", fallback: "CHANNEL PRIVACY")
+                public static let channelPrivacyBody = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.channelPrivacyBody", fallback: "Public #channels are plaintext on DarkIRC. Only 1:1 DMs use ChaChaBox end-to-end encryption. Group/channel E2E is not available yet.")
+                public static let encryptedContactsSection = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.encryptedContactsSection", fallback: "ENCRYPTED CONTACTS (DM)")
+                public static let yourPublicKey = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.yourPublicKey", fallback: "Your public key (share with contact):")
+                public static let safetyNumber = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.safetyNumber", fallback: "Safety number")
+                public static let generateDmKeys = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.generateDmKeys", fallback: "Generate my DM keys")
+                public static let noContacts = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.noContacts", fallback: "No encrypted contacts configured.")
+                public static let remove = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.remove", fallback: "Remove")
+                public static let addContact = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.addContact", fallback: "Add encrypted contact")
+                public static let applyReconnect = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.applyReconnect", fallback: "Apply & reconnect")
+                public static let inviteQrTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.inviteQrTitle", fallback: "Contact Invite QR (nighthawk://contact)")
+                public static let copyInviteUri = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.copyInviteUri", fallback: "Copy contact invite URI")
+                public static let pasteInvitePlaceholder = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder", fallback: "Paste nighthawk://contact?... invite")
+                public static let fill = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.fill", fallback: "Fill")
+                public static let nickname = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.nickname", fallback: "Nickname")
+                public static let peerDmPubkeyPlaceholder = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder", fallback: "Peer DM public key (Base58)")
+                public static let myDmSecretPlaceholder = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder", fallback: "My DM secret key (Base58)")
+                public static let generateKeypair = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.generateKeypair", fallback: "Generate my DM keypair")
+                public static func myPublicKeyValue(_ p1: Any) -> String {
+                    return L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.myPublicKeyValue", String(describing: p1), fallback: "My public key: %@")
+                }
+                public static let walletAddressOptional = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.walletAddressOptional", fallback: "DarkFi wallet address (optional)")
+                public static let addContactButton = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.addContactButton", fallback: "Add contact")
+                public static let addContactSheetTitle = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.addContactSheetTitle", fallback: "Add Encrypted Contact")
+                public static let errorInvalidInvite = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.errorInvalidInvite", fallback: "Unrecognized invite URI. Expected nighthawk://contact?... or drk:...")
+                public static let errorInvalidNick = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.errorInvalidNick", fallback: "Enter a valid contact nickname (cannot start with #).")
+                public static let errorInvalidDmKeys = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.errorInvalidDmKeys", fallback: "Provide valid 32-byte Base58 DM keys.")
+                public static let errorMissingContactData = L10n.tr("Localizable", "nighthawk.settingsTab.chatSettings.errorMissingContactData", fallback: "Enter DM keys or a DarkFi wallet address.")
             }
             public enum ExternalServices {
                 /// External services
@@ -743,6 +900,61 @@ public enum L10n {
                 public static func enableValidationReason(_ p1: Any) -> String {
                     return L10n.tr("Localizable", "nighthawk.settingsTab.security.enableValidationReason", String(describing: p1), fallback: "Authenticate to enable %@")
                 }
+                public static let biometricsTitle = L10n.tr("Localizable", "nighthawk.settingsTab.security.biometricsTitle", fallback: "Biometrics")
+                public static let biometricsUnavailable = L10n.tr("Localizable", "nighthawk.settingsTab.security.biometricsUnavailable", fallback: "Face ID / Touch ID is not configured on this device. You can still protect the wallet with a 6-digit App PIN below.")
+                public static let pinTitle = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinTitle", fallback: "App PIN (6-digit)")
+                public static let pinEnabled = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinEnabled", fallback: "Enabled")
+                public static let pinOff = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinOff", fallback: "Off")
+                public static let pinDescription = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinDescription", fallback: "Locks wallet launch and resume after 10 minutes away. Stored in Keychain as a salted PBKDF2-SHA256 hash.")
+                public static let pinChange = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinChange", fallback: "Change PIN")
+                public static let pinVerify = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinVerify", fallback: "Verify PIN")
+                public static let pinDisable = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinDisable", fallback: "Disable PIN")
+                public static let pinSet = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinSet", fallback: "Set 6-digit PIN")
+                public static let pinConfirm = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinConfirm", fallback: "Confirm")
+                public static let pinPromptSetupEnter = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptSetupEnter", fallback: "Enter a new 6-digit PIN")
+                public static let pinPromptSetupConfirm = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptSetupConfirm", fallback: "Re-enter your 6-digit PIN to confirm")
+                public static let pinPromptChangeCurrent = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptChangeCurrent", fallback: "Enter your current 6-digit PIN")
+                public static let pinPromptChangeNew = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptChangeNew", fallback: "Enter your new 6-digit PIN")
+                public static let pinPromptChangeConfirm = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptChangeConfirm", fallback: "Re-enter your new 6-digit PIN")
+                public static let pinPromptDisable = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptDisable", fallback: "Enter your current PIN to disable")
+                public static let pinPromptVerify = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinPromptVerify", fallback: "Enter your 6-digit PIN to verify")
+                public static func pinErrorDigits(_ p1: Any) -> String {
+                    return L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorDigits", String(describing: p1), fallback: "Enter exactly %@ digits.")
+                }
+                public static let pinErrorNewMismatch = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorNewMismatch", fallback: "New PINs did not match. Try again.")
+                public static let pinErrorMismatch = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorMismatch", fallback: "PINs did not match. Try again.")
+                public static let pinErrorUpdateKeychain = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorUpdateKeychain", fallback: "Could not update PIN in Keychain.")
+                public static let pinErrorStoreKeychain = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorStoreKeychain", fallback: "Could not store PIN in Keychain.")
+                public static let pinErrorCurrentIncorrect = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorCurrentIncorrect", fallback: "Incorrect current PIN.")
+                public static let pinErrorIncorrect = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorIncorrect", fallback: "Incorrect PIN.")
+                public static let pinStatusUpdated = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusUpdated", fallback: "App PIN updated.")
+                public static let pinStatusEnabled = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusEnabled", fallback: "6-digit App PIN enabled.")
+                public static let pinStatusDisabled = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusDisabled", fallback: "App PIN disabled.")
+                public static let pinStatusVerified = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusVerified", fallback: "PIN verified.")
+            }
+            public enum TorNetwork {
+                public static let intro = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.intro", fallback: "Wallet, chat, and node traffic go over the Nym mixnet by default, which hides your IP address from servers. Chat reaches the public DarkIRC seeds through that same tunnel. Onion-only peers need Tor. The first connection usually takes a few seconds and can take up to a minute.")
+                public static let walletNetworkTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.walletNetworkTitle", fallback: "Wallet network")
+                public static let walletNetworkSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.walletNetworkSubtitle", fallback: "Used for lightwalletd sync and transaction broadcast. Changing it reconnects the wallet.")
+                public static func nymStatus(_ p1: Any) -> String {
+                    return L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.nymStatus", String(describing: p1), fallback: "Nym: %@")
+                }
+                public static let nymTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.nymTitle", fallback: "Nym mixnet (recommended)")
+                public static let nymSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.nymSubtitle", fallback: "Mixes packets across five hops. Chat uses the clearnet seeds through the mixnet. Cannot reach .onion addresses.")
+                public static let torTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.torTitle", fallback: "Tor")
+                public static let torSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.torSubtitle", fallback: "Onion routing through built-in Arti or the SOCKS endpoint below.")
+                public static let directTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.directTitle", fallback: "Direct")
+                public static let directSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.directSubtitle", fallback: "Connects straight to the server. It sees your IP address.")
+                public static let builtInTorTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.builtInTorTitle", fallback: "Built-in Tor (Arti)")
+                public static let builtInTorSubtitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.builtInTorSubtitle", fallback: "Runs Arti (Rust Tor) inside the app and exposes a loopback SOCKS listener. This is separate from an external Tor/SOCKS app you configure below.")
+                public static let useBuiltInArti = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.useBuiltInArti", fallback: "Use built-in Arti")
+                public static let enableTorHint = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.enableTorHint", fallback: "Enable app-wide Tor routing above to use built-in Arti.")
+                public static let socksEndpointTitle = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.socksEndpointTitle", fallback: "SOCKS endpoint")
+                public static let socksDescriptionEmbedded = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded", fallback: "Loopback address where built-in Arti listens (default 127.0.0.1:9050). Embedded DarkIRC uses this proxy for .onion P2P seeds.")
+                public static let socksDescriptionExternal = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.socksDescriptionExternal", fallback: "Host and port of your external Tor or SOCKS proxy. Required when built-in Arti is off.")
+                public static let socksHost = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.socksHost", fallback: "SOCKS host")
+                public static let socksPort = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.socksPort", fallback: "SOCKS port")
+                public static let footer = L10n.tr("Localizable", "nighthawk.settingsTab.torNetwork.footer", fallback: "Changing built-in Tor or SOCKS restarts embedded DarkIRC when enabled so P2P/event-graph transport matches. Open Chat to verify green status lights.")
             }
             public enum SyncNotifications {
                 /// When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.
@@ -788,6 +1000,18 @@ public enum L10n {
             public static let subtitle = L10n.tr("Localizable", "nighthawk.splash.subtitle", fallback: "Private money in your pocket.")
             /// Nighthawk
             public static let title = L10n.tr("Localizable", "nighthawk.splash.title", fallback: "Nighthawk")
+            public static let enterAppPin = L10n.tr("Localizable", "nighthawk.splash.enterAppPin", fallback: "Enter App PIN")
+            public static let sixDigitPin = L10n.tr("Localizable", "nighthawk.splash.sixDigitPin", fallback: "6-digit PIN")
+            public static let unlock = L10n.tr("Localizable", "nighthawk.splash.unlock", fallback: "Unlock")
+            public static let pinErrorLength = L10n.tr("Localizable", "nighthawk.splash.pinErrorLength", fallback: "Enter your 6-digit PIN.")
+            public static let pinErrorIncorrect = L10n.tr("Localizable", "nighthawk.splash.pinErrorIncorrect", fallback: "Incorrect PIN. Try again.")
+            public static let nymFailed = L10n.tr("Localizable", "nighthawk.splash.nymFailed", fallback: "Nym mixnet connection failed")
+            public static func nymConnecting(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.splash.nymConnecting", String(describing: p1), fallback: "Connecting to the Nym mixnet… %@ s")
+            }
+            public static let nymSlow = L10n.tr("Localizable", "nighthawk.splash.nymSlow", fallback: "Taking longer than usual. Keep waiting, or continue without Nym.")
+            public static let continueWithoutNym = L10n.tr("Localizable", "nighthawk.splash.continueWithoutNym", fallback: "Continue without Nym")
+            public static let nymSessionHint = L10n.tr("Localizable", "nighthawk.splash.nymSessionHint", fallback: "Wallet and chat use your regular network for this session. You can switch back to Nym in Settings.")
             public enum Initialization {
                 public enum Alert {
                     public enum Failed {
@@ -866,6 +1090,8 @@ public enum L10n {
             public static let recipientTransparent = L10n.tr("Localizable", "nighthawk.transactionDetails.recipientTransparent", fallback: "Private")
             /// Reply-to address copied!
             public static let replyToCopied = L10n.tr("Localizable", "nighthawk.transactionDetails.replyToCopied", fallback: "Reply-to address copied!")
+            /// Sync method
+            public static let syncMethod = L10n.tr("Localizable", "nighthawk.transactionDetails.syncMethod", fallback: "Sync method")
             /// Time (UTC)
             public static let time = L10n.tr("Localizable", "nighthawk.transactionDetails.time", fallback: "Time (UTC)")
             /// Transaction details
@@ -997,6 +1223,8 @@ public enum L10n {
                 }
                 /// Top up wallet
                 public static let topUpWallet = L10n.tr("Localizable", "nighthawk.transferTab.send.topUpWallet", fallback: "Top up wallet")
+                public static let drkNative = L10n.tr("Localizable", "nighthawk.transferTab.send.drkNative", fallback: "DRK (native)")
+                public static let tokenLabel = L10n.tr("Localizable", "nighthawk.transferTab.send.tokenLabel", fallback: "Token:")
                 public enum Toast {
                     /// Not enough DRK!
                     public static let notEnoughDrk = L10n.tr("Localizable", "nighthawk.transferTab.send.toast.notEnoughDrk", fallback: "Not enough DRK!")
@@ -1094,6 +1322,22 @@ public enum L10n {
             public static let transparentBalance = L10n.tr("Localizable", "nighthawk.walletTab.transparentBalance", fallback: "Private balance")
             /// View transaction history
             public static let viewTransactionHistory = L10n.tr("Localizable", "nighthawk.walletTab.viewTransactionHistory", fallback: "View transaction history")
+            public static let syncStale = L10n.tr("Localizable", "nighthawk.walletTab.syncStale", fallback: "Lightwalletd stale or unreachable")
+            public static func syncedBlock(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.walletTab.syncedBlock", String(describing: p1), fallback: "Synced · Block %@")
+            }
+            public static func syncingBlock(_ p1: Any, _ p2: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.walletTab.syncingBlock", String(describing: p1), String(describing: p2), fallback: "Syncing %@%% · Block %@")
+            }
+            public static func syncingPercent(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.walletTab.syncingPercent", String(describing: p1), fallback: "Syncing %@%%")
+            }
+            public static let syncError = L10n.tr("Localizable", "nighthawk.walletTab.syncError", fallback: "Sync Error")
+            public static let syncStopped = L10n.tr("Localizable", "nighthawk.walletTab.syncStopped", fallback: "Sync Stopped")
+            public static let unreachableBanner = L10n.tr("Localizable", "nighthawk.walletTab.unreachableBanner", fallback: "Lightwalletd unreachable — check Change Server or Network privacy.")
+            public static let reorgTitle = L10n.tr("Localizable", "nighthawk.walletTab.reorgTitle", fallback: "Chain Reorg Recovery")
+            public static let tokens = L10n.tr("Localizable", "nighthawk.walletTab.tokens", fallback: "Tokens")
+            public static let tapToSend = L10n.tr("Localizable", "nighthawk.walletTab.tapToSend", fallback: "Tap to send")
             public enum Addresses {
                 /// Copied to clipboard!
                 public static let copiedToClipboard = L10n.tr("Localizable", "nighthawk.walletTab.addresses.copiedToClipboard", fallback: "Copied to clipboard!")

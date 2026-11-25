@@ -19,28 +19,30 @@ public enum ChatNotificationRouter {
         return value?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
     }
 
-    static func maybeNotify(
-        nick: String,
-        body: String,
-        thread: String,
-        isOutgoing: Bool,
-        timestamp: Date,
-        ownNick: String
-    ) {
+    struct NotificationEvent {
+        let nick: String
+        let body: String
+        let thread: String
+        let isOutgoing: Bool
+        let timestamp: Date
+        let ownNick: String
+    }
+
+    static func maybeNotify(_ event: NotificationEvent) {
         guard ChatNotificationPolicy.shouldAlert(
-            isOutgoing: isOutgoing,
-            ownNick: ownNick,
-            nick: nick,
-            timestamp: timestamp
+            isOutgoing: event.isOutgoing,
+            ownNick: event.ownNick,
+            nick: event.nick,
+            timestamp: event.timestamp
         ) else { return }
         guard UIApplication.shared.applicationState != .active else { return }
         let content = UNMutableNotificationContent()
         content.title = "Nighthawk"
         content.body = ChatNotificationPolicy.lockscreenText
-        content.userInfo = ["nighthawk_chat_thread": thread]
+        content.userInfo = ["nighthawk_chat_thread": event.thread]
         content.sound = .default
         let request = UNNotificationRequest(
-            identifier: "chat-\(thread)-\(Int(timestamp.timeIntervalSince1970))",
+            identifier: "chat-\(event.thread)-\(Int(event.timestamp.timeIntervalSince1970))",
             content: content,
             trigger: nil
         )

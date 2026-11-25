@@ -109,7 +109,7 @@ struct NighthawkTabBar: View {
     private var chromeBackground: some View {
         Group {
             if themes.theme.usesCyberpunkChrome {
-                Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255, opacity: 0.85)
+                Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255, opacity: 0xC0 / 255)
             } else {
                 Asset.Colors.Nighthawk.navy.color
             }
@@ -126,7 +126,8 @@ struct NighthawkTabBar: View {
             title: title,
             image: image,
             isSelected: selectedTab == tab,
-            placement: placement
+            placement: placement,
+            usesCyberpunkChrome: themes.theme.usesCyberpunkChrome
         )
         .frame(maxWidth: .infinity)
         .frame(minHeight: 44)
@@ -149,6 +150,14 @@ private struct TabBarItem: View {
     let image: Image
     let isSelected: Bool
     let placement: NighthawkTabPlacement
+    let usesCyberpunkChrome: Bool
+
+    private var unselectedColor: Color {
+        if usesCyberpunkChrome {
+            return Color(red: 0xE7 / 255, green: 0xEE / 255, blue: 0xF8 / 255)
+        }
+        return Asset.Colors.Nighthawk.textHeader.color
+    }
 
     var body: some View {
         VStack {
@@ -159,14 +168,14 @@ private struct TabBarItem: View {
                 .foregroundColor(
                     isSelected
                         ? Asset.Colors.Nighthawk.peach.color
-                        : Asset.Colors.Nighthawk.textHeader.color
+                        : unselectedColor
                 )
                 .frame(width: 24, height: 24)
             Text(title)
                 .caption(
                     color: isSelected
                         ? Asset.Colors.Nighthawk.peach.color
-                        : Asset.Colors.Nighthawk.textHeader.color
+                        : unselectedColor
                 )
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

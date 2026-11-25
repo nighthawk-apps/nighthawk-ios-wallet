@@ -34,7 +34,7 @@ public struct AboutView: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Open Source Licenses")
+                    Text(L10n.Nighthawk.About.openSourceLicenses)
                         .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         .padding(.bottom, 12)
 

@@ -1,25 +1,25 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "磁碟空間不足，無法同步！";
 
 // MARK: - Common & Shared
-"general.back" = "Back";
-"general.done" = "Done";
-"general.skip" = "Skip";
-"general.next" = "Next";
-"general.send" = "Send";
-"general.clear" = "Clear";
-"general.close" = "Close";
-"general.max" = "Max";
-"general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
-"general.cancel" = "Cancel";
-"general.success" = "Success";
-"general.unknown" = "Unknown";
+"general.back" = "返回";
+"general.done" = "完成";
+"general.skip" = "略過";
+"general.next" = "下一步";
+"general.send" = "傳送";
+"general.clear" = "清除";
+"general.close" = "關閉";
+"general.max" = "最大";
+"general.ok" = "好";
+"general.yes" = "是";
+"general.no" = "否";
+"general.cancel" = "取消";
+"general.success" = "成功";
+"general.unknown" = "未知";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ 可用";
+"qrCodeFor" = "%@ 的 QR 碼";
+"general.dateNotAvailable" = "日期不可用";
 
 //==========================================================
 // NIGHTHAWK
@@ -27,356 +27,736 @@
 // MARK: - Nighthawk
 
 // MARK: - Local authentication
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+"nighthawk.localAuthentication.accessWalletReason" = "你必須驗證身分才能開啟 Nighthawk 錢包。";
+"nighthawk.localAuthentication.sendFundsReason" = "你必須驗證身分才能從錢包轉出資金。";
 
 // MARK: - About screen
-"nighthawk.about.title" = "About";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.title" = "關於";
+"nighthawk.about.message" = "Nighthawk 是 DarkFi 的預設即私密錢包。所有交易完全私密，不支援透明地址。\n\n這是非託管錢包，資金由你自行負責。建立錢包後，請立即安全備份助記詞。\n\nDarkFi 是為匿名應用與私人金融而設計的 layer-1 區塊鏈，由 DarkFi 社群打造，以實現金融自由。\n\nNighthawk Wallet 直接連接 DarkFi P2P 網路。本軟體依「現況」提供，不含任何明示或默示擔保。";
+"nighthawk.about.viewSource" = "檢視原始碼";
+"nighthawk.about.nighthawkFriends" = "Nighthawk 好友";
+"nighthawk.about.viewLicenses" = "檢視授權";
 
 // MARK: - Licenses Screen
-"nighthawk.licenses.title" = "OSS Licenses";
+"nighthawk.licenses.title" = "OSS 授權";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "SDK 初始化失敗";
+"nighthawk.app.launch.alert.error.message" = "錯誤：%@（代碼：%@）";
+"nighthawk.app.deleteWallet.alert.failed.title" = "錢包刪除失敗";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "Great!";
-"nighthawk.autoshield.buttonNeutral" = "Learn more";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Open the browser to read about DarkFi addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "Shielding…";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Success";
-"nighthawk.autoshield.shieldingFailed" = "Failed";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk 是";
+"nighthawk.autoshield.shieldedByDefault" = "預設即私密。";
+"nighthawk.autoshield.title2" = "DarkFi 上的所有交易都是私密的。沒有透明地址，也沒有屏蔽池 — 一切皆為私密。";
+"nighthawk.autoshield.autoshielding" = "隱私";
+"nighthawk.autoshield.detail1" = "所有資金始終私密。DarkFi 沒有透明地址的概念。";
+"nighthawk.autoshield.detail2" = "我們會定期提供最新的隱私保護實務與建議，讓你掌握狀況。";
+"nighthawk.autoshield.buttonPositive" = "太好了！";
+"nighthawk.autoshield.buttonNeutral" = "進一步了解";
+"nighthawk.autoshield.alert.redirecting.title" = "正在前往 DarkFi";
+"nighthawk.autoshield.alert.redirecting.details" = "請確認開啟裝置瀏覽器，以進一步了解 DarkFi 的隱私。";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "開啟瀏覽器";
+"nighthawk.autoshield.shielding" = "處理中…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "成功";
+"nighthawk.autoshield.shieldingFailed" = "失敗";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
-"nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.retry" = "重試";
+"nighthawk.splash.subtitle" = "私密的錢，就在口袋裡。";
+"nighthawk.splash.initialization.alert.failed.title" = "錢包初始化失敗。";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App 初始化狀態：%@。";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
-"nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.title" = "從舊版 App 遷移";
+"nighthawk.migrateScreen.explanation" = "我們改以更安全的方式在本地儲存資料，因此需要遷移助記詞才能還原錢包。若不想自動遷移，就必須手動輸入助記詞來還原錢包。\n\n要自動繼續嗎？";
+"nighthawk.migrateScreen.continue" = "繼續";
+"nighthawk.migrateScreen.restoreManually" = "手動還原";
+"nighthawk.migrateScreen.migrationFailed.title" = "遷移失敗";
+"nighthawk.migrateScreen.migrationFailed.description" = "發生錯誤，無法自動遷移錢包。點一下「繼續」以手動匯入錢包。";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "This app is free software. Use is covered only by its license.";
-"nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "開始使用";
+"nighthawk.welcome.body" = "如果是第一次使用 Nighthawk，你需要建立錢包。如果是回來使用，可以還原先前的錢包。";
+"nighthawk.welcome.terms1" = "此 App 是自由軟體。使用僅受其授權條款約束。";
+"nighthawk.welcome.create" = "建立錢包";
+"nighthawk.welcome.restore" = "從備份還原";
+"nighthawk.welcome.initialization.alert.failed.title" = "錢包初始化失敗。";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "無法建立新錢包。錯誤：%@（代碼：%@）";
+"nighthawk.welcome.carousel.title1" = "預設即私密";
+"nighthawk.welcome.carousel.body1" = "所有交易完全私密。沒有透明地址，也不會洩漏中繼資料。你的財務生活仍屬於你。";
+"nighthawk.welcome.carousel.title2" = "點對點網路";
+"nighthawk.welcome.carousel.body2" = "透過 Tor 直接連接 DarkFi 網路。沒有中介伺服器。沒有需要信任的端點。";
+"nighthawk.welcome.carousel.title3" = "加密聊天";
+"nighthawk.welcome.carousel.body3" = "透過 DarkIRC 傳送端對端加密訊息。私人通訊內建於錢包。";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Backup your wallet";
-"nighthawk.walletCreated.skip" = "Skip for now";
+"nighthawk.walletCreated.title" = "錢包已建立！恭喜！";
+"nighthawk.walletCreated.backupImmediately" = "為了資金安全並避免意外後果，我們強烈建議你備份錢包。請記得：這是自行保管的錢包，資金完全由你負責。";
+"nighthawk.walletCreated.backup" = "備份錢包";
+"nighthawk.walletCreated.skip" = "暫時跳過";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
-"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
-"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.title" = "請寫下備份助記詞";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "如果失去手機或 Nighthawk 錢包的存取權，只有這組 22 個詞的助記詞和錢包生日代碼才能取回 DarkFi。";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "請抄在紙上，並存放在安全的地方。";
+"nighthawk.recoveryPhraseDisplay.birthday" = "錢包生日：";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "我確認已保存助記詞。";
+"nighthawk.recoveryPhraseDisplay.continue" = "繼續";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "匯出為 PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "這些助記詞可用來在 Nighthawk Wallet 中還原你的 DarkFi：";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "備份 PDF 產生於 %@";
 
 // MARK: - Export seed
-"nighthawk.exportSeed.title" = "Export as PDF";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
-"nighthawk.exportSeed.export" = "Export PDF";
-"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+"nighthawk.exportSeed.title" = "匯出為 PDF";
+"nighthawk.exportSeed.description" = "將助記詞匯出為受密碼保護的 PDF，以便備份到你自行保管的可攜式儲存裝置。";
+"nighthawk.exportSeed.export" = "匯出 PDF";
+"nighthawk.exportSeed.passwordPlaceholder" = "請輸入密碼";
 
 // MARK: - Import warning
-"nighthawk.importWarning.title" = "Before you continue";
-"nighthawk.importWarning.description" = "Please only import a seed phrase that was initially generated by Nighthawk. Other wallets operate differently, which may lead to inaccurate reporting of funds for your transactions.";
-"nighthawk.importWarning.proceed" = "Proceed";
+"nighthawk.importWarning.title" = "繼續之前";
+"nighthawk.importWarning.description" = "請只匯入最初由 Nighthawk 產生的助記詞。其他錢包的運作方式不同，可能導致交易資金顯示不準確。";
+"nighthawk.importWarning.proceed" = "繼續進行";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
-"nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (optional)";
-"nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.restoreFromBackup" = "從備份還原";
+"nighthawk.importWallet.enterSeedPhrase" = "請在下方輸入 22 個詞的助記詞。如果沒有這組詞，就需要建立新錢包。";
+"nighthawk.importWallet.yourSeedPhrase" = "你的助記詞";
+"nighthawk.importWallet.birthdayHeight" = "生日高度（選填）";
+"nighthawk.importWallet.continue" = "繼續";
+"nighthawk.importWallet.invalidMnemonic" = "錯誤 ⸱ 這看起來不是有效的助記詞";
+"nighthawk.importWallet.invalidBirthday" = "錯誤 ⸱ 這看起來不是有效的生日高度";
+"nighthawk.importWallet.alert.failed.title" = "還原錢包失敗";
+"nighthawk.importWallet.alert.failed.message" = "錯誤：%@（代碼：%@）";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Success";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "成功";
+"nighthawk.importWalletSuccess.viewWallet" = "檢視錢包";
 
 // MARK: - Transactions
-"nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "Receiving";
-"nighthawk.transaction.failed" = "Failed";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.sending" = "傳送中";
+"nighthawk.transaction.receiving" = "接收中";
+"nighthawk.transaction.failed" = "失敗";
+"nighthawk.transaction.received" = "已接收";
+"nighthawk.transaction.sent" = "已傳送";
 
 // MARK: - Home Screen
-"nighthawk.homeScreen.wallet" = "Wallet";
-"nighthawk.homeScreen.transfer" = "Transfer";
-"nighthawk.homeScreen.settings" = "Settings";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.chat" = "聊天";
+"nighthawk.homeScreen.wallet" = "錢包";
+"nighthawk.homeScreen.transfer" = "轉帳";
+"nighthawk.homeScreen.dex" = "DEX";
+"nighthawk.homeScreen.settings" = "設定";
+"nighthawk.homeScreen.expectingFunds" = "預期 %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "即將推出";
+"nighthawk.dex.comingSoonBody" = "DarkFi DEX 會放在這裡。傳送、接收和請求仍在錢包分頁。";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
-"nighthawk.walletTab.totalBalance" = "Total balance";
-"nighthawk.walletTab.shieldedBalance" = "Private balance";
-"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.swipeToShowBalances" = "向左滑動以顯示餘額";
+"nighthawk.walletTab.totalBalance" = "總餘額";
+"nighthawk.walletTab.shieldedBalance" = "私密餘額";
+"nighthawk.walletTab.transparentBalance" = "私密餘額";
 "nighthawk.walletTab.drk" = "DRK";
-"nighthawk.walletTab.recentActivity" = "Recent activity";
-"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.recentActivity" = "最近活動";
+"nighthawk.walletTab.viewTransactionHistory" = "檢視交易紀錄";
+"nighthawk.walletTab.shieldNow" = "重新整理";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.receiveAddress" = "Unified address";
-"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
-"nighthawk.walletTab.addresses.copy" = "Copy";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.receiveAddress" = "隱私地址";
+"nighthawk.walletTab.addresses.transparentAddress" = "隱私地址";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "為錢包充值";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "透過我們精選的合作夥伴買入或兌換 DarkFi。";
+"nighthawk.walletTab.addresses.copy" = "複製";
+"nighthawk.walletTab.addresses.seeMore" = "查看更多";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "已複製到剪貼簿！";
+"nighthawk.walletTab.addresses.loading" = "載入中…";
 
 // MARK: - Home Screen - Transaction history
-"nighthawk.transactionHistory.title" = "Transaction History";
+"nighthawk.transactionHistory.title" = "交易紀錄";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-private funds";
+"nighthawk.transactionHistory.autoshieldedFunds" = "私密資金";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
-"nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparing to scan";
-"nighthawk.sync.message.finalizing" = "Finalizing";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "已是最新";
+"nighthawk.sync.message.unprepared" = "連線中…";
+"nighthawk.sync.message.error" = "錯誤：%@";
+"nighthawk.sync.message.sync" = "掃描中…%@%%";
+"nighthawk.sync.message.preparing" = "準備掃描";
+"nighthawk.sync.message.finalizing" = "正在完成";
+"nighthawk.sync.message.stopped" = "已停止";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveDarkFi" = "Send and receive DarkFi";
-"nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Allow someone to scan the code to send money.";
-"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Your wallet address will be copied to the clipboard.";
-"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "傳送與接收 DarkFi";
+"nighthawk.transferTab.sendMoneyTitle" = "傳送款項";
+"nighthawk.transferTab.sendMoneyDescription" = "掃描對方的 QR 碼即可傳送款項。";
+"nighthawk.transferTab.receiveMoneyTitle" = "接收款項";
+"nighthawk.transferTab.receiveMoneyDescription" = "顯示你的 QR 碼或複製地址。";
+"nighthawk.walletTab.actionSend" = "傳送";
+"nighthawk.walletTab.actionReceive" = "接收";
+"nighthawk.walletTab.actionRequest" = "請求";
+"nighthawk.transferTab.topUpWalletTitle" = "為錢包充值";
+"nighthawk.transferTab.topUpWalletDescription" = "透過我們的合作夥伴安全買入 DarkFi。";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money securely";
-"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyAddressTitle" = "Copy address";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "私下接收款項";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "顯示 QR 碼";
+"nighthawk.transferTab.receive.copyAddressTitle" = "複製隱私地址";
+"nighthawk.transferTab.receive.copyAddressDescription" = "錢包地址會複製到剪貼簿。";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.sideshiftTitle" = "Swap with SideShift.ai";
-"nighthawk.transferTab.topUpWallet.sideshiftDescription" = "Swap between 30+ coins. No sign-up required.";
-"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "使用 StealthEx.io 兌換";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "兌換幣種，沒有上限。";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "使用 %@ 為錢包充值？";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "%@ 已複製到剪貼簿。\n\n請選擇下方的「開啟瀏覽器」，將 '%@' 選為 %@ 網站上的接收幣種，然後貼上 %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "開啟瀏覽器";
 
 // MARK: - Home Screen - Transfer - Send
-"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
-"nighthawk.transferTab.send.continue" = "Continue";
-"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
-"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
+"nighthawk.transferTab.send.chooseHowMuch" = "選擇要傳送的金額";
+"nighthawk.transferTab.send.spendableBalance" = "可花費餘額（含交易費）為 %@ %@";
+"nighthawk.transferTab.send.continue" = "繼續";
+"nighthawk.transferTab.send.topUpWallet" = "為錢包充值";
+"nighthawk.transferTab.send.scanCode" = "掃描付款碼";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "DRK 不足！";
+"nighthawk.transferTab.send.around" = "約 %@ %@";
+"nighthawk.transferTab.send.error" = "錯誤";
+"nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
-"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+"nighthawk.transferTab.scan.scanPaymentRequest" = "掃描付款請求";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "如果有付款請求，可在此掃描 QR 碼以自動填入所有資料。";
 
 // MARK: - Home Screen - Transfer - Add memo
-"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "為付款加上訊息";
+"nighthawk.transferTab.addMemo.writeSomething" = "寫點什麼...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "附上回覆地址";
 
 // MARK: - Home Screen - Transfer - Recipient
-"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addAddress" = "Add address here";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
-"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
-"nighthawk.transferTab.recipient.continue" = "Continue";
+"nighthawk.transferTab.recipient.chooseRecipient" = "選擇收款人";
+"nighthawk.transferTab.recipient.addAddress" = "在此加入地址";
+"nighthawk.transferTab.recipient.invalid" = "請輸入有效的收款人";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "不支援傳送到 TEX 地址，因為其隱私保護較弱";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "從剪貼簿貼上";
+"nighthawk.transferTab.recipient.continue" = "繼續";
 
 // MARK: - Home Screen - Transfer - Review
-"nighthawk.transferTab.review.title" = "Review and send";
-"nighthawk.transferTab.review.send" = "Send DarkFi";
+"nighthawk.transferTab.review.title" = "檢查並傳送";
+"nighthawk.transferTab.review.send" = "傳送 DarkFi";
 
 // MARK: - Home Screen - Transfer - Sending
-"nighthawk.transferTab.sending.title" = "Sending";
+"nighthawk.transferTab.sending.title" = "傳送中";
 
 // MARK: - Home Screen - Transfer - Failed
-"nighthawk.transferTab.failed.title" = "Failed";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
-"nighthawk.transferTab.failed.cancel" = "Cancel";
+"nighthawk.transferTab.failed.title" = "失敗";
+"nighthawk.transferTab.failed.tryAgain" = "再試一次";
+"nighthawk.transferTab.failed.cancel" = "取消";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Success";
-"nighthawk.transferTab.success.done" = "Done";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.title" = "成功";
+"nighthawk.transferTab.success.done" = "完成";
+"nighthawk.transferTab.success.moreDetails" = "更多詳細資料";
 
 // MARK: - Home Screen - Settings tab
-"nighthawk.settingsTab.settings" = "Settings";
-"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
-"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
-"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
-"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
-"nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
-"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
-"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Change server";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "External services";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "Advanced";
-"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
-"nighthawk.settingsTab.aboutTitle" = "About";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.settings" = "設定";
+"nighthawk.settingsTab.notificationsTitle" = "同步通知";
+"nighthawk.settingsTab.notificationsSubtitle" = "提醒你讓錢包保持最新";
+"nighthawk.settingsTab.fiatTitle" = "法幣";
+"nighthawk.settingsTab.fiatSubtitle" = "選擇你的本地貨幣";
+"nighthawk.settingsTab.securityTitle" = "安全性";
+"nighthawk.settingsTab.securitySubtitle" = "啟用/停用 %@";
+"nighthawk.settingsTab.backupTitle" = "備份錢包";
+"nighthawk.settingsTab.backupSubtitle" = "手機遺失時保護錢包";
+"nighthawk.settingsTab.rescanTitle" = "重新掃描錢包";
+"nighthawk.settingsTab.rescanSubtitle" = "重新掃描餘額以排除問題";
+"nighthawk.settingsTab.alert.rescan.title" = "要重新掃描這個錢包嗎？";
+"nighthawk.settingsTab.alert.rescan.message" = "依交易紀錄長度，重新掃描最多可能需要 10 小時。要開始掃描嗎？";
+"nighthawk.settingsTab.alert.rescan.wipe" = "清除";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "重新掃描失敗";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "錯誤：%@（代碼：%@）";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "回捲後無法開始同步";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "錯誤：%@（代碼：%@）";
+"nighthawk.settingsTab.changeServerTitle" = "變更伺服器";
+"nighthawk.settingsTab.changeServerSubtitle" = "變更後端伺服器";
+"nighthawk.settingsTab.chatSettingsTitle" = "聊天設定";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "E2E 加密、DAG 同步、內建 darkirc";
+"nighthawk.settingsTab.networkPrivacyTitle" = "網路隱私";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "錢包走 Nym、Tor 或直接連線；聊天走 Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "在左側選擇一項設定以開啟。";
+"nighthawk.settingsTab.externalServicesTitle" = "外部服務";
+"nighthawk.settingsTab.externalServicesSubtitle" = "選擇啟用合作服務";
+"nighthawk.settingsTab.advancedTitle" = "進階";
+"nighthawk.settingsTab.advancedSubtitle" = "較少用的設定";
+"nighthawk.settingsTab.aboutTitle" = "關於";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ 與授權";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
-"nighthawk.settingsTab.syncNotifications.title" = "Sync notifications";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.title" = "同步通知";
+"nighthawk.settingsTab.syncNotifications.description" = "如果 Nighthawk 錢包關閉很久，下次要使用時啟動會比較久。";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "允許同步通知，每週提醒你開啟錢包。";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "允許同步通知，每月提醒你開啟錢包。";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "每週";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "每月";
+"nighthawk.settingsTab.syncNotifications.offOption" = "關閉";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "權限被拒絕";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk 需要權限才能傳送同步通知。請開啟設定並授予必要權限。";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "前往設定";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "該同步了！";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "開啟 Nighthawk 並同步錢包，這樣需要花錢時資金已經準備好！";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "無法排程通知";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "目前無法排程你的同步通知。";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
-"nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.title" = "法幣";
+"nighthawk.settingsTab.fiatCurrency.description" = "選擇本地貨幣，以便我們顯示你的 %@ 大約值多少。\n\n第一次開啟 App 時，會從 CoinGecko API v3 取得匯率並用來計算。你的資金金額絕不會透露給任何伺服器。";
+"nighthawk.settingsTab.fiatCurrency.usd" = "美元";
+"nighthawk.settingsTab.fiatCurrency.eur" = "歐元";
+"nighthawk.settingsTab.fiatCurrency.inr" = "印度盧比";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "日圓";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "英鎊";
+"nighthawk.settingsTab.fiatCurrency.cad" = "加幣";
+"nighthawk.settingsTab.fiatCurrency.aud" = "澳幣";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "港幣";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "新加坡幣";
+"nighthawk.settingsTab.fiatCurrency.chf" = "瑞士法郎";
+"nighthawk.settingsTab.fiatCurrency.cny" = "人民幣";
+"nighthawk.settingsTab.fiatCurrency.krw" = "韓元";
+"nighthawk.settingsTab.fiatCurrency.off" = "關閉";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ 已啟用";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ 已停用";
+"nighthawk.settingsTab.security.disableValidationReason" = "驗證以停用 %@";
+"nighthawk.settingsTab.security.enableValidationReason" = "驗證以啟用 %@";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default";
-"nighthawk.settingsTab.changeServer.asiaOceania" = "Asia & Oceania";
-"nighthawk.settingsTab.changeServer.europeAfrica" = "Europe & Africa";
-"nighthawk.settingsTab.changeServer.northAmerica" = "North America";
-"nighthawk.settingsTab.changeServer.southAmerica" = "South America";
-"nighthawk.settingsTab.changeServer.alert.relaunchNeeded.title" = "Re-launch required";
-"nighthawk.settingsTab.changeServer.alert.relaunchNeeded.message" = "Changing lightwalletd servers requires an app re-launch. The changes will take effect on the next app launch after closing the app";
+"nighthawk.settingsTab.changeServer.title" = "變更伺服器";
+"nighthawk.settingsTab.changeServer.default" = "預設（%@）";
+"nighthawk.settingsTab.changeServer.custom" = "自訂";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "錯誤 ⸱ 這看起來不是有效的伺服器地址";
+"nighthawk.settingsTab.changeServer.save" = "儲存";
+"nighthawk.settingsTab.changeServer.disclaimer" = "自訂伺服器不是由 Nighthawk 營運。進行交易時，我們建議使用 Tor 以加強隱私。";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "無法變更伺服器";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "錯誤：%@（代碼：%@）";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "要檢視助記詞嗎？";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "警告：請確定只有你在看手機。下一個畫面會顯示錢包的助記詞。";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "檢視助記詞";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
-"nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.title" = "進階設定";
+"nighthawk.settingsTab.advanced.screenMode.title" = "保持螢幕開啟";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "如果一陣子沒開啟錢包，同步可能需要一些時間。將螢幕模式設為「保持開啟」，手機就不會在同步時進入睡眠。";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "保持開啟";
+"nighthawk.settingsTab.advanced.screenMode.off" = "關閉";
+"nighthawk.settingsTab.advanced.appIcon.title" = "App 圖示";
+"nighthawk.settingsTab.advanced.appIcon.default" = "預設";
+"nighthawk.settingsTab.advanced.appIcon.retro" = "復古";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App 圖示已更新！";
+"nighthawk.settingsTab.advanced.theme.title" = "主題";
+"nighthawk.settingsTab.advanced.theme.default" = "系統（Cyberpunk）";
+"nighthawk.settingsTab.advanced.theme.light" = "淺色";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "霧感中性色，石墨點綴。";
+"nighthawk.settingsTab.advanced.theme.midnight" = "午夜";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "更深的底色，紫羅蘭點綴。";
+"nighthawk.settingsTab.advanced.theme.paper" = "紙張";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "有型地進入 nighthawk";
+"nighthawk.chat.peers" = "對等節點";
+"nighthawk.chat.retry" = "重試";
+"nighthawk.chat.outboundPeers" = "出站對等節點";
+"nighthawk.chat.title" = "DarkFi IRC";
+"nighthawk.chat.subtitle" = "端對端加密聊天\n由 DarkFi P2P 網路驅動";
+"nighthawk.chat.connect" = "連線";
+"nighthawk.chat.networkHint" = "請檢查網路設定，或在設定中配置 Tor。";
+"nighthawk.chat.newDm" = "新私訊";
+"nighthawk.chat.request" = "請求";
+"nighthawk.chat.settings" = "設定";
+"nighthawk.chat.shareKey" = "分享密鑰";
+"nighthawk.chat.noMessages" = "還沒有訊息";
+"nighthawk.chat.ircStatus" = "IRC：%@";
+"nighthawk.chat.nodeStatus" = "節點：%@";
+"nighthawk.receive.sendAndReceive" = "傳送與接收 DRK";
+"nighthawk.receive.receivePrivately" = "私下接收款項";
+"nighthawk.receive.showQr" = "顯示 QR 碼";
+"nighthawk.receive.showQrDetail" = "讓對方掃描即可傳送款項給你。";
+"nighthawk.receive.copyAddress" = "複製私密地址";
+"nighthawk.receive.copyAddressDetail" = "錢包地址會複製到剪貼簿。";
+"nighthawk.settingsTab.advanced.theme.dark" = "深色";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "注意：會徹底銷毀這個錢包 — 助記詞、SQLCipher 密碼，以及裝置上的資料庫。沒有助記詞就無法取回資金。建立或還原錢包之前，請先關閉並重新啟動 App。";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "銷毀錢包";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "你確定嗎？";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "此操作不可逆。沒有助記詞就不可能還原資金。繼續之前，請絕對確認已將助記詞存放在安全的地方。仍要繼續嗎？";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "最後警告";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "銷毀錢包是極其敏感的操作。敏感到你必須手動關閉 App 並重新啟動 Nighthawk，才能建立新錢包或還原錢包。";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "我確認，銷毀錢包";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "刪除本地資料庫";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "只移除裝置上的錢包資料庫和同步快取。助記詞仍留在鑰匙圈，以便重新開啟並掃描。請在無法開啟舊資料庫的原生升級之後使用。";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "要刪除本地資料庫嗎？";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "這會刪除此裝置上的 darkfi_wallet.db 和 darkfi_cache。復原片語會保留。錢包會重新開啟，並從網路重新掃描。";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "刪除資料庫";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "本地資料庫已清除";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "錢包資料已移除。正從助記詞重新開啟並開始新的掃描。";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "無法刪除本地資料庫";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "External services";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "外部服務";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "啟用 Unstoppable Domain Service";
 
 // MARK: - Transaction details
-"nighthawk.transactionDetails.title" = "Transaction details";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
-"nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Time (UTC)";
-"nighthawk.transactionDetails.pool" = "Pool";
-"nighthawk.transactionDetails.privacy" = "DarkFi";
-"nighthawk.transactionDetails.transparent" = "Transparent";
-"nighthawk.transactionDetails.blockId" = "Block ID";
-"nighthawk.transactionDetails.confirmations" = "Confirmations";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "Transaction ID";
-"nighthawk.transactionDetails.recipient" = "Recipient";
-"nighthawk.transactionDetails.recipientShielded" = "Private";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
-"nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Total amount";
-"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
+"nighthawk.transactionDetails.title" = "交易詳細資料";
+"nighthawk.transactionDetails.notAvailable" = "交易詳細資料尚不可用，請等到掃描完成";
+"nighthawk.transactionDetails.memo" = "備註";
+"nighthawk.transactionDetails.time" = "時間（UTC）";
+"nighthawk.transactionDetails.transparent" = "透明";
+"nighthawk.transactionDetails.blockId" = "區塊 ID";
+"nighthawk.transactionDetails.confirmations" = "確認數";
+"nighthawk.transactionDetails.unconfirmed" = "未確認";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "在區塊瀏覽器中檢視";
+"nighthawk.transactionDetails.transactionId" = "交易 ID";
+"nighthawk.transactionDetails.recipient" = "收款人";
+"nighthawk.transactionDetails.recipientShielded" = "私密";
+"nighthawk.transactionDetails.recipientTransparent" = "私密";
+"nighthawk.transactionDetails.address" = "地址";
+"nighthawk.transactionDetails.networkFee" = "網路費用";
+"nighthawk.transactionDetails.totalAmount" = "總金額";
+"nighthawk.transactionDetails.viewOnExplorer" = "在瀏覽器中檢視";
+"nighthawk.transactionDetails.leavingWallet" = "即將離開 Nighthawk Wallet";
+"nighthawk.transactionDetails.leavingWarning" = "這通常是可接受的風險，但造訪 %@ 可能會暴露你對此交易 ID 的興趣";
+"nighthawk.transactionDetails.viewTxDetails" = "檢視 TX 詳細資料";
+"nighthawk.transactionDetails.fiat.around" = "約 %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "已複製回覆地址！";
 
 
 // MARK: - Transaction
-"nighthawk.transaction.confirmed" = "Confirmed";
+"nighthawk.transaction.confirmed" = "已確認";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "此錢包已掃描的 DAO。國庫的一筆付款正在等待投票。";
+"nighthawk.daoHub.emptyTitle" = "同步尚未找到 DAO。";
+"nighthawk.daoHub.emptyBody" = "重新整理，或從此錢包建立 DAO。";
+"nighthawk.daoHub.refresh" = "重新整理";
+"nighthawk.daoHub.startGroup" = "建立 DAO";
+"nighthawk.daoHub.importGroup" = "匯入 DAO";
+"nighthawk.daoHub.treasury" = "國庫";
+"nighthawk.daoHub.treasuryHint" = "未標上國庫標記就送到 DAO 的幣，之後無法支付出去。";
+"nighthawk.daoHub.notScannedYet" = "尚未掃描";
+"nighthawk.daoHub.proposePayment" = "提議付款";
+"nighthawk.daoHub.addFunds" = "加入資金";
+"nighthawk.daoHub.addFundsHint" = "這會標記這些幣，讓 DAO 之後可以支付。";
+"nighthawk.daoHub.amount" = "金額";
+"nighthawk.daoHub.votes" = "票數";
+"nighthawk.daoHub.noVotes" = "還沒有投票。";
+"nighthawk.daoHub.tokens" = "代幣";
+"nighthawk.daoHub.issueMore" = "再發行";
+"nighthawk.daoHub.freezeSupply" = "凍結供應量";
+"nighthawk.daoHub.issueToken" = "發行代幣";
+"nighthawk.daoHub.admin" = "管理員";
+"nighthawk.daoHub.proposer" = "提案者";
+"nighthawk.daoHub.voter" = "投票者";
+"nighthawk.daoHub.executor" = "執行者";
+"nighthawk.daoHub.fullCopy" = "完整副本";
+"nighthawk.daoHub.observer" = "觀察者";
+"nighthawk.daoHub.details" = "詳細資料";
+"nighthawk.daoHub.groupId" = "DAO ID";
+"nighthawk.daoHub.governanceToken" = "治理代幣";
+"nighthawk.daoHub.votesNeeded" = "計入所需票數";
+"nighthawk.daoHub.yesShareRequired" = "所需贊成比例";
+"nighthawk.daoHub.mintHeight" = "鑄造高度";
+"nighthawk.daoHub.daoNotFound" = "找不到 DAO";
+"nighthawk.daoHub.proposal" = "提案";
+"nighthawk.daoHub.proposalNotFound" = "找不到提案";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "投票窗口：%@ 個區塊窗口（%@ 小時）。";
+"nighthawk.daoHub.proposalId" = "提案 ID";
+"nighthawk.daoHub.execHeight" = "執行高度";
+"nighthawk.daoHub.proposeTx" = "提案 tx";
+"nighthawk.daoHub.execTx" = "執行 tx";
+"nighthawk.daoHub.voteWeight" = "你的全部治理代幣餘額就是投票權重。";
+"nighthawk.daoHub.payFromTreasury" = "從國庫支付";
+"nighthawk.daoHub.payHint" = "從國庫送出這筆付款。";
+"nighthawk.daoHub.onePayment" = "1 筆付款";
+"nighthawk.daoHub.paid" = "已支付";
+"nighthawk.daoHub.open" = "開放";
+"nighthawk.daoHub.waiting" = "等待中";
+"nighthawk.daoHub.name" = "名稱";
+"nighthawk.daoHub.yesShare" = "贊成比例";
+"nighthawk.daoHub.proposerMinimum" = "提案者最低額";
+"nighthawk.daoHub.earlyQuorum" = "提前法定人數";
+"nighthawk.daoHub.earlyQuorumHint" = "留空則使用與所需票數相同的數字。";
+"nighthawk.daoHub.allRolesHint" = "這支手機持有每個角色，包括從國庫付款的密鑰。";
+"nighthawk.daoHub.recipient" = "收款人";
+"nighthawk.daoHub.recipientAddress" = "收款人地址";
+"nighthawk.daoHub.tokenOptional" = "代幣（選填）";
+"nighthawk.daoHub.tokenIdPlaceholder" = "代幣 ID（預設：DRK）";
+"nighthawk.daoHub.duration" = "期間";
+"nighthawk.daoHub.blockWindows" = "區塊窗口";
+"nighthawk.daoHub.proposeBroadcast" = "這會在裝置上產生 ZK 證明，並廣播提案交易。";
+"nighthawk.daoHub.issueHint" = "鏈上記錄 8 位小數。";
+"nighthawk.daoHub.roleExportTitle" = "角色匯出";
+"nighthawk.daoHub.roleExportHint" = "此代碼含有角色密鑰。";
+"nighthawk.daoHub.close" = "關閉";
+"nighthawk.daoHub.copy" = "複製";
+"nighthawk.daoHub.captured" = "偵測到螢幕錄製或截圖。密鑰已隱藏。";
+"nighthawk.daoHub.importToml" = "DAO 檔案";
+"nighthawk.daoHub.token" = "代幣";
+"nighthawk.daoHub.browseDescription" = "瀏覽 DAO、提案與國庫。";
+"nighthawk.daoHub.fundsSent" = "資金已送至國庫";
+"nighthawk.daoHub.paymentSent" = "已從國庫送出付款";
+"nighthawk.daoHub.proposalSubmitted" = "提案已提交！%@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO 已提交";
+"nighthawk.daoHub.groupImported" = "DAO 已匯入";
+"nighthawk.daoHub.tokenCreated" = "代幣已建立";
+"nighthawk.daoHub.tokensIssued" = "代幣已發行";
+"nighthawk.daoHub.supplyFrozen" = "供應量已凍結";
+"nighthawk.daoHub.voteYesSubmitted" = "已提交贊成票！TX：%@…";
+"nighthawk.daoHub.voteNoSubmitted" = "已提交反對票！TX：%@…";
+"nighthawk.daoHub.walletNotReady" = "錢包尚未就緒。請完成設定，或等待錢包初始化。";
+"nighthawk.daoHub.walletStopped" = "錢包同步已停止。請從錢包分頁繼續同步，然後再開啟 DAO Hub。";
+"nighthawk.daoHub.walletSyncing" = "錢包同步仍在進行。錢包更新後再開啟 DAO Hub。";
+"nighthawk.daoHub.walletSyncFailed" = "錢包同步失敗：%@";
+"nighthawk.walletCompanion.shieldedNote" = "轉帳維持屏蔽。預設為試解密。實驗性 UnifOMR 可在進階設定中選擇啟用，且需要 fhe-omr lightwalletd。";
+"nighthawk.walletCompanion.trialDecrypt" = "試解密";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "區塊 %@";
+"nighthawk.walletCompanion.waitingForHeight" = "正在等待區塊高度";
+"nighthawk.walletCompanion.trialActive" = "目前使用試解密，而非 UnifOMR。";
+"nighthawk.walletCompanion.syncedUnifOmr" = "已與 UnifOMR 同步。";
+"nighthawk.walletCompanion.receive" = "接收";
+"nighthawk.walletCompanion.nextSteps" = "後續步驟";
+"nighthawk.walletCompanion.copyTxId" = "複製 TxID";
+"nighthawk.walletCompanion.sendAgain" = "再傳送一次";
+"nighthawk.walletCompanion.copyMemo" = "複製備註";
+"nighthawk.chat.couldNotDecrypt" = "無法解密";
+
+// MARK: - Pass-2 Extracted UI Strings
+
+// About
+"nighthawk.about.openSourceLicenses" = "開放原始碼授權";
+"nighthawk.about.versionWithBuild" = "版本 %@（%@）";
+"nighthawk.about.versionOnly" = "版本 %@";
+
+// Splash (PIN & Nym)
+"nighthawk.splash.enterAppPin" = "輸入 App PIN";
+"nighthawk.splash.sixDigitPin" = "6 位數 PIN";
+"nighthawk.splash.unlock" = "解鎖";
+"nighthawk.splash.pinErrorLength" = "請輸入 6 位數 PIN。";
+"nighthawk.splash.pinErrorIncorrect" = "PIN 不正確。請再試一次。";
+"nighthawk.splash.nymFailed" = "Nym 混合網路連線失敗";
+"nighthawk.splash.nymConnecting" = "正在連線至 Nym 混合網路… %@ 秒";
+"nighthawk.splash.nymSlow" = "比平常更久。請繼續等候，或不使用 Nym 繼續。";
+"nighthawk.splash.continueWithoutNym" = "不使用 Nym 繼續";
+"nighthawk.splash.nymSessionHint" = "這個工作階段中，錢包與聊天使用一般網路。你可以在設定中改回 Nym。";
+
+// Wallet tab banners & tokens
+"nighthawk.walletTab.syncStale" = "Lightwalletd 資料過時或無法連線";
+"nighthawk.walletTab.syncedBlock" = "已同步 · 區塊 %@";
+"nighthawk.walletTab.syncingBlock" = "正在同步 %@%% · 區塊 %@";
+"nighthawk.walletTab.syncingPercent" = "正在同步 %@%%";
+"nighthawk.walletTab.syncError" = "同步錯誤";
+"nighthawk.walletTab.syncStopped" = "同步已停止";
+"nighthawk.walletTab.unreachableBanner" = "無法連線 Lightwalletd — 請檢查「變更伺服器」或「網路隱私」。";
+"nighthawk.walletTab.reorgTitle" = "鏈重組復原";
+"nighthawk.walletTab.tokens" = "代幣";
+"nighthawk.walletTab.tapToSend" = "點一下以傳送";
+
+// Receive & Request Money & Send Flow
+"nighthawk.receive.newAddressGenerated" = "已產生新地址";
+"nighthawk.receive.generateFailed" = "產生地址失敗";
+"nighthawk.requestMoney.title" = "請求款項";
+"nighthawk.requestMoney.subtitle" = "只有一個收款地址。QR 碼是 drk: 收款單，含有你輸入的金額與備註。";
+"nighthawk.requestMoney.amount" = "金額";
+"nighthawk.requestMoney.memo" = "備註";
+"nighthawk.requestMoney.copied" = "已複製";
+"nighthawk.requestMoney.copyInvoice" = "複製收款單";
+"nighthawk.transferTab.send.drkNative" = "DRK（原生）";
+"nighthawk.transferTab.send.tokenLabel" = "代幣：";
+
+// Recovery Phrase Display (capture & backup quiz)
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "偵測到螢幕錄製或截圖。\n為了安全，已隱藏助記詞。";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "確認備份（3 個詞）";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "請輸入助記詞中指定的詞，以確認你已抄寫下來。";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "第 %@ 個詞";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "第 %@ 個詞不符";
+
+// Transaction Details
+"nighthawk.transactionDetails.syncMethod" = "同步方式";
+
+// Settings tab (Share & Security subtitle)
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ 與 6 位數 PIN";
+"nighthawk.settingsTab.securityPinOnly" = "6 位數 App PIN";
+"nighthawk.settingsTab.shareTitle" = "分享 Nighthawk";
+"nighthawk.settingsTab.shareSubtitle" = "邀請好友使用 Nighthawk Wallet";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "私密的 DarkFi 錢包與加密 DarkIRC 聊天 — Nighthawk Wallet";
+
+// Settings - Advanced (Mesh & UnifOMR)
+"nighthawk.settingsTab.advanced.mesh.title" = "附近 Mesh";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "透過藍牙，在附近的 Nighthawk 手機之間中繼 DarkIRC。網際網路共享維持關閉。";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "實驗性 UnifOMR";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "預設為關閉。試解密能找到每一筆付款，包括來自 Dark Wallet 或其他伺服器的付款。開啟則是實驗功能：雙方錢包必須先在同一個 lightwalletd 上註冊，否則資金可能一直看不見。另外還會上傳一把很大的偵測密鑰。";
+
+// Settings - Change Server (TLS, Presets, Port warning)
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 或 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "使用 TLS（HTTPS）";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "遠端伺服器必須使用；以 SHA-256 憑證摘要釘選。";
+"nighthawk.settingsTab.changeServer.presets" = "預設伺服器";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Nighthawk 測試網（HTTPS）";
+"nighthawk.settingsTab.changeServer.presetLocal" = "本地 Lightwalletd";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "非標準連接埠";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "仍要使用";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "你輸入的連接埠不是標準的 DarkFi lightwallet 連接埠（9067，TLS 則為 443）。使用非標準連接埠可能導致無法同步。";
+
+// Settings - Security (Biometrics fallback & App PIN)
+"nighthawk.settingsTab.security.biometricsTitle" = "生物辨識";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "此裝置尚未設定 Face ID / Touch ID。你仍可在下方以 6 位數 App PIN 保護錢包。";
+"nighthawk.settingsTab.security.pinTitle" = "App PIN（6 位數）";
+"nighthawk.settingsTab.security.pinEnabled" = "已啟用";
+"nighthawk.settingsTab.security.pinOff" = "關閉";
+"nighthawk.settingsTab.security.pinDescription" = "離開滿 10 分鐘後，啟動或回到錢包時都要解鎖。PIN 以加鹽的 PBKDF2-SHA256 雜湊儲存在鑰匙圈。";
+"nighthawk.settingsTab.security.pinChange" = "變更 PIN";
+"nighthawk.settingsTab.security.pinVerify" = "驗證 PIN";
+"nighthawk.settingsTab.security.pinDisable" = "停用 PIN";
+"nighthawk.settingsTab.security.pinSet" = "設定 6 位數 PIN";
+"nighthawk.settingsTab.security.pinConfirm" = "確認";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "請輸入一組新的 6 位數 PIN";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "請再次輸入 6 位數 PIN 以確認";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "請輸入目前的 6 位數 PIN";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "請輸入你的新 6 位數 PIN";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "請再次輸入新的 6 位數 PIN";
+"nighthawk.settingsTab.security.pinPromptDisable" = "請輸入目前的 PIN 以停用";
+"nighthawk.settingsTab.security.pinPromptVerify" = "請輸入 6 位數 PIN 以驗證";
+"nighthawk.settingsTab.security.pinErrorDigits" = "請輸入剛好 %@ 位數。";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "兩次輸入的新 PIN 不一致。請再試一次。";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "兩次輸入的 PIN 不一致。請再試一次。";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "無法在鑰匙圈中更新 PIN。";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "無法將 PIN 存入鑰匙圈。";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "目前的 PIN 不正確。";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "PIN 不正確。";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "App PIN 已更新。";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "已啟用 6 位數 App PIN。";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "已停用 App PIN。";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN 已驗證。";
+
+// Settings - Tor / Network Privacy
+"nighthawk.settingsTab.torNetwork.intro" = "錢包、聊天與節點流量預設經由 Nym 混合網路，伺服器因此看不到你的 IP 位址。聊天經由同一條隧道連上公開的 DarkIRC 種子。僅限洋蔥位址的對等節點需要 Tor。第一次連線通常只要幾秒，最長可能需要一分鐘。";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "錢包網路";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "用於 lightwalletd 同步與交易廣播。變更後會重新連線錢包。";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym：%@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Nym 混合網路（建議）";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "封包會經過五跳混合。聊天經由混合網路使用明網種子。無法連上 .onion 位址。";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "透過內建 Arti 或下方的 SOCKS 端點進行洋蔥路由。";
+"nighthawk.settingsTab.torNetwork.directTitle" = "直接連線";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "直接連到伺服器。伺服器看得到你的 IP 位址。";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "內建 Tor（Arti）";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "在 App 內執行 Arti（Rust Tor），並在迴路位址上提供 SOCKS 監聽。這與你在下方配置的外部 Tor/SOCKS App 彼此獨立。";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "使用內建 Arti";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "要使用內建 Arti，請先在上方啟用整個 App 的 Tor 路由。";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "SOCKS 端點";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "內建 Arti 監聽的迴路位址（預設 127.0.0.1:9050）。內建 DarkIRC 會用這個代理連線 .onion P2P 種子。";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "外部 Tor 或 SOCKS 代理的主機與連接埠。關閉內建 Arti 時必須填寫。";
+"nighthawk.settingsTab.torNetwork.socksHost" = "SOCKS 主機";
+"nighthawk.settingsTab.torNetwork.socksPort" = "SOCKS 連接埠";
+"nighthawk.settingsTab.torNetwork.footer" = "變更內建 Tor 或 SOCKS 時，若已啟用內建 DarkIRC，會重新啟動它，讓 P2P/event-graph 傳輸一致。請開啟聊天，確認狀態燈是綠色。";
+
+// Settings - Chat Settings
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "檔案提供";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "允許 fud:// 檔案提供";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "點一下即排入這支手機的佇列。只經由 Nym、Tor 或附近 Mesh 送出，不會自動下載檔案。";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "內建節點同步";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "使用內建 darkirc";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "在 App 內執行 darkirc";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "DAG 歷史時數（1–24）";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "每個 DAG 大約是一小時的頻道歷史。預設為 8（上游 darkirc）。";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "快速同步（僅標頭）";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "與上游 fast_mod 一致：DAG 同步較快，取得的歷史較少。";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "頻道隱私";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "公開的 #頻道在 DarkIRC 上是明文。只有一對一私訊使用 ChaChaBox 端對端加密。群組與頻道的端對端加密尚不可用。";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "加密聯絡人（私訊）";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "你的公鑰（分享給聯絡人）：";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "安全碼";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "產生我的私訊密鑰";
+"nighthawk.settingsTab.chatSettings.noContacts" = "尚未設定加密聯絡人。";
+"nighthawk.settingsTab.chatSettings.remove" = "移除";
+"nighthawk.settingsTab.chatSettings.addContact" = "新增加密聯絡人";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "套用並重新連線";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "聯絡人邀請 QR 碼（nighthawk://contact）";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "複製聯絡人邀請 URI";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "貼上 nighthawk://contact?... 邀請";
+"nighthawk.settingsTab.chatSettings.fill" = "填入";
+"nighthawk.settingsTab.chatSettings.nickname" = "暱稱";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "對方的私訊公鑰（Base58）";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "我的私訊私鑰（Base58）";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "產生我的私訊密鑰對";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "我的公鑰：%@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "DarkFi 錢包地址（選填）";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "新增聯絡人";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "新增加密聯絡人";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "無法辨識這個邀請 URI。應為 nighthawk://contact?... 或 drk:...";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "請輸入有效的聯絡人暱稱（不能以 # 開頭）。";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "請提供有效的 32 位元組 Base58 私訊密鑰。";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "請輸入私訊密鑰或 DarkFi 錢包地址。";
+
+// Chat & New DM
+"nighthawk.chat.clearnetAlertTitle" = "要開啟明網連結嗎？";
+"nighthawk.chat.clearnetOpenBrowser" = "在瀏覽器中開啟";
+"nighthawk.chat.clearnetCopyLink" = "複製連結";
+"nighthawk.chat.clearnetAlertMessage" = "這會在 Nym/Tor 之外開啟 http(s)，可能洩漏你的 IP 位址。";
+"nighthawk.chat.routeNym" = "Nym 混合網路";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "直接連線（明網）";
+"nighthawk.chat.routeBootstrapping" = "正在啟動…";
+"nighthawk.chat.routeDegraded" = "降級";
+"nighthawk.chat.routeOffline" = "離線";
+"nighthawk.chat.activePrivacyRoute" = "目前的隱私路由";
+"nighthawk.chat.lightwalletdHeight" = "Lightwalletd 高度 %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "無法取得 Lightwalletd 高度";
+"nighthawk.chat.transportSummary" = "傳輸：%@";
+"nighthawk.chat.directE2eBadge" = "私訊 · 端對端";
+"nighthawk.chat.publicPlaintextBadge" = "公開頻道 · DAG 上為明文";
+"nighthawk.chat.sharePubkeyTitle" = "分享你的公鑰";
+"nighthawk.chat.sharePubkeyCopy" = "複製公鑰";
+"nighthawk.chat.sharePubkeyMessage" = "這會複製你的私訊公鑰。密鑰對只會在第一次建立。請透過你信任的管道分享。持有這把公鑰的人，都能向你傳送加密私訊。";
+"nighthawk.chat.myPublicKeyCopied" = "我的公鑰（已複製）";
+"nighthawk.chat.noDmContactsTitle" = "沒有私訊聯絡人";
+"nighthawk.chat.noDmContactsBody" = "點一下「新私訊」，與對方交換 ChaCha20 公鑰，開始加密對話。";
+"nighthawk.chat.e2eEncrypted" = "端對端加密";
+"nighthawk.chat.copyMessage" = "複製訊息";
+"nighthawk.chat.queueFile" = "將 %@ 加入佇列";
+"nighthawk.chat.paymentRequest" = "付款請求";
+"nighthawk.chat.pay" = "支付";
+"nighthawk.chat.paymentPhase" = "付款 %@";
+"nighthawk.chat.link" = "連結";
+"nighthawk.chat.sendOrRequestDrk" = "傳送或請求 DRK";
+"nighthawk.chat.messagePlaceholder" = "訊息";
+"nighthawk.chat.amountDrkPlaceholder" = "金額（DRK）";
+"nighthawk.chat.payToAddressPlaceholder" = "付款地址";
+"nighthawk.chat.tip" = "打賞";
+"nighthawk.chat.newDm.title" = "新私訊對話";
+"nighthawk.chat.newDm.subtitle" = "與對方交換公鑰，以 ChaCha20 開始端對端加密的私訊。";
+"nighthawk.chat.newDm.contactLabelSection" = "聯絡人標籤";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "例如 alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "對方的公鑰";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Base58 公鑰";
+"nighthawk.chat.newDm.pasteClipboard" = "從剪貼簿貼上";
+"nighthawk.chat.newDm.myKeypairSection" = "我的密鑰對";
+"nighthawk.chat.newDm.generateKeys" = "產生我的密鑰";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "我的公鑰：";
+"nighthawk.chat.newDm.copyToShare" = "複製以分享";
+"nighthawk.chat.newDm.shareKeyHint" = "把這把公鑰分享給對方，對方才能傳訊息給你。";
+"nighthawk.chat.newDm.startDm" = "開始私訊";
+"nighthawk.chat.newDm.pasteAlertTitle" = "貼上公鑰";
+"nighthawk.chat.newDm.pasteAction" = "貼上";
+"nighthawk.chat.newDm.pasteAlertMessage" = "要從剪貼簿貼上私訊公鑰嗎？若是 !darkfi-dm-pubkey: 格式，會從中取出公鑰。";
+"nighthawk.chat.newDm.errorKeygen" = "產生私訊密鑰對失敗";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "剪貼簿裡沒有有效的 base58 公鑰。";
+"nighthawk.chat.newDm.errorSaveKeychain" = "無法將此聯絡人存入鑰匙圈。";

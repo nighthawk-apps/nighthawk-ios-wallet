@@ -8,6 +8,9 @@
 import Generated
 import Models
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 private struct NighthawkSuppressNestedBackgroundKey: EnvironmentKey {
     static let defaultValue = false
@@ -25,19 +28,28 @@ public extension EnvironmentValues {
 /// Wallpaper scaled until it covers the screen, pinned at the top-left
 /// so the NIGHTHAWK title stays in frame.
 public struct CyberpunkBackdrop: View {
+#if canImport(UIKit)
+    /// Loose `.jpg` resources in an SPM bundle are not resolved by `Image(_:bundle:)`,
+    /// so load and cache the wallpaper file directly.
+    public static let wallpaperImage: UIImage? = {
+        guard let url = Bundle.module.url(forResource: "cyberpunk-bg", withExtension: "jpg") else {
+            return nil
+        }
+        return UIImage(contentsOfFile: url.path)
+    }()
+#endif
+
     public init() {}
 
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .topLeading) {
-                Color(red: 0.02, green: 0.024, blue: 0.04)
-                Image("cyberpunk-bg", bundle: .module)
-                    .resizable()
-                    .interpolation(.high)
+                Color(red: 0x05 / 255, green: 0x06 / 255, blue: 0x0A / 255)
+                Self.wallpaperImageView
                     .scaledToFill()
                     .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
                     .clipped()
-                Color.black.opacity(0.5)
+                Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255, opacity: 0.5)
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
             .clipped()
@@ -45,6 +57,23 @@ public struct CyberpunkBackdrop: View {
         .ignoresSafeArea()
         .allowsHitTesting(false)
     }
+
+#if canImport(UIKit)
+    @ViewBuilder
+    private static var wallpaperImageView: some View {
+        if let image = wallpaperImage {
+            Image(uiImage: image)
+                .resizable()
+                .interpolation(.high)
+        }
+    }
+#else
+    private static var wallpaperImageView: some View {
+        Image("cyberpunk-bg", bundle: .module)
+            .resizable()
+            .interpolation(.high)
+    }
+#endif
 }
 
 public struct NighthawkScreenBackdrop: View {

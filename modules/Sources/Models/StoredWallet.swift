@@ -6,8 +6,15 @@
 //
 
 import Foundation
-import MnemonicSwift
 import Utils
+
+/// Mnemonic language persisted in `StoredWallet`.
+/// Matches legacy `MnemonicSwift.MnemonicLanguageType` Codable representation verbatim
+/// so existing Keychain wallets decode identically without the external dependency.
+public enum MnemonicLanguageType: Codable, Equatable, Sendable {
+    case english
+    case chinese
+}
 
 /// Representation of the wallet stored in the persistent storage (typically keychain, handled by `WalletStorage`).
 public struct StoredWallet: Codable, Equatable {

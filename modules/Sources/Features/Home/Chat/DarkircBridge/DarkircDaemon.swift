@@ -48,6 +48,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     public static let shared = DarkircDaemonManager()
 
     /// Extends execution briefly when the scene enters background (iOS ~30s max).
+    private let lifecycleLock = NSLock()
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     /// Returns the current status from the Rust FFI daemon.
@@ -132,7 +133,7 @@ public final class DarkircDaemonManager: @unchecked Sendable {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
-        try await DarkircCryptoStore.shared.registerAllWithRust()
+        await DarkircCryptoStore.shared.registerAllWithRust()
         try start(callback: callback, transport: transport, socksPort: socksPort)
     }
 
@@ -145,9 +146,22 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     public func handleBackgrounding() {
         TransportHooks.install()
         TransportHooks.onBackground()
-        endBackgroundTask()
-        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundExecution") { [weak self] in
-            self?.endBackgroundTask()
+        let beginTask: @MainActor () -> Void = { [weak self] in
+            guard let self else { return }
+            self.endBackgroundTaskOnMain()
+            let id = UIApplication.shared.beginBackgroundTask(withName: "darkirc.backgroundExecution") { [weak self] in
+                Task { @MainActor [weak self] in
+                    self?.endBackgroundTaskOnMain()
+                }
+            }
+            self.lifecycleLock.lock()
+            self.backgroundTask = id
+            self.lifecycleLock.unlock()
+        }
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { beginTask() }
+        } else {
+            Task { @MainActor in beginTask() }
         }
     }
 
@@ -155,13 +169,21 @@ public final class DarkircDaemonManager: @unchecked Sendable {
     public func handleForegrounding() {
         TransportHooks.install()
         TransportHooks.onForeground()
-        endBackgroundTask()
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { self.endBackgroundTaskOnMain() }
+        } else {
+            Task { @MainActor in self.endBackgroundTaskOnMain() }
+        }
     }
 
-    private func endBackgroundTask() {
-        guard backgroundTask != .invalid else { return }
-        UIApplication.shared.endBackgroundTask(backgroundTask)
+    @MainActor
+    private func endBackgroundTaskOnMain() {
+        lifecycleLock.lock()
+        let taskID = backgroundTask
         backgroundTask = .invalid
+        lifecycleLock.unlock()
+        guard taskID != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(taskID)
     }
 }
 

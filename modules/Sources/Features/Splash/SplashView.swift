@@ -65,7 +65,7 @@ public struct SplashView: View {
 
     private var pinUnlockCard: some View {
         VStack(spacing: 14) {
-            Text("Enter App PIN")
+            Text(L10n.Nighthawk.Splash.enterAppPin)
                 .subtitleMedium(color: Asset.Colors.Nighthawk.textHeader.color)
 
             HStack(spacing: 12) {
@@ -81,7 +81,7 @@ public struct SplashView: View {
             }
 
             SecureField(
-                "6-digit PIN",
+                L10n.Nighthawk.Splash.sixDigitPin,
                 text: Binding(
                     get: { store.pinInput },
                     set: { store.send(.pinInputChanged($0)) }
@@ -107,7 +107,7 @@ public struct SplashView: View {
                     .caption(color: StealthTheme.Colors.statusDanger)
             }
 
-            Button("Unlock") {
+            Button(L10n.Nighthawk.Splash.unlock) {
                 store.send(.submitPinTapped)
             }
             .buttonStyle(.nighthawkPrimary())
@@ -138,27 +138,27 @@ private struct NymSplashProgressView: View {
     var body: some View {
         TimelineView(.periodic(from: startedAt, by: 0.5)) { context in
             let elapsed = context.date.timeIntervalSince(startedAt)
-            let stuck = elapsed >= 12 || failed
+            let stuck = elapsed >= 20 || failed
             VStack(spacing: 12) {
                 ProgressView(value: NymSplashEstimate.fraction(elapsed: elapsed, ready: false))
                     .tint(Asset.Colors.Nighthawk.peach.color)
-                Text(failed ? "Nym mixnet connection failed" : "Connecting to the Nym mixnet… \(Int(elapsed)) s")
+                Text(failed ? L10n.Nighthawk.Splash.nymFailed : L10n.Nighthawk.Splash.nymConnecting(Int(elapsed)))
                     .paragraph(color: failed ? StealthTheme.Colors.statusDanger : Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.center)
                 if stuck {
-                    Text("Taking longer than usual. Keep waiting, or continue without Nym.")
+                    Text(L10n.Nighthawk.Splash.nymSlow)
                         .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                         .multilineTextAlignment(.center)
                     if failed {
-                        Button("Retry", action: onRetry)
+                        Button(L10n.Nighthawk.Splash.retry, action: onRetry)
                             .buttonStyle(.nighthawkPrimary())
                     }
+                    Button(L10n.Nighthawk.Splash.continueWithoutNym, action: onContinue)
+                        .buttonStyle(.nighthawkSecondary())
+                    Text(L10n.Nighthawk.Splash.nymSessionHint)
+                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                        .multilineTextAlignment(.center)
                 }
-                Button("Continue without Nym", action: onContinue)
-                    .buttonStyle(.nighthawkSecondary())
-                Text("Wallet and chat use your regular network for this session. You can switch back to Nym in Settings.")
-                    .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                    .multilineTextAlignment(.center)
             }
         }
     }

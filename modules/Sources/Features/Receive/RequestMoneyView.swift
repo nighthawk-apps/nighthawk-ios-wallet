@@ -14,11 +14,11 @@ public struct RequestMoneyView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text("Request money")
+                Text(L10n.Nighthawk.RequestMoney.title)
                     .font(.custom(FontFamily.PulpDisplay.bold.name, size: 22))
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
-                Text("One receive address. The QR is a drk: invoice with the amount and memo you enter.")
+                Text(L10n.Nighthawk.RequestMoney.subtitle)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.textMuted.color)
                     .multilineTextAlignment(.center)
@@ -34,11 +34,11 @@ public struct RequestMoneyView: View {
                 }
 
                 NighthawkTextField(
-                    placeholder: "Amount",
+                    placeholder: L10n.Nighthawk.RequestMoney.amount,
                     text: $store.amount
                 )
                 NighthawkTextField(
-                    placeholder: "Memo",
+                    placeholder: L10n.Nighthawk.RequestMoney.memo,
                     text: $store.memo
                 )
 
@@ -48,7 +48,7 @@ public struct RequestMoneyView: View {
                     .multilineTextAlignment(.center)
                     .textSelection(.enabled)
 
-                Button(store.copied ? "Copied" : "Copy invoice") {
+                Button(store.copied ? L10n.Nighthawk.RequestMoney.copied : L10n.Nighthawk.RequestMoney.copyInvoice) {
                     store.send(.copyTapped)
                 }
                 .buttonStyle(.nighthawkPrimary())

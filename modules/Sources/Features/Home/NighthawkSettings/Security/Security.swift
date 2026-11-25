@@ -44,19 +44,19 @@ public struct Security {
             case .idle:
                 return ""
             case .setupEnter:
-                return "Enter a new 6-digit PIN"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptSetupEnter
             case .setupConfirm:
-                return "Re-enter your 6-digit PIN to confirm"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptSetupConfirm
             case .changeVerifyCurrent:
-                return "Enter your current 6-digit PIN"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptChangeCurrent
             case .changeEnterNew:
-                return "Enter your new 6-digit PIN"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptChangeNew
             case .changeConfirmNew:
-                return "Re-enter your new 6-digit PIN"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptChangeConfirm
             case .disableVerifyCurrent:
-                return "Enter your current PIN to disable"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptDisable
             case .verifyOnly:
-                return "Enter your 6-digit PIN to verify"
+                return L10n.Nighthawk.SettingsTab.Security.pinPromptVerify
             }
         }
 
@@ -174,7 +174,7 @@ public struct Security {
     private func handlePinSubmit(_ state: inout State) -> Effect<Action> {
         let pin = state.pinInput
         guard SecurityPinStore.isValidPinFormat(pin) else {
-            state.pinErrorMessage = "Enter exactly \(SecurityPinStore.pinLength) digits."
+            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorDigits(SecurityPinStore.pinLength)
             return .none
         }
 
@@ -210,23 +210,29 @@ public struct Security {
         state: inout State
     ) {
         guard pin == expectedPin else {
-            state.pinErrorMessage = isChange ? "New PINs did not match. Try again." : "PINs did not match. Try again."
+            state.pinErrorMessage = isChange
+                ? L10n.Nighthawk.SettingsTab.Security.pinErrorNewMismatch
+                : L10n.Nighthawk.SettingsTab.Security.pinErrorMismatch
             state.pinInput = ""
             return
         }
         guard SecurityPinStore.setPin(pin) else {
-            state.pinErrorMessage = isChange ? "Could not update PIN in Keychain." : "Could not store PIN in Keychain."
+            state.pinErrorMessage = isChange
+                ? L10n.Nighthawk.SettingsTab.Security.pinErrorUpdateKeychain
+                : L10n.Nighthawk.SettingsTab.Security.pinErrorStoreKeychain
             return
         }
         state.isPinEnabled = true
         state.pinFlowStep = .idle
         state.pinInput = ""
-        state.pinStatusMessage = isChange ? "App PIN updated." : "6-digit App PIN enabled."
+        state.pinStatusMessage = isChange
+            ? L10n.Nighthawk.SettingsTab.Security.pinStatusUpdated
+            : L10n.Nighthawk.SettingsTab.Security.pinStatusEnabled
     }
 
     private func verifyCurrentPin(pin: String, nextStep: PinFlowStep, state: inout State) {
         guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = "Incorrect current PIN."
+            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
             state.pinInput = ""
             return
         }
@@ -237,7 +243,7 @@ public struct Security {
 
     private func disablePinIfVerified(pin: String, state: inout State) {
         guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = "Incorrect current PIN."
+            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
             state.pinInput = ""
             return
         }
@@ -245,18 +251,18 @@ public struct Security {
         state.isPinEnabled = false
         state.pinFlowStep = .idle
         state.pinInput = ""
-        state.pinStatusMessage = "App PIN disabled."
+        state.pinStatusMessage = L10n.Nighthawk.SettingsTab.Security.pinStatusDisabled
     }
 
     private func verifyPinOnly(pin: String, state: inout State) {
         guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = "Incorrect PIN."
+            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorIncorrect
             state.pinInput = ""
             return
         }
         state.pinFlowStep = .idle
         state.pinInput = ""
-        state.pinStatusMessage = "PIN verified."
+        state.pinStatusMessage = L10n.Nighthawk.SettingsTab.Security.pinStatusVerified
     }
 
     public init() {}

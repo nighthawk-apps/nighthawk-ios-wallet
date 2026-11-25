@@ -33,6 +33,7 @@ public struct Home {
             case settings
         }
 
+        @CasePathable
         public enum Toast {
             case expectingFunds
         }
@@ -91,7 +92,7 @@ public struct Home {
             self._walletInfo = Shared(wrappedValue: WalletInfo(), .walletInfo)
             let events = loadCachedEvents()
             let walletInfo = WalletInfo(receiveAddress: receiveAddress, walletEvents: events)
-            self.walletInfo = walletInfo
+            self.$walletInfo.withLock { $0 = walletInfo }
         }
 
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
@@ -138,7 +139,7 @@ public struct Home {
         }
     }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Destination {
         case addresses(Addresses)
     }
@@ -156,25 +157,11 @@ public struct Home {
     public var body: some ReducerOf<Self> {
         BindingReducer()
 
-        Scope(state: \.wallet, action: \.wallet) {
-            Wallet()
-        }
-
-        Scope(state: \.transfer, action: \.transfer) {
-            Transfer()
-        }
-
-        Scope(state: \.chat, action: \.chat) {
-            Chat()
-        }
-
-        Scope(state: \.daoHub, action: \.daoHub) {
-            DaoHub()
-        }
-
-        Scope(state: \.settings, action: \.settings) {
-            NighthawkSettings()
-        }
+        Scope(state: \.wallet, action: \.wallet) { Wallet() }
+        Scope(state: \.transfer, action: \.transfer) { Transfer() }
+        Scope(state: \.chat, action: \.chat) { Chat() }
+        Scope(state: \.daoHub, action: \.daoHub) { DaoHub() }
+        Scope(state: \.settings, action: \.settings) { NighthawkSettings() }
 
         Reduce { state, action in
             switch action {
@@ -184,154 +171,32 @@ public struct Home {
                 state.alert = .cantStartSync(error)
                 return .none
             case .fetchLatestFiatPrice:
-                state.preferredCurrency = userStoredPreferences.fiatCurrency()
-                guard state.preferredCurrency != .off else { return .none }
-                return .run { [preferredCurrency = state.preferredCurrency] send in
-                    let price = try? await fiatPriceClient.getDrkPrice(preferredCurrency)
-                    await send(.latestFiatResponse(price))
-                    await send(.delegate(.setLatestFiatPrice(price)))
-                }
+                return handleFetchLatestFiatPrice(state: &state)
             case let .latestFiatResponse(price):
-                state.walletInfo.latestFiatPrice = price
+                state.$walletInfo.withLock { $0.latestFiatPrice = price }
                 return .none
             case .onAppear:
-                state.preferredCurrency = userStoredPreferences.fiatCurrency()
-                state.wallet.isFirstSync = userStoredPreferences.isFirstSync()
-                state.wallet.preferredCurrency = state.preferredCurrency
-                state.wallet.showScanButton = !processInfo.isiOSAppOnMac()
-                state.walletInfo.requiredTransactionConfirmations = 11
-                UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
-                return .concatenate(
-                    .send(.fetchLatestFiatPrice),
-                    .send(.listenForSynchronizerUpdates),
-                    // Eagerly fetch address & token balances — available before sync completes
-                    .run { send in
-                        let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.receiveAddressLoaded(ua))
-                        if let tokens = try? await sdkSynchronizer.listTokenBalances() {
-                            await send(.tokenBalancesLoaded(tokens))
-                        }
-                    }
-                )
+                return handleOnAppear(state: &state)
             case let .rescanDone(error):
-                userStoredPreferences.setIsFirstSync(true)
-                if let error {
-                    state.alert = .rescanFailed(error.toDarkFiError())
-                    return .none
-                } else {
-                    if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
-                        try? fileManager.removeItem(eventsCache)
-                    }
-                    return .run { send in
-                        do {
-                            try await sdkSynchronizer.start(false)
-                            await send(.cancelSynchronizerUpdates)
-                            await send(.listenForSynchronizerUpdates)
-                        } catch {
-                            await send(.cantStartSync(error.toDarkFiError()))
-                        }
-                    }
-                }
+                return handleRescanDone(error, state: &state)
             case .listenForSynchronizerUpdates:
-                if diskSpaceChecker.hasEnoughFreeSpaceForSync() {
-                    return .publisher {
-                        sdkSynchronizer.stateStream()
-                            .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
-                            .map(Home.Action.synchronizerStateChanged)
-                    }
-                    .cancellable(id: CancelId.timer, cancelInFlight: true)
-                } else {
-                    state.alert = .notEnoughFreeDiskSpace()
-                    return .none
-                }
-            case .synchronizerStateChanged(let latestState):
-                let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState)
-                // SyncStatusSnapshot omits balance/height/fallback — still refresh when those move
-                // while status stays `.upToDate`.
-                let balanceChanged = latestState.confirmedBalance != state.walletInfo.balance
-                let heightChanged = latestState.latestBlockHeight != state.walletInfo.latestMinedHeight
-                let fallbackChanged = latestState.fallbackReason != state.walletInfo.synchronizerState.fallbackReason
-                    || latestState.fallbackUserMessage != state.walletInfo.synchronizerState.fallbackUserMessage
-                guard snapshot != state.walletInfo.synchronizerStatusSnapshot
-                    || balanceChanged
-                    || heightChanged
-                    || fallbackChanged else {
-                    return .none
-                }
-                state.walletInfo.synchronizerState = latestState
-                state.walletInfo.synchronizerStatusSnapshot = snapshot
-                state.chat.lightStatusMessage = latestState.lightStatusMessage
-                if latestState.latestBlockHeight > 0 {
-                    state.chat.chainTip = Int(latestState.latestBlockHeight)
-                }
-                let balance = latestState.confirmedBalance
-                state.walletInfo.balance = balance
-                state.walletInfo.totalBalance = balance
-
-                if latestState.syncStatus == .upToDate {
-                    userStoredPreferences.setIsFirstSync(false)
-                    state.walletInfo.latestMinedHeight = latestState.latestBlockHeight
-
-                    // Detect if there are any expected funds
-                    let availableBalance = state.walletInfo.balance
-                    let pendingDiff = state.walletInfo.totalBalance - availableBalance
-                    if state.walletInfo.totalBalance != availableBalance && pendingDiff != state.walletInfo.expectingAmount {
-                        state.walletInfo.expectingAmount = pendingDiff
-                        state.toast = .expectingFunds
-                    }
-                }
-
-                // Address must land in walletInfo before history will load.
-                // Refresh it whenever it is missing or the chain is up to date.
-                if state.walletInfo.receiveAddress == nil || latestState.syncStatus == .upToDate {
-                    let loadHistory = latestState.syncStatus == .upToDate
-                    return .run { send in
-                        let ua = try? await sdkSynchronizer.getAddress()
-                        await send(.receiveAddressLoaded(ua))
-                        guard loadHistory else { return }
-                        if let tokens = try? await sdkSynchronizer.listTokenBalances() {
-                            await send(.tokenBalancesLoaded(tokens))
-                        }
-                        if let overviews = try? await sdkSynchronizer.getAllTransactions() {
-                            let events = overviews.map { overview in
-                                WalletEvent(transaction: TransactionState(from: overview))
-                            }
-                            await send(.updateWalletEvents(events))
-                        }
-                    }
-                }
-
-                return .none
+                return handleListenForSynchronizerUpdates(state: &state)
+            case let .synchronizerStateChanged(latestState):
+                return handleSynchronizerStateChanged(latestState, state: &state)
             case let .tokenBalancesLoaded(tokens):
-                state.walletInfo.tokenBalances = tokens
+                state.$walletInfo.withLock { $0.tokenBalances = tokens }
                 return .none
             case let .receiveAddressLoaded(receiveAddress):
                 if let receiveAddress {
-                    state.walletInfo.receiveAddress = receiveAddress
+                    state.$walletInfo.withLock { $0.receiveAddress = receiveAddress }
                     state.chat.receiveAddress = receiveAddress.stringEncoded
                 }
                 return .send(.delegate(.receiveAddressResponse(receiveAddress)))
             case let .tabSelected(tab):
                 state.selectedTab = tab
-                if tab == .daoHub {
-                    return .send(.daoHub(.onAppear))
-                }
-                return .none
+                return tab == .daoHub ? .send(.daoHub(.onAppear)) : .none
             case let .updateWalletEvents(walletEvents):
-                let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
-
-                // Cache two latest events
-                let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
-                if let cache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
-                    let latest = IdentifiedArray(events.prefix(2)).elements
-                    if let data = try? JSONEncoder().encode(latest) {
-                        try? dataManager.save(data, cache)
-                    }
-                }
-
-                state.walletInfo.walletEvents = IdentifiedArrayOf(uniqueElements: events)
-                state.chat.chainTip = Int(chainTip)
-                return .none
+                return handleUpdateWalletEvents(walletEvents, state: &state)
             case .alert, .binding, .chat, .delegate, .destination, .daoHub, .settings, .transfer, .wallet:
                 return .none
             }
@@ -345,6 +210,162 @@ public struct Home {
     }
 
     public init() {}
+}
+
+extension Home.Destination.State: Equatable {}
+extension Home.Destination.Action: Equatable {}
+
+// MARK: - Core action handlers
+private extension Home {
+    func handleFetchLatestFiatPrice(state: inout State) -> Effect<Action> {
+        state.preferredCurrency = userStoredPreferences.fiatCurrency()
+        guard state.preferredCurrency != .off else { return .none }
+        return .run { [preferredCurrency = state.preferredCurrency] send in
+            let price = try? await fiatPriceClient.getDrkPrice(preferredCurrency)
+            await send(.latestFiatResponse(price))
+            await send(.delegate(.setLatestFiatPrice(price)))
+        }
+    }
+
+    func handleOnAppear(state: inout State) -> Effect<Action> {
+        state.preferredCurrency = userStoredPreferences.fiatCurrency()
+        state.wallet.isFirstSync = userStoredPreferences.isFirstSync()
+        state.wallet.preferredCurrency = state.preferredCurrency
+        state.wallet.showScanButton = !processInfo.isiOSAppOnMac()
+        state.$walletInfo.withLock { $0.requiredTransactionConfirmations = 11 }
+        UIApplication.shared.isIdleTimerDisabled = userStoredPreferences.screenMode() == .keepOn
+        return .concatenate(
+            .send(.fetchLatestFiatPrice),
+            .send(.listenForSynchronizerUpdates),
+            // Eagerly fetch address & token balances — available before sync completes
+            .run { send in
+                let ua = try? await sdkSynchronizer.getAddress()
+                await send(.receiveAddressLoaded(ua))
+                if let tokens = try? await sdkSynchronizer.listTokenBalances() {
+                    await send(.tokenBalancesLoaded(tokens))
+                }
+            }
+        )
+    }
+
+    func handleRescanDone(_ error: DarkFiError?, state: inout State) -> Effect<Action> {
+        userStoredPreferences.setIsFirstSync(true)
+        if let error {
+            state.alert = .rescanFailed(error.toDarkFiError())
+            return .none
+        }
+        if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
+            try? fileManager.removeItem(eventsCache)
+        }
+        return .run { send in
+            do {
+                try await sdkSynchronizer.start(false)
+                await send(.cancelSynchronizerUpdates)
+                await send(.listenForSynchronizerUpdates)
+            } catch {
+                await send(.cantStartSync(error.toDarkFiError()))
+            }
+        }
+    }
+
+    func handleListenForSynchronizerUpdates(state: inout State) -> Effect<Action> {
+        guard diskSpaceChecker.hasEnoughFreeSpaceForSync() else {
+            state.alert = .notEnoughFreeDiskSpace()
+            return .none
+        }
+        return .publisher {
+            sdkSynchronizer.stateStream()
+                .throttle(for: .seconds(0.2), scheduler: mainQueue, latest: true)
+                .map(Home.Action.synchronizerStateChanged)
+        }
+        .cancellable(id: CancelId.timer, cancelInFlight: true)
+    }
+
+    func handleSynchronizerStateChanged(
+        _ latestState: SynchronizerState,
+        state: inout State
+    ) -> Effect<Action> {
+        let snapshot = SyncStatusSnapshot.snapshotFor(state: latestState)
+        // SyncStatusSnapshot omits balance/height/fallback — still refresh when those move
+        // while status stays `.upToDate`.
+        let balanceChanged = latestState.confirmedBalance != state.walletInfo.balance
+        let heightChanged = latestState.latestBlockHeight != state.walletInfo.latestMinedHeight
+        let fallbackChanged = latestState.fallbackReason != state.walletInfo.synchronizerState.fallbackReason
+            || latestState.fallbackUserMessage != state.walletInfo.synchronizerState.fallbackUserMessage
+        guard snapshot != state.walletInfo.synchronizerStatusSnapshot
+            || balanceChanged
+            || heightChanged
+            || fallbackChanged else {
+            return .none
+        }
+
+        let balance = latestState.confirmedBalance
+        var showExpectingToast = false
+        state.$walletInfo.withLock { info in
+            info.synchronizerState = latestState
+            info.synchronizerStatusSnapshot = snapshot
+            info.balance = balance
+            info.totalBalance = balance
+            if latestState.syncStatus == .upToDate {
+                info.latestMinedHeight = latestState.latestBlockHeight
+                let availableBalance = info.balance
+                let pendingDiff = info.totalBalance - availableBalance
+                if info.totalBalance != availableBalance && pendingDiff != info.expectingAmount {
+                    info.expectingAmount = pendingDiff
+                    showExpectingToast = true
+                }
+            }
+        }
+        if latestState.syncStatus == .upToDate {
+            userStoredPreferences.setIsFirstSync(false)
+        }
+        if showExpectingToast {
+            state.toast = .expectingFunds
+        }
+        state.chat.lightStatusMessage = latestState.lightStatusMessage
+        if latestState.latestBlockHeight > 0 {
+            state.chat.chainTip = Int(latestState.latestBlockHeight)
+        }
+
+        // Address must land in walletInfo before history will load.
+        // Refresh it whenever it is missing or the chain is up to date.
+        guard state.walletInfo.receiveAddress == nil || latestState.syncStatus == .upToDate else {
+            return .none
+        }
+        let loadHistory = latestState.syncStatus == .upToDate
+        return .run { send in
+            let ua = try? await sdkSynchronizer.getAddress()
+            await send(.receiveAddressLoaded(ua))
+            guard loadHistory else { return }
+            if let tokens = try? await sdkSynchronizer.listTokenBalances() {
+                await send(.tokenBalancesLoaded(tokens))
+            }
+            if let overviews = try? await sdkSynchronizer.getAllTransactions() {
+                let events = overviews.map { overview in
+                    WalletEvent(transaction: TransactionState(from: overview))
+                }
+                await send(.updateWalletEvents(events))
+            }
+        }
+    }
+
+    func handleUpdateWalletEvents(
+        _ walletEvents: [WalletEvent],
+        state: inout State
+    ) -> Effect<Action> {
+        let chainTip = sdkSynchronizer.latestState().latestBlockHeight + 1
+        // Cache two latest events
+        let events = IdentifiedArrayOf(uniqueElements: walletEvents.sortedEvents(with: chainTip))
+        if let cache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
+            let latest = IdentifiedArray(events.prefix(2)).elements
+            if let data = try? JSONEncoder().encode(latest) {
+                try? dataManager.save(data, cache)
+            }
+        }
+        state.$walletInfo.withLock { $0.walletEvents = IdentifiedArrayOf(uniqueElements: events) }
+        state.chat.chainTip = Int(chainTip)
+        return .none
+    }
 }
 
 // MARK: - Shared state

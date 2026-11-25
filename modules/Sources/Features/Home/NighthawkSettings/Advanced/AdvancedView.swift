@@ -52,10 +52,10 @@ public struct AdvancedView: View {
                     .padding(.vertical, 12)
                 }
 
-                Text("Nearby mesh")
+                Text(L10n.Nighthawk.SettingsTab.Advanced.Mesh.title)
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
-                Text("Relay DarkIRC with nearby Nighthawk phones over Bluetooth. Share-internet stays off.")
+                Text(L10n.Nighthawk.SettingsTab.Advanced.Mesh.subtitle)
                     .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(6)
@@ -64,7 +64,7 @@ public struct AdvancedView: View {
                     get: { mesh.enabled },
                     set: { mesh.setEnabled($0) }
                 )) {
-                    Text("Nearby mesh")
+                    Text(L10n.Nighthawk.SettingsTab.Advanced.Mesh.title)
                         .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
@@ -140,19 +140,13 @@ private extension AdvancedView {
                 set: { WalletSyncPrivacy.setStrictOmrOnly($0) }
             )
         ) {
-            Text("Experimental UnifOMR")
+            Text(L10n.Nighthawk.SettingsTab.Advanced.UnifOmr.title)
                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
         }
         .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
         .padding(.vertical, 8)
 
-        Text(
-            """
-            Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. \
-            On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. \
-            It also uploads a large detection key.
-            """
-        )
+        Text(L10n.Nighthawk.SettingsTab.Advanced.UnifOmr.subtitle)
         .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
         .padding(.bottom, 8)
     }

@@ -140,7 +140,7 @@ struct NighthawkSettingsView: View {
         VStack(spacing: 0) {
             if store.foldDetail != nil {
                 HStack {
-                    Button("Close") { store.send(.foldClosed) }
+                    Button(L10n.General.close) { store.send(.foldClosed) }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                         .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     Spacer()
@@ -176,7 +176,7 @@ struct NighthawkSettingsView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(L10n.Nighthawk.SettingsTab.settings.uppercased())
                         .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                    Text("Select a setting on the left to open it here.")
+                    Text(L10n.Nighthawk.SettingsTab.selectSettingPrompt)
                         .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     Text(L10n.Nighthawk.SettingsTab.aboutSubtitle(store.appVersion))
                         .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
@@ -194,19 +194,19 @@ private extension NighthawkSettingsView {
     var securitySubtitle: String {
         switch store.biometryType {
         case .faceID:
-            return "\(Constants.faceId) & 6-digit PIN"
+            return L10n.Nighthawk.SettingsTab.securityBiometricsAndPin(Constants.faceId)
         case .touchID:
-            return "\(Constants.touchId) & 6-digit PIN"
+            return L10n.Nighthawk.SettingsTab.securityBiometricsAndPin(Constants.touchId)
         default:
-            return "6-digit App PIN"
+            return L10n.Nighthawk.SettingsTab.securityPinOnly
         }
     }
 
     var shareNighthawkRow: some View {
         ShareLink(
             item: URL(string: "https://apps.apple.com/us/app/nighthawk-wallet/id1524708337") ?? .source,
-            subject: Text("Nighthawk Wallet"),
-            message: Text("Private DarkFi wallet & encrypted DarkIRC chat — Nighthawk Wallet")
+            subject: Text(L10n.Nighthawk.SettingsTab.shareSubject),
+            message: Text(L10n.Nighthawk.SettingsTab.shareMessage)
         ) {
             VStack(spacing: 0) {
                 HStack(alignment: .center, spacing: 14) {
@@ -218,12 +218,12 @@ private extension NighthawkSettingsView {
                         .frame(width: 24, height: 24, alignment: .center)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Share Nighthawk")
+                        Text(L10n.Nighthawk.SettingsTab.shareTitle)
                             .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                             .multilineTextAlignment(.leading)
 
-                        Text("Invite friends to Nighthawk Wallet")
+                        Text(L10n.Nighthawk.SettingsTab.shareSubtitle)
                             .caption()
                             .multilineTextAlignment(.leading)
                     }

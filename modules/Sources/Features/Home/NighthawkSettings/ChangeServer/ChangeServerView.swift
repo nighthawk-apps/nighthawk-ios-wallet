@@ -25,10 +25,10 @@ public struct ChangeServerView: View {
                 ) { option in
                     HStack {
                         if option == .default {
-                            Text("Default (\(store.defaultServerInfo))")
+                            Text(L10n.Nighthawk.SettingsTab.ChangeServer.default(store.defaultServerInfo))
                                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         } else {
-                            Text("Custom")
+                            Text(L10n.Nighthawk.SettingsTab.ChangeServer.custom)
                                 .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
                         }
 
@@ -38,7 +38,7 @@ public struct ChangeServerView: View {
                 }
 
                 NighthawkTextField(
-                    placeholder: "https://host:443 or 127.0.0.1:9067",
+                    placeholder: L10n.Nighthawk.SettingsTab.ChangeServer.placeholder,
                     text: $store.customServerAddress,
                     isValid: store.validateCustomServer()
                 )
@@ -57,9 +57,9 @@ public struct ChangeServerView: View {
                     )
                 ) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Use TLS (HTTPS)")
+                        Text(L10n.Nighthawk.SettingsTab.ChangeServer.useTlsTitle)
                             .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
-                        Text("Required for remote servers; pinned by SHA-256 certificate digest.")
+                        Text(L10n.Nighthawk.SettingsTab.ChangeServer.useTlsSubtitle)
                             .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     }
                 }
@@ -102,23 +102,23 @@ public struct ChangeServerView: View {
             )
         )
         .alert(
-            "Non-Standard Port",
+            L10n.Nighthawk.SettingsTab.ChangeServer.portWarningTitle,
             isPresented: $store.showPortWarning
         ) {
-            Button("Use Anyway", role: .destructive) {
+            Button(L10n.Nighthawk.SettingsTab.ChangeServer.portWarningUseAnyway, role: .destructive) {
                 store.send(.portWarningConfirmed)
             }
-            Button("Cancel", role: .cancel) {
+            Button(L10n.General.cancel, role: .cancel) {
                 store.send(.portWarningCancelled)
             }
         } message: {
-            Text("The port you entered is not a standard DarkFi lightwallet port (9067 or 443 for TLS). Using a non-standard port may prevent sync.")
+            Text(L10n.Nighthawk.SettingsTab.ChangeServer.portWarningMessage)
         }
     }
 
     private var presetsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Presets")
+            Text(L10n.Nighthawk.SettingsTab.ChangeServer.presets)
                 .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
             ForEach(store.presets) { preset in

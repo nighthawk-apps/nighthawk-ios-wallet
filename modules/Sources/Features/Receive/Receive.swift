@@ -17,6 +17,7 @@ import Utils
 public struct Receive {
     @ObservableState
     public struct State: Equatable {
+        @CasePathable
         public enum Toast {
             case copiedToClipboard
             case newAddressGenerated

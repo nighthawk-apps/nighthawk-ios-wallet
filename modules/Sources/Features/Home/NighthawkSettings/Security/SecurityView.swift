@@ -45,7 +45,7 @@ private extension SecurityView {
     @ViewBuilder
     var biometricsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Biometrics")
+            Text(L10n.Nighthawk.SettingsTab.Security.biometricsTitle)
                 .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
             if store.hasBiometricsHardware {
@@ -56,7 +56,7 @@ private extension SecurityView {
                 }
                 .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
             } else {
-                Text("Face ID / Touch ID is not configured on this device. You can still protect the wallet with a 6-digit App PIN below.")
+                Text(L10n.Nighthawk.SettingsTab.Security.biometricsUnavailable)
                     .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
             }
         }
@@ -65,10 +65,14 @@ private extension SecurityView {
     var pinLockSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("App PIN (6-digit)")
+                Text(L10n.Nighthawk.SettingsTab.Security.pinTitle)
                     .subtitleMedium(color: Asset.Colors.Nighthawk.parmaviolet.color)
                 Spacer()
-                Text(store.isPinEnabled ? "Enabled" : "Off")
+                Text(
+                    store.isPinEnabled
+                        ? L10n.Nighthawk.SettingsTab.Security.pinEnabled
+                        : L10n.Nighthawk.SettingsTab.Security.pinOff
+                )
                     .captionBold(
                         color: store.isPinEnabled
                             ? StealthTheme.Colors.statusSuccess
@@ -76,7 +80,7 @@ private extension SecurityView {
                     )
             }
 
-            Text("Locks wallet launch and resume after 10 minutes away. Stored in Keychain as a salted PBKDF2-SHA256 hash.")
+            Text(L10n.Nighthawk.SettingsTab.Security.pinDescription)
                 .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
 
             if let status = store.pinStatusMessage {
@@ -88,17 +92,17 @@ private extension SecurityView {
                 pinEntryCard
             } else if store.isPinEnabled {
                 VStack(alignment: .leading, spacing: 10) {
-                    Button("Change PIN") {
+                    Button(L10n.Nighthawk.SettingsTab.Security.pinChange) {
                         store.send(.startChangePinTapped)
                     }
                     .buttonStyle(.nighthawkPrimary())
 
-                    Button("Verify PIN") {
+                    Button(L10n.Nighthawk.SettingsTab.Security.pinVerify) {
                         store.send(.startVerifyPinTapped)
                     }
                     .buttonStyle(.nighthawkSecondary())
 
-                    Button("Disable PIN") {
+                    Button(L10n.Nighthawk.SettingsTab.Security.pinDisable) {
                         store.send(.startDisablePinTapped)
                     }
                     .buttonStyle(
@@ -109,7 +113,7 @@ private extension SecurityView {
                     )
                 }
             } else {
-                Button("Set 6-digit PIN") {
+                Button(L10n.Nighthawk.SettingsTab.Security.pinSet) {
                     store.send(.startSetupPinTapped)
                 }
                 .buttonStyle(.nighthawkPrimary())
@@ -136,7 +140,7 @@ private extension SecurityView {
             .padding(.vertical, 4)
 
             SecureField(
-                "6-digit PIN",
+                L10n.Nighthawk.Splash.sixDigitPin,
                 text: Binding(
                     get: { store.pinInput },
                     set: { store.send(.pinInputChanged($0)) }
@@ -162,7 +166,7 @@ private extension SecurityView {
             }
 
             HStack(spacing: 12) {
-                Button("Confirm") {
+                Button(L10n.Nighthawk.SettingsTab.Security.pinConfirm) {
                     store.send(.submitPinTapped)
                 }
                 .buttonStyle(.nighthawkPrimary())

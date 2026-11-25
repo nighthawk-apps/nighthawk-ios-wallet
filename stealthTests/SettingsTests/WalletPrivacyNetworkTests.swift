@@ -9,6 +9,7 @@ import DarkfiCore
 import Generated
 import Models
 import SwiftUI
+import UIComponents
 import UserDefaults
 import UserPreferencesStorage
 import XCTest
@@ -86,6 +87,12 @@ final class ThemeParityTests: XCTestCase {
         XCTAssertEqual(NighthawkSetting.Theme.midnight.paletteOverride, .midnight)
         XCTAssertFalse(NighthawkSetting.Theme.light.usesCyberpunkChrome)
         XCTAssertFalse(NighthawkSetting.Theme.midnight.usesCyberpunkChrome)
+    }
+
+    func testCyberpunkDefaultWallpaperAndChromeAreActiveByDefault() {
+        XCTAssertTrue(NighthawkSetting.Theme.default.usesCyberpunkChrome)
+        XCTAssertEqual(NighthawkSetting.Theme.default.paletteOverride, .cyberpunk)
+        XCTAssertNotNil(CyberpunkBackdrop.wallpaperImage)
     }
 }
 

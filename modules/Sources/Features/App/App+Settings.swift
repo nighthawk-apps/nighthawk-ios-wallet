@@ -57,17 +57,11 @@ extension AppReducer {
             case let .path(.element(id: _, action: .fiat(.delegate(delegateAction)))):
                 switch delegateAction {
                 case .fetchLatestFiatCurrency:
-                    state.path = StackState(
-                        state.path.map { element in
-                            if case let .home(homeState) = element {
-                                var updated = homeState
-                                updated.walletInfo.latestFiatPrice = nil
-                                return Path.State.home(updated)
-                            }
-
-                            return element
+                    for id in state.path.ids {
+                        if let homeState = state.path[id: id, case: \.home] {
+                            homeState.$walletInfo.withLock { $0.latestFiatPrice = nil }
                         }
-                    )
+                    }
                     // Re-fetch CoinGecko price for the newly selected currency.
                     if let id = state.path.ids.first(where: { id in
                         if case .home = state.path[id: id] { return true }

@@ -38,11 +38,75 @@ private enum NighthawkMeshABI {
 
     @_silgen_name("nh_mesh_wipe")
     static func wipe() -> Int32
+
+    @_silgen_name("nh_mesh_publish_dag")
+    static func publishDag(_ ptr: UnsafePointer<UInt8>?, _ len: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_pop_inbound_event")
+    static func popInboundEvent(
+        _ idOut: UnsafeMutablePointer<UInt8>?,
+        _ ptr: UnsafeMutablePointer<UInt8>?,
+        _ cap: Int32
+    ) -> Int32
+
+    @_silgen_name("nh_mesh_pop_events_json")
+    static func popEventsJson(_ ptr: UnsafeMutablePointer<UInt8>?, _ cap: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_last_gateway_peer")
+    static func lastGatewayPeer(_ ptr: UnsafeMutablePointer<UInt8>?, _ cap: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_pump_gateway")
+    static func pumpGateway() -> Int32
+
+    @_silgen_name("nh_mesh_submit_lwd_ctrl")
+    static func submitLwdCtrl(
+        _ dest: UnsafePointer<UInt8>?,
+        _ method: UnsafePointer<CChar>?,
+        _ body: UnsafePointer<UInt8>?,
+        _ bodyLen: Int32,
+        _ corrOut: UnsafeMutablePointer<UInt8>?
+    ) -> Int32
+
+    @_silgen_name("nh_mesh_submit_bulk_join")
+    static func submitBulkJoin(
+        _ dest: UnsafePointer<UInt8>?,
+        _ corrOut: UnsafeMutablePointer<UInt8>?
+    ) -> Int32
+
+    // swiftlint:disable function_parameter_count
+    @_silgen_name("nh_mesh_submit_bulk_offer")
+    static func submitBulkOffer(
+        _ dest: UnsafePointer<UInt8>?,
+        _ kind: Int32,
+        _ port: Int32,
+        _ ssid: UnsafePointer<CChar>?,
+        _ psk: UnsafePointer<UInt8>?,
+        _ pskLen: Int32,
+        _ sessionId: UnsafePointer<UInt8>?
+    ) -> Int32
+    // swiftlint:enable function_parameter_count
+
+    @_silgen_name("nh_mesh_set_bulk_tcp")
+    static func setBulkTcp(_ host: UnsafePointer<CChar>?, _ port: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_record_bulk_bytes")
+    static func recordBulkBytes(_ count: UInt64) -> Int32
+}
+
+/// Decoded inbound mesh event popped from `nh_mesh_pop_inbound_event`.
+public struct NighthawkMeshInboundEvent: Equatable, Sendable {
+    public let eventID: Data
+    public let body: Data
+
+    public init(eventID: Data, body: Data) {
+        self.eventID = eventID
+        self.body = body
+    }
 }
 
 /// Engine-queue owner of protocol state. BitChat's rule: this queue never
 /// sync-waits on the radio queue, and the radio never sync-waits on this one.
-final class NighthawkMeshEngine {
+final class NighthawkMeshEngine: @unchecked Sendable {
     let queue = DispatchQueue(label: "nh.mesh.engine")
     var sendFrame: ((String, Data) -> Void)?
     /// Disconnect a Bluetooth address that this mesh identity has replaced.
@@ -289,5 +353,162 @@ final class NighthawkMeshEngine {
         }
         guard byteCount > 0 else { return nil }
         return Data(buf.prefix(Int(byteCount)))
+    }
+}
+
+// MARK: - Android-parity mesh C ABI operations
+extension NighthawkMeshEngine {
+    @discardableResult
+    static func publishDag(_ bytes: Data) -> Bool {
+        bytes.withUnsafeBytes { raw in
+            guard let base = raw.bindMemory(to: UInt8.self).baseAddress else { return false }
+            return NighthawkMeshABI.publishDag(base, Int32(bytes.count)) == 0
+        }
+    }
+
+    static func popInboundEvent() -> NighthawkMeshInboundEvent? {
+        var eventID = [UInt8](repeating: 0, count: 16)
+        var cap = 4096
+        var buf = [UInt8](repeating: 0, count: cap)
+        var byteCount = eventID.withUnsafeMutableBytes { idRaw in
+            buf.withUnsafeMutableBytes { bodyRaw -> Int32 in
+                NighthawkMeshABI.popInboundEvent(
+                    idRaw.bindMemory(to: UInt8.self).baseAddress,
+                    bodyRaw.bindMemory(to: UInt8.self).baseAddress,
+                    Int32(cap)
+                )
+            }
+        }
+        if byteCount == -3 {
+            cap = 70_000
+            buf = [UInt8](repeating: 0, count: cap)
+            byteCount = eventID.withUnsafeMutableBytes { idRaw in
+                buf.withUnsafeMutableBytes { bodyRaw -> Int32 in
+                    NighthawkMeshABI.popInboundEvent(
+                        idRaw.bindMemory(to: UInt8.self).baseAddress,
+                        bodyRaw.bindMemory(to: UInt8.self).baseAddress,
+                        Int32(cap)
+                    )
+                }
+            }
+        }
+        guard byteCount > 0 else { return nil }
+        return NighthawkMeshInboundEvent(
+            eventID: Data(eventID),
+            body: Data(buf.prefix(Int(byteCount)))
+        )
+    }
+
+    static func popEventsJSON() -> String? {
+        var cap = 4096
+        var buf = [UInt8](repeating: 0, count: cap)
+        var byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
+            NighthawkMeshABI.popEventsJson(raw.bindMemory(to: UInt8.self).baseAddress, Int32(cap))
+        }
+        if byteCount == -3 {
+            cap = 65_536
+            buf = [UInt8](repeating: 0, count: cap)
+            byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
+                NighthawkMeshABI.popEventsJson(raw.bindMemory(to: UInt8.self).baseAddress, Int32(cap))
+            }
+        }
+        guard byteCount > 0 else { return nil }
+        return String(bytes: buf.prefix(Int(byteCount)), encoding: .utf8)
+    }
+
+    static func lastGatewayPeer() -> Data? {
+        var buf = [UInt8](repeating: 0, count: 8)
+        let byteCount = buf.withUnsafeMutableBytes { raw -> Int32 in
+            NighthawkMeshABI.lastGatewayPeer(raw.bindMemory(to: UInt8.self).baseAddress, Int32(raw.count))
+        }
+        guard byteCount == 8 else { return nil }
+        return Data(buf)
+    }
+
+    @discardableResult
+    static func pumpGateway() -> Bool {
+        NighthawkMeshABI.pumpGateway() == 0
+    }
+
+    static func submitLwdCtrl(dest: Data, method: String, body: Data) -> Data? {
+        guard dest.count == NighthawkMeshFraming.senderLength else { return nil }
+        var corr = [UInt8](repeating: 0, count: 16)
+        let resultCode: Int32 = dest.withUnsafeBytes { destRaw in
+            method.withCString { methodCStr in
+                body.withUnsafeBytes { bodyRaw in
+                    corr.withUnsafeMutableBytes { corrRaw in
+                        NighthawkMeshABI.submitLwdCtrl(
+                            destRaw.bindMemory(to: UInt8.self).baseAddress,
+                            methodCStr,
+                            body.isEmpty ? nil : bodyRaw.bindMemory(to: UInt8.self).baseAddress,
+                            Int32(body.count),
+                            corrRaw.bindMemory(to: UInt8.self).baseAddress
+                        )
+                    }
+                }
+            }
+        }
+        return resultCode == 0 ? Data(corr) : nil
+    }
+
+    static func submitBulkJoin(dest: Data) -> Data? {
+        guard dest.count == NighthawkMeshFraming.senderLength else { return nil }
+        var corr = [UInt8](repeating: 0, count: 16)
+        let resultCode: Int32 = dest.withUnsafeBytes { destRaw in
+            corr.withUnsafeMutableBytes { corrRaw in
+                NighthawkMeshABI.submitBulkJoin(
+                    destRaw.bindMemory(to: UInt8.self).baseAddress,
+                    corrRaw.bindMemory(to: UInt8.self).baseAddress
+                )
+            }
+        }
+        return resultCode == 0 ? Data(corr) : nil
+    }
+
+    struct BulkOfferParams {
+        let dest: Data
+        let kind: UInt8
+        let port: UInt16
+        let ssid: String
+        let psk: Data
+        let sessionID: Data
+    }
+
+    @discardableResult
+    static func submitBulkOffer(_ params: BulkOfferParams) -> Bool {
+        guard params.dest.count == NighthawkMeshFraming.senderLength,
+              params.sessionID.count == 16 else { return false }
+        let resultCode: Int32 = params.dest.withUnsafeBytes { destRaw in
+            params.ssid.withCString { ssidCStr in
+                params.psk.withUnsafeBytes { pskRaw in
+                    params.sessionID.withUnsafeBytes { sidRaw in
+                        NighthawkMeshABI.submitBulkOffer(
+                            destRaw.bindMemory(to: UInt8.self).baseAddress,
+                            Int32(params.kind),
+                            Int32(params.port),
+                            ssidCStr,
+                            params.psk.isEmpty ? nil : pskRaw.bindMemory(to: UInt8.self).baseAddress,
+                            Int32(params.psk.count),
+                            sidRaw.bindMemory(to: UInt8.self).baseAddress
+                        )
+                    }
+                }
+            }
+        }
+        return resultCode == 0
+    }
+
+    @discardableResult
+    static func setBulkTcp(host: String?, port: UInt16) -> Bool {
+        guard let host, !host.isEmpty, port > 0 else {
+            return NighthawkMeshABI.setBulkTcp(nil, 0) == 0
+        }
+        return host.withCString { cstr in
+            NighthawkMeshABI.setBulkTcp(cstr, Int32(port)) == 0
+        }
+    }
+
+    static func recordBulkBytes(_ count: UInt64) -> Bool {
+        NighthawkMeshABI.recordBulkBytes(count) == 1
     }
 }

@@ -127,8 +127,8 @@ public final class ColorAsset {
         case midnight
     }
 
-    /// Updated by `NighthawkThemeController`.
-    public static var paletteOverride: PaletteOverride = {
+    private static let paletteLock = NSLock()
+    private static var _paletteOverride: PaletteOverride = {
         switch UserDefaults.standard.string(forKey: "darkfiTheme") ?? "default" {
         case "light":
             return .light
@@ -140,6 +140,20 @@ public final class ColorAsset {
             return .cyberpunk
         }
     }()
+
+    /// Updated by `NighthawkThemeController`. Thread-safe for cross-actor reads.
+    public static var paletteOverride: PaletteOverride {
+        get {
+            paletteLock.lock()
+            defer { paletteLock.unlock() }
+            return _paletteOverride
+        }
+        set {
+            paletteLock.lock()
+            _paletteOverride = newValue
+            paletteLock.unlock()
+        }
+    }
 
     public static var usesCyberpunkPalette: Bool { paletteOverride == .cyberpunk }
 
@@ -258,17 +272,19 @@ public final class ColorAsset {
         case "textHeader":
             return Color(red: 0xF7 / 255, green: 0xFB / 255, blue: 0xFF / 255) // #F7FBFF
         case "textBody":
-            return Color(red: 0xE7 / 255, green: 0xEE / 255, blue: 0xF8 / 255) // #E7EEF8
+            return Color(red: 0xF4 / 255, green: 0xFB / 255, blue: 0xFF / 255) // #F4FBFF
         case "parmaviolet", "textMuted":
             return Color(red: 0xD5 / 255, green: 0xDE / 255, blue: 0xEA / 255) // #D5DEEA
         case "darkNavy", "charcoalRaised":
-            return Color(red: 0x0D / 255, green: 0x11 / 255, blue: 0x1C / 255, opacity: 0.85) // #0D111CD9
+            return Color(red: 0x10 / 255, green: 0x12 / 255, blue: 0x1C / 255, opacity: 0xC0 / 255) // #10121CC0
         case "navy", "elevated", "secondaryFill":
-            return Color(red: 0x16 / 255, green: 0x1C / 255, blue: 0x2B / 255, opacity: 0.85) // #161C2BD9
+            return Color(red: 0x16 / 255, green: 0x1C / 255, blue: 0x28 / 255, opacity: 0xB8 / 255) // #161C28B8
         case "richBlack", "charcoalDeep", "moonlit":
-            return Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255) // #050810
-        case "steelBorder", "steelBorderMuted":
+            return Color(red: 0x05 / 255, green: 0x08 / 255, blue: 0x10 / 255, opacity: 0x99 / 255) // #05081099
+        case "steelBorder":
             return Color(red: 0x3D / 255, green: 0x4C / 255, blue: 0x5C / 255) // #3D4C5C
+        case "steelBorderMuted":
+            return Color(red: 0x2A / 255, green: 0x35 / 255, blue: 0x44 / 255) // #2A3544
         case "error", "dangerous":
             return Color(red: 0xFF / 255, green: 0x4D / 255, blue: 0x6D / 255) // #FF4D6D
         default:

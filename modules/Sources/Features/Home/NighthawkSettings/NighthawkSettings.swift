@@ -173,7 +173,7 @@ public struct NighthawkSettings {
     public init() {}
 }
 
-@Reducer(state: .equatable, action: .equatable)
+@Reducer
 public enum NighthawkSettingsFoldDetail {
     case about(About)
     case advanced(Advanced)
@@ -184,6 +184,9 @@ public enum NighthawkSettingsFoldDetail {
     case security(Security)
     case torNetwork(TorNetwork)
 }
+
+extension NighthawkSettingsFoldDetail.State: Equatable {}
+extension NighthawkSettingsFoldDetail.Action: Equatable {}
 
 // MARK: Alerts
 extension AlertState where Action == NighthawkSettings.Action.Alert {

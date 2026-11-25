@@ -40,7 +40,7 @@ public struct TransactionDetailView: View {
         .onAppear { store.send(.onAppear) }
         .toast(
             unwrapping: $store.toast,
-            case: /TransactionDetail.State.Toast.replyToCopied,
+            case: \.replyToCopied,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .regular,
@@ -174,7 +174,7 @@ private extension StoreOf<TransactionDetail> {
         if self.syncMethod != .unknown {
             result.append(
                 TransactionLineItem(
-                    name: "Sync method",
+                    name: L10n.Nighthawk.TransactionDetails.syncMethod,
                     value: self.syncMethod.displayName
                 )
             )

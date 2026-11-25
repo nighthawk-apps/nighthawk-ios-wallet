@@ -42,7 +42,7 @@ enum ChatEncryptedFileStore {
 
     /// Encrypt and atomically write JSON bytes on `diskQueue` synchronously (safe when called from actors/background).
     static func saveSync(_ plaintext: Data, encryptedURL: URL, legacyPlaintextURL: URL? = nil) {
-        diskQueue.sync {
+        _ = diskQueue.sync {
             saveUnlocked(plaintext, encryptedURL: encryptedURL, legacyPlaintextURL: legacyPlaintextURL)
         }
     }
@@ -58,8 +58,8 @@ enum ChatEncryptedFileStore {
     /// Delete the Keychain AES-256 disk key (e.g. full wallet wipe).
     static func clearKey() {
         keyLock.lock()
+        defer { keyLock.unlock() }
         cachedKey = nil
-        keyLock.unlock()
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,

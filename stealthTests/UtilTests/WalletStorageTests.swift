@@ -5,7 +5,6 @@
 //  Created by Lukáš Korba on 10.03.2022.
 //
 
-import MnemonicSwift
 import Models
 import Utils
 import WalletStorage
@@ -191,6 +190,16 @@ final class WalletStorageTests: XCTestCase {
         } catch {
             XCTFail("Keychain: expected `unsupportedLanguage` error but threw \(error).")
         }
+    }
+    func testLegacyMnemonicLanguageTypeJsonRoundTrip() throws {
+        // Legacy MnemonicSwift.MnemonicLanguageType encoded `.english` as `{"english":{}}`.
+        let legacyJson = Data(#"{"english":{}}"#.utf8)
+        let decoded = try JSONDecoder().decode(MnemonicLanguageType.self, from: legacyJson)
+        XCTAssertEqual(decoded, .english)
+
+        let reencoded = try JSONEncoder().encode(decoded)
+        let reparsed = try JSONDecoder().decode(MnemonicLanguageType.self, from: reencoded)
+        XCTAssertEqual(reparsed, .english)
     }
 }
 

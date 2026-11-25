@@ -70,7 +70,7 @@ public struct HomeView: View {
         }
         .toast(
             unwrapping: $store.toast,
-            case: /Home.State.Toast.expectingFunds,
+            case: \.expectingFunds,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .regular,

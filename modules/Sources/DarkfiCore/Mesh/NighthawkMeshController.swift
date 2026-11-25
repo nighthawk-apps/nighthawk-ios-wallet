@@ -62,6 +62,54 @@ public final class NighthawkMeshController: ObservableObject {
         engine.wipe()
     }
 
+    /// Publish a serialized DarkIRC DAG frame to connected mesh peers.
+    @discardableResult
+    public nonisolated static func publishDag(_ bytes: Data) -> Bool {
+        NighthawkMeshEngine.publishDag(bytes)
+    }
+
+    /// Pop the next inbound mesh event (if any) for DarkIRC bridge consumption.
+    public nonisolated static func popInboundEvent() -> NighthawkMeshInboundEvent? {
+        NighthawkMeshEngine.popInboundEvent()
+    }
+
+    /// Pop queued JSON-encoded mesh gateway/bulk control events.
+    public nonisolated static func popEventsJSON() -> String? {
+        NighthawkMeshEngine.popEventsJSON()
+    }
+
+    /// Last gateway peer 8-byte mesh ID, if known.
+    public nonisolated static func lastGatewayPeer() -> Data? {
+        NighthawkMeshEngine.lastGatewayPeer()
+    }
+
+    /// Drive gateway control queue once.
+    @discardableResult
+    public nonisolated static func pumpGateway() -> Bool {
+        NighthawkMeshEngine.pumpGateway()
+    }
+
+    /// Submit a lightwalletd control RPC over the mesh to `dest` (8-byte peer ID).
+    public nonisolated static func submitLwdCtrl(dest: Data, method: String, body: Data) -> Data? {
+        NighthawkMeshEngine.submitLwdCtrl(dest: dest, method: method, body: body)
+    }
+
+    /// Request a bulk sync channel with `dest` (8-byte peer ID).
+    public nonisolated static func submitBulkJoin(dest: Data) -> Data? {
+        NighthawkMeshEngine.submitBulkJoin(dest: dest)
+    }
+
+    /// Set (or clear with nil/0) the active bulk-sync TCP override endpoint.
+    @discardableResult
+    public nonisolated static func setBulkTcp(host: String?, port: UInt16) -> Bool {
+        NighthawkMeshEngine.setBulkTcp(host: host, port: port)
+    }
+
+    /// Account transferred bulk bytes against the native rate budget.
+    public nonisolated static func recordBulkBytes(_ count: UInt64) -> Bool {
+        NighthawkMeshEngine.recordBulkBytes(count)
+    }
+
     /// Starts the radio again after launch when the user left mesh on.
     public func restoreIfEnabled() {
         guard enabled else { return }

@@ -13,7 +13,7 @@ import Utils
 
 @Reducer
 public struct Transfer {
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Destination {
         case receive(Receive)
         case request(RequestMoney)
@@ -82,3 +82,6 @@ public struct Transfer {
 
     public init() {}
 }
+
+extension Transfer.Destination.State: Equatable {}
+extension Transfer.Destination.Action: Equatable {}

@@ -25,7 +25,7 @@ public struct ChatSettingsView: View {
     private var fudToggle: some View {
         VStack(alignment: .leading, spacing: 6) {
             Toggle(isOn: $allowFud) {
-                Text("Allow fud:// file offers")
+                Text(L10n.Nighthawk.SettingsTab.ChatSettings.allowFudTitle)
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             }
@@ -33,7 +33,7 @@ public struct ChatSettingsView: View {
             .onChange(of: allowFud) { _, enabled in
                 FudPreferences.setEnabled(enabled)
             }
-            Text("A tap queues the offer on this phone. It is sent only over Nym, Tor, or nearby mesh, and the file is not downloaded automatically.")
+            Text(L10n.Nighthawk.SettingsTab.ChatSettings.allowFudSubtitle)
                 .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
         }
@@ -43,15 +43,15 @@ public struct ChatSettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 // Embedded Node Sync section
-                sectionHeader("FILE OFFERS")
+                sectionHeader(L10n.Nighthawk.SettingsTab.ChatSettings.fileOffersSection)
                     .padding(.top, 8)
                 fudToggle
-                sectionHeader("EMBEDDED NODE SYNC")
+                sectionHeader(L10n.Nighthawk.SettingsTab.ChatSettings.embeddedNodeSection)
                     .padding(.top, 8)
 
                 toggleRow(
-                    title: "Use embedded darkirc",
-                    subtitle: "Run darkirc inside the app",
+                    title: L10n.Nighthawk.SettingsTab.ChatSettings.useEmbeddedTitle,
+                    subtitle: L10n.Nighthawk.SettingsTab.ChatSettings.useEmbeddedSubtitle,
                     isOn: Binding(
                         get: { store.useEmbeddedDarkirc },
                         set: { store.send(.toggleEmbeddedDarkirc($0)) }
@@ -60,11 +60,11 @@ public struct ChatSettingsView: View {
 
                 if store.useEmbeddedDarkirc {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("DAG history hours (1–24)")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.dagHistoryTitle)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                             .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
-                        Text("Each DAG is about one hour of channel history. Default is 8 (upstream darkirc).")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.dagHistorySubtitle)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
@@ -87,8 +87,8 @@ public struct ChatSettingsView: View {
                     }
 
                     toggleRow(
-                        title: "Fast sync (header-only)",
-                        subtitle: "Matches upstream fast_mod: quicker DAG sync with less history fetch.",
+                        title: L10n.Nighthawk.SettingsTab.ChatSettings.fastSyncTitle,
+                        subtitle: L10n.Nighthawk.SettingsTab.ChatSettings.fastSyncSubtitle,
                         isOn: Binding(
                             get: { store.fastSyncMode },
                             set: { store.send(.toggleFastSync($0)) }
@@ -103,13 +103,8 @@ public struct ChatSettingsView: View {
 
                 // Channel privacy labelling — public #channels are plaintext on the wire.
                 // Real shared-key / MLS channel E2E is not implemented; do not offer a fake lock.
-                sectionHeader("CHANNEL PRIVACY")
-                Text(
-                    """
-                    Public #channels are plaintext on DarkIRC. Only 1:1 DMs use ChaChaBox end-to-end encryption. \
-                    Group/channel E2E is not available yet.
-                    """
-                )
+                sectionHeader(L10n.Nighthawk.SettingsTab.ChatSettings.channelPrivacySection)
+                Text(L10n.Nighthawk.SettingsTab.ChatSettings.channelPrivacyBody)
                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
@@ -119,12 +114,12 @@ public struct ChatSettingsView: View {
                     .padding(.vertical, 8)
 
                 // Encrypted Contacts (DM) section
-                sectionHeader("ENCRYPTED CONTACTS (DM)")
+                sectionHeader(L10n.Nighthawk.SettingsTab.ChatSettings.encryptedContactsSection)
 
                 // My public key
                 if let publicKey = store.myDmPublicKey {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Your public key (share with contact):")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.yourPublicKey)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 13))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
@@ -141,7 +136,7 @@ public struct ChatSettingsView: View {
                                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                             }
                         }
-                        Text("Safety number")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.safetyNumber)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         Text(
@@ -167,7 +162,7 @@ public struct ChatSettingsView: View {
                                 .tint(Asset.Colors.Nighthawk.peach.color)
                         }
                         Image(systemName: "key.fill")
-                        Text("Generate my DM keys")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.generateDmKeys)
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -175,7 +170,7 @@ public struct ChatSettingsView: View {
                 .disabled(store.isGeneratingKeys)
 
                 if store.encryptedContacts.isEmpty {
-                    Text("No encrypted contacts configured.")
+                    Text(L10n.Nighthawk.SettingsTab.ChatSettings.noContacts)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                 } else {
@@ -188,7 +183,7 @@ public struct ChatSettingsView: View {
                                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                     Spacer()
                                     Button(action: { store.send(.removeContact(contact.id)) }) {
-                                        Text("Remove")
+                                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.remove)
                                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                                             .foregroundColor(StealthTheme.Colors.statusDanger)
                                     }
@@ -206,7 +201,7 @@ public struct ChatSettingsView: View {
                 Button(action: { store.send(.addContactTapped) }) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
-                        Text("Add encrypted contact")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.addContact)
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -219,7 +214,7 @@ public struct ChatSettingsView: View {
 
                 // Apply button
                 Button(action: { store.send(.applyAndReconnect) }) {
-                    Text("Apply & reconnect")
+                    Text(L10n.Nighthawk.SettingsTab.ChatSettings.applyReconnect)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                 }
                 .buttonStyle(.nighthawkPrimary())
@@ -246,7 +241,7 @@ public struct ChatSettingsView: View {
 private extension ChatSettingsView {
     func contactInviteQrCard(inviteUri: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Contact Invite QR (nighthawk://contact)")
+            Text(L10n.Nighthawk.SettingsTab.ChatSettings.inviteQrTitle)
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
@@ -270,7 +265,7 @@ private extension ChatSettingsView {
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "doc.on.doc")
-                    Text("Copy contact invite URI")
+                    Text(L10n.Nighthawk.SettingsTab.ChatSettings.copyInviteUri)
                 }
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                 .foregroundColor(Asset.Colors.Nighthawk.peach.color)
@@ -321,40 +316,40 @@ private extension ChatSettingsView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 8) {
-                        TextField("Paste nighthawk://contact?... invite", text: $dialog.inviteUriInput)
+                        TextField(L10n.Nighthawk.SettingsTab.ChatSettings.pasteInvitePlaceholder, text: $dialog.inviteUriInput)
                             .textFieldStyle(.roundedBorder)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        Button("Fill") {
+                        Button(L10n.Nighthawk.SettingsTab.ChatSettings.fill) {
                             dialogStore.send(.parseInviteUriTapped)
                         }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                         .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                     }
 
-                    TextField("Nickname", text: $dialog.contactNick)
+                    TextField(L10n.Nighthawk.SettingsTab.ChatSettings.nickname, text: $dialog.contactNick)
                         .textFieldStyle(.roundedBorder)
 
-                    TextField("Peer DM public key (Base58)", text: $dialog.theirPublicKey)
+                    TextField(L10n.Nighthawk.SettingsTab.ChatSettings.peerDmPubkeyPlaceholder, text: $dialog.theirPublicKey)
                         .textFieldStyle(.roundedBorder)
 
-                    TextField("My DM secret key (Base58)", text: $dialog.mySecretKey)
+                    TextField(L10n.Nighthawk.SettingsTab.ChatSettings.myDmSecretPlaceholder, text: $dialog.mySecretKey)
                         .textFieldStyle(.roundedBorder)
 
-                    Button("Generate my DM keypair") {
+                    Button(L10n.Nighthawk.SettingsTab.ChatSettings.generateKeypair) {
                         dialogStore.send(.generateKeysTapped)
                     }
                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 14))
                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
 
                     if !dialog.myPublicKey.isEmpty {
-                        Text("My public key: \(dialog.myPublicKey)")
+                        Text(L10n.Nighthawk.SettingsTab.ChatSettings.myPublicKeyValue(dialog.myPublicKey))
                             .font(.custom(FontFamily.DejaVuSansMono.regular.name, size: 11))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                             .lineLimit(2)
                     }
 
-                    TextField("DarkFi wallet address (optional)", text: $dialog.walletAddress)
+                    TextField(L10n.Nighthawk.SettingsTab.ChatSettings.walletAddressOptional, text: $dialog.walletAddress)
                         .textFieldStyle(.roundedBorder)
 
                     if let error = dialog.errorMessage {
@@ -363,7 +358,7 @@ private extension ChatSettingsView {
                             .foregroundColor(StealthTheme.Colors.statusDanger)
                     }
 
-                    Button("Add contact") {
+                    Button(L10n.Nighthawk.SettingsTab.ChatSettings.addContactButton) {
                         dialogStore.send(.addTapped)
                     }
                     .buttonStyle(.nighthawkPrimary())
@@ -371,10 +366,10 @@ private extension ChatSettingsView {
                 .padding(20)
             }
             .applyNighthawkBackground()
-            .navigationTitle("Add Encrypted Contact")
+            .navigationTitle(L10n.Nighthawk.SettingsTab.ChatSettings.addContactSheetTitle)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dialogStore.send(.cancelTapped) }
+                    Button(L10n.General.cancel) { dialogStore.send(.cancelTapped) }
                 }
             }
         }

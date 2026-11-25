@@ -32,7 +32,7 @@ public struct ChangeServer {
 
         public static let testnetTlsPreset = ServerPreset(
             id: "testnet-tls",
-            title: "Nighthawk Testnet (HTTPS)",
+            title: L10n.Nighthawk.SettingsTab.ChangeServer.presetTestnet,
             subtitle: "https://epidermis-sandbox-marshland.ngrok-free.dev:443",
             endpoint: "https://epidermis-sandbox-marshland.ngrok-free.dev:443",
             useTls: true
@@ -40,7 +40,7 @@ public struct ChangeServer {
 
         public static let localPreset = ServerPreset(
             id: "local-lwd",
-            title: "Local Lightwalletd",
+            title: L10n.Nighthawk.SettingsTab.ChangeServer.presetLocal,
             subtitle: "127.0.0.1:9067",
             endpoint: "127.0.0.1:9067",
             useTls: false

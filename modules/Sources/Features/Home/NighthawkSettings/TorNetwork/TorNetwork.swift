@@ -10,6 +10,7 @@
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import Generated
 import MnemonicClient
 import Models
 import SDKSynchronizer
@@ -66,9 +67,9 @@ public struct TorNetwork {
         /// Descriptive text for the SOCKS section matching Android's two descriptions.
         public var socksDescription: String {
             if isUsingEmbedded && isTorEnabled {
-                return "Loopback address where built-in Arti listens (default 127.0.0.1:9050). Embedded DarkIRC uses this proxy for .onion P2P seeds."
+                return L10n.Nighthawk.SettingsTab.TorNetwork.socksDescriptionEmbedded
             }
-            return "Host and port of your external Tor or SOCKS proxy. Required when built-in Arti is off."
+            return L10n.Nighthawk.SettingsTab.TorNetwork.socksDescriptionExternal
         }
 
         public init() {}
@@ -124,7 +125,7 @@ public struct TorNetwork {
 
             case .onAppear:
                 state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
-                state.nymStatus = DarkfiFfiSafe.isNymRunning() ? .connected : .stopped
+                state.nymStatus = Self.currentNymStatus()
                 state.torForChat = userStoredPreferences.torForChatEnabled()
                 state.torMode = userStoredPreferences.useEmbeddedTor()
                     ? .embeddedArti : .externalSocks
@@ -176,24 +177,7 @@ public struct TorNetwork {
                 guard state.nymStatus != .bootstrapping,
                       state.nymStatus != .connected else { return .none }
                 state.nymStatus = .bootstrapping
-                return .run { send in
-                    let nymStarted = DarkfiFfiSafe.startNymProxySafely(
-                        socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort
-                    )
-                    guard nymStarted || DarkfiFfiSafe.isNymRunning() else {
-                        await send(.nymStatusChanged(.failed))
-                        return
-                    }
-                    // Topology fetch, gateway handshake and IPR connect can exceed a minute.
-                    for _ in 0..<240 {
-                        if DarkfiFfiSafe.isNymRunning() {
-                            await send(.nymStatusChanged(.connected))
-                            return
-                        }
-                        try await Task.sleep(nanoseconds: 500_000_000)
-                    }
-                    await send(.nymStatusChanged(.failed))
-                }
+                return Self.nymBootstrapEffect()
 
             case .stopNym:
                 DarkfiFfiSafe.stopNymProxy()
@@ -313,4 +297,50 @@ public struct TorNetwork {
     }
 
     public init() {}
+}
+
+private extension TorNetwork {
+    static func currentNymStatus() -> State.ArtiStatus {
+        switch DarkfiFfiSafe.nymStatus() {
+        case "connected", "reconnecting":
+            return .connected
+        case "bootstrapping":
+            return .bootstrapping
+        case "failed":
+            return .failed
+        default:
+            return DarkfiFfiSafe.isNymRunning() ? .connected : .stopped
+        }
+    }
+
+    static func nymBootstrapEffect() -> Effect<Action> {
+        .run { send in
+            let started = await Task.detached(priority: .utility) {
+                DarkfiFfiSafe.startNymProxySafely(socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort)
+            }.value
+            let initialStatus = DarkfiFfiSafe.nymStatus()
+            guard started
+                || DarkfiFfiSafe.isNymRunning()
+                || initialStatus == "bootstrapping"
+                || initialStatus == "connected"
+                || initialStatus == "reconnecting" else {
+                await send(.nymStatusChanged(.failed))
+                return
+            }
+            // Topology fetch, gateway handshake and IPR connect can exceed a minute.
+            for _ in 0..<240 {
+                let status = DarkfiFfiSafe.nymStatus()
+                if DarkfiFfiSafe.isNymRunning() || status == "connected" || status == "reconnecting" {
+                    await send(.nymStatusChanged(.connected))
+                    return
+                }
+                if status == "failed" {
+                    await send(.nymStatusChanged(.failed))
+                    return
+                }
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+            await send(.nymStatusChanged(.failed))
+        }
+    }
 }

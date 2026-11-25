@@ -78,4 +78,18 @@ final class DarkfiFFIErrorTests: XCTestCase {
             XCTFail("Should be InsufficientFunds")
         }
     }
+
+    /// Verify Android-parity `nh_mesh_*` C ABI bindings link and handle idle/invalid inputs safely.
+    func testMeshParityCAbiBindingsLinkAndHandleIdleState() {
+        XCTAssertNil(NighthawkMeshController.popInboundEvent())
+        XCTAssertNotNil(NighthawkMeshController.popEventsJSON())
+        XCTAssertTrue(NighthawkMeshController.pumpGateway())
+        XCTAssertTrue(NighthawkMeshController.setBulkTcp(host: nil, port: 0))
+        _ = NighthawkMeshController.lastGatewayPeer()
+        _ = NighthawkMeshController.recordBulkBytes(0)
+        // Invalid peer ID length (must be 8 bytes) fails closed in Swift before FFI.
+        XCTAssertNil(NighthawkMeshController.submitLwdCtrl(dest: Data([1, 2, 3]), method: "ping", body: Data()))
+        XCTAssertNil(NighthawkMeshController.submitBulkJoin(dest: Data([1, 2, 3])))
+        _ = NighthawkMeshController.publishDag(Data())
+    }
 }

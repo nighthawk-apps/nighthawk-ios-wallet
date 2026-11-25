@@ -48,7 +48,7 @@ final class SettingsTests: XCTestCase {
             reducer: Security.init
         ) {
             $0.userStoredPreferences = .liveValue
-            $0.localAuthenticationContext = LocalAuthenticationContextClientGenerator {
+            $0.localAuthenticationContext = LocalAuthContextClientGenerator {
                 LocalAuthenticationContextClient(
                     biometryType: { .none },
                     canEvaluatePolicy: { _ in false },

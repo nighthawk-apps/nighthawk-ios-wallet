@@ -395,8 +395,8 @@ final class SendFlowAndSyncUnitTests: XCTestCase {
         await withDependencies {
             HomeTestSupport.configureDependencies(&$0)
         } operation: {
-            var homeState = Home.State(receiveAddress: DarkfiAddress(stringEncoded: "drk1self"))
-            homeState.walletInfo.balance = 333_000_000
+            let homeState = Home.State(receiveAddress: DarkfiAddress(stringEncoded: "drk1self"))
+            homeState.$walletInfo.withLock { $0.balance = 333_000_000 }
 
             let store = TestStore(
                 initialState: homeState,
@@ -437,7 +437,7 @@ final class SendFlowAndSyncUnitTests: XCTestCase {
         ) {
             $0.date = .constant(now)
             $0.userStoredPreferences = prefs
-            $0.localAuthenticationContext = LocalAuthenticationContextClientGenerator {
+            $0.localAuthenticationContext = LocalAuthContextClientGenerator {
                 LocalAuthenticationContextClient(
                     biometryType: { .none },
                     canEvaluatePolicy: { _ in false },

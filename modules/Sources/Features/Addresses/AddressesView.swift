@@ -42,7 +42,7 @@ public struct AddressesView: View {
         }
         .toast(
             unwrapping: $store.toast,
-            case: /Addresses.State.Toast.copiedToClipboard,
+            case: \.copiedToClipboard,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .regular,
@@ -76,7 +76,7 @@ private extension AddressesView {
                     .layoutPriority(1)
 
                     HStack {
-                        Text("Private Address")
+                        Text(L10n.Nighthawk.WalletTab.Addresses.receiveAddress)
                             .paragraphMedium()
 
                         Spacer()

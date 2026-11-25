@@ -49,8 +49,8 @@ public struct WelcomeView: View {
         }
         .applyNighthawkBackground()
         .nighthawkAlert(
-            store: store.scope(
-                state: \.$destination.importSeedWarningAlert,
+            item: $store.scope(
+                state: \.destination?.importSeedWarningAlert,
                 action: \.destination.importSeedWarningAlert
             )
         ) { store in
@@ -120,7 +120,9 @@ private extension WelcomeView {
                     Circle()
                         .fill(
                             currentPage == index
-                                ? Asset.Colors.Nighthawk.peach.color
+                                ? (ColorAsset.usesCyberpunkPalette
+                                    ? StealthTheme.Colors.secondaryAccent
+                                    : Asset.Colors.Nighthawk.peach.color)
                                 : Asset.Colors.Nighthawk.textMuted.color
                         )
                         .frame(

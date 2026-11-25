@@ -131,20 +131,20 @@ private extension WalletView {
         switch store.walletInfo.synchronizerStatusSnapshot.syncStatus {
         case .upToDate:
             if !isHonestlySynced {
-                return syncState.lightStatusMessage ?? "Lightwalletd stale or unreachable"
+                return syncState.lightStatusMessage ?? L10n.Nighthawk.WalletTab.syncStale
             }
-            return "Synced · Block \(blockHeight)"
+            return L10n.Nighthawk.WalletTab.syncedBlock(blockHeight)
         case let .syncing(progress):
-            let percent = progress * 100
+            let percent = Int((progress * 100).rounded())
             return blockHeight > 0
-                ? String(format: "Syncing %.0f%% · Block %d", percent, blockHeight)
-                : String(format: "Syncing %.0f%%", percent)
+                ? L10n.Nighthawk.WalletTab.syncingBlock(percent, blockHeight)
+                : L10n.Nighthawk.WalletTab.syncingPercent(percent)
         case .unprepared:
-            return "Connecting…"
+            return L10n.Nighthawk.Sync.Message.unprepared
         case .error:
-            return "Sync Error"
+            return L10n.Nighthawk.WalletTab.syncError
         case .stopped:
-            return "Sync Stopped"
+            return L10n.Nighthawk.WalletTab.syncStopped
         }
     }
 
@@ -156,7 +156,7 @@ private extension WalletView {
                 && store.walletInfo.synchronizerStatusSnapshot.syncStatus == .upToDate)
         if shouldShow {
             let text = (statusMessage?.isEmpty == false ? statusMessage : nil)
-                ?? "Lightwalletd unreachable — check Change Server or Network privacy."
+                ?? L10n.Nighthawk.WalletTab.unreachableBanner
             let accent = isUnreachableError ? StealthTheme.Colors.statusDanger : StealthTheme.Colors.statusWarning
             HStack(spacing: 8) {
                 Image(systemName: isUnreachableError ? "xmark.octagon.fill" : "exclamationmark.triangle.fill")
@@ -192,7 +192,7 @@ private extension WalletView {
                     .font(.system(size: 14))
                     .foregroundColor(StealthTheme.Colors.statusWarning)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Chain Reorg Recovery")
+                    Text(L10n.Nighthawk.WalletTab.reorgTitle)
                         .captionBold(color: StealthTheme.Colors.statusWarning)
                     Text(msg)
                         .caption(color: Asset.Colors.Nighthawk.textHeader.color)
@@ -437,10 +437,10 @@ private extension WalletView {
         if !store.isSyncingForFirstTime && !tokens.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text("Tokens")
+                    Text(L10n.Nighthawk.WalletTab.tokens)
                         .captionBold(color: Asset.Colors.Nighthawk.parmaviolet.color)
                     Spacer()
-                    Text("Tap to send")
+                    Text(L10n.Nighthawk.WalletTab.tapToSend)
                         .caption(color: Asset.Colors.Nighthawk.textMuted.color)
                 }
 

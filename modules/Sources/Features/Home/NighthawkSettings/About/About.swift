@@ -7,6 +7,7 @@
 
 import AppVersion
 import ComposableArchitecture
+import Generated
 import UIKit
 import Utils
 
@@ -19,10 +20,10 @@ public struct About {
 
         public var versionDisplay: String {
             if !appVersion.isEmpty && !appBuild.isEmpty {
-                return "Version \(appVersion) (\(appBuild))"
+                return L10n.Nighthawk.About.versionWithBuild(appVersion, appBuild)
             }
             if !appVersion.isEmpty {
-                return "Version \(appVersion)"
+                return L10n.Nighthawk.About.versionOnly(appVersion)
             }
             return ""
         }

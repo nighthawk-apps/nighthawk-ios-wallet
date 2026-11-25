@@ -144,6 +144,7 @@
 "nighthawk.transaction.sent" = "보냄";
 
 // MARK: - Home Screen
+"nighthawk.homeScreen.chat" = "채팅";
 "nighthawk.homeScreen.wallet" = "지갑";
 "nighthawk.homeScreen.transfer" = "전송";
 "nighthawk.homeScreen.dex" = "DEX";
@@ -522,7 +523,7 @@
 "nighthawk.daoHub.walletStopped" = "지갑 동기화가 중지되었습니다. 지갑 탭에서 동기화를 다시 시작한 뒤 DAO 허브를 다시 여세요.";
 "nighthawk.daoHub.walletSyncing" = "지갑 동기화가 아직 진행 중입니다. 지갑이 최신이 되면 DAO 허브를 다시 여세요.";
 "nighthawk.daoHub.walletSyncFailed" = "지갑 동기화 실패: %@";
-"nighthawk.walletCompanion.shieldedNote" = "전송은 실드 상태로 유지됩니다. 서버가 지원하면 UnifOMR을 씁니다. 시험 복호화는 폴백일 뿐입니다.";
+"nighthawk.walletCompanion.shieldedNote" = "전송은 실드 상태로 유지됩니다. 시험 복호화가 기본입니다. 실험적 UnifOMR은 고급 설정에서 직접 켤 때만 쓰이며, fhe-omr lightwalletd가 필요합니다.";
 "nighthawk.walletCompanion.trialDecrypt" = "시험 복호화";
 "nighthawk.walletCompanion.unifOmr" = "UnifOMR";
 "nighthawk.walletCompanion.blockHeight" = "블록 %@";
@@ -535,3 +536,221 @@
 "nighthawk.walletCompanion.sendAgain" = "다시 보내기";
 "nighthawk.walletCompanion.copyMemo" = "메모 복사";
 "nighthawk.chat.couldNotDecrypt" = "복호화할 수 없습니다";
+
+// MARK: - Keys added for parity with en.lproj
+
+// MARK: - about
+"nighthawk.about.openSourceLicenses" = "오픈 소스 라이선스";
+"nighthawk.about.versionWithBuild" = "버전 %@ (%@)";
+"nighthawk.about.versionOnly" = "버전 %@";
+
+// MARK: - splash
+"nighthawk.splash.enterAppPin" = "앱 PIN 입력";
+"nighthawk.splash.sixDigitPin" = "6자리 PIN";
+"nighthawk.splash.unlock" = "잠금 해제";
+"nighthawk.splash.pinErrorLength" = "6자리 PIN을 입력하세요.";
+"nighthawk.splash.pinErrorIncorrect" = "PIN이 올바르지 않습니다. 다시 시도하세요.";
+"nighthawk.splash.nymFailed" = "Nym 믹스넷 연결에 실패했습니다";
+"nighthawk.splash.nymConnecting" = "Nym 믹스넷에 연결하는 중… %@초";
+"nighthawk.splash.nymSlow" = "평소보다 오래 걸립니다. 계속 기다리거나 Nym 없이 진행하세요.";
+"nighthawk.splash.continueWithoutNym" = "Nym 없이 계속";
+"nighthawk.splash.nymSessionHint" = "이 세션에서는 지갑과 채팅이 일반 네트워크를 사용합니다. 설정에서 다시 Nym으로 바꿀 수 있습니다.";
+
+// MARK: - walletTab
+"nighthawk.walletTab.syncStale" = "lightwalletd가 오래되었거나 연결할 수 없음";
+"nighthawk.walletTab.syncedBlock" = "동기화됨 · 블록 %@";
+"nighthawk.walletTab.syncingBlock" = "동기화 중 %@%% · 블록 %@";
+"nighthawk.walletTab.syncingPercent" = "동기화 중 %@%%";
+"nighthawk.walletTab.syncError" = "동기화 오류";
+"nighthawk.walletTab.syncStopped" = "동기화 중지됨";
+"nighthawk.walletTab.unreachableBanner" = "lightwalletd에 연결할 수 없습니다 — 서버 변경 또는 네트워크 프라이버시를 확인하세요.";
+"nighthawk.walletTab.reorgTitle" = "체인 재구성 복구";
+"nighthawk.walletTab.tokens" = "토큰";
+"nighthawk.walletTab.tapToSend" = "탭하여 보내기";
+
+// MARK: - receive
+"nighthawk.receive.newAddressGenerated" = "새 주소를 생성했습니다";
+"nighthawk.receive.generateFailed" = "주소를 생성하지 못했습니다";
+
+// MARK: - requestMoney
+"nighthawk.requestMoney.title" = "돈 요청";
+"nighthawk.requestMoney.subtitle" = "수신 주소는 하나입니다. QR은 입력한 금액과 메모가 담긴 drk: 청구서입니다.";
+"nighthawk.requestMoney.amount" = "금액";
+"nighthawk.requestMoney.memo" = "메모";
+"nighthawk.requestMoney.copied" = "복사됨";
+"nighthawk.requestMoney.copyInvoice" = "청구서 복사";
+
+// MARK: - transferTab
+"nighthawk.transferTab.send.drkNative" = "DRK(네이티브)";
+"nighthawk.transferTab.send.tokenLabel" = "토큰:";
+
+// MARK: - recoveryPhraseDisplay
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "화면 녹화 또는 스크린샷이 감지되었습니다.\n보안을 위해 시드 문구를 숨겼습니다.";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "백업 확인(3개 단어)";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "시드 문구에서 요청한 단어를 입력해, 받아 적었는지 확인하세요.";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "%@번 단어";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "%@번 단어가 일치하지 않습니다";
+
+// MARK: - transactionDetails
+"nighthawk.transactionDetails.syncMethod" = "동기화 방식";
+
+// MARK: - settingsTab
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ 및 6자리 PIN";
+"nighthawk.settingsTab.securityPinOnly" = "6자리 앱 PIN";
+"nighthawk.settingsTab.shareTitle" = "Nighthawk 공유";
+"nighthawk.settingsTab.shareSubtitle" = "친구를 Nighthawk Wallet에 초대";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "비공개 DarkFi 지갑과 암호화된 DarkIRC 채팅 — Nighthawk Wallet";
+"nighthawk.settingsTab.advanced.mesh.title" = "근처 메시";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "Bluetooth로 근처 Nighthawk 휴대폰과 DarkIRC를 중계합니다. 인터넷 공유는 꺼진 상태로 유지됩니다.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "실험적 UnifOMR";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "기본값은 꺼짐입니다. 시험 복호화는 Dark Wallet이나 다른 서버에서 온 결제를 포함해 모든 결제를 찾습니다. 켜짐은 실험 기능입니다. 두 지갑이 먼저 같은 lightwalletd에 등록해야 하며, 그렇지 않으면 자금이 보이지 않은 채로 남을 수 있습니다. 큰 탐지 키도 업로드합니다.";
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 또는 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "TLS(HTTPS) 사용";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "원격 서버에는 필수입니다. SHA-256 인증서 다이제스트로 고정됩니다.";
+"nighthawk.settingsTab.changeServer.presets" = "프리셋";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Nighthawk 테스트넷(HTTPS)";
+"nighthawk.settingsTab.changeServer.presetLocal" = "로컬 lightwalletd";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "비표준 포트";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "그래도 사용";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "입력한 포트는 표준 DarkFi lightwallet 포트(9067 또는 TLS용 443)가 아닙니다. 비표준 포트를 쓰면 동기화되지 않을 수 있습니다.";
+"nighthawk.settingsTab.security.biometricsTitle" = "생체 인증";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "이 기기에는 Face ID / Touch ID가 설정되어 있지 않습니다. 아래 6자리 앱 PIN으로도 지갑을 보호할 수 있습니다.";
+"nighthawk.settingsTab.security.pinTitle" = "앱 PIN(6자리)";
+"nighthawk.settingsTab.security.pinEnabled" = "켜짐";
+"nighthawk.settingsTab.security.pinOff" = "꺼짐";
+"nighthawk.settingsTab.security.pinDescription" = "지갑을 실행할 때, 그리고 10분 이상 자리를 비운 뒤 돌아올 때 잠급니다. Keychain에 솔트를 넣은 PBKDF2-SHA256 해시로 저장됩니다.";
+"nighthawk.settingsTab.security.pinChange" = "PIN 변경";
+"nighthawk.settingsTab.security.pinVerify" = "PIN 확인";
+"nighthawk.settingsTab.security.pinDisable" = "PIN 끄기";
+"nighthawk.settingsTab.security.pinSet" = "6자리 PIN 설정";
+"nighthawk.settingsTab.security.pinConfirm" = "확인";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "새 6자리 PIN을 입력하세요";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "확인을 위해 6자리 PIN을 다시 입력하세요";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "현재 6자리 PIN을 입력하세요";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "새 6자리 PIN을 입력하세요";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "새 6자리 PIN을 다시 입력하세요";
+"nighthawk.settingsTab.security.pinPromptDisable" = "PIN을 끄려면 현재 PIN을 입력하세요";
+"nighthawk.settingsTab.security.pinPromptVerify" = "확인하려면 6자리 PIN을 입력하세요";
+"nighthawk.settingsTab.security.pinErrorDigits" = "정확히 %@자리를 입력하세요.";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "새 PIN이 일치하지 않습니다. 다시 시도하세요.";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "PIN이 일치하지 않습니다. 다시 시도하세요.";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "Keychain의 PIN을 업데이트하지 못했습니다.";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "Keychain에 PIN을 저장하지 못했습니다.";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "현재 PIN이 올바르지 않습니다.";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "PIN이 올바르지 않습니다.";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "앱 PIN을 업데이트했습니다.";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "6자리 앱 PIN을 켰습니다.";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "앱 PIN을 껐습니다.";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN을 확인했습니다.";
+"nighthawk.settingsTab.torNetwork.intro" = "지갑, 채팅, 노드 트래픽은 기본적으로 Nym 믹스넷을 통과하므로 서버가 IP 주소를 보지 못합니다. 채팅도 같은 터널로 공개 DarkIRC 시드에 닿습니다. .onion 전용 피어에는 Tor가 필요합니다. 첫 연결은 보통 몇 초이며, 최대 1분까지 걸릴 수 있습니다.";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "지갑 네트워크";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "lightwalletd 동기화와 거래 전파에 사용됩니다. 바꾸면 지갑이 다시 연결됩니다.";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym: %@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Nym 믹스넷(권장)";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "패킷을 다섯 홉에 걸쳐 섞습니다. 채팅은 믹스넷을 통해 클리어넷 시드를 사용합니다. .onion 주소에는 연결할 수 없습니다.";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "내장 Arti 또는 아래 SOCKS 엔드포인트를 통한 어니언 라우팅입니다.";
+"nighthawk.settingsTab.torNetwork.directTitle" = "직접";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "서버에 바로 연결합니다. 서버가 IP 주소를 봅니다.";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "내장 Tor(Arti)";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "앱 안에서 Arti(Rust Tor)를 실행하고 루프백 SOCKS 리스너를 엽니다. 아래에서 설정하는 외부 Tor/SOCKS 앱과는 별개입니다.";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "내장 Arti 사용";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "내장 Arti를 쓰려면 위에서 앱 전체 Tor 라우팅을 켜세요.";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "SOCKS 엔드포인트";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "내장 Arti가 수신하는 루프백 주소입니다(기본값 127.0.0.1:9050). 내장 DarkIRC는 .onion P2P 시드에 이 프록시를 사용합니다.";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "외부 Tor 또는 SOCKS 프록시의 호스트와 포트입니다. 내장 Arti가 꺼져 있으면 필요합니다.";
+"nighthawk.settingsTab.torNetwork.socksHost" = "SOCKS 호스트";
+"nighthawk.settingsTab.torNetwork.socksPort" = "SOCKS 포트";
+"nighthawk.settingsTab.torNetwork.footer" = "내장 Tor나 SOCKS를 바꾸면, 켜져 있을 때 내장 DarkIRC가 다시 시작되어 P2P/이벤트 그래프 전송이 맞춰집니다. 채팅을 열어 초록 상태 표시를 확인하세요.";
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "파일 제안";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "fud:// 파일 제안 허용";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "누르면 제안을 이 휴대폰의 대기열에 넣습니다. Nym, Tor 또는 근처 메시로만 전송되며, 파일은 자동으로 받지 않습니다.";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "내장 노드 동기화";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "내장 darkirc 사용";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "앱 안에서 darkirc를 실행합니다";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "DAG 기록 시간(1–24)";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "DAG 하나는 약 한 시간의 채널 기록입니다. 기본값은 8입니다(업스트림 darkirc).";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "빠른 동기화(헤더만)";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "업스트림 fast_mod와 같습니다. 기록을 덜 가져와 DAG를 더 빨리 동기화합니다.";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "채널 프라이버시";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "공개 #채널은 DarkIRC에서 평문입니다. 1:1 DM만 ChaChaBox 종단간 암호화를 사용합니다. 그룹/채널 E2E는 아직 사용할 수 없습니다.";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "암호화된 연락처(DM)";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "내 공개 키(연락처와 공유):";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "안전 번호";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "내 DM 키 만들기";
+"nighthawk.settingsTab.chatSettings.noContacts" = "설정된 암호화 연락처가 없습니다.";
+"nighthawk.settingsTab.chatSettings.remove" = "제거";
+"nighthawk.settingsTab.chatSettings.addContact" = "암호화 연락처 추가";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "적용 후 다시 연결";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "연락처 초대 QR(nighthawk://contact)";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "연락처 초대 URI 복사";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "nighthawk://contact?... 초대 붙여넣기";
+"nighthawk.settingsTab.chatSettings.fill" = "채우기";
+"nighthawk.settingsTab.chatSettings.nickname" = "닉네임";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "상대 DM 공개 키(Base58)";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "내 DM 비밀 키(Base58)";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "내 DM 키 쌍 만들기";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "내 공개 키: %@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "DarkFi 지갑 주소(선택)";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "연락처 추가";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "암호화 연락처 추가";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "인식할 수 없는 초대 URI입니다. nighthawk://contact?... 또는 drk:... 형식이어야 합니다.";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "올바른 연락처 닉네임을 입력하세요(#으로 시작할 수 없습니다).";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "올바른 32바이트 Base58 DM 키를 입력하세요.";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "DM 키 또는 DarkFi 지갑 주소를 입력하세요.";
+
+// MARK: - chat
+"nighthawk.chat.clearnetAlertTitle" = "클리어넷 링크를 열까요?";
+"nighthawk.chat.clearnetOpenBrowser" = "브라우저에서 열기";
+"nighthawk.chat.clearnetCopyLink" = "링크 복사";
+"nighthawk.chat.clearnetAlertMessage" = "Nym/Tor 밖에서 http(s)를 엽니다. IP 주소가 유출될 수 있습니다.";
+"nighthawk.chat.routeNym" = "Nym 믹스넷";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "직접(클리어넷)";
+"nighthawk.chat.routeBootstrapping" = "부트스트랩 중…";
+"nighthawk.chat.routeDegraded" = "품질 저하";
+"nighthawk.chat.routeOffline" = "오프라인";
+"nighthawk.chat.activePrivacyRoute" = "현재 프라이버시 경로";
+"nighthawk.chat.lightwalletdHeight" = "lightwalletd 높이 %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "lightwalletd 높이를 알 수 없음";
+"nighthawk.chat.transportSummary" = "전송: %@";
+"nighthawk.chat.directE2eBadge" = "개인 메시지 · E2E";
+"nighthawk.chat.publicPlaintextBadge" = "공개 채널 · DAG 평문";
+"nighthawk.chat.sharePubkeyTitle" = "공개 키 공유";
+"nighthawk.chat.sharePubkeyCopy" = "공개 키 복사";
+"nighthawk.chat.sharePubkeyMessage" = "DM 공개 키를 복사합니다. 키 쌍은 처음 한 번만 만듭니다. 신뢰하는 채널로 공유하세요. 이 키를 가진 사람은 누구나 암호화된 DM을 보낼 수 있습니다.";
+"nighthawk.chat.myPublicKeyCopied" = "내 공개 키(복사됨)";
+"nighthawk.chat.noDmContactsTitle" = "DM 연락처 없음";
+"nighthawk.chat.noDmContactsBody" = "「새 DM」을 눌러 상대와 ChaCha20 공개 키를 교환하고 암호화된 대화를 시작하세요.";
+"nighthawk.chat.e2eEncrypted" = "E2E 암호화";
+"nighthawk.chat.copyMessage" = "메시지 복사";
+"nighthawk.chat.queueFile" = "%@ 대기열에 넣기";
+"nighthawk.chat.paymentRequest" = "결제 요청";
+"nighthawk.chat.pay" = "결제";
+"nighthawk.chat.paymentPhase" = "결제 %@";
+"nighthawk.chat.link" = "링크";
+"nighthawk.chat.sendOrRequestDrk" = "DRK 보내기 또는 요청";
+"nighthawk.chat.messagePlaceholder" = "메시지";
+"nighthawk.chat.amountDrkPlaceholder" = "금액(DRK)";
+"nighthawk.chat.payToAddressPlaceholder" = "보낼 주소";
+"nighthawk.chat.tip" = "팁";
+"nighthawk.chat.newDm.title" = "새 DM 대화";
+"nighthawk.chat.newDm.subtitle" = "상대와 공개 키를 교환해 ChaCha20으로 종단간 암호화된 DM을 시작하세요.";
+"nighthawk.chat.newDm.contactLabelSection" = "연락처 라벨";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "예: alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "상대 공개 키";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Base58 공개 키";
+"nighthawk.chat.newDm.pasteClipboard" = "클립보드에서 붙여넣기";
+"nighthawk.chat.newDm.myKeypairSection" = "내 키 쌍";
+"nighthawk.chat.newDm.generateKeys" = "내 키 만들기";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "내 공개 키:";
+"nighthawk.chat.newDm.copyToShare" = "복사하여 공유";
+"nighthawk.chat.newDm.shareKeyHint" = "상대가 메시지를 보낼 수 있도록 이 키를 공유하세요.";
+"nighthawk.chat.newDm.startDm" = "DM 시작";
+"nighthawk.chat.newDm.pasteAlertTitle" = "공개 키 붙여넣기";
+"nighthawk.chat.newDm.pasteAction" = "붙여넣기";
+"nighthawk.chat.newDm.pasteAlertMessage" = "클립보드에서 DM 공개 키를 붙여넣을까요? !darkfi-dm-pubkey: 형식이 있으면 그 안에서 키를 꺼냅니다.";
+"nighthawk.chat.newDm.errorKeygen" = "DM 키 쌍을 만들지 못했습니다";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "클립보드에 올바른 Base58 공개 키가 없습니다.";
+"nighthawk.chat.newDm.errorSaveKeychain" = "이 연락처를 Keychain에 저장하지 못했습니다.";

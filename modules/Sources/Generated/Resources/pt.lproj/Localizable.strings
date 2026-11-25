@@ -144,6 +144,7 @@
 "nighthawk.transaction.sent" = "Enviado";
 
 // MARK: - Home Screen
+"nighthawk.homeScreen.chat" = "Chat";
 "nighthawk.homeScreen.wallet" = "Carteira";
 "nighthawk.homeScreen.transfer" = "Transferir";
 "nighthawk.homeScreen.dex" = "DEX";
@@ -522,7 +523,7 @@
 "nighthawk.daoHub.walletStopped" = "A sincronização da carteira parou. Retome pela aba Carteira e abra o DAO Hub de novo.";
 "nighthawk.daoHub.walletSyncing" = "A sincronização da carteira ainda está em andamento. Abra o DAO Hub de novo quando ela estiver atualizada.";
 "nighthawk.daoHub.walletSyncFailed" = "Falha ao sincronizar a carteira: %@";
-"nighthawk.walletCompanion.shieldedNote" = "As transferências continuam shielded. O UnifOMR entra quando o servidor suporta. A descriptografia por tentativa é só uma reserva.";
+"nighthawk.walletCompanion.shieldedNote" = "As transferências continuam shielded. A descriptografia por tentativa é o padrão. O UnifOMR experimental só entra se você ativar nas Configurações avançadas e precisa de um lightwalletd fhe-omr.";
 "nighthawk.walletCompanion.trialDecrypt" = "Descriptografia por tentativa";
 "nighthawk.walletCompanion.unifOmr" = "UnifOMR";
 "nighthawk.walletCompanion.blockHeight" = "Bloco %@";
@@ -535,3 +536,229 @@
 "nighthawk.walletCompanion.sendAgain" = "Enviar de novo";
 "nighthawk.walletCompanion.copyMemo" = "Copiar memo";
 "nighthawk.chat.couldNotDecrypt" = "Não foi possível descriptografar";
+
+// MARK: - About
+"nighthawk.about.openSourceLicenses" = "Licenças de código aberto";
+"nighthawk.about.versionWithBuild" = "Versão %@ (%@)";
+"nighthawk.about.versionOnly" = "Versão %@";
+
+// MARK: - Splash PIN and Nym
+"nighthawk.splash.enterAppPin" = "Digite o PIN do app";
+"nighthawk.splash.sixDigitPin" = "PIN de 6 dígitos";
+"nighthawk.splash.unlock" = "Desbloquear";
+"nighthawk.splash.pinErrorLength" = "Digite seu PIN de 6 dígitos.";
+"nighthawk.splash.pinErrorIncorrect" = "PIN incorreto. Tente de novo.";
+"nighthawk.splash.nymFailed" = "Falha na conexão com a mixnet Nym";
+"nighthawk.splash.nymConnecting" = "Conectando à mixnet Nym… %@ s";
+"nighthawk.splash.nymSlow" = "Está demorando mais que o normal. Continue esperando ou siga sem Nym.";
+"nighthawk.splash.continueWithoutNym" = "Continuar sem Nym";
+"nighthawk.splash.nymSessionHint" = "Nesta sessão, a carteira e o chat usam sua rede normal. Você pode voltar para Nym em Configurações.";
+
+// MARK: - Wallet tab
+"nighthawk.walletTab.syncStale" = "Lightwalletd desatualizado ou inacessível";
+"nighthawk.walletTab.syncedBlock" = "Sincronizado · Bloco %@";
+"nighthawk.walletTab.syncingBlock" = "Sincronizando %@%% · Bloco %@";
+"nighthawk.walletTab.syncingPercent" = "Sincronizando %@%%";
+"nighthawk.walletTab.syncError" = "Erro de sincronização";
+"nighthawk.walletTab.syncStopped" = "Sincronização parada";
+"nighthawk.walletTab.unreachableBanner" = "Lightwalletd inacessível — confira Trocar de servidor ou Privacidade da rede.";
+"nighthawk.walletTab.reorgTitle" = "Recuperação de reorganização da cadeia";
+"nighthawk.walletTab.tokens" = "Tokens";
+"nighthawk.walletTab.tapToSend" = "Toque para enviar";
+
+// MARK: - Receive and request
+"nighthawk.receive.newAddressGenerated" = "Novo endereço gerado";
+"nighthawk.receive.generateFailed" = "Falha ao gerar o endereço";
+"nighthawk.requestMoney.title" = "Solicitar dinheiro";
+"nighthawk.requestMoney.subtitle" = "Um só endereço de recebimento. O QR code é uma fatura drk: com o valor e o memo que você informar.";
+"nighthawk.requestMoney.amount" = "Valor";
+"nighthawk.requestMoney.memo" = "Memo";
+"nighthawk.requestMoney.copied" = "Copiado";
+"nighthawk.requestMoney.copyInvoice" = "Copiar fatura";
+
+// MARK: - Send
+"nighthawk.transferTab.send.drkNative" = "DRK (nativo)";
+"nighthawk.transferTab.send.tokenLabel" = "Token:";
+
+// MARK: - Recovery phrase
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "Gravação de tela ou captura de tela detectada.\nFrase semente oculta por segurança.";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "Confirmar backup (3 palavras)";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "Digite as palavras pedidas da sua frase semente para confirmar que você anotou.";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "Palavra #%@";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "A palavra #%@ não confere";
+
+// MARK: - Transaction details
+"nighthawk.transactionDetails.syncMethod" = "Método de sincronização";
+
+// MARK: - Settings
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ e PIN de 6 dígitos";
+"nighthawk.settingsTab.securityPinOnly" = "PIN do app de 6 dígitos";
+"nighthawk.settingsTab.shareTitle" = "Compartilhar a Nighthawk";
+"nighthawk.settingsTab.shareSubtitle" = "Convide amigos para a Nighthawk Wallet";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "Carteira privada da DarkFi e chat criptografado do DarkIRC — Nighthawk Wallet";
+
+// MARK: - Advanced
+"nighthawk.settingsTab.advanced.mesh.title" = "Mesh por perto";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "Repassa o DarkIRC entre celulares Nighthawk por perto, via Bluetooth. O compartilhamento de internet continua desligado.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR experimental";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Desligado é o padrão. A descriptografia por tentativa encontra todos os pagamentos, inclusive os da Dark Wallet ou de outro servidor. Ligado é experimental: as duas carteiras precisam primeiro se registrar neste mesmo lightwalletd, ou os fundos podem continuar invisíveis. Também envia uma chave de detecção grande.";
+
+// MARK: - Change server
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 ou 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "Usar TLS (HTTPS)";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "Obrigatório para servidores remotos; fixado pelo digest SHA-256 do certificado.";
+"nighthawk.settingsTab.changeServer.presets" = "Predefinições";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Testnet da Nighthawk (HTTPS)";
+"nighthawk.settingsTab.changeServer.presetLocal" = "Lightwalletd local";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "Porta fora do padrão";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "Usar mesmo assim";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "A porta que você informou não é uma porta padrão de lightwallet da DarkFi (9067 ou 443 para TLS). Uma porta fora do padrão pode impedir a sincronização.";
+
+// MARK: - Security PIN
+"nighthawk.settingsTab.security.biometricsTitle" = "Biometria";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "O Face ID / Touch ID não está configurado neste aparelho. Você ainda pode proteger a carteira com um PIN do app de 6 dígitos, abaixo.";
+"nighthawk.settingsTab.security.pinTitle" = "PIN do app (6 dígitos)";
+"nighthawk.settingsTab.security.pinEnabled" = "Ativado";
+"nighthawk.settingsTab.security.pinOff" = "Desligado";
+"nighthawk.settingsTab.security.pinDescription" = "Bloqueia a abertura e a retomada da carteira depois de 10 minutos fora. O PIN fica no Keychain como um hash PBKDF2-SHA256 com sal.";
+"nighthawk.settingsTab.security.pinChange" = "Alterar PIN";
+"nighthawk.settingsTab.security.pinVerify" = "Verificar PIN";
+"nighthawk.settingsTab.security.pinDisable" = "Desativar PIN";
+"nighthawk.settingsTab.security.pinSet" = "Definir PIN de 6 dígitos";
+"nighthawk.settingsTab.security.pinConfirm" = "Confirmar";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "Digite um novo PIN de 6 dígitos";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "Repita seu PIN de 6 dígitos para confirmar";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "Digite seu PIN atual de 6 dígitos";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "Digite seu novo PIN de 6 dígitos";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "Repita o novo PIN de 6 dígitos";
+"nighthawk.settingsTab.security.pinPromptDisable" = "Digite seu PIN atual para desativar";
+"nighthawk.settingsTab.security.pinPromptVerify" = "Digite seu PIN de 6 dígitos para verificar";
+"nighthawk.settingsTab.security.pinErrorDigits" = "Digite exatamente %@ dígitos.";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "Os PINs novos não conferem. Tente de novo.";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "Os PINs não conferem. Tente de novo.";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "Não foi possível atualizar o PIN no Keychain.";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "Não foi possível salvar o PIN no Keychain.";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "PIN atual incorreto.";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "PIN incorreto.";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "PIN do app atualizado.";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "PIN do app de 6 dígitos ativado.";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "PIN do app desativado.";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN verificado.";
+
+// MARK: - Network privacy
+"nighthawk.settingsTab.torNetwork.intro" = "Por padrão, o tráfego da carteira, do chat e do nó passa pela mixnet Nym, o que esconde seu endereço IP dos servidores. O chat chega às seeds públicas do DarkIRC por esse mesmo túnel. Pares que só têm endereço .onion precisam do Tor. A primeira conexão costuma levar alguns segundos e pode chegar a um minuto.";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "Rede da carteira";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "Usada para sincronizar com o lightwalletd e transmitir transações. Ao mudar, a carteira reconecta.";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym: %@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Mixnet Nym (recomendada)";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "Mistura os pacotes em cinco saltos. O chat usa as seeds da rede clara pela mixnet. Não alcança endereços .onion.";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "Roteamento onion pelo Arti integrado ou pelo endpoint SOCKS abaixo.";
+"nighthawk.settingsTab.torNetwork.directTitle" = "Direto";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "Conecta direto ao servidor. O servidor vê seu endereço IP.";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "Tor integrado (Arti)";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "Executa o Arti (Tor em Rust) dentro do app e expõe um listener SOCKS em loopback. Isso é separado de um app de Tor ou SOCKS externo que você configura abaixo.";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "Usar o Arti integrado";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "Ative o roteamento Tor em todo o app, acima, para usar o Arti integrado.";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "Endpoint SOCKS";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "Endereço de loopback onde o Arti integrado escuta (padrão 127.0.0.1:9050). O DarkIRC embarcado usa este proxy para as seeds P2P .onion.";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "Host e porta do seu proxy Tor ou SOCKS externo. Obrigatório quando o Arti integrado está desligado.";
+"nighthawk.settingsTab.torNetwork.socksHost" = "Host SOCKS";
+"nighthawk.settingsTab.torNetwork.socksPort" = "Porta SOCKS";
+"nighthawk.settingsTab.torNetwork.footer" = "Ao mudar o Tor integrado ou o SOCKS, o DarkIRC embarcado reinicia se estiver ativo, para o transporte P2P/event-graph acompanhar a configuração. Abra o Chat para conferir as luzes verdes de status.";
+
+// MARK: - Chat settings
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "OFERTAS DE ARQUIVO";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "Permitir ofertas de arquivo fud://";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "Um toque coloca a oferta na fila neste celular. Ela só é enviada por Nym, Tor ou mesh por perto, e o arquivo não é baixado automaticamente.";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "SINCRONIZAÇÃO DO NÓ EMBARCADO";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "Usar darkirc embarcado";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "Executar o darkirc dentro do app";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "Horas de histórico do DAG (1–24)";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "Cada DAG equivale a cerca de uma hora de histórico do canal. O padrão é 8 (darkirc upstream).";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "Sincronização rápida (só cabeçalhos)";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "Equivale ao fast_mod upstream: sincronização do DAG mais rápida, baixando menos histórico.";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "PRIVACIDADE DO CANAL";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "Os #canais públicos ficam em claro no DarkIRC. Só as DMs 1:1 usam criptografia de ponta a ponta com ChaChaBox. O E2E de grupo ou canal ainda não está disponível.";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "CONTATOS CRIPTOGRAFADOS (DM)";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "Sua chave pública (compartilhe com o contato):";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "Número de segurança";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "Gerar minhas chaves de DM";
+"nighthawk.settingsTab.chatSettings.noContacts" = "Nenhum contato criptografado configurado.";
+"nighthawk.settingsTab.chatSettings.remove" = "Remover";
+"nighthawk.settingsTab.chatSettings.addContact" = "Adicionar contato criptografado";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "Aplicar e reconectar";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "QR de convite de contato (nighthawk://contact)";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "Copiar URI de convite do contato";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "Cole um convite nighthawk://contact?...";
+"nighthawk.settingsTab.chatSettings.fill" = "Preencher";
+"nighthawk.settingsTab.chatSettings.nickname" = "Apelido";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "Chave pública de DM do par (Base58)";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "Minha chave secreta de DM (Base58)";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "Gerar meu par de chaves de DM";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "Minha chave pública: %@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "Endereço da carteira DarkFi (opcional)";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "Adicionar contato";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "Adicionar contato criptografado";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "URI de convite não reconhecida. O esperado é nighthawk://contact?... ou drk:...";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "Informe um apelido de contato válido (não pode começar com #).";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "Informe chaves de DM Base58 válidas, de 32 bytes.";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "Informe chaves de DM ou um endereço de carteira DarkFi.";
+
+// MARK: - Chat
+"nighthawk.chat.clearnetAlertTitle" = "Abrir link da rede clara?";
+"nighthawk.chat.clearnetOpenBrowser" = "Abrir no navegador";
+"nighthawk.chat.clearnetCopyLink" = "Copiar link";
+"nighthawk.chat.clearnetAlertMessage" = "Isso abre http(s) fora de Nym/Tor e pode vazar seu IP.";
+"nighthawk.chat.routeNym" = "Mixnet Nym";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "Direto (rede clara)";
+"nighthawk.chat.routeBootstrapping" = "Inicializando…";
+"nighthawk.chat.routeDegraded" = "Degradado";
+"nighthawk.chat.routeOffline" = "Sem conexão";
+"nighthawk.chat.activePrivacyRoute" = "Rota de privacidade ativa";
+"nighthawk.chat.lightwalletdHeight" = "Altura do Lightwalletd %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "Altura do Lightwalletd indisponível";
+"nighthawk.chat.transportSummary" = "Transporte: %@";
+"nighthawk.chat.directE2eBadge" = "Mensagem direta · E2E";
+"nighthawk.chat.publicPlaintextBadge" = "Canal público · em claro no DAG";
+"nighthawk.chat.sharePubkeyTitle" = "Compartilhar sua chave pública";
+"nighthawk.chat.sharePubkeyCopy" = "Copiar chave pública";
+"nighthawk.chat.sharePubkeyMessage" = "Copia sua chave pública de DM. O par de chaves só é criado na primeira vez. Compartilhe por um canal em que você confia. Qualquer pessoa com esta chave pode enviar DMs criptografadas para você.";
+"nighthawk.chat.myPublicKeyCopied" = "MINHA CHAVE PÚBLICA (copiada)";
+"nighthawk.chat.noDmContactsTitle" = "Nenhum contato de DM";
+"nighthawk.chat.noDmContactsBody" = "Toque em \"Nova DM\" para trocar chaves públicas ChaCha20 com um par e começar uma conversa criptografada.";
+"nighthawk.chat.e2eEncrypted" = "E2E criptografado";
+"nighthawk.chat.copyMessage" = "Copiar mensagem";
+"nighthawk.chat.queueFile" = "Enfileirar %@";
+"nighthawk.chat.paymentRequest" = "Pedido de pagamento";
+"nighthawk.chat.pay" = "Pagar";
+"nighthawk.chat.paymentPhase" = "Pagamento %@";
+"nighthawk.chat.link" = "Link";
+"nighthawk.chat.sendOrRequestDrk" = "Enviar ou solicitar DRK";
+"nighthawk.chat.messagePlaceholder" = "Mensagem";
+"nighthawk.chat.amountDrkPlaceholder" = "Valor (DRK)";
+"nighthawk.chat.payToAddressPlaceholder" = "Pagar para o endereço";
+"nighthawk.chat.tip" = "Gorjeta";
+
+// MARK: - New DM
+"nighthawk.chat.newDm.title" = "Nova conversa de DM";
+"nighthawk.chat.newDm.subtitle" = "Troque chaves públicas com o par para começar uma DM com criptografia de ponta a ponta usando ChaCha20.";
+"nighthawk.chat.newDm.contactLabelSection" = "RÓTULO DO CONTATO";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "ex.: alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "CHAVE PÚBLICA DO PAR";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Chave pública em Base58";
+"nighthawk.chat.newDm.pasteClipboard" = "Colar da área de transferência";
+"nighthawk.chat.newDm.myKeypairSection" = "MEU PAR DE CHAVES";
+"nighthawk.chat.newDm.generateKeys" = "Gerar minhas chaves";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "Minha chave pública:";
+"nighthawk.chat.newDm.copyToShare" = "Copiar para compartilhar";
+"nighthawk.chat.newDm.shareKeyHint" = "Compartilhe esta chave com o par para que essa pessoa possa te enviar mensagens.";
+"nighthawk.chat.newDm.startDm" = "Iniciar DM";
+"nighthawk.chat.newDm.pasteAlertTitle" = "Colar chave pública";
+"nighthawk.chat.newDm.pasteAction" = "Colar";
+"nighthawk.chat.newDm.pasteAlertMessage" = "Colar a chave pública de DM da área de transferência? Se estiver no formato !darkfi-dm-pubkey:, a chave será extraída.";
+"nighthawk.chat.newDm.errorKeygen" = "Falha ao gerar o par de chaves de DM";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "A área de transferência não contém uma chave pública base58 válida.";
+"nighthawk.chat.newDm.errorSaveKeychain" = "Não foi possível salvar este contato no Keychain.";

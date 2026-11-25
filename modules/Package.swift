@@ -56,11 +56,8 @@ let package = Package(
         .library(name: "Welcome", targets: ["Welcome"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.7.0"),
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.26.2"),
         .package(url: "https://github.com/pointfreeco/swift-case-paths", exact: "1.10.0"),
-        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", exact: "6.6.2"),
-        .package(url: "https://github.com/zcash-hackworks/MnemonicSwift", exact: "2.2.5"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.6.1"),
         .package(url: "https://github.com/elai950/AlertToast.git", from: "1.3.9"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "24.0.0"),
@@ -336,7 +333,6 @@ let package = Package(
             name: "MnemonicClient",
             dependencies: [
                 "DarkfiCore",
-                .product(name: "MnemonicSwift", package: "MnemonicSwift"),
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Dependencies/MnemonicClient"
@@ -346,7 +342,6 @@ let package = Package(
             dependencies: [
                 "Generated",
                 "Utils",
-                .product(name: "MnemonicSwift", package: "MnemonicSwift"),
                 "DarkfiCore"
             ],
             path: "Sources/Models"

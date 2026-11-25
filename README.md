@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.20** (`CURRENT_PROJECT_VERSION=30100820`). Privacy manifests use Apple’s reason codes for the disk-space check (`E174.1`) and in-container file timestamps (`C617.1`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `191941936`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.20, desktop 3.1.20, Moonshine 3.1.20, and lightwalletd 0.3.13.
+**3.01.21** (`CURRENT_PROJECT_VERSION=30100821`). Privacy manifests use Apple’s reason codes for the disk-space check (`E174.1`), in-container file timestamps (`C617.1`), and system boot time (`35F9.1`). Chat is the tab selected when you open the app. Default sync trial-decrypts notes in parallel. A synced wallet says when lightwalletd has not reached darkfid recently. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `b87318e80`, Arti 0.48. nym-smolmix pin `5f0dba82` (lockstep with Android). Aligns with Android 3.01.21, desktop 3.1.21, Moonshine 3.1.21, and lightwalletd 0.3.14.
 
 ## Contents
 
@@ -102,7 +102,7 @@ Architecture deep-dive: [Darkfi iOS Architecture](docs/Darkfi_iOS_Architecture.m
 | **Rust iOS targets** | `aarch64-apple-ios`, `aarch64-apple-ios-sim` |
 | **SwiftGen & SwiftLint** | See [Tooling](#tooling-swiftgen--swiftlint) |
 | **Code signing** | Apple Development cert; `DEVELOPMENT_TEAM` in the Xcode project |
-| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (pin `191941936`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
+| **Vendored DarkFi** | `./scripts/vendor-darkfi.sh` clones `github.com/nighthawk24/darkfi` at `docs/upstream/darkfi-revision.txt` (pin `b87318e80`). `git.dark.fi` returns HTTP 504 and does not have this pin. |
 
 Uses project-local `CARGO_HOME=.cargo-home` (same as FFI build scripts).
 

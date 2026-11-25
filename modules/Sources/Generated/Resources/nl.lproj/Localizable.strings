@@ -1,385 +1,762 @@
 // MARK: - Not Enough Free Space
-"nefs.message" = "Not enough space on disk to do synchronisation!";
+"nefs.message" = "Onvoldoende schijfruimte voor synchronisatie!";
 
 // MARK: - Common & Shared
-"general.back" = "Back";
-"general.done" = "Done";
-"general.skip" = "Skip";
-"general.next" = "Next";
-"general.send" = "Send";
-"general.clear" = "Clear";
-"general.close" = "Close";
+"general.back" = "Terug";
+"general.done" = "Gereed";
+"general.skip" = "Overslaan";
+"general.next" = "Volgende";
+"general.send" = "Verstuur";
+"general.clear" = "Wissen";
+"general.close" = "Sluit";
 "general.max" = "Max";
-"general.ok" = "Ok";
-"general.yes" = "Yes";
-"general.no" = "No";
-"general.cancel" = "Cancel";
-"general.success" = "Success";
-"general.unknown" = "Unknown";
+"general.ok" = "OK";
+"general.yes" = "Ja";
+"general.no" = "Nee";
+"general.cancel" = "Annuleer";
+"general.success" = "Gelukt";
+"general.unknown" = "Onbekend";
 "balance" = "%@ %@";
-"balance.available" = "%@ %@ Available";
-"qrCodeFor" = "QR Code for %@";
-"general.dateNotAvailable" = "date not available";
+"balance.available" = "%@ %@ beschikbaar";
+"qrCodeFor" = "QR-code voor %@";
+"general.dateNotAvailable" = "datum niet beschikbaar";
 
 //==========================================================
 // NIGHTHAWK
 //==========================================================
 // MARK: - Nighthawk
-// MARK: - Local authentication
 
-"nighthawk.localAuthentication.accessWalletReason" = "You must authenticate to access your Nighthawk wallet.";
-"nighthawk.localAuthentication.sendFundsReason" = "You must authenticate to send funds from your wallet.";
+// MARK: - Local authentication
+"nighthawk.localAuthentication.accessWalletReason" = "Je moet je authenticeren om je Nighthawk-wallet te openen.";
+"nighthawk.localAuthentication.sendFundsReason" = "Je moet je authenticeren om tegoed vanuit je wallet te versturen.";
 
 // MARK: - About screen
-"nighthawk.about.title" = "About";
-"nighthawk.about.message" = "Nighthawk is a Private-by-Default wallet for DarkFi with Spend-before-Sync support & optional T-addresses support with Auto-Shielding technology.\n\nAs a non-custodial wallet for DarkFi, you have sole responsibility over its funds. Please immediately and securely back up the seed words upon creating a wallet.\n\nDarkFi is a digital currency, or cryptocurrency, like Bitcoin. DarkFi was built on the original Bitcoin code base. It was conceived by scientists at MIT, Johns Hopkins and other respected academic and scientific institutions.\n\nNighthawk Wallet requires trust in the default or custom lightwalletd server to display accurate transaction information and CoinGecko service for exchange rate feed. This software is provided \"as is\", without warranty of any kind, express or implied.";
-"nighthawk.about.viewSource" = "View Source";
-"nighthawk.about.nighthawkFriends" = "Nighthawk friends";
-"nighthawk.about.viewLicenses" = "View licenses";
+"nighthawk.about.title" = "Over";
+"nighthawk.about.message" = "Nighthawk is een standaard privé wallet voor DarkFi. Alle transacties zijn volledig privé, zonder ondersteuning voor transparante adressen.\n\nAls niet-custodiale wallet ben je zelf volledig verantwoordelijk voor je tegoeden. Maak direct na het aanmaken van een wallet een veilige back-up van de seedwoorden.\n\nDarkFi is een layer-1-blockchain voor anonieme toepassingen en privéfinanciering. De DarkFi-community heeft hem ontworpen om financiële vrijheid mogelijk te maken.\n\nNighthawk Wallet maakt rechtstreeks verbinding met het DarkFi-P2P-netwerk. Deze software wordt «in de huidige staat» geleverd, zonder enige garantie, uitdrukkelijk of impliciet.";
+"nighthawk.about.viewSource" = "Broncode bekijken";
+"nighthawk.about.nighthawkFriends" = "Nighthawk-vrienden";
+"nighthawk.about.viewLicenses" = "Licenties bekijken";
 
 // MARK: - Licenses Screen
-"nighthawk.licenses.title" = "OSS Licenses";
+"nighthawk.licenses.title" = "OSS-licenties";
 
 // MARK: - App
-"nighthawk.app.launch.alert.sdkInitFailed.title" = "Failed to initialize the SDK";
-"nighthawk.app.launch.alert.error.message" = "Error: %@ (code: %@)";
-"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet deletion failed";
+"nighthawk.app.launch.alert.sdkInitFailed.title" = "SDK initialiseren mislukt";
+"nighthawk.app.launch.alert.error.message" = "Fout: %@ (code: %@)";
+"nighthawk.app.deleteWallet.alert.failed.title" = "Wallet verwijderen mislukt";
 
-// MARK: - Autoshield
-"nighthawk.autoshield.title1" = "Nighthawk is now";
-"nighthawk.autoshield.shieldedByDefault" = "Private-by-Default.";
-"nighthawk.autoshield.title2" = "We have implemented measures to guarantee the highest level of confidentiality for your funds.";
-"nighthawk.autoshield.autoshielding" = "Autoshielding";
-"nighthawk.autoshield.detail1" = "means any funds coming into your transparent address will automatically be moved to your private address.";
-"nighthawk.autoshield.detail2" = "We are committed to providing regular updates on the latest privacy-preserving best practices and recommendations to keep you well-informed.";
-"nighthawk.autoshield.buttonPositive" = "Great!";
-"nighthawk.autoshield.buttonNeutral" = "Learn more";
-"nighthawk.autoshield.alert.redirecting.title" = "Redirecting to ElectricCoin.co";
-"nighthawk.autoshield.alert.redirecting.details" = "Open the browser to read about DarkFi addresses.";
-"nighthawk.autoshield.alert.redirecting.openBrowser" = "Open Browser";
-"nighthawk.autoshield.shielding" = "Shielding…";
-"nighthawk.autoshield.shieldingMemo" = "Auto-shielding with Nighthawk 🛡️";
-"nighthawk.autoshield.shieldingSuccess" = "Success";
-"nighthawk.autoshield.shieldingFailed" = "Failed";
+// MARK: - Privacy (formerly Autoshield — DarkFi has no transparent pool)
+"nighthawk.autoshield.title1" = "Nighthawk is";
+"nighthawk.autoshield.shieldedByDefault" = "standaard privé.";
+"nighthawk.autoshield.title2" = "Alle transacties op DarkFi zijn privé. Er is geen transparant adres en geen afgeschermde pool — alles is privé.";
+"nighthawk.autoshield.autoshielding" = "Privacy";
+"nighthawk.autoshield.detail1" = "Alle tegoeden zijn altijd privé. DarkFi kent geen transparante adressen.";
+"nighthawk.autoshield.detail2" = "We houden je regelmatig op de hoogte van de nieuwste best practices en aanbevelingen om je privacy te beschermen.";
+"nighthawk.autoshield.buttonPositive" = "Top!";
+"nighthawk.autoshield.buttonNeutral" = "Meer info";
+"nighthawk.autoshield.alert.redirecting.title" = "Doorverwijzen naar DarkFi";
+"nighthawk.autoshield.alert.redirecting.details" = "Bevestig dat de browser van je apparaat wordt geopend om meer te lezen over de privacy van DarkFi.";
+"nighthawk.autoshield.alert.redirecting.openBrowser" = "Browser openen";
+"nighthawk.autoshield.shielding" = "Verwerken…";
+"nighthawk.autoshield.shieldingMemo" = "Nighthawk 🛡️";
+"nighthawk.autoshield.shieldingSuccess" = "Gelukt";
+"nighthawk.autoshield.shieldingFailed" = "Mislukt";
 
 // MARK: - Splash Screen
 "nighthawk.splash.title" = "Nighthawk";
-"nighthawk.splash.retry" = "Retry";
-"nighthawk.splash.subtitle" = "Private money in your pocket.";
-"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.splash.initialization.alert.walletStateFailed.message" = "App initialisation state: %@.";
+"nighthawk.splash.retry" = "Opnieuw";
+"nighthawk.splash.subtitle" = "Privégeld in je zak.";
+"nighthawk.splash.initialization.alert.failed.title" = "Wallet initialiseren mislukt.";
+"nighthawk.splash.initialization.alert.walletStateFailed.message" = "Initialisatiestatus van de app: %@.";
 
 // MARK: - Migrate Screen
-"nighthawk.migrateScreen.title" = "Migrating from old app version";
-"nighthawk.migrateScreen.explanation" = "We have a new secured way to store data locally, so we need to migrate your seed words to restore your wallet. If you don't want to migrate automatically then you will have to restore your wallet by adding the seed words manually.\n\nWould you like to proceed automatically?";
-"nighthawk.migrateScreen.continue" = "Continue";
-"nighthawk.migrateScreen.restoreManually" = "Restore manually";
-"nighthawk.migrateScreen.migrationFailed.title" = "Migration failed";
-"nighthawk.migrateScreen.migrationFailed.description" = "An error occurred and we were unable to migrate your wallet automatically. Tap continue to import your wallet manually.";
+"nighthawk.migrateScreen.title" = "Migreren vanuit een oude app-versie";
+"nighthawk.migrateScreen.explanation" = "We bewaren gegevens nu op een nieuwe, veiligere manier lokaal en moeten je seedwoorden migreren om je wallet te herstellen. Als je niet automatisch wilt migreren, moet je je wallet herstellen door de seedwoorden zelf in te voeren.\n\nWil je automatisch doorgaan?";
+"nighthawk.migrateScreen.continue" = "Doorgaan";
+"nighthawk.migrateScreen.restoreManually" = "Handmatig herstellen";
+"nighthawk.migrateScreen.migrationFailed.title" = "Migratie mislukt";
+"nighthawk.migrateScreen.migrationFailed.description" = "Er is een fout opgetreden en we konden je wallet niet automatisch migreren. Tik op Doorgaan om je wallet handmatig te importeren.";
 
 // MARK: - Welcome
-"nighthawk.welcome.subtitle" = "Get started";
-"nighthawk.welcome.body" = "If it’s your first time using Nighthawk, you’ll need to create a wallet. If you are returning to Nighthawk, you can restore your previous wallet.";
-"nighthawk.welcome.terms1" = "This app is free software. Use is covered only by its license.";
-"nighthawk.welcome.create" = "Create Wallet";
-"nighthawk.welcome.restore" = "Restore From Backup";
-"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialisation failed.";
-"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Can't create new wallet. Error: %@ (code: %@)";
+"nighthawk.welcome.subtitle" = "Aan de slag";
+"nighthawk.welcome.body" = "Als je Nighthawk voor het eerst gebruikt, moet je een wallet aanmaken. Als je terugkomt, kun je je vorige wallet herstellen.";
+"nighthawk.welcome.terms1" = "Deze app is vrije software. Het gebruik valt alleen onder de licentie.";
+"nighthawk.welcome.create" = "Wallet aanmaken";
+"nighthawk.welcome.restore" = "Herstellen uit back-up";
+"nighthawk.welcome.initialization.alert.failed.title" = "Wallet initialiseren mislukt.";
+"nighthawk.welcome.initialization.alert.cantCreateNewWallet.message" = "Kan geen nieuwe wallet maken. Fout: %@ (code: %@)";
+"nighthawk.welcome.carousel.title1" = "Standaard privé";
+"nighthawk.welcome.carousel.body1" = "Alle transacties zijn volledig privé. Geen transparante adressen, geen lekken van metadata. Je financiële leven blijft van jou.";
+"nighthawk.welcome.carousel.title2" = "Peer-to-peernetwerk";
+"nighthawk.welcome.carousel.body2" = "Maak via Tor rechtstreeks verbinding met het DarkFi-netwerk. Geen tussenservers. Geen eindpunten die je moet vertrouwen.";
+"nighthawk.welcome.carousel.title3" = "Versleutelde chat";
+"nighthawk.welcome.carousel.body3" = "Stuur end-to-end versleutelde berichten via DarkIRC. Privécommunicatie, ingebouwd in je wallet.";
 
 // MARK: - Wallet Created
-"nighthawk.walletCreated.title" = "Wallet created! Congratulations!";
-"nighthawk.walletCreated.backupImmediately" = "For the safety of your funds and to prevent unintended consequences, we STRONGLY recommend that you backup your wallet. Please remember, this is a self-custody wallet, and you are solely responsible for managing your funds.";
-"nighthawk.walletCreated.backup" = "Backup your wallet";
-"nighthawk.walletCreated.skip" = "Skip for now";
+"nighthawk.walletCreated.title" = "Wallet aangemaakt! Gefeliciteerd!";
+"nighthawk.walletCreated.backupImmediately" = "Voor de veiligheid van je tegoeden en om onbedoelde gevolgen te voorkomen, raden we je DRINGEND aan een back-up van je wallet te maken. Onthoud: dit is een wallet voor zelfbeheer en jij bent als enige verantwoordelijk voor je tegoeden.";
+"nighthawk.walletCreated.backup" = "Wallet back-uppen";
+"nighthawk.walletCreated.skip" = "Nu overslaan";
 
 // MARK: - Recovery Phrase Display
-"nighthawk.recoveryPhraseDisplay.title" = "Write down your backup seed";
-"nighthawk.recoveryPhraseDisplay.instructions1" = "If you lose access to your phone or Nighthawk wallet, the only way you can regain access to your DarkFi is if you have this 22 word phrase and wallet birthday code.";
-"nighthawk.recoveryPhraseDisplay.instructions2" = "Write it down on paper and store it somewhere safe.";
-"nighthawk.recoveryPhraseDisplay.birthday" = "Wallet birthday:";
-"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "I confirm I have saved my seed phrase.";
-"nighthawk.recoveryPhraseDisplay.continue" = "Continue";
-"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Export as PDF";
+"nighthawk.recoveryPhraseDisplay.title" = "Schrijf je back-upseed op";
+"nighthawk.recoveryPhraseDisplay.instructions1" = "Als je geen toegang meer hebt tot je telefoon of je Nighthawk-wallet, kun je je DarkFi alleen terugkrijgen met deze zin van 22 woorden en de verjaardagscode van de wallet.";
+"nighthawk.recoveryPhraseDisplay.instructions2" = "Zet hem op papier en bewaar hem op een veilige plek.";
+"nighthawk.recoveryPhraseDisplay.birthday" = "Walletverjaardag:";
+"nighthawk.recoveryPhraseDisplay.confirmPhraseWrittenDownCheckBox" = "Ik bevestig dat ik mijn seedzin heb opgeslagen.";
+"nighthawk.recoveryPhraseDisplay.continue" = "Doorgaan";
+"nighthawk.recoveryPhraseDisplay.exportAsPdf" = "Exporteer als PDF";
 "nighthawk.recoveryPhraseDisplay.exportAppName" = "Nighthawk Wallet";
-"nighthawk.recoveryPhraseDisplay.pdfHeader" = "These are seed words used to restore your DarkFi in Nighthawk Wallet:";
-"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Backup PDF generated at %@";
+"nighthawk.recoveryPhraseDisplay.pdfHeader" = "Met deze seedwoorden herstel je je DarkFi in Nighthawk Wallet:";
+"nighthawk.recoveryPhraseDisplay.pdfTimestamp" = "Back-up-PDF gemaakt op %@";
 
 // MARK: - Export seed
-"nighthawk.exportSeed.title" = "Export as PDF";
-"nighthawk.exportSeed.description" = "Export the seed words to a password protected PDF which can be backed up to user secured portable storage devices.";
-"nighthawk.exportSeed.export" = "Export PDF";
-"nighthawk.exportSeed.passwordPlaceholder" = "Please Enter Password";
+"nighthawk.exportSeed.title" = "Exporteer als PDF";
+"nighthawk.exportSeed.description" = "Exporteer de seedwoorden naar een met een wachtwoord beveiligde PDF, die je kunt back-uppen op draagbare opslag die je zelf beveiligt.";
+"nighthawk.exportSeed.export" = "PDF exporteren";
+"nighthawk.exportSeed.passwordPlaceholder" = "Voer een wachtwoord in";
 
 // MARK: - Import warning
-"nighthawk.importWarning.title" = "Before you continue";
-"nighthawk.importWarning.description" = "Please only import a seed phrase that was initially generated by Nighthawk. Other wallets operate differently, which may lead to inaccurate reporting of funds for your transactions.";
-"nighthawk.importWarning.proceed" = "Proceed";
+"nighthawk.importWarning.title" = "Voordat je doorgaat";
+"nighthawk.importWarning.description" = "Importeer alleen een seedzin die oorspronkelijk door Nighthawk is gemaakt. Andere wallets werken anders, waardoor de tegoeden van je transacties onjuist kunnen worden weergegeven.";
+"nighthawk.importWarning.proceed" = "Ga door";
 
 // MARK: - Import Wallet Screen
-"nighthawk.importWallet.restoreFromBackup" = "Restore from backup";
-"nighthawk.importWallet.enterSeedPhrase" = "Enter your 22 word seed phrase below. If you do not have this phrase, you will need to create a new wallet.";
-"nighthawk.importWallet.yourSeedPhrase" = "Your seed phrase";
-"nighthawk.importWallet.birthdayHeight" = "Birthday Height (optional)";
-"nighthawk.importWallet.continue" = "Continue";
-"nighthawk.importWallet.invalidMnemonic" = "Error ⸱ This doesn't look like a valid seed phrase";
-"nighthawk.importWallet.invalidBirthday" = "Error ⸱ This doesn't look like a valid birthday height";
-"nighthawk.importWallet.alert.failed.title" = "Failed to restore wallet";
-"nighthawk.importWallet.alert.failed.message" = "Error: %@ (code: %@)";
+"nighthawk.importWallet.restoreFromBackup" = "Herstellen uit back-up";
+"nighthawk.importWallet.enterSeedPhrase" = "Voer hieronder je seedzin van 22 woorden in. Zonder deze zin moet je een nieuwe wallet aanmaken.";
+"nighthawk.importWallet.yourSeedPhrase" = "Je seedzin";
+"nighthawk.importWallet.birthdayHeight" = "Verjaardagshoogte (optioneel)";
+"nighthawk.importWallet.continue" = "Doorgaan";
+"nighthawk.importWallet.invalidMnemonic" = "Fout ⸱ Dit lijkt geen geldige seedzin";
+"nighthawk.importWallet.invalidBirthday" = "Fout ⸱ Dit lijkt geen geldige verjaardagshoogte";
+"nighthawk.importWallet.alert.failed.title" = "Wallet herstellen mislukt";
+"nighthawk.importWallet.alert.failed.message" = "Fout: %@ (code: %@)";
 
 // MARK: - Import Wallet Success Screen
-"nighthawk.importWalletSuccess.success" = "Success";
-"nighthawk.importWalletSuccess.viewWallet" = "View wallet";
+"nighthawk.importWalletSuccess.success" = "Gelukt";
+"nighthawk.importWalletSuccess.viewWallet" = "Wallet bekijken";
 
 // MARK: - Transactions
-"nighthawk.transaction.sending" = "Sending";
-"nighthawk.transaction.receiving" = "Receiving";
-"nighthawk.transaction.failed" = "Failed";
-"nighthawk.transaction.received" = "Received";
-"nighthawk.transaction.sent" = "Sent";
+"nighthawk.transaction.sending" = "Bezig met verzenden";
+"nighthawk.transaction.receiving" = "Bezig met ontvangen";
+"nighthawk.transaction.failed" = "Mislukt";
+"nighthawk.transaction.received" = "Ontvangen";
+"nighthawk.transaction.sent" = "Verzonden";
 
 // MARK: - Home Screen
+"nighthawk.homeScreen.chat" = "Chat";
 "nighthawk.homeScreen.wallet" = "Wallet";
-"nighthawk.homeScreen.transfer" = "Transfer";
-"nighthawk.homeScreen.settings" = "Settings";
-"nighthawk.homeScreen.expectingFunds" = "Expecting %@ %@";
+"nighthawk.homeScreen.transfer" = "Overboeking";
+"nighthawk.homeScreen.dex" = "DEX";
+"nighthawk.homeScreen.settings" = "Instellingen";
+"nighthawk.homeScreen.expectingFunds" = "Verwacht: %@ %@";
+"nighthawk.dex.title" = "DEX";
+"nighthawk.dex.comingSoon" = "Binnenkort";
+"nighthawk.dex.comingSoonBody" = "De DarkFi-DEX komt hier. Versturen, ontvangen en aanvragen blijven in het tabblad Wallet.";
 
 // MARK: - Home Screen - Wallet tab
-"nighthawk.walletTab.swipeToShowBalances" = "Swipe left to show your balance";
-"nighthawk.walletTab.totalBalance" = "Total balance";
-"nighthawk.walletTab.shieldedBalance" = "Private balance";
-"nighthawk.walletTab.transparentBalance" = "Transparent balance";
+"nighthawk.walletTab.swipeToShowBalances" = "Veeg naar links om je saldo te zien";
+"nighthawk.walletTab.totalBalance" = "Totaalsaldo";
+"nighthawk.walletTab.shieldedBalance" = "Privésaldo";
+"nighthawk.walletTab.transparentBalance" = "Privésaldo";
 "nighthawk.walletTab.drk" = "DRK";
-"nighthawk.walletTab.recentActivity" = "Recent activity";
-"nighthawk.walletTab.viewTransactionHistory" = "View transaction history";
-"nighthawk.walletTab.shieldNow" = "Shield now";
+"nighthawk.walletTab.recentActivity" = "Recente activiteit";
+"nighthawk.walletTab.viewTransactionHistory" = "Transactiegeschiedenis bekijken";
+"nighthawk.walletTab.shieldNow" = "Vernieuwen";
 
 // MARK: - Home Screen - Wallet tab - Addresses
-"nighthawk.walletTab.addresses.receiveAddress" = "Unified address";
-"nighthawk.walletTab.addresses.transparentAddress" = "Transparent address";
-"nighthawk.walletTab.addresses.topUpYourWallet" = "Top up your wallet";
-"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Buy or trade DarkFi through our specially selected partners.";
-"nighthawk.walletTab.addresses.copy" = "Copy";
-"nighthawk.walletTab.addresses.seeMore" = "See more";
-"nighthawk.walletTab.addresses.copiedToClipboard" = "Copied to clipboard!";
-"nighthawk.walletTab.addresses.loading" = "Loading…";
+"nighthawk.walletTab.addresses.receiveAddress" = "Privacyadres";
+"nighthawk.walletTab.addresses.transparentAddress" = "Privacyadres";
+"nighthawk.walletTab.addresses.topUpYourWallet" = "Wallet opwaarderen";
+"nighthawk.walletTab.addresses.topUpYourWalletDescription" = "Koop of ruil DarkFi via onze geselecteerde partners.";
+"nighthawk.walletTab.addresses.copy" = "Kopieer";
+"nighthawk.walletTab.addresses.seeMore" = "Meer bekijken";
+"nighthawk.walletTab.addresses.copiedToClipboard" = "Gekopieerd naar het klembord!";
+"nighthawk.walletTab.addresses.loading" = "Laden…";
 
 // MARK: - Home Screen - Transaction history
-"nighthawk.transactionHistory.title" = "Transaction History";
+"nighthawk.transactionHistory.title" = "Transactiegeschiedenis";
 "nighthawk.transactionHistory.zecAmount" = "%@ %@";
-"nighthawk.transactionHistory.autoshieldedFunds" = "Auto-private funds";
+"nighthawk.transactionHistory.autoshieldedFunds" = "Privétegoeden";
 
 // MARK: - Sync message
-"nighthawk.sync.message.uptodate" = "Up-To-Date";
-"nighthawk.sync.message.unprepared" = "Connecting…";
-"nighthawk.sync.message.error" = "Error: %@";
-"nighthawk.sync.message.sync" = "Scanning…%@%%";
-"nighthawk.sync.message.preparing" = "Preparing to scan";
-"nighthawk.sync.message.finalizing" = "Finalizing";
-"nighthawk.sync.message.stopped" = "Stopped";
+"nighthawk.sync.message.uptodate" = "Bijgewerkt";
+"nighthawk.sync.message.unprepared" = "Verbinden…";
+"nighthawk.sync.message.error" = "Fout: %@";
+"nighthawk.sync.message.sync" = "Scannen…%@%%";
+"nighthawk.sync.message.preparing" = "Scan voorbereiden";
+"nighthawk.sync.message.finalizing" = "Afronden";
+"nighthawk.sync.message.stopped" = "Gestopt";
 
 // MARK: - Home Screen - Transfer tab
-"nighthawk.transferTab.sendAndReceiveDarkFi" = "Send and receive DarkFi";
-"nighthawk.transferTab.sendMoneyTitle" = "Send money";
-"nighthawk.transferTab.sendMoneyDescription" = "Let someone scan to send you money.";
-"nighthawk.transferTab.receiveMoneyTitle" = "Receive money";
-"nighthawk.transferTab.receiveMoneyDescription" = "Display your QR code or copy your address.";
-"nighthawk.transferTab.topUpWalletTitle" = "Top up your wallet";
-"nighthawk.transferTab.topUpWalletDescription" = "Securely buy DarkFi through our partners.";
+"nighthawk.transferTab.sendAndReceiveDarkFi" = "DarkFi verzenden en ontvangen";
+"nighthawk.transferTab.sendMoneyTitle" = "Geld verzenden";
+"nighthawk.transferTab.sendMoneyDescription" = "Scan iemands QR-code om geld te sturen.";
+"nighthawk.transferTab.receiveMoneyTitle" = "Geld ontvangen";
+"nighthawk.transferTab.receiveMoneyDescription" = "Toon je QR-code of kopieer je adres.";
+"nighthawk.walletTab.actionSend" = "Verstuur";
+"nighthawk.walletTab.actionReceive" = "Ontvang";
+"nighthawk.walletTab.actionRequest" = "Aanvragen";
+"nighthawk.transferTab.topUpWalletTitle" = "Wallet opwaarderen";
+"nighthawk.transferTab.topUpWalletDescription" = "Koop DarkFi veilig via onze partners.";
 
 // MARK: - Home Screen - Transfer - Receive
-"nighthawk.transferTab.receive.receiveMoneySecurely" = "Receive money privately";
-"nighthawk.transferTab.receive.showQrCodeTitle" = "Show QR Code";
-"nighthawk.transferTab.receive.copyAddressTitle" = "Copy address";
-"nighthawk.transferTab.receive.copyAddressDescription" = "Your wallet address will be copied to the clipboard.";
-"nighthawk.transferTab.receive.receiveMoneyPublicly" = "Receive money publicly";
-"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "Copy a non-private address";
-"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "This will copy your t-address.";
+"nighthawk.transferTab.receive.receiveMoneySecurely" = "Ontvang geld privé";
+"nighthawk.transferTab.receive.showQrCodeTitle" = "QR-code tonen";
+"nighthawk.transferTab.receive.copyAddressTitle" = "Privacyadres kopiëren";
+"nighthawk.transferTab.receive.copyAddressDescription" = "Je walletadres wordt naar het klembord gekopieerd.";
+"nighthawk.transferTab.receive.receiveMoneyPublicly" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressTitle" = "";
+"nighthawk.transferTab.receive.copyNonPrivateAddressDescription" = "";
 
 // MARK: - Home Screen - Transfer - Top up wallet
-"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Swap with StealthEx.io";
-"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Swap transparent coins without limits.";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Fund wallet with %@?";
-"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "Your %@ has been copied to the clipboard.\n\nChoose \"Open Browser\" below, select '%@' as the receiving coin on the %@ site, and then paste your %@";
-"nighthawk.transferTab.topUpWallet.openBrowser" = "Open Browser";
+"nighthawk.transferTab.topUpWallet.stealthExIoTitle" = "Ruilen met StealthEx.io";
+"nighthawk.transferTab.topUpWallet.stealthExIoDescription" = "Ruil coins zonder limiet.";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertTitle" = "Wallet opwaarderen met %@?";
+"nighthawk.transferTab.topUpWallet.fundWalletAlertMessage" = "%@ is naar het klembord gekopieerd.\n\nKies hieronder «Browser openen», selecteer '%@' als ontvangende munt op de site %@ en plak daarna %@";
+"nighthawk.transferTab.topUpWallet.openBrowser" = "Browser openen";
 
 // MARK: - Home Screen - Transfer - Send
-"nighthawk.transferTab.send.chooseHowMuch" = "Choose how much to send";
-"nighthawk.transferTab.send.spendableBalance" = "Spendable balance (incl. tx fee) is %@ %@";
-"nighthawk.transferTab.send.continue" = "Continue";
-"nighthawk.transferTab.send.topUpWallet" = "Top up wallet";
-"nighthawk.transferTab.send.scanCode" = "Scan a payment code";
-"nighthawk.transferTab.send.toast.notEnoughDrk" = "Not enough DRK!";
-"nighthawk.transferTab.send.around" = "around %@ %@";
-"nighthawk.transferTab.send.error" = "Error";
+"nighthawk.transferTab.send.chooseHowMuch" = "Kies hoeveel je verstuurt";
+"nighthawk.transferTab.send.spendableBalance" = "Besteedbaar saldo (incl. tx-kosten) is %@ %@";
+"nighthawk.transferTab.send.continue" = "Doorgaan";
+"nighthawk.transferTab.send.topUpWallet" = "Wallet opwaarderen";
+"nighthawk.transferTab.send.scanCode" = "Betaalcode scannen";
+"nighthawk.transferTab.send.toast.notEnoughDrk" = "Niet genoeg DRK!";
+"nighthawk.transferTab.send.around" = "ongeveer %@ %@";
+"nighthawk.transferTab.send.error" = "Fout";
 "nighthawk.transferTab.send.proposalFailed" = "%@";
 
 // MARK: - Home Screen - Transfer - Scan
-"nighthawk.transferTab.scan.scanPaymentRequest" = "Scan a Payment Request";
-"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "If you have a payment request, you can scan the QR code here to auto-fill all the details.";
+"nighthawk.transferTab.scan.scanPaymentRequest" = "Betaalverzoek scannen";
+"nighthawk.transferTab.scan.scanPaymentRequestDetails" = "Heb je een betaalverzoek, scan dan hier de QR-code om alle gegevens automatisch in te vullen.";
 
 // MARK: - Home Screen - Transfer - Add memo
-"nighthawk.transferTab.addMemo.addMessageToPayment" = "Add a message to your payment";
-"nighthawk.transferTab.addMemo.writeSomething" = "Write something...";
-"nighthawk.transferTab.addMemo.includeReplyTo" = "Include reply-to";
+"nighthawk.transferTab.addMemo.addMessageToPayment" = "Voeg een bericht toe aan je betaling";
+"nighthawk.transferTab.addMemo.writeSomething" = "Schrijf iets...";
+"nighthawk.transferTab.addMemo.includeReplyTo" = "Antwoordadres meesturen";
 
 // MARK: - Home Screen - Transfer - Recipient
-"nighthawk.transferTab.recipient.chooseRecipient" = "Choose who to send it to";
-"nighthawk.transferTab.recipient.addAddress" = "Add address here";
-"nighthawk.transferTab.recipient.invalid" = "Please enter a valid recipient";
-"nighthawk.transferTab.recipient.currentlyUnsupported" = "Sending to TEX addresses is not supported because they offer lower privacy protections";
-"nighthawk.transferTab.recipient.pasteFromClipboard" = "Paste from clipboard";
-"nighthawk.transferTab.recipient.continue" = "Continue";
+"nighthawk.transferTab.recipient.chooseRecipient" = "Kies de ontvanger";
+"nighthawk.transferTab.recipient.addAddress" = "Adres hier toevoegen";
+"nighthawk.transferTab.recipient.invalid" = "Voer een geldige ontvanger in";
+"nighthawk.transferTab.recipient.currentlyUnsupported" = "Versturen naar TEX-adressen wordt niet ondersteund, omdat ze minder privacybescherming bieden";
+"nighthawk.transferTab.recipient.pasteFromClipboard" = "Plakken vanaf klembord";
+"nighthawk.transferTab.recipient.continue" = "Doorgaan";
 
 // MARK: - Home Screen - Transfer - Review
-"nighthawk.transferTab.review.title" = "Review and send";
-"nighthawk.transferTab.review.send" = "Send DarkFi";
+"nighthawk.transferTab.review.title" = "Controleren en versturen";
+"nighthawk.transferTab.review.send" = "DarkFi versturen";
 
 // MARK: - Home Screen - Transfer - Sending
-"nighthawk.transferTab.sending.title" = "Sending";
+"nighthawk.transferTab.sending.title" = "Bezig met verzenden";
 
 // MARK: - Home Screen - Transfer - Failed
-"nighthawk.transferTab.failed.title" = "Failed";
-"nighthawk.transferTab.failed.tryAgain" = "Try again";
-"nighthawk.transferTab.failed.cancel" = "Cancel";
+"nighthawk.transferTab.failed.title" = "Mislukt";
+"nighthawk.transferTab.failed.tryAgain" = "Opnieuw proberen";
+"nighthawk.transferTab.failed.cancel" = "Annuleer";
 
 // MARK: - Home Screen - Transfer - Success
-"nighthawk.transferTab.success.title" = "Success";
-"nighthawk.transferTab.success.done" = "Done";
-"nighthawk.transferTab.success.moreDetails" = "More details";
+"nighthawk.transferTab.success.title" = "Gelukt";
+"nighthawk.transferTab.success.done" = "Gereed";
+"nighthawk.transferTab.success.moreDetails" = "Meer details";
 
 // MARK: - Home Screen - Settings tab
-"nighthawk.settingsTab.settings" = "Settings";
-"nighthawk.settingsTab.notificationsTitle" = "Sync notifications";
-"nighthawk.settingsTab.notificationsSubtitle" = "Reminding you to keep the wallet up-to-date";
-"nighthawk.settingsTab.fiatTitle" = "Fiat Currency";
-"nighthawk.settingsTab.fiatSubtitle" = "Choose your local currency";
-"nighthawk.settingsTab.securityTitle" = "Security";
-"nighthawk.settingsTab.securitySubtitle" = "Enable/Disable %@";
-"nighthawk.settingsTab.backupTitle" = "Backup your wallet";
-"nighthawk.settingsTab.backupSubtitle" = "Keep your wallet safe in case you lose your phone";
-"nighthawk.settingsTab.rescanTitle" = "Rescan wallet";
-"nighthawk.settingsTab.rescanSubtitle" = "Rescan wallet balances to troubleshoot issues";
-"nighthawk.settingsTab.alert.rescan.title" = "Rescan this wallet?";
-"nighthawk.settingsTab.alert.rescan.message" = "Rescanning may take up to 10 hours depending on the length of history of your wallet's transactions. Would you like to start a rescan?";
-"nighthawk.settingsTab.alert.rescan.wipe" = "Wipe";
-"nighthawk.settingsTab.alert.rescan.failed.title" = "Rescan failed";
-"nighthawk.settingsTab.alert.rescan.failed.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Can't start sync process after rewind";
-"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Error: %@ (code: %@)";
-"nighthawk.settingsTab.changeServerTitle" = "Change server";
-"nighthawk.settingsTab.changeServerSubtitle" = "Change backend lightwalletd server";
-"nighthawk.settingsTab.externalServicesTitle" = "External services";
-"nighthawk.settingsTab.externalServicesSubtitle" = "Opt-in to our partner services";
-"nighthawk.settingsTab.advancedTitle" = "Advanced";
-"nighthawk.settingsTab.advancedSubtitle" = "Less common settings";
-"nighthawk.settingsTab.aboutTitle" = "About";
-"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ & Licenses";
+"nighthawk.settingsTab.settings" = "Instellingen";
+"nighthawk.settingsTab.notificationsTitle" = "Syncmeldingen";
+"nighthawk.settingsTab.notificationsSubtitle" = "Herinnert je eraan de wallet bij te werken";
+"nighthawk.settingsTab.fiatTitle" = "Fiatvaluta";
+"nighthawk.settingsTab.fiatSubtitle" = "Kies je lokale valuta";
+"nighthawk.settingsTab.securityTitle" = "Beveiliging";
+"nighthawk.settingsTab.securitySubtitle" = "%@ in- of uitschakelen";
+"nighthawk.settingsTab.backupTitle" = "Wallet back-uppen";
+"nighthawk.settingsTab.backupSubtitle" = "Houd je wallet veilig als je je telefoon kwijtraakt";
+"nighthawk.settingsTab.rescanTitle" = "Wallet opnieuw scannen";
+"nighthawk.settingsTab.rescanSubtitle" = "Saldi opnieuw scannen om problemen op te lossen";
+"nighthawk.settingsTab.alert.rescan.title" = "Deze wallet opnieuw scannen?";
+"nighthawk.settingsTab.alert.rescan.message" = "Opnieuw scannen kan tot 10 uur duren, afhankelijk van de lengte van je transactiegeschiedenis. Wil je de scan starten?";
+"nighthawk.settingsTab.alert.rescan.wipe" = "Wissen";
+"nighthawk.settingsTab.alert.rescan.failed.title" = "Opnieuw scannen mislukt";
+"nighthawk.settingsTab.alert.rescan.failed.message" = "Fout: %@ (code: %@)";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.title" = "Synchronisatie kan na het terugspoelen niet starten";
+"nighthawk.settingsTab.alert.rescan.cantStartSync.message" = "Fout: %@ (code: %@)";
+"nighthawk.settingsTab.changeServerTitle" = "Server wijzigen";
+"nighthawk.settingsTab.changeServerSubtitle" = "Backendserver wijzigen";
+"nighthawk.settingsTab.chatSettingsTitle" = "Chatinstellingen";
+"nighthawk.settingsTab.chatSettingsSubtitle" = "E2E-versleuteling, DAG-sync, ingebouwde darkirc";
+"nighthawk.settingsTab.networkPrivacyTitle" = "Netwerkprivacy";
+"nighthawk.settingsTab.networkPrivacySubtitle" = "Wallet via Nym, Tor of direct; chat via Tor";
+"nighthawk.settingsTab.selectSettingPrompt" = "Kies links een instelling om die te openen.";
+"nighthawk.settingsTab.externalServicesTitle" = "Externe diensten";
+"nighthawk.settingsTab.externalServicesSubtitle" = "Partnerdiensten optioneel inschakelen";
+"nighthawk.settingsTab.advancedTitle" = "Geavanceerd";
+"nighthawk.settingsTab.advancedSubtitle" = "Minder gebruikelijke instellingen";
+"nighthawk.settingsTab.aboutTitle" = "Over";
+"nighthawk.settingsTab.aboutSubtitle" = "Nighthawk v%@ en licenties";
 
 // MARK: - Home Screen - Settings tab - Sync notifications
-"nighthawk.settingsTab.syncNotifications.title" = "Sync notifications";
-"nighthawk.settingsTab.syncNotifications.description" = "When Nighthawk wallet is closed for a long period of time, then it will take longer to start up when you do want to use it.";
-"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Allow sync notifications to remind you to open the wallet every week.";
-"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Allow sync notifications to remind you to open the wallet every month.";
-"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Weekly";
-"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Monthly";
-"nighthawk.settingsTab.syncNotifications.offOption" = "Off";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Permission denied";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk needs permission in order to send sync notifications. Please open settings and grant the necessary permissions.";
-"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Go to settings";
-"nighthawk.settingsTab.syncNotifications.notification.title" = "Time to sync!";
-"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk and sync your wallet so your funds are ready to spend when you need them!";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Failed to schedule notification";
-"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "We were unable to schedule your sync notification at this time.";
+"nighthawk.settingsTab.syncNotifications.title" = "Syncmeldingen";
+"nighthawk.settingsTab.syncNotifications.description" = "Als de Nighthawk-wallet lang gesloten is geweest, duurt het opstarten langer wanneer je hem weer wilt gebruiken.";
+"nighthawk.settingsTab.syncNotifications.weeklyDescription" = "Sta syncmeldingen toe die je er elke week aan herinneren de wallet te openen.";
+"nighthawk.settingsTab.syncNotifications.monthlyDescription" = "Sta syncmeldingen toe die je er elke maand aan herinneren de wallet te openen.";
+"nighthawk.settingsTab.syncNotifications.weeklyOption" = "Wekelijks";
+"nighthawk.settingsTab.syncNotifications.monthlyOption" = "Maandelijks";
+"nighthawk.settingsTab.syncNotifications.offOption" = "Uit";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.title" = "Toestemming geweigerd";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.description" = "Nighthawk heeft toestemming nodig om syncmeldingen te sturen. Open Instellingen en geef de benodigde toestemming.";
+"nighthawk.settingsTab.syncNotifications.permissionDeniedAlert.goToSettings" = "Naar Instellingen";
+"nighthawk.settingsTab.syncNotifications.notification.title" = "Tijd om te synchroniseren!";
+"nighthawk.settingsTab.syncNotifications.notification.detail" = "Open Nighthawk en synchroniseer je wallet, zodat je tegoed klaarstaat wanneer je het wilt uitgeven!";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.title" = "Melding plannen mislukt";
+"nighthawk.settingsTab.syncNotifications.scheduleNotificationFailedAlert.details" = "Je syncmelding kon nu niet worden gepland.";
 
 // MARK: - Home Screen - Settings tab - Fiat currency
-"nighthawk.settingsTab.fiatCurrency.title" = "Fiat Currency";
-"nighthawk.settingsTab.fiatCurrency.description" = "Choose your local currency so that we can show you a close estimate of how much your %@ is worth.\n\nWhen you first open the app, the exchange rate is fetched from CoinGecko API v3 and used to calculate values. Your fund amounts are never revealed to any server.";
-"nighthawk.settingsTab.fiatCurrency.usd" = "United States Dollar";
+"nighthawk.settingsTab.fiatCurrency.title" = "Fiatvaluta";
+"nighthawk.settingsTab.fiatCurrency.description" = "Kies je lokale valuta zodat we kunnen laten zien hoeveel je %@ ongeveer waard is.\n\nBij de eerste keer openen haalt de app de wisselkoers op via CoinGecko API v3 en gebruikt die voor de berekening. Je tegoeden worden nooit aan een server doorgegeven.";
+"nighthawk.settingsTab.fiatCurrency.usd" = "Amerikaanse dollar";
 "nighthawk.settingsTab.fiatCurrency.eur" = "Euro";
-"nighthawk.settingsTab.fiatCurrency.inr" = "Indian Rupee";
-"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanese Yen";
-"nighthawk.settingsTab.fiatCurrency.gbp" = "British Pound";
-"nighthawk.settingsTab.fiatCurrency.cad" = "Canadian Dollar";
-"nighthawk.settingsTab.fiatCurrency.aud" = "Australian Dollar";
-"nighthawk.settingsTab.fiatCurrency.hkd" = "Hong Kong Dollar";
-"nighthawk.settingsTab.fiatCurrency.sgd" = "Singapore Dollar";
-"nighthawk.settingsTab.fiatCurrency.chf" = "Swiss Franc";
-"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese Yuan";
-"nighthawk.settingsTab.fiatCurrency.krw" = "Korean Won";
-"nighthawk.settingsTab.fiatCurrency.off" = "Off";
+"nighthawk.settingsTab.fiatCurrency.inr" = "Indiase roepie";
+"nighthawk.settingsTab.fiatCurrency.jpy" = "Japanse yen";
+"nighthawk.settingsTab.fiatCurrency.gbp" = "Britse pond";
+"nighthawk.settingsTab.fiatCurrency.cad" = "Canadese dollar";
+"nighthawk.settingsTab.fiatCurrency.aud" = "Australische dollar";
+"nighthawk.settingsTab.fiatCurrency.hkd" = "Hongkongse dollar";
+"nighthawk.settingsTab.fiatCurrency.sgd" = "Singaporese dollar";
+"nighthawk.settingsTab.fiatCurrency.chf" = "Zwitserse frank";
+"nighthawk.settingsTab.fiatCurrency.cny" = "Chinese yuan";
+"nighthawk.settingsTab.fiatCurrency.krw" = "Koreaanse won";
+"nighthawk.settingsTab.fiatCurrency.off" = "Uit";
 
 
 // MARK: - Home Screen - Settings tab - Security
-"nighthawk.settingsTab.security.biometricsEnabled" = "%@ enabled";
-"nighthawk.settingsTab.security.biometricsDisabled" = "%@ disabled";
-"nighthawk.settingsTab.security.disableValidationReason" = "Authenticate to disable %@";
-"nighthawk.settingsTab.security.enableValidationReason" = "Authenticate to enable %@";
+"nighthawk.settingsTab.security.biometricsEnabled" = "%@ ingeschakeld";
+"nighthawk.settingsTab.security.biometricsDisabled" = "%@ uitgeschakeld";
+"nighthawk.settingsTab.security.disableValidationReason" = "Authenticeer om %@ uit te schakelen";
+"nighthawk.settingsTab.security.enableValidationReason" = "Authenticeer om %@ in te schakelen";
 
 // MARK: - Home Screen - Settings tab - Change server
-"nighthawk.settingsTab.changeServer.title" = "Change server";
-"nighthawk.settingsTab.changeServer.default" = "Default (%@)";
-"nighthawk.settingsTab.changeServer.custom" = "Custom";
-"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Error ⸱ This doesn't look like a valid lightwalletd server";
-"nighthawk.settingsTab.changeServer.save" = "Save";
-"nighthawk.settingsTab.changeServer.disclaimer" = "The servers are not operated by Nighthawk, and the privacy of communication and broadcasting transactions cannot be guaranteed. We recommend using a VPN or Tor for enhanced privacy before making transactions.";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Unable to change lightwalletd servers";
-"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Error: %@ (code: %@)";
+"nighthawk.settingsTab.changeServer.title" = "Server wijzigen";
+"nighthawk.settingsTab.changeServer.default" = "Standaard (%@)";
+"nighthawk.settingsTab.changeServer.custom" = "Aangepast";
+"nighthawk.settingsTab.changeServer.custom.invalidLightwalletd" = "Fout ⸱ Dit lijkt geen geldig serveradres";
+"nighthawk.settingsTab.changeServer.save" = "Bewaar";
+"nighthawk.settingsTab.changeServer.disclaimer" = "Aangepaste servers worden niet door Nighthawk beheerd. Voor meer privacy bij transacties raden we Tor aan.";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.title" = "Server wijzigen mislukt";
+"nighthawk.settingsTab.changeServer.alert.changeServerFailed.message" = "Fout: %@ (code: %@)";
 
 // MARK: - Home Screen - Settings tab - Backup
-"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "View seed words?";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WARNING: Please make sure that you are the only one viewing your phone as your wallet seed key will be shown in the next screen.";
-"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "View seed";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertTitle" = "Seedwoorden bekijken?";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertMessage" = "WAARSCHUWING: Zorg dat alleen jij naar je telefoon kijkt. Op het volgende scherm staat de seed van je wallet.";
+"nighthawk.settingsTab.backup.viewSeedWarningAlertConfirmAction" = "Seed bekijken";
 
 
 // MARK: - Home Screen - Settings tab - Advanced
-"nighthawk.settingsTab.advanced.title" = "Advanced settings";
-"nighthawk.settingsTab.advanced.screenMode.title" = "Keep screen on";
-"nighthawk.settingsTab.advanced.screenMode.subtitle" = "If you haven't opened your wallet in a while, the sync process can take some time. Setting screen mode to 'Keep on' will ensure your phone doesn't fall asleep while syncing.";
-"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Keep on";
-"nighthawk.settingsTab.advanced.screenMode.off" = "Off";
-"nighthawk.settingsTab.advanced.appIcon.title" = "App icon";
-"nighthawk.settingsTab.advanced.appIcon.default" = "Default";
+"nighthawk.settingsTab.advanced.title" = "Geavanceerde instellingen";
+"nighthawk.settingsTab.advanced.screenMode.title" = "Scherm aan laten";
+"nighthawk.settingsTab.advanced.screenMode.subtitle" = "Als je je wallet een tijd niet hebt geopend, kan synchroniseren even duren. Met de schermmodus «Aan laten» gaat je telefoon tijdens het synchroniseren niet in slaapstand.";
+"nighthawk.settingsTab.advanced.screenMode.keepOn" = "Aan laten";
+"nighthawk.settingsTab.advanced.screenMode.off" = "Uit";
+"nighthawk.settingsTab.advanced.appIcon.title" = "App-symbool";
+"nighthawk.settingsTab.advanced.appIcon.default" = "Standaard";
 "nighthawk.settingsTab.advanced.appIcon.retro" = "Retro";
-"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App icon updated!";
-"nighthawk.settingsTab.advanced.theme.title" = "Theme";
-"nighthawk.settingsTab.advanced.theme.default" = "Default";
-"nighthawk.settingsTab.advanced.theme.dark" = "Dark";
-"nighthawk.settingsTab.advanced.deleteWallet.title" = "Delete wallet";
-"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "CAUTION: This will completely wipe your wallet and you will be unable to recover funds without your seed words. Ensure you have you have them saved somewhere safe before proceeding. Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "ARE YOU SURE?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "This operation is IRREVERSIBLE. Restoring your funds will be impossible without your seed words. Be ABSOLUTELY sure you have you have them saved somewhere safe before proceeding. Do you still want to proceed?";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "FINAL WARNING";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
-"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
+"nighthawk.settingsTab.advanced.appIcon.toast.updated" = "App-symbool bijgewerkt!";
+"nighthawk.settingsTab.advanced.theme.title" = "Thema";
+"nighthawk.settingsTab.advanced.theme.default" = "Systeem (Cyberpunk)";
+"nighthawk.settingsTab.advanced.theme.light" = "Licht";
+"nighthawk.settingsTab.advanced.theme.lightDetail" = "Mistige neutrale tinten met een grafietaccent.";
+"nighthawk.settingsTab.advanced.theme.midnight" = "Middernacht";
+"nighthawk.settingsTab.advanced.theme.midnightDetail" = "Diepere basis met een violet accent.";
+"nighthawk.settingsTab.advanced.theme.paper" = "Papier";
+"nighthawk.settingsTab.advanced.theme.cyberpunk" = "Cyberpunk";
+"nighthawk.settingsTab.advanced.theme.cyberpunkDetail" = "betreed nighthawk met stijl";
+"nighthawk.chat.peers" = "Peers";
+"nighthawk.chat.retry" = "Opnieuw";
+"nighthawk.chat.outboundPeers" = "Uitgaande peers";
+"nighthawk.chat.title" = "DarkFi IRC";
+"nighthawk.chat.subtitle" = "End-to-end versleutelde chat\nmogelijk gemaakt door het DarkFi-P2P-netwerk";
+"nighthawk.chat.connect" = "Verbinden";
+"nighthawk.chat.networkHint" = "Controleer je netwerkinstellingen of stel Tor in bij Instellingen.";
+"nighthawk.chat.newDm" = "Nieuw DM";
+"nighthawk.chat.request" = "Verzoek";
+"nighthawk.chat.settings" = "Instellingen";
+"nighthawk.chat.shareKey" = "Sleutel delen";
+"nighthawk.chat.noMessages" = "Nog geen berichten";
+"nighthawk.chat.ircStatus" = "IRC: %@";
+"nighthawk.chat.nodeStatus" = "Knooppunt: %@";
+"nighthawk.receive.sendAndReceive" = "DRK verzenden en ontvangen";
+"nighthawk.receive.receivePrivately" = "Ontvang geld privé";
+"nighthawk.receive.showQr" = "QR-code tonen";
+"nighthawk.receive.showQrDetail" = "Laat iemand scannen om je geld te sturen.";
+"nighthawk.receive.copyAddress" = "Privéadres kopiëren";
+"nighthawk.receive.copyAddressDetail" = "Je walletadres wordt naar het klembord gekopieerd.";
+"nighthawk.settingsTab.advanced.theme.dark" = "Donker";
+"nighthawk.settingsTab.advanced.deleteWallet.subtitle" = "LET OP: Vernietigt deze wallet volledig — seedwoorden, SQLCipher-wachtwoord en databases op het apparaat. Zonder je seed kun je tegoeden niet terugkrijgen. Sluit de app en start hem opnieuw voordat je een wallet aanmaakt of herstelt.";
+"nighthawk.settingsTab.advanced.deleteWallet.title" = "Wallet vernietigen";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.title" = "WEET JE HET ZEKER?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.lastWarning.message" = "Deze handeling is ONHERROEPELIJK. Zonder je seedwoorden is het onmogelijk je tegoeden te herstellen. Wees er ABSOLUUT zeker van dat je ze veilig hebt bewaard voordat je doorgaat. Wil je toch doorgaan?";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.title" = "LAATSTE WAARSCHUWING";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "De wallet vernietigen is een uiterst gevoelige handeling. Zo gevoelig dat je de app zelf moet sluiten en Nighthawk opnieuw moet starten voordat je een wallet aanmaakt of herstelt.";
+"nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "Ik bevestig, wallet vernietigen";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.title" = "Lokale databases verwijderen";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.subtitle" = "Verwijdert alleen de walletdatabase en de sync-cache op het apparaat. Je seedwoorden blijven in de Sleutelhanger, zodat je opnieuw kunt openen en scannen. Gebruik dit na een native upgrade die een oudere database niet kan openen.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.title" = "Lokale databases verwijderen?";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.message" = "Hiermee worden darkfi_wallet.db en darkfi_cache op dit apparaat verwijderd. Je herstelzin blijft bewaard. De wallet wordt opnieuw geopend en scant het netwerk opnieuw.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.confirm" = "Databases verwijderen";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.title" = "Lokale databases gewist";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.success.message" = "De walletdata is verwijderd. Opnieuw openen vanaf je seed en een nieuwe scan starten.";
+"nighthawk.settingsTab.advanced.nukeLocalDatabases.alert.failed.title" = "Lokale databases konden niet worden verwijderd";
 
 // MARK: - Home Screen - Settings tab - External services
-"nighthawk.settingsTab.externalServices.title" = "External services";
-"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";
+"nighthawk.settingsTab.externalServices.title" = "Externe diensten";
+"nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Unstoppable Domain Service inschakelen";
 
 // MARK: - Transaction details
-"nighthawk.transactionDetails.title" = "Transaction details";
-"nighthawk.transactionDetails.notAvailable" = "Transaction details are not available, please wait until scanning is finished";
+"nighthawk.transactionDetails.title" = "Transactiedetails";
+"nighthawk.transactionDetails.notAvailable" = "Transactiedetails zijn niet beschikbaar. Wacht tot het scannen klaar is";
 "nighthawk.transactionDetails.memo" = "Memo";
-"nighthawk.transactionDetails.time" = "Time (UTC)";
-"nighthawk.transactionDetails.transparent" = "Transparent";
-"nighthawk.transactionDetails.blockId" = "Block ID";
-"nighthawk.transactionDetails.confirmations" = "Confirmations";
-"nighthawk.transactionDetails.unconfirmed" = "Unconfirmed";
-"nighthawk.transactionDetails.viewOnBlockExplorer" = "View on Block Explorer";
-"nighthawk.transactionDetails.transactionId" = "Transaction ID";
-"nighthawk.transactionDetails.recipient" = "Recipient";
-"nighthawk.transactionDetails.recipientShielded" = "Private";
-"nighthawk.transactionDetails.recipientTransparent" = "Transparent";
-"nighthawk.transactionDetails.address" = "Address";
-"nighthawk.transactionDetails.networkFee" = "Network fee";
-"nighthawk.transactionDetails.totalAmount" = "Total amount";
-"nighthawk.transactionDetails.viewOnExplorer" = "View on explorer";
-"nighthawk.transactionDetails.leavingWallet" = "Leaving Nighthawk Wallet";
-"nighthawk.transactionDetails.leavingWarning" = "While usually an acceptable risk, you will be possibly exposing your interest in this transaction id by visiting %@";
-"nighthawk.transactionDetails.viewTxDetails" = "View TX details";
-"nighthawk.transactionDetails.fiat.around" = "around %@ %@";
-"nighthawk.transactionDetails.replyToCopied" = "Reply-to address copied!";
+"nighthawk.transactionDetails.time" = "Tijd (UTC)";
+"nighthawk.transactionDetails.transparent" = "Transparant";
+"nighthawk.transactionDetails.blockId" = "Blok-ID";
+"nighthawk.transactionDetails.confirmations" = "Bevestigingen";
+"nighthawk.transactionDetails.unconfirmed" = "Onbevestigd";
+"nighthawk.transactionDetails.viewOnBlockExplorer" = "In de blokverkenner bekijken";
+"nighthawk.transactionDetails.transactionId" = "Transactie-ID";
+"nighthawk.transactionDetails.recipient" = "Ontvanger";
+"nighthawk.transactionDetails.recipientShielded" = "Privé";
+"nighthawk.transactionDetails.recipientTransparent" = "Privé";
+"nighthawk.transactionDetails.address" = "Adres";
+"nighthawk.transactionDetails.networkFee" = "Netwerkkosten";
+"nighthawk.transactionDetails.totalAmount" = "Totaalbedrag";
+"nighthawk.transactionDetails.viewOnExplorer" = "In de verkenner bekijken";
+"nighthawk.transactionDetails.leavingWallet" = "Nighthawk Wallet verlaten";
+"nighthawk.transactionDetails.leavingWarning" = "Dit is meestal een aanvaardbaar risico. Door %@ te bezoeken kun je wel laten zien dat je in dit transactie-id geïnteresseerd bent";
+"nighthawk.transactionDetails.viewTxDetails" = "TX-details bekijken";
+"nighthawk.transactionDetails.fiat.around" = "ongeveer %@ %@";
+"nighthawk.transactionDetails.replyToCopied" = "Antwoordadres gekopieerd!";
 
 
 // MARK: - Transaction
-"nighthawk.transaction.confirmed" = "Confirmed";
+"nighthawk.transaction.confirmed" = "Bevestigd";
+
+// MARK: - DAO Hub
+"nighthawk.daoHub.title" = "DAO";
+"nighthawk.daoHub.hubIntro" = "DAO's die deze wallet heeft gescand. Een betaling uit de kas wacht op een stem.";
+"nighthawk.daoHub.emptyTitle" = "De synchronisatie heeft nog geen DAO gevonden.";
+"nighthawk.daoHub.emptyBody" = "Vernieuw, of start een DAO vanuit deze wallet.";
+"nighthawk.daoHub.refresh" = "Vernieuwen";
+"nighthawk.daoHub.startGroup" = "DAO starten";
+"nighthawk.daoHub.importGroup" = "DAO importeren";
+"nighthawk.daoHub.treasury" = "Kas";
+"nighthawk.daoHub.treasuryHint" = "Munten die zonder kasteken naar de DAO gaan, kunnen later niet worden uitbetaald.";
+"nighthawk.daoHub.notScannedYet" = "Nog niet gescand";
+"nighthawk.daoHub.proposePayment" = "Betaling voorstellen";
+"nighthawk.daoHub.addFunds" = "Tegoed toevoegen";
+"nighthawk.daoHub.addFundsHint" = "Hiermee worden de munten gemarkeerd zodat de DAO ze later kan uitbetalen.";
+"nighthawk.daoHub.amount" = "Bedrag";
+"nighthawk.daoHub.votes" = "Stemmen";
+"nighthawk.daoHub.noVotes" = "Nog geen stemmen.";
+"nighthawk.daoHub.tokens" = "Tokens";
+"nighthawk.daoHub.issueMore" = "Meer emitteren";
+"nighthawk.daoHub.freezeSupply" = "Aanbod bevriezen";
+"nighthawk.daoHub.issueToken" = "Token emitteren";
+"nighthawk.daoHub.admin" = "Beheerder";
+"nighthawk.daoHub.proposer" = "Indiener";
+"nighthawk.daoHub.voter" = "Stemmer";
+"nighthawk.daoHub.executor" = "Uitvoerder";
+"nighthawk.daoHub.fullCopy" = "Volledige kopie";
+"nighthawk.daoHub.observer" = "Waarnemer";
+"nighthawk.daoHub.details" = "Details";
+"nighthawk.daoHub.groupId" = "DAO-id";
+"nighthawk.daoHub.governanceToken" = "Governance-token";
+"nighthawk.daoHub.votesNeeded" = "Stemmen nodig om te tellen";
+"nighthawk.daoHub.yesShareRequired" = "Vereist ja-aandeel";
+"nighthawk.daoHub.mintHeight" = "Mint-hoogte";
+"nighthawk.daoHub.daoNotFound" = "DAO niet gevonden";
+"nighthawk.daoHub.proposal" = "Voorstel";
+"nighthawk.daoHub.proposalNotFound" = "Voorstel niet gevonden";
+"nighthawk.daoHub.dao" = "DAO";
+"nighthawk.daoHub.votingWindow" = "Stemvenster: %@ blokvensters (%@ uur).";
+"nighthawk.daoHub.proposalId" = "Voorstel-id";
+"nighthawk.daoHub.execHeight" = "Uitvoerhoogte";
+"nighthawk.daoHub.proposeTx" = "Voorstel-tx";
+"nighthawk.daoHub.execTx" = "Uitvoer-tx";
+"nighthawk.daoHub.voteWeight" = "Je volledige saldo aan governance-tokens is het stemgewicht.";
+"nighthawk.daoHub.payFromTreasury" = "Betalen uit de kas";
+"nighthawk.daoHub.payHint" = "Verstuurt de betaling uit de kas.";
+"nighthawk.daoHub.onePayment" = "1 betaling";
+"nighthawk.daoHub.paid" = "Betaald";
+"nighthawk.daoHub.open" = "Open";
+"nighthawk.daoHub.waiting" = "Wachtend";
+"nighthawk.daoHub.name" = "Naam";
+"nighthawk.daoHub.yesShare" = "Ja-aandeel";
+"nighthawk.daoHub.proposerMinimum" = "Minimum voor indieners";
+"nighthawk.daoHub.earlyQuorum" = "Vroeg quorum";
+"nighthawk.daoHub.earlyQuorumHint" = "Laat leeg om hetzelfde aantal te gebruiken als de benodigde stemmen.";
+"nighthawk.daoHub.allRolesHint" = "Deze telefoon heeft elke rol, inclusief de sleutels die uit de kas betalen.";
+"nighthawk.daoHub.recipient" = "Ontvanger";
+"nighthawk.daoHub.recipientAddress" = "Adres van de ontvanger";
+"nighthawk.daoHub.tokenOptional" = "Token (optioneel)";
+"nighthawk.daoHub.tokenIdPlaceholder" = "Token-ID (standaard: DRK)";
+"nighthawk.daoHub.duration" = "Duur";
+"nighthawk.daoHub.blockWindows" = "Blokvensters";
+"nighthawk.daoHub.proposeBroadcast" = "Dit maakt ZK-bewijzen op het apparaat en zendt de voorsteltransactie uit.";
+"nighthawk.daoHub.issueHint" = "De blockchain bewaart 8 decimalen.";
+"nighthawk.daoHub.roleExportTitle" = "Rolexport";
+"nighthawk.daoHub.roleExportHint" = "Deze code bevat het rolgeheim.";
+"nighthawk.daoHub.close" = "Sluit";
+"nighthawk.daoHub.copy" = "Kopieer";
+"nighthawk.daoHub.captured" = "Schermopname of screenshot gedetecteerd. Geheim verborgen.";
+"nighthawk.daoHub.importToml" = "DAO-bestand";
+"nighthawk.daoHub.token" = "Token";
+"nighthawk.daoHub.browseDescription" = "DAO's, voorstellen en de kas bekijken.";
+"nighthawk.daoHub.fundsSent" = "Tegoed naar de kas gestuurd";
+"nighthawk.daoHub.paymentSent" = "Betaling uit de kas verstuurd";
+"nighthawk.daoHub.proposalSubmitted" = "Voorstel ingediend! %@…";
+"nighthawk.daoHub.groupSubmitted" = "DAO ingediend";
+"nighthawk.daoHub.groupImported" = "DAO geïmporteerd";
+"nighthawk.daoHub.tokenCreated" = "Token aangemaakt";
+"nighthawk.daoHub.tokensIssued" = "Tokens geëmitteerd";
+"nighthawk.daoHub.supplyFrozen" = "Aanbod bevroren";
+"nighthawk.daoHub.voteYesSubmitted" = "JA-stem verzonden! TX: %@…";
+"nighthawk.daoHub.voteNoSubmitted" = "NEE-stem verzonden! TX: %@…";
+"nighthawk.daoHub.walletNotReady" = "De wallet is nog niet gereed. Rond de instelling af of wacht tot de wallet is geïnitialiseerd.";
+"nighthawk.daoHub.walletStopped" = "De walletsynchronisatie is gestopt. Hervat hem via het tabblad Wallet en open DAO Hub daarna opnieuw.";
+"nighthawk.daoHub.walletSyncing" = "De walletsynchronisatie loopt nog. Open DAO Hub opnieuw zodra je wallet bij is.";
+"nighthawk.daoHub.walletSyncFailed" = "Walletsynchronisatie mislukt: %@";
+"nighthawk.walletCompanion.shieldedNote" = "Overboekingen blijven afgeschermd. Proefontsleuteling is de standaard. Experimentele UnifOMR zet je aan in Geavanceerd en heeft een fhe-omr lightwalletd nodig.";
+"nighthawk.walletCompanion.trialDecrypt" = "Proefontsleuteling";
+"nighthawk.walletCompanion.unifOmr" = "UnifOMR";
+"nighthawk.walletCompanion.blockHeight" = "Blok %@";
+"nighthawk.walletCompanion.waitingForHeight" = "Wachten op een blokhoogte";
+"nighthawk.walletCompanion.trialActive" = "Proefontsleuteling is actief in plaats van UnifOMR.";
+"nighthawk.walletCompanion.syncedUnifOmr" = "Gesynchroniseerd met UnifOMR.";
+"nighthawk.walletCompanion.receive" = "Ontvang";
+"nighthawk.walletCompanion.nextSteps" = "Volgende stappen";
+"nighthawk.walletCompanion.copyTxId" = "TxID kopiëren";
+"nighthawk.walletCompanion.sendAgain" = "Opnieuw versturen";
+"nighthawk.walletCompanion.copyMemo" = "Memo kopiëren";
+"nighthawk.chat.couldNotDecrypt" = "Ontsleutelen mislukt";
+
+// MARK: - Pass-2 Extracted UI Strings
+
+// About
+"nighthawk.about.openSourceLicenses" = "Open-sourcelicenties";
+"nighthawk.about.versionWithBuild" = "Versie %@ (%@)";
+"nighthawk.about.versionOnly" = "Versie %@";
+
+// Splash (PIN & Nym)
+"nighthawk.splash.enterAppPin" = "App-PIN invoeren";
+"nighthawk.splash.sixDigitPin" = "6-cijferige PIN";
+"nighthawk.splash.unlock" = "Ontgrendel";
+"nighthawk.splash.pinErrorLength" = "Voer je 6-cijferige PIN in.";
+"nighthawk.splash.pinErrorIncorrect" = "Onjuiste PIN. Probeer het opnieuw.";
+"nighthawk.splash.nymFailed" = "Verbinding met het Nym-mixnet mislukt";
+"nighthawk.splash.nymConnecting" = "Verbinden met het Nym-mixnet… %@ s";
+"nighthawk.splash.nymSlow" = "Dit duurt langer dan gewoonlijk. Blijf wachten, of ga door zonder Nym.";
+"nighthawk.splash.continueWithoutNym" = "Doorgaan zonder Nym";
+"nighthawk.splash.nymSessionHint" = "Wallet en chat gebruiken je gewone netwerk voor deze sessie. Je kunt in Instellingen terugschakelen naar Nym.";
+
+// Wallet tab banners & tokens
+"nighthawk.walletTab.syncStale" = "Lightwalletd loopt achter of is onbereikbaar";
+"nighthawk.walletTab.syncedBlock" = "Gesynchroniseerd · Blok %@";
+"nighthawk.walletTab.syncingBlock" = "Synchroniseren %@%% · Blok %@";
+"nighthawk.walletTab.syncingPercent" = "Synchroniseren %@%%";
+"nighthawk.walletTab.syncError" = "Syncfout";
+"nighthawk.walletTab.syncStopped" = "Sync gestopt";
+"nighthawk.walletTab.unreachableBanner" = "Lightwalletd onbereikbaar — controleer «Server wijzigen» of «Netwerkprivacy».";
+"nighthawk.walletTab.reorgTitle" = "Herstel na ketenreorganisatie";
+"nighthawk.walletTab.tokens" = "Tokens";
+"nighthawk.walletTab.tapToSend" = "Tik om te versturen";
+
+// Receive & Request Money & Send Flow
+"nighthawk.receive.newAddressGenerated" = "Nieuw adres gegenereerd";
+"nighthawk.receive.generateFailed" = "Adres genereren mislukt";
+"nighthawk.requestMoney.title" = "Geld aanvragen";
+"nighthawk.requestMoney.subtitle" = "Eén ontvangstadres. De QR-code is een factuur in het formaat drk: met het bedrag en de memo die je invoert.";
+"nighthawk.requestMoney.amount" = "Bedrag";
+"nighthawk.requestMoney.memo" = "Memo";
+"nighthawk.requestMoney.copied" = "Gekopieerd";
+"nighthawk.requestMoney.copyInvoice" = "Factuur kopiëren";
+"nighthawk.transferTab.send.drkNative" = "DRK (native)";
+"nighthawk.transferTab.send.tokenLabel" = "Token:";
+
+// Recovery Phrase Display (capture & backup quiz)
+"nighthawk.recoveryPhraseDisplay.screenCaptured" = "Schermopname of screenshot gedetecteerd.\nSeedzin verborgen om veiligheidsredenen.";
+"nighthawk.recoveryPhraseDisplay.quizTitle" = "Back-up bevestigen (3 woorden)";
+"nighthawk.recoveryPhraseDisplay.quizSubtitle" = "Voer de gevraagde woorden uit je herstelzin in om te bevestigen dat je ze hebt opgeschreven.";
+"nighthawk.recoveryPhraseDisplay.wordPlaceholder" = "Woord #%@";
+"nighthawk.recoveryPhraseDisplay.wordMismatch" = "Woord #%@ komt niet overeen";
+
+// Transaction Details
+"nighthawk.transactionDetails.syncMethod" = "Syncmethode";
+
+// Settings tab (Share & Security subtitle)
+"nighthawk.settingsTab.securityBiometricsAndPin" = "%@ en 6-cijferige PIN";
+"nighthawk.settingsTab.securityPinOnly" = "6-cijferige app-PIN";
+"nighthawk.settingsTab.shareTitle" = "Nighthawk delen";
+"nighthawk.settingsTab.shareSubtitle" = "Vrienden uitnodigen voor Nighthawk Wallet";
+"nighthawk.settingsTab.shareSubject" = "Nighthawk Wallet";
+"nighthawk.settingsTab.shareMessage" = "Privé DarkFi-wallet en versleutelde DarkIRC-chat — Nighthawk Wallet";
+
+// Settings - Advanced (Mesh & UnifOMR)
+"nighthawk.settingsTab.advanced.mesh.title" = "Mesh in de buurt";
+"nighthawk.settingsTab.advanced.mesh.subtitle" = "Geef DarkIRC door tussen Nighthawk-telefoons in de buurt via Bluetooth. Internet delen blijft uit.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "Experimentele UnifOMR";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Uit is de standaard. Proefontsleuteling vindt elke betaling, ook die van Dark Wallet of van een andere server. Aan is experimenteel: beide wallets moeten zich eerst bij dezezelfde lightwalletd registreren, anders kunnen tegoeden onzichtbaar blijven. Er wordt ook een grote detectiesleutel geüpload.";
+
+// Settings - Change Server (TLS, Presets, Port warning)
+"nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 of 127.0.0.1:9067";
+"nighthawk.settingsTab.changeServer.useTlsTitle" = "TLS (HTTPS) gebruiken";
+"nighthawk.settingsTab.changeServer.useTlsSubtitle" = "Verplicht voor externe servers; vastgepind via de SHA-256-hash van het certificaat.";
+"nighthawk.settingsTab.changeServer.presets" = "Voorinstellingen";
+"nighthawk.settingsTab.changeServer.presetTestnet" = "Nighthawk-testnet (HTTPS)";
+"nighthawk.settingsTab.changeServer.presetLocal" = "Lokale Lightwalletd";
+"nighthawk.settingsTab.changeServer.portWarningTitle" = "Niet-standaardpoort";
+"nighthawk.settingsTab.changeServer.portWarningUseAnyway" = "Toch gebruiken";
+"nighthawk.settingsTab.changeServer.portWarningMessage" = "De poort die je hebt ingevoerd, is geen standaardpoort voor DarkFi-lightwallet (9067 of 443 voor TLS). Een niet-standaardpoort kan de synchronisatie verhinderen.";
+
+// Settings - Security (Biometrics fallback & App PIN)
+"nighthawk.settingsTab.security.biometricsTitle" = "Biometrie";
+"nighthawk.settingsTab.security.biometricsUnavailable" = "Face ID / Touch ID is niet geconfigureerd op dit apparaat. Je kunt de wallet hieronder nog steeds beveiligen met een 6-cijferige app-PIN.";
+"nighthawk.settingsTab.security.pinTitle" = "App-PIN (6-cijferig)";
+"nighthawk.settingsTab.security.pinEnabled" = "Ingeschakeld";
+"nighthawk.settingsTab.security.pinOff" = "Uit";
+"nighthawk.settingsTab.security.pinDescription" = "Vergrendelt het starten van de wallet en het hervatten na 10 minuten afwezigheid. De PIN wordt in de Sleutelhanger opgeslagen als een gezouten PBKDF2-SHA256-hash.";
+"nighthawk.settingsTab.security.pinChange" = "PIN wijzigen";
+"nighthawk.settingsTab.security.pinVerify" = "PIN controleren";
+"nighthawk.settingsTab.security.pinDisable" = "PIN uitschakelen";
+"nighthawk.settingsTab.security.pinSet" = "6-cijferige PIN instellen";
+"nighthawk.settingsTab.security.pinConfirm" = "Bevestigen";
+"nighthawk.settingsTab.security.pinPromptSetupEnter" = "Voer een nieuwe 6-cijferige PIN in";
+"nighthawk.settingsTab.security.pinPromptSetupConfirm" = "Voer je 6-cijferige PIN opnieuw in ter bevestiging";
+"nighthawk.settingsTab.security.pinPromptChangeCurrent" = "Voer je huidige 6-cijferige PIN in";
+"nighthawk.settingsTab.security.pinPromptChangeNew" = "Voer je nieuwe 6-cijferige PIN in";
+"nighthawk.settingsTab.security.pinPromptChangeConfirm" = "Voer je nieuwe 6-cijferige PIN opnieuw in";
+"nighthawk.settingsTab.security.pinPromptDisable" = "Voer je huidige PIN in om hem uit te schakelen";
+"nighthawk.settingsTab.security.pinPromptVerify" = "Voer je 6-cijferige PIN in om te controleren";
+"nighthawk.settingsTab.security.pinErrorDigits" = "Voer precies %@ cijfers in.";
+"nighthawk.settingsTab.security.pinErrorNewMismatch" = "De nieuwe PIN's komen niet overeen. Probeer het opnieuw.";
+"nighthawk.settingsTab.security.pinErrorMismatch" = "De PIN's komen niet overeen. Probeer het opnieuw.";
+"nighthawk.settingsTab.security.pinErrorUpdateKeychain" = "De PIN kon niet worden bijgewerkt in de Sleutelhanger.";
+"nighthawk.settingsTab.security.pinErrorStoreKeychain" = "De PIN kon niet worden opgeslagen in de Sleutelhanger.";
+"nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "Huidige PIN is onjuist.";
+"nighthawk.settingsTab.security.pinErrorIncorrect" = "Onjuiste PIN.";
+"nighthawk.settingsTab.security.pinStatusUpdated" = "App-PIN bijgewerkt.";
+"nighthawk.settingsTab.security.pinStatusEnabled" = "6-cijferige app-PIN ingeschakeld.";
+"nighthawk.settingsTab.security.pinStatusDisabled" = "App-PIN uitgeschakeld.";
+"nighthawk.settingsTab.security.pinStatusVerified" = "PIN gecontroleerd.";
+
+// Settings - Tor / Network Privacy
+"nighthawk.settingsTab.torNetwork.intro" = "Wallet-, chat- en knooppuntverkeer gaan standaard via het Nym-mixnet, dat je IP-adres voor servers verbergt. Chat bereikt de openbare DarkIRC-seeds via diezelfde tunnel. Peers die alleen via .onion bereikbaar zijn, hebben Tor nodig. De eerste verbinding duurt meestal een paar seconden en kan tot een minuut duren.";
+"nighthawk.settingsTab.torNetwork.walletNetworkTitle" = "Walletnetwerk";
+"nighthawk.settingsTab.torNetwork.walletNetworkSubtitle" = "Voor lightwalletd-sync en het uitzenden van transacties. Als je dit wijzigt, maakt de wallet opnieuw verbinding.";
+"nighthawk.settingsTab.torNetwork.nymStatus" = "Nym: %@";
+"nighthawk.settingsTab.torNetwork.nymTitle" = "Nym-mixnet (aanbevolen)";
+"nighthawk.settingsTab.torNetwork.nymSubtitle" = "Mengt pakketten over vijf hops. Chat gebruikt de clearnet-seeds via het mixnet. Bereikt geen .onion-adressen.";
+"nighthawk.settingsTab.torNetwork.torTitle" = "Tor";
+"nighthawk.settingsTab.torNetwork.torSubtitle" = "Onion-routering via ingebouwde Arti of het SOCKS-eindpunt hieronder.";
+"nighthawk.settingsTab.torNetwork.directTitle" = "Direct";
+"nighthawk.settingsTab.torNetwork.directSubtitle" = "Maakt rechtstreeks verbinding met de server. Die ziet je IP-adres.";
+"nighthawk.settingsTab.torNetwork.builtInTorTitle" = "Ingebouwde Tor (Arti)";
+"nighthawk.settingsTab.torNetwork.builtInTorSubtitle" = "Draait Arti (Tor in Rust) in de app en stelt een loopback-SOCKS-listener beschikbaar. Dit staat los van een externe Tor- of SOCKS-app die je hieronder instelt.";
+"nighthawk.settingsTab.torNetwork.useBuiltInArti" = "Ingebouwde Arti gebruiken";
+"nighthawk.settingsTab.torNetwork.enableTorHint" = "Schakel hierboven Tor-routering voor de hele app in om ingebouwde Arti te gebruiken.";
+"nighthawk.settingsTab.torNetwork.socksEndpointTitle" = "SOCKS-eindpunt";
+"nighthawk.settingsTab.torNetwork.socksDescriptionEmbedded" = "Loopback-adres waarop ingebouwde Arti luistert (standaard 127.0.0.1:9050). Ingebouwde DarkIRC gebruikt deze proxy voor .onion-P2P-seeds.";
+"nighthawk.settingsTab.torNetwork.socksDescriptionExternal" = "Host en poort van je externe Tor- of SOCKS-proxy. Verplicht als ingebouwde Arti uit staat.";
+"nighthawk.settingsTab.torNetwork.socksHost" = "SOCKS-host";
+"nighthawk.settingsTab.torNetwork.socksPort" = "SOCKS-poort";
+"nighthawk.settingsTab.torNetwork.footer" = "Als je ingebouwde Tor of SOCKS wijzigt, wordt ingebouwde DarkIRC opnieuw gestart wanneer die aanstaat, zodat het P2P-/event-graph-transport overeenkomt. Open Chat om de groene statuslampjes te controleren.";
+
+// Settings - Chat Settings
+"nighthawk.settingsTab.chatSettings.fileOffersSection" = "BESTANDSAANBIEDINGEN";
+"nighthawk.settingsTab.chatSettings.allowFudTitle" = "Bestandsaanbiedingen via fud:// toestaan";
+"nighthawk.settingsTab.chatSettings.allowFudSubtitle" = "Een tik zet het aanbod in de wachtrij op deze telefoon. Het wordt alleen verstuurd via Nym, Tor of mesh in de buurt, en het bestand wordt niet automatisch gedownload.";
+"nighthawk.settingsTab.chatSettings.embeddedNodeSection" = "SYNC VAN INGEBOUWD KNOOPPUNT";
+"nighthawk.settingsTab.chatSettings.useEmbeddedTitle" = "Ingebouwde darkirc gebruiken";
+"nighthawk.settingsTab.chatSettings.useEmbeddedSubtitle" = "Draai darkirc in de app";
+"nighthawk.settingsTab.chatSettings.dagHistoryTitle" = "DAG-geschiedenis in uren (1–24)";
+"nighthawk.settingsTab.chatSettings.dagHistorySubtitle" = "Elke DAG is ongeveer een uur kanaalgeschiedenis. De standaard is 8 (upstream darkirc).";
+"nighthawk.settingsTab.chatSettings.fastSyncTitle" = "Snelle sync (alleen headers)";
+"nighthawk.settingsTab.chatSettings.fastSyncSubtitle" = "Komt overeen met upstream fast_mod: snellere DAG-sync, waarbij minder geschiedenis wordt opgehaald.";
+"nighthawk.settingsTab.chatSettings.channelPrivacySection" = "KANAALPRIVACY";
+"nighthawk.settingsTab.chatSettings.channelPrivacyBody" = "Openbare #kanalen zijn platte tekst op DarkIRC. Alleen 1:1-DM's gebruiken end-to-end versleuteling met ChaChaBox. E2E voor groepen en kanalen is nog niet beschikbaar.";
+"nighthawk.settingsTab.chatSettings.encryptedContactsSection" = "VERSLEUTELDE CONTACTEN (DM)";
+"nighthawk.settingsTab.chatSettings.yourPublicKey" = "Je publieke sleutel (deel met je contact):";
+"nighthawk.settingsTab.chatSettings.safetyNumber" = "Veiligheidsnummer";
+"nighthawk.settingsTab.chatSettings.generateDmKeys" = "Mijn DM-sleutels genereren";
+"nighthawk.settingsTab.chatSettings.noContacts" = "Geen versleutelde contacten ingesteld.";
+"nighthawk.settingsTab.chatSettings.remove" = "Verwijderen";
+"nighthawk.settingsTab.chatSettings.addContact" = "Versleuteld contact toevoegen";
+"nighthawk.settingsTab.chatSettings.applyReconnect" = "Toepassen en opnieuw verbinden";
+"nighthawk.settingsTab.chatSettings.inviteQrTitle" = "QR-code voor contactuitnodiging (nighthawk://contact)";
+"nighthawk.settingsTab.chatSettings.copyInviteUri" = "URI van contactuitnodiging kopiëren";
+"nighthawk.settingsTab.chatSettings.pasteInvitePlaceholder" = "Plak een uitnodiging nighthawk://contact?...";
+"nighthawk.settingsTab.chatSettings.fill" = "Invullen";
+"nighthawk.settingsTab.chatSettings.nickname" = "Bijnaam";
+"nighthawk.settingsTab.chatSettings.peerDmPubkeyPlaceholder" = "Publieke DM-sleutel van peer (Base58)";
+"nighthawk.settingsTab.chatSettings.myDmSecretPlaceholder" = "Mijn geheime DM-sleutel (Base58)";
+"nighthawk.settingsTab.chatSettings.generateKeypair" = "Mijn DM-sleutelpaar genereren";
+"nighthawk.settingsTab.chatSettings.myPublicKeyValue" = "Mijn publieke sleutel: %@";
+"nighthawk.settingsTab.chatSettings.walletAddressOptional" = "DarkFi-walletadres (optioneel)";
+"nighthawk.settingsTab.chatSettings.addContactButton" = "Contact toevoegen";
+"nighthawk.settingsTab.chatSettings.addContactSheetTitle" = "Versleuteld contact toevoegen";
+"nighthawk.settingsTab.chatSettings.errorInvalidInvite" = "Uitnodigings-URI niet herkend. Verwacht wordt nighthawk://contact?... of drk:...";
+"nighthawk.settingsTab.chatSettings.errorInvalidNick" = "Voer een geldige contactbijnaam in (mag niet met # beginnen).";
+"nighthawk.settingsTab.chatSettings.errorInvalidDmKeys" = "Geef geldige Base58-DM-sleutels van 32 bytes op.";
+"nighthawk.settingsTab.chatSettings.errorMissingContactData" = "Voer DM-sleutels of een DarkFi-walletadres in.";
+
+// Chat & New DM
+"nighthawk.chat.clearnetAlertTitle" = "Clearnet-link openen?";
+"nighthawk.chat.clearnetOpenBrowser" = "Openen in browser";
+"nighthawk.chat.clearnetCopyLink" = "Link kopiëren";
+"nighthawk.chat.clearnetAlertMessage" = "Dit opent http(s) buiten Nym/Tor en kan je IP-adres prijsgeven.";
+"nighthawk.chat.routeNym" = "Nym-mixnet";
+"nighthawk.chat.routeTor" = "Tor";
+"nighthawk.chat.routeDirect" = "Direct (clearnet)";
+"nighthawk.chat.routeBootstrapping" = "Opstarten…";
+"nighthawk.chat.routeDegraded" = "Beperkt";
+"nighthawk.chat.routeOffline" = "Offline";
+"nighthawk.chat.activePrivacyRoute" = "Actieve privacyroute";
+"nighthawk.chat.lightwalletdHeight" = "Lightwalletd-hoogte %@";
+"nighthawk.chat.lightwalletdHeightUnavailable" = "Lightwalletd-hoogte niet beschikbaar";
+"nighthawk.chat.transportSummary" = "Transport: %@";
+"nighthawk.chat.directE2eBadge" = "Direct bericht · E2E";
+"nighthawk.chat.publicPlaintextBadge" = "Openbaar kanaal · platte tekst op de DAG";
+"nighthawk.chat.sharePubkeyTitle" = "Publieke sleutel delen";
+"nighthawk.chat.sharePubkeyCopy" = "Publieke sleutel kopiëren";
+"nighthawk.chat.sharePubkeyMessage" = "Kopieert je publieke DM-sleutel. Een sleutelpaar wordt alleen de eerste keer aangemaakt. Deel hem via een kanaal dat je vertrouwt. Iedereen met deze sleutel kan je versleutelde DM's sturen.";
+"nighthawk.chat.myPublicKeyCopied" = "MIJN PUBLIEKE SLEUTEL (gekopieerd)";
+"nighthawk.chat.noDmContactsTitle" = "Geen DM-contacten";
+"nighthawk.chat.noDmContactsBody" = "Tik op «Nieuw DM» om publieke ChaCha20-sleutels met een peer uit te wisselen en een versleuteld gesprek te starten.";
+"nighthawk.chat.e2eEncrypted" = "E2E-versleuteld";
+"nighthawk.chat.copyMessage" = "Bericht kopiëren";
+"nighthawk.chat.queueFile" = "Zet %@ in de wachtrij";
+"nighthawk.chat.paymentRequest" = "Betaalverzoek";
+"nighthawk.chat.pay" = "Betaal";
+"nighthawk.chat.paymentPhase" = "Betaling %@";
+"nighthawk.chat.link" = "Link";
+"nighthawk.chat.sendOrRequestDrk" = "DRK versturen of aanvragen";
+"nighthawk.chat.messagePlaceholder" = "Bericht";
+"nighthawk.chat.amountDrkPlaceholder" = "Bedrag (DRK)";
+"nighthawk.chat.payToAddressPlaceholder" = "Adres om aan te betalen";
+"nighthawk.chat.tip" = "Fooi";
+"nighthawk.chat.newDm.title" = "Nieuw DM-gesprek";
+"nighthawk.chat.newDm.subtitle" = "Wissel publieke sleutels uit met je peer om een end-to-end versleuteld DM te starten met ChaCha20.";
+"nighthawk.chat.newDm.contactLabelSection" = "CONTACTLABEL";
+"nighthawk.chat.newDm.contactLabelPlaceholder" = "bijv. alice";
+"nighthawk.chat.newDm.peerPubkeySection" = "PUBLIEKE SLEUTEL VAN PEER";
+"nighthawk.chat.newDm.peerPubkeyPlaceholder" = "Publieke Base58-sleutel";
+"nighthawk.chat.newDm.pasteClipboard" = "Plakken vanaf klembord";
+"nighthawk.chat.newDm.myKeypairSection" = "MIJN SLEUTELPAAR";
+"nighthawk.chat.newDm.generateKeys" = "Mijn sleutels genereren";
+"nighthawk.chat.newDm.myPublicKeyLabel" = "Mijn publieke sleutel:";
+"nighthawk.chat.newDm.copyToShare" = "Kopiëren om te delen";
+"nighthawk.chat.newDm.shareKeyHint" = "Deel deze sleutel met je peer, zodat die je een bericht kan sturen.";
+"nighthawk.chat.newDm.startDm" = "DM starten";
+"nighthawk.chat.newDm.pasteAlertTitle" = "Publieke sleutel plakken";
+"nighthawk.chat.newDm.pasteAction" = "Plakken";
+"nighthawk.chat.newDm.pasteAlertMessage" = "De publieke DM-sleutel van het klembord plakken? Als het formaat !darkfi-dm-pubkey: aanwezig is, wordt de sleutel daaruit gehaald.";
+"nighthawk.chat.newDm.errorKeygen" = "DM-sleutelpaar genereren mislukt";
+"nighthawk.chat.newDm.errorInvalidClipboard" = "Het klembord bevat geen geldige publieke Base58-sleutel.";
+"nighthawk.chat.newDm.errorSaveKeychain" = "Dit contact kon niet worden opgeslagen in de Sleutelhanger.";

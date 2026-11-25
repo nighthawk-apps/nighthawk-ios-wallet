@@ -5,7 +5,7 @@ import Foundation
 /// peripheral, confined to `bleQueue`. Modeled on BitChat's
 /// BLE-ARCHITECTURE-V3 link layer: this type does not decode Nighthawk
 /// packets. It reports link up, link down, and raw ATT bytes.
-final class NighthawkBLELink: NSObject {
+final class NighthawkBLELink: NSObject, @unchecked Sendable {
     let queue = DispatchQueue(label: "nh.mesh.ble")
 
     var onReady: ((String, Data?) -> Void)?

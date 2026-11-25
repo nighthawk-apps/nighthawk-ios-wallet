@@ -9,6 +9,7 @@
 import ComposableArchitecture
 import DarkfiCore
 import Foundation
+import Generated
 import Models
 import Pasteboard
 import SDKSynchronizer
@@ -314,7 +315,7 @@ public extension ChatSettings {
                 case .parseInviteUriTapped:
                     let raw = state.inviteUriInput.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard let contact = NighthawkContacts.parseInvite(raw) else {
-                        state.errorMessage = "Unrecognized invite URI. Expected nighthawk://contact?... or drk:..."
+                        state.errorMessage = L10n.Nighthawk.SettingsTab.ChatSettings.errorInvalidInvite
                         return .none
                     }
                     if !contact.nickname.isEmpty {
@@ -359,7 +360,7 @@ private extension ChatSettings {
         let walletAddr = dialog.walletAddress.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !nick.isEmpty, !nick.hasPrefix("#") else {
-            dialog.errorMessage = "Enter a valid contact nickname (cannot start with #)."
+            dialog.errorMessage = L10n.Nighthawk.SettingsTab.ChatSettings.errorInvalidNick
             state.addContactDialog = dialog
             return .none
         }
@@ -368,7 +369,7 @@ private extension ChatSettings {
         if hasDmKeys {
             guard let secretBytes = Base58.decode(mySecret), secretBytes.count == 32,
                   let publicBytes = Base58.decode(theirPublic), publicBytes.count == 32 else {
-                dialog.errorMessage = "Provide valid 32-byte Base58 DM keys."
+                dialog.errorMessage = L10n.Nighthawk.SettingsTab.ChatSettings.errorInvalidDmKeys
                 state.addContactDialog = dialog
                 return .none
             }
@@ -418,7 +419,7 @@ private extension ChatSettings {
             state.addContactDialog = nil
             return .none
         } else {
-            dialog.errorMessage = "Enter DM keys or a DarkFi wallet address."
+            dialog.errorMessage = L10n.Nighthawk.SettingsTab.ChatSettings.errorMissingContactData
             state.addContactDialog = dialog
             return .none
         }

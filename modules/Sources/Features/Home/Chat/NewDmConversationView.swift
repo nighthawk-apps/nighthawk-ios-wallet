@@ -78,7 +78,7 @@ public struct NewDmConversation {
 
             case .keyGenerationFailed:
                 state.isBusy = false
-                state.errorMessage = "Failed to generate DM keypair"
+                state.errorMessage = L10n.Nighthawk.Chat.NewDm.errorKeygen
                 return .none
 
             case .pasteFromClipboardTapped:
@@ -102,7 +102,7 @@ public struct NewDmConversation {
                         if isBase58 {
                             state.theirPublicKey = trimmed
                         } else {
-                            state.errorMessage = "Clipboard does not contain a valid base58 public key."
+                            state.errorMessage = L10n.Nighthawk.Chat.NewDm.errorInvalidClipboard
                         }
                     }
                 }
@@ -137,7 +137,7 @@ public struct NewDmConversation {
                         )
                         await send(.contactSaved(contact))
                     } catch {
-                        await send(.saveFailed("Could not save this contact to the Keychain."))
+                        await send(.saveFailed(L10n.Nighthawk.Chat.NewDm.errorSaveKeychain))
                     }
                 }
 
@@ -176,22 +176,22 @@ struct NewDmConversationView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Title
-                    Text("New DM Conversation")
+                    Text(L10n.Nighthawk.Chat.NewDm.title)
                         .font(.custom(FontFamily.PulpDisplay.bold.name, size: 22))
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
-                    Text("Exchange public keys with your peer to start an end-to-end encrypted DM using ChaCha20.")
+                    Text(L10n.Nighthawk.Chat.NewDm.subtitle)
                         .font(.custom(FontFamily.PulpDisplay.regular.name, size: 14))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
                     // Contact label
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("CONTACT LABEL")
+                        Text(L10n.Nighthawk.Chat.NewDm.contactLabelSection)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                             .tracking(1.5)
 
-                        TextField("e.g. alice", text: $store.contactLabel)
+                        TextField(L10n.Nighthawk.Chat.NewDm.contactLabelPlaceholder, text: $store.contactLabel)
                             .font(.custom(FontFamily.PulpDisplay.regular.name, size: 16))
                             .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .padding(.horizontal, 16)
@@ -205,12 +205,12 @@ struct NewDmConversationView: View {
 
                     // Peer public key
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("PEER'S PUBLIC KEY")
+                        Text(L10n.Nighthawk.Chat.NewDm.peerPubkeySection)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                             .tracking(1.5)
 
-                        TextField("Base58 public key", text: $store.theirPublicKey, axis: .vertical)
+                        TextField(L10n.Nighthawk.Chat.NewDm.peerPubkeyPlaceholder, text: $store.theirPublicKey, axis: .vertical)
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                             .lineLimit(3)
@@ -222,7 +222,7 @@ struct NewDmConversationView: View {
                             )
                             .disabled(store.isBusy)
 
-                        Button("Paste from Clipboard") {
+                        Button(L10n.Nighthawk.Chat.NewDm.pasteClipboard) {
                             store.send(.pasteFromClipboardTapped)
                         }
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
@@ -231,7 +231,7 @@ struct NewDmConversationView: View {
 
                     // Generate my keys
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("MY KEYPAIR")
+                        Text(L10n.Nighthawk.Chat.NewDm.myKeypairSection)
                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 11))
                             .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                             .tracking(1.5)
@@ -245,7 +245,7 @@ struct NewDmConversationView: View {
                                     }
                                     Image(systemName: "key.fill")
                                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
-                                    Text("Generate My Keys")
+                                    Text(L10n.Nighthawk.Chat.NewDm.generateKeys)
                                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 15))
                                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                                 }
@@ -260,7 +260,7 @@ struct NewDmConversationView: View {
                             .disabled(store.isBusy)
                         } else {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("My Public Key:")
+                                Text(L10n.Nighthawk.Chat.NewDm.myPublicKeyLabel)
                                     .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
 
@@ -277,13 +277,13 @@ struct NewDmConversationView: View {
                                     HStack(spacing: 6) {
                                         Image(systemName: "doc.on.doc")
                                             .font(.system(size: 13))
-                                        Text("Copy to Share")
+                                        Text(L10n.Nighthawk.Chat.NewDm.copyToShare)
                                             .font(.custom(FontFamily.PulpDisplay.medium.name, size: 13))
                                     }
                                     .foregroundColor(Asset.Colors.Nighthawk.peach.color)
                                 }
 
-                                Text("Share this key with your peer so they can message you.")
+                                Text(L10n.Nighthawk.Chat.NewDm.shareKeyHint)
                                     .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
                                     .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color.opacity(0.7))
                             }
@@ -306,7 +306,7 @@ struct NewDmConversationView: View {
                                 ProgressView()
                                     .tint(canStart ? StealthTheme.Colors.onPrimary : Asset.Colors.Nighthawk.peach.color)
                             }
-                            Text("Start DM")
+                            Text(L10n.Nighthawk.Chat.NewDm.startDm)
                                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
                                 .foregroundColor(canStart ? StealthTheme.Colors.onPrimary : Asset.Colors.Nighthawk.parmaviolet.color)
                         }
@@ -323,15 +323,15 @@ struct NewDmConversationView: View {
                 .padding(20)
             }
             .applyNighthawkBackground()
-            .nighthawkTopBar(leading: .close, title: "New DM") {
+            .nighthawkTopBar(leading: .close, title: L10n.Nighthawk.Chat.newDm) {
                 store.send(.dismiss)
             }
         }
-        .alert("Paste Public Key", isPresented: $store.showPasteConfirm) {
-            Button("Paste", action: { store.send(.pasteConfirmed) })
-            Button("Cancel", role: .cancel, action: { store.send(.pasteCancelled) })
+        .alert(L10n.Nighthawk.Chat.NewDm.pasteAlertTitle, isPresented: $store.showPasteConfirm) {
+            Button(L10n.Nighthawk.Chat.NewDm.pasteAction, action: { store.send(.pasteConfirmed) })
+            Button(L10n.General.cancel, role: .cancel, action: { store.send(.pasteCancelled) })
         } message: {
-            Text("Paste the DM public key from clipboard? The key will be extracted from !darkfi-dm-pubkey: format if present.")
+            Text(L10n.Nighthawk.Chat.NewDm.pasteAlertMessage)
         }
     }
 }

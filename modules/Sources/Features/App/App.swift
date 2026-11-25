@@ -59,8 +59,8 @@ public struct AppReducer {
         mutating func propagateDarkfiAddress(_ receiveAddress: DarkfiAddress) {
             self.receiveAddress = receiveAddress
             for id in path.ids {
-                guard var home = path[id: id, case: \.home] else { continue }
-                home.walletInfo.receiveAddress = receiveAddress
+                guard let home = path[id: id, case: \.home] else { continue }
+                home.$walletInfo.withLock { $0.receiveAddress = receiveAddress }
                 path[id: id, case: \.home] = home
             }
         }
@@ -84,7 +84,7 @@ public struct AppReducer {
         public enum Alert: Equatable {}
     }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     public enum Path {
         case about(About)
         case advanced(Advanced)
@@ -269,6 +269,9 @@ public struct AppReducer {
 
     public init() {}
 }
+
+extension AppReducer.Path.State: Equatable {}
+extension AppReducer.Path.Action: Equatable {}
 
 // MARK: - Initialize SDK
 extension AppReducer {

@@ -66,7 +66,7 @@ public struct ReceiveView: View {
         }
         .toast(
             unwrapping: $store.toast,
-            case: /Receive.State.Toast.copiedToClipboard,
+            case: \.copiedToClipboard,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .regular,
@@ -76,21 +76,21 @@ public struct ReceiveView: View {
         )
         .toast(
             unwrapping: $store.toast,
-            case: /Receive.State.Toast.newAddressGenerated,
+            case: \.newAddressGenerated,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .complete(.green),
-                    title: "New address generated"
+                    title: L10n.Nighthawk.Receive.newAddressGenerated
                 )
             }
         )
         .toast(
             unwrapping: $store.toast,
-            case: /Receive.State.Toast.generateFailed,
+            case: \.generateFailed,
             alert: {
                 AlertToast.nighthawkBanner(
                     type: .error(.red),
-                    title: "Failed to generate address"
+                    title: L10n.Nighthawk.Receive.generateFailed
                 )
             }
         )
