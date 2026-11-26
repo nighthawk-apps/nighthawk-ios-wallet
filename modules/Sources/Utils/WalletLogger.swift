@@ -16,24 +16,29 @@ public enum LoggerProxy {
     }
 
     public static func debug(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        #if DEBUG
-        logger.debug("\(scrub(message))")
-        #endif
+        emit(message)
     }
 
     public static func info(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        logger.info("\(scrub(message))")
+        emit(message)
     }
 
     public static func event(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        logger.log("\(scrub(message))")
+        emit(message)
     }
 
     public static func warn(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        logger.warning("\(scrub(message))")
+        emit(message)
     }
 
     public static func error(_ message: String, file: StaticString = #file, function: StaticString = #function, line: Int = #line) {
-        logger.error("\(scrub(message))")
+        emit(message)
+    }
+
+    /// Release builds do not write to the unified log.
+    private static func emit(_ message: String) {
+        #if DEBUG
+        logger.debug("\(scrub(message))")
+        #endif
     }
 }
