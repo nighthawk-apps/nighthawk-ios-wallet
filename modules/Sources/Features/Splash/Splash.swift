@@ -205,17 +205,25 @@ private extension Splash {
             state.pinError = L10n.Nighthawk.Splash.pinErrorLength
             return .none
         }
-        if SecurityPinStore.verifyPin(state.pinInput) {
+        switch SecurityPinStore.verifyPin(state.pinInput, now: date()) {
+        case .success:
             state.requiresPinEntry = false
             state.pinInput = ""
             state.pinError = nil
             state.hasAttemptedAuthentication = true
             state.lastAuthenticatedTime = date()
             return .send(.delegate(.initializeSDKAndLaunchWallet))
+        case .failure:
+            state.pinInput = ""
+            state.pinError = L10n.Nighthawk.Splash.pinErrorIncorrect
+            return .none
+        case let .lockedOut(retryAfterSeconds):
+            state.pinInput = ""
+            state.pinError = L10n.Nighthawk.Splash.pinErrorLockedOut(
+                SecurityPinStore.lockoutCountdown(seconds: retryAfterSeconds)
+            )
+            return .none
         }
-        state.pinInput = ""
-        state.pinError = L10n.Nighthawk.Splash.pinErrorIncorrect
-        return .none
     }
 
     func handleCheckWalletInitialization(state: inout State) -> Effect<Action> {

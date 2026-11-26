@@ -146,6 +146,52 @@ final class AppInitializationTests: XCTestCase {
         await store.receive(.delegate(.initializeSDKAndLaunchWallet))
     }
 
+    func testSplashPinLockoutAfterFiveFailures() async {
+        SecurityPinStore.clearPin()
+        XCTAssertTrue(SecurityPinStore.setPin("246810"))
+
+        var prefs = UserPreferencesStorageClient.liveValue
+        prefs.areBiometricsEnabled = { false }
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let store = TestStore(
+            initialState: Splash.State(),
+            reducer: Splash.init
+        ) {
+            $0.date = .constant(now)
+            $0.userStoredPreferences = prefs
+        }
+
+        await store.send(.authenticate) {
+            $0.requiresPinEntry = true
+        }
+        for _ in 1..<SecurityPinStore.maxFailedAttempts {
+            await store.send(.pinInputChanged("000000")) {
+                $0.pinInput = "000000"
+                $0.pinError = nil
+            }
+            await store.send(.submitPinTapped) {
+                $0.pinInput = ""
+                $0.pinError = "Incorrect PIN. Try again."
+            }
+        }
+        await store.send(.pinInputChanged("000000")) {
+            $0.pinInput = "000000"
+            $0.pinError = nil
+        }
+        await store.send(.submitPinTapped) {
+            $0.pinInput = ""
+            $0.pinError = "Too many attempts. Try again in 30 seconds."
+        }
+        await store.send(.pinInputChanged("246810")) {
+            $0.pinInput = "246810"
+            $0.pinError = nil
+        }
+        await store.send(.submitPinTapped) {
+            $0.pinInput = ""
+            $0.pinError = "Too many attempts. Try again in 30 seconds."
+        }
+    }
+
     func testRuntimeDarkfiNetworkDetectionDefaultsToTestnetInTestBundle() {
         XCTAssertEqual(DarkfiNetwork.active(), .testnet)
         XCTAssertEqual(DarkfiNetwork.activeLabel, "testnet")

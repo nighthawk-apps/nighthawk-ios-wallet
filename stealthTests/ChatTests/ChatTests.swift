@@ -9,6 +9,7 @@ import XCTest
 import ComposableArchitecture
 import DarkfiCore
 import Models
+import Security
 @testable import Home
 @testable import stealth_testnet
 
@@ -477,5 +478,95 @@ class ChatTests: XCTestCase {
         ChatReceiptBook.clearAll()
         ChatHistoryStore.clearAll()
         await ChatOutboxStore.shared.clearAll()
+    }
+
+    func testResolveDiskKeyKeepsExistingKey() {
+        let existing = Data(repeating: 7, count: 32)
+        var writes = 0
+        let resolved = ChatEncryptedFileStore.resolveDiskKey(
+            status: errSecSuccess,
+            data: existing,
+            randomBytes: {
+                XCTFail("must not generate a replacement key")
+                return nil
+            },
+            upsert: { _ in
+                writes += 1
+                return errSecSuccess
+            }
+        )
+        XCTAssertEqual(resolved, existing)
+        XCTAssertEqual(writes, 0)
+    }
+
+    func testResolveDiskKeyCreatesOnlyWhenMissingAndStored() {
+        let created = Data(repeating: 4, count: 32)
+        var writes = 0
+        let resolved = ChatEncryptedFileStore.resolveDiskKey(
+            status: errSecItemNotFound,
+            data: nil,
+            randomBytes: { created },
+            upsert: { bytes in
+                writes += 1
+                XCTAssertEqual(bytes.count, 32)
+                return errSecSuccess
+            }
+        )
+        XCTAssertEqual(resolved, created)
+        XCTAssertEqual(writes, 1)
+    }
+
+    func testResolveDiskKeyDoesNotCacheWhenUpsertFails() {
+        var writes = 0
+        let resolved = ChatEncryptedFileStore.resolveDiskKey(
+            status: errSecItemNotFound,
+            data: nil,
+            randomBytes: { Data(repeating: 4, count: 32) },
+            upsert: { _ in
+                writes += 1
+                return errSecAuthFailed
+            }
+        )
+        XCTAssertNil(resolved)
+        XCTAssertEqual(writes, 1)
+    }
+
+    func testResolveDiskKeyRefusesUnexpectedKeychainStatus() {
+        let statuses: [OSStatus] = [
+            errSecInteractionNotAllowed,
+            errSecAuthFailed,
+            errSecDuplicateItem,
+            errSecSuccess
+        ]
+        for status in statuses {
+            var writes = 0
+            let data: Data? = status == errSecSuccess ? Data(repeating: 1, count: 16) : Data(repeating: 1, count: 32)
+            let resolved = ChatEncryptedFileStore.resolveDiskKey(
+                status: status,
+                data: data,
+                randomBytes: { Data(repeating: 4, count: 32) },
+                upsert: { _ in
+                    writes += 1
+                    return errSecSuccess
+                }
+            )
+            XCTAssertNil(resolved, "status \(status) must not create a key")
+            XCTAssertEqual(writes, 0, "status \(status) must not write a key")
+        }
+    }
+
+    func testResolveDiskKeyIgnoresShortRandomBytes() {
+        var writes = 0
+        let resolved = ChatEncryptedFileStore.resolveDiskKey(
+            status: errSecItemNotFound,
+            data: nil,
+            randomBytes: { Data(repeating: 4, count: 16) },
+            upsert: { _ in
+                writes += 1
+                return errSecSuccess
+            }
+        )
+        XCTAssertNil(resolved)
+        XCTAssertEqual(writes, 0)
     }
 }

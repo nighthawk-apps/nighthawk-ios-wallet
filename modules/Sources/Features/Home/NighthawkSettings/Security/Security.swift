@@ -231,9 +231,8 @@ public struct Security {
     }
 
     private func verifyCurrentPin(pin: String, nextStep: PinFlowStep, state: inout State) {
-        guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
-            state.pinInput = ""
+        let incorrect = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
+        guard verifiedPin(pin, incorrectMessage: incorrect, state: &state) else {
             return
         }
         state.pinFlowStep = nextStep
@@ -242,9 +241,8 @@ public struct Security {
     }
 
     private func disablePinIfVerified(pin: String, state: inout State) {
-        guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
-            state.pinInput = ""
+        let incorrect = L10n.Nighthawk.SettingsTab.Security.pinErrorCurrentIncorrect
+        guard verifiedPin(pin, incorrectMessage: incorrect, state: &state) else {
             return
         }
         SecurityPinStore.clearPin()
@@ -255,14 +253,35 @@ public struct Security {
     }
 
     private func verifyPinOnly(pin: String, state: inout State) {
-        guard SecurityPinStore.verifyPin(pin) else {
-            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorIncorrect
-            state.pinInput = ""
+        let incorrect = L10n.Nighthawk.SettingsTab.Security.pinErrorIncorrect
+        guard verifiedPin(pin, incorrectMessage: incorrect, state: &state) else {
             return
         }
         state.pinFlowStep = .idle
         state.pinInput = ""
         state.pinStatusMessage = L10n.Nighthawk.SettingsTab.Security.pinStatusVerified
+    }
+
+    /// Returns true when the PIN is accepted. Sets a lockout or incorrect-PIN error otherwise.
+    private func verifiedPin(
+        _ pin: String,
+        incorrectMessage: String,
+        state: inout State
+    ) -> Bool {
+        switch SecurityPinStore.verifyPin(pin) {
+        case .success:
+            return true
+        case .failure:
+            state.pinErrorMessage = incorrectMessage
+            state.pinInput = ""
+            return false
+        case let .lockedOut(retryAfterSeconds):
+            state.pinErrorMessage = L10n.Nighthawk.SettingsTab.Security.pinErrorLockedOut(
+                SecurityPinStore.lockoutCountdown(seconds: retryAfterSeconds)
+            )
+            state.pinInput = ""
+            return false
+        }
     }
 
     public init() {}

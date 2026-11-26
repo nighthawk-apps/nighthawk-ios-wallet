@@ -550,6 +550,7 @@
 "nighthawk.splash.unlock" = "Unlock";
 "nighthawk.splash.pinErrorLength" = "Enter your 6-digit PIN.";
 "nighthawk.splash.pinErrorIncorrect" = "Incorrect PIN. Try again.";
+"nighthawk.splash.pinErrorLockedOut" = "Too many attempts. Try again in %@.";
 "nighthawk.splash.nymFailed" = "Nym mixnet connection failed";
 "nighthawk.splash.nymConnecting" = "Connecting to the Nym mixnet… %@ s";
 "nighthawk.splash.nymSlow" = "Taking longer than usual. Keep waiting, or continue without Nym.";
@@ -641,6 +642,7 @@
 "nighthawk.settingsTab.security.pinErrorStoreKeychain" = "Could not store PIN in Keychain.";
 "nighthawk.settingsTab.security.pinErrorCurrentIncorrect" = "Incorrect current PIN.";
 "nighthawk.settingsTab.security.pinErrorIncorrect" = "Incorrect PIN.";
+"nighthawk.settingsTab.security.pinErrorLockedOut" = "Too many attempts. Try again in %@.";
 "nighthawk.settingsTab.security.pinStatusUpdated" = "App PIN updated.";
 "nighthawk.settingsTab.security.pinStatusEnabled" = "6-digit App PIN enabled.";
 "nighthawk.settingsTab.security.pinStatusDisabled" = "App PIN disabled.";

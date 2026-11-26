@@ -7,8 +7,8 @@
 //
 
 import ComposableArchitecture
-import DarkfiCore
 import XCTest
+@testable import DarkfiCore
 @testable import Home
 
 @MainActor
@@ -151,6 +151,7 @@ final class ChangeServerPortTests: XCTestCase {
         defaults.set(primaryHex, forKey: LightwalletTlsPin.userDefaultsKey)
         defaults.set(previousHex, forKey: LightwalletTlsPin.previousUserDefaultsKey)
 
+        #if DEBUG
         XCTAssertEqual(LightwalletTlsPin.allowedPins(defaults: defaults, bundle: emptyBundle).count, 2)
         XCTAssertTrue(LightwalletTlsPin.matches(leafCertSha256: primaryData, defaults: defaults, bundle: emptyBundle))
         XCTAssertTrue(LightwalletTlsPin.matches(leafCertSha256: previousData, defaults: defaults, bundle: emptyBundle))
@@ -160,6 +161,81 @@ final class ChangeServerPortTests: XCTestCase {
                 "https://epidermis-sandbox-marshland.ngrok-free.dev:443",
                 defaults: defaults,
                 bundle: emptyBundle
+            )
+        )
+        XCTAssertEqual(
+            LightwalletTlsPin.selectPinData(
+                defaultsHex: primaryHex,
+                plistHex: previousHex,
+                allowUserDefaultsOverride: true
+            ),
+            primaryData
+        )
+        #else
+        XCTAssertTrue(LightwalletTlsPin.allowedPins(defaults: defaults, bundle: emptyBundle).isEmpty)
+        XCTAssertFalse(LightwalletTlsPin.matches(leafCertSha256: primaryData, defaults: defaults, bundle: emptyBundle))
+        XCTAssertFalse(LightwalletTlsPin.matches(leafCertSha256: previousData, defaults: defaults, bundle: emptyBundle))
+        XCTAssertFalse(
+            LightwalletTlsPin.validateEndpoint(
+                "https://epidermis-sandbox-marshland.ngrok-free.dev:443",
+                defaults: defaults,
+                bundle: emptyBundle
+            )
+        )
+        XCTAssertEqual(
+            LightwalletTlsPin.selectPinData(
+                defaultsHex: primaryHex,
+                plistHex: previousHex,
+                allowUserDefaultsOverride: true
+            ),
+            previousData
+        )
+        #endif
+
+        // Release policy: UserDefaults cannot satisfy a remote pin, and the plist pin wins.
+        XCTAssertNil(
+            LightwalletTlsPin.pinDataOrNil(
+                defaults: defaults,
+                bundle: emptyBundle,
+                allowUserDefaultsOverride: false
+            )
+        )
+        XCTAssertNil(
+            LightwalletTlsPin.previousPinDataOrNil(
+                defaults: defaults,
+                bundle: emptyBundle,
+                allowUserDefaultsOverride: false
+            )
+        )
+        XCTAssertFalse(
+            LightwalletTlsPin.matches(
+                leafCertSha256: primaryData,
+                defaults: defaults,
+                bundle: emptyBundle,
+                allowUserDefaultsOverride: false
+            )
+        )
+        XCTAssertFalse(
+            LightwalletTlsPin.validateEndpoint(
+                "https://epidermis-sandbox-marshland.ngrok-free.dev:443",
+                defaults: defaults,
+                bundle: emptyBundle,
+                allowUserDefaultsOverride: false
+            )
+        )
+        XCTAssertEqual(
+            LightwalletTlsPin.selectPinData(
+                defaultsHex: primaryHex,
+                plistHex: previousHex,
+                allowUserDefaultsOverride: false
+            ),
+            previousData
+        )
+        XCTAssertNil(
+            LightwalletTlsPin.selectPinData(
+                defaultsHex: primaryHex,
+                plistHex: "not-a-pin",
+                allowUserDefaultsOverride: false
             )
         )
     }

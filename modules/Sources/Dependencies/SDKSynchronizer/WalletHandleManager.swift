@@ -362,27 +362,134 @@ extension WalletHandleManager {
             guard case .NativeDrkUnavailable(let message) = error else {
                 throw error
             }
-            let lower = message.lowercased()
-            let sledLock =
-                lower.contains("could not acquire lock") ||
-                lower.contains("resource temporarily unavailable")
-            let walletDb = [
-                "walletdb", "pragma", "file is not a database", "sqlite",
-                "sqlcipher", "initialize_wallet", "databaseerror", "queryexecution"
-            ].contains(where: { lower.contains($0) })
-            guard sledLock || walletDb else {
+            switch WalletDbRecovery.step(forNativeDrkMessage: message) {
+            case .rethrow:
                 throw error
+            case .clearCacheOnly:
+                WalletDbRecovery.replaceCacheDirectory(at: cachePath)
+                return try DarkfiWalletHandle(config: config)
+            case .quarantineWalletAndClearCache:
+                try WalletDbRecovery.quarantineWalletDatabase(at: walletDbPath)
+                WalletDbRecovery.replaceCacheDirectory(at: cachePath)
+                return try DarkfiWalletHandle(config: config)
             }
-            try? FileManager.default.removeItem(atPath: cachePath)
-            if walletDb {
-                try? FileManager.default.removeItem(atPath: walletDbPath)
-            }
-            try? FileManager.default.createDirectory(
-                atPath: cachePath,
-                withIntermediateDirectories: true
-            )
-            return try DarkfiWalletHandle(config: config)
         }
+    }
+}
+
+/// Decides whether a `NativeDrkUnavailable` open error may discard local state.
+/// Wallet bytes are renamed beside the original. They are not deleted.
+enum WalletDbRecovery {
+    enum Step: Equatable {
+        case rethrow
+        case clearCacheOnly
+        case quarantineWalletAndClearCache
+    }
+
+    static func step(forNativeDrkMessage message: String) -> Step {
+        let lower = message.lowercased()
+        if isConfirmedWalletDatabaseDamage(lower) {
+            return .quarantineWalletAndClearCache
+        }
+        if isSledCacheLock(lower) {
+            return .clearCacheOnly
+        }
+        return .rethrow
+    }
+
+    /// Moves `path` to a sibling `*.quarantine-<uuid>` file when it exists.
+    /// A missing file is left alone. A failed rename throws and does not delete the original.
+    static func quarantineWalletDatabase(at path: String) throws {
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: path, isDirectory: &isDirectory), !isDirectory.boolValue else {
+            return
+        }
+        let source = URL(fileURLWithPath: path)
+        let destination = uniqueQuarantineURL(for: source, fileManager: fileManager)
+        try fileManager.moveItem(at: source, to: destination)
+        for suffix in ["-wal", "-shm", "-journal"] {
+            quarantineSidecar(
+                at: "\(path)\(suffix)",
+                preferredDestination: "\(destination.path)\(suffix)",
+                fileManager: fileManager
+            )
+        }
+    }
+
+    static func replaceCacheDirectory(at cachePath: String) {
+        try? FileManager.default.removeItem(atPath: cachePath)
+        try? FileManager.default.createDirectory(
+            atPath: cachePath,
+            withIntermediateDirectories: true
+        )
+    }
+
+    private static func isSledCacheLock(_ lower: String) -> Bool {
+        lower.contains("could not acquire lock")
+            || lower.contains("resource temporarily unavailable")
+    }
+
+    private static func isConfirmedWalletDatabaseDamage(_ lower: String) -> Bool {
+        if isExcludedTransientOrCredential(lower) {
+            return false
+        }
+        let markers = [
+            "database disk image is malformed",
+            "file is not a database",
+            "malformed database",
+            "database is locked",
+            "database table is locked",
+            "sqlite_corrupt",
+            "sqlite_notadb",
+            "sqlite_busy",
+            "sqlite_locked"
+        ]
+        return markers.contains { lower.contains($0) }
+    }
+
+    private static func isExcludedTransientOrCredential(_ lower: String) -> Bool {
+        let markers = [
+            "disk i/o",
+            "i/o error",
+            "input/output error",
+            "sqlite_ioerr",
+            "database or disk is full",
+            "disk is full",
+            "sqlite_full",
+            "no space left",
+            "passphrase",
+            "password",
+            "wrong key",
+            "hmac",
+            "decrypt"
+        ]
+        return markers.contains { lower.contains($0) }
+    }
+
+    private static func uniqueQuarantineURL(for source: URL, fileManager: FileManager) -> URL {
+        let directory = source.deletingLastPathComponent()
+        let name = source.lastPathComponent
+        var candidate = directory.appendingPathComponent("\(name).quarantine-\(UUID().uuidString)")
+        var attempts = 0
+        while fileManager.fileExists(atPath: candidate.path), attempts < 8 {
+            attempts += 1
+            candidate = directory.appendingPathComponent("\(name).quarantine-\(UUID().uuidString)")
+        }
+        return candidate
+    }
+
+    private static func quarantineSidecar(
+        at path: String,
+        preferredDestination: String,
+        fileManager: FileManager
+    ) {
+        guard fileManager.fileExists(atPath: path) else { return }
+        if (try? fileManager.moveItem(atPath: path, toPath: preferredDestination)) != nil {
+            return
+        }
+        let fallback = "\(preferredDestination).\(UUID().uuidString)"
+        try? fileManager.moveItem(atPath: path, toPath: fallback)
     }
 }
 

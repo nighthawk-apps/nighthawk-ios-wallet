@@ -20,44 +20,57 @@ public enum LightwalletTlsPin {
     /// Resolve the primary lightwalletd leaf-cert SHA-256 pin (32 raw bytes).
     ///
     /// **Preferred (production):** set `LightwalletTlsPinSha256` in Info.plist.
-    /// **Override (debug/QA):** if `UserDefaults` key `lightwallet_tls_pin_sha256`
-    /// is set to a valid 64-char hex pin, it wins over Info.plist so local
-    /// testing can pin a different server without rebuilding.
+    /// **Override (DEBUG only):** `UserDefaults` key `lightwallet_tls_pin_sha256`
+    /// wins over Info.plist so local testing can pin a different server without
+    /// rebuilding. Release builds ignore that override and use the plist pin only.
     ///
     /// Remote HTTPS without any pin remains **fail-closed** (S8/S12).
     public static func pinDataOrNil(
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> Data? {
-        if let fromDefaults = parseHexPin(defaults.string(forKey: userDefaultsKey)) {
-            return fromDefaults
-        }
-        return parseHexPin(bundle.object(forInfoDictionaryKey: infoPlistKey) as? String)
+        selectPinData(
+            defaultsHex: defaults.string(forKey: userDefaultsKey),
+            plistHex: bundle.object(forInfoDictionaryKey: infoPlistKey) as? String,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        )
     }
 
     /// Resolve the optional previous (rotation) leaf-cert SHA-256 pin (32 raw bytes).
     /// Used during zero-downtime certificate rotation alongside the primary pin.
+    /// The UserDefaults override is DEBUG-only, same as `pinDataOrNil()`.
     public static func previousPinDataOrNil(
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> Data? {
-        if let fromDefaults = parseHexPin(defaults.string(forKey: previousUserDefaultsKey)) {
-            return fromDefaults
-        }
-        return parseHexPin(bundle.object(forInfoDictionaryKey: previousInfoPlistKey) as? String)
+        selectPinData(
+            defaultsHex: defaults.string(forKey: previousUserDefaultsKey),
+            plistHex: bundle.object(forInfoDictionaryKey: previousInfoPlistKey) as? String,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        )
     }
 
     /// All configured pins (primary first, followed by distinct previous rotation pin if present).
     public static func allowedPins(
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> [Data] {
         var pins: [Data] = []
-        if let primary = pinDataOrNil(defaults: defaults, bundle: bundle) {
+        if let primary = pinDataOrNil(
+            defaults: defaults,
+            bundle: bundle,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        ) {
             pins.append(primary)
         }
-        if let previous = previousPinDataOrNil(defaults: defaults, bundle: bundle),
-           !pins.contains(previous) {
+        if let previous = previousPinDataOrNil(
+            defaults: defaults,
+            bundle: bundle,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        ), !pins.contains(previous) {
             pins.append(previous)
         }
         return pins
@@ -66,9 +79,14 @@ public enum LightwalletTlsPin {
     /// Primary pin for Rust FFI bootstrap, falling back to rotation pin if primary is absent.
     public static func activePinDataOrNil(
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> Data? {
-        allowedPins(defaults: defaults, bundle: bundle).first
+        allowedPins(
+            defaults: defaults,
+            bundle: bundle,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        ).first
     }
 
     /// Fail-closed check: returns true only when `leafCertSha256` is 32 bytes and matches
@@ -76,10 +94,15 @@ public enum LightwalletTlsPin {
     public static func matches(
         leafCertSha256: Data,
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> Bool {
         guard leafCertSha256.count == 32 else { return false }
-        let pins = allowedPins(defaults: defaults, bundle: bundle)
+        let pins = allowedPins(
+            defaults: defaults,
+            bundle: bundle,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        )
         guard !pins.isEmpty else { return false }
         return pins.contains { constantTimeEqual($0, leafCertSha256) }
     }
@@ -106,10 +129,39 @@ public enum LightwalletTlsPin {
     public static func validateEndpoint(
         _ endpoint: String,
         defaults: UserDefaults = .standard,
-        bundle: Bundle = .main
+        bundle: Bundle = .main,
+        allowUserDefaultsOverride: Bool = true
     ) -> Bool {
         guard requiresPin(forEndpoint: endpoint) else { return true }
-        return !allowedPins(defaults: defaults, bundle: bundle).isEmpty
+        return !allowedPins(
+            defaults: defaults,
+            bundle: bundle,
+            allowUserDefaultsOverride: allowUserDefaultsOverride
+        ).isEmpty
+    }
+
+    /// DEBUG may prefer a UserDefaults hex pin. Release ignores `allowUserDefaultsOverride`
+    /// and returns the plist pin only, or nil when the plist pin is missing.
+    static func selectPinData(
+        defaultsHex: String?,
+        plistHex: String?,
+        allowUserDefaultsOverride: Bool
+    ) -> Data? {
+        if userDefaultsPinOverrideEnabled(allowUserDefaultsOverride),
+           let fromDefaults = parseHexPin(defaultsHex) {
+            return fromDefaults
+        }
+        return parseHexPin(plistHex)
+    }
+
+    private static func userDefaultsPinOverrideEnabled(_ requested: Bool) -> Bool {
+        #if DEBUG
+        return requested
+        #else
+        // Release stays fail-closed even if a caller passes `true`.
+        _ = requested
+        return false
+        #endif
     }
 
     public static func parseHexPin(_ hex: String?) -> Data? {

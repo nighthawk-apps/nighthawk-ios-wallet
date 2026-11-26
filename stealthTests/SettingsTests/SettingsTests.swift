@@ -34,8 +34,14 @@ final class SettingsTests: XCTestCase {
         XCTAssertFalse(SecurityPinStore.setPin("123", service: testService, account: testAccount))
         XCTAssertTrue(SecurityPinStore.setPin("482910", service: testService, account: testAccount))
         XCTAssertTrue(SecurityPinStore.isPinSet(service: testService, account: testAccount))
-        XCTAssertTrue(SecurityPinStore.verifyPin("482910", service: testService, account: testAccount))
-        XCTAssertFalse(SecurityPinStore.verifyPin("000000", service: testService, account: testAccount))
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("482910", service: testService, account: testAccount),
+            .success
+        )
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("000000", service: testService, account: testAccount),
+            .failure
+        )
 
         SecurityPinStore.clearPin(service: testService, account: testAccount)
         XCTAssertFalse(SecurityPinStore.isPinSet(service: testService, account: testAccount))
@@ -120,6 +126,129 @@ final class SettingsTests: XCTestCase {
             $0.pinStatusMessage = "App PIN disabled."
         }
         XCTAssertFalse(SecurityPinStore.isPinSet())
+    }
+
+    func testSecurityPinLockoutDoublesCapsAndClears() {
+        let service = "com.nighthawkapps.darkfi.testPin.\(UUID().uuidString)"
+        let account = "unit_test_lockout"
+        defer { SecurityPinStore.clearPin(service: service, account: account) }
+
+        XCTAssertTrue(SecurityPinStore.setPin("482910", service: service, account: account))
+        var now = Date(timeIntervalSince1970: 1_700_000_000)
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("12", service: service, account: account, now: now),
+            .failure
+        )
+        for _ in 1..<SecurityPinStore.maxFailedAttempts {
+            XCTAssertEqual(
+                SecurityPinStore.verifyPin("000000", service: service, account: account, now: now),
+                .failure
+            )
+        }
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("000000", service: service, account: account, now: now),
+            .lockedOut(retryAfterSeconds: SecurityPinStore.initialLockoutSeconds)
+        )
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin(
+                "482910",
+                service: service,
+                account: account,
+                now: now.addingTimeInterval(5)
+            ),
+            .lockedOut(retryAfterSeconds: SecurityPinStore.initialLockoutSeconds - 5)
+        )
+        XCTAssertTrue(SecurityPinStore.isPinSet(service: service, account: account))
+
+        var lockSeconds = SecurityPinStore.initialLockoutSeconds
+        now = now.addingTimeInterval(TimeInterval(lockSeconds))
+        while lockSeconds < SecurityPinStore.maxLockoutSeconds {
+            let doubled = min(lockSeconds * 2, SecurityPinStore.maxLockoutSeconds)
+            XCTAssertEqual(
+                SecurityPinStore.verifyPin("000000", service: service, account: account, now: now),
+                .lockedOut(retryAfterSeconds: doubled)
+            )
+            lockSeconds = doubled
+            now = now.addingTimeInterval(TimeInterval(lockSeconds))
+        }
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("000000", service: service, account: account, now: now),
+            .lockedOut(retryAfterSeconds: SecurityPinStore.maxLockoutSeconds)
+        )
+
+        now = now.addingTimeInterval(TimeInterval(SecurityPinStore.maxLockoutSeconds))
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("482910", service: service, account: account, now: now),
+            .success
+        )
+        for _ in 1..<SecurityPinStore.maxFailedAttempts {
+            XCTAssertEqual(
+                SecurityPinStore.verifyPin("000000", service: service, account: account, now: now),
+                .failure
+            )
+        }
+    }
+
+    func testSetPinClearsLockoutWithoutRemovingTheRecord() {
+        let service = "com.nighthawkapps.darkfi.testPin.\(UUID().uuidString)"
+        let account = "unit_test_lockout_reset"
+        defer { SecurityPinStore.clearPin(service: service, account: account) }
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+        XCTAssertTrue(SecurityPinStore.setPin("482910", service: service, account: account))
+        for _ in 1...SecurityPinStore.maxFailedAttempts {
+            _ = SecurityPinStore.verifyPin("000000", service: service, account: account, now: now)
+        }
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("482910", service: service, account: account, now: now),
+            .lockedOut(retryAfterSeconds: SecurityPinStore.initialLockoutSeconds)
+        )
+        XCTAssertTrue(SecurityPinStore.isPinSet(service: service, account: account))
+        XCTAssertTrue(SecurityPinStore.setPin("111111", service: service, account: account))
+        XCTAssertEqual(
+            SecurityPinStore.verifyPin("111111", service: service, account: account, now: now),
+            .success
+        )
+    }
+
+    func testSecurityReducerShowsLockoutAfterFiveFailures() async {
+        SecurityPinStore.clearPin()
+        XCTAssertTrue(SecurityPinStore.setPin("482910"))
+        let store = TestStore(
+            initialState: Security.State(),
+            reducer: Security.init
+        ) {
+            $0.userStoredPreferences = .liveValue
+            $0.localAuthenticationContext = LocalAuthContextClientGenerator {
+                LocalAuthenticationContextClient(
+                    biometryType: { .none },
+                    canEvaluatePolicy: { _ in false },
+                    evaluatePolicy: { _, _ in false }
+                )
+            }
+        }
+
+        await store.send(.startVerifyPinTapped) {
+            $0.pinFlowStep = .verifyOnly
+        }
+        for _ in 1..<SecurityPinStore.maxFailedAttempts {
+            await store.send(.pinInputChanged("000000")) {
+                $0.pinInput = "000000"
+                $0.pinErrorMessage = nil
+            }
+            await store.send(.submitPinTapped) {
+                $0.pinInput = ""
+                $0.pinErrorMessage = "Incorrect PIN."
+            }
+        }
+        await store.send(.pinInputChanged("000000")) {
+            $0.pinInput = "000000"
+            $0.pinErrorMessage = nil
+        }
+        await store.send(.submitPinTapped) {
+            $0.pinInput = ""
+            $0.pinErrorMessage = "Too many attempts. Try again in 30 seconds."
+        }
     }
 
     func testAboutOnAppearLoadsDynamicVersionAndBuild() async {

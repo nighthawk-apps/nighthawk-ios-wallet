@@ -141,6 +141,52 @@ enum ChatEncryptedFileStore {
             return cachedKey
         }
 
+        let (status, data) = copyMatchingDiskKey()
+        guard let keyData = resolveDiskKey(
+            status: status,
+            data: data,
+            randomBytes: randomDiskKeyData,
+            upsert: { bytes in
+                KeychainGenericPassword.upsert(
+                    service: keychainService,
+                    account: keychainAccount,
+                    data: bytes
+                )
+            }
+        ) else {
+            return nil
+        }
+        let key = SymmetricKey(data: keyData)
+        cachedKey = key
+        return key
+    }
+
+    /// A new key is stored only for `errSecItemNotFound`, and only when the
+    /// Keychain write itself returns `errSecSuccess`. Every other status,
+    /// including `errSecInteractionNotAllowed` and a short success payload,
+    /// leaves the existing item untouched.
+    static func resolveDiskKey(
+        status: OSStatus,
+        data: Data?,
+        randomBytes: () -> Data?,
+        upsert: (Data) -> OSStatus
+    ) -> Data? {
+        if status == errSecSuccess, let data, data.count == 32 {
+            return data
+        }
+        guard status == errSecItemNotFound else {
+            return nil
+        }
+        guard let keyData = randomBytes(), keyData.count == 32 else {
+            return nil
+        }
+        guard upsert(keyData) == errSecSuccess else {
+            return nil
+        }
+        return keyData
+    }
+
+    private static func copyMatchingDiskKey() -> (OSStatus, Data?) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -150,27 +196,15 @@ enum ChatEncryptedFileStore {
         ]
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
-        if status == errSecSuccess, let data = item as? Data, data.count == 32 {
-            let key = SymmetricKey(data: data)
-            cachedKey = key
-            return key
-        }
-        if status == errSecInteractionNotAllowed {
+        return (status, item as? Data)
+    }
+
+    private static func randomDiskKeyData() -> Data? {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
             return nil
         }
-
-        var bytes = [UInt8](repeating: 0, count: 32)
-        let rngStatus = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        guard rngStatus == errSecSuccess else { return nil }
-        let keyData = Data(bytes)
-        _ = KeychainGenericPassword.upsert(
-            service: keychainService,
-            account: keychainAccount,
-            data: keyData
-        )
-        let key = SymmetricKey(data: keyData)
-        cachedKey = key
-        return key
+        return Data(bytes)
     }
 
     private static func scrubAndRemove(_ url: URL) {

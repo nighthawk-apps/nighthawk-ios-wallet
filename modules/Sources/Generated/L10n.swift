@@ -927,6 +927,9 @@ public enum L10n {
                 public static let pinErrorStoreKeychain = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorStoreKeychain", fallback: "Could not store PIN in Keychain.")
                 public static let pinErrorCurrentIncorrect = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorCurrentIncorrect", fallback: "Incorrect current PIN.")
                 public static let pinErrorIncorrect = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorIncorrect", fallback: "Incorrect PIN.")
+                public static func pinErrorLockedOut(_ p1: Any) -> String {
+                    return L10n.tr("Localizable", "nighthawk.settingsTab.security.pinErrorLockedOut", String(describing: p1), fallback: "Too many attempts. Try again in %@.")
+                }
                 public static let pinStatusUpdated = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusUpdated", fallback: "App PIN updated.")
                 public static let pinStatusEnabled = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusEnabled", fallback: "6-digit App PIN enabled.")
                 public static let pinStatusDisabled = L10n.tr("Localizable", "nighthawk.settingsTab.security.pinStatusDisabled", fallback: "App PIN disabled.")
@@ -1005,6 +1008,9 @@ public enum L10n {
             public static let unlock = L10n.tr("Localizable", "nighthawk.splash.unlock", fallback: "Unlock")
             public static let pinErrorLength = L10n.tr("Localizable", "nighthawk.splash.pinErrorLength", fallback: "Enter your 6-digit PIN.")
             public static let pinErrorIncorrect = L10n.tr("Localizable", "nighthawk.splash.pinErrorIncorrect", fallback: "Incorrect PIN. Try again.")
+            public static func pinErrorLockedOut(_ p1: Any) -> String {
+                return L10n.tr("Localizable", "nighthawk.splash.pinErrorLockedOut", String(describing: p1), fallback: "Too many attempts. Try again in %@.")
+            }
             public static let nymFailed = L10n.tr("Localizable", "nighthawk.splash.nymFailed", fallback: "Nym mixnet connection failed")
             public static func nymConnecting(_ p1: Any) -> String {
                 return L10n.tr("Localizable", "nighthawk.splash.nymConnecting", String(describing: p1), fallback: "Connecting to the Nym mixnet… %@ s")
