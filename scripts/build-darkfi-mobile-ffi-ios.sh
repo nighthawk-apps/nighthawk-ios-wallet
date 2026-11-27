@@ -29,6 +29,11 @@ fi
 
 cd "$BLACKHAWK_ROOT"
 
+DARKFI_PROOF_DIR="$BLACKHAWK_ROOT/third_party/darkfi/src/event_graph/proof"
+if [ ! -f "$DARKFI_PROOF_DIR/rlnv2-diff-register.zk.bin" ] && [ -x "$ROOT/../nighthawk-android-wallet/scripts/compile-darkfi-zkas-proofs.sh" ]; then
+  DARKFI_SRC="$BLACKHAWK_ROOT/third_party/darkfi" "$ROOT/../nighthawk-android-wallet/scripts/compile-darkfi-zkas-proofs.sh"
+fi
+
 # --lib: skip localnet_tx (required-features = ["localnet"]).
 if [ "$DEVICE_ONLY" != "1" ]; then
   IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOY" \

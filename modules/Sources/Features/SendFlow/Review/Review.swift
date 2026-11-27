@@ -31,12 +31,13 @@ public struct Review {
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
-            guard tokenName == "DRK" else { return nil }
-            if let latestFiatPrice, preferredCurrency != .off {
-                (preferredCurrency, latestFiatPrice)
-            } else {
-                nil
+            guard tokenName == "DRK",
+                  let latestFiatPrice,
+                  preferredCurrency != .off
+            else {
+                return nil
             }
+            return (preferredCurrency, latestFiatPrice)
         }
 
         public var tokenName: String
