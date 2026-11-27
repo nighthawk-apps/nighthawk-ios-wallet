@@ -30,7 +30,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
     public var id: String
     public var status: Status
     public var timestamp: TimeInterval?
-    public var zecAmount: DrkAmount
+    public var drkAmount: DrkAmount
     /// Retrieval/encryption path this transaction was discovered/built with.
     public var syncMethod: DarkfiSyncMethod = .unknown
 
@@ -72,14 +72,6 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         return URL(string: "\(Self.explorerBase(for: networkType))/tx/\(id)")
     }
 
-    public func viewRecipientOnlineURL(for networkType: String) -> URL? {
-        if let address {
-            return URL(string: "\(Self.explorerBase(for: networkType))/address/\(address)")
-        }
-
-        return nil
-    }
-
     public var textMemo: Memo? {
         guard let memos else { return nil }
         return memos.first
@@ -96,7 +88,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         id: String,
         status: Status,
         timestamp: TimeInterval? = nil,
-        zecAmount: DrkAmount
+        drkAmount: DrkAmount
     ) {
         self.errorMessage = errorMessage
         self.expiryHeight = expiryHeight
@@ -108,7 +100,7 @@ public struct TransactionState: Codable, Equatable, Identifiable {
         self.id = id
         self.status = status
         self.timestamp = timestamp
-        self.zecAmount = zecAmount
+        self.drkAmount = drkAmount
     }
 
     public func confirmationsWith(_ latestMinedHeight: BlockHeight?) -> BlockHeight {
@@ -142,7 +134,7 @@ extension TransactionState {
             id: uuid,
             status: status,
             timestamp: timestamp,
-            zecAmount: status == .received ? amount : -amount
+            drkAmount: status == .received ? amount : -amount
         )
     }
 }
@@ -194,7 +186,7 @@ extension TransactionState {
             id: overview.rawId,
             status: overview.isSending ? .paid(success: true) : .received,
             timestamp: overview.timestampEpochSeconds,
-            zecAmount: signedAmount
+            drkAmount: signedAmount
         )
         self.syncMethod = overview.syncMethod
     }

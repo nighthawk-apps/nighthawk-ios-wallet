@@ -23,6 +23,7 @@ public struct TorNetwork {
     public struct State: Equatable {
         // ── Wallet network and chat routing ─────────────────────────────
         public var privacyNetwork: NighthawkSetting.PrivacyNetwork = .default
+        public var disableDirectConnection: Bool = false
         public var torForChat: Bool = false
 
         public var torForWallet: Bool { privacyNetwork == .tor }
@@ -124,7 +125,10 @@ public struct TorNetwork {
                 return .none
 
             case .onAppear:
-                state.privacyNetwork = userStoredPreferences.walletPrivacyNetwork()
+                state.disableDirectConnection = userStoredPreferences.disableDirectConnection()
+                state.privacyNetwork = SessionPrivacyOverride.resolved(
+                    stored: userStoredPreferences.walletPrivacyNetwork()
+                )
                 state.nymStatus = Self.currentNymStatus()
                 state.torForChat = userStoredPreferences.torForChatEnabled()
                 state.torMode = userStoredPreferences.useEmbeddedTor()
@@ -142,7 +146,10 @@ public struct TorNetwork {
                 return .none
 
             case let .privacyNetworkSelected(network):
-                guard network != state.privacyNetwork else { return .none }
+                guard !(state.disableDirectConnection && network == .direct) else { return .none }
+                guard network != state.privacyNetwork || SessionPrivacyOverride.forceDirectThisSession else {
+                    return .none
+                }
                 state.privacyNetwork = network
                 // Explicit user choice clears session-only Direct override.
                 SessionPrivacyOverride.clear()
@@ -243,8 +250,14 @@ public struct TorNetwork {
                 let torEnabled = state.isTorEnabled
                 let useEmbedded = state.isUsingEmbedded
                 let socksPort = state.externalSocksPort
+                let hadSessionOverride = SessionPrivacyOverride.forceDirectThisSession
+                if state.privacyNetwork != .direct {
+                    SessionPrivacyOverride.clear()
+                    TransportHooks.clearSessionOverride()
+                }
 
                 return .run { [walletStorage, sdkSynchronizer, mnemonic] send in
+                    WalletNetworkWarmStart.ensureNetworkStorageConfigured()
                     if torEnabled && useEmbedded {
                         let port = UInt16(socksPort) ?? 9050
                         _ = DarkfiFfiSafe.startArtiProxySafely(socksPort: port)
@@ -252,7 +265,7 @@ public struct TorNetwork {
                         DarkfiFfiSafe.stopArtiProxy()
                     }
 
-                    if torForWallet || SessionPrivacyOverride.forceDirectThisSession {
+                    if torForWallet || hadSessionOverride {
                         try? await WalletTransportReprepare.reprepareExisting(
                             walletStorage: walletStorage,
                             sdkSynchronizer: sdkSynchronizer,

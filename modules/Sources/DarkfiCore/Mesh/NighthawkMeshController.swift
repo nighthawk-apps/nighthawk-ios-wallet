@@ -110,6 +110,28 @@ public final class NighthawkMeshController: ObservableObject {
         NighthawkMeshEngine.recordBulkBytes(count)
     }
 
+    /// Pin an X25519 peer static public key (32 bytes) for BLE mesh control frames.
+    @discardableResult
+    public nonisolated static func pinPeerKey(_ staticPublic: Data) -> Bool {
+        NighthawkMeshEngine.pinPeerKey(staticPublic)
+    }
+
+    /// Unpin an X25519 peer static public key (32 bytes).
+    @discardableResult
+    public nonisolated static func unpinPeerKey(_ staticPublic: Data) -> Bool {
+        NighthawkMeshEngine.unpinPeerKey(staticPublic)
+    }
+
+    /// Clear all pinned peer static public keys.
+    public nonisolated static func clearPinnedPeers() {
+        NighthawkMeshEngine.clearPinnedPeers()
+    }
+
+    /// Require authenticated pinned keys on BLE mesh control frames.
+    public nonisolated static func setRequirePinnedControl(_ required: Bool) {
+        NighthawkMeshEngine.setRequirePinnedControl(required)
+    }
+
     /// Starts the radio again after launch when the user left mesh on.
     public func restoreIfEnabled() {
         guard enabled else { return }

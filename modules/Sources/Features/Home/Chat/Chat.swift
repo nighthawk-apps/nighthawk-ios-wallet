@@ -514,7 +514,14 @@ private extension Chat {
             return .none
         case let .pubkeyGenerated(publicKey):
             state.myDmPublicKey = publicKey
-            let shareText = DarkircDmPubkeyParser.formatForSharing(publicKey)
+            let shareText = NighthawkContacts.contactInviteUri(
+                NighthawkContact(
+                    id: publicKey,
+                    nickname: "",
+                    dmPublicKey: publicKey,
+                    ratchetCapable: true
+                )
+            ) ?? DarkircDmPubkeyParser.formatForSharing(publicKey)
             UIPasteboard.general.setItems(
                 [[UIPasteboard.typeAutomatic: shareText]],
                 options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(60)]

@@ -36,6 +36,7 @@ public struct SplashView: View {
                 NymSplashProgressView(
                     startedAt: store.nymStartedAt ?? Date(),
                     failed: store.nymFailed,
+                    allowContinueWithoutNym: !store.disableDirectConnection,
                     onRetry: { store.send(.retryNym) },
                     onContinue: { store.send(.continueWithoutNym) }
                 )
@@ -132,6 +133,7 @@ public struct SplashView: View {
 private struct NymSplashProgressView: View {
     let startedAt: Date
     let failed: Bool
+    let allowContinueWithoutNym: Bool
     let onRetry: () -> Void
     let onContinue: () -> Void
 
@@ -153,11 +155,13 @@ private struct NymSplashProgressView: View {
                         Button(L10n.Nighthawk.Splash.retry, action: onRetry)
                             .buttonStyle(.nighthawkPrimary())
                     }
-                    Button(L10n.Nighthawk.Splash.continueWithoutNym, action: onContinue)
-                        .buttonStyle(.nighthawkSecondary())
-                    Text(L10n.Nighthawk.Splash.nymSessionHint)
-                        .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-                        .multilineTextAlignment(.center)
+                    if allowContinueWithoutNym {
+                        Button(L10n.Nighthawk.Splash.continueWithoutNym, action: onContinue)
+                            .buttonStyle(.nighthawkSecondary())
+                        Text(L10n.Nighthawk.Splash.nymSessionHint)
+                            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
         }

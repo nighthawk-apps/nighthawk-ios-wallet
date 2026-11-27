@@ -6,10 +6,14 @@
 //
 
 import ComposableArchitecture
+import DarkfiCore
 import Generated
+import MnemonicClient
 import Models
+import SDKSynchronizer
 import UserPreferencesStorage
 import UIKit
+import WalletStorage
 
 @Reducer
 public struct Advanced {
@@ -19,6 +23,7 @@ public struct Advanced {
         public var selectedScreenMode: NighthawkSetting.ScreenMode = .off
         public var selectedAppIcon: NighthawkSetting.AppIcon = .default
         public var theme: NighthawkSetting.Theme = .default
+        public var disableDirectConnection = false
         public var showBanditSettings = false
 
         public var supportsAlternateIcons: Bool {
@@ -34,12 +39,14 @@ public struct Advanced {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case deleteWalletTapped
+        case disableDirectConnectionToggled(Bool)
         case onAppear
         case nukeLocalDatabasesTapped
 
         @CasePathable
         public enum Alert: Equatable {
             case deleteWalletConfirmed
+            case disableDirectConnectionConfirmed
             case notifyAppRelaunchNeeded
             case nukeLocalDatabasesConfirmed
         }
@@ -51,6 +58,9 @@ public struct Advanced {
     }
 
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.mnemonic) var mnemonic
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -61,6 +71,45 @@ public struct Advanced {
                 return .none
             case .alert(.presented(.deleteWalletConfirmed)):
                 return .send(.delegate(.deleteWallet))
+            case .alert(.presented(.disableDirectConnectionConfirmed)):
+                let wasDirectOrOverride = SessionPrivacyOverride.forceDirectThisSession
+                    || userStoredPreferences.walletPrivacyNetwork() == .direct
+                state.disableDirectConnection = true
+                userStoredPreferences.setDisableDirectConnection(true)
+                SessionPrivacyOverride.clear()
+                TransportHooks.clearSessionOverride()
+                TransportHooks.setDirectDisabled(true)
+                if wasDirectOrOverride {
+                    let torPort = Int32(userStoredPreferences.torSocksPort() ?? "9050") ?? 9050
+                    TransportHooks.apply(
+                        kind: 0,
+                        nymPort: Int32(NighthawkSetting.PrivacyNetwork.nymSocksPort),
+                        torPort: torPort
+                    )
+                    return .run { [walletStorage, sdkSynchronizer, mnemonic] _ in
+                        DarkircDaemonManager.shared.stop()
+                        await Task.detached(priority: .utility) {
+                            _ = DarkfiFfiSafe.startNymProxySafely(
+                                socksPort: NighthawkSetting.PrivacyNetwork.nymSocksPort
+                            )
+                        }.value
+                        try? await WalletTransportReprepare.reprepareExisting(
+                            walletStorage: walletStorage,
+                            sdkSynchronizer: sdkSynchronizer,
+                            mnemonic: mnemonic
+                        )
+                    }
+                }
+                return .none
+            case let .disableDirectConnectionToggled(enabled):
+                if enabled {
+                    state.alert = AlertState.warnBeforeDisablingDirectConnection
+                } else {
+                    state.disableDirectConnection = false
+                    userStoredPreferences.setDisableDirectConnection(false)
+                    TransportHooks.setDirectDisabled(false)
+                }
+                return .none
             case .alert(.presented(.notifyAppRelaunchNeeded)):
                 state.alert = .notifyAppRelaunchNeeded
                 return .none
@@ -79,6 +128,7 @@ public struct Advanced {
                 state.selectedAppIcon = userStoredPreferences.appIcon()
                 let storedTheme = userStoredPreferences.theme()
                 state.theme = storedTheme == .default ? .cyberpunk : storedTheme
+                state.disableDirectConnection = userStoredPreferences.disableDirectConnection()
                 state.showBanditSettings = userStoredPreferences.isBandit()
                 return .none
             case .deleteWalletTapped:
@@ -163,6 +213,21 @@ extension AlertState where Action == Advanced.Action.Alert {
             }
         } message: {
             TextState(L10n.Nighthawk.SettingsTab.Advanced.NukeLocalDatabases.Alert.message)
+        }
+    }
+
+    public static var warnBeforeDisablingDirectConnection: AlertState {
+        AlertState {
+            TextState("Disable Direct Connections")
+        } actions: {
+            ButtonState(role: .destructive, action: .disableDirectConnectionConfirmed) {
+                TextState("Disable Direct")
+            }
+            ButtonState(role: .cancel) {
+                TextState(L10n.General.cancel)
+            }
+        } message: {
+            TextState("Permanently block Direct (clearnet) fallback and \"Continue without Nym\" across wallet and chat. All traffic will require Nym or Tor.")
         }
     }
 }

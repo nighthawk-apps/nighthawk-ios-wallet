@@ -54,7 +54,7 @@ private extension ReviewView {
         VStack {
             HStack(alignment: .center) {
                 Group {
-                    Text("\(store.zecAmount.decimalString())")
+                    Text("\(store.drkAmount.decimalString())")
                         .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                     Text(store.tokenName)
@@ -66,7 +66,7 @@ private extension ReviewView {
             if let (currency, price) = store.fiatConversion {
                 Text(
                     L10n.Nighthawk.TransferTab.Send.around(
-                        (price * store.zecAmount.decimalValue.doubleValue).currencyString,
+                        (price * store.drkAmount.decimalValue.doubleValue).currencyString,
                         currency.rawValue.uppercased()
                     )
                 )
@@ -94,9 +94,7 @@ private extension StoreOf<Review> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.recipient,
-                    value: self.recipientIsExternal
-                        ? L10n.Nighthawk.TransactionDetails.recipientTransparent
-                        : L10n.Nighthawk.TransactionDetails.recipientShielded,
+                    value: L10n.Nighthawk.TransactionDetails.recipientShielded,
                     showBorder: false
                 ),
                 TransactionLineItem(
@@ -108,7 +106,7 @@ private extension StoreOf<Review> {
 
         let totalDisplay = tokenName == "DRK"
             ? "\(self.total.decimalString()) DRK"
-            : "\(self.zecAmount.decimalString()) \(tokenName) + \(self.fee.decimalString()) DRK"
+            : "\(self.drkAmount.decimalString()) \(tokenName) + \(self.fee.decimalString()) DRK"
         let syncDisplay = self.syncMethod == .unknown ? "Not synced" : self.syncMethod.displayName
 
         result.append(

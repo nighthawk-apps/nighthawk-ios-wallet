@@ -15,6 +15,7 @@
 
 import ComposableArchitecture
 import Generated
+import Models
 import SwiftUI
 import UIComponents
 
@@ -24,6 +25,7 @@ public struct NewDmConversation {
     public struct State: Equatable {
         public var contactLabel: String = ""
         public var theirPublicKey: String = ""
+        public var ratchetCapable: Bool = false
         public var myPublicKey: String = ""
         public var mySecretKey: String = ""
         public var isBusy: Bool = false
@@ -32,7 +34,15 @@ public struct NewDmConversation {
 
         public init(initialPeerPublicKey: String? = nil) {
             if let key = initialPeerPublicKey {
-                self.theirPublicKey = key
+                if let invite = NighthawkContacts.parseInvite(key), !invite.dmPublicKey.isEmpty {
+                    self.theirPublicKey = invite.dmPublicKey
+                    if !invite.nickname.isEmpty {
+                        self.contactLabel = invite.nickname
+                    }
+                    self.ratchetCapable = invite.ratchetCapable
+                } else {
+                    self.theirPublicKey = key
+                }
             }
         }
     }
@@ -88,8 +98,16 @@ public struct NewDmConversation {
             case .pasteConfirmed:
                 state.showPasteConfirm = false
                 if let clip = UIPasteboard.general.string {
-                    if let key = DarkircDmPubkeyParser.extractFromText(clip) {
+                    if let invite = NighthawkContacts.parseInvite(clip), !invite.dmPublicKey.isEmpty {
+                        state.theirPublicKey = invite.dmPublicKey
+                        if state.contactLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                           !invite.nickname.isEmpty {
+                            state.contactLabel = invite.nickname
+                        }
+                        state.ratchetCapable = invite.ratchetCapable
+                    } else if let key = DarkircDmPubkeyParser.extractFromText(clip) {
                         state.theirPublicKey = key
+                        state.ratchetCapable = false
                     } else {
                         // Validate raw paste as base58: must be ≥32 chars and
                         // contain only valid base58 alphabet (no 0, O, I, l).
@@ -113,7 +131,14 @@ public struct NewDmConversation {
                 return .none
 
             case .copyMyPublicKeyTapped:
-                let shareText = DarkircDmPubkeyParser.formatForSharing(state.myPublicKey)
+                let shareText = NighthawkContacts.contactInviteUri(
+                    NighthawkContact(
+                        id: state.myPublicKey,
+                        nickname: "",
+                        dmPublicKey: state.myPublicKey,
+                        ratchetCapable: true
+                    )
+                ) ?? DarkircDmPubkeyParser.formatForSharing(state.myPublicKey)
                 UIPasteboard.general.setItems(
                     [[UIPasteboard.typeAutomatic: shareText]],
                     options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(60)]
@@ -122,8 +147,12 @@ public struct NewDmConversation {
 
             case .startDmTapped:
                 state.isBusy = true
+                let parsedInvite = NighthawkContacts.parseInvite(state.theirPublicKey)
                 let label = state.contactLabel
-                let theirPub = state.theirPublicKey
+                let theirPub = parsedInvite?.dmPublicKey.isEmpty == false
+                    ? parsedInvite!.dmPublicKey
+                    : state.theirPublicKey
+                let ratchetCapable = parsedInvite?.ratchetCapable ?? state.ratchetCapable
                 let mySecret = state.mySecretKey
                 let myPublic = state.myPublicKey
 
@@ -133,7 +162,8 @@ public struct NewDmConversation {
                             contactLabel: label,
                             theirPublicB58: theirPub,
                             mySecretB58: mySecret,
-                            myPublicB58: myPublic
+                            myPublicB58: myPublic,
+                            ratchetCapable: ratchetCapable
                         )
                         await send(.contactSaved(contact))
                     } catch {

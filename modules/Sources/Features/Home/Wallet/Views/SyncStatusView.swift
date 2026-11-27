@@ -23,7 +23,16 @@ struct SyncStatusView: View {
                     .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
                     .frame(width: 24, height: 24)
                     .scaledToFit()
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 4)
+            }
+
+            if let waveState = waveProgress(for: status) {
+                FlowSyncWaveView(
+                    progress: waveState.progress,
+                    isActive: waveState.active
+                )
+                .padding(.horizontal, 28)
+                .padding(.bottom, 4)
             }
 
             // Sync status message — from lightwallet sync engine
@@ -77,6 +86,19 @@ struct SyncStatusView: View {
 
 // MARK: - Subviews
 private extension SyncStatusView {
+    func waveProgress(for status: SyncStatusSnapshot) -> (progress: Double, active: Bool)? {
+        switch status.syncStatus {
+        case .unprepared:
+            return (0.05, true)
+        case let .syncing(progress):
+            return (Double(progress), true)
+        case .upToDate:
+            return (1.0, false)
+        case .error, .stopped:
+            return nil
+        }
+    }
+
     func syncImage(for status: SyncStatusSnapshot) -> Image? {
         switch status.syncStatus {
         case .unprepared:

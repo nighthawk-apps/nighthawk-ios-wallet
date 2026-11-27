@@ -41,6 +41,7 @@ public struct Splash {
         public var waitingForNym = false
         public var nymFailed = false
         public var nymSkipped = false
+        public var disableDirectConnection = false
         public var nymStartedAt: Date?
         public var pendingLaunch: PendingLaunch?
         /// 6-digit App PIN unlock state when PIN lock is configured.
@@ -240,11 +241,12 @@ private extension Splash {
             backupComplete: userStoredPreferences.isUserBackupComplete(),
             biometricsEnabled: authRequired
         )
+        state.disableDirectConnection = userStoredPreferences.disableDirectConnection()
         let initialNymStatus = nymBootstrap.status()
         let nymReady = nymBootstrap.isRunning() || NymBootstrapClient.isReadyStatus(initialNymStatus)
         let shouldWaitForNym =
             !state.nymSkipped &&
-            !SessionPrivacyOverride.forceDirectThisSession &&
+            (state.disableDirectConnection || !SessionPrivacyOverride.forceDirectThisSession) &&
             userStoredPreferences.walletPrivacyNetwork() == .nym &&
             !nymReady &&
             !pending.isTerminalFailure
@@ -260,6 +262,7 @@ private extension Splash {
     }
 
     func handleContinueWithoutNym(state: inout State) -> Effect<Action> {
+        guard !userStoredPreferences.disableDirectConnection() else { return .none }
         state.waitingForNym = false
         state.nymFailed = false
         state.nymSkipped = true

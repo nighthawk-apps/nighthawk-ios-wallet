@@ -58,8 +58,7 @@ public struct TransactionDetail {
         public var status: TransactionState.Status { walletEvent.transaction.status }
         public var syncMethod: DarkfiSyncMethod { walletEvent.transaction.syncMethod }
         public var viewOnlineURL: URL? { walletEvent.transaction.viewOnlineURL(for: networkType) }
-        public var viewRecipientOnlineURL: URL? { walletEvent.transaction.viewRecipientOnlineURL(for: networkType) }
-        public var zecAmount: DrkAmount { walletEvent.transaction.zecAmount }
+        public var drkAmount: DrkAmount { walletEvent.transaction.drkAmount }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
             if let latestFiatPrice, preferredCurrency != .off {
@@ -185,7 +184,7 @@ public struct TransactionDetail {
                     $0.isEmpty ? nil : $0
                 } ?? state.address
                 guard let recipient = resolved, !recipient.isEmpty else { return .none }
-                let amount = max(abs(state.zecAmount) - state.fee, 0)
+                let amount = max(abs(state.drkAmount) - state.fee, 0)
                 return .send(.delegate(.sendAgain(recipient: recipient, amount: amount)))
             case .synchronizerStateChanged(let latestState):
                 if latestState.syncStatus == .upToDate {

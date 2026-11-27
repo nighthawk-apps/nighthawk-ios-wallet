@@ -75,6 +75,8 @@ public struct AdvancedView: View {
 
                 experimentalOmrSection
 
+                disableDirectConnectionSection
+
                 themeSection
 
                 banditSettings
@@ -149,6 +151,25 @@ private extension AdvancedView {
         Text(L10n.Nighthawk.SettingsTab.Advanced.UnifOmr.subtitle)
         .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
         .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    var disableDirectConnectionSection: some View {
+        Toggle(
+            isOn: Binding(
+                get: { store.disableDirectConnection },
+                set: { store.send(.disableDirectConnectionToggled($0)) }
+            )
+        ) {
+            Text("Disable Direct Connections")
+                .paragraphMedium(color: Asset.Colors.Nighthawk.textHeader.color)
+        }
+        .toggleStyle(SwitchToggleStyle(tint: Asset.Colors.Nighthawk.peach.color))
+        .padding(.vertical, 8)
+
+        Text("Permanently block Direct (clearnet) fallback and \"Continue without Nym\" across wallet and chat.")
+            .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
+            .padding(.bottom, 8)
     }
 
     @ViewBuilder

@@ -53,7 +53,7 @@ final class SendTests: XCTestCase {
             fee: 10_000,
             isSending: true
         )
-        XCTAssertEqual(TransactionState(from: alreadyNegative).zecAmount, -50_000_000)
+        XCTAssertEqual(TransactionState(from: alreadyNegative).drkAmount, -50_000_000)
 
         let freshPositive = DarkfiTransactionOverview(
             rawId: "def",
@@ -61,7 +61,7 @@ final class SendTests: XCTestCase {
             fee: 10_000,
             isSending: true
         )
-        XCTAssertEqual(TransactionState(from: freshPositive).zecAmount, -25_000_000)
+        XCTAssertEqual(TransactionState(from: freshPositive).drkAmount, -25_000_000)
     }
 
     func testFullTransactionSyncAndTransferLiveTestnet() throws {
@@ -325,7 +325,7 @@ final class SendFlowAndSyncUnitTests: XCTestCase {
         await store.receive(.setProposal(Proposal(estimatedFee: 10_000)))
         await store.receive { action in
             if case let .review(reviewState) = action {
-                return reviewState.syncMethod == .unifOmr && reviewState.zecAmount == 50_000_000
+                return reviewState.syncMethod == .unifOmr && reviewState.drkAmount == 50_000_000
             }
             return false
         }

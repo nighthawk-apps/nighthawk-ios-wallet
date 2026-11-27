@@ -1,5 +1,5 @@
-module darkfi_mobile_ffiFFI {
-    header "darkfi_mobile_ffiFFI.h"
+module blackhawkFFI {
+    header "blackhawkFFI.h"
     export *
     use "Darwin"
     use "_Builtin_stdbool"

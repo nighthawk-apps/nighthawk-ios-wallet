@@ -107,32 +107,35 @@ final class WalletHandleManager: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
 
-        let (walletDbPath, cachePath) = Self.prepareStoragePaths(mode: mode, releasing: &_handle)
-        let words = try Self.parseMnemonicWords(from: seed)
-        let conn = try Self.resolveConnectionConfig()
+        let (walletDbPath, cachePath) = try {
+            let words = try Self.parseMnemonicWords(from: seed)
+            let conn = try Self.resolveConnectionConfig()
+            let paths = Self.prepareStoragePaths(mode: mode, releasing: &_handle)
+            let config = DrkBootstrapConfig(
+                network: DarkfiNetwork.activeLabel,
+                mnemonic: words,
+                walletDbPath: paths.walletDbPath,
+                cachePath: paths.cachePath,
+                walletPass: DrkWalletPassStore.forMnemonic(words: words),
+                lightwalletServerUrl: conn.endpoint,
+                birthdayHeight: Self.resolvedBirthdayHeight(birthday: birthday, mode: mode),
+                lightwalletTlsPinSha256: conn.resolvedTlsPin.map { [UInt8]($0) },
+                useTor: conn.torForWallet,
+                torSocksPort: conn.socksPort,
+                useNym: conn.nymForWallet,
+                nymSocksPort: conn.nymSocksPort,
+                darkfidRpcUrl: nil,
+                strictOmrOnly: WalletSyncPrivacy.strictOmrOnly
+            )
 
-        let config = DrkBootstrapConfig(
-            network: DarkfiNetwork.activeLabel,
-            mnemonic: words,
-            walletDbPath: walletDbPath,
-            cachePath: cachePath,
-            walletPass: DrkWalletPassStore.forMnemonic(words: words),
-            lightwalletServerUrl: conn.endpoint,
-            birthdayHeight: Self.resolvedBirthdayHeight(birthday: birthday, mode: mode),
-            lightwalletTlsPinSha256: conn.resolvedTlsPin.map { [UInt8]($0) },
-            useTor: conn.torForWallet,
-            torSocksPort: conn.socksPort,
-            useNym: conn.nymForWallet,
-            nymSocksPort: conn.nymSocksPort,
-            darkfidRpcUrl: nil,
-            strictOmrOnly: WalletSyncPrivacy.strictOmrOnly
-        )
-
-        _handle = try Self.openHandleWithRecovery(
-            config: config,
-            walletDbPath: walletDbPath,
-            cachePath: cachePath
-        )
+            _handle = try Self.openHandleWithRecovery(
+                config: config,
+                walletDbPath: paths.walletDbPath,
+                cachePath: paths.cachePath
+            )
+            return paths
+        }()
+        Self.protectWalletStorage(walletDbPath: walletDbPath, cachePath: cachePath)
 
         // Surface chain reorgs to SynchronizerState (and any UI observing the stream).
         let manager = WalletHandleManager.shared
@@ -171,8 +174,8 @@ final class WalletHandleManager: @unchecked Sendable {
 
         // swiftlint:disable:next force_unwrapping
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        Self.removeWalletDatabaseFiles(in: docs)
         let paths = [
-            docs.appendingPathComponent("darkfi_wallet.db").path,
             docs.appendingPathComponent("darkfi_cache").path,
             docs.appendingPathComponent("ios_wallet_address.txt").path
         ]
@@ -272,13 +275,49 @@ extension WalletHandleManager {
 
         switch mode {
         case .newWallet, .restoreWallet:
-            try? FileManager.default.removeItem(atPath: walletDbPath)
+            removeWalletDatabaseFiles(in: docs)
             try? FileManager.default.removeItem(atPath: cachePath)
         case .existingWallet:
             break
         }
         try? FileManager.default.createDirectory(atPath: cachePath, withIntermediateDirectories: true)
+        protectWalletStorage(walletDbPath: walletDbPath, cachePath: cachePath)
         return (walletDbPath, cachePath)
+    }
+
+    private static func removeWalletDatabaseFiles(in docs: URL) {
+        let fm = FileManager.default
+        let directPaths = [
+            "darkfi_wallet.db",
+            "darkfi_wallet.db-wal",
+            "darkfi_wallet.db-shm",
+            "darkfi_wallet.db-journal"
+        ]
+        for name in directPaths {
+            try? fm.removeItem(at: docs.appendingPathComponent(name))
+        }
+        if let entries = try? fm.contentsOfDirectory(at: docs, includingPropertiesForKeys: nil) {
+            for entry in entries where entry.lastPathComponent.hasPrefix("darkfi_wallet.db.quarantine-") {
+                try? fm.removeItem(at: entry)
+            }
+        }
+    }
+
+    private static func protectWalletStorage(walletDbPath: String, cachePath: String) {
+        excludeAndProtect(URL(fileURLWithPath: cachePath, isDirectory: true))
+        for suffix in ["", "-wal", "-shm", "-journal"] {
+            excludeAndProtect(URL(fileURLWithPath: walletDbPath + suffix))
+        }
+    }
+
+    private static func excludeAndProtect(_ url: URL) {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: url.path) else { return }
+        var mutable = url
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? mutable.setResourceValues(values)
+        try? fm.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
     }
 
     private static func parseMnemonicWords(from seed: [UInt8]) throws -> [String] {

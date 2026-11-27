@@ -284,7 +284,13 @@ public struct ChangeServer {
                 userStoredPreferences.setIsUsingCustomLightwalletd(previousIsUsingCustom)
                 userStoredPreferences.setCustomLightwalletdServer(previousCustomServer)
                 state.alert = AlertState.serverChangeFailed(error)
-                return .none
+                return .run { [walletStorage, sdkSynchronizer, mnemonic] _ in
+                    try? await WalletTransportReprepare.reprepareExisting(
+                        walletStorage: walletStorage,
+                        sdkSynchronizer: sdkSynchronizer,
+                        mnemonic: mnemonic
+                    )
+                }
             case let .changeSucceeded(savedUsesCustom, savedCustomServer):
                 state.isChangingServer = false
                 state.savedUsesCustom = savedUsesCustom

@@ -54,7 +54,10 @@ private struct FiatProxyConfig: Equatable {
             rawValue: UserDefaults.standard.string(forKey: "darkfiWalletPrivacyNetwork")
                 ?? NighthawkSetting.PrivacyNetwork.default.rawValue
         ) ?? .default
-        let resolved = SessionPrivacyOverride.resolved(stored: stored)
+        let disableDirect = UserDefaults.standard.bool(forKey: "darkfiDisableDirectConnection")
+        let resolvedRaw = SessionPrivacyOverride.resolved(stored: stored)
+        let resolved: NighthawkSetting.PrivacyNetwork =
+            (disableDirect && resolvedRaw == .direct) ? .nym : resolvedRaw
         let port: Int?
         switch resolved {
         case .direct:

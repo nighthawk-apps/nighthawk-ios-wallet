@@ -131,20 +131,12 @@ private extension StoreOf<TransactionDetail> {
                 contentsOf: [
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.recipient,
-                        value: self.shielded
-                            ? L10n.Nighthawk.TransactionDetails.recipientShielded
-                            : L10n.Nighthawk.TransactionDetails.recipientTransparent,
+                        value: L10n.Nighthawk.TransactionDetails.recipientShielded,
                         showBorder: false
                     ),
                     TransactionLineItem(
                         name: L10n.Nighthawk.TransactionDetails.address,
-                        value: address,
-                        action: .button(
-                            title: L10n.Nighthawk.TransactionDetails.viewOnBlockExplorer,
-                            action: {
-                                self.send(.warnBeforeLeavingApp(self.viewRecipientOnlineURL))
-                            }
-                        )
+                        value: address
                     )
                 ]
             )
@@ -165,7 +157,7 @@ private extension StoreOf<TransactionDetail> {
             contentsOf: [
                 TransactionLineItem(
                     name: L10n.Nighthawk.TransactionDetails.totalAmount,
-                    value: "\(self.zecAmount.decimalString()) \(tokenName)"
+                    value: "\(self.drkAmount.decimalString()) \(tokenName)"
                 )
             ]
         )
@@ -221,7 +213,7 @@ private extension TransactionDetailView {
             VStack {
                 HStack(alignment: .center) {
                     Group {
-                        Text("\(store.zecAmount.decimalString())")
+                        Text("\(store.drkAmount.decimalString())")
                             .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
 
                         Text(store.tokenName)
@@ -233,7 +225,7 @@ private extension TransactionDetailView {
                 if let (currency, price) = store.fiatConversion {
                     Text(
                         L10n.Nighthawk.TransactionDetails.Fiat.around(
-                            (price * store.zecAmount.decimalValue.doubleValue).currencyString,
+                            (price * store.drkAmount.decimalValue.doubleValue).currencyString,
                             currency.rawValue.uppercased()
                         )
                     )

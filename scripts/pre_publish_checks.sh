@@ -10,9 +10,9 @@ FAILED=0
 # 1. Debug log scan (covers both SwiftPM modules and host app target)
 echo "[1/4] Checking for debug logs (print, NSLog)..."
 # Generated UniFFI glue prints when a callback handle is already gone. It is regenerated from the UDL.
-if git grep -qE "(^|[[:space:]])(print|println|debugPrint|NSLog)\(" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift"; then
+if git grep -qE "(^|[[:space:]])(print|println|debugPrint|NSLog)\(" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/blackhawk.swift"; then
     echo "❌ Found debug logging statements! These must be removed or gated."
-    git grep -nE "(^|[[:space:]])(print|println|debugPrint|NSLog)\(" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift" || true
+    git grep -nE "(^|[[:space:]])(print|println|debugPrint|NSLog)\(" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/blackhawk.swift" || true
     FAILED=1
 else
     echo "✅ No stray debug logs found."
@@ -20,7 +20,7 @@ fi
 
 # 2. Sensitive terms near logs or telemetry
 echo "[2/4] Checking for sensitive terms near logs..."
-if git grep -E -C 3 "seed|mnemonic|private key|private_key|spending key|viewing key|secret|password|pin|memo|txid" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/darkfi_mobile_ffi.swift" | grep -iE -q "(^|[^a-zA-Z0-9_])(print|println|debugPrint|NSLog|os_log|LoggerProxy\.[a-z]+)\("; then
+if git grep -E -C 3 "seed|mnemonic|private key|private_key|spending key|viewing key|secret|password|pin|memo|txid" -- "modules/Sources/" "stealth/" ":!modules/Sources/DarkfiCore/blackhawk.swift" | grep -iE -q "(^|[^a-zA-Z0-9_])(print|println|debugPrint|NSLog|os_log|LoggerProxy\.[a-z]+)\("; then
     echo "❌ Found sensitive terms near logging statements!"
     FAILED=1
 else

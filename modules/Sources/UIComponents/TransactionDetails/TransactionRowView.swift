@@ -60,14 +60,14 @@ public struct TransactionRowView: View {
 
             VStack(alignment: .trailing, spacing: 5) {
                 if showAmount {
-                    Text(L10n.balance(transaction.zecAmount.decimalString(), tokenName))
+                    Text(L10n.balance(transaction.drkAmount.decimalString(), tokenName))
                         .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
                         .font(.custom(FontFamily.PulpDisplay.medium.name, size: 16))
 
                     if let (currency, price) = fiatConversion {
                         Text(
                             L10n.balance(
-                                (price * transaction.zecAmount.decimalValue.doubleValue).currencyString,
+                                (price * transaction.drkAmount.decimalValue.doubleValue).currencyString,
                                 currency.rawValue.uppercased()
                             )
                         )

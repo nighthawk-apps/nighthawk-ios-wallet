@@ -175,7 +175,7 @@ public struct Wallet {
                       !recipient.isEmpty
                 else { return .none }
                 // The net value of a send is the amount plus the fee.
-                let amount = max(abs(event.transaction.zecAmount) - event.transaction.fee, 0)
+                let amount = max(abs(event.transaction.drkAmount) - event.transaction.fee, 0)
                 return .send(.delegate(.sendAgain(recipient: recipient, amount: amount)))
             }
         }

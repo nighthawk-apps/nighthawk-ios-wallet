@@ -59,7 +59,8 @@ public struct ChatSettings {
                     id: nick.isEmpty ? dmKey : nick.lowercased(),
                     nickname: nick,
                     dmPublicKey: dmKey,
-                    walletAddress: addr
+                    walletAddress: addr,
+                    ratchetCapable: !dmKey.isEmpty
                 )
             )
         }
@@ -292,6 +293,7 @@ public extension ChatSettings {
             public var myPublicKey: String = ""
             public var theirPublicKey: String = ""
             public var walletAddress: String = ""
+            public var ratchetCapable: Bool = false
             public var errorMessage: String?
             public init() {}
         }
@@ -327,6 +329,7 @@ public extension ChatSettings {
                     if let addr = contact.walletAddress, !addr.isEmpty {
                         state.walletAddress = addr
                     }
+                    state.ratchetCapable = contact.ratchetCapable
                     state.errorMessage = nil
                     return .none
                 case .generateKeysTapped:
@@ -391,7 +394,8 @@ private extension ChatSettings {
                         contactLabel: nick,
                         theirPublicB58: theirPublic,
                         mySecretB58: mySecret,
-                        myPublicB58: myPublic
+                        myPublicB58: myPublic,
+                        ratchetCapable: dialog.ratchetCapable
                     )
                 } catch {
                     return

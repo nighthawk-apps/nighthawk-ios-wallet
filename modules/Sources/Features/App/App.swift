@@ -162,6 +162,9 @@ public struct AppReducer {
                 return .none
             case .deleteWalletSuccess:
                 DarkircDaemonManager.shared.stop()
+                SessionPrivacyOverride.clear()
+                TransportHooks.clearSessionOverride()
+                TransportHooks.setDirectDisabled(false)
                 walletStorage.deleteWallet()
                 SecurityPinStore.clearPin()
                 userStoredPreferences.removeAll()
@@ -183,6 +186,9 @@ public struct AppReducer {
                 state.splash.hasCompletedInitialRoute = false
                 if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
                     try? fileManager.removeItem(eventsCache)
+                    try? fileManager.removeItem(
+                        eventsCache.deletingPathExtension().appendingPathExtension("enc")
+                    )
                 }
 
                 state.path = StackState([.welcome(.init())])

@@ -73,9 +73,21 @@ private extension TorNetworkView {
             Spacer().frame(height: 4)
 
             VStack(spacing: 0) {
-                ForEach(NighthawkSetting.PrivacyNetwork.allCases) { network in
+                ForEach(
+                    NighthawkSetting.PrivacyNetwork.allCases.filter {
+                        !(store.disableDirectConnection && $0 == .direct)
+                    }
+                ) { network in
                     privacyNetworkRow(network)
                 }
+            }
+
+            if store.disableDirectConnection {
+                Text("Direct (clearnet) connections are permanently disabled in Settings → Advanced.")
+                    .font(.custom(FontFamily.PulpDisplay.regular.name, size: 12))
+                    .foregroundColor(Asset.Colors.Nighthawk.parmaviolet.color)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 4)
             }
 
             if store.isNymEnabled {

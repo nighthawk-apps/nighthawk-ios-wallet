@@ -42,7 +42,7 @@ extension SendFlow {
                 await send(
                     .review(
                         .init(
-                            zecAmount: state.amountToSend,
+                            drkAmount: state.amountToSend,
                             memo: state.memo,
                             recipient: recipientAddr,
                             latestFiatPrice: state.latestFiatPrice,

@@ -91,6 +91,18 @@ private enum NighthawkMeshABI {
 
     @_silgen_name("nh_mesh_record_bulk_bytes")
     static func recordBulkBytes(_ count: UInt64) -> Int32
+
+    @_silgen_name("nh_mesh_pin_peer_key")
+    static func pinPeerKey(_ staticPublic: UnsafePointer<UInt8>?, _ len: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_unpin_peer_key")
+    static func unpinPeerKey(_ staticPublic: UnsafePointer<UInt8>?, _ len: Int32) -> Int32
+
+    @_silgen_name("nh_mesh_clear_pinned_peers")
+    static func clearPinnedPeers() -> Int32
+
+    @_silgen_name("nh_mesh_set_require_pinned_control")
+    static func setRequirePinnedControl(_ required: Int32) -> Int32
 }
 
 /// Decoded inbound mesh event popped from `nh_mesh_pop_inbound_event`.
@@ -510,5 +522,29 @@ extension NighthawkMeshEngine {
 
     static func recordBulkBytes(_ count: UInt64) -> Bool {
         NighthawkMeshABI.recordBulkBytes(count) == 1
+    }
+
+    @discardableResult
+    static func pinPeerKey(_ staticPublic: Data) -> Bool {
+        guard staticPublic.count == 32 else { return false }
+        return staticPublic.withUnsafeBytes { raw in
+            NighthawkMeshABI.pinPeerKey(raw.bindMemory(to: UInt8.self).baseAddress, 32) == 1
+        }
+    }
+
+    @discardableResult
+    static func unpinPeerKey(_ staticPublic: Data) -> Bool {
+        guard staticPublic.count == 32 else { return false }
+        return staticPublic.withUnsafeBytes { raw in
+            NighthawkMeshABI.unpinPeerKey(raw.bindMemory(to: UInt8.self).baseAddress, 32) == 1
+        }
+    }
+
+    static func clearPinnedPeers() {
+        _ = NighthawkMeshABI.clearPinnedPeers()
+    }
+
+    static func setRequirePinnedControl(_ required: Bool) {
+        _ = NighthawkMeshABI.setRequirePinnedControl(required ? 1 : 0)
     }
 }

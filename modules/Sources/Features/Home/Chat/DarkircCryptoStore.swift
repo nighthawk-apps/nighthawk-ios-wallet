@@ -21,6 +21,17 @@ public struct DmContact: Codable, Equatable, Identifiable, Sendable {
     public let mySecretB58: String
     public let myPublicB58: String
     public let createdAt: Date
+    public let ratchetCapable: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case contactLabel
+        case theirPublicB58
+        case mySecretB58
+        case myPublicB58
+        case createdAt
+        case ratchetCapable
+    }
 
     public init(
         id: String = UUID().uuidString,
@@ -28,7 +39,8 @@ public struct DmContact: Codable, Equatable, Identifiable, Sendable {
         theirPublicB58: String,
         mySecretB58: String,
         myPublicB58: String,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        ratchetCapable: Bool = false
     ) {
         self.id = id
         self.contactLabel = contactLabel
@@ -36,6 +48,18 @@ public struct DmContact: Codable, Equatable, Identifiable, Sendable {
         self.mySecretB58 = mySecretB58
         self.myPublicB58 = myPublicB58
         self.createdAt = createdAt
+        self.ratchetCapable = ratchetCapable
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        contactLabel = try container.decode(String.self, forKey: .contactLabel)
+        theirPublicB58 = try container.decode(String.self, forKey: .theirPublicB58)
+        mySecretB58 = try container.decode(String.self, forKey: .mySecretB58)
+        myPublicB58 = try container.decode(String.self, forKey: .myPublicB58)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        ratchetCapable = try container.decodeIfPresent(Bool.self, forKey: .ratchetCapable) ?? false
     }
 }
 
@@ -132,9 +156,13 @@ public actor DarkircCryptoStore {
         contactLabel: String,
         theirPublicB58: String,
         mySecretB58: String,
-        myPublicB58: String
+        myPublicB58: String,
+        ratchetCapable: Bool = false
     ) throws -> DmContact {
         ensureLoaded()
+        guard loaded else {
+            throw KeychainWriteError.status(errSecInteractionNotAllowed)
+        }
         let cleanLabel = contactLabel.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanLabel.isEmpty, !cleanLabel.hasPrefix("#") else {
             throw KeychainWriteError.status(errSecParam)
@@ -143,7 +171,8 @@ public actor DarkircCryptoStore {
             contactLabel: cleanLabel,
             theirPublicB58: theirPublicB58,
             mySecretB58: mySecretB58,
-            myPublicB58: myPublicB58
+            myPublicB58: myPublicB58,
+            ratchetCapable: ratchetCapable
         )
         let previousContacts = contacts
         let previousConversations = conversations
@@ -182,7 +211,8 @@ public actor DarkircCryptoStore {
                 id: contact.contactLabel.lowercased(),
                 nickname: contact.contactLabel,
                 dmPublicKey: theirPublicB58,
-                walletAddress: existing?.walletAddress
+                walletAddress: existing?.walletAddress,
+                ratchetCapable: contact.ratchetCapable
             )
         )
         return contact
@@ -191,6 +221,7 @@ public actor DarkircCryptoStore {
     /// Remove a contact by ID.
     public func removeContact(id: String) {
         ensureLoaded()
+        guard loaded else { return }
         let previousContacts = contacts
         let previousConversations = conversations
         let removed = contacts.first { $0.id == id }
@@ -211,6 +242,7 @@ public actor DarkircCryptoStore {
     /// Remove contacts matching label (case-insensitive).
     public func removeContact(byLabel label: String) {
         ensureLoaded()
+        guard loaded else { return }
         let normalized = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let removed = contacts.filter { $0.contactLabel.lowercased() == normalized }
         guard !removed.isEmpty else { return }
@@ -300,7 +332,12 @@ private extension DarkircCryptoStore {
             return false
         }
         do {
-            try registerDmContact(nick: contact.contactLabel, mySecret: secretBytes, theirPublic: publicBytes)
+            try registerDmContactEx(
+                nick: contact.contactLabel,
+                mySecret: secretBytes,
+                theirPublic: publicBytes,
+                ratchetCapable: contact.ratchetCapable
+            )
         } catch {
             return false
         }
@@ -311,14 +348,18 @@ private extension DarkircCryptoStore {
         guard !loaded else { return }
 
         let (keychainData, status) = readFromKeychainWithStatus()
-        if status == errSecInteractionNotAllowed {
+        if status == errSecItemNotAllowed || status == errSecInteractionNotAllowed {
             return
         }
-        loaded = true
-
-        if let data = keychainData,
-           let decoded = try? decoder.decode([DmContact].self, from: data) {
+        if status == errSecItemNotFound {
+            loaded = true
+        } else if status == errSecSuccess,
+                  let data = keychainData,
+                  let decoded = try? decoder.decode([DmContact].self, from: data) {
             contacts = decoded
+            loaded = true
+        } else {
+            return
         }
 
         // Migrate any legacy plaintext disk files into Keychain, then securely overwrite & delete.
@@ -415,6 +456,7 @@ private extension DarkircCryptoStore {
     func saveContactsToKeychain() -> Bool { saveContactsToKeychainStatus() == errSecSuccess }
 
     func saveContactsToKeychainStatus() -> OSStatus {
+        guard loaded else { return errSecInteractionNotAllowed }
         guard let data = try? encoder.encode(contacts) else { return errSecParam }
         let status = KeychainGenericPassword.upsert(service: keychainService, account: keychainAccount, data: data)
         if status == errSecSuccess { scrubLegacySecretFiles() }

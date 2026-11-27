@@ -52,13 +52,22 @@ public enum NighthawkContactStore {
         let resolvedNick = !nick.isEmpty ? nick : (existingByAddr?.nickname ?? cleanAddr ?? "")
         let resolvedDm = !dmKey.isEmpty ? dmKey : (existingByNick?.dmPublicKey ?? existingByAddr?.dmPublicKey ?? "")
         let resolvedAddr = cleanAddr ?? existingByNick?.walletAddress
+        let resolvedRatchet = contact.ratchetCapable
+            || (existingByNick?.ratchetCapable ?? false)
+            || (existingByAddr?.ratchetCapable ?? false)
         let id = !resolvedNick.isEmpty ? resolvedNick.lowercased() : (resolvedAddr ?? resolvedDm)
 
         var next = load().filter {
             $0.id != id && (resolvedAddr == nil || $0.walletAddress != resolvedAddr)
         }
         next.insert(
-            NighthawkContact(id: id, nickname: resolvedNick, dmPublicKey: resolvedDm, walletAddress: resolvedAddr),
+            NighthawkContact(
+                id: id,
+                nickname: resolvedNick,
+                dmPublicKey: resolvedDm,
+                walletAddress: resolvedAddr,
+                ratchetCapable: resolvedRatchet
+            ),
             at: 0
         )
         next = Array(next.prefix(maxEntries))
@@ -89,9 +98,16 @@ public enum NighthawkContactStore {
         var nickname: String
         var dmPublicKey: String
         var walletAddress: String?
+        var ratchetCapable: Bool
 
         var contact: NighthawkContact {
-            NighthawkContact(id: id, nickname: nickname, dmPublicKey: dmPublicKey, walletAddress: walletAddress)
+            NighthawkContact(
+                id: id,
+                nickname: nickname,
+                dmPublicKey: dmPublicKey,
+                walletAddress: walletAddress,
+                ratchetCapable: ratchetCapable
+            )
         }
 
         init(_ contact: NighthawkContact) {
@@ -99,6 +115,20 @@ public enum NighthawkContactStore {
             nickname = contact.nickname
             dmPublicKey = contact.dmPublicKey
             walletAddress = contact.walletAddress
+            ratchetCapable = contact.ratchetCapable
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case id, nickname, dmPublicKey, walletAddress, ratchetCapable
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            nickname = try container.decode(String.self, forKey: .nickname)
+            dmPublicKey = try container.decode(String.self, forKey: .dmPublicKey)
+            walletAddress = try container.decodeIfPresent(String.self, forKey: .walletAddress)
+            ratchetCapable = try container.decodeIfPresent(Bool.self, forKey: .ratchetCapable) ?? false
         }
     }
 

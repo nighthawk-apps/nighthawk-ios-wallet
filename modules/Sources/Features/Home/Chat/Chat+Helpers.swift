@@ -117,6 +117,7 @@ func sendDirectMessage(
     let secret = contact.mySecretB58
     let theirPublic = contact.theirPublicB58
     let label = contact.contactLabel
+    let ratchetCapable = contact.ratchetCapable
     let nick = state.nickname
     let contactId = contact.id
     let optimisticId = message.id
@@ -127,19 +128,6 @@ func sendDirectMessage(
     }
 
     return .run { send in
-        guard let skBytes = Base58.decode(secret), skBytes.count == 32,
-              let pkBytes = Base58.decode(theirPublic), pkBytes.count == 32 else {
-            await send(.ircBridgeError("Invalid DM keys for \(label)"))
-            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
-            return
-        }
-        do {
-            try registerDmContact(nick: label, mySecret: skBytes, theirPublic: pkBytes)
-        } catch {
-            await send(.ircBridgeError("DM contact was not registered"))
-            await send(.removeOptimisticDm(id: optimisticId, contactId: contactId))
-            return
-        }
         do {
             try sendChatMessage(channel: label, nick: nick, message: text)
             await DarkircCryptoStore.shared.updateConversation(
@@ -148,6 +136,28 @@ func sendDirectMessage(
                 incrementUnread: false
             )
         } catch {
+            let msg = error.localizedDescription.lowercased()
+            let needsRegister = msg.contains("not registered") || msg.contains("unregistered")
+                || msg.contains("unknown contact") || msg.contains("unknown dm")
+            if needsRegister,
+               let skBytes = Base58.decode(secret), skBytes.count == 32,
+               let pkBytes = Base58.decode(theirPublic), pkBytes.count == 32 {
+                do {
+                    try registerDmContactEx(
+                        nick: label,
+                        mySecret: skBytes,
+                        theirPublic: pkBytes,
+                        ratchetCapable: ratchetCapable
+                    )
+                    try sendChatMessage(channel: label, nick: nick, message: text)
+                    await DarkircCryptoStore.shared.updateConversation(
+                        contactId: contactId,
+                        lastMessage: text,
+                        incrementUnread: false
+                    )
+                    return
+                } catch {}
+            }
             _ = await ChatOutboxStore.shared.enqueue(id: optimisticId, channel: label, text: text)
             await send(.ircBridgeError("Send failed; queued for retry: \(error.localizedDescription)"))
             await send(.markOutgoingFailed(id: optimisticId, channel: label))

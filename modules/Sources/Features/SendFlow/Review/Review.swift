@@ -21,16 +21,17 @@ public struct Review {
     public struct State: Equatable {
         @Presents public var alert: AlertState<Action.Alert>?
 
-        public var zecAmount: DrkAmount
+        public var drkAmount: DrkAmount
         public var proposal: Proposal
         public var fee: DrkAmount { proposal.totalFeeRequired() }
         public var memo: RedactableString?
         public var recipient: String
         public var recipientIsExternal = false
-        public var total: DrkAmount { zecAmount + fee }
+        public var total: DrkAmount { drkAmount + fee }
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
         public var latestFiatPrice: Double?
         public var fiatConversion: (NighthawkSetting.FiatCurrency, Double)? {
+            guard tokenName == "DRK" else { return nil }
             if let latestFiatPrice, preferredCurrency != .off {
                 (preferredCurrency, latestFiatPrice)
             } else {
@@ -42,7 +43,7 @@ public struct Review {
         public var syncMethod: DarkfiSyncMethod
 
         public init(
-            zecAmount: DrkAmount,
+            drkAmount: DrkAmount,
             memo: RedactableString?,
             recipient: String,
             latestFiatPrice: Double?,
@@ -50,7 +51,7 @@ public struct Review {
             tokenName: String = "DRK",
             syncMethod: DarkfiSyncMethod = .unknown
         ) {
-            self.zecAmount = zecAmount
+            self.drkAmount = drkAmount
             self.memo = memo
             self.recipient = recipient
             self.latestFiatPrice = latestFiatPrice

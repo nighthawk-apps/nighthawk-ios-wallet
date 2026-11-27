@@ -66,7 +66,7 @@ let package = Package(
         .target(
             name: "DarkfiCore",
             dependencies: [
-                "darkfi_mobile_ffiFFI"
+                "blackhawkFFI"
             ],
             path: "Sources/DarkfiCore",
             exclude: ["DarkfiCore.xcframework"],
@@ -75,7 +75,7 @@ let package = Package(
             ]
         ),
         .binaryTarget(
-            name: "darkfi_mobile_ffiFFI",
+            name: "blackhawkFFI",
             path: "Sources/DarkfiCore/DarkfiCore.xcframework"
         ),
         .target(

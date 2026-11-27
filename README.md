@@ -1,8 +1,17 @@
 # Nighthawk Wallet (DarkFi Edition) — iOS
 
-Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`rust/darkfi-mobile-ffi` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
+Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`../blackhawk` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
 **3.01.24** (`CURRENT_PROJECT_VERSION=30100824`). DarkIRC can start again after a disconnect because the leftover datastore lock is released. Release builds no longer write wallet diagnostics to the unified log. Default sync trial-decrypts notes in parallel. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `b87318e80`, Arti 0.48. nym-smolmix pin `5f0dba82`. Aligns with Android 3.01.23, desktop 3.1.23, Moonshine 3.1.23, and lightwalletd 0.3.15.
+
+## Executive Summary: Why Nighthawk Leads in Privacy
+
+Nighthawk is engineered as a full-stack private money and communications client with zero transparent escape hatches:
+
+- **Shielded-only ZK base layer (DarkFi Halo2):** Every transfer, custom token mint/send, and DAO governance action is shielded inside Halo2 zero-knowledge proofs against the global Merkle tree. Unlike Zcash, there are no transparent `t-addr` pools, no multi-pool value splits, and no TEX-style forced deshielding; unlike Monero (pre-FCMP++), anonymity sets are not limited to finite decoy ring signatures; unlike Namada/Penumbra/Pirate Chain, full-stack privacy extends seamlessly from shielded assets and DAOs into native P2P chat.
+- **Network-layer privacy on by default:** iOS and Android route wallet sync, broadcast, DarkIRC chat, and SPKI-pinned fiat quotes over the **Nym mixnet** by default, with atomic switching to embedded **Arti (Tor)** (Desktop and Moonshine default to Tor). Telemetry/analytics SDKs are absent, release builds silence OS unified logs/logcat, and **Settings → Advanced** provides a persistent **Disable Direct Connection** lock.
+- **Private light-client sync:** Production sync uses padded trial decryption over Nym/Tor. Opt-in **UnifOMR (Param2, ePrint 2026/910) + batch PIR** uses power-of-2 padded digest windows, decoy clue directories with ≥250 ms timing padding, and fail-closed full-window streaming on PIR errors so light servers never learn which heights matched.
+- **Integrated encrypted P2P chat & BLE mesh:** DarkIRC runs in-process over Nym or `.onion` Tor seeds with upstream-compatible `ChaChaBox` DM envelopes, upgraded automatically for Nighthawk contacts with a **wallet-level Double Ratchet** (`NHDR1:`) for per-message forward secrecy, plus offline BLE EventGraph mesh gossip with optional peer static-key pinning.
 
 ## Contents
 
@@ -37,15 +46,14 @@ Path dependencies and sibling Nighthawk repos use these **directory names**:
 parent/
   darkfi/                 # do not clone git.dark.fi (HTTP 504). vendor-darkfi.sh uses nighthawk24/darkfi
   darkfi-lightwalletd/    # gRPC lightwalletd (local sync target)
-  darkfi-mobile-ffi/      # optional sibling symlink of rust/darkfi-mobile-ffi for desktop/other clients
+  blackhawk/              # Nighthawk's standalone FFI + UnifOMR core (MIT)
   nighthawk-ios-wallet/   # this repo
   nighthawk-android-wallet/
   nighthawk-desktop/
   moonshine/
 ```
 
-Vendored DarkFi lives at `third_party/darkfi/` (gitignored). Other clients can consume the
-UniFFI crate from `rust/darkfi-mobile-ffi`, or via a sibling checkout named `darkfi-mobile-ffi`.
+Vendored DarkFi lives at `third_party/darkfi/` (gitignored). The shared UniFFI crate lives in the sibling [`blackhawk`](../blackhawk) repository (`crates/blackhawk`).
 
 ## Quick start
 

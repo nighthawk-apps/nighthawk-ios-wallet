@@ -46,6 +46,8 @@ public struct UserPreferencesStorageClient {
     // Wallet network (Nym / Tor / Direct) and Tor
     public var walletPrivacyNetwork: () -> NighthawkSetting.PrivacyNetwork
     public var setWalletPrivacyNetwork: (NighthawkSetting.PrivacyNetwork) -> Void
+    public var disableDirectConnection: () -> Bool
+    public var setDisableDirectConnection: (Bool) -> Void
     public var torForWalletEnabled: () -> Bool
     public var torForChatEnabled: () -> Bool
     public var setTorForChatEnabled: (Bool) -> Void
@@ -103,6 +105,8 @@ extension UserPreferencesStorageClient: DependencyKey {
         setCustomLightwalletdServer: UserPreferencesStorage.live.setCustomLightwalletdServer(_:),
         walletPrivacyNetwork: { UserPreferencesStorage.live.walletPrivacyNetwork },
         setWalletPrivacyNetwork: UserPreferencesStorage.live.setWalletPrivacyNetwork(_:),
+        disableDirectConnection: { UserPreferencesStorage.live.disableDirectConnection },
+        setDisableDirectConnection: UserPreferencesStorage.live.setDisableDirectConnection(_:),
         torForWalletEnabled: { UserPreferencesStorage.live.torForWalletEnabled },
         torForChatEnabled: { UserPreferencesStorage.live.torForChatEnabled },
         setTorForChatEnabled: UserPreferencesStorage.live.setTorForChatEnabled(_:),

@@ -28,6 +28,7 @@ public struct UserPreferencesStorage {
         case darkfiCustomLightwalletdServer
         case darkfiTorForWallet
         case darkfiWalletPrivacyNetwork
+        case darkfiDisableDirectConnection
         case darkfiTorForChat
         case darkfiUseEmbeddedTor
         case darkfiTorSocksHost
@@ -193,11 +194,37 @@ public struct UserPreferencesStorage {
             forKey: Constants.darkfiWalletPrivacyNetwork.rawValue,
             default: NighthawkSetting.PrivacyNetwork.default.rawValue
         )
-        return NighthawkSetting.PrivacyNetwork(rawValue: rawValue) ?? .default
+        let stored = NighthawkSetting.PrivacyNetwork(rawValue: rawValue) ?? .default
+        if disableDirectConnection && stored == .direct {
+            return .nym
+        }
+        return stored
     }
 
     public func setWalletPrivacyNetwork(_ network: NighthawkSetting.PrivacyNetwork) {
-        setValue(network.rawValue, forKey: Constants.darkfiWalletPrivacyNetwork.rawValue)
+        let target = (disableDirectConnection && network == .direct) ? .nym : network
+        setValue(target.rawValue, forKey: Constants.darkfiWalletPrivacyNetwork.rawValue)
+    }
+
+    /// When true, Direct (clearnet) connections and "Continue without Nym" are permanently disabled.
+    public var disableDirectConnection: Bool {
+        getValue(forKey: Constants.darkfiDisableDirectConnection.rawValue, default: false)
+    }
+
+    public func setDisableDirectConnection(_ disabled: Bool) {
+        setValue(disabled, forKey: Constants.darkfiDisableDirectConnection.rawValue)
+        if disabled {
+            let rawValue = getValue(
+                forKey: Constants.darkfiWalletPrivacyNetwork.rawValue,
+                default: NighthawkSetting.PrivacyNetwork.default.rawValue
+            )
+            if NighthawkSetting.PrivacyNetwork(rawValue: rawValue) == .direct {
+                setValue(
+                    NighthawkSetting.PrivacyNetwork.nym.rawValue,
+                    forKey: Constants.darkfiWalletPrivacyNetwork.rawValue
+                )
+            }
+        }
     }
 
     public var torForWalletEnabled: Bool {

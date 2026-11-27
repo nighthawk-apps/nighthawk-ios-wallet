@@ -109,7 +109,7 @@ struct WalletCompanionPane: View {
         return VStack(alignment: .leading, spacing: 16) {
             Text(tx.isSending ? L10n.Nighthawk.Transaction.sent : L10n.Nighthawk.Transaction.received)
                 .caption(color: Asset.Colors.Nighthawk.parmaviolet.color)
-            Text("\(tx.zecAmount.decimalString()) \(store.tokenName)")
+            Text("\(tx.drkAmount.decimalString()) \(store.tokenName)")
                 .font(.custom(FontFamily.PulpDisplay.medium.name, size: 28))
                 .foregroundColor(Asset.Colors.Nighthawk.textHeader.color)
             if let date = tx.date {

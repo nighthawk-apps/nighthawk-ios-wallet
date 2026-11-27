@@ -3,7 +3,7 @@
 //  stealth
 //
 //  Live implementation wrapping DarkFi Rust core via UniFFI.
-//  Uses DarkfiWalletHandle from darkfi_mobile_ffi.swift.
+//  Uses DarkfiWalletHandle from blackhawk.swift.
 //
 
 import Combine
@@ -224,6 +224,12 @@ extension SDKSynchronizerClient: DependencyKey {
             let amountDecimal = amount.inputDecimalString()
             let tokenBalances = (try? handle.listTokenBalances()) ?? []
             let effectiveTokenId = WalletHandleManager.normalizeTokenId(tokenId, tokenBalances: tokenBalances)
+            let estimatedFee: Int64 = (try? handle.estimateTransferFee(
+                recipientAddress: recipientAddr,
+                amount: amountDecimal,
+                tokenId: effectiveTokenId,
+                paymentMemo: memoText
+            )) ?? 5_000_000
             let txBytes = try handle.buildTransfer(
                 recipientAddress: recipientAddr,
                 amount: amountDecimal,
@@ -271,13 +277,8 @@ extension SDKSynchronizerClient: DependencyKey {
             return DarkfiTransactionOverview(
                 rawId: txHash,
                 timestampEpochSeconds: sentAt,
-                totalAtomicValue: amount,
-                fee: (try? handle.estimateTransferFee(
-                    recipientAddress: recipientAddr,
-                    amount: amountDecimal,
-                    tokenId: effectiveTokenId,
-                    paymentMemo: memoText
-                )) ?? 5_000_000,
+                totalAtomicValue: effectiveTokenId == nil ? (amount + estimatedFee) : amount,
+                fee: estimatedFee,
                 isSending: true,
                 status: "Broadcasted",
                 contractSummary: "Money::TransferV1",

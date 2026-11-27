@@ -96,8 +96,11 @@ public struct Home {
         }
 
         func loadCachedEvents() -> IdentifiedArrayOf<WalletEvent> {
-            if let latestEventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel),
-               let cachedData = try? Data(contentsOf: latestEventsCache),
+            if let cacheUrl = URL.latestEventsCache(for: DarkfiNetwork.activeLabel),
+               let cachedData = ChatEncryptedFileStore.load(
+                   encryptedURL: ChatEncryptedFileStore.encryptedURL(forLegacyJSON: cacheUrl),
+                   legacyPlaintextURL: cacheUrl
+               ),
                let events = try? JSONDecoder().decode([WalletEvent].self, from: cachedData) {
                 return IdentifiedArray(uniqueElements: events)
             }
@@ -255,7 +258,10 @@ private extension Home {
             return .none
         }
         if let eventsCache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
-            try? fileManager.removeItem(eventsCache)
+            ChatEncryptedFileStore.remove(
+                encryptedURL: ChatEncryptedFileStore.encryptedURL(forLegacyJSON: eventsCache),
+                legacyPlaintextURL: eventsCache
+            )
         }
         return .run { send in
             do {
@@ -359,7 +365,11 @@ private extension Home {
         if let cache = URL.latestEventsCache(for: DarkfiNetwork.activeLabel) {
             let latest = IdentifiedArray(events.prefix(2)).elements
             if let data = try? JSONEncoder().encode(latest) {
-                try? dataManager.save(data, cache)
+                ChatEncryptedFileStore.saveAsync(
+                    data,
+                    encryptedURL: ChatEncryptedFileStore.encryptedURL(forLegacyJSON: cache),
+                    legacyPlaintextURL: cache
+                )
             }
         }
         state.$walletInfo.withLock { $0.walletEvents = IdentifiedArrayOf(uniqueElements: events) }

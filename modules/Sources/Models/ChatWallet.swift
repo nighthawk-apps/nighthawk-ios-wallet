@@ -22,12 +22,20 @@ public struct NighthawkContact: Equatable, Identifiable {
     public var nickname: String
     public var dmPublicKey: String
     public var walletAddress: String?
+    public var ratchetCapable: Bool
 
-    public init(id: String, nickname: String, dmPublicKey: String, walletAddress: String? = nil) {
+    public init(
+        id: String,
+        nickname: String,
+        dmPublicKey: String,
+        walletAddress: String? = nil,
+        ratchetCapable: Bool = false
+    ) {
         self.id = id
         self.nickname = nickname
         self.dmPublicKey = dmPublicKey
         self.walletAddress = walletAddress
+        self.ratchetCapable = ratchetCapable
     }
 }
 
@@ -36,11 +44,14 @@ public enum NighthawkContacts {
         let trimmedKey = dmPublicKey.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedAddr = walletAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let material = "\(trimmedKey)|\(trimmedAddr)"
-        let digest = SHA256.hash(data: Data(material.utf8))
-        // Match Android `abs(byte.toInt())`: SHA-256 bytes are signed.
-        let groups = digest.prefix(15).map { byte in
-            let signed = Int(Int8(bitPattern: byte))
-            return String(format: "%05d", abs(signed) % 100_000)
+        let digest = Array(SHA256.hash(data: Data(material.utf8)))
+        let groups = (0..<10).map { idx in
+            let offset = idx * 3
+            let chunk =
+                (Int(digest[offset]) << 16)
+                    | (Int(digest[offset + 1]) << 8)
+                    | Int(digest[offset + 2])
+            return String(format: "%05d", chunk % 100_000)
         }
         return groups.joined(separator: " ")
     }
@@ -64,8 +75,9 @@ public enum NighthawkContacts {
         components.host = "contact"
         var items: [URLQueryItem] = []
         if !nick.isEmpty { items.append(URLQueryItem(name: "nick", value: nick)) }
-        if !dmKey.isEmpty { items.append(URLQueryItem(name: "dm", value: dmKey)) }
+        if !dmKey.isEmpty { items.append(URLQueryItem(name: "k", value: dmKey)) }
         if !addr.isEmpty { items.append(URLQueryItem(name: "addr", value: addr)) }
+        if contact.ratchetCapable { items.append(URLQueryItem(name: "dr", value: "1")) }
         components.queryItems = items
         return components.string
     }
@@ -86,15 +98,18 @@ public enum NighthawkContacts {
                 return ""
             }
             let nick = item("nick", "name", "label")
-            let dmKey = item("dm", "pubkey", "dm_pubkey", "dmPublicKey")
+            let dmKey = item("dm", "k", "pubkey", "key", "dm_pubkey", "dmPublicKey")
             let addr = item("addr", "address", "wallet", "walletAddress")
+            let drRaw = item("dr")
+            let ratchetCapable = drRaw == "1" || drRaw.caseInsensitiveCompare("true") == .orderedSame
             guard !dmKey.isEmpty || !addr.isEmpty else { return nil }
             let id = !nick.isEmpty ? nick.lowercased() : (!addr.isEmpty ? addr : dmKey)
             return NighthawkContact(
                 id: id,
                 nickname: nick,
                 dmPublicKey: dmKey,
-                walletAddress: addr.isEmpty ? nil : addr
+                walletAddress: addr.isEmpty ? nil : addr,
+                ratchetCapable: ratchetCapable
             )
         }
 

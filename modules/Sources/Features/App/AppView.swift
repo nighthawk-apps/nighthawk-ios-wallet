@@ -68,6 +68,17 @@ public struct AppView: View {
             store.send(isEmpty ? .splash(.onAppear) : .splash(.onDisappear))
         }
         .preferredColorScheme(themes.theme.colorScheme)
+        .overlay {
+            if scenePhase != .active {
+                ZStack {
+                    NighthawkScreenBackdrop()
+                        .ignoresSafeArea()
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(themes.theme.primaryAccentColor)
+                }
+            }
+        }
     }
 
     public init(store: StoreOf<AppReducer>) {

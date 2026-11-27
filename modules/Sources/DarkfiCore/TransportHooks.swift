@@ -48,6 +48,14 @@ public enum TransportHooks {
         transportClearSessionOverride()
     }
 
+    public static func setDirectDisabled(_ disabled: Bool) {
+        transportSetDirectDisabled(disabled: disabled)
+    }
+
+    public static func isDirectDisabled() -> Bool {
+        transportIsDirectDisabled()
+    }
+
     /// `kind`: 0 Nym, 1 Tor, 2 Direct.
     public static func apply(kind: Int32, nymPort: Int32, torPort: Int32) {
         _ = TransportApplyABI.apply(kind, nymPort, torPort)
