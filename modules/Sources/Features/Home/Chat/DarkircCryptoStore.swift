@@ -348,7 +348,7 @@ private extension DarkircCryptoStore {
         guard !loaded else { return }
 
         let (keychainData, status) = readFromKeychainWithStatus()
-        if status == errSecItemNotAllowed || status == errSecInteractionNotAllowed {
+        if status == errSecInteractionNotAllowed {
             return
         }
         if status == errSecItemNotFound {
