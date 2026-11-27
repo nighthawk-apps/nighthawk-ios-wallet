@@ -38,7 +38,7 @@ public enum LoggerProxy {
     /// Release builds do not write to the unified log.
     private static func emit(_ message: String) {
         #if DEBUG
-        logger.debug("\(scrub(message))")
+        logger.info("\(scrub(message))")
         #endif
     }
 }

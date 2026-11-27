@@ -69,10 +69,15 @@ final class AppInitializationTests: XCTestCase {
         initial.waitingForNym = true
         initial.pendingLaunch = .launchWallet
 
+        var prefs = UserPreferencesStorageClient.liveValue
+        prefs.disableDirectConnection = { false }
+
         let store = TestStore(
             initialState: initial,
             reducer: Splash.init
-        )
+        ) {
+            $0.userStoredPreferences = prefs
+        }
 
         await store.send(.nymReady) {
             $0.waitingForNym = false
@@ -89,10 +94,15 @@ final class AppInitializationTests: XCTestCase {
         initial.nymFailed = true
         initial.pendingLaunch = .newUser
 
+        var prefs = UserPreferencesStorageClient.liveValue
+        prefs.disableDirectConnection = { false }
+
         let store = TestStore(
             initialState: initial,
             reducer: Splash.init
-        )
+        ) {
+            $0.userStoredPreferences = prefs
+        }
 
         await store.send(.continueWithoutNym) {
             $0.waitingForNym = false
