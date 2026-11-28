@@ -601,8 +601,8 @@
 // Settings - Advanced (Mesh & UnifOMR)
 "nighthawk.settingsTab.advanced.mesh.title" = "Mesh поблизу";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "Ретранслює DarkIRC між сусідніми телефонами Nighthawk через Bluetooth. Роздавання інтернету лишається вимкненим.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "Експериментальний UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "За замовчуванням вимкнено. Пробне розшифрування знаходить усі платежі, зокрема ті, що надійшли з Dark Wallet або з іншого сервера. Увімкнення експериментальне: обидва гаманці мають спочатку зареєструватися на цьому ж lightwalletd, інакше кошти можуть лишитися невидимими. Також надсилається великий ключ виявлення.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (opt-in)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Вимкнено (за замовчуванням) використовує trial decryption для padded compact-block, щоб знаходити кожен платіж гаманця. Увімкніть, щоб підключити UnifOMR v2 + streaming Batch PIR: обидва гаманці мають спочатку зареєструватися на цьому ж fhe-omr lightwalletd; один раз завантажується pooled detection key ~30 MiB через Nym/Tor.";
 
 // Settings - Change Server (TLS, Presets, Port warning)
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 або 127.0.0.1:9067";

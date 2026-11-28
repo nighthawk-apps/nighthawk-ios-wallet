@@ -21,7 +21,7 @@ import Utils
 
 @Reducer
 public struct Home {
-    enum CancelId { case timer }
+    enum CancelId { case timer, autoRetry }
 
     @ObservableState
     public struct State: Equatable {
@@ -68,6 +68,7 @@ public struct Home {
         public var toast: Toast?
 
         public var synchronizerFailedToStart = false
+        public var isAutoRetryingConnection = false
         public var synchronizerFailed: Bool {
             synchronizerFailedToStart || walletInfo.synchronizerStatusSnapshot.isSyncFailed
         }
@@ -111,6 +112,7 @@ public struct Home {
 
     public enum Action: BindableAction, Equatable {
         case alert(PresentationAction<Alert>)
+        case autoRetryCompleted
         case binding(BindingAction<State>)
         case cancelSynchronizerUpdates
         case cantStartSync(DarkFiError)
@@ -168,6 +170,9 @@ public struct Home {
 
         Reduce { state, action in
             switch action {
+            case .autoRetryCompleted:
+                state.isAutoRetryingConnection = false
+                return .none
             case .cancelSynchronizerUpdates:
                 return .cancel(id: CancelId.timer)
             case let .cantStartSync(error):
@@ -324,6 +329,9 @@ private extension Home {
         }
         if latestState.syncStatus == .upToDate {
             userStoredPreferences.setIsFirstSync(false)
+            if latestState.lightwalletdConnected {
+                state.isAutoRetryingConnection = false
+            }
         }
         if showExpectingToast {
             state.toast = .expectingFunds

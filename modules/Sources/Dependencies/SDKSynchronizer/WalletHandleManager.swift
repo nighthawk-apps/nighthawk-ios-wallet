@@ -42,6 +42,8 @@ final class WalletHandleManager: @unchecked Sendable {
     private let lock = NSLock()
     private let stateLock = NSLock()
     private var _handle: DarkfiWalletHandle?
+    private var lastPreparedSeed: [UInt8]?
+    private var lastPreparedBirthday: BlockHeight = 0
     private let stateSubject = CurrentValueSubject<SynchronizerState, Never>(.zero)
     /// Polls Rust background-sync snapshots so UI balance/height update while synced.
     private var pollTimer: DispatchSourceTimer?
@@ -106,6 +108,46 @@ final class WalletHandleManager: @unchecked Sendable {
     func prepare(seed: [UInt8], birthday: BlockHeight, mode: WalletInitMode) throws {
         lock.lock()
         defer { lock.unlock() }
+        try prepareLocked(seed: seed, birthday: birthday, mode: mode, preserving: nil)
+    }
+
+    /// Tears down and recreates the Rust wallet handle using the last prepared seed so
+    /// a stalled/disconnected gRPC or Nym/Tor session actually reconnects on retry.
+    func reconnectForRetry() throws {
+        stopPolling()
+        let prev = latestState
+        updateState(SynchronizerState(
+            syncStatus: .syncing(progress: 0.05),
+            confirmedBalance: prev.confirmedBalance,
+            latestBlockHeight: prev.latestBlockHeight,
+            activeSyncMethod: prev.activeSyncMethod,
+            fallbackReason: prev.fallbackReason,
+            fallbackUserMessage: prev.fallbackUserMessage,
+            lightwalletdConnected: false,
+            lightStatusMessage: prev.lightStatusMessage
+        ))
+        TransportHooks.onNetworkChanged()
+        WalletNetworkWarmStart.startIfNeeded()
+
+        lock.lock()
+        defer { lock.unlock() }
+        guard let seed = lastPreparedSeed else { return }
+        try prepareLocked(
+            seed: seed,
+            birthday: lastPreparedBirthday,
+            mode: .existingWallet,
+            preserving: prev
+        )
+    }
+
+    private func prepareLocked(
+        seed: [UInt8],
+        birthday: BlockHeight,
+        mode: WalletInitMode,
+        preserving previous: SynchronizerState?
+    ) throws {
+        lastPreparedSeed = seed
+        lastPreparedBirthday = birthday
 
         let (walletDbPath, cachePath) = try {
             let words = try Self.parseMnemonicWords(from: seed)
@@ -146,11 +188,24 @@ final class WalletHandleManager: @unchecked Sendable {
             }
         })
 
-        updateState(SynchronizerState(
-            syncStatus: .unprepared,
-            confirmedBalance: 0,
-            latestBlockHeight: 0
-        ))
+        if let prev = previous {
+            updateState(SynchronizerState(
+                syncStatus: .syncing(progress: 0.05),
+                confirmedBalance: prev.confirmedBalance,
+                latestBlockHeight: prev.latestBlockHeight,
+                activeSyncMethod: prev.activeSyncMethod,
+                fallbackReason: prev.fallbackReason,
+                fallbackUserMessage: prev.fallbackUserMessage,
+                lightwalletdConnected: false,
+                lightStatusMessage: prev.lightStatusMessage
+            ))
+        } else {
+            updateState(SynchronizerState(
+                syncStatus: .unprepared,
+                confirmedBalance: 0,
+                latestBlockHeight: 0
+            ))
+        }
     }
 
     func wipe() {
@@ -159,6 +214,8 @@ final class WalletHandleManager: @unchecked Sendable {
         defer { lock.unlock() }
         BlockTimestampIndex.reset()
         _handle = nil
+        lastPreparedSeed = nil
+        lastPreparedBirthday = 0
         updateState(.zero)
     }
 
@@ -170,6 +227,8 @@ final class WalletHandleManager: @unchecked Sendable {
         defer { lock.unlock() }
         BlockTimestampIndex.reset()
         _handle = nil
+        lastPreparedSeed = nil
+        lastPreparedBirthday = 0
         updateState(.zero)
 
         // swiftlint:disable:next force_unwrapping
@@ -199,19 +258,34 @@ extension WalletHandleManager {
     static func deriveSyncStatus(light: DrkLightSyncState, fallback: SyncStatus) -> SyncStatus {
         let tip = UInt32(truncatingIfNeeded: max(0, light.chainTip))
         let scanned = UInt32(truncatingIfNeeded: max(0, light.scannedHeight))
-        let connected = SynchronizerState.lightwalletdLive(light.status)
-        if light.chainTip > 0, scanned < tip {
-            let progress = Float(scanned) / Float(max(tip, 1))
-            return .syncing(progress: progress)
-        }
-        if connected {
-            return .upToDate
-        }
         let lowerStatus = light.status.lowercased()
-        if lowerStatus.contains("error") || lowerStatus.contains("fail") {
-            return .error(light.statusMessage.isEmpty ? light.status : light.statusMessage)
+        if light.protoVersionMismatch {
+            return .error(light.statusMessage.isEmpty ? "Protocol version mismatch" : light.statusMessage)
         }
-        return fallback == .upToDate ? .unprepared : fallback
+        switch lowerStatus {
+        case "synced":
+            return .upToDate
+        case "syncing", "scanning", "connecting", "retrying":
+            let progress: Float = (light.chainTip > 0 && scanned < tip)
+                ? Float(scanned) / Float(max(tip, 1))
+                : 0.05
+            return .syncing(progress: progress)
+        case "disconnected", "degraded":
+            return .unprepared
+        case "stopped":
+            return .stopped
+        default:
+            if lowerStatus.contains("error") || lowerStatus.contains("fail") {
+                return .error(light.statusMessage.isEmpty ? light.status : light.statusMessage)
+            }
+            if light.chainTip > 0 && scanned < tip {
+                return .syncing(progress: Float(scanned) / Float(max(tip, 1)))
+            }
+            if SynchronizerState.lightwalletdLive(light.status) {
+                return .upToDate
+            }
+            return fallback == .upToDate ? .unprepared : fallback
+        }
     }
 
     static func normalizeTokenId(_ tokenId: String?, tokenBalances: [DrkTokenBalance]) -> String? {

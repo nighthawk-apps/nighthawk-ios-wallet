@@ -21,6 +21,7 @@ extension Home {
                 state.selectedTab = .daoHub
                 return .send(.daoHub(.onAppear))
             case .alert,
+                .autoRetryCompleted,
                 .binding,
                 .cancelSynchronizerUpdates,
                 .cantStartSync,
@@ -60,6 +61,7 @@ extension Home {
                     }
                 }
             case .alert,
+                .autoRetryCompleted,
                 .binding,
                 .cancelSynchronizerUpdates,
                 .cantStartSync,

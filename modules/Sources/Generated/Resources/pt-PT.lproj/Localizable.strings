@@ -585,8 +585,8 @@
 "nighthawk.settingsTab.shareMessage" = "Carteira DarkFi privada e chat DarkIRC encriptado — Nighthawk Wallet";
 "nighthawk.settingsTab.advanced.mesh.title" = "Malha de proximidade";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "Retransmite o DarkIRC com telemóveis Nighthawk próximos por Bluetooth. A partilha de internet permanece desligada.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR experimental";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Por predefinição, está desligado. A desencriptação por tentativa encontra todos os pagamentos, incluindo os da Dark Wallet ou de outro servidor. Ligado, é experimental: ambas as carteiras têm de se registar primeiro neste mesmo lightwalletd; caso contrário, os fundos podem permanecer invisíveis. Também envia para o servidor uma chave de deteção de grande dimensão.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (opt-in)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Desligado (predefinição) usa desencriptação de teste de compact-block com padding para que cada pagamento da carteira seja encontrado. Ative para aderir ao UnifOMR v2 + streaming Batch PIR: ambas as carteiras devem registar-se primeiro neste mesmo fhe-omr lightwalletd; envia uma vez uma chave de deteção pooled de ~30 MiB via Nym/Tor.";
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 ou 127.0.0.1:9067";
 "nighthawk.settingsTab.changeServer.useTlsTitle" = "Usar TLS (HTTPS)";
 "nighthawk.settingsTab.changeServer.useTlsSubtitle" = "Obrigatório para servidores remotos; fixado pelo digest SHA-256 do certificado.";

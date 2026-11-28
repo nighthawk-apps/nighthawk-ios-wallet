@@ -8,8 +8,10 @@
 import ComposableArchitecture
 import DarkfiCore
 import Models
+import Utils
 import XCTest
 @testable import Home
+@testable import SDKSynchronizer
 
 @MainActor
 final class HomeTests: XCTestCase {
@@ -265,5 +267,81 @@ final class HomeTests: XCTestCase {
         XCTAssertEqual(parsed?.nickname, "Ada")
         XCTAssertEqual(parsed?.dmPublicKey, "dmPk123")
         XCTAssertEqual(parsed?.walletAddress, "drk1xyz")
+    }
+
+    func testSyncStatusWaveHiddenWhenDisconnectedOrIdle() {
+        XCTAssertNil(SyncStatusView.waveProgress(for: SyncStatusSnapshot(.unprepared, "")))
+        XCTAssertNil(SyncStatusView.waveProgress(for: SyncStatusSnapshot(.error("offline"), "")))
+        XCTAssertNil(SyncStatusView.waveProgress(for: SyncStatusSnapshot(.stopped, "")))
+        XCTAssertNil(SyncStatusView.waveProgress(for: SyncStatusSnapshot(.upToDate, "")))
+
+        let syncing = SyncStatusView.waveProgress(for: SyncStatusSnapshot(.syncing(progress: 0.4), ""))
+        XCTAssertEqual(syncing?.progress ?? -1, 0.4, accuracy: 0.001)
+        XCTAssertEqual(syncing?.active, true)
+    }
+
+    func testDeriveSyncStatusMapsRustStatesCorrectly() {
+        func makeLight(status: String, tip: Int64 = 100, scanned: Int64 = 100, mismatch: Bool = false) -> DrkLightSyncState {
+            DrkLightSyncState(
+                status: status,
+                syncType: "Trial decryption",
+                statusMessage: status,
+                syncTypeMessage: "",
+                scannedHeight: scanned,
+                chainTip: tip,
+                omrAvailable: false,
+                syncMethod: .trialDecrypt,
+                fallbackReason: .none,
+                fallbackUserMessage: "",
+                protoVersionMismatch: mismatch
+            )
+        }
+
+        XCTAssertEqual(
+            WalletHandleManager.deriveSyncStatus(light: makeLight(status: "Connecting"), fallback: .unprepared),
+            .syncing(progress: 0.05)
+        )
+        XCTAssertEqual(
+            WalletHandleManager.deriveSyncStatus(light: makeLight(status: "Retrying"), fallback: .unprepared),
+            .syncing(progress: 0.05)
+        )
+        XCTAssertEqual(
+            WalletHandleManager.deriveSyncStatus(light: makeLight(status: "Disconnected"), fallback: .upToDate),
+            .unprepared
+        )
+        XCTAssertEqual(
+            WalletHandleManager.deriveSyncStatus(light: makeLight(status: "Synced"), fallback: .unprepared),
+            .upToDate
+        )
+        XCTAssertEqual(
+            WalletHandleManager.deriveSyncStatus(light: makeLight(status: "Error"), fallback: .upToDate),
+            .error("Error")
+        )
+    }
+
+    func testWalletAutoRetryTriggersOnAppearOnlyWhenDisconnected() async {
+        var disconnectedState = Wallet.State()
+        disconnectedState.$walletInfo.withLock { info in
+            info.synchronizerState = SynchronizerState(syncStatus: .unprepared, lightwalletdConnected: false)
+            info.synchronizerStatusSnapshot = SyncStatusSnapshot.snapshotFor(state: info.synchronizerState)
+        }
+        let storeDisconnected = TestStore(initialState: disconnectedState, reducer: Wallet.init) {
+            HomeTestSupport.configureDependencies(&$0)
+        }
+        storeDisconnected.exhaustivity = .off
+        await storeDisconnected.send(.refreshPreferences)
+        await storeDisconnected.receive(.delegate(.retryConnectionIfDisconnected))
+
+        var connectedState = Wallet.State()
+        connectedState.$walletInfo.withLock { info in
+            info.synchronizerState = SynchronizerState(syncStatus: .upToDate, lightwalletdConnected: true)
+            info.synchronizerStatusSnapshot = SyncStatusSnapshot.snapshotFor(state: info.synchronizerState)
+        }
+        let storeConnected = TestStore(initialState: connectedState, reducer: Wallet.init) {
+            HomeTestSupport.configureDependencies(&$0)
+        }
+        storeConnected.exhaustivity = .off
+        await storeConnected.send(.refreshPreferences)
+        await storeConnected.finish()
     }
 }

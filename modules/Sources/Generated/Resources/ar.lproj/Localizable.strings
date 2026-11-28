@@ -586,8 +586,8 @@
 "nighthawk.settingsTab.shareMessage" = "محفظة DarkFi خاصة ودردشة DarkIRC مشفّرة — Nighthawk Wallet";
 "nighthawk.settingsTab.advanced.mesh.title" = "الشبكة المتداخلة القريبة";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "يرحّل DarkIRC بين هواتف Nighthawk القريبة عبر Bluetooth. تبقى مشاركة الإنترنت متوقفة.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR التجريبي";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "الإيقاف هو الافتراضي. يعثر فك التشفير التجريبي على كل دفعة، بما فيها المدفوعات من Dark Wallet أو من خادم آخر. التشغيل تجريبي: يجب أن تسجّل كلتا المحفظتين على نفس lightwalletd هذا أولًا، وإلا فقد تبقى الأموال غير مرئية. كما يرفع مفتاح كشف كبيرًا.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (اختياري)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "الإيقاف (الافتراضي) يستخدم فك تشفير تجريبيًا لكتل compact-block مبطنة ليعثر على كل دفعة في المحفظة. فعّل للاشتراك في UnifOMR v2 + streaming Batch PIR: يجب أن تسجّل كلتا المحفظتين على نفس fhe-omr lightwalletd هذا أولًا، ويرفع مرة واحدة مفتاح كشف مجمّع بحجم ~30 MiB عبر Nym/Tor.";
 "nighthawk.settingsTab.changeServer.placeholder" = "‎https://host:443 أو ‎127.0.0.1:9067";
 "nighthawk.settingsTab.changeServer.useTlsTitle" = "استخدام TLS (HTTPS)";
 "nighthawk.settingsTab.changeServer.useTlsSubtitle" = "مطلوب للخوادم البعيدة؛ ويُثبَّت بتجزئة SHA-256 للشهادة.";

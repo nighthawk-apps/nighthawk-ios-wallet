@@ -25,7 +25,7 @@ extension AppReducer {
                 switch delegateAction {
                 case .scanPaymentRequest, .receiveMoney, .sendMoney, .sendToken, .requestMoney:
                     return .none
-                case .sendAgain:
+                case .sendAgain, .retryConnectionIfDisconnected:
                     return .none
                 case .showAddresses:
                     return .none

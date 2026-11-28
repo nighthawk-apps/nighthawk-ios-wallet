@@ -151,9 +151,9 @@ private extension WalletView {
     @ViewBuilder
     var stalenessOrErrorBanner: some View {
         let statusMessage = syncState.lightStatusMessage?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let status = store.walletInfo.synchronizerStatusSnapshot.syncStatus
         let shouldShow = isStaleSyncWarning
-            || (!syncState.lightwalletdConnected
-                && store.walletInfo.synchronizerStatusSnapshot.syncStatus == .upToDate)
+            || (!syncState.lightwalletdConnected && (status == .upToDate || status == .unprepared))
         if shouldShow {
             let text = (statusMessage?.isEmpty == false ? statusMessage : nil)
                 ?? L10n.Nighthawk.WalletTab.unreachableBanner

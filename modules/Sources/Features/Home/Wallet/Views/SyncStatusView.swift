@@ -26,7 +26,7 @@ struct SyncStatusView: View {
                     .padding(.bottom, 4)
             }
 
-            if let waveState = waveProgress(for: status) {
+            if let waveState = Self.waveProgress(for: status) {
                 FlowSyncWaveView(
                     progress: waveState.progress,
                     isActive: waveState.active
@@ -85,20 +85,18 @@ struct SyncStatusView: View {
 }
 
 // MARK: - Subviews
-private extension SyncStatusView {
-    func waveProgress(for status: SyncStatusSnapshot) -> (progress: Double, active: Bool)? {
+extension SyncStatusView {
+    static func waveProgress(for status: SyncStatusSnapshot) -> (progress: Double, active: Bool)? {
         switch status.syncStatus {
-        case .unprepared:
-            return (0.05, true)
         case let .syncing(progress):
             return (Double(progress), true)
-        case .upToDate:
-            return (1.0, false)
-        case .error, .stopped:
+        case .unprepared, .upToDate, .error, .stopped:
             return nil
         }
     }
+}
 
+private extension SyncStatusView {
     func syncImage(for status: SyncStatusSnapshot) -> Image? {
         switch status.syncStatus {
         case .unprepared:

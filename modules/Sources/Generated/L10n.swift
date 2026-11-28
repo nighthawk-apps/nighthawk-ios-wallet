@@ -636,8 +636,8 @@ public enum L10n {
                     public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.mesh.subtitle", fallback: "Relay DarkIRC with nearby Nighthawk phones over Bluetooth. Share-internet stays off.")
                 }
                 public enum UnifOmr {
-                    public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.title", fallback: "Experimental UnifOMR")
-                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.subtitle", fallback: "Off is the default. Trial decryption finds every payment, including ones from Dark Wallet or another server. On is experimental: both wallets must register on this same lightwalletd first, or funds can stay invisible. It also uploads a large detection key.")
+                    public static let title = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.title", fallback: "UnifOMR v2 (opt-in)")
+                    public static let subtitle = L10n.tr("Localizable", "nighthawk.settingsTab.advanced.unifOmr.subtitle", fallback: "Off (default) uses padded compact-block trial decryption so every wallet payment is found. Turn on to opt into UnifOMR v2 + streaming Batch PIR: both wallets must register on this same fhe-omr lightwalletd first, and it uploads a ~30 MiB pooled detection key once over Nym/Tor.")
                 }
                 public enum AppIcon {
                     /// Default

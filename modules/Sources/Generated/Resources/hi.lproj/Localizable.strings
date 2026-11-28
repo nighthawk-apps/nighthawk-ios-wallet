@@ -601,8 +601,8 @@
 // Settings - Advanced (Mesh & UnifOMR)
 "nighthawk.settingsTab.advanced.mesh.title" = "आस-पास का मेश";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "आस-पास के Nighthawk फ़ोन के साथ Bluetooth पर DarkIRC रिले करें। इंटरनेट साझा करना बंद रहता है।";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "प्रयोगात्मक UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "बंद डिफ़ॉल्ट है। ट्रायल डिक्रिप्शन हर भुगतान ढूँढ लेता है, Dark Wallet या किसी दूसरे सर्वर से आए भुगतान भी। चालू करना प्रयोगात्मक है: दोनों वॉलेट को पहले इसी lightwalletd पर पंजीकरण करना होगा, वरना धन अदृश्य रह सकता है। यह एक बड़ी डिटेक्शन कुंजी भी अपलोड करता है।";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (ऑप्ट-इन)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "बंद (डिफ़ॉल्ट) padded compact-block ट्रायल डिक्रिप्शन उपयोग करता है ताकि हर वॉलेट भुगतान मिले। चालू करने पर UnifOMR v2 + streaming Batch PIR चुनें: दोनों वॉलेट को पहले इसी fhe-omr lightwalletd पर पंजीकरण करना होगा, और Nym/Tor से एक बार ~30 MiB pooled detection key अपलोड होती है।";
 
 // Settings - Change Server (TLS, Presets, Port warning)
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 या 127.0.0.1:9067";

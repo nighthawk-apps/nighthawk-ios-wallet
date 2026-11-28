@@ -2,7 +2,7 @@
 
 Privacy-preserving wallet (work-in-progress) by [Nighthawk Apps](https://nighthawkapps.com). This tree ships as a **native iOS app** on the DarkFi network (DRK). The app integrates a native DarkFi wallet API via **UniFFI** (`../blackhawk` → generated Swift + `DarkfiWalletHandle`) for chain sync, broadcast, and chat.
 
-**3.01.24** (`CURRENT_PROJECT_VERSION=30100824`). DarkIRC can start again after a disconnect because the leftover datastore lock is released. Release builds no longer write wallet diagnostics to the unified log. Default sync trial-decrypts notes in parallel. Experimental UnifOMR stays off unless you turn it on. DarkFi pin `b87318e80`, Arti 0.48. nym-smolmix pin `5f0dba82`. Aligns with Android 3.01.23, desktop 3.1.23, Moonshine 3.1.23, and lightwalletd 0.3.15.
+**3.2.02** (`CURRENT_PROJECT_VERSION=30200802`). Uses [`blackhawk`](https://github.com/nighthawk-apps/blackhawk) (`0.4.0`, proto `2.2.0`): compact-block quick scanning (`omit_omr_clues` + `1024`-block aligned buckets) is the default; opt-in UnifOMR v2 adds `~30 MiB` seeded raw-NTT det-keys, `40 KiB` digests, and 2-RPC streaming Batch PIR. DarkFi pin `b87318e80`, Arti 0.48, nym-smolmix pin `5f0dba82`. Aligns with Android 3.2.02, Desktop 3.2.2, Moonshine 3.2.2, and lightwalletd 0.3.16.
 
 ## Executive Summary: Why Nighthawk Leads in Privacy
 

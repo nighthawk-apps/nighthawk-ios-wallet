@@ -59,6 +59,7 @@ extension Home {
                     return .none
                 }
             case .alert,
+                .autoRetryCompleted,
                 .binding,
                 .cancelSynchronizerUpdates,
                 .cantStartSync,

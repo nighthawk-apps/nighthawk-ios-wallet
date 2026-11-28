@@ -585,8 +585,8 @@
 "nighthawk.settingsTab.shareMessage" = "Dompet DarkFi privat & obrolan DarkIRC terenkripsi — Nighthawk Wallet";
 "nighthawk.settingsTab.advanced.mesh.title" = "Mesh di sekitar";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "Teruskan DarkIRC dengan ponsel Nighthawk di sekitar lewat Bluetooth. Berbagi internet tetap mati.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR eksperimental";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Mati adalah bawaan. Dekripsi percobaan menemukan setiap pembayaran, termasuk yang dari Dark Wallet atau server lain. Nyala bersifat eksperimental: kedua dompet harus mendaftar di lightwalletd yang sama ini terlebih dahulu, atau dana bisa tetap tidak terlihat. Ini juga mengunggah kunci deteksi yang besar.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (opt-in)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Mati (bawaan) memakai trial decryption compact-block ber-padding agar setiap pembayaran dompet ditemukan. Nyalakan untuk memilih UnifOMR v2 + streaming Batch PIR: kedua dompet harus mendaftar di fhe-omr lightwalletd yang sama ini terlebih dahulu, dan mengunggah pooled detection key ~30 MiB sekali melalui Nym/Tor.";
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 atau 127.0.0.1:9067";
 "nighthawk.settingsTab.changeServer.useTlsTitle" = "Gunakan TLS (HTTPS)";
 "nighthawk.settingsTab.changeServer.useTlsSubtitle" = "Wajib untuk server jarak jauh; disematkan dengan digest sertifikat SHA-256.";

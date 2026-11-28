@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Models
 import Receive
 import SendFlow
 
@@ -75,6 +76,23 @@ extension Home {
                 sendState.amountToSendInput = amount.inputDecimalString()
             }
             state.transfer.destination = .send(sendState)
+        case .retryConnectionIfDisconnected:
+            guard !state.isAutoRetryingConnection,
+                  state.wallet.isDisconnectedForAutoRetry else {
+                return .none
+            }
+            state.isAutoRetryingConnection = true
+            state.$walletInfo.withLock { info in
+                info.synchronizerState.syncStatus = .syncing(progress: 0.05)
+                info.synchronizerState.lightwalletdConnected = false
+                info.synchronizerStatusSnapshot = SyncStatusSnapshot.snapshotFor(state: info.synchronizerState)
+            }
+            return .run { send in
+                try? await sdkSynchronizer.start(true)
+                try? await clock.sleep(for: .seconds(10))
+                await send(.autoRetryCompleted)
+            }
+            .cancellable(id: CancelId.autoRetry, cancelInFlight: false)
         }
         return .none
     }

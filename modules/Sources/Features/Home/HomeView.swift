@@ -66,6 +66,9 @@ public struct HomeView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 openPendingChatThread()
+                if store.selectedTab == .wallet {
+                    store.send(.wallet(.refreshPreferences))
+                }
             }
         }
         .toast(

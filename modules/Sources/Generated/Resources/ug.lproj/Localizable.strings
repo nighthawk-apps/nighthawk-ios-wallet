@@ -353,6 +353,10 @@
 "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.message" = "Wallet deletion is an extremely sensitive operation. So sensitive, in fact, that you must manually close the app and restart Nighthawk before creating a new wallet or restoring a wallet.";
 "nighthawk.settingsTab.advanced.deleteWallet.alert.relaunchRequired.confirm" = "I confirm, delete wallet";
 
+// Settings - Advanced (UnifOMR)
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (ئىختىيارى)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "ئېتىك (كۆڭۈلدىكى) padded compact-block سىناق شىفىرىنى ئىشلىتىپ ھەممە ھەميان تۆلىمىنى تاپىدۇ. ئېچىپ UnifOMR v2 + streaming Batch PIR غا opt-in قىلىڭ: ئىككى ھەميان بۇ ئوخشاش fhe-omr lightwalletd دا ئاۋۋال تىزىملىتىلىشى كېرەك؛ Nym/Tor ئارقىلىق بىر قېتىم ~30 MiB pooled detection key يۈكلىنىدۇ.";
+
 // MARK: - Home Screen - Settings tab - External services
 "nighthawk.settingsTab.externalServices.title" = "External services";
 "nighthawk.settingsTab.externalServices.unstoppableDomainsToggle" = "Enable Unstoppable Domain Service";

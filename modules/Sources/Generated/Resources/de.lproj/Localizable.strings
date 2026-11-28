@@ -601,8 +601,8 @@
 // Settings - Advanced (Mesh & UnifOMR)
 "nighthawk.settingsTab.advanced.mesh.title" = "Mesh in der Nähe";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "DarkIRC mit Nighthawk-Telefonen in der Nähe über Bluetooth weiterleiten. Die Internetfreigabe bleibt aus.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "Experimentelles UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Aus ist der Standard. Die Trial-Entschlüsselung findet jede Zahlung, auch solche von Dark Wallet oder einem anderen Server. Die Option Ein ist experimentell: Beide Wallets müssen sich zuerst bei genau diesem lightwalletd registrieren, sonst kann Guthaben unsichtbar bleiben. Außerdem wird ein großer Erkennungsschlüssel hochgeladen.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (opt-in)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Aus (Standard) nutzt gepolsterte Compact-Block-Trial-Entschlüsselung, damit jede Wallet-Zahlung gefunden wird. Einschalten, um UnifOMR v2 + Streaming Batch PIR zu nutzen: Beide Wallets müssen sich zuerst bei genau diesem fhe-omr lightwalletd registrieren; einmal wird ein ~30 MiB pooled detection key über Nym/Tor hochgeladen.";
 
 // Settings - Change Server (TLS, Presets, Port warning)
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 oder 127.0.0.1:9067";

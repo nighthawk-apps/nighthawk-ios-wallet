@@ -585,8 +585,8 @@
 "nighthawk.settingsTab.shareMessage" = "Приватный кошелёк DarkFi и зашифрованный чат DarkIRC — Nighthawk Wallet";
 "nighthawk.settingsTab.advanced.mesh.title" = "Mesh поблизости";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "Ретрансляция DarkIRC между ближайшими телефонами Nighthawk по Bluetooth. Раздача интернета остаётся выключенной.";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "Экспериментальный UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "По умолчанию выключено. Пробная расшифровка находит каждый платёж, в том числе из Dark Wallet или с другого сервера. Включение экспериментальное: оба кошелька должны сначала зарегистрироваться на этом же lightwalletd, иначе средства могут остаться невидимыми. Также на сервер отправляется большой ключ обнаружения.";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2 (opt-in)";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "Выключено (по умолчанию) использует trial decryption для padded compact-block, чтобы находить каждый платёж кошелька. Включите, чтобы подключить UnifOMR v2 + streaming Batch PIR: оба кошелька должны сначала зарегистрироваться на этом же fhe-omr lightwalletd; один раз загружается pooled detection key ~30 MiB через Nym/Tor.";
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 or 127.0.0.1:9067";
 "nighthawk.settingsTab.changeServer.useTlsTitle" = "Использовать TLS (HTTPS)";
 "nighthawk.settingsTab.changeServer.useTlsSubtitle" = "Обязательно для удалённых серверов; сертификат закрепляется по отпечатку SHA-256.";

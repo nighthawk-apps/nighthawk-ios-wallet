@@ -45,6 +45,17 @@ public struct Wallet {
             return false
         }
 
+        public var isDisconnectedForAutoRetry: Bool {
+            switch walletInfo.synchronizerStatusSnapshot.syncStatus {
+            case .syncing:
+                return false
+            case .unprepared, .error, .stopped:
+                return true
+            case .upToDate:
+                return !walletInfo.synchronizerState.lightwalletdConnected
+            }
+        }
+
         public var preferredCurrency: NighthawkSetting.FiatCurrency = .off
 
         public var latestFiatPrice: Double?
@@ -121,6 +132,7 @@ public struct Wallet {
             case showTransactionHistory(IdentifiedArrayOf<WalletEvent>)
             case showTransactionDetail(WalletEvent)
             case sendAgain(recipient: String, amount: DrkAmount)
+            case retryConnectionIfDisconnected
         }
     }
 
@@ -167,6 +179,9 @@ public struct Wallet {
                 state.isFirstSync = userStoredPreferences.isFirstSync()
                 state.preferredCurrency = userStoredPreferences.fiatCurrency()
                 state.showScanButton = !processInfo.isiOSAppOnMac()
+                if state.isDisconnectedForAutoRetry {
+                    return .send(.delegate(.retryConnectionIfDisconnected))
+                }
                 return .none
             case .sendAgainTapped:
                 guard let event = state.selectedTransaction,

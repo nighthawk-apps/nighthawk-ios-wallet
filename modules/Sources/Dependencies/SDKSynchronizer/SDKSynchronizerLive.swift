@@ -28,7 +28,23 @@ extension SDKSynchronizerClient: DependencyKey {
         prepareWith: { seed, birthday, mode in
             try WalletHandleManager.shared.prepare(seed: seed, birthday: birthday, mode: mode)
         },
-        start: { _ in
+        start: { retry in
+            if retry {
+                do {
+                    try await Task.detached(priority: .userInitiated) {
+                        try WalletHandleManager.shared.reconnectForRetry()
+                    }.value
+                } catch {
+                    WalletHandleManager.shared.mutateState { state in
+                        state.syncStatus = .error(error.localizedDescription)
+                        state.lightwalletdConnected = false
+                        state.lightStatusMessage = error.localizedDescription
+                    }
+                    WalletHandleManager.shared.startPolling()
+                    throw error
+                }
+            }
+
             guard let handle = WalletHandleManager.shared.handle else { return }
 
             // Trigger initial sync off the cooperative pool, then poll Rust's background sync thread.
@@ -40,10 +56,14 @@ extension SDKSynchronizerClient: DependencyKey {
                     return (snap, bal, light)
                 }.value
 
-                let derivedStatus = WalletHandleManager.deriveSyncStatus(
+                var derivedStatus = WalletHandleManager.deriveSyncStatus(
                     light: lightState,
                     fallback: WalletHandleManager.shared.latestState.syncStatus
                 )
+                if retry && derivedStatus == .unprepared {
+                    // Fresh handle may briefly report Disconnected before background sync enters Connecting.
+                    derivedStatus = .syncing(progress: 0.05)
+                }
                 let tip = max(BlockHeight(snapshot.chainTip), UInt32(truncatingIfNeeded: max(0, lightState.chainTip)))
                 WalletHandleManager.shared.updateState(SynchronizerState(
                     syncStatus: derivedStatus,

@@ -601,8 +601,8 @@
 // Settings - Advanced (Mesh & UnifOMR)
 "nighthawk.settingsTab.advanced.mesh.title" = "附近 Mesh";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "透過藍牙，在附近的 Nighthawk 手機之間中繼 DarkIRC。網際網路共享維持關閉。";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "實驗性 UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "預設為關閉。試解密能找到每一筆付款，包括來自 Dark Wallet 或其他伺服器的付款。開啟則是實驗功能：雙方錢包必須先在同一個 lightwalletd 上註冊，否則資金可能一直看不見。另外還會上傳一把很大的偵測密鑰。";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2（可選）";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "關閉（預設）使用 padded compact-block 試解密，以找到錢包的每一筆付款。開啟即選擇 UnifOMR v2 + streaming Batch PIR：兩個錢包須先在同一 fhe-omr lightwalletd 上註冊，並會透過 Nym/Tor 一次性上傳約 ~30 MiB 的 pooled detection key。";
 
 // Settings - Change Server (TLS, Presets, Port warning)
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 或 127.0.0.1:9067";

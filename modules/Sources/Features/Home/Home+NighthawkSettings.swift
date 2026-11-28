@@ -26,6 +26,7 @@ extension Home {
                     return rescan()
                 }
             case .alert,
+                .autoRetryCompleted,
                 .binding,
                 .cancelSynchronizerUpdates,
                 .cantStartSync,

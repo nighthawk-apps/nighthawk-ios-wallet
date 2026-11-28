@@ -586,8 +586,8 @@
 "nighthawk.settingsTab.shareMessage" = "私密的 DarkFi 钱包与加密的 DarkIRC 聊天 — Nighthawk Wallet";
 "nighthawk.settingsTab.advanced.mesh.title" = "附近 Mesh";
 "nighthawk.settingsTab.advanced.mesh.subtitle" = "通过蓝牙与附近的 Nighthawk 手机中继 DarkIRC。网络共享保持关闭。";
-"nighthawk.settingsTab.advanced.unifOmr.title" = "实验性 UnifOMR";
-"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "默认关闭。试解密能找到每一笔付款，包括来自 Dark Wallet 或其他服务器的付款。开启则为实验功能：双方钱包必须先在同一个 lightwalletd 上注册，否则资金可能一直不可见。还会上传一个很大的检测密钥。";
+"nighthawk.settingsTab.advanced.unifOmr.title" = "UnifOMR v2（可选）";
+"nighthawk.settingsTab.advanced.unifOmr.subtitle" = "关闭（默认）使用 padded compact-block 试解密，以找到钱包的每一笔付款。开启即选择 UnifOMR v2 + streaming Batch PIR：两个钱包须先在同一 fhe-omr lightwalletd 上注册，并会通过 Nym/Tor 一次性上传约 ~30 MiB 的 pooled detection key。";
 "nighthawk.settingsTab.changeServer.placeholder" = "https://host:443 或 127.0.0.1:9067";
 "nighthawk.settingsTab.changeServer.useTlsTitle" = "使用 TLS（HTTPS）";
 "nighthawk.settingsTab.changeServer.useTlsSubtitle" = "远程服务器必须使用；以 SHA-256 证书摘要进行证书固定。";
